@@ -7,6 +7,5 @@
 /**
  * Basic tools to work with financial markets.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics;
 

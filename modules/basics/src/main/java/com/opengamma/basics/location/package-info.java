@@ -7,6 +7,5 @@
 /**
  * Representations of a geographic location.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.location;
 

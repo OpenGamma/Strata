@@ -9,6 +9,5 @@
  * <p>
  * This package contains a class representing a range of dates.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.range;
 

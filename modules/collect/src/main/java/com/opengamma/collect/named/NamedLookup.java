@@ -1,11 +1,9 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.collect.named;
-
-import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -19,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 public interface NamedLookup<T extends Named> {
 
   /**
-   * Looks up an instance by name.
+   * Looks up an instance by name, returning null if not found.
    * <p>
    * The name contains enough information to be able to recreate the instance.
    * The lookup should return null if the name is not known.
@@ -31,7 +29,6 @@ public interface NamedLookup<T extends Named> {
    * @param name  the name to lookup
    * @return the named object, null if not found
    */
-  @Nullable
   public default T lookup(String name) {
     return lookupAll().get(name);
   }

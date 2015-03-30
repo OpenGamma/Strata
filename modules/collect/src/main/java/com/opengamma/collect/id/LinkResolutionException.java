@@ -5,8 +5,6 @@
  */
 package com.opengamma.collect.id;
 
-import javax.annotation.Nullable;
-
 /**
  * Exception thrown if the target of a link cannot be resolved.
  */
@@ -20,7 +18,7 @@ public class LinkResolutionException extends RuntimeException {
    *
    * @param message  the reason why the link could not be resolved, null tolerant
    */
-  public LinkResolutionException(@Nullable String message) {
+  public LinkResolutionException(String message) {
     super(message);
   }
 

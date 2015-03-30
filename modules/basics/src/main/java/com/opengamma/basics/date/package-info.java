@@ -7,6 +7,5 @@
 /**
  * Basic financial tools for working with dates.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.date;
 

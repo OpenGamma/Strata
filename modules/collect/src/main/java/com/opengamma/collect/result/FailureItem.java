@@ -11,8 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -69,7 +67,6 @@ public final class FailureItem
    * The type of the exception that caused the failure, not present if it wasn't caused by an exception.
    */
   @PropertyDefinition(get = "optional")
-  @Nullable
   private final Class<? extends Exception> causeType;
 
   @ImmutableConstructor
@@ -77,7 +74,7 @@ public final class FailureItem
       FailureReason reason,
       String message,
       String stackTrace,
-      @Nullable Class<? extends Exception> causeType) {
+      Class<? extends Exception> causeType) {
     JodaBeanUtils.notNull(reason, "reason");
     JodaBeanUtils.notEmpty(message, "message");
     JodaBeanUtils.notNull(stackTrace, "stackTrace");
@@ -97,7 +94,7 @@ public final class FailureItem
    * @return the failure item
    */
   static FailureItem of(
-      FailureReason reason, String message, String stackTrace, @Nullable Class<? extends Exception> causeType) {
+      FailureReason reason, String message, String stackTrace, Class<? extends Exception> causeType) {
     return new FailureItem(reason, message, stackTrace, causeType);
   }
 

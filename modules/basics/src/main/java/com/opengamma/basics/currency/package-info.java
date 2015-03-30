@@ -7,6 +7,5 @@
 /**
  * Representations of currency and money.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.currency;
 

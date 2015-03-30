@@ -8,8 +8,6 @@ package com.opengamma.collect.id;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -148,7 +146,7 @@ public final class StandardId
    * @param scheme  the scheme to check for, null returns false
    * @return true if the schemes match
    */
-  public boolean isScheme(@Nullable String scheme) {
+  public boolean isScheme(String scheme) {
     return this.scheme.equals(scheme);
   }
 
@@ -158,7 +156,7 @@ public final class StandardId
    * @param scheme  the scheme to check for, null returns true
    * @return true if the schemes are different
    */
-  public boolean isNotScheme(@Nullable String scheme) {
+  public boolean isNotScheme(String scheme) {
     return !isScheme(scheme);
   }
 

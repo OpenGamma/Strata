@@ -9,6 +9,5 @@
  * <p>
  * This package contains support for named data structures.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.named;
 

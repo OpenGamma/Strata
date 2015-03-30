@@ -9,6 +9,5 @@
  * <p>
  * These functional interfaces follow the naming conventions of Java SE 8.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.function;
 

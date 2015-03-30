@@ -14,6 +14,5 @@
  * <p>
  * This package adds specific extensions to handle resources and specific file formats.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.io;
 

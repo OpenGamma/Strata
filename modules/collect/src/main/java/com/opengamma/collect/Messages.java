@@ -1,11 +1,9 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.collect;
-
-import javax.annotation.Nullable;
 
 /**
  * Contains utility methods for managing messages.
@@ -39,7 +37,7 @@ public final class Messages {
    * @param arg  the message argument, null treated as string "null"
    * @return the formatted message
    */
-  public static String format(@Nullable String messageTemplate, @Nullable Object arg) {
+  public static String format(String messageTemplate, Object arg) {
     if (messageTemplate == null) {
       return format("", arg);
     }
@@ -77,7 +75,7 @@ public final class Messages {
    * @param args  the message arguments, null treated as empty array
    * @return the formatted message
    */
-  public static String format(@Nullable String messageTemplate, @Nullable Object... args) {
+  public static String format(String messageTemplate, Object... args) {
     if (messageTemplate == null) {
       return format("", args);
     }

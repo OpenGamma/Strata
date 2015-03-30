@@ -9,6 +9,5 @@
  * <p>
  * This package contains support for data types.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.type;
 

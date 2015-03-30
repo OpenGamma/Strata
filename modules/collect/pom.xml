@@ -32,10 +32,6 @@
       <groupId>org.joda</groupId>
       <artifactId>joda-convert</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-    </dependency>
     <!-- Testing -->
     <dependency>
       <groupId>org.assertj</groupId>

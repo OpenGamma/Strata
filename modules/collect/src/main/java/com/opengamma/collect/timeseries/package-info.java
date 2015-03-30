@@ -9,6 +9,5 @@
  * <p>
  * Models a value that changes over time.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.timeseries;
 

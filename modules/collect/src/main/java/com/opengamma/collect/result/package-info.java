@@ -11,6 +11,5 @@
  * Functions will be written to have {@code Result<T>} as the return type.
  * Instead of using exceptions, code will return failure results.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.result;
 

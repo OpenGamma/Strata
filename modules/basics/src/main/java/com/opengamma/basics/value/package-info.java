@@ -16,6 +16,5 @@
  * The {@code Rounding} interface expresses the convention for rounding a value.
  * The standard implementation is {@code HalfUpRounding}.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.value;
 

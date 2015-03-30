@@ -15,6 +15,5 @@
  * This is then used to generate a {@link com.opengamma.basics.schedule.Schedule Schedule}
  * which is formed from one or more {@linkplain com.opengamma.basics.schedule.SchedulePeriod periods}.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.schedule;
 

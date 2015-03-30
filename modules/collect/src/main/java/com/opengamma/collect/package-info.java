@@ -17,6 +17,5 @@
  * <li>Validate - general utility classes</li>
  * </ul>
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect;
 

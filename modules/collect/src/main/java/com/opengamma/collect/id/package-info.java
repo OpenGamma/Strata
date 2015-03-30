@@ -15,6 +15,5 @@
  * The link is used to connect two identified domain objects together.
  * This provides loose coupling between different parts of the object model.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.id;
 

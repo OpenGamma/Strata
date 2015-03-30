@@ -5,10 +5,10 @@
  */
 package com.opengamma.collect;
 
+import java.util.OptionalDouble;
+
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.data.Offset;
-
-import java.util.OptionalDouble;
 
 /**
  * An assert helper that provides useful AssertJ assertion
@@ -108,6 +108,7 @@ public class OptionalDoubleAssert extends AbstractAssert<OptionalDoubleAssert, O
    * within the specified tolerance.
    *
    * @param expected  the value to check
+   * @param tolerance  the tolerance to use
    * @return this, if the wrapped object contains the specified value
    * @throws AssertionError if the wrapped object does not contain a value,
    * or the value is not within tolerance of the specified value
@@ -127,6 +128,7 @@ public class OptionalDoubleAssert extends AbstractAssert<OptionalDoubleAssert, O
    * within the specified tolerance.
    *
    * @param expected  the value to check
+   * @param tolerance  the tolerance to use
    * @return this, if the wrapped object contains the specified value
    * @throws AssertionError if the wrapped object does not contain a value,
    * or the value is not within tolerance of the specified value

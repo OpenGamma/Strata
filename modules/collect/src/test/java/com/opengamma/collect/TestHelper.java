@@ -50,8 +50,6 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
@@ -203,7 +201,7 @@ public class TestHelper {
   private static void assertThrowsImpl(
       AssertRunnable runner,
       Class<? extends Throwable> expected,
-      @Nullable String regex) {
+      String regex) {
 
     assertNotNull(runner, "assertThrows() called with null AssertRunnable");
     assertNotNull(expected, "assertThrows() called with null expected Class");

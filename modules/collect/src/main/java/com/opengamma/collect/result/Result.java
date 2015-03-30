@@ -16,8 +16,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -321,13 +319,14 @@ public final class Result<T>
    * See {@link Messages#format(String, Object...)} for more details.
    *
    * @param <R> the expected type of the result
+   * @param value  the potentially null value
    * @param reason  the reason for the failure
    * @param message  a message explaining the failure, uses "{}" for inserting {@code messageArgs}
    * @param messageArgs  the arguments for the message
    * @return a success result if the value is non-null, else a failure result
    */
   public static <R> Result<R> ofNullable(
-      @Nullable R value,
+      R value,
       FailureReason reason,
       String message,
       Object... messageArgs) {
@@ -346,9 +345,10 @@ public final class Result<T>
    * This is useful for interoperability with APIs that can return {@code null} but where null is not expected.
    *
    * @param <R> the expected type of the result
+   * @param value  the potentially null value
    * @return a success result if the value is non-null, else a failure result
    */
-  public static <R> Result<R> ofNullable(@Nullable R value) {
+  public static <R> Result<R> ofNullable(R value) {
     return ofNullable(value, FailureReason.MISSING_DATA, "Found null where a value was expected");
   }
 
