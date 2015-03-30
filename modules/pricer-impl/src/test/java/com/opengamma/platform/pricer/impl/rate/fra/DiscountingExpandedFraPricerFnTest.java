@@ -17,9 +17,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.platform.finance.rate.RateObservation;
-import com.opengamma.platform.finance.rate.fra.ExpandedFra;
-import com.opengamma.platform.finance.rate.fra.Fra;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
@@ -29,6 +26,9 @@ import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.finance.rate.fra.ExpandedFra;
+import com.opengamma.strata.finance.rate.fra.Fra;
 
 /**
  * Test.

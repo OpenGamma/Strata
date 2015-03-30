@@ -26,14 +26,6 @@ import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsM
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.platform.finance.TradeInfo;
-import com.opengamma.platform.finance.rate.swap.FxResetCalculation;
-import com.opengamma.platform.finance.rate.swap.IborRateCalculation;
-import com.opengamma.platform.finance.rate.swap.NotionalSchedule;
-import com.opengamma.platform.finance.rate.swap.PaymentSchedule;
-import com.opengamma.platform.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.platform.finance.rate.swap.Swap;
-import com.opengamma.platform.finance.rate.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.platform.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
@@ -49,6 +41,14 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.swap.FxResetCalculation;
+import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
+import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
+import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
+import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.util.tuple.Pair;
 
 /**

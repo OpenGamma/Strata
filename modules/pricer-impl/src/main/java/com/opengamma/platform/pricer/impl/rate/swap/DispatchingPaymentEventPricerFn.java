@@ -5,12 +5,12 @@
  */
 package com.opengamma.platform.pricer.impl.rate.swap;
 
-import com.opengamma.platform.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.platform.finance.rate.swap.NotionalExchange;
-import com.opengamma.platform.finance.rate.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.PaymentEventPricerFn;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.finance.rate.swap.NotionalExchange;
+import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 
 /**
  * Pricer implementation for payment events using multiple dispatch.

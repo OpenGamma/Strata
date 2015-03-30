@@ -10,21 +10,6 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 
-import com.opengamma.platform.finance.TradeInfo;
-import com.opengamma.platform.finance.rate.FixedRateObservation;
-import com.opengamma.platform.finance.rate.IborRateObservation;
-import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.platform.finance.rate.swap.FixedRateCalculation;
-import com.opengamma.platform.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.platform.finance.rate.swap.IborRateCalculation;
-import com.opengamma.platform.finance.rate.swap.NotionalExchange;
-import com.opengamma.platform.finance.rate.swap.NotionalSchedule;
-import com.opengamma.platform.finance.rate.swap.PaymentSchedule;
-import com.opengamma.platform.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.platform.finance.rate.swap.RateCalculationSwapLeg;
-import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.platform.finance.rate.swap.Swap;
-import com.opengamma.platform.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -36,6 +21,21 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.FixedRateObservation;
+import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
+import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
+import com.opengamma.strata.finance.rate.swap.NotionalExchange;
+import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
+import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
+import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.

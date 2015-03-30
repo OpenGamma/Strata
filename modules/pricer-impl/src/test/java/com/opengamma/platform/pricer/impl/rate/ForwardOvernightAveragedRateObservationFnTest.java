@@ -17,8 +17,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 
 /**
  * Test {@link ForwardOvernightAveragedRateObservationFn}.

@@ -12,12 +12,12 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
-import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.SwapLegPricerFn;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 
 /**
  * Test.

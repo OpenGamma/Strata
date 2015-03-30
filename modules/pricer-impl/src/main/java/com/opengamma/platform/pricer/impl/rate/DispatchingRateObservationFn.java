@@ -7,17 +7,17 @@ package com.opengamma.platform.pricer.impl.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.rate.FixedRateObservation;
-import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
-import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
-import com.opengamma.platform.finance.rate.IborRateObservation;
-import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
-import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
-import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.FixedRateObservation;
+import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
+import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
+import com.opengamma.strata.finance.rate.RateObservation;
 
 /**
  * Rate observation implementation using multiple dispatch.

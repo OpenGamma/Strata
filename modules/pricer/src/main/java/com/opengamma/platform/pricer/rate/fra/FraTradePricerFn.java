@@ -5,9 +5,9 @@
  */
 package com.opengamma.platform.pricer.rate.fra;
 
-import com.opengamma.platform.finance.rate.fra.FraTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
  * Pricer for FRA trades.

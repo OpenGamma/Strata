@@ -7,9 +7,6 @@ package com.opengamma.platform.pricer.impl.rate.swap;
 
 import java.util.function.ToDoubleBiFunction;
 
-import com.opengamma.platform.finance.rate.swap.ExpandedSwap;
-import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.platform.finance.rate.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.SwapLegPricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapProductPricerFn;
@@ -17,6 +14,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 
 /**
  * Pricer implementation for swaps.

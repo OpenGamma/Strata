@@ -17,13 +17,13 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.platform.finance.rate.FixedRateObservation;
-import com.opengamma.platform.finance.rate.swap.CompoundingMethod;
-import com.opengamma.platform.finance.rate.swap.FxReset;
-import com.opengamma.platform.finance.rate.swap.NegativeRateMethod;
-import com.opengamma.platform.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.strata.finance.rate.FixedRateObservation;
+import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
+import com.opengamma.strata.finance.rate.swap.FxReset;
+import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
+import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 
 /**
  * Test {@link DiscountingRatePaymentPeriodPricerFn}

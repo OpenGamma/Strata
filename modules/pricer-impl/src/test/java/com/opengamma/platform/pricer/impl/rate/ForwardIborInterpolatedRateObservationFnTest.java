@@ -17,11 +17,11 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
 
 /**
 * Test.

@@ -12,15 +12,15 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 
-import com.opengamma.platform.finance.TradeInfo;
-import com.opengamma.platform.finance.rate.fra.Fra;
-import com.opengamma.platform.finance.rate.fra.FraDiscountingMethod;
-import com.opengamma.platform.finance.rate.fra.FraTrade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.

@@ -7,9 +7,9 @@ package com.opengamma.platform.pricer.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.finance.rate.RateObservation;
 
 /**
  * Observes a rate from an index.

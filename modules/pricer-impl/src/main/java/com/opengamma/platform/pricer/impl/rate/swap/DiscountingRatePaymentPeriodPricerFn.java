@@ -5,15 +5,15 @@
  */
 package com.opengamma.platform.pricer.impl.rate.swap;
 
-import com.opengamma.platform.finance.rate.RateObservation;
-import com.opengamma.platform.finance.rate.swap.FxReset;
-import com.opengamma.platform.finance.rate.swap.RateAccrualPeriod;
-import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
 import com.opengamma.platform.pricer.rate.swap.PaymentPeriodPricerFn;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.finance.rate.swap.FxReset;
+import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 
 /**
  * Pricer implementation for swap payment periods based on a rate.

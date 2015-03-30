@@ -19,10 +19,10 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 
 /**
  * Test {@link ForwardOvernightCompoundedRateObservationFn}.

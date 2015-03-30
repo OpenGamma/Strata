@@ -5,10 +5,10 @@
  */
 package com.opengamma.platform.pricer.rate.fra;
 
-import com.opengamma.platform.finance.rate.fra.FraProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.finance.rate.fra.FraProduct;
 
 /**
  * Pricer for FRA products.

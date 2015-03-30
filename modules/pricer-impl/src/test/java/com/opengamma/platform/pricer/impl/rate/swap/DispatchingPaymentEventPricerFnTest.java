@@ -11,12 +11,12 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
-import com.opengamma.platform.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.platform.finance.rate.swap.NotionalExchange;
-import com.opengamma.platform.finance.rate.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.PaymentEventPricerFn;
+import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.finance.rate.swap.NotionalExchange;
+import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 
 /**
  * Test.

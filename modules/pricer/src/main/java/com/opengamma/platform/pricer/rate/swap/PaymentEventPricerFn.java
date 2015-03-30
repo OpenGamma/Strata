@@ -5,8 +5,8 @@
  */
 package com.opengamma.platform.pricer.rate.swap;
 
-import com.opengamma.platform.finance.rate.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 
 /**
  * Pricer for payment events.

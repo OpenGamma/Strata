@@ -5,8 +5,6 @@
  */
 package com.opengamma.platform.pricer.impl.rate.fra;
 
-import com.opengamma.platform.finance.rate.RateObservation;
-import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
@@ -15,6 +13,8 @@ import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 
 /**
  * Pricer implementation for forward rate agreements.

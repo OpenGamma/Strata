@@ -7,14 +7,14 @@ package com.opengamma.platform.pricer.impl.rate.swap;
 
 import java.util.function.ToDoubleBiFunction;
 
-import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.platform.finance.rate.swap.PaymentEvent;
-import com.opengamma.platform.finance.rate.swap.PaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.PaymentEventPricerFn;
 import com.opengamma.platform.pricer.rate.swap.PaymentPeriodPricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapLegPricerFn;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.PaymentEvent;
+import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 
 /**
  * Pricer implementation for expanded swap legs.

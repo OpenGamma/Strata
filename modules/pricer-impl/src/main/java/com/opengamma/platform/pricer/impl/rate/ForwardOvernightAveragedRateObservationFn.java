@@ -7,11 +7,11 @@ package com.opengamma.platform.pricer.impl.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 
 /**
 * Rate observation implementation for a rate based on a single overnight index that is arithmetically averaged.

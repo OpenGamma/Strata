@@ -7,11 +7,11 @@ package com.opengamma.platform.pricer.impl.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
 
 /**
  * Rate observation implementation for rate based on the weighted average of the fixing
