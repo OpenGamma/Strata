@@ -83,7 +83,7 @@ public final class ExtendedEnum<T extends Named> {
    */
   public static <R extends Named> ExtendedEnum<R> of(Class<R> type) {
     ArgChecker.notNull(type, "type");
-    String name = type.getName().replace('.', '/') + ".properties";
+    String name = type.getName().replace('.', '/') + ".ini";
     try {
       // load all matching XML files
       List<PropertiesFile> configs = Collections.list(type.getClassLoader().getResources(name)).stream()
