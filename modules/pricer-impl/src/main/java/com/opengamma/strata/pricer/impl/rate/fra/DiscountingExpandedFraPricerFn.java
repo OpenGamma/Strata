@@ -71,6 +71,9 @@ public class DiscountingExpandedFraPricerFn
   //-------------------------------------------------------------------------
   @Override
   public CurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
+    if (fra.getPaymentDate().isBefore(env.getValuationDate())) {
+      return CurrencyAmount.of(fra.getCurrency(), 0);
+    }
     double notional = fra.getNotional();
     double unitAmount = unitAmount(env, fra);
     double fv = notional * unitAmount;
