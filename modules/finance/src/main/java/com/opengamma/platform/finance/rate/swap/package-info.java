@@ -11,6 +11,5 @@
  * In the simplest vanilla interest rate swap, there are two legs, one with a fixed rate
  * and the other a floating rate. Many other more complex swaps can also be represented.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.finance.rate.swap;
 

@@ -10,6 +10,5 @@
  * A FRA takes place between two counterparties who agree to exchange
  * the difference between a fixed and floating rate of interest at a future date.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.finance.rate.fra;
 

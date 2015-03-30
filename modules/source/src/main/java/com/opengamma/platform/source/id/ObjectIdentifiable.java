@@ -5,8 +5,6 @@
  */
 package com.opengamma.platform.source.id;
 
-import javax.annotation.Nullable;
-
 /**
  * Provides uniform access to objects that can supply an object identifier.
  * <p>
@@ -22,7 +20,6 @@ public interface ObjectIdentifiable {
    * 
    * @return the object identifier, may be null
    */
-  @Nullable
   ObjectId getObjectId();
 
 }

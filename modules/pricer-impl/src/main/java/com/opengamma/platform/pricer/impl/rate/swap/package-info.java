@@ -7,6 +7,5 @@
 /**
  * Standard implementation of pricing for swaps.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer.impl.rate.swap;
 

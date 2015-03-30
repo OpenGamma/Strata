@@ -9,6 +9,5 @@
  * <p>
  * Defines the API for observing the rate from an index, such as 'GBP-LIBOR-3M'.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer.rate;
 

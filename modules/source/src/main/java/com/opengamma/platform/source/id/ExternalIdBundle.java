@@ -15,8 +15,6 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -173,7 +171,6 @@ public final class ExternalIdBundle
    * @param scheme  the scheme to query
    * @return the identifier, null if not found
    */
-  @Nullable
   public ExternalId getExternalId(ExternalScheme scheme) {
     ArgChecker.notNull(scheme, "scheme");
     return getExternalIds(scheme).stream().findFirst().orElse(null);
@@ -201,7 +198,6 @@ public final class ExternalIdBundle
    * @param scheme  the scheme to query
    * @return the identifier value, null if not found
    */
-  @Nullable
   public String getValue(ExternalScheme scheme) {
     ArgChecker.notNull(scheme, "scheme");
     return getValues(scheme).stream().findFirst().orElse(null);
@@ -339,7 +335,7 @@ public final class ExternalIdBundle
    * @param externalId  the identifier to search for, null returns false
    * @return true if this bundle contains any key from the specified bundle
    */
-  public boolean contains(@Nullable ExternalId externalId) {
+  public boolean contains(ExternalId externalId) {
     return externalId != null && externalIds.contains(externalId);
   }
 

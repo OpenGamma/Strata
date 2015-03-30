@@ -16,6 +16,5 @@
  * <li>{@code ExternalIdBundle}: A set of external identifiers for the same entity</li>
  * </ul>
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.source.id;
 

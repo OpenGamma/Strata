@@ -9,6 +9,5 @@
  * <p>
  * Provides the ability to observe rates.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer.impl.rate;
 

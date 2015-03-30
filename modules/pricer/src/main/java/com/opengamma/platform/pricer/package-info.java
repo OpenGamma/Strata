@@ -9,6 +9,5 @@
  * <p>
  * Defines the API for pricing financial instruments.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer;
 

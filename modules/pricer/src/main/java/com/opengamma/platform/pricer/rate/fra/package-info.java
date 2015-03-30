@@ -9,6 +9,5 @@
  * <p>
  * Defines the API for pricing forward rate agreements (FRAs).
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer.rate.fra;
 

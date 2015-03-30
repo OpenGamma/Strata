@@ -5,8 +5,6 @@
  */
 package com.opengamma.platform.pricer.impl;
 
-import javax.annotation.Nullable;
-
 /**
  * Exception thrown when pricing fails.
  */
@@ -21,7 +19,7 @@ public final class PricingException
    * 
    * @param message  the message, null tolerant
    */
-  public PricingException(@Nullable String message) {
+  public PricingException(String message) {
     super(message);
   }
 
@@ -31,7 +29,7 @@ public final class PricingException
    * @param message  the message, null tolerant
    * @param cause  the cause, null tolerant
    */
-  public PricingException(@Nullable String message, @Nullable Throwable cause) {
+  public PricingException(String message, Throwable cause) {
     super(message, cause);
   }
 

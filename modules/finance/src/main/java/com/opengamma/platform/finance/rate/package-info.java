@@ -13,6 +13,5 @@
  * This package defines an abstraction, {@link com.opengamma.platform.finance.rate.RateObservation RateObservation},
  * that provides common ways to observe a rate, including interpolation, averaging and compounding.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.finance.rate;
 

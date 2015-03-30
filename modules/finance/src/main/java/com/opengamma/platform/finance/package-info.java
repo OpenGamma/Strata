@@ -54,6 +54,5 @@
  * Details for pricing against the market are primarily held in the security.
  * Details for pricing against the model are primarily held in the product.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.finance;
 

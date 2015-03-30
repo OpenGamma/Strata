@@ -13,8 +13,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -309,7 +307,7 @@ public final class ExternalIdSearch
    * @param otherId  the key to search for, null returns false
    * @return true if this search contains the specified key
    */
-  public boolean contains(@Nullable ExternalId otherId) {
+  public boolean contains(ExternalId otherId) {
     return otherId != null && externalIds.contains(otherId);
   }
 

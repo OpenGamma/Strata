@@ -9,6 +9,5 @@
  * <p>
  * Provides the ability to price financial instruments.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer.impl;
 

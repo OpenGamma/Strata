@@ -7,6 +7,5 @@
 /**
  * Standard implementation of pricing for forward rate agreements (FRAs).
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer.impl.rate.fra;
 
