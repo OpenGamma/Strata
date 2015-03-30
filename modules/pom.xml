@@ -67,7 +67,7 @@
   <modules>
     <module>basics</module>
     <module>collect</module>
-    <module>curves</module>
+    <module>curve</module>
     <module>source</module>
     <module>finance</module>
     <module>pricer</module>

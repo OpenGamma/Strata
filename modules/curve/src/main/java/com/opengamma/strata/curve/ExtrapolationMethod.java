@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.curves;
+package com.opengamma.strata.curve;
 
 /**
  * Describes the methods available for extrapolation of curve data.
