@@ -6,9 +6,9 @@
 package com.opengamma.platform.pricer.impl;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
 
 /**
  * Static utilities to convert types to legacy types.

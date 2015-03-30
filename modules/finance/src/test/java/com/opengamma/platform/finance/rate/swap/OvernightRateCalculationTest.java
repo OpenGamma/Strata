@@ -5,15 +5,15 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.date.DayCounts.ACT_360;
-import static com.opengamma.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.basics.index.OvernightIndices.CHF_TOIS;
-import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
-import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.NOT_NEGATIVE;
 import static com.opengamma.platform.finance.rate.swap.OvernightAccrualMethod.AVERAGED;
 import static com.opengamma.platform.finance.rate.swap.OvernightAccrualMethod.COMPOUNDED;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
+import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -28,16 +28,16 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.RollConventions;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.value.ValueAdjustment;
-import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 
 /**
  * Test.

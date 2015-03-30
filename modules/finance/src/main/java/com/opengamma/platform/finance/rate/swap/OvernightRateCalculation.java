@@ -6,8 +6,8 @@
 package com.opengamma.platform.finance.rate.swap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.opengamma.basics.value.ValueSchedule.ALWAYS_0;
-import static com.opengamma.basics.value.ValueSchedule.ALWAYS_1;
+import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_0;
+import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -32,15 +32,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.index.OvernightIndex;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

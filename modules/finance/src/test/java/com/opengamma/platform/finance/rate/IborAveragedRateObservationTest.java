@@ -5,8 +5,8 @@
  */
 package com.opengamma.platform.finance.rate;
 
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -20,8 +20,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.IborIndices;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Test.

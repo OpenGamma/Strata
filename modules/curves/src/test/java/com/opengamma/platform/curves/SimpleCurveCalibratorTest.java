@@ -5,13 +5,13 @@
  */
 package com.opengamma.platform.curves;
 
-import static com.opengamma.basics.date.Tenor.TENOR_1M;
-import static com.opengamma.basics.date.Tenor.TENOR_2M;
-import static com.opengamma.basics.date.Tenor.TENOR_3M;
-import static com.opengamma.basics.date.Tenor.TENOR_4M;
-import static com.opengamma.basics.date.Tenor.TENOR_6M;
-import static com.opengamma.basics.date.Tenor.TENOR_9M;
 import static com.opengamma.platform.curves.InterpolationMethod.LINEAR;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_4M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_9M;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.testng.Assert.assertNotNull;
@@ -21,9 +21,9 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.basics.date.Tenor;
 import com.opengamma.platform.curves.SimpleCurveCalibrator;
 import com.opengamma.platform.curves.YieldCurve;
+import com.opengamma.strata.basics.date.Tenor;
 
 public class SimpleCurveCalibratorTest {
 

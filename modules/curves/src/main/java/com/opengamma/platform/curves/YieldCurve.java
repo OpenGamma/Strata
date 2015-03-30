@@ -8,7 +8,7 @@ package com.opengamma.platform.curves;
 import java.time.LocalDate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.basics.date.Tenor;
+import com.opengamma.strata.basics.date.Tenor;
 
 /**
  * Container with a calibrated yield curve, the raw data used to produce it

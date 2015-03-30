@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.IborIndex;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 
 /**
  * Point sensitivity to a rate from an Ibor index curve.

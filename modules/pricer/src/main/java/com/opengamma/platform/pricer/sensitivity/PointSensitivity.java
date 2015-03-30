@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Point sensitivity against a single curve.

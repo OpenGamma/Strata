@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.OptionalDouble;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.basics.date.HolidayCalendar;
-import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**

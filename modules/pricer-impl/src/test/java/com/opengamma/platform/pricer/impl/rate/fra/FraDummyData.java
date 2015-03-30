@@ -5,21 +5,21 @@
  */
 package com.opengamma.platform.pricer.impl.rate.fra;
 
-import static com.opengamma.basics.BuySell.BUY;
-import static com.opengamma.basics.BuySell.SELL;
-import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.BuySell.BUY;
+import static com.opengamma.strata.basics.BuySell.SELL;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.AdjustableDate;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.rate.fra.Fra;
 import com.opengamma.platform.finance.rate.fra.FraDiscountingMethod;
 import com.opengamma.platform.finance.rate.fra.FraTrade;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**

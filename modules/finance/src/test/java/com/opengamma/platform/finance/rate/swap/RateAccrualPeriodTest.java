@@ -5,9 +5,9 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.NOT_NEGATIVE;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -18,8 +18,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
  * Test.

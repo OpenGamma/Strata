@@ -30,8 +30,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * An expanded swap leg, with dates calculated ready for pricing.

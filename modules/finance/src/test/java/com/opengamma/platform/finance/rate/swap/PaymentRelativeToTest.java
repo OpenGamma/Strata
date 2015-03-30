@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
  * Test.

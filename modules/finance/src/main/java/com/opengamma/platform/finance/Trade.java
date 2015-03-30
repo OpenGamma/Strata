@@ -7,7 +7,7 @@ package com.opengamma.platform.finance;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.basics.CalculationTarget;
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.StandardId;
 

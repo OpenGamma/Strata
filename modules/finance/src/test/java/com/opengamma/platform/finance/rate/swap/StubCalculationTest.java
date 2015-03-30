@@ -5,8 +5,8 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;

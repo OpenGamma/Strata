@@ -5,26 +5,26 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
 import java.time.LocalDate;
 
 import org.joda.beans.ser.JodaBeanSer;
 
-import com.opengamma.basics.PayReceive;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DayCounts;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.basics.index.IborIndices;
-import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.PeriodicSchedule;
-import com.opengamma.basics.schedule.RollConventions;
-import com.opengamma.basics.schedule.StubConvention;
-import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.TradeInfo;
+import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**

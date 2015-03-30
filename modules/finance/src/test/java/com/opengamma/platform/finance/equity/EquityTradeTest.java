@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.finance.equity;
 
-import static com.opengamma.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -20,11 +20,11 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
-import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.UnitSecurity;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;

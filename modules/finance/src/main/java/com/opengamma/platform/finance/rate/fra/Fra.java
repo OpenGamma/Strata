@@ -5,10 +5,10 @@
  */
 package com.opengamma.platform.finance.rate.fra;
 
-import static com.opengamma.basics.currency.Currency.AUD;
-import static com.opengamma.basics.currency.Currency.NZD;
 import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.ISDA;
+import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.NZD;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -31,16 +31,16 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.basics.BuySell;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.AdjustableDate;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.index.IborIndex;
 import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

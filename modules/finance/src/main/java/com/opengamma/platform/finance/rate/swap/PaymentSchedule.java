@@ -25,11 +25,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.basics.PayReceive;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
  * Defines the schedule of payment dates relative to the accrual periods.

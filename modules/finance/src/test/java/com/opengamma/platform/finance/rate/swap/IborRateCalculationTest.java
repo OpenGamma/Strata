@@ -5,23 +5,23 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.basics.date.DayCounts.ACT_360;
-import static com.opengamma.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1W;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_6M;
-import static com.opengamma.basics.schedule.Frequency.P1M;
-import static com.opengamma.basics.schedule.Frequency.P3M;
-import static com.opengamma.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.platform.finance.rate.swap.FixingRelativeTo.PERIOD_END;
 import static com.opengamma.platform.finance.rate.swap.FixingRelativeTo.PERIOD_START;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.UNWEIGHTED;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.WEIGHTED;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.NOT_NEGATIVE;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
+import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -37,19 +37,19 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.value.ValueAdjustment;
-import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborAveragedFixing;
 import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
 import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 
 /**
  * Test.

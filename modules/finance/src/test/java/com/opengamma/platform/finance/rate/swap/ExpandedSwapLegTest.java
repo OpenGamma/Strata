@@ -5,9 +5,9 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -22,9 +22,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.basics.index.Index;
 import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Test.

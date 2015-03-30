@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.finance.rate.future;
 
-import static com.opengamma.basics.PutCall.CALL;
+import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -23,13 +23,13 @@ import java.util.OptionalDouble;
 import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.IborIndices;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.UnitSecurity;
 import com.opengamma.platform.finance.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;

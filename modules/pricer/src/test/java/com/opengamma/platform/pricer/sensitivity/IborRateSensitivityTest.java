@@ -5,10 +5,10 @@
  */
 package com.opengamma.platform.pricer.sensitivity;
 
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;

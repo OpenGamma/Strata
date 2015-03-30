@@ -5,10 +5,10 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.basics.index.FxIndices.ECB_EUR_USD;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -20,9 +20,9 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
  * Test.

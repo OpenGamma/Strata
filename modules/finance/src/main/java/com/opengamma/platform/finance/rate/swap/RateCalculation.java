@@ -9,8 +9,8 @@ import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.Schedule;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.Schedule;
 
 /**
  * The accrual calculation part of an interest rate swap leg.

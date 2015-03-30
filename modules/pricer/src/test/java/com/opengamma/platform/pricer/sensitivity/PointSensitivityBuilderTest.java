@@ -11,7 +11,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Test.

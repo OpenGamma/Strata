@@ -5,12 +5,12 @@
  */
 package com.opengamma.platform.pricer.impl.rate.fra;
 
-import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.finance.rate.fra.FraProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.fra.FraProductPricerFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

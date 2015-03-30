@@ -5,15 +5,15 @@
  */
 package com.opengamma.platform.pricer.impl.e2e;
 
-import static com.opengamma.basics.PayReceive.PAY;
-import static com.opengamma.basics.PayReceive.RECEIVE;
-import static com.opengamma.basics.currency.Currency.EUR;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
-import static com.opengamma.basics.date.DayCounts.ACT_360;
-import static com.opengamma.basics.date.DayCounts.ACT_ACT_ISDA;
-import static com.opengamma.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -26,15 +26,6 @@ import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsM
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.index.FxIndex;
-import com.opengamma.basics.index.FxIndices;
-import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.IborIndices;
-import com.opengamma.basics.schedule.PeriodicSchedule;
-import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.rate.swap.FxResetCalculation;
 import com.opengamma.platform.finance.rate.swap.IborRateCalculation;
@@ -47,6 +38,15 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.platform.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapTradePricerFn;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndices;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;

@@ -28,19 +28,19 @@ import javafx.util.Callback;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.BusinessDayConvention;
-import com.opengamma.basics.date.BusinessDayConventions;
-import com.opengamma.basics.date.HolidayCalendar;
-import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.PeriodicSchedule;
-import com.opengamma.basics.schedule.RollConvention;
-import com.opengamma.basics.schedule.RollConventions;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.ScheduleException;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.ScheduleException;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * A simple GUI demonstration of schedule generation.

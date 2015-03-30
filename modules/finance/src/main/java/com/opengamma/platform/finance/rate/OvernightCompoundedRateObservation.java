@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

@@ -5,16 +5,15 @@
  */
 package com.opengamma.platform.pricer;
 
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.platform.pricer.MockFxPricingEnvironment.RATE;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.basics.currency.CurrencyPair;
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 
 /**
  * Test {@link PricingEnvironment}.

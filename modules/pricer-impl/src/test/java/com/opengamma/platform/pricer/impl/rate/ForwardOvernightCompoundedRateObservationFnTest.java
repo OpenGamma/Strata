@@ -5,9 +5,9 @@
  */
 package com.opengamma.platform.pricer.impl.rate;
 
-import static com.opengamma.basics.index.OvernightIndices.CHF_TOIS;
-import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
-import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
+import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;

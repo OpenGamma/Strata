@@ -11,9 +11,9 @@ import java.time.temporal.TemporalAdjuster;
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * A period over which interest is accrued with a single payment.

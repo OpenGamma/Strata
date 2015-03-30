@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.basics.date.HolidayCalendar;
-import com.opengamma.basics.date.ImmutableHolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.ImmutableHolidayCalendar;
 
 /**
  * Dummy calendar for end-to-end tests.

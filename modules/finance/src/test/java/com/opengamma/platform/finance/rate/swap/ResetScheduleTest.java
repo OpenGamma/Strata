@@ -5,14 +5,14 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.schedule.Frequency.P1M;
-import static com.opengamma.basics.schedule.Frequency.P3M;
-import static com.opengamma.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.UNWEIGHTED;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.WEIGHTED;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -23,9 +23,9 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
  * Test.

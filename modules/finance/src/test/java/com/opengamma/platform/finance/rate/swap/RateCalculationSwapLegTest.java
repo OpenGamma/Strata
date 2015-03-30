@@ -5,21 +5,21 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.PayReceive.PAY;
-import static com.opengamma.basics.PayReceive.RECEIVE;
-import static com.opengamma.basics.currency.Currency.EUR;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.basics.date.DayCounts.ACT_360;
-import static com.opengamma.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.basics.schedule.Frequency.P1M;
-import static com.opengamma.basics.schedule.Frequency.P2M;
-import static com.opengamma.basics.schedule.Frequency.P3M;
 import static com.opengamma.platform.finance.rate.swap.CompoundingMethod.STRAIGHT;
+import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.Frequency.P2M;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -31,17 +31,17 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DayCounts;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.PeriodicSchedule;
-import com.opengamma.basics.value.ValueAdjustment;
-import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 
 /**
  * Test.

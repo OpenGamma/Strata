@@ -11,7 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Test.

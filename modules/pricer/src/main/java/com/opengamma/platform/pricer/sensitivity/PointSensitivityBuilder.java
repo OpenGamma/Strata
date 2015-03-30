@@ -7,7 +7,7 @@ package com.opengamma.platform.pricer.sensitivity;
 
 import java.util.function.DoubleUnaryOperator;
 
-import com.opengamma.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Builder used to create point sensitivities.

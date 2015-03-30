@@ -11,7 +11,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.base.CaseFormat;
-import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

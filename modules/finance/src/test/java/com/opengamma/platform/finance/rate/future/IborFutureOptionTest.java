@@ -5,10 +5,10 @@
  */
 package com.opengamma.platform.finance.rate.future;
 
-import static com.opengamma.basics.PutCall.CALL;
-import static com.opengamma.basics.PutCall.PUT;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_2M;
+import static com.opengamma.strata.basics.PutCall.CALL;
+import static com.opengamma.strata.basics.PutCall.PUT;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -27,11 +27,11 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
-import com.opengamma.basics.value.Rounding;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.UnitSecurity;
 import com.opengamma.platform.finance.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;

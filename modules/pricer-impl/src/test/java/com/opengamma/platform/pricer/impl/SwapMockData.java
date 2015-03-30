@@ -12,9 +12,9 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.basics.index.IborIndices;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 

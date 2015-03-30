@@ -5,22 +5,22 @@
  */
 package com.opengamma.platform.finance.rate.fra;
 
-import static com.opengamma.basics.BuySell.BUY;
-import static com.opengamma.basics.BuySell.SELL;
-import static com.opengamma.basics.currency.Currency.AUD;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.NZD;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.DayCounts.ACT_360;
-import static com.opengamma.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.date.HolidayCalendars.SAT_SUN;
-import static com.opengamma.basics.date.Tenor.TENOR_3M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_2M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.ISDA;
+import static com.opengamma.strata.basics.BuySell.BUY;
+import static com.opengamma.strata.basics.BuySell.SELL;
+import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.NZD;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -32,13 +32,13 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.date.AdjustableDate;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.date.TenorAdjustment;
-import com.opengamma.basics.index.ImmutableIborIndex;
 import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.TenorAdjustment;
+import com.opengamma.strata.basics.index.ImmutableIborIndex;
 
 /**
  * Test.

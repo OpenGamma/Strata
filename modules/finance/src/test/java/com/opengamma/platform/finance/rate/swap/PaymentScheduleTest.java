@@ -5,16 +5,16 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.schedule.Frequency.P1M;
-import static com.opengamma.basics.schedule.Frequency.P2M;
-import static com.opengamma.basics.schedule.Frequency.P3M;
-import static com.opengamma.basics.schedule.Frequency.TERM;
-import static com.opengamma.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.platform.finance.rate.swap.CompoundingMethod.NONE;
 import static com.opengamma.platform.finance.rate.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.platform.finance.rate.swap.PaymentRelativeTo.PERIOD_END;
 import static com.opengamma.platform.finance.rate.swap.PaymentRelativeTo.PERIOD_START;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.Frequency.P2M;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.Frequency.TERM;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -25,10 +25,10 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.schedule.RollConventions;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
 /**
  * Test.

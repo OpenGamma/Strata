@@ -7,13 +7,13 @@ package com.opengamma.platform.pricer.impl;
 
 import java.time.LocalDate;
 
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.FxIndex;
-import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**

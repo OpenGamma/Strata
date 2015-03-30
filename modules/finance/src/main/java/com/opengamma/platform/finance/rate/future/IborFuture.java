@@ -25,10 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.value.Rounding;
 import com.opengamma.platform.finance.Product;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

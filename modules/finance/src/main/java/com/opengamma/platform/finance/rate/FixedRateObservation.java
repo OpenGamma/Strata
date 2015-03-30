@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Defines a known fixed rate of interest.

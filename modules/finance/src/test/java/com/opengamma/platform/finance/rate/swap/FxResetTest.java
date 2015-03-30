@@ -5,11 +5,11 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.currency.Currency.EUR;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.basics.index.FxIndices.ECB_EUR_USD;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;

@@ -18,8 +18,8 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.basics.index.IborIndices;
-import com.opengamma.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.util.money.Currency;
 
 /**

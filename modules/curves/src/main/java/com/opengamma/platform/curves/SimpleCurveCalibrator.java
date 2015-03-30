@@ -20,12 +20,12 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.BusinessDayConventions;
-import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.date.DayCounts;
-import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.basics.date.Tenor;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.Guavate;
 
 /**

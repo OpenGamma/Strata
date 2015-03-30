@@ -5,14 +5,14 @@
  */
 package com.opengamma.platform.finance.rate.fra;
 
-import static com.opengamma.basics.BuySell.BUY;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_2M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.ISDA;
+import static com.opengamma.strata.basics.BuySell.BUY;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -22,10 +22,10 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.date.AdjustableDate;
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 
 /**
  * Test.

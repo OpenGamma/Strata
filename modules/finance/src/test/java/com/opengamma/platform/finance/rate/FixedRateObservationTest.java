@@ -11,7 +11,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Test.

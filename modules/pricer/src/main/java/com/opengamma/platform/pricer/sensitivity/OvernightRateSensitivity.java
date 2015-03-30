@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

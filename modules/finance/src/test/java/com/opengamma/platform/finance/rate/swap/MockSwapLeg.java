@@ -26,9 +26,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.Index;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Mock.

@@ -5,10 +5,10 @@
  */
 package com.opengamma.platform.pricer.sensitivity;
 
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
-import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;

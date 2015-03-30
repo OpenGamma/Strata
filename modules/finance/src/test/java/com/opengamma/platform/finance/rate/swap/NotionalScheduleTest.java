@@ -5,11 +5,11 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.currency.Currency.EUR;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -20,11 +20,11 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.value.ValueAdjustment;
-import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.basics.value.ValueStep;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.basics.value.ValueStep;
 
 /**
  * Test.

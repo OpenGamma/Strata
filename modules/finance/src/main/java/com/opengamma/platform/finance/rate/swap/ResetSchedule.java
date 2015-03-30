@@ -23,12 +23,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.RollConvention;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * Defines the schedule of fixing dates relative to the accrual periods.

@@ -5,14 +5,14 @@
  */
 package com.opengamma.platform.pricer.impl;
 
-import static com.opengamma.basics.currency.Currency.EUR;
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.basics.date.DayCounts.ACT_ACT_ISDA;
-import static com.opengamma.basics.index.FxIndices.WM_GBP_USD;
-import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -28,14 +28,14 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.basics.currency.CurrencyPair;
-import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.basics.index.IborIndices;
 import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**

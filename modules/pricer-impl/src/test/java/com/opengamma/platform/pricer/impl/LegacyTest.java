@@ -13,9 +13,9 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.basics.date.DayCounts;
-import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.basics.index.ImmutableOvernightIndex;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.index.ImmutableOvernightIndex;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -25,19 +25,19 @@ import com.opengamma.util.money.Currency;
 public class LegacyTest {
   // NOTE: all imports are LEGACY ones, not new ones!
 
-  private static final com.opengamma.basics.currency.Currency NEW_GBP = com.opengamma.basics.currency.Currency.GBP;
-  private static final com.opengamma.basics.currency.Currency NEW_USD = com.opengamma.basics.currency.Currency.USD;
-  private static final com.opengamma.basics.currency.Currency NEW_JPY = com.opengamma.basics.currency.Currency.JPY;
-  private static final com.opengamma.basics.index.IborIndex NEW_GBP_3M =
-      com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-  private static final com.opengamma.basics.index.IborIndex CHF_LIBOR_1W =
-      com.opengamma.basics.index.IborIndices.CHF_LIBOR_1W;
-  private static final com.opengamma.basics.index.OvernightIndex NEW_GBP_SONIA =
-      com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
-  private static final com.opengamma.basics.index.OvernightIndex NEW_USD_NONE =
+  private static final com.opengamma.strata.basics.currency.Currency NEW_GBP = com.opengamma.strata.basics.currency.Currency.GBP;
+  private static final com.opengamma.strata.basics.currency.Currency NEW_USD = com.opengamma.strata.basics.currency.Currency.USD;
+  private static final com.opengamma.strata.basics.currency.Currency NEW_JPY = com.opengamma.strata.basics.currency.Currency.JPY;
+  private static final com.opengamma.strata.basics.index.IborIndex NEW_GBP_3M =
+      com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+  private static final com.opengamma.strata.basics.index.IborIndex CHF_LIBOR_1W =
+      com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_1W;
+  private static final com.opengamma.strata.basics.index.OvernightIndex NEW_GBP_SONIA =
+      com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+  private static final com.opengamma.strata.basics.index.OvernightIndex NEW_USD_NONE =
       ImmutableOvernightIndex.builder()
           .name("USD_NONE")
-          .currency(com.opengamma.basics.currency.Currency.USD)
+          .currency(com.opengamma.strata.basics.currency.Currency.USD)
           .fixingCalendar(HolidayCalendars.USNY)
           .dayCount(DayCounts.ACT_360)
           .effectiveDateOffset(2)

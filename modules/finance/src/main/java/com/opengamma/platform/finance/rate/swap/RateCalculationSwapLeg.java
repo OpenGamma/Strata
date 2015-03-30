@@ -26,11 +26,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.PayReceive;
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.PeriodicSchedule;
-import com.opengamma.basics.schedule.Schedule;
+import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.Schedule;
 
 /**
  * A rate swap leg defined using a parameterized schedule and calculation.

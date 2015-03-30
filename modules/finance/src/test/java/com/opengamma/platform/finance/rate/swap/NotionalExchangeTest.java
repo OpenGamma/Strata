@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -18,7 +18,7 @@ import java.time.temporal.TemporalAdjusters;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test.

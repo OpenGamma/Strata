@@ -10,8 +10,8 @@ import java.time.temporal.TemporalAdjuster;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
 /**
  * A payment event, where a single payment is made between two counterparties.

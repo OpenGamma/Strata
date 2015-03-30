@@ -6,7 +6,7 @@
 package com.opengamma.platform.finance.rate;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.index.Index;
 
 import org.joda.beans.ImmutableBean;
 

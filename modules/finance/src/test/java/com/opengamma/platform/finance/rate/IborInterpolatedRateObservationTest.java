@@ -5,13 +5,13 @@
  */
 package com.opengamma.platform.finance.rate;
 
-import static com.opengamma.basics.index.IborIndices.EUR_EURIBOR_1W;
-import static com.opengamma.basics.index.IborIndices.EUR_EURIBOR_2W;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1W;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.basics.index.IborIndices.USD_LIBOR_1M;
-import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_1W;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_2W;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -21,7 +21,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.index.Index;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Test.

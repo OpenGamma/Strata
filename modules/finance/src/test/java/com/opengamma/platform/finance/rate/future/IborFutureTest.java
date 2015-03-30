@@ -5,12 +5,12 @@
  */
 package com.opengamma.platform.finance.rate.future;
 
-import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.basics.date.Tenor.TENOR_2M;
-import static com.opengamma.basics.date.Tenor.TENOR_3M;
-import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_2M;
-import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -22,8 +22,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.value.Rounding;
 import com.opengamma.platform.finance.rate.future.IborFuture;
+import com.opengamma.strata.basics.value.Rounding;
 
 /**
  * Test IborFuture.

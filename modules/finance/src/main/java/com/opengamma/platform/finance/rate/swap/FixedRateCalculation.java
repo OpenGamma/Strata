@@ -25,12 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

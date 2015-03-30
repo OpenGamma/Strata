@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

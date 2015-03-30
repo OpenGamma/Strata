@@ -6,9 +6,9 @@
 package com.opengamma.platform.finance.rate.swap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.opengamma.basics.value.ValueSchedule.ALWAYS_0;
-import static com.opengamma.basics.value.ValueSchedule.ALWAYS_1;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.UNWEIGHTED;
+import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_0;
+import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -35,19 +35,19 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.Index;
-import com.opengamma.basics.schedule.RollConvention;
-import com.opengamma.basics.schedule.Schedule;
-import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborAveragedFixing;
 import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
