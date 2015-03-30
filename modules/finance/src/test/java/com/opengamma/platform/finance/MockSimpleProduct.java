@@ -22,7 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Mock product that is not resolvable.

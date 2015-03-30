@@ -30,7 +30,7 @@ import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.HolidayCalendars;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.basics.date.TenorAdjustment;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An IBOR-like index implementation based on an immutable set of rules.

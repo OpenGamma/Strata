@@ -32,8 +32,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.range.LocalDateRange;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * A holiday calendar implementation based on an immutable set of holiday dates and weekends.

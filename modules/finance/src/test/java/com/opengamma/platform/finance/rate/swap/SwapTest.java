@@ -5,17 +5,16 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.platform.finance.rate.swap.MockSwapLeg.MOCK_EXPANDED_GBP1;
 import static com.opengamma.platform.finance.rate.swap.MockSwapLeg.MOCK_EXPANDED_USD1;
 import static com.opengamma.platform.finance.rate.swap.MockSwapLeg.MOCK_GBP1;
 import static com.opengamma.platform.finance.rate.swap.MockSwapLeg.MOCK_GBP2;
 import static com.opengamma.platform.finance.rate.swap.MockSwapLeg.MOCK_USD1;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;

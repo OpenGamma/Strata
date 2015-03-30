@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.IdentifiableBean;
 
 /**
  * A simple search object which can be used to search for

@@ -5,20 +5,19 @@
  */
 package com.opengamma.platform.finance;
 
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.fail;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test.

@@ -5,11 +5,11 @@
  */
 package com.opengamma.platform.pricer.impl.rate.swap;
 
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.swap.PaymentPeriod;
 import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.PaymentPeriodPricerFn;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Pricer implementation for payment periods using multiple dispatch.

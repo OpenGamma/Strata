@@ -12,7 +12,7 @@ import org.joda.convert.ToString;
 
 import com.google.common.base.CaseFormat;
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * The base date that each payment is made relative to.

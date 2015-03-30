@@ -6,11 +6,11 @@
 package com.opengamma.platform.finance.equity;
 
 import static com.opengamma.basics.currency.Currency.GBP;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.fail;
@@ -21,13 +21,13 @@ import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.UnitSecurity;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test.

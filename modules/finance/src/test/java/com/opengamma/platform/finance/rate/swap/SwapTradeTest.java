@@ -5,16 +5,15 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeInfo;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test.

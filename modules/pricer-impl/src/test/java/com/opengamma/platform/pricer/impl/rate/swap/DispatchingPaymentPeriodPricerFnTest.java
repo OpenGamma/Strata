@@ -5,11 +5,10 @@
  */
 package com.opengamma.platform.pricer.impl.rate.swap;
 
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.platform.finance.rate.swap.PaymentPeriod;

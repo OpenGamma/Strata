@@ -15,9 +15,9 @@ import com.opengamma.basics.index.FxIndex;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndex;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
  * The pricing environment used to calculate analytic measures.

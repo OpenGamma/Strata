@@ -5,12 +5,11 @@
  */
 package com.opengamma.platform.finance.common;
 
-import static com.opengamma.collect.TestHelper.assertJodaConvert;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.coverEnum;
+import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.basics.date;
 
-import com.opengamma.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Constants and implementations for standard period addition conventions.

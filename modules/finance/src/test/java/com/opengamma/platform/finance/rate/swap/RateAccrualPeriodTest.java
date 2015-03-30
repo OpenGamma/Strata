@@ -6,12 +6,12 @@
 package com.opengamma.platform.finance.rate.swap;
 
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.platform.finance.rate.swap.NegativeRateMethod.NOT_NEGATIVE;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

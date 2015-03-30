@@ -11,7 +11,7 @@ import static com.opengamma.basics.date.LocalDateUtils.doy;
 import java.time.LocalDate;
 
 import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Standard day count convention implementations.

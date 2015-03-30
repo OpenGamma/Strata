@@ -27,8 +27,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.index.Index;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Guavate;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
 
 /**
  * A rate swap.

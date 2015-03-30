@@ -6,8 +6,8 @@
 package com.opengamma.basics;
 
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.collect.CollectProjectAssertions;
-import com.opengamma.collect.result.Result;
+import com.opengamma.strata.collect.CollectProjectAssertions;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * Helper class to allow custom AssertJ assertions to be

@@ -9,7 +9,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.base.CaseFormat;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Flag indicating whether a trade is "buy" or "sell".

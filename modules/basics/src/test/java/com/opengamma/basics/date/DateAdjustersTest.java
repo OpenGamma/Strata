@@ -5,7 +5,7 @@
  */
 package com.opengamma.basics.date;
 
-import static com.opengamma.collect.TestHelper.assertUtilityClass;
+import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

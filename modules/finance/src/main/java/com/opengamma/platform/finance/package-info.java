@@ -17,7 +17,7 @@
  * <p>
  * A {@link com.opengamma.platform.finance.Security Security} is a standard contract that is traded,
  * such as an equity share or futures contract. Securities are typically created once and shared
- * using an identifier, represented by a {@link com.opengamma.collect.id.StandardId StandardId}.
+ * using an identifier, represented by a {@link com.opengamma.strata.collect.id.StandardId StandardId}.
  * They are often referred to as <i>reference data</i>.
  * The standard implementation of {@code Security} is {@link com.opengamma.platform.finance.UnitSecurity UnitSecurity}.
  * <p>

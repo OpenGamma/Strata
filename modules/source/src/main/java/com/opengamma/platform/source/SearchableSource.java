@@ -6,8 +6,8 @@
 package com.opengamma.platform.source;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * A source that implements methods that allow records to

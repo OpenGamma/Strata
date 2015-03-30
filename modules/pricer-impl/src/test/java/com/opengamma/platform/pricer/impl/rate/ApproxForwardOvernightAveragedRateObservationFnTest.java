@@ -7,8 +7,8 @@ package com.opengamma.platform.pricer.impl.rate;
 
 import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -18,10 +18,10 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 
 /**
  * Test {@link ApproxForwardOvernightAveragedRateObservationFn}.

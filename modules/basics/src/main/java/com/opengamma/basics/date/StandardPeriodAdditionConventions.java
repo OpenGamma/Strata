@@ -8,7 +8,7 @@ package com.opengamma.basics.date;
 import java.time.LocalDate;
 import java.time.Period;
 
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Standard period addition implementations.

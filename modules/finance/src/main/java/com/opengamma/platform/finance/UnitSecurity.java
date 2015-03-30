@@ -24,10 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.collect.id.LinkResolutionException;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.Resolvable;
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * A standard implementation of a security shared between trades.

@@ -13,9 +13,9 @@ import org.joda.convert.ToString;
 
 import com.opengamma.basics.schedule.DayRollConventions.Dom;
 import com.opengamma.basics.schedule.DayRollConventions.Dow;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
-import com.opengamma.collect.named.Named;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
 
 /**
  * A convention defining how to roll dates.

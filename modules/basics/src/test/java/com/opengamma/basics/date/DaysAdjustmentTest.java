@@ -5,10 +5,10 @@
  */
 package com.opengamma.basics.date;
 
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 import static org.testng.Assert.assertEquals;

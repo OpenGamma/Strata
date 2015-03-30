@@ -27,7 +27,7 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.Tenor;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An overnight index, such as Sonia or Eonia.

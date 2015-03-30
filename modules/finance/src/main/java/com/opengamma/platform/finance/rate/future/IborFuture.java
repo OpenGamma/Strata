@@ -28,8 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.value.Rounding;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.Product;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A futures contract, based on an IBOR-like index.

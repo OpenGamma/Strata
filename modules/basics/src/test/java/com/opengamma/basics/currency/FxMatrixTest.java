@@ -17,7 +17,7 @@ import static com.opengamma.basics.currency.Currency.SEK;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.currency.FxMatrix.entriesToFxMatrix;
 import static com.opengamma.basics.currency.FxMatrix.pairsToFxMatrix;
-import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.util.LinkedHashMap;
@@ -27,7 +27,7 @@ import org.assertj.core.data.Offset;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.collect.tuple.Pair;
+import com.opengamma.strata.collect.tuple.Pair;
 
 @Test
 public class FxMatrixTest {

@@ -12,9 +12,9 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Guavate;
-import com.opengamma.collect.named.NamedLookup;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.named.NamedLookup;
 
 /**
  * Standard roll convention implementations.

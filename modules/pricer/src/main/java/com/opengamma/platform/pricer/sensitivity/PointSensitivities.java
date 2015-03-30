@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.collect.Guavate;
+import com.opengamma.strata.collect.Guavate;
 
 /**
  * Sensitivity to a group of curves.

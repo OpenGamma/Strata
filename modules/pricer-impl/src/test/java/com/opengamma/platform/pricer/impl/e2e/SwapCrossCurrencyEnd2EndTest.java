@@ -35,8 +35,6 @@ import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.IborIndices;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.rate.swap.FxResetCalculation;
 import com.opengamma.platform.finance.rate.swap.IborRateCalculation;
@@ -49,6 +47,8 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.platform.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapTradePricerFn;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**

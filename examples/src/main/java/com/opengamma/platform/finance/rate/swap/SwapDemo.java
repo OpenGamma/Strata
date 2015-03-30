@@ -24,8 +24,8 @@ import com.opengamma.basics.schedule.RollConventions;
 import com.opengamma.basics.schedule.StubConvention;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeInfo;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Demonstrate use of the API for interest rate swaps.

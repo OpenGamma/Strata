@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.finance.rate.swap;
 
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.io.Serializable;
 import java.time.LocalDate;

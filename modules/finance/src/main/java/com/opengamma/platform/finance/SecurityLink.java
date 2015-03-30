@@ -25,14 +25,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.Link;
-import com.opengamma.collect.id.LinkResolutionException;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.Resolvable;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.id.StandardLink;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.Link;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.id.StandardLink;
 
 /**
  * A link to a security.

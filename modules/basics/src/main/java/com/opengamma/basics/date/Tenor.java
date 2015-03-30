@@ -21,7 +21,7 @@ import java.util.List;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A tenor indicating how long it will take for a financial instrument to reach maturity.

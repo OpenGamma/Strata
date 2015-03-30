@@ -44,8 +44,6 @@ import com.opengamma.basics.schedule.StubConvention;
 import com.opengamma.basics.value.ValueAdjustment;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.rate.swap.CompoundingMethod;
 import com.opengamma.platform.finance.rate.swap.FixedRateCalculation;
@@ -62,6 +60,8 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.platform.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapTradePricerFn;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**

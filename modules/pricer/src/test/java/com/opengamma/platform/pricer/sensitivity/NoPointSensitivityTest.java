@@ -8,10 +8,9 @@ package com.opengamma.platform.pricer.sensitivity;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;

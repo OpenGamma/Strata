@@ -5,9 +5,9 @@
  */
 package com.opengamma.basics.index;
 
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.id.StandardIdentifiable;
-import com.opengamma.collect.named.Named;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.id.StandardIdentifiable;
+import com.opengamma.strata.collect.named.Named;
 
 /**
  * An index of values, such as LIBOR, FED FUND or closing exchange rates.

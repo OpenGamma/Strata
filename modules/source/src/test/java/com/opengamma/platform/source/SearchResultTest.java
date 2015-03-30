@@ -5,8 +5,7 @@
  */
 package com.opengamma.platform.source;
 
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;

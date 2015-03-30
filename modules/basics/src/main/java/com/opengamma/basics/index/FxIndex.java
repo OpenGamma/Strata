@@ -12,9 +12,9 @@ import org.joda.convert.ToString;
 
 import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.date.HolidayCalendar;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
-import com.opengamma.collect.named.Named;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
 
 /**
  * An index of foreign exchange rates.

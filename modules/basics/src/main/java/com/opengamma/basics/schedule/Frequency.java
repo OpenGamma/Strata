@@ -19,8 +19,8 @@ import java.util.List;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Messages;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A periodic frequency used by financial products that have a specific event every so often.

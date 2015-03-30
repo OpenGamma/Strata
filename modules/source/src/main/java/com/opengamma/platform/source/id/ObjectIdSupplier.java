@@ -8,7 +8,7 @@ package com.opengamma.platform.source.id;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.base.Supplier;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A supplier of object identifiers.

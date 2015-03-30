@@ -10,10 +10,10 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.collect.Guavate;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.id.StandardIdentifiable;
+import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.id.StandardIdentifiable;
 
 /**
  * The SourceProvider interface is used to expose a data store.

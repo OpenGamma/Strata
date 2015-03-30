@@ -29,7 +29,7 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.FxIndex;
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.collect.Messages;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Defines the calculation of an FX rate conversion for the notional amount of a swap leg.

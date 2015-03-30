@@ -36,8 +36,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Guavate;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
 
 /**
  * A map of currency amounts keyed by currency.

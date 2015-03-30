@@ -5,25 +5,25 @@
  */
 package com.opengamma.platform.finance;
 
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.platform.finance.MockSimpleProduct.LINK_RESOLVABLE_MOCK2;
 import static com.opengamma.platform.finance.MockSimpleProduct.LINK_RESOLVED_MOCK2;
 import static com.opengamma.platform.finance.MockSimpleProduct.MOCK1_SECURITY;
 import static com.opengamma.platform.finance.MockSimpleProduct.MOCK2_SECURITY;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.fail;
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.MockIdentifiable;
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.MockIdentifiable;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test.

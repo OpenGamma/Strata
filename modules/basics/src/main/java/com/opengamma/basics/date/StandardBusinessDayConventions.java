@@ -10,7 +10,7 @@ import static java.time.DayOfWeek.SUNDAY;
 
 import java.time.LocalDate;
 
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Standard business day convention implementations.

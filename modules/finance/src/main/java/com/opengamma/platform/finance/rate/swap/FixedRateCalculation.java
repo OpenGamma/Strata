@@ -30,8 +30,8 @@ import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Defines the calculation of a fixed rate swap leg.

@@ -14,8 +14,8 @@ import static java.time.DayOfWeek.THURSDAY;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.range.LocalDateRange;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * Standard holiday calendar implementations.

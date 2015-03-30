@@ -7,13 +7,12 @@ package com.opengamma.platform.finance.rate;
 
 import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;

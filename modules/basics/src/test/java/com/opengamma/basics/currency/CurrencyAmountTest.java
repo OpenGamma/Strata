@@ -5,12 +5,11 @@
  */
 package com.opengamma.basics.currency;
 
-import static com.opengamma.collect.TestHelper.assertJodaConvert;
-import static com.opengamma.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

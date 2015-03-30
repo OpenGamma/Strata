@@ -11,13 +11,12 @@ import static com.opengamma.basics.currency.Currency.EUR;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.JPY;
 import static com.opengamma.basics.currency.Currency.USD;
-import static com.opengamma.collect.TestHelper.assertJodaConvert;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

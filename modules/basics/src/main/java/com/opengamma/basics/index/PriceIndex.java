@@ -11,9 +11,9 @@ import org.joda.convert.ToString;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.location.Country;
 import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
-import com.opengamma.collect.named.Named;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
 
 /**
  * An index of prices.

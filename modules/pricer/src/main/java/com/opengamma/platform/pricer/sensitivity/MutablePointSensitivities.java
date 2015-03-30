@@ -11,7 +11,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Mutable builder for sensitivity to a group of curves.

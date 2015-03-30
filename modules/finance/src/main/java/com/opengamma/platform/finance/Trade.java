@@ -8,8 +8,8 @@ package com.opengamma.platform.finance;
 import org.joda.beans.ImmutableBean;
 
 import com.opengamma.basics.CalculationTarget;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * A single trade.

@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An expanded forward rate agreement (FRA), with dates calculated ready for pricing.

@@ -14,7 +14,7 @@ import java.time.Instant;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.collect.TestHelper;
+import com.opengamma.strata.collect.TestHelper;
 
 /**
  * Test.

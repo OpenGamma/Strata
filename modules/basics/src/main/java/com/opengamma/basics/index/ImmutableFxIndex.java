@@ -27,7 +27,7 @@ import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A foreign exchange index implementation based on an immutable set of rules.

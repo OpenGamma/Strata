@@ -13,9 +13,9 @@ import org.joda.convert.ToString;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.Tenor;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
-import com.opengamma.collect.named.Named;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
 
 /**
  * An overnight index, such as Sonia or Eonia.

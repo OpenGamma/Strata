@@ -6,7 +6,7 @@
 package com.opengamma.platform.finance.rate.swap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.opengamma.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.time.LocalDate;

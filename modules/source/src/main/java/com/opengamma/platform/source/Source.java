@@ -6,9 +6,9 @@
 package com.opengamma.platform.source;
 
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.result.Result;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * The Source interface describes an internal source of data.

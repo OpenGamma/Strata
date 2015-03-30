@@ -43,12 +43,12 @@ import com.opengamma.basics.schedule.RollConvention;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborAveragedFixing;
 import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Defines the calculation of a floating rate swap leg based on an IBOR-like index.

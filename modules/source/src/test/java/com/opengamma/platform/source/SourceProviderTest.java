@@ -9,8 +9,8 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.StandardId;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Tests the default methods of the {@link SourceProvider} interface.

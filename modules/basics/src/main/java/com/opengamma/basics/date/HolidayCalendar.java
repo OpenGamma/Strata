@@ -15,10 +15,10 @@ import java.time.temporal.TemporalAdjusters;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
-import com.opengamma.collect.named.Named;
-import com.opengamma.collect.range.LocalDateRange;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * A holiday calendar, classifying dates as holidays or business days.

@@ -7,7 +7,7 @@ package com.opengamma.basics.schedule;
 
 import java.util.Optional;
 
-import com.opengamma.collect.Messages;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Exception thrown when a schedule cannot be calculated.

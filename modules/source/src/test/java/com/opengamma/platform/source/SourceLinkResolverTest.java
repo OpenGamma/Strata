@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.source;
 
-import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -15,15 +15,15 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.Guavate;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.Link;
-import com.opengamma.collect.id.LinkResolutionException;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.id.StandardIdentifiable;
-import com.opengamma.collect.id.StandardLink;
-import com.opengamma.collect.result.FailureReason;
-import com.opengamma.collect.result.Result;
+import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.Link;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.id.StandardIdentifiable;
+import com.opengamma.strata.collect.id.StandardLink;
+import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * Tests the source link resolver using a map-based source.

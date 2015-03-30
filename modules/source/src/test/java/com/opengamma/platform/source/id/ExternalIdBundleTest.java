@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.opengamma.collect.TestHelper;
+import com.opengamma.strata.collect.TestHelper;
 
 /**
  * Test.

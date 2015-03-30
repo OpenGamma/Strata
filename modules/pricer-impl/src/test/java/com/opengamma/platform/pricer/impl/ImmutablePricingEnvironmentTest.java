@@ -13,11 +13,11 @@ import static com.opengamma.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -32,11 +32,11 @@ import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.basics.index.IborIndices;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
  * Test.

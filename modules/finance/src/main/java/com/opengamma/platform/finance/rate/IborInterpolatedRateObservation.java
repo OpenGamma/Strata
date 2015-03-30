@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Messages;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Defines the observation of a rate of interest interpolated from two IBOR-like indices.

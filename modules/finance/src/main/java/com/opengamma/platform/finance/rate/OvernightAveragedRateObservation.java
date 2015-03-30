@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndex;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Defines the observation of a rate from a single Overnight index that is averaged daily.

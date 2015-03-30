@@ -5,7 +5,7 @@
  */
 package com.opengamma.basics.schedule;
 
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;

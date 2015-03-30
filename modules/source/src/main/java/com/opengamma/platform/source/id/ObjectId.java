@@ -11,7 +11,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.collect.ComparisonChain;
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An immutable object identifier for an item within the OpenGamma instance.

@@ -30,15 +30,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.PutCall;
 import com.opengamma.basics.value.Rounding;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.id.LinkResolutionException;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.Resolvable;
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.Product;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * A futures option contract, based on an IBOR-like index.

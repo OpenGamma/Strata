@@ -27,11 +27,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Defines the rates applicable in the initial or final stub of an IBOR-like swap leg.

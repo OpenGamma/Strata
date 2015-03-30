@@ -5,12 +5,12 @@
  */
 package com.opengamma.basics.date;
 
-import static com.opengamma.collect.TestHelper.assertJodaConvert;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.coverEnum;
-import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -25,7 +25,7 @@ import java.time.LocalDate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.collect.range.LocalDateRange;
+import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * Test {@link HolidayCalendar}.

@@ -7,10 +7,10 @@ package com.opengamma.basics.date;
 
 import static com.opengamma.basics.date.PeriodAdditionConventions.LAST_BUSINESS_DAY;
 import static com.opengamma.basics.date.PeriodAdditionConventions.LAST_DAY;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

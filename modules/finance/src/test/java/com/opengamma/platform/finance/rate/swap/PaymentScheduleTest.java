@@ -11,14 +11,14 @@ import static com.opengamma.basics.schedule.Frequency.P2M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
 import static com.opengamma.basics.schedule.Frequency.TERM;
 import static com.opengamma.basics.schedule.RollConventions.DAY_5;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
 import static com.opengamma.platform.finance.rate.swap.CompoundingMethod.NONE;
 import static com.opengamma.platform.finance.rate.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.platform.finance.rate.swap.PaymentRelativeTo.PERIOD_END;
 import static com.opengamma.platform.finance.rate.swap.PaymentRelativeTo.PERIOD_START;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

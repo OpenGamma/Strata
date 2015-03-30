@@ -11,12 +11,12 @@ import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.schedule.Frequency.P1M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
 import static com.opengamma.basics.schedule.RollConventions.DAY_5;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.UNWEIGHTED;
 import static com.opengamma.platform.finance.rate.swap.IborRateAveragingMethod.WEIGHTED;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

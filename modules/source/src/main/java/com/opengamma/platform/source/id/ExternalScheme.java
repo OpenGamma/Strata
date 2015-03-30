@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.collect.ArgChecker;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A classification scheme for external identifiers.

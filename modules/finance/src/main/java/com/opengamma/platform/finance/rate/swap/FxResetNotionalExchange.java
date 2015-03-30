@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.index.FxIndex;
-import com.opengamma.collect.Messages;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * An exchange of notionals between two counterparties where FX reset applies.

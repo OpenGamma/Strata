@@ -9,19 +9,18 @@ import static com.opengamma.basics.BuySell.BUY;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeInfo;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test.

@@ -8,7 +8,7 @@ package com.opengamma.basics.date;
 import java.time.LocalDate;
 
 import com.opengamma.basics.date.DayCount.ScheduleInfo;
-import com.opengamma.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Constants and implementations for standard day count conventions.

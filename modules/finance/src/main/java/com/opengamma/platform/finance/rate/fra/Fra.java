@@ -38,10 +38,10 @@ import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.finance.rate.RateObservation;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A forward rate agreement (FRA).

@@ -5,11 +5,11 @@
  */
 package com.opengamma.platform.pricer.impl.rate.swap;
 
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.rate.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.SwapLegPricerFn;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Pricer implementation for swap legs.

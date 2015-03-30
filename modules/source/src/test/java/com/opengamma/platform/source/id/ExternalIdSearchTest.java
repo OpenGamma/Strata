@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.opengamma.collect.TestHelper;
+import com.opengamma.strata.collect.TestHelper;
 
 /**
  * Test.

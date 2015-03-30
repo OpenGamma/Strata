@@ -5,7 +5,7 @@
  */
 package com.opengamma.basics.currency;
 
-import static com.opengamma.collect.Guavate.entriesToImmutableMap;
+import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,8 +20,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.tuple.Pair;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * Immutable class describing a set of currencies and all the cross rates between them.

@@ -6,12 +6,12 @@
 package com.opengamma.platform.pricer.impl.rate.fra;
 
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.finance.rate.fra.FraTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.fra.FraProductPricerFn;
 import com.opengamma.platform.pricer.rate.fra.FraTradePricerFn;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Pricer implementation for forward rate agreement (FRA) products.

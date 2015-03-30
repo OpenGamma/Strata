@@ -23,9 +23,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.ProductTrade;
 import com.opengamma.platform.finance.TradeInfo;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * A trade in a rate swap.

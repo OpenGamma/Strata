@@ -15,9 +15,9 @@ import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.basics.date.TenorAdjustment;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
-import com.opengamma.collect.named.Named;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.named.Named;
 
 /**
  * An IBOR-like index, such as Libor or Euribor.

@@ -10,8 +10,8 @@ import java.time.DayOfWeek;
 import com.opengamma.basics.date.BusinessDayConvention;
 import com.opengamma.basics.schedule.DayRollConventions.Dom;
 import com.opengamma.basics.schedule.DayRollConventions.Dow;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Constants and implementations for standard roll conventions.

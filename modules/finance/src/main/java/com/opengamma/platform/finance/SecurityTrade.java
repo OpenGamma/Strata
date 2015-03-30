@@ -5,9 +5,9 @@
  */
 package com.opengamma.platform.finance;
 
-import com.opengamma.collect.id.LinkResolutionException;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.Resolvable;
 
 /**
  * A trade that is directly based on a security.

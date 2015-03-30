@@ -31,8 +31,8 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Messages;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Defines the schedule of notional amounts.

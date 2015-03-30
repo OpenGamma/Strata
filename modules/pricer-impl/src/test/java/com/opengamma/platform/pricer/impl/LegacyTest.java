@@ -5,10 +5,9 @@
  */
 package com.opengamma.platform.pricer.impl;
 
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 

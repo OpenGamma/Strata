@@ -8,12 +8,12 @@ package com.opengamma.platform.pricer.impl.rate.swap;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.swap.ExpandedSwap;
 import com.opengamma.platform.finance.rate.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.SwapProductPricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapTradePricerFn;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Pricer implementation for swap trades.

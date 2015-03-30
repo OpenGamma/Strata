@@ -24,11 +24,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.SecurityTrade;
 import com.opengamma.platform.finance.TradeInfo;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * A trade representing an option on a futures contract based on an IBOR-like index.

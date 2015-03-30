@@ -6,12 +6,12 @@
 package com.opengamma.platform.source;
 
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.LinkResolutionException;
-import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.result.Result;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.LinkResolutionException;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * A link resolver backed by a source.

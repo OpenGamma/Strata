@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.basics.index.IborIndices;
 import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndices;
-import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**

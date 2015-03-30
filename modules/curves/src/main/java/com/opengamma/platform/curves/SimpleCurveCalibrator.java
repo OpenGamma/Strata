@@ -26,7 +26,7 @@ import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DayCounts;
 import com.opengamma.basics.date.HolidayCalendars;
 import com.opengamma.basics.date.Tenor;
-import com.opengamma.collect.Guavate;
+import com.opengamma.strata.collect.Guavate;
 
 /**
  * Builds yield curves from a set of zero-coupon rates.

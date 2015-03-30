@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
-import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Guavate;
-import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.StandardId;
-import com.opengamma.collect.result.FailureReason;
-import com.opengamma.collect.result.Result;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.id.IdentifiableBean;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * A searchable source based on providers

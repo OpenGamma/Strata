@@ -8,7 +8,7 @@ package com.opengamma.platform.pricer.impl.rate.swap;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.date;
 
 import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
@@ -20,7 +20,6 @@ import com.opengamma.basics.index.FxIndices;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
@@ -36,6 +35,7 @@ import com.opengamma.platform.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.finance.rate.swap.Swap;
 import com.opengamma.platform.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Basic dummy objects used when the data within is not important.

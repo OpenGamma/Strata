@@ -10,13 +10,13 @@ import java.util.function.ToDoubleBiFunction;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.swap.ExpandedSwap;
 import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.rate.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.swap.SwapLegPricerFn;
 import com.opengamma.platform.pricer.rate.swap.SwapProductPricerFn;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Pricer implementation for swaps.
