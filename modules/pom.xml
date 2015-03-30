@@ -65,6 +65,8 @@
 
   <!-- ==================================================================== -->
   <modules>
+    <module>basics</module>
+    <module>collect</module>
     <module>curves</module>
     <module>source</module>
     <module>finance</module>
