@@ -15,6 +15,7 @@ import com.opengamma.basics.index.FxIndex;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndex;
+import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -64,23 +65,62 @@ public interface PricingEnvironment {
    * The rate returned is the rate from the base to counter as defined by the
    * specified currency pair - {@code 1 * base = fxRate * counter}.
    * 
+   * @param baseCurrency  the base currency, to convert from
+   * @param counterCurrency  the counter currency, to convert to
+   * @return the current FX rate for the currency pair
+   */
+  public abstract double fxRate(Currency baseCurrency, Currency counterCurrency);
+
+  /**
+   * Gets the FX rate for a currency pair on the valuation date.
+   * <p>
+   * The rate returned is the rate from the base to counter as defined by the
+   * specified currency pair - {@code 1 * base = fxRate * counter}.
+   * 
    * @param currencyPair  the ordered currency pair defining the rate required
    * @return the current FX rate for the currency pair
    */
-  public abstract double fxRate(CurrencyPair currencyPair);
+  public default double fxRate(CurrencyPair currencyPair) {
+    return fxRate(currencyPair.getBase(), currencyPair.getCounter());
+  }
 
   /**
    * Converts the currency of an amount.
    * <p>
    * The input amount is a set of amounts in one or more currencies. 
-   * This conversion returns the sum of the amount in each currency converted
-   * to the specified currency using the current FX rate.
+   * This converts the amount to the target currency.
+   * This conversion uses the current FX rate as returned by {@link #fxRate(Currency, Currency)}.
    * 
    * @param amount  the amount to convert
-   * @param currency  the currency to convert to
+   * @param targetCurrency  the currency to convert to
    * @return the converted amount
    */
-  public abstract CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency);
+  public default CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency targetCurrency) {
+    ArgChecker.notNull(amount, "amount");
+    ArgChecker.notNull(targetCurrency, "targetCurrency");
+    return CurrencyAmount.of(targetCurrency, amount.stream()
+        .mapToDouble(ca -> fxRate(ca.getCurrency(), targetCurrency) * ca.getAmount())
+        .sum());
+  }
+
+  /**
+   * Converts the currency of an amount.
+   * <p>
+   * This converts the specified amount to the target currency.
+   * This conversion uses the current FX rate as returned by {@link #fxRate(Currency, Currency)}.
+   * 
+   * @param amount  the amount to convert
+   * @param targetCurrency  the currency to convert to
+   * @return the converted amount
+   */
+  public default CurrencyAmount fxConvert(CurrencyAmount amount, Currency targetCurrency) {
+    ArgChecker.notNull(amount, "amount");
+    ArgChecker.notNull(targetCurrency, "targetCurrency");
+    if (amount.getCurrency().equals(targetCurrency)) {
+      return amount;
+    }
+    return CurrencyAmount.of(targetCurrency, fxRate(amount.getCurrency(), targetCurrency) * amount.getAmount());
+  }
 
   //-------------------------------------------------------------------------
   /**

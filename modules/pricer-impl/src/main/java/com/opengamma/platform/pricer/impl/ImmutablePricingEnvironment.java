@@ -27,9 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.CurrencyPair;
-import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.index.FxIndex;
 import com.opengamma.basics.index.IborIndex;
@@ -104,19 +102,10 @@ public final class ImmutablePricingEnvironment
 
   //-------------------------------------------------------------------------
   @Override
-  public double fxRate(CurrencyPair currencyPair) {
-    ArgChecker.notNull(currencyPair, "currencyPair");
-    return multicurve.getFxRate(Legacy.currency(currencyPair.getBase()), Legacy.currency(currencyPair.getCounter()));
-  }
-
-  @Override
-  public CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency) {
-    ArgChecker.notNull(amount, "amount");
-    ArgChecker.notNull(currency, "currency");
-    return CurrencyAmount.of(currency, amount.stream()
-        .mapToDouble(ca -> multicurve.getFxRate(
-            Legacy.currency(ca.getCurrency()), Legacy.currency(currency)) * ca.getAmount())
-        .sum());
+  public double fxRate(Currency baseCurrency, Currency counterCurrency) {
+    ArgChecker.notNull(baseCurrency, "baseCurrency");
+    ArgChecker.notNull(counterCurrency, "counterCurrency");
+    return multicurve.getFxRate(Legacy.currency(baseCurrency), Legacy.currency(counterCurrency));
   }
 
   //-------------------------------------------------------------------------

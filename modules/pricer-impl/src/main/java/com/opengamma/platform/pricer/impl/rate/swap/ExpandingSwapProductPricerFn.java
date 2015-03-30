@@ -5,6 +5,8 @@
  */
 package com.opengamma.platform.pricer.impl.rate.swap;
 
+import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.swap.ExpandedSwap;
@@ -42,6 +44,11 @@ public class ExpandingSwapProductPricerFn
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public CurrencyAmount presentValue(PricingEnvironment env, SwapProduct product, Currency currency) {
+    return expandedSwapPricerFn.presentValue(env, product.expand(), currency);
+  }
+
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, SwapProduct product) {
     return expandedSwapPricerFn.presentValue(env, product.expand());

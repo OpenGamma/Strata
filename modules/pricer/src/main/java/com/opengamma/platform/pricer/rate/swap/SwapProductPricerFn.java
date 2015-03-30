@@ -5,6 +5,8 @@
  */
 package com.opengamma.platform.pricer.rate.swap;
 
+import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.platform.finance.rate.swap.SwapProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -19,6 +21,22 @@ import com.opengamma.platform.pricer.PricingEnvironment;
  * @param <T>  the type of product
  */
 public interface SwapProductPricerFn<T extends SwapProduct> {
+
+  /**
+   * Calculates the present value of the swap product in a single currency.
+   * <p>
+   * The present value of the product is the value on the valuation date.
+   * This is typically implemented as the discounted future value.
+   * The result is converted to the specified currency.
+   * 
+   * @param env  the pricing environment
+   * @param product  the product to price
+   * @param currency  the currency to convert to
+   * @return the present value of the product in the specified currency
+   */
+  public default CurrencyAmount presentValue(PricingEnvironment env, T product, Currency currency) {
+    return env.fxConvert(presentValue(env, product), currency);
+  }
 
   /**
    * Calculates the present value of the swap product.

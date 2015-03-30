@@ -49,6 +49,18 @@ public class DefaultExpandedSwapPricerFnTest {
     assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.SWAP_CROSS_CURRENCY.expand()), expected);
   }
 
+  public void test_presentValue_withCurrency_crossCurrency() {
+    SwapLegPricerFn<ExpandedSwapLeg> mockSwapLegFn = mock(SwapLegPricerFn.class);
+    when(mockSwapLegFn.presentValue(MOCK_ENV, SwapDummyData.IBOR_EXPANDED_SWAP_LEG))
+        .thenReturn(1000d);
+    when(mockSwapLegFn.presentValue(MOCK_ENV, SwapDummyData.FIXED_EXPANDED_SWAP_LEG_USD))
+        .thenReturn(-500d);
+    DefaultExpandedSwapPricerFn test = new DefaultExpandedSwapPricerFn(mockSwapLegFn);
+    CurrencyAmount expected = CurrencyAmount.of(USD, 1000d * MockPricingEnvironment.RATE - 500d);
+    assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.SWAP_CROSS_CURRENCY.expand(), USD), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_futureValue_singleCurrency() {
     SwapLegPricerFn<ExpandedSwapLeg> mockSwapLegFn = mock(SwapLegPricerFn.class);
     when(mockSwapLegFn.futureValue(MOCK_ENV, SwapDummyData.IBOR_EXPANDED_SWAP_LEG))
