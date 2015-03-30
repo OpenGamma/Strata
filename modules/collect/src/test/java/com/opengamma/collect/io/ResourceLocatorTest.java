@@ -11,6 +11,9 @@ import static org.testng.Assert.assertEquals;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -70,6 +73,21 @@ public class ResourceLocatorTest {
   public void test_ofClasspathUrl() throws Exception {
     URL url = Resources.getResource("com/opengamma/collect/io/TestFile.txt");
     ResourceLocator test = ResourceLocator.ofClasspathUrl(url);
+    assertEquals(test.getLocator().startsWith("classpath"), true);
+    assertEquals(test.getLocator().endsWith("com/opengamma/collect/io/TestFile.txt"), true);
+    assertEquals(test.getByteSource().read()[0], 'H');
+    assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
+    assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
+    assertEquals(test.toString().startsWith("classpath"), true);
+    assertEquals(test.toString().endsWith("com/opengamma/collect/io/TestFile.txt"), true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_streamOfClasspathResources() throws Exception {
+    Stream<ResourceLocator> stream = ResourceLocator.streamOfClasspathResources("com/opengamma/collect/io/TestFile.txt");
+    List<ResourceLocator> list = stream.collect(Collectors.toList());
+    assertEquals(list.size(), 1);
+    ResourceLocator test = list.get(0);
     assertEquals(test.getLocator().startsWith("classpath"), true);
     assertEquals(test.getLocator().endsWith("com/opengamma/collect/io/TestFile.txt"), true);
     assertEquals(test.getByteSource().read()[0], 'H');

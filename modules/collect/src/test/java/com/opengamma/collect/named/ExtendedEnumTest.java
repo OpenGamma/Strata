@@ -8,6 +8,9 @@ package com.opengamma.collect.named;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static org.testng.Assert.assertEquals;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -45,9 +48,18 @@ public class ExtendedEnumTest {
   }
 
   public void test_enum_invalid() {
-    assertThrows(() -> ExtendedEnum.of(MockInvalid1.class), IllegalArgumentException.class);
-    assertThrows(() -> ExtendedEnum.of(MockInvalid2.class), IllegalArgumentException.class);
-    assertThrows(() -> ExtendedEnum.of(MockInvalid3.class), IllegalArgumentException.class);
+    Logger logger = Logger.getLogger(ExtendedEnum.class.getName());
+    Level level = logger.getLevel();
+    try {
+      logger.setLevel(Level.OFF);
+      // these return empty instances to avoid ExceptionInInitializerError
+      assertEquals(ExtendedEnum.of(MockInvalid1.class).lookupAll().isEmpty(), true);
+      assertEquals(ExtendedEnum.of(MockInvalid2.class).lookupAll().isEmpty(), true);
+      assertEquals(ExtendedEnum.of(MockInvalid3.class).lookupAll().isEmpty(), true);
+      assertEquals(ExtendedEnum.of(MockInvalid4.class).lookupAll().isEmpty(), true);
+    } finally {
+      logger.setLevel(level);
+    }
   }
 
 }

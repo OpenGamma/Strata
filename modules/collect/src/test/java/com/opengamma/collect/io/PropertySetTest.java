@@ -25,10 +25,21 @@ import com.google.common.collect.Multimap;
 @Test
 public class PropertySetTest {
 
+  public void test_EMPTY() {
+    PropertySet test = PropertySet.EMPTY;
+
+    assertEquals(test.isEmpty(), true);
+    assertEquals(test.contains("unknown"), false);
+    assertEquals(test.getValueList("unknown"), ImmutableList.of());
+    assertThrows(() -> test.getValue("unknown"), IllegalArgumentException.class);
+    assertEquals(test.toString(), "{}");
+  }
+
   public void test_of_map() {
     Map<String, String> keyValues = ImmutableMap.of("a", "x", "b", "y");
     PropertySet test = PropertySet.of(keyValues);
 
+    assertEquals(test.isEmpty(), false);
     assertEquals(test.contains("a"), true);
     assertEquals(test.getValue("a"), "x");
     assertEquals(test.getValueList("a"), ImmutableList.of("x"));
@@ -36,11 +47,11 @@ public class PropertySetTest {
     assertEquals(test.getValue("b"), "y");
     assertEquals(test.getValueList("b"), ImmutableList.of("y"));
     assertEquals(test.contains("c"), false);
-    assertEquals(test.getKeys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.getKeyValues(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.asMap(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.getValueList("unknown"), ImmutableSet.of());
 
-    assertThrows(() -> test.getValue("rubbish"), IllegalArgumentException.class);
-    assertThrows(() -> test.getValueList("rubbish"), IllegalArgumentException.class);
+    assertThrows(() -> test.getValue("unknown"), IllegalArgumentException.class);
     assertEquals(test.toString(), "{a=[x], b=[y]}");
   }
 
@@ -48,6 +59,7 @@ public class PropertySetTest {
     Multimap<String, String> keyValues = ImmutableMultimap.of("a", "x", "a", "y", "b", "z");
     PropertySet test = PropertySet.of(keyValues);
 
+    assertEquals(test.isEmpty(), false);
     assertEquals(test.contains("a"), true);
     assertThrows(() -> test.getValue("a"), IllegalArgumentException.class);
     assertEquals(test.getValueList("a"), ImmutableList.of("x", "y"));
@@ -55,12 +67,30 @@ public class PropertySetTest {
     assertEquals(test.getValue("b"), "z");
     assertEquals(test.getValueList("b"), ImmutableList.of("z"));
     assertEquals(test.contains("c"), false);
-    assertEquals(test.getKeys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.getKeyValues(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
+    assertEquals(test.keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.asMap(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
+    assertEquals(test.getValueList("unknown"), ImmutableSet.of());
 
-    assertThrows(() -> test.getValue("rubbish"), IllegalArgumentException.class);
-    assertThrows(() -> test.getValueList("rubbish"), IllegalArgumentException.class);
+    assertThrows(() -> test.getValue("unknown"), IllegalArgumentException.class);
     assertEquals(test.toString(), "{a=[x, y], b=[z]}");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_combineWith() {
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
+    PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb"));
+    PropertySet expected = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb", "c", "z"));
+    assertEquals(base.combineWith(other), expected);
+  }
+
+  public void test_combineWith_emptyBase() {
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
+    assertEquals(base.combineWith(PropertySet.EMPTY), base);
+  }
+
+  public void test_combineWith_emptyOther() {
+    PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
+    assertEquals(PropertySet.EMPTY.combineWith(base), base);
   }
 
   //-------------------------------------------------------------------------

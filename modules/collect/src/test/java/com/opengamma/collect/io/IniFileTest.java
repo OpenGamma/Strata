@@ -11,6 +11,7 @@ import static org.testng.Assert.assertEquals;
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -18,6 +19,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
@@ -46,6 +48,35 @@ public class IniFileTest {
       "[section]\n" +
       "a = x\n" +
       "a = y\n";
+  private final String CHAIN0 = "" +
+      "[chain]\n" +
+      "priority = 1\n" +
+      "nextInChain = true\n" +
+      "[one]\n" +
+      "a = x\n" +
+      "b = y\n";
+  private final String CHAIN1 = "" +
+      "[chain]\n" +
+      "priority = 1\n" +
+      "nextInChain = false\n" +
+      "[one]\n" +
+      "a = x\n" +
+      "b = y\n";
+  private final String CHAIN2 = "" +
+      "[chain]\n" +
+      "priority = 2\n" +
+      "nextInChain = true\n" +
+      "[one]\n" +
+      "a = z\n" +
+      "[two]\n" +
+      "m = n\n";
+  private final String CHAIN3 = "" +
+      "[chain]\n" +
+      "priority = 3\n" +
+      "nextInChain = true\n" +
+      "removedSections = one\n" +
+      "[three]\n" +
+      "p = q\n";
 
   public void test_of_noLists() {
     IniFile test = IniFile.of(CharSource.wrap(INI1));
@@ -55,7 +86,9 @@ public class IniFileTest {
     Multimap<String, String> keyValues2 = ArrayListMultimap.create();
     keyValues2.put("a", "m");
     keyValues2.put("b", "n");
-    assertEquals(test.getSections(), ImmutableMap.of("section", PropertySet.of(keyValues1), "name", PropertySet.of(keyValues2)));
+    assertEquals(
+        test.asMap(),
+        ImmutableMap.of("section", PropertySet.of(keyValues1), "name", PropertySet.of(keyValues2)));
 
     assertEquals(test.contains("section"), true);
     assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
@@ -66,7 +99,8 @@ public class IniFileTest {
     assertEquals(test.getSection("section").getValue("b"), "y");
     assertEquals(test.getSection("section").getValueList("b"), ImmutableList.of("y"));
     assertEquals(test.getSection("section").contains("c"), false);
-    assertEquals(test.getSection("section").getKeyValues(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.getSection("section").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.getSection("section").asMap(), ImmutableListMultimap.of("a", "x", "b", "y"));
 
     assertEquals(test.contains("name"), true);
     assertEquals(test.getSection("name"), PropertySet.of(keyValues2));
@@ -77,12 +111,13 @@ public class IniFileTest {
     assertEquals(test.getSection("name").getValue("b"), "n");
     assertEquals(test.getSection("name").getValueList("b"), ImmutableList.of("n"));
     assertEquals(test.getSection("name").contains("c"), false);
-    assertEquals(test.getSection("name").getKeyValues(), ImmutableListMultimap.of("a", "m", "b", "n"));
+    assertEquals(test.getSection("name").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.getSection("name").asMap(), ImmutableListMultimap.of("a", "m", "b", "n"));
 
-    assertEquals(test.contains("rubbish"), false);
-    assertThrows(() -> test.getSection("rubbish"), IllegalArgumentException.class);
-    assertThrows(() -> test.getSection("section").getValue("rubbish"), IllegalArgumentException.class);
-    assertThrows(() -> test.getSection("section").getValueList("rubbish"), IllegalArgumentException.class);
+    assertEquals(test.contains("unknown"), false);
+    assertThrows(() -> test.getSection("unknown"), IllegalArgumentException.class);
+    assertEquals(test.getSection("section").getValueList("unknown"), ImmutableList.of());
+    assertThrows(() -> test.getSection("section").getValue("unknown"), IllegalArgumentException.class);
     assertEquals(test.toString(), "{section={a=[x], b=[y]}, name={a=[m], b=[n]}}");
   }
 
@@ -91,14 +126,15 @@ public class IniFileTest {
     Multimap<String, String> keyValues1 = ArrayListMultimap.create();
     keyValues1.put("a", "x");
     keyValues1.put("a", "y");
-    assertEquals(test.getSections(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
+    assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
 
     assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
     assertEquals(test.getSection("section").contains("a"), true);
     assertThrows(() -> test.getSection("section").getValue("a"), IllegalArgumentException.class);
     assertEquals(test.getSection("section").getValueList("a"), ImmutableList.of("x", "y"));
     assertEquals(test.getSection("section").contains("b"), false);
-    assertEquals(test.getSection("section").getKeyValues(), ImmutableListMultimap.of("a", "x", "a", "y"));
+    assertEquals(test.getSection("section").keys(), ImmutableSet.of("a"));
+    assertEquals(test.getSection("section").asMap(), ImmutableListMultimap.of("a", "x", "a", "y"));
     assertEquals(test.toString(), "{section={a=[x, y]}}");
   }
 
@@ -146,6 +182,46 @@ public class IniFileTest {
   public void test_of_ioException() {
     assertThrows(
         () -> IniFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)),
+        UncheckedIOException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_ofChained_chain() {
+    IniFile test = IniFile.ofChained(
+        Stream.of(CharSource.wrap(CHAIN1), CharSource.wrap(CHAIN2)));
+    Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "z", "b", "y");
+    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
+    assertEquals(
+        test.asMap(),
+        ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
+  }
+
+  public void test_ofChained_chainRemoveSections() {
+    IniFile test = IniFile.ofChained(
+        Stream.of(CharSource.wrap(CHAIN1), CharSource.wrap(CHAIN3), CharSource.wrap(CHAIN2)));
+    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
+    Multimap<String, String> keyValues3 = ImmutableListMultimap.of("p", "q");
+    assertEquals(
+        test.asMap(),
+        ImmutableMap.of("two", PropertySet.of(keyValues2), "three", PropertySet.of(keyValues3)));
+  }
+
+  public void test_ofChained_noChain() {
+    IniFile test = IniFile.ofChained(Stream.of(CharSource.wrap(CHAIN1)));
+    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
+    assertEquals(test.asMap(), ImmutableMap.of("one", PropertySet.of(keyValues)));
+  }
+
+  public void test_ofChained_noChain_chainToNowhere() {
+    IniFile test = IniFile.ofChained(Stream.of(CharSource.wrap(CHAIN0)));
+    Multimap<String, String> keyValues = ImmutableListMultimap.of("a", "x", "b", "y");
+    assertEquals(test.asMap(), ImmutableMap.of("one", PropertySet.of(keyValues)));
+  }
+
+  public void test_ofChained_ioException() {
+    CharSource source = Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8);
+    assertThrows(
+        () -> IniFile.ofChained(Stream.of(source)),
         UncheckedIOException.class);
   }
 

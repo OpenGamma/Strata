@@ -5,26 +5,23 @@
  */
 package com.opengamma.collect.named;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 import org.joda.convert.RenameHandler;
 
-import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.io.IniFile;
 import com.opengamma.collect.io.PropertiesFile;
+import com.opengamma.collect.io.PropertySet;
 import com.opengamma.collect.io.ResourceLocator;
 
 /**
@@ -40,12 +37,24 @@ import com.opengamma.collect.io.ResourceLocator;
  * The configuration file also supports the notion of alternate names (aliases).
  * This allows many different names to be used to lookup the same instance.
  * <p>
- * The configuration file is found in the classpath.
- * It has the same location as the enum type and is a {@linkplain PropertiesFile properties file}.
- * Where multiple files are found in the classpath, a 'priority' value specifies which to load first
- * and a 'chain' flag specifies whether to chain to the next lower priority.
- * Provider classes are defined using the 'provider' key, where the value is the full class name of the provider.
- * Alternate names are defined using the 'alternate' key, where the value is 'AlternateName -&gt; StandardName'.
+ * The configuration file is found in the classpath. It has the same package location as the enum type
+ * and is a chained {@linkplain IniFile#ofChained(java.util.stream.Stream) INI file}.
+ * <p>
+ * A chained INI file allows multiple files to be on the classpath.
+ * A 'chain' section includes a 'priority' value to specify the order to load the files.
+ * The 'nextInChain' and 'removedSections' keys provide fine grained control.
+ * <p>
+ * Two sections control the loading of extended enum providers - 'providers' and 'alternates'.
+ * <p>
+ * The 'providers' section contains a number of properties, one for each provider.
+ * The key is the full class name of the provider.
+ * The value is either 'constants' or 'lookup'.
+ * A 'constants' provider defines the extended enums are public static constants.
+ * A 'lookup' provider implemented {@link NamedLookup}.
+ * <p>
+ * The 'alternates' section contains a number of properties, one for each alternate name.
+ * The key is the alternate name, the value is the standard name.
+ * Alternate names are used when looking up an extended enum.
  * <p>
  * It is intended that this class is used as a helper class to load the configuration
  * and manage the map of names to instances. It should be created and used by the author
@@ -83,60 +92,66 @@ public final class ExtendedEnum<T extends Named> {
    */
   public static <R extends Named> ExtendedEnum<R> of(Class<R> type) {
     ArgChecker.notNull(type, "type");
-    String name = type.getName().replace('.', '/') + ".ini";
     try {
-      // load all matching XML files
-      List<PropertiesFile> configs = Collections.list(type.getClassLoader().getResources(name)).stream()
-          .map(url -> PropertiesFile.of(ResourceLocator.ofClasspathUrl(url).getCharSource()))
-          .sorted(ExtendedEnum::sortByPriority)
-          .collect(Collectors.toList());
-      // parse XML files
-      List<NamedLookup<R>> lookups = new ArrayList<>();
-      Map<String, String> alternateNames = new HashMap<>();
-      for (PropertiesFile config : configs) {
-        lookups.addAll(parseProviders(config, type));
-        alternateNames = parseAlternates(config, alternateNames);
-        if (Boolean.parseBoolean(config.getProperties().getValue("chain")) == false) {
-          break;
-        }
-      }
-      return new ExtendedEnum<>(type, ImmutableList.copyOf(lookups), ImmutableMap.copyOf(alternateNames));
+      // load all matching files
+      String name = type.getName().replace('.', '/') + ".ini";
+      IniFile config = IniFile.ofChained(
+          ResourceLocator.streamOfClasspathResources(name).map(ResourceLocator::getCharSource));
+      // parse files
+      ImmutableList<NamedLookup<R>> lookups = parseProviders(config, type);
+      ImmutableMap<String, String> alternateNames = parseAlternates(config);
+      return new ExtendedEnum<>(type, lookups, alternateNames);
 
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
+    } catch (RuntimeException ex) {
+      // logging used because this is loaded in a static variable
+      Logger logger = Logger.getLogger(ExtendedEnum.class.getName());
+      logger.severe("Failed to load ExtendedEnum for " + type + ": " + Throwables.getStackTraceAsString(ex));
+      // return an empty instance to avoid ExceptionInInitializerError
+      return new ExtendedEnum<>(type, ImmutableList.of(), ImmutableMap.of());
     }
   }
 
   // parses the alternate names
   @SuppressWarnings("unchecked")
-  private static <R extends Named> List<NamedLookup<R>> parseProviders(PropertiesFile config, Class<R> enumType) {
-    List<NamedLookup<R>> result = new ArrayList<>();
-    if (config.getProperties().contains("provider")) {
-      ImmutableList<String> providers = config.getProperties().getValueList("provider");
-      for (String providerStr : providers) {
-        try {
-          Class<?> cls = RenameHandler.INSTANCE.lookupType(providerStr);
-          if (NamedLookup.class.isAssignableFrom(cls)) {
-            // class is a named lookup
-            try {
-              Constructor<?> cons = cls.getDeclaredConstructor();
-              if (Modifier.isPublic(cls.getModifiers()) == false) {
-                cons.setAccessible(true);
-              }
-              result.add((NamedLookup<R>) cons.newInstance());
-            } catch (Exception ex) {
-              throw new IllegalArgumentException("Invalid enum provider constructor: new " + cls.getName() + "()", ex);
-            }
-          } else {
-            // extract public static final constants
-            result.add(parseConstants(enumType, cls));
-          }
-        } catch (Exception ex) {
-          throw new IllegalArgumentException("Unable to interpret enum provider: " + providerStr, ex);
+  private static <R extends Named> ImmutableList<NamedLookup<R>> parseProviders(
+      IniFile config,
+      Class<R> enumType) {
+
+    if (!config.contains("providers")) {
+      return ImmutableList.of();
+    }
+    PropertySet section = config.getSection("providers");
+    ImmutableList.Builder<NamedLookup<R>> builder = ImmutableList.builder();
+    for (String key : section.keys()) {
+      Class<?> cls;
+      try {
+        cls = RenameHandler.INSTANCE.lookupType(key);
+      } catch (Exception ex) {
+        throw new IllegalArgumentException("Unable to find enum provider class: " + key, ex);
+      }
+      String value = section.getValue(key);
+      if (value.equals("constants")) {
+        // extract public static final constants
+        builder.add(parseConstants(enumType, cls));
+      } else if (value.equals("lookup")) {
+        if (!NamedLookup.class.isAssignableFrom(cls)) {
+          throw new IllegalArgumentException("Enum provider class must implement NamedLookup " + cls.getName());
         }
+        // class is a named lookup
+        try {
+          Constructor<?> cons = cls.getDeclaredConstructor();
+          if (Modifier.isPublic(cls.getModifiers()) == false) {
+            cons.setAccessible(true);
+          }
+          builder.add((NamedLookup<R>) cons.newInstance());
+        } catch (Exception ex) {
+          throw new IllegalArgumentException("Invalid enum provider constructor: new " + cls.getName() + "()", ex);
+        }
+      } else {
+        throw new IllegalArgumentException("Provider value must be either 'constants' or 'lookup'");
       }
     }
-    return result;
+    return builder.build();
   }
 
   // parses the public static final constants
@@ -167,26 +182,17 @@ public final class ExtendedEnum<T extends Named> {
   }
 
   // parses the alternate names.
-  private static Map<String, String> parseAlternates(PropertiesFile config, Map<String, String> alternates) {
-    if (config.getProperties().contains("alternate")) {
-      ImmutableList<String> parsedAlternates = config.getProperties().getValueList("alternate");
-      for (String parsedAlternate : parsedAlternates) {
-        List<String> split = Splitter.on("->").limit(2).splitToList(parsedAlternate);
-        if (split.size() != 2) {
-          throw new IllegalArgumentException(
-              "Alternate name must have format 'alternateName -> standardName', but was: " + parsedAlternate);
-        }
-        alternates.putIfAbsent(split.get(0).trim(), split.get(1).trim());
-      }
+  private static ImmutableMap<String, String> parseAlternates(IniFile config) {
+    if (!config.contains("alternates")) {
+      return ImmutableMap.of();
     }
-    return alternates;
-  }
-
-  // sort by priority largest first
-  private static int sortByPriority(PropertiesFile a, PropertiesFile b) {
-    int priority1 = Integer.parseInt(a.getProperties().getValue("priority"));
-    int priority2 = Integer.parseInt(b.getProperties().getValue("priority"));
-    return Integer.compare(priority2, priority1);
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    PropertySet section = config.getSection("alternates");
+    for (String key : section.keys()) {
+      String value = section.getValue(key);
+      builder.put(key, value);
+    }
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
