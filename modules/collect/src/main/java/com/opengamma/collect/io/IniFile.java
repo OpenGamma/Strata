@@ -73,11 +73,11 @@ public final class IniFile {
   /**
    * Property name used for chaining.
    */
-  private static final String NEXT_IN_CHAIN = "nextInChain";
+  private static final String CHAIN_NEXT = "chainNextFile";
   /**
    * Property name used for removing sections.
    */
-  private static final String REMOVED_SECTIONS = "removedSections";
+  private static final String CHAIN_REMOVE = "chainRemoveSections";
 
   /**
    * The INI sections.
@@ -112,12 +112,15 @@ public final class IniFile {
   /**
    * Returns a single INI file that is the chained combination of the inputs.
    * <p>
-   * A chained INI file must have one special section, 'chain', with three properties.
-   * The first is 'priority', an integer, which allows the input files to be sorted.
-   * The second is 'nextInChain', a boolean, which determines where to chain on to the next file or not.
-   * The third is 'removedSections', a list of sections to be removed.
-   * All entries from the highest priority file are included in the result, plus
-   * any entries that have not been overridden or removed in chained files.
+   * The result of this method is formed by chaining all the specified files together.
+   * The files are combined using a simple algorithm defined in the '[chain]' section.
+   * Firstly, the 'priority' value is used to sort the files, higher numbers have higher priority
+   * All entries in the highest priority file are used
+   * <p>
+   * Once data from the highest priority file is included, the 'chainNextFile' property is examined.
+   * If 'chainNextFile' is 'true', then the next file in the chain is considered.
+   * The 'chainRemoveSections' property can be used to ignore specific sections from the files lower in the chain.
+   * The chain process continues until the 'chainNextFile' is 'false', or all files have been combined.
    * 
    * @param sources  the INI file sources to read
    * @return the combined chained INI file
@@ -128,22 +131,22 @@ public final class IniFile {
     ArgChecker.notNull(sources, "sources");
     List<IniFile> files = sources
         .map(IniFile::of)
-        .sorted(IniFile::sortByReversePriority)
+        .sorted(IniFile::compareByReversePriority)
         .collect(toList());
     // combine files, based on chain flag
     Map<String, PropertySet> builder = new LinkedHashMap<>();
     for (IniFile file : files) {
       // remove everything from lower priority files if not chaining
-      if (Boolean.parseBoolean(file.getSection(CHAIN_SECTION).getValue(NEXT_IN_CHAIN)) == false) {
+      if (Boolean.parseBoolean(file.getSection(CHAIN_SECTION).getValue(CHAIN_NEXT)) == false) {
         builder.clear();
       } else {
         // remove sections from lower priority files
-        builder.keySet().removeAll(file.getSection(CHAIN_SECTION).getValueList(REMOVED_SECTIONS));
+        builder.keySet().removeAll(file.getSection(CHAIN_SECTION).getValueList(CHAIN_REMOVE));
       }
       // add entries, replacing existing data
       for (String sectionName : file.asMap().keySet()) {
         if (!sectionName.equals(CHAIN_SECTION)) {
-          builder.merge(sectionName, file.getSection(sectionName), PropertySet::combineWith);
+          builder.merge(sectionName, file.getSection(sectionName), PropertySet::combinedWith);
         }
       }
     }
@@ -151,7 +154,7 @@ public final class IniFile {
   }
 
   // sort by priority, lowest first
-  private static int sortByReversePriority(IniFile a, IniFile b) {
+  private static int compareByReversePriority(IniFile a, IniFile b) {
     int priority1 = Integer.parseInt(a.getSection(CHAIN_SECTION).getValue(PRIORITY));
     int priority2 = Integer.parseInt(b.getSection(CHAIN_SECTION).getValue(PRIORITY));
     return Integer.compare(priority1, priority2);

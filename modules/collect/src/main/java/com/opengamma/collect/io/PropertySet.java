@@ -171,7 +171,7 @@ public final class PropertySet {
    * @param other  the other property set
    * @return the combined property set
    */
-  public PropertySet combineWith(PropertySet other) {
+  public PropertySet combinedWith(PropertySet other) {
     ArgChecker.notNull(other, "other");
     if (other.isEmpty()) {
       return this;

@@ -51,21 +51,21 @@ public class IniFileTest {
   private final String CHAIN0 = "" +
       "[chain]\n" +
       "priority = 1\n" +
-      "nextInChain = true\n" +
+      "chainNextFile = true\n" +
       "[one]\n" +
       "a = x\n" +
       "b = y\n";
   private final String CHAIN1 = "" +
       "[chain]\n" +
       "priority = 1\n" +
-      "nextInChain = false\n" +
+      "chainNextFile = false\n" +
       "[one]\n" +
       "a = x\n" +
       "b = y\n";
   private final String CHAIN2 = "" +
       "[chain]\n" +
       "priority = 2\n" +
-      "nextInChain = true\n" +
+      "chainNextFile = true\n" +
       "[one]\n" +
       "a = z\n" +
       "[two]\n" +
@@ -73,8 +73,8 @@ public class IniFileTest {
   private final String CHAIN3 = "" +
       "[chain]\n" +
       "priority = 3\n" +
-      "nextInChain = true\n" +
-      "removedSections = one\n" +
+      "chainNextFile = true\n" +
+      "chainRemoveSections = one\n" +
       "[three]\n" +
       "p = q\n";
 

@@ -76,21 +76,21 @@ public class PropertySetTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_combineWith() {
+  public void test_combinedWith() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
     PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb"));
     PropertySet expected = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb", "c", "z"));
-    assertEquals(base.combineWith(other), expected);
+    assertEquals(base.combinedWith(other), expected);
   }
 
-  public void test_combineWith_emptyBase() {
+  public void test_combinedWith_emptyBase() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(base.combineWith(PropertySet.EMPTY), base);
+    assertEquals(base.combinedWith(PropertySet.EMPTY), base);
   }
 
-  public void test_combineWith_emptyOther() {
+  public void test_combinedWith_emptyOther() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(PropertySet.EMPTY.combineWith(base), base);
+    assertEquals(PropertySet.EMPTY.combinedWith(base), base);
   }
 
   //-------------------------------------------------------------------------

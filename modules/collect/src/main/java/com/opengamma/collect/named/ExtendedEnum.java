@@ -42,7 +42,7 @@ import com.opengamma.collect.io.ResourceLocator;
  * <p>
  * A chained INI file allows multiple files to be on the classpath.
  * A 'chain' section includes a 'priority' value to specify the order to load the files.
- * The 'nextInChain' and 'removedSections' keys provide fine grained control.
+ * The 'chainNextFile' and 'chainRemoveSections' keys provide fine grained control.
  * <p>
  * Two sections control the loading of extended enum providers - 'providers' and 'alternates'.
  * <p>
@@ -63,6 +63,15 @@ import com.opengamma.collect.io.ResourceLocator;
  * @param <T>  the type of the enum
  */
 public final class ExtendedEnum<T extends Named> {
+
+  /**
+   * Section name used for providers.
+   */
+  private static final String PROVIDERS_SECTION = "providers";
+  /**
+   * Section name used for alternates.
+   */
+  private static final String ALTERNATES_SECTION = "alternates";
 
   /**
    * The enum type.
@@ -117,10 +126,10 @@ public final class ExtendedEnum<T extends Named> {
       IniFile config,
       Class<R> enumType) {
 
-    if (!config.contains("providers")) {
+    if (!config.contains(PROVIDERS_SECTION)) {
       return ImmutableList.of();
     }
-    PropertySet section = config.getSection("providers");
+    PropertySet section = config.getSection(PROVIDERS_SECTION);
     ImmutableList.Builder<NamedLookup<R>> builder = ImmutableList.builder();
     for (String key : section.keys()) {
       Class<?> cls;
@@ -183,14 +192,13 @@ public final class ExtendedEnum<T extends Named> {
 
   // parses the alternate names.
   private static ImmutableMap<String, String> parseAlternates(IniFile config) {
-    if (!config.contains("alternates")) {
+    if (!config.contains(ALTERNATES_SECTION)) {
       return ImmutableMap.of();
     }
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    PropertySet section = config.getSection("alternates");
+    PropertySet section = config.getSection(ALTERNATES_SECTION);
     for (String key : section.keys()) {
-      String value = section.getValue(key);
-      builder.put(key, value);
+      builder.put(key, section.getValue(key));
     }
     return builder.build();
   }
