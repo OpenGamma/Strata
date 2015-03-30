@@ -5,10 +5,16 @@
  */
 package com.opengamma.collect.io;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -99,6 +105,29 @@ public final class ResourceLocator {
     ArgChecker.notNull(url, "url");
     String locator = CLASSPATH_URL_PREFIX + url.toString();
     return new ResourceLocator(locator, Resources.asByteSource(url));
+  }
+
+  /**
+   * Creates a stream of resource locators.
+   * <p>
+   * This finds all occurrences of the resource name in the classpath and returns them.
+   * 
+   * @param classpathResourceName  the classpath resource name
+   * @return the resource locators
+   */
+  @FromString
+  public static Stream<ResourceLocator> streamOfClasspathResources(String classpathResourceName) {
+    ArgChecker.notNull(classpathResourceName, "classpathResourceName");
+    try {
+      ClassLoader classLoader = firstNonNull(
+          Thread.currentThread().getContextClassLoader(),
+          ResourceLocator.class.getClassLoader());
+      return Collections.list(classLoader.getResources(classpathResourceName)).stream()
+          .map(url -> ResourceLocator.ofClasspathUrl(url));
+
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
   }
 
   //-------------------------------------------------------------------------
