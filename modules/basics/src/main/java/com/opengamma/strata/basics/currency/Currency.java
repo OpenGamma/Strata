@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -22,7 +23,15 @@ import com.opengamma.strata.collect.ArgChecker;
  * A unit of currency.
  * <p>
  * This class represents a unit of currency such as the British Pound, Euro or US Dollar.
- * Any three letter code may be used, however it is intended to use codes based on ISO-4217.
+ * The currency is represented by a three letter code, intended to be ISO-4217.
+ * <p>
+ * It is recommended to define currencies in advance using the {@code Currency.ini} file.
+ * Standard configuration includes many commonly used currencies.
+ * <p>
+ * Only currencies listed in configuration will be returned by {@link #getAvailableCurrencies()}.
+ * If a currency is requested that is not defined in configuration, it will still be created,
+ * however it will have the default value of zero for the minor units and 'USD' for
+ * the triangulation currency.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -33,14 +42,20 @@ public final class Currency
   private static final long serialVersionUID = 1L;
 
   /**
-   * A cache of instances.
-   */
-  private static final ConcurrentMap<String, Currency> CACHE = new ConcurrentHashMap<>();
-  /**
-   * The valid regex for schemes.
+   * Regular expression to parse the textual format.
    * Three ASCII upper case letters.
    */
-  private static final Pattern REGEX_CODE = Pattern.compile("[A-Z]{3}");
+  static final Pattern REGEX_FORMAT = Pattern.compile("[A-Z]{3}");
+  /**
+   * The configured instances.
+   */
+  private static final ImmutableMap<String, Currency> CONFIGURED =
+      CurrencyDataLoader.loadCurrencies(false);
+  /**
+   * A cache of dynamically created instances, initialized with some historic currencies.
+   */
+  private static final ConcurrentMap<String, Currency> DYNAMIC =
+      new ConcurrentHashMap<>(CurrencyDataLoader.loadCurrencies(true));
 
   // a selection of commonly traded, stable currencies
   /**
@@ -71,12 +86,28 @@ public final class Currency
    * The currency 'CAD' - Canadian Dollar.
    */
   public static final Currency CAD = of("CAD");
+  /**
+   * The currency 'NZD' - New Zealand Dollar.
+   */
+  public static final Currency NZD = of("NZD");
 
   // a selection of other currencies
+  /**
+   * The currency 'AED' - UAE Dirham.
+   */
+  public static final Currency AED = of("AED");
   /**
    * The currency 'ARS' - Argentine Peso.
    */
   public static final Currency ARS = of("ARS");
+  /**
+   * The currency 'BGN' - Bulgarian Lev.
+   */
+  public static final Currency BGN = of("BGN");
+  /**
+   * The currency 'BHD' - Bahraini Dinar.
+   */
+  public static final Currency BHD = of("BHD");
   /**
    * The currency 'BRL' - Brazil Dollar.
    */
@@ -89,6 +120,10 @@ public final class Currency
    * The currency 'CNY' - Chinese Yuan.
    */
   public static final Currency CNY = of("CNY");
+  /**
+   * The currency 'COP' - Colombian Peso.
+   */
+  public static final Currency COP = of("COP");
   /**
    * The currency 'CZK' - Czeck Krona.
    */
@@ -106,6 +141,10 @@ public final class Currency
    */
   public static final Currency HKD = of("HKD");
   /**
+   * The currency 'HRK' - Croatian Kuna.
+   */
+  public static final Currency HRK = of("HRK");
+  /**
    * The currency 'HUF' = Hugarian Forint.
    */
   public static final Currency HUF = of("HUF");
@@ -118,10 +157,6 @@ public final class Currency
    */
   public static final Currency ILS = of("ILS");
   /**
-   * The currency 'KRW' = South Korean Won.
-   */
-  public static final Currency KRW = of("KRW");
-  /**
    * The currency 'INR' = Indian Rupee.
    */
   public static final Currency INR = of("INR");
@@ -129,6 +164,10 @@ public final class Currency
    * The currency 'ISK' = Icelandic Krone.
    */
   public static final Currency ISK = of("ISK");
+  /**
+   * The currency 'KRW' = South Korean Won.
+   */
+  public static final Currency KRW = of("KRW");
   /**
    * The currency 'MXN' - Mexican Peso.
    */
@@ -142,13 +181,25 @@ public final class Currency
    */
   public static final Currency NOK = of("NOK");
   /**
-   * The currency 'NZD' - New Zealand Dollar.
+   * The currency 'PEN' - Peruvian Nuevo Sol.
    */
-  public static final Currency NZD = of("NZD");
+  public static final Currency PEN = of("PEN");
+  /**
+   * The currency 'PHP' - Philippine Peso.
+   */
+  public static final Currency PHP = of("PHP");
+  /**
+   * The currency 'PKR' - Pakistani Rupee.
+   */
+  public static final Currency PKR = of("PKR");
   /**
    * The currency 'PLN' - Polish Zloty.
    */
   public static final Currency PLN = of("PLN");
+  /**
+   * The currency 'RON' - Romanian New Leu.
+   */
+  public static final Currency RON = of("RON");
   /**
    * The currency 'RUB' - Russian Ruble.
    */
@@ -166,10 +217,6 @@ public final class Currency
    */
   public static final Currency SGD = of("SGD");
   /**
-   * The currency 'SKK' - Slovak Korona.
-   */
-  public static final Currency SKK = of("SKK");
-  /**
    * The currency 'THB' - Thai Baht.
    */
   public static final Currency THB = of("THB");
@@ -178,77 +225,58 @@ public final class Currency
    */
   public static final Currency TRY = of("TRY");
   /**
+   * The currency 'TWD' - New Taiwan Dollar.
+   */
+  public static final Currency TWD = of("TWD");
+  /**
+   * The currency 'UAH' - Ukrainian Hryvnia.
+   */
+  public static final Currency UAH = of("UAH");
+  /**
    * The currency 'ZAR' - South African Rand.
    */
   public static final Currency ZAR = of("ZAR");
-
-  // a selection of historic currencies
-  /**
-   * The historic currency 'BEF' - Belgian Franc.
-   */
-  public static final Currency BEF = of("BEF");
-  /**
-   * The historic currency 'DEM' - Deutsche Mark.
-   */
-  public static final Currency DEM = of("DEM");
-  /**
-   * The historic currency 'ESP' - Spanish Peseta.
-   */
-  public static final Currency ESP = of("ESP");
-  /**
-   * The historic currency 'FRF' - French Franc.
-   */
-  public static final Currency FRF = of("FRF");
-  /**
-   * The historic currency 'GRD' - Greek Drachma.
-   */
-  public static final Currency GRD = of("GRD");
-  /**
-   * The historic currency 'IEP' - Irish Pound.
-   */
-  public static final Currency IEP = of("IEP");
-  /**
-   * The historic currency 'ITL' - Italian Lira.
-   */
-  public static final Currency ITL = of("ITL");
-  /**
-   * The historic currency 'NLG' - Dutch Guilder.
-   */
-  public static final Currency NLG = of("NLG");
-  /**
-   * The historic currency 'PTE' - Portuguese Escudo.
-   */
-  public static final Currency PTE = of("PTE");
 
   /**
    * The currency code.
    */
   private final String code;
   /**
+   * The number of fraction digits, such as 2 for cents in the dollar.
+   */
+  private transient final int minorUnitDigits;
+  /**
+   * The triangulation currency.
+   * Due to initialization ordering, cannot guarantee that USD/EUR is loaded first, so this must be a string.
+   */
+  private transient final String triangulationCurrency;
+  /**
    * The cached hash code.
    */
-  private final int cachedHashCode;
+  private transient final int cachedHashCode;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the set of available currencies.
+   * Obtains the set of configured currencies.
    * <p>
-   * This contains all the currencies that have been defined at the point
-   * that the method is called.
+   * This contains all the currencies that have been defined in configuration.
+   * Any currency instances that have been dynamically created are not included.
    * 
    * @return an immutable set containing all registered currencies
    */
   public static Set<Currency> getAvailableCurrencies() {
-    return ImmutableSet.copyOf(CACHE.values());
+    return ImmutableSet.copyOf(CONFIGURED.values());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of {@code Currency} for the specified ISO-4217
-   * three letter currency code dynamically creating a currency if necessary.
+   * Obtains an instance of {@code Currency} for the specified ISO-4217 three letter currency code.
    * <p>
    * A currency is uniquely identified by ISO-4217 three letter code.
-   * This method creates the currency if it is not known.
+   * Currencies should be defined in configuration before they can be used.
+   * If the requested currency is not defined in configuration, it will still be created,
+   * however it will have the default value of zero for the minor units and 'USD' for
+   * the triangulation currency.
    *
    * @param currencyCode  the three letter currency code, ASCII and upper case
    * @return the singleton instance
@@ -256,23 +284,13 @@ public final class Currency
    */
   @FromString
   public static Currency of(String currencyCode) {
-    ArgChecker.matches(REGEX_CODE, currencyCode, "currencyCode");
-    return CACHE.computeIfAbsent(currencyCode, Currency::new);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Obtains an instance of {@code Currency} matching the specified JDK currency.
-   * <p>
-   * This converts the JDK currency instance to a currency unit using the code.
-   *
-   * @param currency  the currency
-   * @return the singleton instance
-   * @throws IllegalArgumentException if the currency cannot be converted
-   */
-  public static Currency fromJdk(java.util.Currency currency) {
-    ArgChecker.notNull(currency, "currency");
-    return Currency.of(currency.getCurrencyCode());
+    ArgChecker.notNull(currencyCode, "currencyCode");
+    Currency currency = CONFIGURED.get(currencyCode);
+    if (currency == null) {
+      ArgChecker.matches(REGEX_FORMAT, currencyCode, "currencyCode");
+      return DYNAMIC.computeIfAbsent(currencyCode, code -> new Currency(code, 0, "USD"));
+    }
+    return currency;
   }
 
   //-------------------------------------------------------------------------
@@ -281,6 +299,9 @@ public final class Currency
    * <p>
    * The parse is identical to {@link #of(String)} except that it will convert
    * letters to upper case first.
+   * If the requested currency is not defined in configuration, it will still be created,
+   * however it will have the default value of zero for the minor units and 'USD' for
+   * the triangulation currency.
    *
    * @param currencyCode  the three letter currency code, ASCII
    * @return the singleton instance
@@ -293,12 +314,16 @@ public final class Currency
 
   //-------------------------------------------------------------------------
   /**
-   * Restricted constructor.
+   * Restricted constructor, called only by {@code CurrencyProperties}.
    * 
-   * @param code  the three letter currency code
+   * @param code  the three letter currency code, validated
+   * @param fractionDigits  the number of fraction digits, validated
+   * @param triangulationCurrency  the triangulation currency
    */
-  private Currency(String code) {
+  Currency(String code, int fractionDigits, String triangulationCurrency) {
     this.code = code;
+    this.minorUnitDigits = fractionDigits;
+    this.triangulationCurrency = triangulationCurrency;
     // total universe is (26 * 26 * 26) codes, which can provide a unique hash code
     this.cachedHashCode = ((code.charAt(0) - 64) << 16) + ((code.charAt(1) - 64) << 8) + (code.charAt(2) - 64);
   }
@@ -322,17 +347,32 @@ public final class Currency
     return code;
   }
 
-  //-------------------------------------------------------------------------
   /**
-   * Gets the JDK currency instance equivalent to this currency.
+   * Gets the number of digits in the minor unit.
    * <p>
-   * This attempts to convert a {@code Currency} to a JDK {@code Currency}.
+   * For example, 'USD' will return 2, indicating that there are two digits,
+   * corresponding to cents in the dollar.
    * 
-   * @return the JDK currency instance
-   * @throws IllegalArgumentException if no matching currency exists in the JDK
+   * @return the number of fraction digits
    */
-  public java.util.Currency toJdk() {
-    return java.util.Currency.getInstance(code);
+  public int getMinorUnitDigits() {
+    return minorUnitDigits;
+  }
+
+  /**
+   * Gets the preferred triangulation currency.
+   * <p>
+   * When obtaining a market quote for a currency, the triangulation currency
+   * is used if no direct rate can be found.
+   * For example, there is no direct rate for 'CZK/SGD'. Instead 'CZK' might be defined to
+   * triangulate via 'EUR' and 'SGD' with 'USD'. Since the three rates, 'CZK/EUR', 'EUR/USD'
+   * and 'USD/SGD' can be obtained, a rate can be determined for 'CZK/SGD'.
+   * Note that most currencies triangulate via 'USD'.
+   * 
+   * @return the triangulation currency
+   */
+  public Currency getTriangulationCurrency() {
+    return Currency.of(triangulationCurrency);
   }
 
   //-------------------------------------------------------------------------

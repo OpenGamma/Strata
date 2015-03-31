@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -52,9 +53,18 @@ public class CurrencyTest {
     assertSame(test, Currency.of("SEK"));
   }
 
+  public void test_of_String_historicCurrency() {
+    Currency test = Currency.of("BEF");
+    assertEquals(test.getCode(), "BEF");
+    assertEquals(test.getMinorUnitDigits(), 2);
+    assertEquals(test.getTriangulationCurrency(), Currency.EUR);
+    assertSame(test, Currency.of("BEF"));
+  }
+
   public void test_of_String_unknownCurrencyCreated() {
     Currency test = Currency.of("AAA");
     assertEquals(test.getCode(), "AAA");
+    assertEquals(test.getMinorUnitDigits(), 0);
     assertSame(test, Currency.of("AAA"));
   }
 
@@ -82,18 +92,6 @@ public class CurrencyTest {
   }
 
   //-----------------------------------------------------------------------
-  public void test_fromJdk_Currency() {
-    Currency test = Currency.fromJdk(java.util.Currency.getInstance("GBP"));
-    assertEquals(test.getCode(), "GBP");
-    assertSame(test, Currency.GBP);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_fromJdk_Currency_nullCurrency() {
-    Currency.fromJdk((java.util.Currency) null);
-  }
-
-  //-----------------------------------------------------------------------
   public void test_parse_String() {
     Currency test = Currency.parse("GBP");
     assertEquals(test.getCode(), "GBP");
@@ -103,6 +101,7 @@ public class CurrencyTest {
   public void test_parse_String_unknownCurrencyCreated() {
     Currency test = Currency.parse("zyx");
     assertEquals(test.getCode(), "ZYX");
+    assertEquals(test.getMinorUnitDigits(), 0);
     assertSame(test, Currency.of("ZYX"));
   }
 
@@ -130,8 +129,24 @@ public class CurrencyTest {
   }
 
   //-----------------------------------------------------------------------
-  public void test_toJdk() {
-    assertEquals(Currency.GBP.toJdk(), java.util.Currency.getInstance("GBP"));
+  public void test_minorUnits() {
+    assertEquals(Currency.of("USD").getMinorUnitDigits(), 2);
+    assertEquals(Currency.of("EUR").getMinorUnitDigits(), 2);
+    assertEquals(Currency.of("JPY").getMinorUnitDigits(), 0);
+    assertEquals(Currency.of("GBP").getMinorUnitDigits(), 2);
+    assertEquals(Currency.of("CHF").getMinorUnitDigits(), 2);
+    assertEquals(Currency.of("AUD").getMinorUnitDigits(), 2);
+    assertEquals(Currency.of("CAD").getMinorUnitDigits(), 2);
+  }
+
+  public void test_triangulatonCurrency() {
+    assertEquals(Currency.of("USD").getTriangulationCurrency(), Currency.USD);
+    assertEquals(Currency.of("EUR").getTriangulationCurrency(), Currency.USD);
+    assertEquals(Currency.of("JPY").getTriangulationCurrency(), Currency.USD);
+    assertEquals(Currency.of("GBP").getTriangulationCurrency(), Currency.USD);
+    assertEquals(Currency.of("CHF").getTriangulationCurrency(), Currency.USD);
+    assertEquals(Currency.of("AUD").getTriangulationCurrency(), Currency.USD);
+    assertEquals(Currency.of("CAD").getTriangulationCurrency(), Currency.USD);
   }
 
   //-----------------------------------------------------------------------
@@ -192,14 +207,16 @@ public class CurrencyTest {
   }
 
   //-----------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(CurrencyDataLoader.class);
+  }
+
   public void test_serialization() {
     assertSerialization(Currency.GBP);
-    assertSerialization(Currency.of("ABB"));
   }
 
   public void test_jodaConvert() {
     assertJodaConvert(Currency.class, Currency.GBP);
-    assertJodaConvert(Currency.class, Currency.of("ABB"));
   }
 
 }
