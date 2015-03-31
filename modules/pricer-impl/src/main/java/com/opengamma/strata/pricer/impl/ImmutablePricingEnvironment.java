@@ -105,7 +105,7 @@ public final class ImmutablePricingEnvironment
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
     ArgChecker.notNull(baseCurrency, "baseCurrency");
     ArgChecker.notNull(counterCurrency, "counterCurrency");
-    return multicurve.getFxRate(Legacy.currency(baseCurrency), Legacy.currency(counterCurrency));
+    return multicurve.getFxRate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -113,7 +113,7 @@ public final class ImmutablePricingEnvironment
   public double discountFactor(Currency currency, LocalDate date) {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(date, "date");
-    return multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime(date));
+    return multicurve.getDiscountFactor(currency, relativeTime(date));
   }
 
   @Override
@@ -121,7 +121,7 @@ public final class ImmutablePricingEnvironment
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(date, "date");
     double relativeTime = relativeTime(date);
-    double discountFactor = multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime);
+    double discountFactor = multicurve.getDiscountFactor(currency, relativeTime);
     return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);
   }
 
@@ -161,8 +161,8 @@ public final class ImmutablePricingEnvironment
     // then derive rate from discount factors based off desired currency pair, not that of the index
     CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
     double maturity = relativeTime(index.calculateMaturityFromFixing(fixingDate));
-    double dfCcyBaseAtMaturity = multicurve.getDiscountFactor(Legacy.currency(pair.getBase()), maturity);
-    double dfCcyCounterAtMaturity = multicurve.getDiscountFactor(Legacy.currency(pair.getCounter()), maturity);
+    double dfCcyBaseAtMaturity = multicurve.getDiscountFactor(pair.getBase(), maturity);
+    double dfCcyCounterAtMaturity = multicurve.getDiscountFactor(pair.getCounter(), maturity);
     return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
   }
 

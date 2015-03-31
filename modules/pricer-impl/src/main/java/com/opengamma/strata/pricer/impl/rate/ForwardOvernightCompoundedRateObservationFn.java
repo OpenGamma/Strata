@@ -8,12 +8,12 @@ package com.opengamma.strata.pricer.impl.rate;
 import java.time.LocalDate;
 import java.util.OptionalDouble;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.impl.PricingException;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -194,7 +194,7 @@ public class ForwardOvernightCompoundedRateObservationFn
 
       OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
       return fixedRate.orElseThrow(() ->
-          new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
+          new PricingException("Could not get fixing value of index " + index.getName() +
               " for date " + currentFixingTs));
     }
   }

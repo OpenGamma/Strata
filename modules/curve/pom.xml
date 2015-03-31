@@ -24,7 +24,7 @@
       <artifactId>strata-basics</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
+      <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
     </dependency>
     <!-- Testing -->

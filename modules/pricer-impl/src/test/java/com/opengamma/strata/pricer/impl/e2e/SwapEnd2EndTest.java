@@ -46,6 +46,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
@@ -62,7 +63,6 @@ import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.strata.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
 import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test end to end.

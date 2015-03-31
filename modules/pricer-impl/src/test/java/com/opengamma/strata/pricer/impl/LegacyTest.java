@@ -9,15 +9,16 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
+import java.time.Period;
+
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.ImmutableOvernightIndex;
-import com.opengamma.util.money.Currency;
 
 /**
  * Test.
@@ -26,9 +27,6 @@ import com.opengamma.util.money.Currency;
 public class LegacyTest {
   // NOTE: all imports are LEGACY ones, not new ones!
 
-  private static final com.opengamma.strata.basics.currency.Currency NEW_GBP = com.opengamma.strata.basics.currency.Currency.GBP;
-  private static final com.opengamma.strata.basics.currency.Currency NEW_USD = com.opengamma.strata.basics.currency.Currency.USD;
-  private static final com.opengamma.strata.basics.currency.Currency NEW_JPY = com.opengamma.strata.basics.currency.Currency.JPY;
   private static final com.opengamma.strata.basics.index.IborIndex NEW_GBP_3M =
       com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
   private static final com.opengamma.strata.basics.index.IborIndex CHF_LIBOR_1W =
@@ -44,13 +42,6 @@ public class LegacyTest {
           .effectiveDateOffset(2)
           .publicationDateOffset(0)
           .build();
-
-  //-------------------------------------------------------------------------
-  public void test_currency() {
-    assertEquals(Legacy.currency(NEW_GBP), Currency.GBP);
-    assertEquals(Legacy.currency(NEW_USD), Currency.USD);
-    assertEquals(Legacy.currency(NEW_JPY), Currency.JPY);
-  }
 
   //-------------------------------------------------------------------------
   public void test_iborIndex() {

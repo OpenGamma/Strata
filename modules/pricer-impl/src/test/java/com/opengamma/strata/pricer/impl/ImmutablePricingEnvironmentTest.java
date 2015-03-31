@@ -44,8 +44,6 @@ import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 @Test
 public class ImmutablePricingEnvironmentTest {
 
-  private static final com.opengamma.util.money.Currency OLD_GBP = com.opengamma.util.money.Currency.GBP;
-  private static final com.opengamma.util.money.Currency OLD_USD = com.opengamma.util.money.Currency.USD;
   private static final LocalDate PREV2_DATE = LocalDate.of(2014, 6, 26);
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
@@ -93,7 +91,7 @@ public class ImmutablePricingEnvironmentTest {
   public void test_discountFactor() {
     double relativeTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
-    Mockito.when(mock.getDiscountFactor(OLD_GBP, relativeTime)).thenReturn(0.99d);
+    Mockito.when(mock.getDiscountFactor(GBP, relativeTime)).thenReturn(0.99d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -107,7 +105,7 @@ public class ImmutablePricingEnvironmentTest {
   public void test_discountFactorZeroRateSensitivity() {
     double relativeTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
-    Mockito.when(mock.getDiscountFactor(OLD_GBP, relativeTime)).thenReturn(0.99d);
+    Mockito.when(mock.getDiscountFactor(GBP, relativeTime)).thenReturn(0.99d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -121,7 +119,7 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_fxRate_separate() {
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
-    Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(0.62d);
+    Mockito.when(mock.getFxRate(USD, GBP)).thenReturn(0.62d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -133,7 +131,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_fxRate_pair() {
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
-    Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(0.62d);
+    Mockito.when(mock.getFxRate(USD, GBP)).thenReturn(0.62d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -146,8 +144,8 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_fxConvert() {
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
-    Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(0.62d);
-    Mockito.when(mock.getFxRate(OLD_GBP, OLD_GBP)).thenReturn(1d);
+    Mockito.when(mock.getFxRate(USD, GBP)).thenReturn(0.62d);
+    Mockito.when(mock.getFxRate(GBP, GBP)).thenReturn(1d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -202,10 +200,10 @@ public class ImmutablePricingEnvironmentTest {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     double future = ACT_ACT_ISDA.yearFraction(VAL_DATE, WM_GBP_USD.calculateMaturityFromFixing(VAL_DATE));
-    Mockito.when(mock.getDiscountFactor(OLD_GBP, future)).thenReturn(0.95d);
-    Mockito.when(mock.getDiscountFactor(OLD_USD, future)).thenReturn(0.99d);
-    Mockito.when(mock.getFxRate(OLD_GBP, OLD_USD)).thenReturn(1.6d);
-    Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(1 / 1.6d);
+    Mockito.when(mock.getDiscountFactor(GBP, future)).thenReturn(0.95d);
+    Mockito.when(mock.getDiscountFactor(USD, future)).thenReturn(0.99d);
+    Mockito.when(mock.getFxRate(GBP, USD)).thenReturn(1.6d);
+    Mockito.when(mock.getFxRate(USD, GBP)).thenReturn(1 / 1.6d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -220,10 +218,10 @@ public class ImmutablePricingEnvironmentTest {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     double future = ACT_ACT_ISDA.yearFraction(VAL_DATE, WM_GBP_USD.calculateMaturityFromFixing(NEXT_DATE));
-    Mockito.when(mock.getDiscountFactor(OLD_GBP, future)).thenReturn(0.95d);
-    Mockito.when(mock.getDiscountFactor(OLD_USD, future)).thenReturn(0.99d);
-    Mockito.when(mock.getFxRate(OLD_GBP, OLD_USD)).thenReturn(1.6d);
-    Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(1 / 1.6d);
+    Mockito.when(mock.getDiscountFactor(GBP, future)).thenReturn(0.95d);
+    Mockito.when(mock.getDiscountFactor(USD, future)).thenReturn(0.99d);
+    Mockito.when(mock.getFxRate(GBP, USD)).thenReturn(1.6d);
+    Mockito.when(mock.getFxRate(USD, GBP)).thenReturn(1 / 1.6d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)

@@ -7,6 +7,7 @@ package com.opengamma.strata.marketdata.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.YearMonth;
 
 /**
  * A curve node ID for a futures node.
