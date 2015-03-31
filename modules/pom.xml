@@ -68,8 +68,11 @@
     <module>basics</module>
     <module>collect</module>
     <module>curve</module>
+    <module>engine</module>
     <module>source</module>
     <module>finance</module>
+    <module>function</module>
+    <module>market-data</module>
     <module>pricer</module>
     <module>pricer-impl</module>
   </modules>
@@ -203,6 +206,16 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-engine</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-market-data</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-pricer</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -270,6 +283,26 @@
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-pricer-impl</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.platform</groupId>
+        <artifactId>og-analytics</artifactId>
+        <version>${opengamma-legacy.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>
