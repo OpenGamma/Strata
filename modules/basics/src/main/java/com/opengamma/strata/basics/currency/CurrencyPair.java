@@ -41,8 +41,9 @@ public final class CurrencyPair
 
   /**
    * Regular expression to parse the textual format.
+   * Three ASCII upper case letters, a slash, and another three ASCII upper case letters.
    */
-  private static final Pattern REGEX_FORMAT = Pattern.compile("([A-Z]{3})[/]([A-Z]{3})");
+  static final Pattern REGEX_FORMAT = Pattern.compile("([A-Z]{3})/([A-Z]{3})");
   /**
    * The configured instances and associated rate digits.
    */

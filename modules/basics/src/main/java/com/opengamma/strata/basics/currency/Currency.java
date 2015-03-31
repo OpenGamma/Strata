@@ -42,6 +42,11 @@ public final class Currency
   private static final long serialVersionUID = 1L;
 
   /**
+   * Regular expression to parse the textual format.
+   * Three ASCII upper case letters.
+   */
+  static final Pattern REGEX_FORMAT = Pattern.compile("[A-Z]{3}");
+  /**
    * The configured instances.
    */
   private static final ImmutableMap<String, Currency> CONFIGURED =
@@ -51,11 +56,6 @@ public final class Currency
    */
   private static final ConcurrentMap<String, Currency> DYNAMIC =
       new ConcurrentHashMap<>(CurrencyDataLoader.loadCurrencies(true));
-  /**
-   * The valid regex for schemes.
-   * Three ASCII upper case letters.
-   */
-  private static final Pattern REGEX_CODE = Pattern.compile("[A-Z]{3}");
 
   // a selection of commonly traded, stable currencies
   /**
@@ -280,14 +280,14 @@ public final class Currency
    *
    * @param currencyCode  the three letter currency code, ASCII and upper case
    * @return the singleton instance
-   * @throws IllegalArgumentException if the currency code is not found
+   * @throws IllegalArgumentException if the currency code is invalid
    */
   @FromString
   public static Currency of(String currencyCode) {
     ArgChecker.notNull(currencyCode, "currencyCode");
     Currency currency = CONFIGURED.get(currencyCode);
     if (currency == null) {
-      ArgChecker.matches(REGEX_CODE, currencyCode, "currencyCode");
+      ArgChecker.matches(REGEX_FORMAT, currencyCode, "currencyCode");
       return DYNAMIC.computeIfAbsent(currencyCode, code -> new Currency(code, 0, "USD"));
     }
     return currency;

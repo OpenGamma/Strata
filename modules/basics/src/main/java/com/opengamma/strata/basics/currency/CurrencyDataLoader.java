@@ -7,7 +7,6 @@ package com.opengamma.strata.basics.currency;
 
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
@@ -16,15 +15,9 @@ import com.opengamma.strata.collect.io.PropertySet;
 import com.opengamma.strata.collect.io.ResourceLocator;
 
 /**
- * A unit of currency.
+ * Internal loader of currency and currency pair data.
  * <p>
- * This class represents a unit of currency such as the British Pound, Euro or US Dollar.
- * The currency is represented by a three letter code, intended to be ISO-4217.
- * <p>
- * Currencies must be defined in configuration before they can be used.
- * The currencies defined as constants have been defined in the standard configuration.
- * <p>
- * This class is immutable and thread-safe.
+ * This loads configuration files for {@link Currency} and {@link CurrencyPair}.
  */
 final class CurrencyDataLoader {
 
@@ -36,14 +29,6 @@ final class CurrencyDataLoader {
    * INI file for currency pair data.
    */
   private static final String PAIR_INI = "com/opengamma/basics/currency/CurrencyPair.ini";
-  /**
-   * The valid regex for an ISO code.
-   */
-  private static final Pattern CODE = Pattern.compile("[A-Z]{3}");
-  /**
-   * The valid regex for an currency pair.
-   */
-  private static final Pattern PAIR = Pattern.compile("[A-Z]{3}[/][A-Z]{3}");
 
   // restricted constructor
   private CurrencyDataLoader() {
@@ -53,13 +38,14 @@ final class CurrencyDataLoader {
   /**
    * Loads the available currencies.
    * 
+   * @param loadHistoric  whether to load the historic or active currencies
    * @return the map of known currencies
    */
-  static ImmutableMap<String, Currency> loadCurrencies(boolean historic) {
+  static ImmutableMap<String, Currency> loadCurrencies(boolean loadHistoric) {
     try {
       IniFile ini = IniFile.ofChained(
           ResourceLocator.streamOfClasspathResources(CURRENCY_INI).map(ResourceLocator::getCharSource));
-      return parseCurrencies(ini, historic);
+      return parseCurrencies(ini, loadHistoric);
 
     } catch (RuntimeException ex) {
       // logging used because this is loaded in a static variable
@@ -71,17 +57,15 @@ final class CurrencyDataLoader {
   }
 
   // parse currency info
-  private static ImmutableMap<String, Currency> parseCurrencies(IniFile ini, boolean historic) {
+  private static ImmutableMap<String, Currency> parseCurrencies(IniFile ini, boolean loadHistoric) {
     ImmutableMap.Builder<String, Currency> builder = ImmutableMap.builder();
     for (Entry<String, PropertySet> entry : ini.asMap().entrySet()) {
       String currencyCode = entry.getKey();
-      if (CODE.matcher(currencyCode).matches()) {
+      if (Currency.REGEX_FORMAT.matcher(currencyCode).matches()) {
         PropertySet properties = entry.getValue();
-        boolean isHistoric = false;
-        if (properties.keys().contains("historic")) {
-          isHistoric = Boolean.parseBoolean(properties.getValue("historic"));
-        }
-        if (isHistoric == historic) {
+        boolean isHistoric =
+            (properties.keys().contains("historic") && Boolean.parseBoolean(properties.getValue("historic")));
+        if (isHistoric == loadHistoric) {
           Integer minorUnits = Integer.parseInt(properties.getValue("minorUnitDigits"));
           String triangulationCurrency = properties.getValue("triangulationCurrency");
           builder.put(currencyCode, new Currency(currencyCode, minorUnits, triangulationCurrency));
@@ -95,7 +79,7 @@ final class CurrencyDataLoader {
   /**
    * Loads the available currency pairs.
    * 
-   * @return the map of known currency pairs
+   * @return the map of known currency pairs, where the value is the number of digits in the rate
    */
   static ImmutableMap<CurrencyPair, Integer> loadPairs() {
     try {
@@ -117,7 +101,7 @@ final class CurrencyDataLoader {
     ImmutableMap.Builder<CurrencyPair, Integer> builder = ImmutableMap.builder();
     for (Entry<String, PropertySet> entry : ini.asMap().entrySet()) {
       String pairStr = entry.getKey();
-      if (PAIR.matcher(pairStr).matches()) {
+      if (CurrencyPair.REGEX_FORMAT.matcher(pairStr).matches()) {
         CurrencyPair pair = CurrencyPair.parse(pairStr);
         PropertySet properties = entry.getValue();
         Integer rateDigits = Integer.parseInt(properties.getValue("rateDigits"));
