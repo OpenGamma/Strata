@@ -19,16 +19,16 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  */
 public final class MarketDataRequirementsBuilder {
 
-  /** Keys identifying the market data values required for the calculations. */
+  /** IDs identifying the observable market data values required for the calculations. */
   private final Set<ObservableId> observables = new HashSet<>();
 
-  /** Keys identifying the market data values required for the calculations. */
+  /** IDs identifying the non-observable market data values required for the calculations. */
   private final Set<MarketDataId<?>> nonObservables = new HashSet<>();
 
-  /** Keys identifying the time series of market data values required for the calculations. */
+  /** IDs identifying the time series of market data values required for the calculations. */
   private final Set<ObservableId> timeSeries = new HashSet<>();
 
-  /** Keys identifying the time series of market data values required for the calculations. */
+  /** The currencies used in the outputs of the calculations. */
   private final Set<Currency> outputCurrencies = new HashSet<>();
 
   /**
