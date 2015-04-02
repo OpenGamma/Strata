@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
  * <ul>
  *   <li>A {@link StandardId} identifying the market data. This ID can come from any system. It might be
  *   an OpenGamma ID, for example {@code OG-Index~GBP_LIBOR_3M}, or it can be an ID from a market
- *   data vendor, for example {@code Bloomberg-Ticker~AAPL US Equity}.</li>
+ *   data vendor, for example {@code BloombergTicker~AAPL US Equity}.</li>
  *
  *   <li>A {@link FieldName} indicating the field in the market data record containing the data. See
  *   the {@code FieldName} documentation for more details.</li>

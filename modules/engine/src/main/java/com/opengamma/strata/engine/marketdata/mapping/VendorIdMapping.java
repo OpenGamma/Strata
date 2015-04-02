@@ -18,15 +18,20 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  */
 public interface VendorIdMapping {
 
-  /** A mapping that always returns the ID that is passed in. */
-  public static final VendorIdMapping IDENTITY = id -> id;
+  /**
+   * Returns a mapping that always returns the ID that is passed in.
+   *
+   * @return a mapping that always returns the ID that is passed in
+   */
+  public static VendorIdMapping identity() {
+    return id -> id;
+  }
 
   /**
-   * Returns an ID that can be used for looking up the market data in a market data provider.
+   * Returns an observable ID that can be used for looking up the market data in a market data provider.
    *
    * @param id  an observable ID containing a standard ID and a market data vendor
-   * @return a standard ID derived from the argument's standard ID that is suitable for requesting the
-   *   data from the vendor
+   * @return an observable ID that can be used for looking up the market data in a market data provider
    */
   public abstract ObservableId idForVendor(ObservableId id);
 }

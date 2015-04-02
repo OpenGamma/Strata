@@ -20,8 +20,14 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  */
 public interface ObservableMarketDataBuilder {
 
-  /** Builder that doesn't build any market data or return any requirements. */
-  public static final ObservableMarketDataBuilder NONE = requirements -> ImmutableMap.of();
+  /**
+   * Returns a builder that doesn't build any market data.
+   *
+   * @return a builder that doesn't build any market data
+   */
+  public static ObservableMarketDataBuilder none() {
+    return requirements -> ImmutableMap.of();
+  }
 
   /**
    * Returns market data values for the IDs in {@code requirements} or the details of why the data

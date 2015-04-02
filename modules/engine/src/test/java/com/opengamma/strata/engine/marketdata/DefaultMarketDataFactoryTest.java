@@ -59,8 +59,8 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(timeSeries),
-            ObservableMarketDataBuilder.NONE,
-            VendorIdMapping.IDENTITY);
+            ObservableMarketDataBuilder.none(),
+            VendorIdMapping.identity());
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
@@ -87,8 +87,8 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.NONE,
-            VendorIdMapping.IDENTITY,
+            ObservableMarketDataBuilder.none(),
+            VendorIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
             new IndexCurveMarketDataBuilder());
 

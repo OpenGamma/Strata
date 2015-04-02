@@ -155,8 +155,8 @@ public class SwapPricingTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new EmptyTimeSeriesProvider(),
-            ObservableMarketDataBuilder.NONE,
-            VendorIdMapping.IDENTITY,
+            ObservableMarketDataBuilder.none(),
+            VendorIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
             new IndexCurveMarketDataBuilder());
 
