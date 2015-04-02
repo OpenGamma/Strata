@@ -56,8 +56,10 @@ import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataResult;
 import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.engine.marketdata.mapping.VendorIdMapping;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
@@ -153,6 +155,8 @@ public class SwapPricingTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new EmptyTimeSeriesProvider(),
+            ObservableMarketDataBuilder.none(),
+            VendorIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
             new IndexCurveMarketDataBuilder());
 

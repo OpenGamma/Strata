@@ -5,17 +5,16 @@
  */
 package com.opengamma.strata.engine.calculations;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**
@@ -26,21 +25,16 @@ import com.opengamma.strata.marketdata.key.MarketDataKey;
  */
 public class CalculationTask {
 
-  /**
-   * The target, such as a trade.
-   */
+  /** The target, such as a trade. */
   private final CalculationTarget target;
-  /**
-   * The function to invoke.
-   */
+
+  /** The function that performs the calculations. */
   private final VectorEngineFunction<CalculationTarget, ?> function;
-  /**
-   * The mappings to select market data.
-   */
+
+  /** The mappings to select market data. */
   private final MarketDataMappings marketDataMappings;
-  /**
-   * The rules for reporting the output.
-   */
+
+  /** The rules for reporting the output. */
   private final ReportingRules reportingRules;
 
   /**
@@ -72,21 +66,18 @@ public class CalculationTask {
    */
   public MarketDataRequirements requirements() {
     CalculationRequirements calculationRequirements = function.requirements(target);
-    ImmutableSet.Builder<ObservableId> timeSeriesReqsBuilder = ImmutableSet.builder();
-    ImmutableSet.Builder<MarketDataId<?>> singleValueReqsBuilder = ImmutableSet.builder();
+    MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
 
     calculationRequirements.getTimeSeriesRequirements().stream()
-        .forEach(key -> timeSeriesReqsBuilder.add(marketDataMappings.getIdForObservableKey(key)));
+        .map(marketDataMappings::getIdForObservableKey)
+        .forEach(requirementsBuilder::timeSeries);
 
-    // This should be possible using streams but I can't persuade the type inference to handle it
+    // This might be possible using streams but I can't figure out how to do it
     for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
       MarketDataId<?> id = marketDataMappings.getIdForKey(key);
-      singleValueReqsBuilder.add(id);
+      requirementsBuilder.values(id);
     }
-    return MarketDataRequirements.builder()
-        .timeSeriesRequirements(timeSeriesReqsBuilder.build())
-        .singleValueRequirements(singleValueReqsBuilder.build())
-        .build();
+    return requirementsBuilder.build();
   }
 
   /**

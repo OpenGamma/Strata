@@ -28,6 +28,7 @@ public interface MarketDataBuilder<T, I extends MarketDataId<T>> {
    */
   public abstract MarketDataRequirements requirements(I id);
 
+  // TODO Does this need to handle multiple values at once? That was done for observables which are separate now. FX?
   // TODO Will need an extra parameter for scenario input perturbations
   /**
    * Builds and returns the market data identified by the IDs in {@code requirements}.

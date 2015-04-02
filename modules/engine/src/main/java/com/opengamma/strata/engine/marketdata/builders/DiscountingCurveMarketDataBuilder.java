@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.engine.marketdata.builders;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
@@ -42,8 +41,7 @@ public class DiscountingCurveMarketDataBuilder extends SingleValueMarketDataBuil
   public MarketDataRequirements requirements(DiscountingCurveId id) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName());
     return MarketDataRequirements.builder()
-        // TODO Get rid of ImmutableSet.of when Joda Beans #104 is fixed
-        .singleValueRequirements(ImmutableSet.of(curveGroupId))
+        .values(curveGroupId)
         .build();
   }
 
