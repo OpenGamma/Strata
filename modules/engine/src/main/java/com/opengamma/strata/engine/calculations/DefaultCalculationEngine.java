@@ -52,15 +52,17 @@ public class DefaultCalculationEngine implements CalculationEngine {
 
   @Override
   public CalculationTasksConfig createCalculationConfig(
-      List<? extends CalculationTarget> targets, List<Column> columns,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
       PricingRules pricingRules,
       MarketDataRules marketDataRules,
       ReportingRules reportingRules) {
 
     // Create columns with rules that are a combination of the column overrides and the defaults
-    Stream<Column> effectiveColumns =
+    List<Column> effectiveColumns =
         columns.stream()
-            .map(column -> column.withDefaultRules(pricingRules, marketDataRules, reportingRules));
+            .map(column -> column.withDefaultRules(pricingRules, marketDataRules, reportingRules))
+            .collect(toImmutableList());
 
     List<CalculationTaskConfig> config =
         targets.stream()
@@ -85,8 +87,8 @@ public class DefaultCalculationEngine implements CalculationEngine {
    * @param columns  the columns defining the values that should be calculated
    * @return a stream of configuration objects for the calculations for the target
    */
-  private Stream<CalculationTaskConfig> targetTaskConfigs(CalculationTarget target, Stream<Column> columns) {
-    return columns.map(column -> createTaskConfig(target, column));
+  private Stream<CalculationTaskConfig> targetTaskConfigs(CalculationTarget target, List<Column> columns) {
+    return columns.stream().map(column -> createTaskConfig(target, column));
   }
 
   @Override
