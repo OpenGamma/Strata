@@ -56,7 +56,7 @@ public final class MarketDataMappings implements ImmutableBean {
   /** Mapping used for IDs that don't have a mapping registered. It always returns failure results. */
   private static final MarketDataMapping<?, ?> NO_MAPPING = new FailureMapping();
 
-  /** Mapping for observable market data. */
+  /** Market data vendor system that is the source of observable market data, for example Bloomberg or Reuters. */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataVendor marketDataVendor;
 
@@ -161,7 +161,7 @@ public final class MarketDataMappings implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets mapping for observable market data.
+   * Gets market data vendor system that is the source of observable market data, for example Bloomberg or Reuters.
    * @return the value of the property, not null
    */
   public MarketDataVendor getMarketDataVendor() {
