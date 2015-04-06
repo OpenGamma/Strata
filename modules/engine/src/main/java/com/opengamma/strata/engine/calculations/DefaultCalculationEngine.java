@@ -144,7 +144,7 @@ public class DefaultCalculationEngine implements CalculationEngine {
 
     MarketDataMappings marketDataMappings =
         column.getMarketDataRules().mappings(target)
-            .orElse(MarketDataMappings.EMPTY);
+            .orElse(MarketDataMappings.empty());
 
     return CalculationTaskConfig.of(target, functionConfig, marketDataMappings, column.getReportingRules());
   }
