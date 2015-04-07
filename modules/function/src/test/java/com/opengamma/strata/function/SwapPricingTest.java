@@ -163,11 +163,11 @@ public class SwapPricingTest {
     List<SwapTrade> trades = ImmutableList.of(trade);
     Column pvColumn = Column.builder().measure(presentValue).build();
     List<Column> columns = ImmutableList.of(pvColumn);
-    CalculationRunner engine = new DefaultCalculationRunner(Executors.newSingleThreadExecutor());
+    CalculationRunner calculationRunner = new DefaultCalculationRunner(Executors.newSingleThreadExecutor());
     ReportingRules reportingCurrency = ReportingRules.fixedCurrency(USD);
     CalculationTasksConfig calculationConfig =
-        engine.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
-    CalculationTasks calculationTasks = engine.createCalculationTasks(calculationConfig);
+        calculationRunner.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
+    CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
     MarketDataResult marketDataResult =
         marketDataFactory.buildBaseMarketData(
@@ -175,7 +175,7 @@ public class SwapPricingTest {
             suppliedData);
 
     BaseMarketData marketData = marketDataResult.getMarketData();
-    Results results = engine.calculate(calculationTasks, marketData);
+    Results results = calculationRunner.calculate(calculationTasks, marketData);
     Result<?> result = results.get(0, presentValue);
     assertThat(result).isSuccess();
 
