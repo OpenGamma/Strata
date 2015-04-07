@@ -39,11 +39,13 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 
 /**
- * An immutable implementation of {@code DoubleTimeSeries} where the
- * data stored is expected to be sparse. For example, a few points
- * spread throughout a year. If more or less continuous data is
- * being used then {@link DenseLocalDateDoubleTimeSeries} is likely
- * to be a better choice for the data.
+ * A immutable implementation of {@code DoubleTimeSeries} where the
+ * data stored is expected to be relatively sparse.
+ * <p>
+ * A sparse time-series has a relatively low density of dates with values.
+ * For example, a few points spread throughout a year.
+ * If more or less continuous data is being used then {@link DenseLocalDateDoubleTimeSeries}
+ * is likely to be a better choice for the data.
  * <p>
  * This implementation uses arrays internally.
  */
@@ -51,7 +53,10 @@ import com.opengamma.strata.collect.function.ObjDoublePredicate;
 final class SparseLocalDateDoubleTimeSeries
     implements ImmutableBean, Serializable, LocalDateDoubleTimeSeries {
 
-  static final LocalDateDoubleTimeSeries EMPTY_SERIES =
+  /**
+   * An empty time-series.
+   */
+  static final LocalDateDoubleTimeSeries EMPTY =
       new SparseLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
 
   /**
@@ -60,7 +65,6 @@ final class SparseLocalDateDoubleTimeSeries
    */
   @PropertyDefinition(get = "manual", validate = "notNull")
   private final LocalDate[] dates;
-
   /**
    * The values in the series.
    * The date for each value is at the matching array index.
@@ -69,7 +73,6 @@ final class SparseLocalDateDoubleTimeSeries
   private final double[] values;
 
   //-------------------------------------------------------------------------
-
   /**
    * Obtains a time-series from matching arrays of dates and values.
    * <p>
@@ -139,17 +142,6 @@ final class SparseLocalDateDoubleTimeSeries
     this.values = values;
   }
 
-  /**
-   * Creates an instance validating the supplied arguments.
-   *
-   * @param date  the date
-   * @param value  the value
-   */
-  private SparseLocalDateDoubleTimeSeries(LocalDate date, double value) {
-    dates = new LocalDate[] {ArgChecker.notNull(date, "date")};
-    values = new double[] {value};
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the dates in the series.
@@ -196,7 +188,6 @@ final class SparseLocalDateDoubleTimeSeries
   }
 
   //-------------------------------------------------------------------------
-
   @Override
   public LocalDate getLatestDate() {
     if (isEmpty()) {
@@ -224,7 +215,7 @@ final class SparseLocalDateDoubleTimeSeries
     }
     // special case when this is empty or when the dates are the same
     if (isEmpty() || startInclusive.equals(endExclusive)) {
-      return EMPTY_SERIES;
+      return EMPTY;
     }
     // where in the array would start/end be (whether or not it's actually in the series)
     int startPos = Arrays.binarySearch(dates, startInclusive);
@@ -241,7 +232,7 @@ final class SparseLocalDateDoubleTimeSeries
   public LocalDateDoubleTimeSeries headSeries(int numPoints) {
     ArgChecker.notNegative(numPoints, "numPoints");
     if (numPoints == 0) {
-      return EMPTY_SERIES;
+      return EMPTY;
     } else if (numPoints >= size()) {
       return this;
     }
@@ -254,7 +245,7 @@ final class SparseLocalDateDoubleTimeSeries
   public LocalDateDoubleTimeSeries tailSeries(int numPoints) {
     ArgChecker.notNegative(numPoints, "numPoints");
     if (numPoints == 0) {
-      return EMPTY_SERIES;
+      return EMPTY;
     } else if (numPoints >= size()) {
       return this;
     }

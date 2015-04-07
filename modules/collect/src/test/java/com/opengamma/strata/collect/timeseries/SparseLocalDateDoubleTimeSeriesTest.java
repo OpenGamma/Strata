@@ -6,6 +6,9 @@
 package com.opengamma.strata.collect.timeseries;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
@@ -85,9 +88,8 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.values().toArray(), new double[] {2d});
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_singleton_nullDateDisallowed() {
-    LocalDateDoubleTimeSeries.of(null, 1d);
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.of(null, 1d));
   }
 
   //-------------------------------------------------------------------------
@@ -107,37 +109,40 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.values().toArray(), new double[] {2d, 3d});
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collectionCollection_dateCollectionNull() {
     Collection<Double> values = values(2d, 3d);
-    LocalDateDoubleTimeSeries.builder().putAll((Collection<LocalDate>) null, values).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder()
+        .putAll((Collection<LocalDate>) null, values)
+        .build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collectionCollection_valueCollectionNull() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
-    LocalDateDoubleTimeSeries.builder().putAll(dates, (Collection<Double>) null).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, (Collection<Double>) null).build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collectionCollection_dateCollectionWithNull() {
     Collection<LocalDate> dates = Arrays.asList(DATE_2011_01_01, null);
     Collection<Double> values = values(2d, 3d);
-    LocalDateDoubleTimeSeries.builder().putAll(dates, values).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, values).build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collectionCollection_valueCollectionWithNull() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
     Collection<Double> values = Arrays.asList(2d, null);
-    LocalDateDoubleTimeSeries.builder().putAll(dates, values).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, values).build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collectionCollection_collectionsOfDifferentSize() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01);
     Collection<Double> values = values(2d, 3d);
-    LocalDateDoubleTimeSeries.builder().putAll(dates, values).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, values).build());
+  }
+
+  public void test_of_collectionCollection_sparse_differentSize() {
+    List<LocalDate> dates = ImmutableList.of(DATE_2011_01_01, DATE_2011_06_01);
+    List<Double> values = ImmutableList.of(1d);
+    assertThrowsIllegalArg(() -> SparseLocalDateDoubleTimeSeries.of(dates, values));
   }
 
   //-------------------------------------------------------------------------
@@ -158,25 +163,22 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.values().toArray(), new double[] {2d, 3d});
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_map_null() {
-    LocalDateDoubleTimeSeries.builder().putAll((Map<LocalDate, Double>) null).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll((Map<LocalDate, Double>) null).build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_map_dateNull() {
     Map<LocalDate, Double> map = new HashMap<>();
     map.put(DATE_2011_01_01, 2d);
     map.put(null, 3d);
-    LocalDateDoubleTimeSeries.builder().putAll(map).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(map).build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_map_valueNull() {
     Map<LocalDate, Double> map = new HashMap<>();
     map.put(DATE_2011_01_01, 2d);
     map.put(DATE_2012_01_01, null);
-    LocalDateDoubleTimeSeries.builder().putAll(map).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(map).build());
   }
 
   //-------------------------------------------------------------------------
@@ -197,16 +199,16 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.values().toArray(), new double[] {2d, 3d});
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collection_collectionNull() {
-    LocalDateDoubleTimeSeries.builder().putAll(((List<LocalDateDoublePoint>) null)).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder()
+        .putAll(((List<LocalDateDoublePoint>) null))
+        .build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_collection_collectionWithNull() {
     Collection<LocalDateDoublePoint> points = Arrays.asList(
         LocalDateDoublePoint.of(DATE_2011_01_01, 2d), null);
-    LocalDateDoubleTimeSeries.builder().putAll(points.stream()).build();
+    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(points.stream()).build());
   }
 
   //-------------------------------------------------------------------------
@@ -303,10 +305,9 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.size(), 0);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_subSeries_startAfterEnd() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
-    base.subSeries(date(2011, 1, 2), DATE_2011_01_01);
+    assertThrowsIllegalArg(() -> base.subSeries(date(2011, 1, 2), DATE_2011_01_01));
   }
 
   //-------------------------------------------------------------------------
@@ -343,10 +344,9 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.size(), 0);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_headSeries_negative() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
-    base.headSeries(-1);
+    assertThrowsIllegalArg(() -> base.headSeries(-1));
   }
 
   //-------------------------------------------------------------------------
@@ -383,10 +383,9 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertEquals(test.size(), 0);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_tailSeries_negative() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
-    base.tailSeries(-1);
+    assertThrowsIllegalArg(() -> base.tailSeries(-1));
   }
 
   //-------------------------------------------------------------------------
@@ -611,8 +610,15 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_coverage() {
-    TestHelper.coverImmutableBean(LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d));
+  public void coverage() {
+    List<LocalDate> dates = ImmutableList.of(DATE_2011_01_01, DATE_2011_06_01);
+    List<Double> values = ImmutableList.of(1d, 2d);
+    SparseLocalDateDoubleTimeSeries test = SparseLocalDateDoubleTimeSeries.of(dates, values);
+    coverImmutableBean(test);
+    List<LocalDate> dates2 = ImmutableList.of(DATE_2011_06_01, DATE_2012_01_01);
+    List<Double> values2 = ImmutableList.of(2d, 3d);
+    SparseLocalDateDoubleTimeSeries test2 = SparseLocalDateDoubleTimeSeries.of(dates2, values2);
+    coverBeanEquals(test, test2);
   }
 
   //-------------------------------------------------------------------------
