@@ -19,7 +19,7 @@ import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 /**
  * Runs a set of calculations over a portfolio and returns the results.
  */
-public interface CalculationEngine {
+public interface CalculationRunner {
 
   /**
    * Creates configuration for a set of calculations.
