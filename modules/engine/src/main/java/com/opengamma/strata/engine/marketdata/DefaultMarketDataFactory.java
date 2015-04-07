@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static java.util.stream.Collectors.groupingBy;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.builders.MissingMappingMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.VendorIdMapping;
@@ -75,8 +77,16 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     this.timeSeriesProvider = ArgChecker.notNull(timeSeriesProvider, "timeSeriesProvider");
     this.observablesBuilder = ArgChecker.notNull(observablesBuilder, "observablesBuilder");
     this.vendorIdMapping = ArgChecker.notNull(vendorIdMapping, "vendorIdMapping");
-    this.builders = builders.stream()
-        .collect(toImmutableMap(MarketDataBuilder::getMarketDataIdType, builder -> builder));
+
+    // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
+    // If the builders argument includes a missing mapping builder it can overwrite the one inserted below
+    Map<Class<?>, MarketDataBuilder<?, ?>> builderMap = new HashMap<>();
+    // Add a builder that adds failures with helpful error messages when there is no mapping configured for a key type
+    builderMap.put(
+        MissingMappingMarketDataBuilder.INSTANCE.getMarketDataIdType(),
+        MissingMappingMarketDataBuilder.INSTANCE);
+    builders.stream().forEach(builder -> builderMap.put(builder.getMarketDataIdType(), builder));
+    this.builders = ImmutableMap.copyOf(builderMap);
   }
 
   @Override

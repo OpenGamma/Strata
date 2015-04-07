@@ -17,6 +17,9 @@ import com.opengamma.strata.marketdata.id.MarketDataId;
  * A market data builder creates items of market data for a set of market data IDs.
  * <p>
  * A builder implementation produces a single type of market data and consumes a single type of market data ID.
+ *
+ * @param <T>  the type of the market data built by this class
+ * @param <I>  the type of the market data ID handled by this class
  */
 public interface MarketDataBuilder<T, I extends MarketDataId<T>> {
 
@@ -28,8 +31,8 @@ public interface MarketDataBuilder<T, I extends MarketDataId<T>> {
    */
   public abstract MarketDataRequirements requirements(I id);
 
-  // TODO Does this need to handle multiple values at once? That was done for observables which are separate now. FX?
-  // TODO Will need an extra parameter for scenario input perturbations
+  // TODO Does this need to handle multiple values at once? That was done for observables which are separate now.
+  // TODO Will need an extra parameter for scenario input perturbations.
   /**
    * Builds and returns the market data identified by the IDs in {@code requirements}.
    * <p>

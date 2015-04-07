@@ -1,8 +1,8 @@
 package com.opengamma.strata.engine.marketdata;
 
+import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
@@ -14,11 +14,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.collect.TestHelper;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
@@ -29,8 +30,10 @@ import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
 import com.opengamma.strata.marketdata.id.IndexRateId;
+import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.id.QuoteId;
+import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 
 @Test
 public class DefaultMarketDataFactoryTest {
@@ -112,7 +115,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataBuilder(),
             new TestVendorIdMapping());
 
-    BaseMarketData suppliedData = BaseMarketData.empty(TestHelper.date(2011, 3, 8));
+    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
     QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
     QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().values(id1, id2).build();
@@ -120,6 +123,28 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValue(id1)).isEqualTo(1d);
     assertThat(marketData.getValue(id2)).isEqualTo(2d);
+  }
+
+  /**
+   * Tests that failures are included in the results for keys with no mapping
+   */
+  public void missingMapping() {
+    DefaultMarketDataFactory factory =
+        new DefaultMarketDataFactory(
+            new TestTimeSeriesProvider(ImmutableMap.of()),
+            new TestObservableMarketDataBuilder(),
+            new TestVendorIdMapping());
+
+    DiscountingCurveKey key = DiscountingCurveKey.of(Currency.GBP);
+    MissingMappingId missingId = MissingMappingId.of(key);
+    MarketDataRequirements requirements = MarketDataRequirements.builder().values(missingId).build();
+    MarketDataResult result = factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)));
+    Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
+    Result<?> missingResult = failures.get(missingId);
+
+    assertThat(missingResult).isFailure();
+    String message = Messages.format("No market data mapping found for market data key {}", key);
+    assertThat(missingResult.getFailure().getMessage()).isEqualTo(message);
   }
 
   /**
