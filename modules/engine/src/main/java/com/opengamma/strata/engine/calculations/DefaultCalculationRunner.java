@@ -36,9 +36,9 @@ import com.opengamma.strata.engine.marketdata.SingleScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**
- * The default calculation engine implementation.
+ * The default calculation runner implementation.
  */
-public class DefaultCalculationEngine implements CalculationEngine {
+public class DefaultCalculationRunner implements CalculationRunner {
 
   /** Executes the tasks that perform the individual calculations. */
   private final ListeningExecutorService executor;
@@ -46,7 +46,7 @@ public class DefaultCalculationEngine implements CalculationEngine {
   /**
    * @param executor  executes the tasks that perform the calculations
    */
-  public DefaultCalculationEngine(ExecutorService executor) {
+  public DefaultCalculationRunner(ExecutorService executor) {
     this.executor = MoreExecutors.listeningDecorator(executor);
   }
 

@@ -27,7 +27,7 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 @Test
-public class DefaultCalculationEngineTest {
+public class DefaultCalculationRunnerTest {
 
   public void createCalculationConfig() {
     SimpleMarketDataRules marketDataRules = SimpleMarketDataRules.builder().build();
@@ -37,7 +37,7 @@ public class DefaultCalculationEngineTest {
             .addCalculation(measure, TestTarget.class, TestFunction.class)
             .build();
     ReportingRules reportingRules = ReportingRules.fixedCurrency(Currency.GBP);
-    DefaultCalculationEngine engine = new DefaultCalculationEngine(MoreExecutors.newDirectExecutorService());
+    DefaultCalculationRunner engine = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     TestTarget target1 = new TestTarget();
     TestTarget target2 = new TestTarget();
     List<TestTarget> targets = ImmutableList.of(target1, target2);

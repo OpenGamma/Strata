@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -42,9 +41,9 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.calculations.CalculationEngine;
+import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
-import com.opengamma.strata.engine.calculations.DefaultCalculationEngine;
+import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.MarketDataRules;
@@ -164,7 +163,7 @@ public class SwapPricingTest {
     List<SwapTrade> trades = ImmutableList.of(trade);
     Column pvColumn = Column.builder().measure(presentValue).build();
     List<Column> columns = ImmutableList.of(pvColumn);
-    CalculationEngine engine = new DefaultCalculationEngine(Executors.newSingleThreadExecutor());
+    CalculationRunner engine = new DefaultCalculationRunner(Executors.newSingleThreadExecutor());
     ReportingRules reportingCurrency = ReportingRules.fixedCurrency(USD);
     CalculationTasksConfig calculationConfig =
         engine.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
