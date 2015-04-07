@@ -30,7 +30,7 @@ public class MarketDataTestUtils {
    * @return an empty {@code CurveGroup}
    */
   public static CurveGroup curveGroup() {
-    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount(FxMatrix.EMPTY_FX_MATRIX);
+    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount(FxMatrix.empty());
     return new CurveGroup(multicurve, new CurveBuildingBlockBundle());
   }
 
