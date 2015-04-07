@@ -41,6 +41,29 @@ public final class ArgChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
+   *  ArgChecker.isTrue(collection.contains("value"));
+   * </pre>
+   * <p>
+   * It is strongly recommended to pass an additional message argument using
+   * {@link #isTrue(boolean, String)}.
+   * 
+   * @param validIfTrue  a boolean resulting from testing an argument
+   * @throws IllegalArgumentException if the test value is false
+   */
+  public static void isTrue(boolean validIfTrue) {
+    // return void, not the parameter, as no need to check a boolean method parameter
+    if (!validIfTrue) {
+      throw new IllegalArgumentException("Invalid argument, expression must be true");
+    }
+  }
+
+  /**
+   * Checks that the specified boolean is true.
+   * <p>
+   * Given the input parameter, this returns normally only if it is true.
+   * This will typically be the result of a caller-specific check.
+   * For example:
+   * <pre>
    *  ArgChecker.isTrue(collection.contains("value"), "Collection must contain 'value'");
    * </pre>
    * 
@@ -81,6 +104,35 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the test value is false
    */
   public static void isTrue(boolean validIfTrue, String message, Object... arg) {
+    // return void, not the parameter, as no need to check a boolean method parameter
+    if (!validIfTrue) {
+      throw new IllegalArgumentException(Messages.format(message, arg));
+    }
+  }
+
+  /**
+   * Checks that the specified boolean is true.
+   * <p>
+   * Given the input parameter, this returns normally only if it is true.
+   * This will typically be the result of a caller-specific check.
+   * For example:
+   * <pre>
+   *  ArgChecker.isTrue(value > check, "Value must be greater than check: {}", value);
+   * </pre>
+   * <p>
+   * This returns {@code void}, and not the value being checked, as there is
+   * never a good reason to validate a boolean parameter value.
+   * <p>
+   * The message is produced using a template that contains zero or one "{}" placeholders.
+   * The placeholder, if present, is replaced by the argument.
+   * If there is no placeholder, the argument is appended to the end of the message.
+   * 
+   * @param validIfTrue  a boolean resulting from testing an argument
+   * @param message  the error message with {} placeholders, not null
+   * @param arg  the message argument
+   * @throws IllegalArgumentException if the test value is false
+   */
+  public static void isTrue(boolean validIfTrue, String message, double arg) {
     // return void, not the parameter, as no need to check a boolean method parameter
     if (!validIfTrue) {
       throw new IllegalArgumentException(Messages.format(message, arg));

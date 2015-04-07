@@ -31,6 +31,15 @@ import com.google.common.collect.Sets;
 @Test
 public class ArgCheckerTest {
 
+  public void test_isTrue_simple_ok() {
+    ArgChecker.isTrue(true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_isTrue_simple_false() {
+    ArgChecker.isTrue(false);
+  }
+
   public void test_isTrue_ok() {
     ArgChecker.isTrue(true, "Message");
   }
@@ -41,14 +50,24 @@ public class ArgCheckerTest {
   }
 
   public void test_isTrue_ok_args() {
-    ArgChecker.isTrue(true, "Message {} {} {}", "A", 2, 3.);
+    ArgChecker.isTrue(true, "Message {} {} {}", "A", 2, 3d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A 2 3.0")
-  public void test_isTrue_ok_args_false() {
-    ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3.);
+  public void test_isTrue_false_args() {
+    ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3d);
   }
 
+  public void test_isTrue_ok_doubleArg() {
+    ArgChecker.isTrue(true, "Message {}", 3d);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message 3.0")
+  public void test_isTrue_false_doubleArg() {
+    ArgChecker.isTrue(false, "Message {}", 3d);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_isFalse_ok() {
     ArgChecker.isFalse(false, "Message");
   }
