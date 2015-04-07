@@ -51,7 +51,7 @@ public interface PointSensitivityBuilder {
   public abstract PointSensitivityBuilder withCurrency(Currency currency);
 
   /**
-   * Multiplies  the sensitivities in this builder by the specified factor.
+   * Multiplies the sensitivities in this builder by the specified factor.
    * <p>
    * The result will consist of the same points, but with each sensitivity multiplied.
    * <p>
@@ -74,7 +74,7 @@ public interface PointSensitivityBuilder {
    * This is used to apply a mathematical operation to the sensitivities.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.mapSensitivities(value -> 1 / value);
+   *   inverse = base.mapSensitivities(value -> 1 / value);
    * </pre>
    * <p>
    * Builders may be mutable.

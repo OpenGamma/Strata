@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Guavate;
 
 /**
- * Sensitivity to a group of curves.
+ * A collection of point sensitivities.
  * <p>
  * Contains a list of {@linkplain PointSensitivity point sensitivity} objects, each
  * referring to a specific point on a curve that was queried.
@@ -44,7 +44,7 @@ public final class PointSensitivities
     implements ImmutableBean, Serializable {
 
   /**
-   * A group sensitivities instance to be used when there is no sensitivity.
+   * A sensitivities instance to be used when there is no sensitivity.
    */
   public static final PointSensitivities NONE = new PointSensitivities(ImmutableList.of());
 
@@ -90,14 +90,14 @@ public final class PointSensitivities
 
   //-------------------------------------------------------------------------
   /**
-   * Combines this group sensitivity with another instance.
+   * Combines the point sensitivities with another instance.
    * <p>
-   * This returns a new group sensitivity with a combined list of point sensitivities.
+   * This returns a new sensitivity instance with a combined list of point sensitivities.
    * This instance is immutable and unaffected by this method.
    * The result may contain duplicate point sensitivities.
    * 
-   * @param other  the other group sensitivity
-   * @return a {@code CurveGroupSensitivity} based on this one, with the other instance added
+   * @param other  the other point sensitivities
+   * @return a {@code PointSensitivities} based on this one, with the other instance added
    */
   public PointSensitivities combinedWith(PointSensitivities other) {
     return new PointSensitivities(ImmutableList.<PointSensitivity>builder()
@@ -106,6 +106,7 @@ public final class PointSensitivities
         .build());
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Multiplies the point sensitivities by the specified factor.
    * <p>
@@ -113,7 +114,7 @@ public final class PointSensitivities
    * This instance is immutable and unaffected by this method. 
    * 
    * @param factor  the multiplicative factor
-   * @return a {@code CurveGroupSensitivity} based on this one, with each sensitivity multiplied by the factor
+   * @return a {@code PointSensitivities} based on this one, with each sensitivity multiplied by the factor
    */
   public PointSensitivities multipliedBy(double factor) {
     return mapSensitivities(s -> s * factor);
@@ -128,11 +129,11 @@ public final class PointSensitivities
    * This is used to apply a mathematical operation to the sensitivities.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.mapSensitivities(value -> 1 / value);
+   *   inverse = base.mapSensitivities(value -> 1 / value);
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
-   * @return a {@code CurveGroupSensitivity} based on this one, with the operator applied to the point sensitivities
+   * @return a {@code PointSensitivities} based on this one, with the operator applied to the point sensitivities
    */
   public PointSensitivities mapSensitivities(DoubleUnaryOperator operator) {
     return sensitivities.stream()
@@ -155,7 +156,7 @@ public final class PointSensitivities
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
-   * @return a {@code CurveGroupSensitivity} based on this one, with the the sensitivities normalized
+   * @return a {@code PointSensitivities} based on this one, with the the sensitivities normalized
    */
   public PointSensitivities normalized() {
     if (sensitivities.isEmpty()) {
