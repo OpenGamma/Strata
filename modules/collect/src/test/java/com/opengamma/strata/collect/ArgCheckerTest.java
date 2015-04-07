@@ -58,6 +58,15 @@ public class ArgCheckerTest {
     ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3d);
   }
 
+  public void test_isTrue_ok_longArg() {
+    ArgChecker.isTrue(true, "Message {}", 3L);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message 3")
+  public void test_isTrue_false_longArg() {
+    ArgChecker.isTrue(false, "Message {}", 3L);
+  }
+
   public void test_isTrue_ok_doubleArg() {
     ArgChecker.isTrue(true, "Message {}", 3d);
   }
