@@ -18,11 +18,11 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.impl.PricingException;
 
 /**
  * Test {@link ForwardOvernightCompoundedRateObservationFn}.
@@ -430,7 +430,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     when(mockEnv.getValuationDate()).thenReturn(valuationDate);
     assertThrows(
         () -> OBS_FWD_ONCMP.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE),
-        OpenGammaRuntimeException.class);
+        PricingException.class);
   }
 
 }

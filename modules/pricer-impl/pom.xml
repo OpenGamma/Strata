@@ -28,7 +28,7 @@
       <artifactId>strata-finance</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
+      <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
     </dependency>
     <!-- Testing -->
@@ -49,7 +49,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
+      <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
       <type>test-jar</type>
       <scope>test</scope>

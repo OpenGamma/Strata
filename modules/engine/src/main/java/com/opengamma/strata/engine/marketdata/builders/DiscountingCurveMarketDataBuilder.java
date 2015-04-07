@@ -15,7 +15,6 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
-import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
  * Market data builder that builds a {@link YieldCurve} representing the discounting curve for a currency.
@@ -72,7 +71,7 @@ public class DiscountingCurveMarketDataBuilder extends SingleValueMarketDataBuil
       Currency currency) {
 
     return Result.ofNullable(
-        curveGroup.getMulticurveProvider().getCurve(Legacy.currency(currency)),
+        curveGroup.getMulticurveProvider().getCurve(currency),
         FailureReason.MISSING_DATA,
         "No discounting curve available for currency {} in curve group {}",
         currency,

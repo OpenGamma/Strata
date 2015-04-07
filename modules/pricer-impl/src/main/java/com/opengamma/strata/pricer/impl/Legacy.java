@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.impl;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 
@@ -22,16 +21,6 @@ public final class Legacy {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Converts the currency to the legacy object.
-   * 
-   * @param currency  the currency
-   * @return the same currency
-   */
-  public static com.opengamma.util.money.Currency currency(Currency currency) {
-    return com.opengamma.util.money.Currency.of(currency.getCode());
-  }
-
   /**
    * Converts an IBOR-like index to the legacy object.
    * 

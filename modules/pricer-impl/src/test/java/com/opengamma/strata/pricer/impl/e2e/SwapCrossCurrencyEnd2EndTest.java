@@ -21,11 +21,12 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveEUR;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -37,6 +38,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FxResetCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
@@ -49,7 +51,6 @@ import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.strata.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
 import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test end to end for cross currency swaps.
@@ -69,15 +70,15 @@ public class SwapCrossCurrencyEnd2EndTest {
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR =
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
-      StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
-  private static final FXMatrix FX_MATRIX =
-      new FXMatrix(com.opengamma.util.money.Currency.EUR, com.opengamma.util.money.Currency.USD, 1.20);
+      StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
+  private static final FxMatrix FX_MATRIX =
+      FxMatrix.builder().addRate(Currency.EUR, Currency.USD, 1.20).build();
   private static final com.opengamma.analytics.financial.instrument.index.IborIndex EUREURIBOR3M =
       MULTICURVE_EUR_PAIR.getFirst().getIndexesIbor().iterator().next();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_USD_PAIR.getFirst();
   static {
-    MULTICURVE.setCurve(com.opengamma.util.money.Currency.EUR,
-        MULTICURVE_EUR_PAIR.getFirst().getCurve(com.opengamma.util.money.Currency.EUR));
+    MULTICURVE.setCurve(Currency.EUR,
+        MULTICURVE_EUR_PAIR.getFirst().getCurve(Currency.EUR));
     MULTICURVE.setCurve(EUREURIBOR3M, MULTICURVE_EUR_PAIR.getFirst().getCurve(EUREURIBOR3M));
     MULTICURVE.setForexMatrix(FX_MATRIX);
   }

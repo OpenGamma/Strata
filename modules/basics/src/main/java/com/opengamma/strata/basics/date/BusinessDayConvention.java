@@ -67,7 +67,7 @@ public interface BusinessDayConvention
    * @param calendar  the calendar that defines holidays and business days
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date, HolidayCalendar calendar);
+  public abstract LocalDate adjust(LocalDate date, HolidayCalendar calendar);
 
   /**
    * Gets the name that uniquely identifies this convention.
@@ -78,6 +78,6 @@ public interface BusinessDayConvention
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
 }

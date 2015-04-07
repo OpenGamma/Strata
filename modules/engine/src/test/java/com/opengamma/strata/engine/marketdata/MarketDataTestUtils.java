@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
@@ -30,7 +30,7 @@ public class MarketDataTestUtils {
    * @return an empty {@code CurveGroup}
    */
   public static CurveGroup curveGroup() {
-    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount(new FXMatrix());
+    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount(FxMatrix.EMPTY_FX_MATRIX);
     return new CurveGroup(multicurve, new CurveBuildingBlockBundle());
   }
 
@@ -45,7 +45,7 @@ public class MarketDataTestUtils {
   public static YieldCurve discountingCurve(double constantValue, Currency currency, CurveGroup curveGroup) {
     ConstantDoublesCurve curve = ConstantDoublesCurve.from(constantValue, currency + " Discounting");
     YieldCurve yieldCurve = YieldCurve.from(curve);
-    curveGroup.getMulticurveProvider().setCurve(Legacy.currency(currency), yieldCurve);
+    curveGroup.getMulticurveProvider().setCurve(currency, yieldCurve);
     return yieldCurve;
   }
 

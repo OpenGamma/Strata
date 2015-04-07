@@ -33,7 +33,7 @@
     </dependency>
     <!-- TODO This is a temporary dependency on legacy code -->
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
+      <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
     </dependency>
 
@@ -52,7 +52,7 @@
     </dependency>
     <!-- TODO This is a temporary dependency on legacy code -->
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
+      <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
       <type>test-jar</type>
       <scope>test</scope>

@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -39,6 +40,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.CalculationEngine;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
@@ -72,7 +74,6 @@ import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.pricer.impl.e2e.CalendarUSD;
-import com.opengamma.util.tuple.Pair;
 
 @Test
 public class SwapPricingTest {

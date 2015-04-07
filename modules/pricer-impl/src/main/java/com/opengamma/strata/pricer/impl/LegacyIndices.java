@@ -5,22 +5,21 @@
  */
 package com.opengamma.strata.pricer.impl;
 
-import static com.opengamma.financial.convention.businessday.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.financial.convention.daycount.DayCounts.ACT_360;
-import static com.opengamma.financial.convention.daycount.DayCounts.ACT_365;
+import static com.opengamma.analytics.convention.daycount.DayCounts.ACT_360;
+import static com.opengamma.analytics.convention.daycount.DayCounts.ACT_365;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
+import java.time.Period;
 import java.util.Map;
-
-import org.threeten.bp.Period;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
-import com.opengamma.util.money.Currency;
 
 /**
  * Static utilities to convert types to legacy types.

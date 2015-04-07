@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * Mocks and examples for swaps.

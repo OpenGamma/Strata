@@ -29,7 +29,7 @@
     </dependency>
     <!-- TODO Temporary dependency on legacy project -->
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
+      <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
     </dependency>
   </dependencies>
