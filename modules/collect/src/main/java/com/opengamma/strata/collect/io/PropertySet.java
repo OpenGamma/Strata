@@ -32,7 +32,7 @@ public final class PropertySet {
   /**
    * The empty instance.
    */
-  public static final PropertySet EMPTY = new PropertySet(ImmutableListMultimap.of());
+  private static final PropertySet EMPTY = new PropertySet(ImmutableListMultimap.of());
 
   /**
    * The key-value pairs.
@@ -40,6 +40,17 @@ public final class PropertySet {
   private final ImmutableListMultimap<String, String> keyValueMap;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty property set.
+   * <p>
+   * The result contains no properties.
+   *
+   * @return an empty property set
+   */
+  public static PropertySet empty() {
+    return EMPTY;
+  }
+
   /**
    * Obtains an instance from a map.
    * <p>

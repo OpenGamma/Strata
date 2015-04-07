@@ -25,7 +25,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 import com.opengamma.strata.collect.tuple.Pair;
 
-
 /**
  * Interface for all local date time-series types containing
  * {@code double} values.
@@ -51,7 +50,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    * @return an empty time-series
    */
   public static LocalDateDoubleTimeSeries empty() {
-    return SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
+    return SparseLocalDateDoubleTimeSeries.EMPTY;
   }
 
   /**
@@ -90,6 +89,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
         LocalDateDoubleTimeSeriesBuilder::build);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Return the size of this time-series.
    *
@@ -124,6 +124,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    */
   public abstract OptionalDouble get(LocalDate date);
 
+  //-------------------------------------------------------------------------
   /**
    * Get the earliest date contained in this time-series.
    * <p>
@@ -170,6 +171,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    */
   public abstract double getLatestValue();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets part of this series as a sub-series between two dates.
    * <p>
@@ -212,6 +214,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    */
   public abstract LocalDateDoubleTimeSeries tailSeries(int numPoints);
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a stream over the points of this time-series.
    * <p>
@@ -241,6 +244,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    */
   public abstract DoubleStream values();
 
+  //-------------------------------------------------------------------------
   /**
    * Applies an action to each pair in the time series.
    * <p>
@@ -280,6 +284,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    */
   public abstract LocalDateDoubleTimeSeries filter(ObjDoublePredicate<LocalDate> predicate);
 
+  //-------------------------------------------------------------------------
   /**
    * Combines a pair of time series, extracting the dates common to both and
    * applying a function to combine the values.
@@ -290,10 +295,8 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    *  input series with their values combined together using the function
    */
   public default LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
-
     ArgChecker.notNull(other, "other");
     ArgChecker.notNull(mapper, "mapper");
-
     return new LocalDateDoubleTimeSeriesBuilder(
         stream()
             .filter(pt -> other.containsDate(pt.getDate()))
@@ -304,14 +307,13 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
   }
 
   /**
-   * Partition the timeseries into a pair of distinct series using a predicate.
+   * Partition the time-series into a pair of distinct series using a predicate.
    * <p>
-   * Points in the timeseries which match the predicate will be put into the
-   * first series, whilst those points which do not match will be put into the
-   * second.
+   * Points in the time-series which match the predicate will be put into the first series,
+   * whilst those points which do not match will be put into the second.
    *
-   * @param predicate  predicate used to test the points in the timeseries
-   * @return a {@code Pair} containing two timeseries. The first is a series
+   * @param predicate  predicate used to test the points in the time-series
+   * @return a {@code Pair} containing two time-series. The first is a series
    *   made of all the points in this series which match the predicate. The
    *   second is a series made of the points which do not match.
    */
@@ -328,14 +330,13 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
   }
 
   /**
-   * Partition the timeseries into a pair of distinct series using a predicate.
+   * Partition the time-series into a pair of distinct series using a predicate.
    * <p>
-   * Points in the timeseries whose values match the predicate will be put into the
-   * first series, whilst those points whose values do not match will be put into the
-   * second.
+   * Points in the time-series whose values match the predicate will be put into the first series,
+   * whilst those points whose values do not match will be put into the second.
    *
-   * @param predicate  predicate used to test the points in the timeseries
-   * @return a {@code Pair} containing two timeseries. The first is a series
+   * @param predicate  predicate used to test the points in the time-series
+   * @return a {@code Pair} containing two time-series. The first is a series
    *   made of all the points in this series which match the predicate. The
    *   second is a series made of the points which do not match.
    */
@@ -346,8 +347,11 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
 
   /**
    * Return a builder populated with the values from this series.
+   * <p>
+   * This can be used to mutate the time-series.
    *
-   * @return a time-series builder
+   * @return a builder containing the point from this time-series
    */
   public abstract LocalDateDoubleTimeSeriesBuilder toBuilder();
+
 }

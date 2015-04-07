@@ -13,7 +13,7 @@ import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Immutable representation of a single point in a {@code DoubleTimeSeries}.
+ * Immutable representation of a single point in a {@code LocalDateDoubleTimeSeries}.
  * <p>
  * This implementation uses arrays internally.
  */

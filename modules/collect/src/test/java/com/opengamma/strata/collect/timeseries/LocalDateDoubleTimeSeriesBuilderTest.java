@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.collect.timeseries;
 
-import static com.opengamma.strata.collect.timeseries.SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -25,7 +24,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
 
   @Test
   public void test_buildEmptySeries() {
-    assertEquals(LocalDateDoubleTimeSeries.builder().build(), EMPTY_SERIES);
+    assertEquals(LocalDateDoubleTimeSeries.builder().build(), LocalDateDoubleTimeSeries.empty());
   }
 
   //-------------------------------------------------------------------------

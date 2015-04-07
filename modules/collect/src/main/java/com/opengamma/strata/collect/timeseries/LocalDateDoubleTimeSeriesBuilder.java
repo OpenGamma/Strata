@@ -33,8 +33,7 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class LocalDateDoubleTimeSeriesBuilder {
 
   /**
-   * Threshold for deciding whether we use the dense or sparse timeseries
-   * implementation
+   * Threshold for deciding whether we use the dense or sparse time-series implementation.
    */
   private static final double DENSITY_THRESHOLD = 0.7;
 
@@ -214,7 +213,6 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Build the time-series from the builder.
    *

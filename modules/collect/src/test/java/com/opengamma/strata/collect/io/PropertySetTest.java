@@ -25,8 +25,8 @@ import com.google.common.collect.Multimap;
 @Test
 public class PropertySetTest {
 
-  public void test_EMPTY() {
-    PropertySet test = PropertySet.EMPTY;
+  public void test_empty() {
+    PropertySet test = PropertySet.empty();
 
     assertEquals(test.isEmpty(), true);
     assertEquals(test.contains("unknown"), false);
@@ -85,12 +85,12 @@ public class PropertySetTest {
 
   public void test_combinedWith_emptyBase() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(base.combinedWith(PropertySet.EMPTY), base);
+    assertEquals(base.combinedWith(PropertySet.empty()), base);
   }
 
   public void test_combinedWith_emptyOther() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(PropertySet.EMPTY.combinedWith(base), base);
+    assertEquals(PropertySet.empty().combinedWith(base), base);
   }
 
   //-------------------------------------------------------------------------

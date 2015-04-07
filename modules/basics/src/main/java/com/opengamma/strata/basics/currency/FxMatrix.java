@@ -24,14 +24,20 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
- * Immutable class describing a set of currencies and all the cross rates between them.
+ * A matrix of foreign exchange rates.
+ * <p>
+ * This provides a matrix of foreign exchange rates, such that the rate can be queried for any available pair.
+ * For example, if the matrix contains the currencies 'USD', 'EUR' and 'GBP', then six rates can be queried,
+ * 'EUR/USD', 'GBP/USD', 'EUR/GBP' and the three inverse rates.
+ * <p>
+ * This class is immutable and thread-safe.
  */
-public class FxMatrix {
+public final class FxMatrix {
 
   /**
-   * An FX matrix containing neither currencies nor rates.
+   * An empty FX matrix containing neither currencies nor rates.
    */
-  public static final FxMatrix EMPTY_FX_MATRIX = builder().build();
+  private static final FxMatrix EMPTY = builder().build();
 
   /**
    * The map between the currencies and their position within the
@@ -43,7 +49,6 @@ public class FxMatrix {
    * ordered when the {@link #toString()} method is called.
    */
   private final ImmutableMap<Currency, Integer> currencies;
-
   /**
    * The matrix with all the exchange rates. Each row represents the
    * rates required to convert a unit of particular currency to all
@@ -62,6 +67,56 @@ public class FxMatrix {
    */
   private final double[][] rates;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty FX matrix.
+   * <p>
+   * The result contains no currencies or rates.
+   *
+   * @return an empty matrix
+   */
+  public static FxMatrix empty() {
+    return EMPTY;
+  }
+
+  /**
+   * Creates a builder that can be used to build instances of {@code FxMatrix}.
+   *
+   * @return a new builder
+   */
+  public static FxMatrix.Builder builder() {
+    return new FxMatrix.Builder();
+  }
+
+  /**
+   * Creates a {@code Collector} that allows a {@code Map.Entry} of currency pair to rate
+   * to be streamed and collected into a new {@code FxMatrix}.
+   *
+   * @return a collector for creating an {@code FxMatrix} from a stream
+   */
+  public static Collector<? super Map.Entry<CurrencyPair, Double>, Builder, FxMatrix> entriesToFxMatrix() {
+    return collector((builder, entry) -> builder.addRate(entry.getKey(), entry.getValue()));
+  }
+
+  /**
+   * Creates a {@code Collector} that allows a collection of pairs each containing
+   * a currency pair and a rate to be streamed and collected into a new {@code FxMatrix}.
+   *
+   * @return a collector for creating an {@code FxMatrix} from a stream
+   */
+  public static Collector<? super Pair<CurrencyPair, Double>, Builder, FxMatrix> pairsToFxMatrix() {
+    return collector((builder, pair) -> builder.addRate(pair.getFirst(), pair.getSecond()));
+  }
+
+  private static <T> Collector<T, Builder, FxMatrix> collector(BiConsumer<Builder, T> accumulator) {
+    return Collector.of(
+        FxMatrix::builder,
+        accumulator,
+        Builder::merge,
+        Builder::build);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Private constructor.
    */
@@ -70,43 +125,27 @@ public class FxMatrix {
     this.rates = rates;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Create a new FxMatrix builder.
+   * Returns the exchange rate between two currencies.
+   * <p>
+   * The rate is based on this formula: {@code 1.0 * baseCurrency = rate * counterCurrency}.
    *
-   * @return a new FxMatrix builder
+   * @param baseCurrency  the first currency
+   * @param counterCurrency  the second currency
+   * @return the exchange rate
    */
-  public static FxMatrix.Builder builder() {
-    return new FxMatrix.Builder();
-  }
-
-  /**
-   * Create a new builder using the data from this matrix to
-   * create a set of initial entries.
-   *
-   * @return a new builder containing the data from this matrix
-   */
-  public FxMatrix.Builder toBuilder() {
-    return new FxMatrix.Builder(currencies, rates);
-  }
-
-  /**
-   * Return the exchange rate between two currencies.
-   *
-   * @param ccy1 The first currency.
-   * @param ccy2 The second currency.
-   * @return The exchange rate: 1.0 * ccy1 = x * ccy2.
-   */
-  public double getRate(Currency ccy1, Currency ccy2) {
-    if (ccy1.equals(ccy2)) {
+  public double rate(Currency baseCurrency, Currency counterCurrency) {
+    if (baseCurrency.equals(counterCurrency)) {
       return 1;
     }
-    Integer index1 = currencies.get(ccy1);
-    Integer index2 = currencies.get(ccy2);
+    Integer index1 = currencies.get(baseCurrency);
+    Integer index2 = currencies.get(counterCurrency);
     if (index1 != null && index2 != null) {
       return rates[index1][index2];
     } else {
       throw new IllegalArgumentException(
-          "No rate found for " + ccy1 + "/" + ccy2 +
+          "No rate found for " + baseCurrency + "/" + counterCurrency +
               " - FX matrix only contains rates for: " + currencies.keySet());
     }
   }
@@ -116,15 +155,18 @@ public class FxMatrix {
    * currency using the rates in this matrix.
    *
    * @param amount  the {@code CurrencyAmount} to be converted
-   * @param ccy  the currency to convert the {@code CurrencyAmount} to
+   * @param targetCurrency  the currency to convert the {@code CurrencyAmount} to
    * @return the amount converted to the requested currency
    */
-  public CurrencyAmount convert(CurrencyAmount amount, Currency ccy) {
+  public CurrencyAmount convert(CurrencyAmount amount, Currency targetCurrency) {
     ArgChecker.notNull(amount, "amount");
-    ArgChecker.notNull(ccy, "ccy");
-    Currency originalCcy = amount.getCurrency();
+    ArgChecker.notNull(targetCurrency, "targetCurrency");
     // Only do conversion if we need to
-    return originalCcy == ccy ? amount : CurrencyAmount.of(ccy, amount.getAmount() * getRate(originalCcy, ccy));
+    Currency originalCurrency = amount.getCurrency();
+    if (originalCurrency.equals(targetCurrency)) {
+      return amount;
+    }
+    return CurrencyAmount.of(targetCurrency, amount.getAmount() * rate(originalCurrency, targetCurrency));
   }
 
   /**
@@ -132,28 +174,39 @@ public class FxMatrix {
    * specified currency using the rates in this matrix.
    *
    * @param amount  the {@code MultipleCurrencyAmount} to be converted
-   * @param ccy  the currency to convert all entries to
+   * @param targetCurrency  the currency to convert all entries to
    * @return the total amount in the requested currency
    */
-  public CurrencyAmount convert(MultiCurrencyAmount amount, Currency ccy) {
+  public CurrencyAmount convert(MultiCurrencyAmount amount, Currency targetCurrency) {
     ArgChecker.notNull(amount, "amount");
-    ArgChecker.notNull(ccy, "ccy");
+    ArgChecker.notNull(targetCurrency, "targetCurrency");
 
     // We could do this using the currency amounts but to
     // avoid creating extra objects we'll use doubles
     double total = amount.getAmounts()
         .stream()
-        .mapToDouble(ca -> ca.getAmount() * getRate(ca.getCurrency(), ccy))
+        .mapToDouble(ca -> ca.getAmount() * rate(ca.getCurrency(), targetCurrency))
         .sum();
-    return CurrencyAmount.of(ccy, total);
+    return CurrencyAmount.of(targetCurrency, total);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new builder using the data from this matrix to
+   * create a set of initial entries.
+   *
+   * @return a new builder containing the data from this matrix
+   */
+  public FxMatrix.Builder toBuilder() {
+    return new FxMatrix.Builder(currencies, rates);
   }
 
   /**
-   * Merge the entries from the other matrix into this one. The other matrix
-   * should have at least one currency in common with this one.
-   * The additional currencies from the other matrix are added one by one
-   * and the exchange rate data created is coherent with some data in this
-   * matrix.
+   * Merges the entries from the other matrix into this one.
+   * <p>
+   * The other matrix should have at least one currency in common with this one.
+   * The additional currencies from the other matrix are added one by one and
+   * the exchange rate data created is coherent with some data in this matrix.
    * <p>
    * Note that if the other matrix has more than one currency in common with
    * this one, and the rates for pairs of those currencies are different to
@@ -169,7 +222,7 @@ public class FxMatrix {
   }
 
   /**
-   * Returns an immutable set containing the currencies held within this matrix.
+   * Returns the set of currencies held within this matrix.
    *
    * @return the currencies in this matrix
    */
@@ -177,16 +230,7 @@ public class FxMatrix {
     return currencies.keySet();
   }
 
-  @Override
-  public String toString() {
-    return getCurrencies() + " - " + Stream.of(rates).map(Arrays::toString).collect(Collectors.joining());
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * currencies.hashCode() + Arrays.deepHashCode(rates);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -199,36 +243,17 @@ public class FxMatrix {
     return currencies.equals(other.currencies) && Arrays.deepEquals(rates, other.rates);
   }
 
-  /**
-   * Creates a {@link Collector} that allows a Map of currency pair -> rates
-   * to be streamed and collected into a new {@code FxMatrix}.
-   *
-   * @return a collector for creating an {@code FxMatrix} from a stream
-   */
-  public static Collector<? super Map.Entry<CurrencyPair, Double>, Builder, FxMatrix> entriesToFxMatrix() {
-    return collector((builder, entry) ->
-        builder.addRate(entry.getKey(), entry.getValue()));
+  @Override
+  public int hashCode() {
+    return 31 * currencies.hashCode() + Arrays.deepHashCode(rates);
   }
 
-  /**
-   * Creates a {@link Collector} that allows a collection of pairs each containing
-   * a currency pair and a rate to be streamed and collected into a new {@code FxMatrix}.
-   *
-   * @return a collector for creating an {@code FxMatrix} from a stream
-   */
-  public static Collector<? super Pair<CurrencyPair, Double>, Builder, FxMatrix> pairsToFxMatrix() {
-    return collector((builder, pair) ->
-        builder.addRate(pair.getFirst(), pair.getSecond()));
+  @Override
+  public String toString() {
+    return getCurrencies() + " - " + Stream.of(rates).map(Arrays::toString).collect(Collectors.joining());
   }
 
-  private static <T> Collector<T, Builder, FxMatrix> collector(BiConsumer<Builder, T> accumulator) {
-    return Collector.of(
-        FxMatrix::builder,
-        accumulator,
-        Builder::merge,
-        Builder::build);
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Builder class for FxMatrix. Can be created either by the static
    * {@link FxMatrix#builder()} or from an existing {@code FxMatrix}
@@ -249,7 +274,6 @@ public class FxMatrix {
      * is clearer.
      */
     private final LinkedHashMap<Currency, Integer> currencies;
-
     /**
      * A 2 dimensional array holding the rates. Each row of the array holds the
      * value of 1 unit of Currency (that the row represents) in each of the
@@ -261,7 +285,6 @@ public class FxMatrix {
      * needs to be resized (via copying) relatively infrequently..
      */
     private double[][] rates;
-
     /**
      * Rates that have been requested to be added, but which do not
      * have a currency in common with the currencies already present.
@@ -573,5 +596,5 @@ public class FxMatrix {
       return copy;
     }
   }
-}
 
+}

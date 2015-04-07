@@ -570,7 +570,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_WEEK).build();
 
     LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
-    assertEquals(test, SparseLocalDateDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(test, LocalDateDoubleTimeSeries.empty());
   }
 
   public void test_combineWith_intersectionWithSomeMatchingElements() {
