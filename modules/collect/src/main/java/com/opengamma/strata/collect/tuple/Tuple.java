@@ -24,7 +24,7 @@ public interface Tuple {
    * 
    * @return the size of the tuple
    */
-  int size();
+  public abstract int size();
 
   /**
    * Gets the elements from this tuple as a list.
@@ -33,6 +33,6 @@ public interface Tuple {
    * 
    * @return the elements as a list
    */
-  ImmutableList<Object> elements();
+  public abstract ImmutableList<Object> elements();
 
 }
