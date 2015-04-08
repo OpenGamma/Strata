@@ -66,14 +66,68 @@
   <!-- ==================================================================== -->
   <modules>
     <module>modules</module>
-    <module>examples</module>
   </modules>
+
+  <!-- ==================================================================== -->
+  <!-- standard build setup -->
+  <build>
+    <plugins>
+      <!-- Enforce maven version -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.2.0,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- Profile including examples only if JavaFX available -->
+    <profile>
+      <id>include-examples-module</id>
+      <activation>
+        <file><exists>${javafx.jar.path}</exists></file>
+      </activation>
+      <modules>
+        <module>examples</module>
+      </modules>
+    </profile>
+    <!-- Profile including analytics triggered by -Dbootstrap -->
+    <profile>
+      <id>include-analytics-module</id>
+      <activation>
+        <property><name>bootstrap</name></property>
+        <file><exists>${analytics.dir.path}/pom.xml</exists></file>
+      </activation>
+      <modules>
+        <module>${analytics.dir.path}</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <!-- ==================================================================== -->
   <properties>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <!-- The relative module paths, can be overridden on command line -->
+    <javafx.jar.path>${java.home}/lib/ext/jfxrt.jar</javafx.jar.path>
+    <analytics.dir.path>../Analytics</analytics.dir.path>
   </properties>
 
 </project>
