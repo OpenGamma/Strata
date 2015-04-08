@@ -820,7 +820,7 @@ public final class ArgChecker {
    * @param tolerance  the tolerance to use for zero
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}
-   * @throws IllegalArgumentException if the absolute value of the argument is less than eps
+   * @throws IllegalArgumentException if the absolute value of the argument is less than the tolerance
    */
   public static double notZero(double parameter, double tolerance, String name) {
     if (DoubleMath.fuzzyEquals(parameter, 0d, tolerance)) {
@@ -830,44 +830,77 @@ public final class ArgChecker {
   }
 
   //-------------------------------------------------------------------------
-
   /**
-   * Checks a collection for null elements.
+   * Checks that the argument is within the range defined by {@code low <= x < high}.
    * <p>
-   * Given a collection, this returns true if any element is null.
+   * Given a value, this returns true if it is within the specified range including the
+   * lower boundary but excluding the upper boundary.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRange(amount, 0d, 1d, "amount");
+   * </pre>
    *
-   * @param iterable  the collection to test, null throws an exception
-   * @return true if the collection contains a null element
-   * @throws IllegalArgumentException if the collection is null
+   * @param parameter  the value to check
+   * @param lowInclusive  the low value of the range
+   * @param highExclusive  the high value of the range
+   * @param name  the name of the parameter to use in the error message, not null
+   * @return the input {@code parameter}
+   * @throws IllegalArgumentException if the argument is outside the valid range
    */
-  public static boolean hasNullElement(Iterable<?> iterable) {
-    notNull(iterable, "iterable");
-    for (Object o : iterable) {
-      if (o == null) {
-        return true;
-      }
+  public static double inRange(double parameter, double lowInclusive, double highExclusive, String name) {
+    if (parameter < lowInclusive || parameter >= highExclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} <= '{}' < {}, but found {}", lowInclusive, name, highExclusive, parameter));
     }
-    return false;
+    return parameter;
   }
 
   /**
-   * Checks a collection of doubles for negative elements.
+   * Checks that the argument is within the range defined by {@code low <= x <= high}.
    * <p>
-   * Given a collection, this returns true if any element is negative.
+   * Given a value, this returns true if it is within the specified range including both boundaries.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRangeInclusive(amount, 0d, 1d, "amount");
+   * </pre>
    *
-   * @param iterable  the collection to test, null or contains null throws an exception
-   * @return true if the collection contains a negative element
-   * @throws IllegalArgumentException if the collection is null or any element is null
+   * @param parameter  the value to check
+   * @param lowInclusive  the low value of the range
+   * @param highInclusive  the high value of the range
+   * @param name  the name of the parameter to use in the error message, not null
+   * @return the input {@code parameter}
+   * @throws IllegalArgumentException if the argument is outside the valid range
    */
-  public static boolean hasNegativeElement(Iterable<Double> iterable) {
-    notNull(iterable, "collection");
-    for (Double d : iterable) {
-      notNull(d, "collection element");
-      if (d < 0) {
-        return true;
-      }
+  public static double inRangeInclusive(double parameter, double lowInclusive, double highInclusive, String name) {
+    if (parameter < lowInclusive || parameter > highInclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} <= '{}' <= {}, but found {}", lowInclusive, name, highInclusive, parameter));
     }
-    return false;
+    return parameter;
+  }
+
+  /**
+   * Checks that the argument is within the range defined by {@code low < x < high}.
+   * <p>
+   * Given a value, this returns true if it is within the specified range excluding both boundaries.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.inRangeExclusive(amount, 0d, 1d, "amount");
+   * </pre>
+   *
+   * @param parameter  the value to check
+   * @param lowExclusive  the low value of the range
+   * @param highExclusive  the high value of the range
+   * @param name  the name of the parameter to use in the error message, not null
+   * @return the input {@code parameter}
+   * @throws IllegalArgumentException if the argument is outside the valid range
+   */
+  public static double inRangeExclusive(double parameter, double lowExclusive, double highExclusive, String name) {
+    if (parameter <= lowExclusive || parameter >= highExclusive) {
+      throw new IllegalArgumentException(
+          Messages.format("Expected {} < '{}' < {}, but found {}", lowExclusive, name, highExclusive, parameter));
+    }
+    return parameter;
   }
 
   //-------------------------------------------------------------------------
@@ -881,7 +914,9 @@ public final class ArgChecker {
    * @param high  the high value of the range
    * @param value  the value
    * @return true if low &lt; x &lt; high
+   * @deprecated use {@link #inRangeExclusive(double, double, double, String)}
    */
+  @Deprecated
   public static boolean isInRangeExclusive(double low, double high, double value) {
     return (value > low && value < high);
   }
@@ -896,24 +931,11 @@ public final class ArgChecker {
    * @param high  the high value of the range
    * @param value  the value
    * @return true if low &lt;= x &lt;= high
+   * @deprecated use {@link #inRangeInclusive(double, double, double, String)}
    */
+  @Deprecated
   public static boolean isInRangeInclusive(double low, double high, double value) {
     return (value >= low && value <= high);
-  }
-
-  /**
-   * Checks that a value is within the range low &lt; x &lt;= high.
-   * <p>
-   * Given a value, this returns true if it is within the specified range
-   * excluding the lower boundary but including the upper boundary.
-   *
-   * @param low  the low value of the range
-   * @param high  the high value of the range
-   * @param value  the value
-   * @return true if low &lt; x &lt;= high
-   */
-  public static boolean isInRangeExcludingLow(double low, double high, double value) {
-    return (value > low && value <= high);
   }
 
   /**
@@ -926,7 +948,9 @@ public final class ArgChecker {
    * @param high  the high value of the range
    * @param value  the value
    * @return true if low &lt;= x &lt; high
+   * @deprecated use {@link #inRange(double, double, double, String)}
    */
+  @Deprecated
   public static boolean isInRangeExcludingHigh(double low, double high, double value) {
     return (value >= low && value < high);
   }
