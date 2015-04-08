@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -23,7 +24,6 @@ import java.util.regex.Pattern;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Sets;
 
 /**
  * Test ArgChecker.
@@ -516,21 +516,45 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void testHasNullElement() {
-    Collection<?> c = Sets.newHashSet(null, new Object(), new Object());
-    assertTrue(ArgChecker.hasNullElement(c));
-    c = Sets.newHashSet(new Object(), new Object());
-    assertFalse(ArgChecker.hasNullElement(c));
+  public void test_inRange() {
+    double low = 0d;
+    double mid = 0.5d;
+    double high = 1d;
+    double small = 0.00000000001d;
+    assertEquals(ArgChecker.inRange(mid, low, high, "name"), mid);
+    assertEquals(ArgChecker.inRange(low, low, high, "name"), low);
+    assertEquals(ArgChecker.inRange(high - small, low, high, "name"), high - small);
+
+    assertEquals(ArgChecker.inRangeInclusive(mid, low, high, "name"), mid);
+    assertEquals(ArgChecker.inRangeInclusive(low, low, high, "name"), low);
+    assertEquals(ArgChecker.inRangeInclusive(high, low, high, "name"), high);
+
+    assertEquals(ArgChecker.inRangeExclusive(mid, low, high, "name"), mid);
+    assertEquals(ArgChecker.inRangeExclusive(small, low, high, "name"), small);
+    assertEquals(ArgChecker.inRangeExclusive(high - small, low, high, "name"), high - small);
   }
 
-  public void testHasNegativeElement() {
-    Collection<Double> c = Sets.newHashSet(4., -5., -6.);
-    assertTrue(ArgChecker.hasNegativeElement(c));
-    c = Sets.newHashSet(1., 2., 3.);
-    assertFalse(ArgChecker.hasNegativeElement(c));
+  public void test_inRange_outOfRange() {
+    double low = 0d;
+    double high = 1d;
+    double small = 0.00000000001d;
+    assertThrowsIllegalArg(() -> ArgChecker.inRange(low - small, low, high, "name"));
+    assertThrowsIllegalArg(() -> ArgChecker.inRange(high, low, high, "name"));
+
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(low - small, low, high, "name"));
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(high + small, low, high, "name"));
+
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
+    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
   }
 
-  public void testIsInRange() {
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  public void testNotEmptyLongArray() {
+    ArgChecker.notEmpty(new double[0], "name");
+  }
+
+  public void test_isInRange() {
     double low = 0;
     double high = 1;
     assertTrue(ArgChecker.isInRangeExclusive(low, high, 0.5));
@@ -543,28 +567,11 @@ public class ArgCheckerTest {
     assertFalse(ArgChecker.isInRangeInclusive(low, high, 2 * high));
     assertTrue(ArgChecker.isInRangeInclusive(low, high, low));
     assertTrue(ArgChecker.isInRangeInclusive(low, high, high));
-    assertTrue(ArgChecker.isInRangeExcludingLow(low, high, 0.5));
-    assertFalse(ArgChecker.isInRangeExcludingLow(low, high, -high));
-    assertFalse(ArgChecker.isInRangeExcludingLow(low, high, 2 * high));
-    assertFalse(ArgChecker.isInRangeExcludingLow(low, high, low));
-    assertTrue(ArgChecker.isInRangeExcludingLow(low, high, high));
     assertTrue(ArgChecker.isInRangeExcludingHigh(low, high, 0.5));
     assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, -high));
     assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, 2 * high));
     assertTrue(ArgChecker.isInRangeExcludingHigh(low, high, low));
     assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, high));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
-  public void testNotEmptyDoubleArray() {
-    ArgChecker.notEmpty(new double[0], "name");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
-  public void testNotEmptyLongArray() {
-    ArgChecker.notEmpty(new double[0], "name");
   }
 
   //-------------------------------------------------------------------------
