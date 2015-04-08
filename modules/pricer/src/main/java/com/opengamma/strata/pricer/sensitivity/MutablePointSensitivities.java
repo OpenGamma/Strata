@@ -115,7 +115,7 @@ public final class MutablePointSensitivities
    * <p>
    * This instance will be mutated, with the new sensitivities added at the end of the list.
    * 
-   * @param other  the group sensitivity to add
+   * @param other  the other sensitivity to add
    * @return {@code this}, for method chaining
    */
   public MutablePointSensitivities addAll(MutablePointSensitivities other) {
