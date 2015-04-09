@@ -24,7 +24,12 @@ public class ExtendedEnumTest {
   public void test_enum_MockNamed() {
     ExtendedEnum<MockNamed> test = ExtendedEnum.of(MockNamed.class);
     assertEquals(test.lookupAll(),
-        ImmutableMap.of("Standard", MockNameds.STANDARD, "More", MoreMockNameds.MORE, "Other", OtherMockNameds.OTHER));
+        ImmutableMap.of(
+            "Standard", MockNameds.STANDARD,
+            "More", MoreMockNameds.MORE,
+            "Other", OtherMockNameds.OTHER,
+            "Another1", MockNamedInstanceLookup1.ANOTHER1,
+            "Another2", MockNamedInstanceLookup2.ANOTHER2));
     assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
     assertEquals(test.lookup("Standard"), MockNameds.STANDARD);
     assertEquals(test.lookup("Alternate"), MockNameds.STANDARD);
@@ -32,6 +37,8 @@ public class ExtendedEnumTest {
     assertEquals(test.lookup("More", MoreMockNameds.class), MoreMockNameds.MORE);
     assertEquals(test.lookup("Other"), OtherMockNameds.OTHER);
     assertEquals(test.lookup("Other", OtherMockNameds.class), OtherMockNameds.OTHER);
+    assertEquals(test.lookup("Another1"), MockNamedInstanceLookup1.ANOTHER1);
+    assertEquals(test.lookup("Another2"), MockNamedInstanceLookup2.ANOTHER2);
     assertThrows(() -> test.lookup("Rubbish"), IllegalArgumentException.class);
     assertThrows(() -> test.lookup(null), IllegalArgumentException.class);
     assertThrows(() -> test.lookup("Other", MoreMockNameds.class), IllegalArgumentException.class);
@@ -57,6 +64,9 @@ public class ExtendedEnumTest {
       assertEquals(ExtendedEnum.of(MockInvalid2.class).lookupAll().isEmpty(), true);
       assertEquals(ExtendedEnum.of(MockInvalid3.class).lookupAll().isEmpty(), true);
       assertEquals(ExtendedEnum.of(MockInvalid4.class).lookupAll().isEmpty(), true);
+      assertEquals(ExtendedEnum.of(MockInvalid5.class).lookupAll().isEmpty(), true);
+      assertEquals(ExtendedEnum.of(MockInvalid6.class).lookupAll().isEmpty(), true);
+      assertEquals(ExtendedEnum.of(MockInvalid7.class).lookupAll().isEmpty(), true);
     } finally {
       logger.setLevel(level);
     }
