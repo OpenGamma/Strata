@@ -23,6 +23,13 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-finance</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javafx</groupId>
+      <artifactId>javafx</artifactId>
+      <version>8.0</version>
+      <scope>system</scope>
+      <systemPath>${javafx.jar.path}</systemPath>
+    </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->
@@ -30,6 +37,8 @@
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <!-- JavaFX -->
+    <javafx.jar.path>${java.home}/lib/ext/jfxrt.jar</javafx.jar.path>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Examples</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Examples</h1>]]></doctitle>
