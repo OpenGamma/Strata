@@ -905,58 +905,6 @@ public final class ArgChecker {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks that a value is within the range low &lt; x &lt; high.
-   * <p>
-   * Given a value, this returns true if it is within the specified range
-   * excluding the boundaries.
-   *
-   * @param low  the low value of the range
-   * @param high  the high value of the range
-   * @param value  the value
-   * @return true if low &lt; x &lt; high
-   * @deprecated use {@link #inRangeExclusive(double, double, double, String)}
-   */
-  @Deprecated
-  public static boolean isInRangeExclusive(double low, double high, double value) {
-    return (value > low && value < high);
-  }
-
-  /**
-   * Checks that a value is within the range low &lt;= x &lt;= high.
-   * <p>
-   * Given a value, this returns true if it is within the specified range
-   * including both boundaries.
-   *
-   * @param low  the low value of the range
-   * @param high  the high value of the range
-   * @param value  the value
-   * @return true if low &lt;= x &lt;= high
-   * @deprecated use {@link #inRangeInclusive(double, double, double, String)}
-   */
-  @Deprecated
-  public static boolean isInRangeInclusive(double low, double high, double value) {
-    return (value >= low && value <= high);
-  }
-
-  /**
-   * Checks that a value is within the range low &lt;= x &lt; high.
-   * <p>
-   * Given a value, this returns true if it is within the specified range
-   * excluding the upper boundary but including the lower boundary.
-   *
-   * @param low  the low value of the range
-   * @param high  the high value of the range
-   * @param value  the value
-   * @return true if low &lt;= x &lt; high
-   * @deprecated use {@link #inRange(double, double, double, String)}
-   */
-  @Deprecated
-  public static boolean isInRangeExcludingHigh(double low, double high, double value) {
-    return (value >= low && value < high);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Checks that the two values are in order and not equal.
    * <p>
    * Given two comparable instances, this checks that the first is "less than" the second.

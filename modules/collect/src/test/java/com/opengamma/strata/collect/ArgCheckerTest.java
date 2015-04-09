@@ -8,8 +8,6 @@ package com.opengamma.strata.collect;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -552,26 +550,6 @@ public class ArgCheckerTest {
       expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void testNotEmptyLongArray() {
     ArgChecker.notEmpty(new double[0], "name");
-  }
-
-  public void test_isInRange() {
-    double low = 0;
-    double high = 1;
-    assertTrue(ArgChecker.isInRangeExclusive(low, high, 0.5));
-    assertFalse(ArgChecker.isInRangeExclusive(low, high, -high));
-    assertFalse(ArgChecker.isInRangeExclusive(low, high, 2 * high));
-    assertFalse(ArgChecker.isInRangeExclusive(low, high, low));
-    assertFalse(ArgChecker.isInRangeExclusive(low, high, high));
-    assertTrue(ArgChecker.isInRangeInclusive(low, high, 0.5));
-    assertFalse(ArgChecker.isInRangeInclusive(low, high, -high));
-    assertFalse(ArgChecker.isInRangeInclusive(low, high, 2 * high));
-    assertTrue(ArgChecker.isInRangeInclusive(low, high, low));
-    assertTrue(ArgChecker.isInRangeInclusive(low, high, high));
-    assertTrue(ArgChecker.isInRangeExcludingHigh(low, high, 0.5));
-    assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, -high));
-    assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, 2 * high));
-    assertTrue(ArgChecker.isInRangeExcludingHigh(low, high, low));
-    assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, high));
   }
 
   //-------------------------------------------------------------------------
