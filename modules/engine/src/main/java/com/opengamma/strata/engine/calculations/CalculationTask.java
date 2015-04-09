@@ -28,6 +28,12 @@ public class CalculationTask {
   /** The target, such as a trade. */
   private final CalculationTarget target;
 
+  /** The index of the value's row in the results grid. */
+  private final int rowIndex;
+
+  /** The index of the value's column in the results grid. */
+  private final int columnIndex;
+
   /** The function that performs the calculations. */
   private final VectorEngineFunction<CalculationTarget, ?> function;
 
@@ -38,9 +44,12 @@ public class CalculationTask {
   private final ReportingRules reportingRules;
 
   /**
-   * Creates a task, based on the target, function, mappings and reporting rules.
-   * 
+   * Creates a task, based on the target, the location of the result in the results grid, the function,
+   * mappings and reporting rules.
+   *
    * @param target  the target for which the calculation is performed
+   * @param rowIndex  the index of the value's row in the results grid
+   * @param columnIndex  the index of the value's column in the results grid
    * @param function  the function that performs the calculation
    * @param marketDataMappings  specifies the market data used in the calculation
    * @param reportingRules  the currency in which monetary values should be returned
@@ -48,10 +57,14 @@ public class CalculationTask {
   @SuppressWarnings("unchecked")
   public CalculationTask(
       CalculationTarget target,
+      int rowIndex,
+      int columnIndex,
       VectorEngineFunction<? extends CalculationTarget, ?> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
+    this.rowIndex = ArgChecker.notNegative(rowIndex, "rowIndex");
+    this.columnIndex = ArgChecker.notNegative(columnIndex, "columnIndex");
     this.target = ArgChecker.notNull(target, "target");
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
@@ -86,12 +99,14 @@ public class CalculationTask {
    * @param marketData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
    */
-  public Result<?> execute(ScenarioMarketData marketData) {
+  public CalculationResult execute(ScenarioMarketData marketData) {
+    Result<?> result;
     try {
       DefaultCalculationMarketData calculationData = new DefaultCalculationMarketData(marketData, marketDataMappings);
-      return Result.success(function.execute(target, calculationData, reportingRules));
+      result = Result.success(function.execute(target, calculationData, reportingRules));
     } catch (Exception e) {
-      return Result.failure(e);
+      result = Result.failure(e);
     }
+    return CalculationResult.of(target, rowIndex, columnIndex, result);
   }
 }
