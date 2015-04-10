@@ -8,13 +8,13 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-class MoreMockNameds implements MockNamed {
+class MoreSampleNameds implements SampleNamed {
 
-  public static final MoreMockNameds MORE = new MoreMockNameds();
+  public static final MoreSampleNameds MORE = new MoreSampleNameds();
   public static final String TEXT = "Not a constant";
-  static final MoreMockNameds NOT_PUBLIC = null;
-  public final MoreMockNameds NOT_STATIC = null;
-  public static MoreMockNameds NOT_FINAL = null;
+  static final MoreSampleNameds NOT_PUBLIC = null;
+  public final MoreSampleNameds NOT_STATIC = null;
+  public static MoreSampleNameds NOT_FINAL = null;
 
   @Override
   public String getName() {

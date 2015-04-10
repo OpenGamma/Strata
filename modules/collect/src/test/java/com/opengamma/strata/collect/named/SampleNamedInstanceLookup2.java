@@ -10,9 +10,9 @@ import com.google.common.collect.ImmutableMap;
 /**
  * Mock named object.
  */
-public class MockNamedInstanceLookup2 {
+public class SampleNamedInstanceLookup2 {
 
-  public static final MockNamed ANOTHER2 = new MockNamed() {
+  public static final SampleNamed ANOTHER2 = new SampleNamed() {
     @Override
     public String getName() {
       return "Another2";
@@ -20,9 +20,9 @@ public class MockNamedInstanceLookup2 {
   };
 
   // public scoped
-  public static final NamedLookup<MockNamed> INSTANCE = new NamedLookup<MockNamed>() {
+  public static final NamedLookup<SampleNamed> INSTANCE = new NamedLookup<SampleNamed>() {
     @Override
-    public ImmutableMap<String, MockNamed> lookupAll() {
+    public ImmutableMap<String, SampleNamed> lookupAll() {
       return ImmutableMap.of("Another2", ANOTHER2);
     }
   };

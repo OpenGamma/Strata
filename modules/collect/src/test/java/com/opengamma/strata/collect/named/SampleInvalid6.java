@@ -8,6 +8,16 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-public interface MockInvalid5 extends Named {
+public class SampleInvalid6 implements Named {
+
+  /**
+   * Non-static - Error.
+   */
+  NamedLookup<SampleInvalid6> INSTANCE = null;
+
+  @Override
+  public String getName() {
+    return null;
+  }
 
 }

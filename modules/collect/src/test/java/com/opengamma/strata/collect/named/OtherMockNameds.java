@@ -8,7 +8,7 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-class OtherMockNameds implements MockNamed {
+class OtherMockNameds implements SampleNamed {
 
   public static final OtherMockNameds OTHER = new OtherMockNameds();
 

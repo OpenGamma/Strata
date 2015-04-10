@@ -10,14 +10,14 @@ import com.google.common.collect.ImmutableMap;
 /**
  * Mock named object function.
  */
-class MockInvalid2LookupFunction implements NamedLookup<MockInvalid2> {
+class SampleNamedLookupFunction implements NamedLookup<SampleNamed> {
 
-  MockInvalid2LookupFunction(String badConstrucor) {
+  SampleNamedLookupFunction() {
   }
 
   @Override
-  public ImmutableMap<String, MockInvalid2> lookupAll() {
-    return ImmutableMap.of();
+  public ImmutableMap<String, SampleNamed> lookupAll() {
+    return ImmutableMap.of("Other", OtherMockNameds.OTHER);
   }
 
 }

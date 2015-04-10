@@ -8,12 +8,12 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-public class MockInvalid6 implements Named {
+public class SampleInvalid7 implements Named {
 
   /**
-   * Non-static - Error.
+   * Not-NamedLookup - Error.
    */
-  NamedLookup<MockInvalid6> INSTANCE = null;
+  static Object INSTANCE = null;
 
   @Override
   public String getName() {

@@ -8,16 +8,6 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-public class MockInvalid7 implements Named {
-
-  /**
-   * Not-NamedLookup - Error.
-   */
-  static Object INSTANCE = null;
-
-  @Override
-  public String getName() {
-    return null;
-  }
+public interface SampleInvalid5 extends Named {
 
 }
