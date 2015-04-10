@@ -142,20 +142,37 @@ public final class ExtendedEnum<T extends Named> {
       if (value.equals("constants")) {
         // extract public static final constants
         builder.add(parseConstants(enumType, cls));
+
       } else if (value.equals("lookup")) {
+        // class is a named lookup
         if (!NamedLookup.class.isAssignableFrom(cls)) {
           throw new IllegalArgumentException("Enum provider class must implement NamedLookup " + cls.getName());
         }
-        // class is a named lookup
         try {
           Constructor<?> cons = cls.getDeclaredConstructor();
-          if (Modifier.isPublic(cls.getModifiers()) == false) {
+          if (!Modifier.isPublic(cls.getModifiers())) {
             cons.setAccessible(true);
           }
           builder.add((NamedLookup<R>) cons.newInstance());
         } catch (Exception ex) {
           throw new IllegalArgumentException("Invalid enum provider constructor: new " + cls.getName() + "()", ex);
         }
+
+      } else if (value.equals("instance")) {
+        // class has a named lookup INSTANCE static field
+        try {
+          Field field = cls.getDeclaredField("INSTANCE");
+          if (!Modifier.isStatic(field.getModifiers()) || !NamedLookup.class.isAssignableFrom(field.getType())) {
+            throw new IllegalArgumentException("Invalid enum provider instance: " + cls.getName() + ".INSTANCE");
+          }
+          if (!Modifier.isPublic(field.getModifiers())) {
+            field.setAccessible(true);
+          }
+          builder.add((NamedLookup<R>) field.get(null));
+        } catch (Exception ex) {
+          throw new IllegalArgumentException("Invalid enum provider instance: " + cls.getName() + ".INSTANCE", ex);
+        }
+
       } else {
         throw new IllegalArgumentException("Provider value must be either 'constants' or 'lookup'");
       }

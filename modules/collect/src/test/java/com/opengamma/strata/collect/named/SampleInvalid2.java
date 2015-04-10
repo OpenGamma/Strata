@@ -9,6 +9,6 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-public interface MockInvalid2 extends Named {
+public interface SampleInvalid2 extends Named {
 
 }
