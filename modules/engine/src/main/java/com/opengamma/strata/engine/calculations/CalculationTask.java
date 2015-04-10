@@ -28,10 +28,10 @@ public class CalculationTask {
   /** The target, such as a trade. */
   private final CalculationTarget target;
 
-  /** The index of the value's row in the results grid. */
+  /** The row index of the value in the results grid. */
   private final int rowIndex;
 
-  /** The index of the value's column in the results grid. */
+  /** The column index of the value in the results grid. */
   private final int columnIndex;
 
   /** The function that performs the calculations. */
@@ -48,8 +48,8 @@ public class CalculationTask {
    * mappings and reporting rules.
    *
    * @param target  the target for which the calculation is performed
-   * @param rowIndex  the index of the value's row in the results grid
-   * @param columnIndex  the index of the value's column in the results grid
+   * @param rowIndex  the row index of the value in the results grid
+   * @param columnIndex  the column index of the value in the results grid
    * @param function  the function that performs the calculation
    * @param marketDataMappings  specifies the market data used in the calculation
    * @param reportingRules  the currency in which monetary values should be returned
@@ -100,13 +100,8 @@ public class CalculationTask {
    * @return results of the calculation, one for every scenario in the market data
    */
   public CalculationResult execute(ScenarioMarketData marketData) {
-    Result<?> result;
-    try {
-      DefaultCalculationMarketData calculationData = new DefaultCalculationMarketData(marketData, marketDataMappings);
-      result = Result.success(function.execute(target, calculationData, reportingRules));
-    } catch (Exception e) {
-      result = Result.failure(e);
-    }
+    DefaultCalculationMarketData calculationData = new DefaultCalculationMarketData(marketData, marketDataMappings);
+    Result<?> result = Result.of(() -> function.execute(target, calculationData, reportingRules));
     return CalculationResult.of(target, rowIndex, columnIndex, result);
   }
 }

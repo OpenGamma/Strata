@@ -34,11 +34,11 @@ public final class CalculationResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final CalculationTarget target;
 
-  /** The index of the value's row in the results grid. */
+  /** The row index of the value in the results grid. */
   @PropertyDefinition
   private final int rowIndex;
 
-  /** The index of the value's column in the results grid. */
+  /** The column index of the value in the results grid. */
   @PropertyDefinition
   private final int columnIndex;
 
@@ -51,8 +51,8 @@ public final class CalculationResult implements ImmutableBean {
    * of a calculation.
    *
    * @param target  the target of the calculation, often a trade
-   * @param rowIndex  the index of the value's row in the results grid
-   * @param columnIndex  the index of the value's column in the results grid
+   * @param rowIndex  the row index of the value in the results grid
+   * @param columnIndex  the column index of the value in the results grid
    * @param result  the result of the calculation
    * @return a calculation result containing the target, the row and column in the results grid and the result
    *   of a calculation
@@ -127,7 +127,7 @@ public final class CalculationResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the value's row in the results grid.
+   * Gets the row index of the value in the results grid.
    * @return the value of the property
    */
   public int getRowIndex() {
@@ -136,7 +136,7 @@ public final class CalculationResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the value's column in the results grid.
+   * Gets the column index of the value in the results grid.
    * @return the value of the property
    */
   public int getColumnIndex() {

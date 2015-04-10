@@ -37,11 +37,11 @@ public final class CalculationTaskConfig implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final CalculationTarget target;
 
-  /** The index of the value's row in the results grid. */
+  /** The row index of the value in the results grid. */
   @PropertyDefinition
   private final int rowIndex;
 
-  /** The index of the value's column in the results grid. */
+  /** The column index of the value in the results grid. */
   @PropertyDefinition
   private final int columnIndex;
 
@@ -61,8 +61,8 @@ public final class CalculationTaskConfig implements ImmutableBean {
    * Returns configuration for a task that will calculate a value for a target.
    *
    * @param target  the target for which the value will be calculated
-   * @param rowIndex  the index of the value's row in the results grid
-   * @param columnIndex  the index of the value's column in the results grid
+   * @param rowIndex  the row index of the value in the results grid
+   * @param columnIndex  the column index of the value in the results grid
    * @param engineFunctionConfig  configuration of the function that will calculate the value
    * @param marketDataMappings  mappings that specify the market data that should be used in the calculation
    * @param reportingRules  the reporting rules to control the output
@@ -152,7 +152,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the value's row in the results grid.
+   * Gets the row index of the value in the results grid.
    * @return the value of the property
    */
   public int getRowIndex() {
@@ -161,7 +161,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the value's column in the results grid.
+   * Gets the column index of the value in the results grid.
    * @return the value of the property
    */
   public int getColumnIndex() {

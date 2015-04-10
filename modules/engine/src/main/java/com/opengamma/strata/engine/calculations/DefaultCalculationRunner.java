@@ -42,25 +42,13 @@ public class DefaultCalculationRunner implements CalculationRunner {
   private final ExecutorService executor;
 
   /** Factory for consumers that wrap listeners to control threading and notify them when calculations are complete. */
-  private final ConsumerFactory consumerFactory;
+  private final ConsumerFactory consumerFactory = ListenerWrapper::new;
 
   /**
-   * Returns a new calculation runner that uses {@link ListenerWrapper} to invoke listeners.
-   *
    * @param executor  executes the tasks that perform the calculations
    */
   public DefaultCalculationRunner(ExecutorService executor) {
-    this(executor, ListenerWrapper::new);
-  }
-
-  /**
-   * @param executor  executes the tasks that perform the calculations
-   * @param consumerFactory  factory for consumers that wrap listeners to control threading and notify them
-   *   when calculations are complete
-   */
-  public DefaultCalculationRunner(ExecutorService executor, ConsumerFactory consumerFactory) {
     this.executor = ArgChecker.notNull(executor, "executor");
-    this.consumerFactory = ArgChecker.notNull(consumerFactory, "consumerFactory");
   }
 
   @Override
@@ -99,30 +87,31 @@ public class DefaultCalculationRunner implements CalculationRunner {
   }
 
   @Override
-  public Results calculate(CalculationTasks calculationTasks, BaseMarketData marketData) {
-    return calculate(calculationTasks, new SingleScenarioMarketData(marketData));
+  public Results calculate(CalculationTasks tasks, BaseMarketData marketData) {
+    return calculate(tasks, new SingleScenarioMarketData(marketData));
   }
 
   @Override
-  public Results calculate(CalculationTasks calculationTasks, ScenarioMarketData marketData) {
-    Listener listener = new Listener(calculationTasks.getColumns());
-    calculate(calculationTasks, marketData, listener);
+  public Results calculate(CalculationTasks tasks, ScenarioMarketData marketData) {
+    Listener listener = new Listener(tasks.getColumns());
+    calculateAsync(tasks, marketData, listener);
     return listener.result();
   }
 
   @Override
-  public void calculate(CalculationTasks calculationTasks, BaseMarketData marketData, CalculationListener listener) {
-    calculate(calculationTasks, new SingleScenarioMarketData(marketData), listener);
+  public void calculateAsync(CalculationTasks tasks, BaseMarketData marketData, CalculationListener listener) {
+    calculateAsync(tasks, new SingleScenarioMarketData(marketData), listener);
   }
 
   @Override
-  public void calculate(CalculationTasks tasks, ScenarioMarketData marketData, CalculationListener listener) {
+  public void calculateAsync(CalculationTasks tasks, ScenarioMarketData marketData, CalculationListener listener) {
     List<CalculationTask> taskList = tasks.getTasks();
     Consumer<CalculationResult> consumer = consumerFactory.create(listener, taskList.size());
     taskList.stream().forEach(task -> runTask(task, marketData, consumer));
   }
 
   private void runTask(CalculationTask task, ScenarioMarketData marketData, Consumer<CalculationResult> consumer) {
+    // Submits a task to the executor to be run. The result of the task is passed to consumer.accept()
     CompletableFuture.supplyAsync(() -> task.execute(marketData), executor).thenAccept(consumer::accept);
   }
 
@@ -182,8 +171,8 @@ public class DefaultCalculationRunner implements CalculationRunner {
   /**
    * Creates configuration for calculating the value of a single measure for a target.
    *
-   * @param rowIndex  the index of the value's row in the results grid
-   * @param columnIndex  the index of the value's column in the results grid
+   * @param rowIndex  the row index of the value in the results grid
+   * @param columnIndex  the column index of the value in the results grid
    * @param target  the target for which the measure will be calculated
    * @param column  the column for which the value is calculated
    * @return configuration for calculating the value for the target
