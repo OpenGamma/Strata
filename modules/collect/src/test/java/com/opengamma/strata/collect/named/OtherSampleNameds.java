@@ -8,9 +8,9 @@ package com.opengamma.strata.collect.named;
 /**
  * Mock named object.
  */
-class OtherMockNameds implements SampleNamed {
+class OtherSampleNameds implements SampleNamed {
 
-  public static final OtherMockNameds OTHER = new OtherMockNameds();
+  public static final OtherSampleNameds OTHER = new OtherSampleNameds();
 
   @Override
   public String getName() {

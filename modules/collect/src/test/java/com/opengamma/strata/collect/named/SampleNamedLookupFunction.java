@@ -17,7 +17,7 @@ class SampleNamedLookupFunction implements NamedLookup<SampleNamed> {
 
   @Override
   public ImmutableMap<String, SampleNamed> lookupAll() {
-    return ImmutableMap.of("Other", OtherMockNameds.OTHER);
+    return ImmutableMap.of("Other", OtherSampleNameds.OTHER);
   }
 
 }

@@ -27,7 +27,7 @@ public class ExtendedEnumTest {
         ImmutableMap.of(
             "Standard", SampleNameds.STANDARD,
             "More", MoreSampleNameds.MORE,
-            "Other", OtherMockNameds.OTHER,
+            "Other", OtherSampleNameds.OTHER,
             "Another1", SampleNamedInstanceLookup1.ANOTHER1,
             "Another2", SampleNamedInstanceLookup2.ANOTHER2));
     assertEquals(test.alternateNames(), ImmutableMap.of("Alternate", "Standard"));
@@ -35,8 +35,8 @@ public class ExtendedEnumTest {
     assertEquals(test.lookup("Alternate"), SampleNameds.STANDARD);
     assertEquals(test.lookup("More"), MoreSampleNameds.MORE);
     assertEquals(test.lookup("More", MoreSampleNameds.class), MoreSampleNameds.MORE);
-    assertEquals(test.lookup("Other"), OtherMockNameds.OTHER);
-    assertEquals(test.lookup("Other", OtherMockNameds.class), OtherMockNameds.OTHER);
+    assertEquals(test.lookup("Other"), OtherSampleNameds.OTHER);
+    assertEquals(test.lookup("Other", OtherSampleNameds.class), OtherSampleNameds.OTHER);
     assertEquals(test.lookup("Another1"), SampleNamedInstanceLookup1.ANOTHER1);
     assertEquals(test.lookup("Another2"), SampleNamedInstanceLookup2.ANOTHER2);
     assertThrows(() -> test.lookup("Rubbish"), IllegalArgumentException.class);
