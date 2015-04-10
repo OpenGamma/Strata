@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * by a single thread at a time. It also calls {@link CalculationListener#calculationsComplete() calculationsComplete}
  * when all calculations have finished.
  */
-public final class LockingListenerWrapper implements Consumer<CalculationResult> {
+final class LockingListenerWrapper implements Consumer<CalculationResult> {
 
   private static final Logger log = LoggerFactory.getLogger(LockingListenerWrapper.class);
 
@@ -39,7 +39,7 @@ public final class LockingListenerWrapper implements Consumer<CalculationResult>
    * @param listener  the wrapped listener
    * @param expectedResultCount  the number of results expected
    */
-  public LockingListenerWrapper(CalculationListener listener, int expectedResultCount) {
+  LockingListenerWrapper(CalculationListener listener, int expectedResultCount) {
     this.listener = ArgChecker.notNull(listener, "listener");
     this.expectedResultCount = ArgChecker.notNegativeOrZero(expectedResultCount, "expectedResultCount");
   }

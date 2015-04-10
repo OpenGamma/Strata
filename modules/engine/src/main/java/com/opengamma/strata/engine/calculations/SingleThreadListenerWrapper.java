@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * the listener is only invoked by a single thread at a time. It also calls
  * {@link CalculationListener#calculationsComplete() calculationsComplete} when all calculations have finished.
  */
-public final class SingleThreadListenerWrapper implements Consumer<CalculationResult> {
+final class SingleThreadListenerWrapper implements Consumer<CalculationResult> {
 
   private static final Logger log = LoggerFactory.getLogger(SingleThreadListenerWrapper.class);
 
@@ -39,7 +39,7 @@ public final class SingleThreadListenerWrapper implements Consumer<CalculationRe
    * @param listener  the wrapped listener
    * @param expectedResultCount  the total number of expected results
    */
-  public SingleThreadListenerWrapper(CalculationListener listener, int expectedResultCount) {
+  SingleThreadListenerWrapper(CalculationListener listener, int expectedResultCount) {
     this.listener = ArgChecker.notNull(listener, "listener");
     this.expectedResultCount = ArgChecker.notNegativeOrZero(expectedResultCount, "expectedResultCount");
   }

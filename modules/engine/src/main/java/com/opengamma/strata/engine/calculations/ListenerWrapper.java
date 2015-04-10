@@ -21,7 +21,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * at a time and calls {@link CalculationListener#calculationsComplete() calculationsComplete} when
  * all calculations have finished.
  */
-public final class ListenerWrapper implements Consumer<CalculationResult> {
+final class ListenerWrapper implements Consumer<CalculationResult> {
 
   private static final Logger log = LoggerFactory.getLogger(ListenerWrapper.class);
 
@@ -61,7 +61,7 @@ public final class ListenerWrapper implements Consumer<CalculationResult> {
    * @param listener  the underlying listener wrapped by this object
    * @param expectedResultCount  the number of results expected
    */
-  public ListenerWrapper(CalculationListener listener, int expectedResultCount) {
+  ListenerWrapper(CalculationListener listener, int expectedResultCount) {
     this.listener = ArgChecker.notNull(listener, "listener");
     this.expectedResultCount = ArgChecker.notNegativeOrZero(expectedResultCount, "expectedResultCount");
   }
