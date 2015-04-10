@@ -9,7 +9,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricerFn;
 
 /**
  * Pricer implementation for payment periods using multiple dispatch.

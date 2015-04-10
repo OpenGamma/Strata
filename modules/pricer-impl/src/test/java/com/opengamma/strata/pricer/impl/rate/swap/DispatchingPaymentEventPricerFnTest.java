@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
@@ -17,7 +16,6 @@ import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.MockPricingEnvironment;
-import com.opengamma.strata.pricer.rate.swap.PaymentEventPricerFn;
 
 /**
  * Test.

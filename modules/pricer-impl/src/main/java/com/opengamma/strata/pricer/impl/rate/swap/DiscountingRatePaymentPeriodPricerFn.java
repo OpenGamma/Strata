@@ -13,7 +13,6 @@ import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
-import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricerFn;
 
 /**
  * Pricer implementation for swap payment periods based on a rate.

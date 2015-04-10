@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
+import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.MockPricingEnvironment;
 import com.opengamma.strata.pricer.rate.swap.SwapProductPricerFn;
@@ -24,34 +24,34 @@ import com.opengamma.strata.pricer.rate.swap.SwapProductPricerFn;
  * Test.
  */
 @Test
-public class ExpandingSwapTradePricerFnTest {
+public class DefaultSwapTradePricerFnTest {
 
   private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
 
   public void test_presentValue_withCurrency() {
     CurrencyAmount expected = CurrencyAmount.of(USD, 1000d);
-    SwapProductPricerFn<ExpandedSwap> mockSwapProductFn = mock(SwapProductPricerFn.class);
-    when(mockSwapProductFn.presentValue(MOCK_ENV, SwapDummyData.SWAP_TRADE.getProduct().expand(), USD))
+    SwapProductPricerFn<SwapProduct> mockSwapProductFn = mock(SwapProductPricerFn.class);
+    when(mockSwapProductFn.presentValue(MOCK_ENV, SwapDummyData.SWAP_TRADE.getProduct(), USD))
         .thenReturn(expected);
-    ExpandingSwapTradePricerFn test = new ExpandingSwapTradePricerFn(mockSwapProductFn);
+    DefaultSwapTradePricerFn test = new DefaultSwapTradePricerFn(mockSwapProductFn);
     assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.SWAP_TRADE, USD), expected);
   }
 
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
-    SwapProductPricerFn<ExpandedSwap> mockSwapProductFn = mock(SwapProductPricerFn.class);
-    when(mockSwapProductFn.presentValue(MOCK_ENV, SwapDummyData.SWAP_TRADE.getProduct().expand()))
+    SwapProductPricerFn<SwapProduct> mockSwapProductFn = mock(SwapProductPricerFn.class);
+    when(mockSwapProductFn.presentValue(MOCK_ENV, SwapDummyData.SWAP_TRADE.getProduct()))
         .thenReturn(expected);
-    ExpandingSwapTradePricerFn test = new ExpandingSwapTradePricerFn(mockSwapProductFn);
+    DefaultSwapTradePricerFn test = new DefaultSwapTradePricerFn(mockSwapProductFn);
     assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.SWAP_TRADE), expected);
   }
 
   public void test_futureValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
-    SwapProductPricerFn<ExpandedSwap> mockSwapProductFn = mock(SwapProductPricerFn.class);
-    when(mockSwapProductFn.futureValue(MOCK_ENV, SwapDummyData.SWAP_TRADE.getProduct().expand()))
+    SwapProductPricerFn<SwapProduct> mockSwapProductFn = mock(SwapProductPricerFn.class);
+    when(mockSwapProductFn.futureValue(MOCK_ENV, SwapDummyData.SWAP_TRADE.getProduct()))
         .thenReturn(expected);
-    ExpandingSwapTradePricerFn test = new ExpandingSwapTradePricerFn(mockSwapProductFn);
+    DefaultSwapTradePricerFn test = new DefaultSwapTradePricerFn(mockSwapProductFn);
     assertEquals(test.futureValue(MOCK_ENV, SwapDummyData.SWAP_TRADE), expected);
   }
 
