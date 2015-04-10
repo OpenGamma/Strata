@@ -50,18 +50,52 @@ public interface CalculationRunner {
   /**
    * Performs a set of calculations for a single scenario.
    *
-   * @param calculationTasks  configuration defining the calculations
+   * @param tasks  configuration defining the calculations
    * @param marketData  market data to be used in the calculations
    * @return the calculation results
    */
-  public abstract Results calculate(CalculationTasks calculationTasks, BaseMarketData marketData);
+  public abstract Results calculate(CalculationTasks tasks, BaseMarketData marketData);
 
   /**
    * Performs a set of calculations for multiple scenarios, each with a different set of market data.
    *
-   * @param calculationTasks  configuration defining the calculations
+   * @param tasks  tasks that perform the calculations
    * @param marketData  the market data used in the calculations
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
-  public abstract Results calculate(CalculationTasks calculationTasks, ScenarioMarketData marketData);
+  public abstract Results calculate(CalculationTasks tasks, ScenarioMarketData marketData);
+
+  /**
+   * Asynchronously performs a set of calculations for a single scenario, invoking a listener as
+   * each calculation completes.
+   * <p>
+   * This method requires the listener to assemble the results, but it can be much more memory efficient when
+   * calculating aggregate results. If the individual results are discarded after they are incorporated into
+   * the aggregate they can be garbage collected.
+   *
+   * @param tasks  tasks that perform the calculations
+   * @param marketData  market data to be used in the calculations
+   * @param listener  listener that is invoked when individual results are calculated
+   */
+  public abstract void calculateAsync(
+      CalculationTasks tasks,
+      BaseMarketData marketData,
+      CalculationListener listener);
+
+  /**
+   * Asynchronously performs a set of calculations for multiple scenarios, each with a different set of market data.
+   * A listener is invoked when each calculation completes.
+   * <p>
+   * This method requires the listener to assemble the results, but it can be much more memory efficient when
+   * calculating aggregate results. If the individual results are discarded after they are incorporated into
+   * the aggregate they can be garbage collected.
+   *
+   * @param tasks  tasks that perform the calculations
+   * @param marketData  the market data used in the calculations
+   * @param listener  listener that is invoked when individual results are calculated
+   */
+  public abstract void calculateAsync(
+      CalculationTasks tasks,
+      ScenarioMarketData marketData,
+      CalculationListener listener);
 }

@@ -176,7 +176,7 @@ public class SwapPricingTest {
 
     BaseMarketData marketData = marketDataResult.getMarketData();
     Results results = calculationRunner.calculate(calculationTasks, marketData);
-    Result<?> result = results.get(0, presentValue);
+    Result<?> result = results.get(0, pvColumn);
     assertThat(result).isSuccess();
 
     List<?> scenarioResults = (List<?>) result.getValue();

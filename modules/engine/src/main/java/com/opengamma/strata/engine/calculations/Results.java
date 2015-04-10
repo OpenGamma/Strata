@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.config.Measure;
+import com.opengamma.strata.engine.Column;
 
 /**
  * Results of performing calculations for a set of targets over a set of scenarios.
@@ -37,13 +37,9 @@ import com.opengamma.strata.engine.config.Measure;
 @BeanDefinition
 public final class Results implements ImmutableBean {
 
-  // TODO Key by target instead of row index?
-  // TODO Any other way needed to get the results? By row (i.e. subList with all results for a target)?
-
-  // TODO Key by Column - there can be multiple columns for the same measure
   /** Indices of columns, keyed by the measure displayed in the column. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Measure, Integer> columnIndices;
+  private final ImmutableMap<Column, Integer> columnIndices;
 
   /**
    * The results, with results for each target grouped together, ordered by column.
@@ -61,7 +57,7 @@ public final class Results implements ImmutableBean {
   private final int rowCount;
 
   @ImmutableConstructor
-  private Results(Map<Measure, Integer> columnIndices, List<Result<?>> values) {
+  private Results(Map<Column, Integer> columnIndices, List<Result<?>> values) {
     this.columnIndices = ImmutableMap.copyOf(columnIndices);
     this.values = ImmutableList.copyOf(values);
 
@@ -82,13 +78,13 @@ public final class Results implements ImmutableBean {
   }
 
   /**
-   * Returns the results for a target and measure for a set of scenarios.
+   * Returns the results for a target and column for a set of scenarios.
    *
    * @param rowIndex the index of the target in the input list
-   * @param measure the measure
-   * @return the results for the specified target and measure for a set of scenarios
+   * @param column the column
+   * @return the results for the specified target and column for a set of scenarios
    */
-  public Result<?> get(int rowIndex, Measure measure) {
+  public Result<?> get(int rowIndex, Column column) {
     if (rowIndex < 0 || rowIndex >= rowCount) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -96,10 +92,10 @@ public final class Results implements ImmutableBean {
               rowIndex,
               rowCount));
     }
-    Integer columnIndex = columnIndices.get(measure);
+    Integer columnIndex = columnIndices.get(column);
 
     if (columnIndex == null) {
-      throw new IllegalArgumentException("There is no column for measure " + measure);
+      throw new IllegalArgumentException("There is no column matching " + column);
     }
     int columnCount = columnIndices.size();
     int index = columnCount * rowIndex + columnIndex;
@@ -148,7 +144,7 @@ public final class Results implements ImmutableBean {
    * Gets indices of columns, keyed by the measure displayed in the column.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Measure, Integer> getColumnIndices() {
+  public ImmutableMap<Column, Integer> getColumnIndices() {
     return columnIndices;
   }
 
@@ -221,7 +217,7 @@ public final class Results implements ImmutableBean {
      * The meta-property for the {@code columnIndices} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Measure, Integer>> columnIndices = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<Column, Integer>> columnIndices = DirectMetaProperty.ofImmutable(
         this, "columnIndices", Results.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code values} property.
@@ -274,7 +270,7 @@ public final class Results implements ImmutableBean {
      * The meta-property for the {@code columnIndices} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Measure, Integer>> columnIndices() {
+    public MetaProperty<ImmutableMap<Column, Integer>> columnIndices() {
       return columnIndices;
     }
 
@@ -315,7 +311,7 @@ public final class Results implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Results> {
 
-    private Map<Measure, Integer> columnIndices = ImmutableMap.of();
+    private Map<Column, Integer> columnIndices = ImmutableMap.of();
     private List<Result<?>> values = ImmutableList.of();
 
     /**
@@ -351,7 +347,7 @@ public final class Results implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1548663951:  // columnIndices
-          this.columnIndices = (Map<Measure, Integer>) newValue;
+          this.columnIndices = (Map<Column, Integer>) newValue;
           break;
         case -823812830:  // values
           this.values = (List<Result<?>>) newValue;
@@ -399,7 +395,7 @@ public final class Results implements ImmutableBean {
      * @param columnIndices  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder columnIndices(Map<Measure, Integer> columnIndices) {
+    public Builder columnIndices(Map<Column, Integer> columnIndices) {
       JodaBeanUtils.notNull(columnIndices, "columnIndices");
       this.columnIndices = columnIndices;
       return this;

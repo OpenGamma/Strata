@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.engine.config.Measure;
+import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 
 /**
@@ -19,16 +19,16 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 public class CalculationTasks {
 
   private final List<CalculationTask> calculationTasks;
-  private final List<Measure> measures;
+  private final List<Column> columns;
   private final MarketDataRequirements marketDataRequirements;
 
   /**
    * @param calculationTasks  the tasks that perform the calculations
-   * @param measures  the measures calculated by the tasks
+   * @param columns  the columns that define the calculations
    */
-  public CalculationTasks(List<CalculationTask> calculationTasks, List<Measure> measures) {
+  public CalculationTasks(List<CalculationTask> calculationTasks, List<Column> columns) {
     this.calculationTasks = ImmutableList.copyOf(calculationTasks);
-    this.measures = ImmutableList.copyOf(measures);
+    this.columns = ImmutableList.copyOf(columns);
     List<MarketDataRequirements> reqs = calculationTasks.stream().map(CalculationTask::requirements).collect(toList());
     marketDataRequirements = MarketDataRequirements.combine(reqs);
   }
@@ -45,7 +45,7 @@ public class CalculationTasks {
   /**
    * Returns the objects that perform the individual calculations.
    * <p>
-   * The results can be visualized as a grid with a column for each measure and a row for each target.
+   * The results can be visualized as a grid of columns with a row for each target.
    * There is one calculation for each cell in the grid. The calculations in the list are arranged in row order.
    * For example, if a grid has 5 columns, the calculations 0-4 in the list are the first row, calculations 5-9 are
    * the second row and so on.
@@ -64,7 +64,7 @@ public class CalculationTasks {
    *
    * @return the measures calculated by these calculations
    */
-  public List<Measure> getMeasures() {
-    return measures;
+  public List<Column> getColumns() {
+    return columns;
   }
 }
