@@ -61,7 +61,7 @@ public final class ListenerWrapper implements Consumer<CalculationResult> {
    * @param listener  the underlying listener wrapped by this object
    * @param expectedResultCount  the number of results expected
    */
-  ListenerWrapper(CalculationListener listener, int expectedResultCount) {
+  public ListenerWrapper(CalculationListener listener, int expectedResultCount) {
     this.listener = ArgChecker.notNull(listener, "listener");
     this.expectedResultCount = ArgChecker.notNegativeOrZero(expectedResultCount, "expectedResultCount");
   }
