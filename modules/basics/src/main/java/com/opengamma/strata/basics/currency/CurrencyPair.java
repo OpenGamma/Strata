@@ -183,7 +183,6 @@ public final class CurrencyPair
    * For those currency pairs that are in configuration, this method checks if
    * the pair is the conventional way round.
    * 
-   * @param other  the other currency pair
    * @return true if the currency pair follows the convention, false if it does not,
    *  or the data is not available
    */
