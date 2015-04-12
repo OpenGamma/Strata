@@ -56,6 +56,11 @@ public final class MultiCurrencyAmount
   // a set was chosen as a suitable middle ground
 
   /**
+   * An empty instance.
+   */
+  private static final MultiCurrencyAmount EMPTY = new MultiCurrencyAmount(ImmutableSortedSet.of());
+
+  /**
    * The set of currency amounts.
    * Each currency will occur only once, as per a map keyed by currency.
    */
@@ -63,6 +68,15 @@ public final class MultiCurrencyAmount
   private final ImmutableSortedSet<CurrencyAmount> amounts;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty {@code MultiCurrencyAmount}.
+   * 
+   * @return the empty instance
+   */
+  public static MultiCurrencyAmount empty() {
+    return EMPTY;
+  }
+
   /**
    * Obtains a {@code MultiCurrencyAmount} from a currency and amount.
    * 
@@ -85,6 +99,9 @@ public final class MultiCurrencyAmount
    */
   public static MultiCurrencyAmount of(CurrencyAmount... amounts) {
     ArgChecker.notNull(amounts, "amounts");
+    if (amounts.length == 0) {
+      return EMPTY;
+    }
     return of(Arrays.asList(amounts));
   }
 
