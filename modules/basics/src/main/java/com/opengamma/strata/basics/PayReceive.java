@@ -53,6 +53,20 @@ public enum PayReceive {
     return isPay ? PAY : RECEIVE;
   }
 
+  /**
+   * Converts a signed amount to the enum value.
+   * <p>
+   * A negative value will return 'Pay'.
+   * A positive value will return 'Receive'.
+   * This effectively parses the result of {@link #normalize(double)}.
+   * 
+   * @param amount  the amount to check
+   * @return the equivalent enum
+   */
+  public static PayReceive ofSignedAmount(double amount) {
+    return Double.compare(amount, 0d) < 0 ? PAY : RECEIVE;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Normalizes the specified notional amount using this pay/receive rule.

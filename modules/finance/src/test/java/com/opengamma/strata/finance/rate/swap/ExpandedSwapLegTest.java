@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -65,11 +67,13 @@ public class ExpandedSwapLegTest {
 
   public void test_builder() {
     ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
     assertEquals(test.getStartDate(), DATE_2014_06_30);
     assertEquals(test.getEndDate(), DATE_2014_09_30);
+    assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
     assertEquals(test.getPaymentEvents(), ImmutableList.of(NOTIONAL_EXCHANGE));
@@ -77,6 +81,7 @@ public class ExpandedSwapLegTest {
 
   public void test_builder_invalidMixedCurrency() {
     assertThrowsIllegalArg(() -> ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP3)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build());
@@ -85,6 +90,7 @@ public class ExpandedSwapLegTest {
   //-------------------------------------------------------------------------
   public void test_collectIndices() {
     ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
@@ -95,6 +101,7 @@ public class ExpandedSwapLegTest {
 
   public void test_expand() {
     ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
@@ -104,11 +111,13 @@ public class ExpandedSwapLegTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
     coverImmutableBean(test);
     ExpandedSwapLeg test2 = ExpandedSwapLeg.builder()
+        .payReceive(PAY)
         .paymentPeriods(RPP2)
         .build();
     coverBeanEquals(test, test2);
@@ -116,6 +125,7 @@ public class ExpandedSwapLegTest {
 
   public void test_serialization() {
     ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();

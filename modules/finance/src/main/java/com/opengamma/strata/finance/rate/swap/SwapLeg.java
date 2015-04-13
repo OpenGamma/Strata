@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 
@@ -33,6 +34,18 @@ import com.opengamma.strata.basics.index.Index;
  */
 public interface SwapLeg
     extends ImmutableBean {
+
+  /**
+   * Gets whether the leg is pay or receive.
+   * <p>
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+   * Note that negative interest rates can result in a payment in the opposite
+   * direction to that implied by this indicator.
+   * 
+   * @return the pay receive flag
+   */
+  public abstract PayReceive getPayReceive();
 
   /**
    * Gets the start date of the leg.
@@ -62,6 +75,22 @@ public interface SwapLeg
    * @return the currency of the leg
    */
   public abstract Currency getCurrency();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the set of indices referred to by the leg.
+   * <p>
+   * A leg will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Calling this method will return the complete list of indices, including
+   * any associated with FX reset.
+   * 
+   * @return the set of indices referred to by this leg
+   */
+  public default ImmutableSet<Index> allIndices() {
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    collectIndices(builder);
+    return builder.build();
+  }
 
   /**
    * Collects all the indices referred to by this leg.

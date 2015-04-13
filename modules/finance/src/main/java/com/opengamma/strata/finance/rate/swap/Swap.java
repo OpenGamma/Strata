@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -25,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
@@ -68,6 +70,54 @@ public final class Swap
   public static Swap of(SwapLeg... legs) {
     ArgChecker.notEmpty(legs, "legs");
     return new Swap(ImmutableList.copyOf(legs));
+  }
+
+  /**
+   * Creates a swap from one or more swap legs.
+   * <p>
+   * While most swaps have two legs, other combinations are possible.
+   * 
+   * @param legs  the list of legs
+   * @return the swap
+   */
+  public static Swap of(List<SwapLeg> legs) {
+    ArgChecker.notEmpty(legs, "legs");
+    return new Swap(ImmutableList.copyOf(legs));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the first pay or receive leg of the swap.
+   * <p>
+   * This returns the first pay or receive leg of the swap, empty if no matching leg.
+   * 
+   * @param payReceive  the pay or receive flag
+   * @return the first matching leg of the swap
+   */
+  public Optional<SwapLeg> getLeg(PayReceive payReceive) {
+    return legs.stream().filter(leg -> leg.getPayReceive() == payReceive).findFirst();
+  }
+
+  /**
+   * Gets the first pay leg of the swap.
+   * <p>
+   * This returns the first pay leg of the swap, empty if no pay leg.
+   * 
+   * @return the first pay leg of the swap
+   */
+  public Optional<SwapLeg> getPayLeg() {
+    return getLeg(PayReceive.PAY);
+  }
+
+  /**
+   * Gets the first receive leg of the swap.
+   * <p>
+   * This returns the first receive leg of the swap, empty if no receive leg.
+   * 
+   * @return the first receive leg of the swap
+   */
+  public Optional<SwapLeg> getReceiveLeg() {
+    return getLeg(PayReceive.RECEIVE);
   }
 
   //-------------------------------------------------------------------------

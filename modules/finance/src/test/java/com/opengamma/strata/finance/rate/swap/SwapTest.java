@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -15,6 +17,9 @@ import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_GBP1;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_GBP2;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_USD1;
 import static org.testng.Assert.assertEquals;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -45,10 +50,36 @@ public class SwapTest {
     Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
     assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
     assertEquals(ImmutableList.copyOf(test.getLegs()), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
+    assertThrowsIllegalArg(() -> Swap.of((SwapLeg[]) null));
   }
 
-  public void test_of_null() {
-    assertThrowsIllegalArg(() -> Swap.of((SwapLeg[]) null));
+  public void test_of_list() {
+    Swap test = Swap.of(ImmutableList.of(MOCK_GBP1, MOCK_USD1));
+    assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
+    assertEquals(ImmutableList.copyOf(test.getLegs()), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
+    assertThrowsIllegalArg(() -> Swap.of((List<SwapLeg>) null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getLeg() {
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLeg(PAY), Optional.of(MOCK_GBP1));
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLeg(RECEIVE), Optional.of(MOCK_USD1));
+    assertEquals(Swap.of(MOCK_GBP1).getLeg(PAY), Optional.of(MOCK_GBP1));
+    assertEquals(Swap.of(MOCK_USD1).getLeg(PAY), Optional.empty());
+    assertEquals(Swap.of(MOCK_GBP1).getLeg(RECEIVE), Optional.empty());
+    assertEquals(Swap.of(MOCK_USD1).getLeg(RECEIVE), Optional.of(MOCK_USD1));
+  }
+
+  public void test_getPayLeg() {
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getPayLeg(), Optional.of(MOCK_GBP1));
+    assertEquals(Swap.of(MOCK_GBP1).getPayLeg(), Optional.of(MOCK_GBP1));
+    assertEquals(Swap.of(MOCK_USD1).getPayLeg(), Optional.empty());
+  }
+
+  public void test_getReceiveLeg() {
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getReceiveLeg(), Optional.of(MOCK_USD1));
+    assertEquals(Swap.of(MOCK_GBP1).getReceiveLeg(), Optional.empty());
+    assertEquals(Swap.of(MOCK_USD1).getReceiveLeg(), Optional.of(MOCK_USD1));
   }
 
   //-------------------------------------------------------------------------

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -89,6 +90,7 @@ public final class SwapDummyData {
    * ExpandedSwapLeg (ibor).
    */
   public static final ExpandedSwapLeg IBOR_EXPANDED_SWAP_LEG = ExpandedSwapLeg.builder()
+      .payReceive(RECEIVE)
       .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD)
       .paymentEvents(NOTIONAL_EXCHANGE)
       .build();
@@ -137,6 +139,7 @@ public final class SwapDummyData {
    * ExpandedSwapLeg (fixed).
    */
   public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG = ExpandedSwapLeg.builder()
+      .payReceive(RECEIVE)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD)
       .paymentEvents(NOTIONAL_EXCHANGE)
       .build();
@@ -153,6 +156,7 @@ public final class SwapDummyData {
    * ExpandedSwapLeg (fixed).
    */
   public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_USD = ExpandedSwapLeg.builder()
+      .payReceive(RECEIVE)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_USD)
       .build();
   /**
