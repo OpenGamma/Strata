@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -66,14 +67,6 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
     JodaBeanUtils.registerMetaBean(MissingMappingId.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static MissingMappingId.Builder builder() {
-    return new MissingMappingId.Builder();
-  }
-
   private MissingMappingId(
       MarketDataKey<?> key) {
     JodaBeanUtils.notNull(key, "key");
@@ -105,14 +98,6 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -180,7 +165,7 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
     }
 
     @Override
-    public MissingMappingId.Builder builder() {
+    public BeanBuilder<? extends MissingMappingId> builder() {
       return new MissingMappingId.Builder();
     }
 
@@ -228,7 +213,7 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
   /**
    * The bean-builder for {@code MissingMappingId}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<MissingMappingId> {
+  private static final class Builder extends DirectFieldsBeanBuilder<MissingMappingId> {
 
     private MarketDataKey<?> key;
 
@@ -236,14 +221,6 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(MissingMappingId beanToCopy) {
-      this.key = beanToCopy.getKey();
     }
 
     //-----------------------------------------------------------------------
@@ -297,18 +274,6 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
     public MissingMappingId build() {
       return new MissingMappingId(
           key);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code key} property in the builder.
-     * @param key  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder key(MarketDataKey<?> key) {
-      JodaBeanUtils.notNull(key, "key");
-      this.key = key;
-      return this;
     }
 
     //-----------------------------------------------------------------------

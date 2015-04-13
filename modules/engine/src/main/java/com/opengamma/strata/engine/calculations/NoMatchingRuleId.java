@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -69,14 +70,6 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
     JodaBeanUtils.registerMetaBean(NoMatchingRuleId.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static NoMatchingRuleId.Builder builder() {
-    return new NoMatchingRuleId.Builder();
-  }
-
   private NoMatchingRuleId(
       MarketDataKey key) {
     JodaBeanUtils.notNull(key, "key");
@@ -108,14 +101,6 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -182,7 +167,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
     }
 
     @Override
-    public NoMatchingRuleId.Builder builder() {
+    public BeanBuilder<? extends NoMatchingRuleId> builder() {
       return new NoMatchingRuleId.Builder();
     }
 
@@ -230,7 +215,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
   /**
    * The bean-builder for {@code NoMatchingRuleId}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<NoMatchingRuleId> {
+  private static final class Builder extends DirectFieldsBeanBuilder<NoMatchingRuleId> {
 
     private MarketDataKey key;
 
@@ -238,14 +223,6 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(NoMatchingRuleId beanToCopy) {
-      this.key = beanToCopy.getKey();
     }
 
     //-----------------------------------------------------------------------
@@ -299,18 +276,6 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
     public NoMatchingRuleId build() {
       return new NoMatchingRuleId(
           key);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code key} property in the builder.
-     * @param key  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder key(MarketDataKey key) {
-      JodaBeanUtils.notNull(key, "key");
-      this.key = key;
-      return this;
     }
 
     //-----------------------------------------------------------------------

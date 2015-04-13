@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -115,14 +116,6 @@ public final class QuoteId implements ObservableId, ImmutableBean {
     JodaBeanUtils.registerMetaBean(QuoteId.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static QuoteId.Builder builder() {
-    return new QuoteId.Builder();
-  }
-
   private QuoteId(
       StandardId standardId,
       FieldName fieldName,
@@ -181,14 +174,6 @@ public final class QuoteId implements ObservableId, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -277,7 +262,7 @@ public final class QuoteId implements ObservableId, ImmutableBean {
     }
 
     @Override
-    public QuoteId.Builder builder() {
+    public BeanBuilder<? extends QuoteId> builder() {
       return new QuoteId.Builder();
     }
 
@@ -345,7 +330,7 @@ public final class QuoteId implements ObservableId, ImmutableBean {
   /**
    * The bean-builder for {@code QuoteId}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<QuoteId> {
+  private static final class Builder extends DirectFieldsBeanBuilder<QuoteId> {
 
     private StandardId standardId;
     private FieldName fieldName;
@@ -355,16 +340,6 @@ public final class QuoteId implements ObservableId, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(QuoteId beanToCopy) {
-      this.standardId = beanToCopy.getStandardId();
-      this.fieldName = beanToCopy.getFieldName();
-      this.marketDataVendor = beanToCopy.getMarketDataVendor();
     }
 
     //-----------------------------------------------------------------------
@@ -430,40 +405,6 @@ public final class QuoteId implements ObservableId, ImmutableBean {
           standardId,
           fieldName,
           marketDataVendor);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code standardId} property in the builder.
-     * @param standardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder standardId(StandardId standardId) {
-      JodaBeanUtils.notNull(standardId, "standardId");
-      this.standardId = standardId;
-      return this;
-    }
-
-    /**
-     * Sets the {@code fieldName} property in the builder.
-     * @param fieldName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fieldName(FieldName fieldName) {
-      JodaBeanUtils.notNull(fieldName, "fieldName");
-      this.fieldName = fieldName;
-      return this;
-    }
-
-    /**
-     * Sets the {@code marketDataVendor} property in the builder.
-     * @param marketDataVendor  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataVendor(MarketDataVendor marketDataVendor) {
-      JodaBeanUtils.notNull(marketDataVendor, "marketDataVendor");
-      this.marketDataVendor = marketDataVendor;
-      return this;
     }
 
     //-----------------------------------------------------------------------
