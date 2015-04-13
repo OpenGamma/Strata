@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.marketdata;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,10 +38,20 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder timeSeries(ObservableId... ids) {
+  public MarketDataRequirementsBuilder timeSeries(Collection<? extends ObservableId> ids) {
     ArgChecker.notNull(ids, "ids");
-    timeSeries.addAll(Arrays.asList(ids));
+    timeSeries.addAll(ids);
     return this;
+  }
+
+  /**
+   * Adds requirements for time series of observable market data.
+   *
+   * @param ids  IDs of the data
+   * @return this builder
+   */
+  public MarketDataRequirementsBuilder timeSeries(ObservableId... ids) {
+    return timeSeries(Arrays.asList(ids));
   }
 
   /**
@@ -49,7 +60,7 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder values(MarketDataId<?>... ids) {
+  public MarketDataRequirementsBuilder values(Collection<? extends MarketDataId<?>> ids) {
     ArgChecker.notNull(ids, "ids");
 
     for (MarketDataId<?> id : ids) {
@@ -60,6 +71,16 @@ public final class MarketDataRequirementsBuilder {
       }
     }
     return this;
+  }
+
+  /**
+   * Adds requirements for single values of market data.
+   *
+   * @param ids  IDs of the data
+   * @return this builder
+   */
+  public MarketDataRequirementsBuilder values(MarketDataId<?>... ids) {
+    return values(Arrays.asList(ids));
   }
 
   /**

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.engine.marketdata.mapping;
 
+import java.util.Optional;
+
 import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
@@ -24,14 +26,16 @@ public interface VendorIdMapping {
    * @return a mapping that always returns the ID that is passed in
    */
   public static VendorIdMapping identity() {
-    return id -> id;
+    return Optional::of;
   }
 
   /**
-   * Returns an observable ID that can be used for looking up the market data in a market data provider.
+   * Returns an observable ID that can be used for looking up the market data in a market data provider if
+   * there is a mapping defined for the ID argument.
    *
-   * @param id  an observable ID containing a standard ID and a market data vendor
+   * @param id  an observable ID containing a standard ID and a market data vendor if there is a mapping for
+   *   the ID argument
    * @return an observable ID that can be used for looking up the market data in a market data provider
    */
-  public abstract ObservableId idForVendor(ObservableId id);
+  public abstract Optional<ObservableId> idForVendor(ObservableId id);
 }

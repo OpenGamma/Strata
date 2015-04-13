@@ -21,7 +21,7 @@ import com.opengamma.strata.marketdata.id.MarketDataId;
  * @param <T>  the type of the market data built by this class
  * @param <I>  the type of the market data ID handled by this class
  */
-public interface MarketDataBuilder<T, I extends MarketDataId<T>> {
+public interface MarketDataBuilder<T, I extends MarketDataId<? extends T>> {
 
   /**
    * Returns requirements representing the data needed to build the item of market data identified by the ID.
