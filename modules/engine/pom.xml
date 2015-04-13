@@ -27,10 +27,6 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-market-data</artifactId>
     </dependency>
-    <!--<dependency>
-      <groupId>com.opengamma.strata.strata</groupId>
-      <artifactId>strata-master-db</artifactId>
-    </dependency>-->
 
     <!-- TODO temporary dependencies -->
     <!-- Required for the Legacy class. -->

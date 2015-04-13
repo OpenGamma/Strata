@@ -187,9 +187,11 @@ public class DefaultCalculationRunner implements CalculationRunner {
         column.getPricingRules().functionConfig(target, column.getMeasure())
             .orElse(EngineFunctionConfig.DEFAULT);
 
+    // Use the mappings from the market data rules, else create a set of mappings that cause a failure to
+    // be returned in the market data with an error message saying the rules didn't match the target
     MarketDataMappings marketDataMappings =
         column.getMarketDataRules().mappings(target)
-            .orElse(MarketDataMappings.empty());
+            .orElse(NoMatchingRuleMappings.INSTANCE);
 
     return CalculationTaskConfig.of(
         target,

@@ -20,6 +20,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.engine.calculations.VectorEngineFunction;
 
@@ -29,6 +31,8 @@ import com.opengamma.strata.engine.calculations.VectorEngineFunction;
  */
 @BeanDefinition
 public final class EngineFunctionConfig implements ImmutableBean {
+
+  private static final Logger log = LoggerFactory.getLogger(EngineFunctionConfig.class);
 
   /**
    * Default configuration used when there is none available for a target. Creates {@link MissingConfigEngineFunction}.
@@ -46,6 +50,7 @@ public final class EngineFunctionConfig implements ImmutableBean {
     try {
       return functionType.newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
+      log.warn("Failed to create engine function", e);
       return new MissingConfigEngineFunction();
     }
   }

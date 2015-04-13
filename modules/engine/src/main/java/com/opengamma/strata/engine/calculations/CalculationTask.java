@@ -14,7 +14,6 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**
@@ -85,10 +84,8 @@ public class CalculationTask {
         .map(marketDataMappings::getIdForObservableKey)
         .forEach(requirementsBuilder::timeSeries);
 
-    // This might be possible using streams but I can't figure out how to do it
     for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
-      MarketDataId<?> id = marketDataMappings.getIdForKey(key);
-      requirementsBuilder.values(id);
+      requirementsBuilder.values(marketDataMappings.getIdForKey(key));
     }
     return requirementsBuilder.build();
   }
