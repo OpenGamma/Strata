@@ -6,11 +6,11 @@
 package com.opengamma.strata.pricer.impl;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
-import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
-import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -33,8 +33,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.impl.ImmutablePricingEnvironment;
-import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
@@ -45,7 +43,7 @@ import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 /**
  * Tests related to {@link ImmutablePricingEnvironment} for the computation of curve parameters sensitivities.
  */
-public class ImmutablePricingEnvironementParameterSensitivityTest {
+public class ImmutablePricingEnvironmentParameterSensitivityTest {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 22);
   private static final Currency USD = Currency.USD;
@@ -105,7 +103,9 @@ public class ImmutablePricingEnvironementParameterSensitivityTest {
   // pricing environment
   private static PricingEnvironment ENV = ImmutablePricingEnvironment.builder()
       .valuationDate(VALUATION_DATE)
-      .multicurve(MULTICURVE)
+      .fxMatrix(FX_MATRIX)
+      .discountCurves(MULTICURVE.getDiscountingCurves())
+      .indexCurves(Legacy.indexCurves(MULTICURVE))
       .timeSeries(ImmutableMap.of(
           EUR_EURIBOR_3M, TS_EMTPY,
           USD_LIBOR_1M, TS_EMTPY,

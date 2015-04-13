@@ -10,11 +10,9 @@ import static com.opengamma.analytics.convention.daycount.DayCounts.ACT_365;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
 import java.time.Period;
-import java.util.Map;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.strata.basics.currency.Currency;
@@ -209,8 +207,8 @@ public final class LegacyIndices {
   /**
    * Map of new to old Overnight indices.
    */
-  public static final Map<String, com.opengamma.analytics.financial.instrument.index.IndexON> OVERNIGHT =
-      ImmutableMap.<String, com.opengamma.analytics.financial.instrument.index.IndexON>builder()
+  public static final BiMap<String, IndexON> OVERNIGHT =
+      ImmutableBiMap.<String, IndexON>builder()
           .put(OvernightIndices.CHF_TOIS.getName(), CHF_TOIS)
           .put(OvernightIndices.EUR_EONIA.getName(), EUR_EONIA)
           .put(OvernightIndices.GBP_SONIA.getName(), GBP_SONIA)
