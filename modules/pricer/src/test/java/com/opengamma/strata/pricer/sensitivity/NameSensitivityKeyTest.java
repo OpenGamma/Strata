@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
  * Test {@link NameSensitivityKey}.
  */
 @Test
-public class NameKeySensitivityTest {
+public class NameSensitivityKeyTest {
 
   private static final String NAME = "USD-LIBOR-3M";
 

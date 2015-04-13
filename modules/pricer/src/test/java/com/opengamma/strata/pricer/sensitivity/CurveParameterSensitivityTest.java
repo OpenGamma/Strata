@@ -49,12 +49,21 @@ public class CurveParameterSensitivityTest {
     assertThat(test.getSensitivities()).hasSize(0);
   }
 
-  public void test_of() {
+  public void test_of_single() {
     CurveParameterSensitivity test = CurveParameterSensitivity.of(KEY_USD, VECTOR_USD2);
     assertThat(test.getSensitivities())
         .hasSize(1)
         .containsKey(KEY_USD)
         .containsEntry(KEY_USD, VECTOR_USD2);
+  }
+
+  public void test_of_map() {
+    Map<SensitivityKey, double[]> map = ImmutableMap.of(KEY_USD, TOTAL_USD);
+    CurveParameterSensitivity test = CurveParameterSensitivity.of(map);
+    assertThat(test.getSensitivities())
+        .hasSize(1)
+        .containsKey(KEY_USD)
+        .containsEntry(KEY_USD, TOTAL_USD);
   }
 
   //-------------------------------------------------------------------------

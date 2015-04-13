@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.RateIndex;
 
 /**
- * A key used for sensitivity to a curve in a specific currency.
+ * A key used for sensitivity to a curve in a specific currency, identified by the index.
  * <p>
  * This is a {@link SensitivityKey} implementation used by {@link CurveParameterSensitivity}.
  * This type of key is used for present value sensitivity.
@@ -36,7 +36,7 @@ public final class IndexCurrencySensitivityKey
     implements ImmutableBean, SensitivityKey {
 
   /**
-   * The curve name.
+   * The index that the sensitivity refers to.
    */
   @PropertyDefinition(validate = "notNull")
   private final RateIndex index;
@@ -106,7 +106,7 @@ public final class IndexCurrencySensitivityKey
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve name.
+   * Gets the index that the sensitivity refers to.
    * @return the value of the property, not null
    */
   public RateIndex getIndex() {

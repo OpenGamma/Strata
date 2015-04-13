@@ -82,6 +82,19 @@ public final class CurveParameterSensitivity
     return new CurveParameterSensitivity(ImmutableMap.of(key, sensitivityArray));
   }
 
+  /**
+   * Obtains a parameter sensitivity from a map.
+   * <p>
+   * The {@code double} array is assigned, not cloned.
+   * It must not be mutated once passed in.
+   * 
+   * @param map  the map of sensitivities
+   * @return the sensitivity instance
+   */
+  public static CurveParameterSensitivity of(Map<SensitivityKey, double[]> map) {
+    return new CurveParameterSensitivity(map);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Combines this sensitivity with an additional sensitivity.

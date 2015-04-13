@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * A key used for sensitivity to a curve in a specific currency.
+ * A key used for sensitivity to a curve in a specific currency, identified by the name.
  * <p>
  * This is a {@link SensitivityKey} implementation used by {@link CurveParameterSensitivity}.
  * This type of key is used for present value sensitivity.
@@ -35,7 +35,7 @@ public final class NameCurrencySensitivityKey
     implements ImmutableBean, SensitivityKey {
 
   /**
-   * The curve name.
+   * The curve name that the sensitivity refers to.
    */
   @PropertyDefinition(validate = "notNull")
   private final String curveName;
@@ -105,7 +105,7 @@ public final class NameCurrencySensitivityKey
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve name.
+   * Gets the curve name that the sensitivity refers to.
    * @return the value of the property, not null
    */
   public String getCurveName() {

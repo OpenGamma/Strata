@@ -54,56 +54,69 @@ public class ImmutablePricingEnvironementParameterSensitivityTest {
   private static final LocalDate DATE_2 = LocalDate.of(2016, 1, 21);
   private static final LocalDate DATE_3 = LocalDate.of(2016, 3, 21);
   private static final double AMOUNT_1 = 1000.0;
-  private static final PointSensitivities POINT_ZERO_1 = PointSensitivities.of(ZeroRateSensitivity.of(USD, DATE_1, AMOUNT_1));
-  private static final PointSensitivities POINT_ZERO_2 = PointSensitivities.of(ZeroRateSensitivity.of(USD, DATE_2, AMOUNT_1));
-  private static final PointSensitivities POINT_ZERO_3 = PointSensitivities.of(ZeroRateSensitivity.of(EUR, DATE_1, AMOUNT_1));
-  private static final PointSensitivities POINT_IBOR_1 = PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, AMOUNT_1));
-  private static final PointSensitivities POINT_IBOR_2 = PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_3, AMOUNT_1));
-  private static final PointSensitivities POINT_IBOR_3 = PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, EUR, DATE_1, AMOUNT_1));
-  private static final PointSensitivities POINT_IBOR_4 = PointSensitivities.of(IborRateSensitivity.of(EUR_EURIBOR_3M, EUR, DATE_1, AMOUNT_1));
-  private static final PointSensitivities POINT_ON_1 = PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, DATE_1, AMOUNT_1));
-  private static final PointSensitivities POINT_ON_2 = PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, USD, DATE_1, DATE_2, AMOUNT_1));
-  private static final PointSensitivities POINT_ON_3 = PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, USD, DATE_2, DATE_3, AMOUNT_1));
-  private static final PointSensitivities POINT_ON_4 = PointSensitivities.of(OvernightRateSensitivity.of(EUR_EONIA, DATE_1, AMOUNT_1));
-  private static final PointSensitivities[] POINTS = new PointSensitivities[] {POINT_ZERO_1, POINT_ZERO_2, POINT_ZERO_3,
-    POINT_IBOR_1, POINT_IBOR_2, POINT_IBOR_3, POINT_IBOR_4, POINT_ON_1, POINT_ON_2, POINT_ON_3, POINT_ON_4}; 
+
+  private static final PointSensitivities POINT_ZERO_1 =
+      PointSensitivities.of(ZeroRateSensitivity.of(USD, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_ZERO_2 =
+      PointSensitivities.of(ZeroRateSensitivity.of(USD, DATE_2, AMOUNT_1));
+  private static final PointSensitivities POINT_ZERO_3 =
+      PointSensitivities.of(ZeroRateSensitivity.of(EUR, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_IBOR_1 =
+      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_IBOR_2 =
+      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_3, AMOUNT_1));
+  private static final PointSensitivities POINT_IBOR_3 =
+      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, EUR, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_IBOR_4 =
+      PointSensitivities.of(IborRateSensitivity.of(EUR_EURIBOR_3M, EUR, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_ON_1 =
+      PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_ON_2 =
+      PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, USD, DATE_1, DATE_2, AMOUNT_1));
+  private static final PointSensitivities POINT_ON_3 =
+      PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, USD, DATE_2, DATE_3, AMOUNT_1));
+  private static final PointSensitivities POINT_ON_4 =
+      PointSensitivities.of(OvernightRateSensitivity.of(EUR_EONIA, DATE_1, AMOUNT_1));
+  private static final PointSensitivities[] POINTS = new PointSensitivities[] {
+      POINT_ZERO_1, POINT_ZERO_2, POINT_ZERO_3,
+      POINT_IBOR_1, POINT_IBOR_2, POINT_IBOR_3, POINT_IBOR_4,
+      POINT_ON_1, POINT_ON_2, POINT_ON_3, POINT_ON_4};
   private static final PointSensitivities POINT = POINT_ZERO_1.combinedWith(POINT_ZERO_2).combinedWith(POINT_ZERO_3)
       .combinedWith(POINT_IBOR_1).combinedWith(POINT_IBOR_2).combinedWith(POINT_IBOR_3).combinedWith(POINT_IBOR_4)
       .combinedWith(POINT_ON_1).combinedWith(POINT_ON_2).combinedWith(POINT_ON_3).combinedWith(POINT_ON_4);
 
   // curve providers
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> 
-      MULTICURVE_USD_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> 
-      MULTICURVE_EUR_PAIR = StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR =
+      StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
+      StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
   private static final FxMatrix FX_MATRIX = FxMatrix.builder().addRate(EUR, USD, 1.20).build();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_USD_PAIR.getFirst();
   static {
-    MULTICURVE.setCurve(EUR,
-        MULTICURVE_EUR_PAIR.getFirst().getCurve(EUR));
-    MULTICURVE.setCurve(Legacy.iborIndex(EUR_EURIBOR_3M), 
+    MULTICURVE.setCurve(EUR, MULTICURVE_EUR_PAIR.getFirst().getCurve(EUR));
+    MULTICURVE.setCurve(Legacy.iborIndex(EUR_EURIBOR_3M),
         MULTICURVE_EUR_PAIR.getFirst().getCurve(Legacy.iborIndex(EUR_EURIBOR_3M)));
-    MULTICURVE.setCurve(Legacy.overnightIndex(EUR_EONIA), 
+    MULTICURVE.setCurve(Legacy.overnightIndex(EUR_EONIA),
         MULTICURVE_EUR_PAIR.getFirst().getCurve(Legacy.overnightIndex(EUR_EONIA)));
     MULTICURVE.setForexMatrix(FX_MATRIX);
-  }  
-  
+  }
+
   // pricing environment
   private static PricingEnvironment ENV = ImmutablePricingEnvironment.builder()
-        .valuationDate(VALUATION_DATE)
-        .multicurve(MULTICURVE)
-        .timeSeries(ImmutableMap.of(
-            EUR_EURIBOR_3M, TS_EMTPY,
-            USD_LIBOR_1M, TS_EMTPY,
-            USD_LIBOR_3M, TS_EMTPY,
-            EUR_EONIA, TS_EMTPY,
-            USD_FED_FUND, TS_EMTPY))
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-  
+      .valuationDate(VALUATION_DATE)
+      .multicurve(MULTICURVE)
+      .timeSeries(ImmutableMap.of(
+          EUR_EURIBOR_3M, TS_EMTPY,
+          USD_LIBOR_1M, TS_EMTPY,
+          USD_LIBOR_3M, TS_EMTPY,
+          EUR_EONIA, TS_EMTPY,
+          USD_FED_FUND, TS_EMTPY))
+      .dayCount(ACT_ACT_ISDA)
+      .build();
+
   private static final double TOLERANCE_SENSI = 1.0E-8;
-  
+
   @Test
   public void pointToParameterOnePointZero() {
     CurveParameterSensitivity ps = ENV.parameterSensitivity(POINT_ZERO_1);
@@ -115,7 +128,7 @@ public class ImmutablePricingEnvironementParameterSensitivityTest {
     CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
-  
+
   @Test
   public void pointToParameterOnePointIbor() {
     CurveParameterSensitivity ps = ENV.parameterSensitivity(POINT_IBOR_1);
@@ -133,7 +146,7 @@ public class ImmutablePricingEnvironementParameterSensitivityTest {
     CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
-  
+
   @Test
   public void pointToParameterOnePointOnOneDate() {
     CurveParameterSensitivity ps = ENV.parameterSensitivity(POINT_ON_1);
@@ -151,7 +164,7 @@ public class ImmutablePricingEnvironementParameterSensitivityTest {
     CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
-  
+
   @Test
   public void pointToParameterOnePointOnTwoDates() {
     CurveParameterSensitivity psComputed = ENV.parameterSensitivity(POINT_ON_2);
@@ -179,5 +192,5 @@ public class ImmutablePricingEnvironementParameterSensitivityTest {
     }
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
-  
+
 }

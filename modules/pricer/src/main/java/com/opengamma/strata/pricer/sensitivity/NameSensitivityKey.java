@@ -32,7 +32,7 @@ public final class NameSensitivityKey
     implements ImmutableBean, SensitivityKey {
 
   /**
-   * The curve name.
+   * The curve name that the sensitivity refers to.
    */
   @PropertyDefinition(validate = "notNull")
   private final String curveName;
@@ -93,7 +93,7 @@ public final class NameSensitivityKey
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve name.
+   * Gets the curve name that the sensitivity refers to.
    * @return the value of the property, not null
    */
   public String getCurveName() {

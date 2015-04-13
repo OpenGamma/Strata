@@ -287,8 +287,16 @@ public interface PricingEnvironment {
   
   //-------------------------------------------------------------------------
   /**
-   * Computes the {@link CurveParameterSensitivity} associated to a {@link PointSensitivities}. This correspond to 
-   * the projection of the point sensitivity to the curve internal parameters representation.
+   * Computes the parameter sensitivity.
+   * <p>
+   * This computes the {@link CurveParameterSensitivity} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
+   * <p>
+   * For example, the point sensitivities could represent the sensitivity to a date on the first
+   * of each month in a year relative to a specific forward curve. This method converts to the point
+   * sensitivities to be relative to each parameter on the underlying curve, such as the 1 day, 1 week,
+   * 1 month, 3 month, 12 month and 5 year nodal points.
+   * 
    * @param pointSensitivities  the point sensitivity
    * @return  the sensitivity to the curve parameters
    */
