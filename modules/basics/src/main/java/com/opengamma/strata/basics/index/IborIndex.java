@@ -132,6 +132,17 @@ public interface IborIndex
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the adjustment applied to the effective date to obtain the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * In most cases, the fixing date is 0 or 2 days before the effective date.
+   * This data structure allows the complex rules of some indices to be represented.
+   * 
+   * @return the fixing date offset
+   */
+  public abstract DaysAdjustment getFixingDateOffset();
+
+  /**
    * Gets the adjustment applied to the fixing date to obtain the effective date.
    * <p>
    * The effective date is the start date of the indexed deposit.

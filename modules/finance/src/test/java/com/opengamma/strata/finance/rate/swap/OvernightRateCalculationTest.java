@@ -67,9 +67,19 @@ public class OvernightRateCalculationTest {
       .build();
 
   //-------------------------------------------------------------------------
+  public void test_of() {
+    OvernightRateCalculation test = OvernightRateCalculation.of(GBP_SONIA);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getIndex(), GBP_SONIA);
+    assertEquals(test.getAccrualMethod(), COMPOUNDED);
+    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
+    assertEquals(test.getRateCutOffDays(), 0);
+    assertEquals(test.getGearing(), Optional.empty());
+    assertEquals(test.getSpread(), Optional.empty());
+  }
+
   public void test_builder_ensureDefaults() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
-        .dayCount(ACT_365F)
         .index(GBP_SONIA)
         .build();
     assertEquals(test.getDayCount(), ACT_365F);
@@ -79,6 +89,10 @@ public class OvernightRateCalculationTest {
     assertEquals(test.getRateCutOffDays(), 0);
     assertEquals(test.getGearing(), Optional.empty());
     assertEquals(test.getSpread(), Optional.empty());
+  }
+
+  public void test_builder_noIndex() {
+    assertThrowsIllegalArg(() -> OvernightRateCalculation.builder().build());
   }
 
   //-------------------------------------------------------------------------

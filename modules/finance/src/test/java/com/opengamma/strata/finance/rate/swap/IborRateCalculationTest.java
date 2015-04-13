@@ -108,17 +108,30 @@ public class IborRateCalculationTest {
       .build();
 
   //-------------------------------------------------------------------------
+  public void test_of() {
+    IborRateCalculation test = IborRateCalculation.of(GBP_LIBOR_3M);
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getIndex(), GBP_LIBOR_3M);
+    assertEquals(test.getResetPeriods(), Optional.empty());
+    assertEquals(test.getFixingRelativeTo(), PERIOD_START);
+    assertEquals(test.getFixingOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
+    assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
+    assertEquals(test.getInitialStub(), Optional.empty());
+    assertEquals(test.getFinalStub(), Optional.empty());
+    assertEquals(test.getGearing(), Optional.empty());
+    assertEquals(test.getSpread(), Optional.empty());
+  }
+
   public void test_builder_ensureDefaults() {
     IborRateCalculation test = IborRateCalculation.builder()
-        .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
         .build();
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingOffset(), MINUS_TWO_DAYS);
+    assertEquals(test.getFixingOffset(), DaysAdjustment.NONE);
     assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
     assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
     assertEquals(test.getInitialStub(), Optional.empty());
@@ -145,6 +158,10 @@ public class IborRateCalculationTest {
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getGearing(), Optional.empty());
     assertEquals(test.getSpread(), Optional.empty());
+  }
+
+  public void test_builder_noIndex() {
+    assertThrowsIllegalArg(() -> IborRateCalculation.builder().build());
   }
 
   //-------------------------------------------------------------------------

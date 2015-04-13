@@ -61,6 +61,24 @@ public final class FixedRateCalculation
   private final ValueSchedule rate;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a rate calculation for the specified day count and rate.
+   * <p>
+   * The rate specified here does not vary during the life of the swap.
+   * If this method provides insufficient control, use the {@linkplain #builder() builder}.
+   * 
+   * @param rate  the rate
+   * @param dayCount  the day count
+   * @return the calculation
+   */
+  public static FixedRateCalculation of(double rate, DayCount dayCount) {
+    return FixedRateCalculation.builder()
+        .dayCount(dayCount)
+        .rate(ValueSchedule.of(rate))
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     // no indices

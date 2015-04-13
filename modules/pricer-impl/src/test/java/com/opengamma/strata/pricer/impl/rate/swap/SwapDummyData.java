@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
@@ -109,11 +108,7 @@ public final class SwapDummyData {
           .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
           .build())
       .notionalSchedule(NotionalSchedule.of(Currency.GBP, NOTIONAL))
-      .calculation(IborRateCalculation.builder()
-          .dayCount(DayCounts.ACT_365F)
-          .index(GBP_LIBOR_3M)
-          .fixingOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
-          .build())
+      .calculation(IborRateCalculation.of(GBP_LIBOR_3M))
       .build();
 
   /**
@@ -176,10 +171,7 @@ public final class SwapDummyData {
           .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
           .build())
       .notionalSchedule(NotionalSchedule.of(Currency.GBP, NOTIONAL))
-      .calculation(FixedRateCalculation.builder()
-          .dayCount(DayCounts.ACT_365F)
-          .rate(ValueSchedule.of(0.0123d))
-          .build())
+      .calculation(FixedRateCalculation.of(0.0123d, DayCounts.ACT_365F))
       .build();
 
   /**

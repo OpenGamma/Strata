@@ -24,6 +24,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -74,6 +75,8 @@ public final class IborRateCalculation
    * The day count convention applicable.
    * <p>
    * This is used to convert dates to a numerical value.
+   * <p>
+   * When building, this will default to the day count of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
@@ -115,6 +118,8 @@ public final class IborRateCalculation
    * <p>
    * Note that in most cases, the reset frequency matches the accrual frequency
    * and thus there is only one fixing for the accrual period.
+   * <p>
+   * When building, this will default to the fixing offset of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment fixingOffset;
@@ -207,10 +212,38 @@ public final class IborRateCalculation
   private final ValueSchedule spread;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a rate calculation for the specified index.
+   * <p>
+   * The calculation will use the day count and fixing offset of the index.
+   * All optional fields will be set to their default values.
+   * Thus, fixing will be in advance, with no spread, gearing or reset periods.
+   * If this method provides insufficient control, use the {@linkplain #builder() builder}.
+   * 
+   * @param index  the index
+   * @return the calculation
+   */
+  public static IborRateCalculation of(IborIndex index) {
+    return IborRateCalculation.builder().index(index).build();
+  }
+
+  //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.fixingRelativeTo(FixingRelativeTo.PERIOD_START);
     builder.negativeRateMethod(NegativeRateMethod.ALLOW_NEGATIVE);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.index != null) {
+      if (builder.dayCount == null) {
+        builder.dayCount = builder.index.getDayCount();
+      }
+      if (builder.fixingOffset == null) {
+        builder.fixingOffset = builder.index.getFixingDateOffset();
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -396,6 +429,8 @@ public final class IborRateCalculation
    * Gets the day count convention applicable.
    * <p>
    * This is used to convert dates to a numerical value.
+   * <p>
+   * When building, this will default to the day count of the index if not specified.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -453,6 +488,8 @@ public final class IborRateCalculation
    * <p>
    * Note that in most cases, the reset frequency matches the accrual frequency
    * and thus there is only one fixing for the accrual period.
+   * <p>
+   * When building, this will default to the fixing offset of the index if not specified.
    * @return the value of the property, not null
    */
   public DaysAdjustment getFixingOffset() {
@@ -1040,6 +1077,7 @@ public final class IborRateCalculation
 
     @Override
     public IborRateCalculation build() {
+      preBuild(this);
       return new IborRateCalculation(
           dayCount,
           index,
