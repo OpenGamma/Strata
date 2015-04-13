@@ -36,8 +36,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * The parameters can be the internal parameters of a curve or the market quotes.
  * <p>
  * The sensitivities are defined using {@link SensitivityKey}.
- * This allows different sensitivity classifications, such as {@linkplain CurveSensitivityKey by curve}
- * and {@linkplain CurveCurrencySensitivityKey by curve and currency}.
+ * This allows different sensitivity classifications, such as {@linkplain NameSensitivityKey by curve}
+ * and {@linkplain NameCurrencySensitivityKey by curve and currency}.
  */
 @BeanDefinition
 public final class CurveParameterSensitivity
@@ -80,6 +80,19 @@ public final class CurveParameterSensitivity
    */
   public static CurveParameterSensitivity of(SensitivityKey key, double[] sensitivityArray) {
     return new CurveParameterSensitivity(ImmutableMap.of(key, sensitivityArray));
+  }
+
+  /**
+   * Obtains a parameter sensitivity from a map.
+   * <p>
+   * The {@code double} array is assigned, not cloned.
+   * It must not be mutated once passed in.
+   * 
+   * @param map  the map of sensitivities
+   * @return the sensitivity instance
+   */
+  public static CurveParameterSensitivity of(Map<SensitivityKey, double[]> map) {
+    return new CurveParameterSensitivity(map);
   }
 
   //-------------------------------------------------------------------------
