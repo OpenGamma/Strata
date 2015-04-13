@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.calculations;
 
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
@@ -31,8 +32,11 @@ class NoMatchingRuleMappings implements MarketDataMappings {
 
   @SuppressWarnings("unchecked")
   @Override
-  public NoMatchingRuleId getIdForKey(MarketDataKey key) {
-    return NoMatchingRuleId.builder().key(key).build();
+  public MarketDataId getIdForKey(MarketDataKey key) {
+    if (key instanceof ObservableKey) {
+      return getIdForObservableKey((ObservableKey) key);
+    }
+    return NoMatchingRuleId.of(key);
   }
 
   /**
