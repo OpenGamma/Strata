@@ -14,9 +14,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 
 /**
  * Wraps an input and a function that calculates a value for the input.
@@ -87,14 +85,7 @@ public class CalculationTask {
         .forEach(requirementsBuilder::timeSeries);
 
     for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
-      MarketDataId<?> id;
-
-      if (key instanceof ObservableKey) {
-        id = marketDataMappings.getIdForObservableKey((ObservableKey) key);
-      } else {
-        id = marketDataMappings.getIdForKey(key);
-      }
-      requirementsBuilder.values(id);
+      requirementsBuilder.values(marketDataMappings.getIdForKey(key));
     }
     return requirementsBuilder.build();
   }

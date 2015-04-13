@@ -33,7 +33,7 @@ import com.opengamma.strata.marketdata.key.MarketDataKey;
  * It uses raw types because there is no other way to make its builder and market data mappings
  * implement their respective interfaces.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
 
   /** A market data key identifying market data required for a calculation. */

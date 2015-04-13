@@ -20,7 +20,7 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * a have the vendor {@link MarketDataVendor#NO_RULE}. This builder creates failure results for those
  * IDs and uses the delegate provider to provider the time series for the remaining IDs.
  */
-public final class DelegatingTimeSeriesProvider implements TimeSeriesProvider {
+public final class MissingDataAwareTimeSeriesProvider implements TimeSeriesProvider {
 
   /** Delegate provider used for looking up time series. */
   private final TimeSeriesProvider delegate;
@@ -28,7 +28,7 @@ public final class DelegatingTimeSeriesProvider implements TimeSeriesProvider {
   /**
    * @param delegate  delegate provider used for looking up time series
    */
-  public DelegatingTimeSeriesProvider(TimeSeriesProvider delegate) {
+  public MissingDataAwareTimeSeriesProvider(TimeSeriesProvider delegate) {
     this.delegate = ArgChecker.notNull(delegate, "delegate");
   }
 

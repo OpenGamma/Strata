@@ -257,7 +257,7 @@ public class DefaultMarketDataFactoryTest {
   }
 
 
-    private static final class DelegateBuilder implements ObservableMarketDataBuilder {
+  private static final class DelegateBuilder implements ObservableMarketDataBuilder {
 
     private final Map<ObservableId, Result<Double>> marketData =
         ImmutableMap.of(

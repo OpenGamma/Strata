@@ -21,13 +21,13 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.engine.marketdata.builders.DelegatingObservableBuilder;
-import com.opengamma.strata.engine.marketdata.builders.DelegatingTimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.builders.MissingDataAwareObservableBuilder;
+import com.opengamma.strata.engine.marketdata.builders.MissingDataAwareTimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.builders.MissingMappingMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
-import com.opengamma.strata.engine.marketdata.mapping.DelegatingVendorIdMapping;
+import com.opengamma.strata.engine.marketdata.mapping.MissingDataAwareVendorIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.VendorIdMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.strata.marketdata.id.MarketDataId;
@@ -77,10 +77,10 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       VendorIdMapping vendorIdMapping,
       List<MarketDataBuilder<?, ?>> builders) {
 
-    // Wrap these 3 to handle market data where there was no market data rule for the calculation
-    this.vendorIdMapping = new DelegatingVendorIdMapping(vendorIdMapping);
-    this.observablesBuilder = new DelegatingObservableBuilder(observablesBuilder);
-    this.timeSeriesProvider = new DelegatingTimeSeriesProvider(timeSeriesProvider);
+    // Wrap these 3 to handle market data where there is missing data for the calculation
+    this.vendorIdMapping = new MissingDataAwareVendorIdMapping(vendorIdMapping);
+    this.observablesBuilder = new MissingDataAwareObservableBuilder(observablesBuilder);
+    this.timeSeriesProvider = new MissingDataAwareTimeSeriesProvider(timeSeriesProvider);
 
     // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
     // If the builders argument includes a missing mapping builder it can overwrite the one inserted below

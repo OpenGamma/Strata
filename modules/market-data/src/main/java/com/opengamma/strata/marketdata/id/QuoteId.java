@@ -52,7 +52,7 @@ import com.opengamma.strata.collect.id.StandardId;
  *
  * @see FieldName
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class QuoteId implements ObservableId, ImmutableBean {
 
   /** The ID of the data, typically an ID from an external data provider. */

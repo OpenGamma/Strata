@@ -15,7 +15,7 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * Vendor ID mapping that returns the input ID if it has the vendor {@link MarketDataVendor#NO_RULE}
  * else it delegates to another instance to perform the mapping.
  */
-public final class DelegatingVendorIdMapping implements VendorIdMapping {
+public final class MissingDataAwareVendorIdMapping implements VendorIdMapping {
 
   /** Mapping used for IDs that don't have the vendor {@link MarketDataVendor#NO_RULE}. */
   private final VendorIdMapping delegate;
@@ -23,7 +23,7 @@ public final class DelegatingVendorIdMapping implements VendorIdMapping {
   /**
    * @param delegate mapping used for IDs that don't have the vendor {@link MarketDataVendor#NO_RULE}
    */
-  public DelegatingVendorIdMapping(VendorIdMapping delegate) {
+  public MissingDataAwareVendorIdMapping(VendorIdMapping delegate) {
     this.delegate = ArgChecker.notNull(delegate, "delegate");
   }
 

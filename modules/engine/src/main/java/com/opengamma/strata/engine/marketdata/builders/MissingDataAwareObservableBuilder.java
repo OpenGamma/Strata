@@ -26,7 +26,7 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * data have the vendor {@link MarketDataVendor#NO_RULE}. This builder creates failure results for those IDs and
  * uses the delegate builder to build the data for the remaining IDs.
  */
-public final class DelegatingObservableBuilder implements ObservableMarketDataBuilder {
+public final class MissingDataAwareObservableBuilder implements ObservableMarketDataBuilder {
 
   /** Delegate builder used for building */
   private final ObservableMarketDataBuilder delegate;
@@ -34,7 +34,7 @@ public final class DelegatingObservableBuilder implements ObservableMarketDataBu
   /**
    * @param delegate a builder for building observable market data
    */
-  public DelegatingObservableBuilder(ObservableMarketDataBuilder delegate) {
+  public MissingDataAwareObservableBuilder(ObservableMarketDataBuilder delegate) {
     this.delegate = ArgChecker.notNull(delegate, "delegate");
   }
 

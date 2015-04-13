@@ -17,7 +17,7 @@ public final class MarketDataVendor extends TypedString<MarketDataVendor> {
   public static final MarketDataVendor NONE = of("None");
 
   /** A market data vendor used to indicate there are no market data rules for a calculation. */
-  public static final MarketDataVendor NO_RULE = of("No matching market data rule");
+  public static final MarketDataVendor NO_RULE = of("NoMatchingMarketDataRule");
 
   private MarketDataVendor(String name) {
     super(name);

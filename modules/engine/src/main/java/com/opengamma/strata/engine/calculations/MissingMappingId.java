@@ -30,7 +30,7 @@ import com.opengamma.strata.marketdata.key.MarketDataKey;
  * Instances of this class are never be used to identify real items of market data. They are only
  * used to identify failures when building market data.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean {
 
   /** The key identifying the market data required for the calculation. */

@@ -22,7 +22,7 @@ import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 @Test
-public class DelegatingObservableBuilderTest {
+public class MissingDataAwareObservableBuilderTest {
 
   private static final MarketDataVendor VENDOR = MarketDataVendor.of("real vendor");
   private static final IndexRateId LIBOR_1M_ID = IndexRateId.of(IborIndices.USD_LIBOR_1M, VENDOR);
@@ -33,7 +33,7 @@ public class DelegatingObservableBuilderTest {
    * for all others.
    */
   public void buildFailuresWhenNoMarketDataRule() {
-    DelegatingObservableBuilder builder = new DelegatingObservableBuilder(new DelegateBuilder());
+    MissingDataAwareObservableBuilder builder = new MissingDataAwareObservableBuilder(new DelegateBuilder());
     IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataVendor.NO_RULE);
     IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataVendor.NO_RULE);
     ImmutableSet<IndexRateId> requirements = ImmutableSet.of(libor6mId, libor12mId, LIBOR_1M_ID, LIBOR_3M_ID);

@@ -80,6 +80,9 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
 
   @Override
   public <T, K extends MarketDataKey<T>> MarketDataId<T> getIdForKey(K key) {
+    if (key instanceof ObservableKey) {
+      return (MarketDataId<T>) getIdForObservableKey((ObservableKey) key);
+    }
     MarketDataMapping<T, K> mapping =
         (MarketDataMapping<T, K>) mappings.getOrDefault(key.getClass(), MissingMapping.INSTANCE);
     return mapping.getIdForKey(key);
