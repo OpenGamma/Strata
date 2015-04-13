@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -24,7 +25,8 @@ import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricerFn;
 @Test
 public class DefaultExpandedSwapLegPricerFnTest {
 
-  private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
+  private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment(date(2014, 1, 22));
+  private static final PricingEnvironment MOCK_ENV_FUTURE = new MockPricingEnvironment(date(2040, 1, 22));
 
   public void test_presentValue() {
     PaymentPeriodPricerFn<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricerFn.class);
@@ -37,6 +39,14 @@ public class DefaultExpandedSwapLegPricerFnTest {
     assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.IBOR_EXPANDED_SWAP_LEG), 2000d, 0d);
   }
 
+  public void test_presentValue_past() {
+    PaymentPeriodPricerFn<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricerFn.class);
+    PaymentEventPricerFn<PaymentEvent> mockEvent = mock(PaymentEventPricerFn.class);
+    DefaultExpandedSwapLegPricerFn test = new DefaultExpandedSwapLegPricerFn(mockPeriod, mockEvent);
+    assertEquals(test.presentValue(MOCK_ENV_FUTURE, SwapDummyData.IBOR_EXPANDED_SWAP_LEG), 0d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_futureValue() {
     PaymentPeriodPricerFn<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricerFn.class);
     when(mockPeriod.futureValue(MOCK_ENV, SwapDummyData.IBOR_RATE_PAYMENT_PERIOD))
@@ -46,6 +56,13 @@ public class DefaultExpandedSwapLegPricerFnTest {
         .thenReturn(1000d);
     DefaultExpandedSwapLegPricerFn test = new DefaultExpandedSwapLegPricerFn(mockPeriod, mockEvent);
     assertEquals(test.futureValue(MOCK_ENV, SwapDummyData.IBOR_EXPANDED_SWAP_LEG), 2000d, 0d);
+  }
+
+  public void test_futureValue_past() {
+    PaymentPeriodPricerFn<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricerFn.class);
+    PaymentEventPricerFn<PaymentEvent> mockEvent = mock(PaymentEventPricerFn.class);
+    DefaultExpandedSwapLegPricerFn test = new DefaultExpandedSwapLegPricerFn(mockPeriod, mockEvent);
+    assertEquals(test.futureValue(MOCK_ENV_FUTURE, SwapDummyData.IBOR_EXPANDED_SWAP_LEG), 0d, 0d);
   }
 
 }

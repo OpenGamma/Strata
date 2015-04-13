@@ -135,14 +135,6 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   // rate observation is separated from this class, so nothing is missed in unit test terms
   // most testing on futureValue as methods only differ in discountFactor
   //-------------------------------------------------------------------------
-  public void test_presentValue_single_paymentBeforeToday() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(PAYMENT_DATE_1.plusDays(1));
-    when(env.discountFactor(USD, PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.presentValue(env, PAYMENT_PERIOD_1);
-    assertEquals(fvComputed, 0d, TOLERANCE_PV);
-  }
-
   public void test_presentValue_single() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
@@ -153,13 +145,6 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_futureValue_single_paymentBeforeToday() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(PAYMENT_DATE_1.plusDays(1));
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1);
-    assertEquals(fvComputed, 0d, TOLERANCE_PV);
-  }
-
   public void test_futureValue_single() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);

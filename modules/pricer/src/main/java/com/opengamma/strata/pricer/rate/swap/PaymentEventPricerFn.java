@@ -24,6 +24,9 @@ public interface PaymentEventPricerFn<T extends PaymentEvent> {
    * <p>
    * The amount is expressed in the currency of the event.
    * This returns the value of the event with discounting.
+   * <p>
+   * The payment date of the event should not be in the past.
+   * The result of this method for payment dates in the past is undefined.
    * 
    * @param env  the pricing environment
    * @param event  the event to price
@@ -36,6 +39,9 @@ public interface PaymentEventPricerFn<T extends PaymentEvent> {
    * <p>
    * The amount is expressed in the currency of the event.
    * This returns the value of the event without discounting.
+   * <p>
+   * The payment date of the event should not be in the past.
+   * The result of this method for payment dates in the past is undefined.
    * 
    * @param env  the pricing environment
    * @param event  the event to price
