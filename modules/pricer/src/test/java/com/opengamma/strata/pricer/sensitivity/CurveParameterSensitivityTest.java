@@ -32,8 +32,8 @@ public class CurveParameterSensitivityTest {
   private static final Currency EUR = Currency.EUR;
   private static final String NAME1 = "NAME-1";
   private static final String NAME2 = "NAME-2";
-  private static final CurveCurrencySensitivityKey KEY_USD = CurveCurrencySensitivityKey.of(NAME1, USD);
-  private static final CurveCurrencySensitivityKey KEY_EUR = CurveCurrencySensitivityKey.of(NAME2, EUR);
+  private static final NameCurrencySensitivityKey KEY_USD = NameCurrencySensitivityKey.of(NAME1, USD);
+  private static final NameCurrencySensitivityKey KEY_EUR = NameCurrencySensitivityKey.of(NAME2, EUR);
 
   private static final Map<SensitivityKey, double[]> MAP_1 = ImmutableMap.of(KEY_USD, VECTOR_USD1);
   private static final CurveParameterSensitivity SENSI_1 =

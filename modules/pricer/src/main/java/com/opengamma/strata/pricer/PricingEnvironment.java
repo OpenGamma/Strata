@@ -17,6 +17,8 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -282,6 +284,15 @@ public interface PricingEnvironment {
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate);
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the {@link CurveParameterSensitivity} associated to a {@link PointSensitivities}. This correspond to 
+   * the projection of the point sensitivity to the curve internal parameters representation.
+   * @param pointSensitivities  the point sensitivity
+   * @return  the sensitivity to the curve parameters
+   */
+  CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
   /**

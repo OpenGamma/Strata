@@ -7,6 +7,8 @@ package com.opengamma.strata.pricer.impl;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
@@ -24,8 +26,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
@@ -36,10 +41,17 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.IndexCurrencySensitivityKey;
+import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -277,6 +289,84 @@ public final class ImmutablePricingEnvironment
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
     return OvernightRateSensitivity.of(index, index.getCurrency(), startDate, endDate, 1d);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
+    List<PointSensitivity> points = sensitivities.getSensitivities();
+    ArrayListMultimap<Currency, DoublesPair> mapZero2 = ArrayListMultimap.create();
+    ArrayListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> mapIbor = ArrayListMultimap.create();
+    ArrayListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> mapOn = ArrayListMultimap.create();
+    // Collecting point sensitivity by type and transforming in objects handled by PricingEnvironement.
+    for (PointSensitivity point : points) {
+      if (point instanceof ZeroRateSensitivity) {
+        ZeroRateSensitivity pointZero = (ZeroRateSensitivity) point;
+        Currency ccy = pointZero.getCurrency();
+        LocalDate date = pointZero.getDate();
+        double amount = pointZero.getSensitivity();
+        mapZero2.put(ccy, DoublesPair.of(relativeTime(date), amount));
+      } else if (point instanceof IborRateSensitivity) {
+        IborRateSensitivity pointIbor = (IborRateSensitivity) point;
+        Currency ccy = pointIbor.getCurrency();
+        IborIndex index = pointIbor.getIndex();
+        LocalDate fixingDate = pointIbor.getDate();
+        double amount = pointIbor.getSensitivity();
+        LocalDate startDate = index.calculateEffectiveFromFixing(fixingDate);
+        LocalDate endDate = index.calculateMaturityFromEffective(startDate);
+        double startTime = relativeTime(startDate);
+        double endTime = relativeTime(endDate);
+        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
+        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, ccy);
+        mapIbor.put(key, new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, amount));
+      } else if (point instanceof OvernightRateSensitivity){
+        OvernightRateSensitivity pointOn = (OvernightRateSensitivity) point;
+        Currency ccy = pointOn.getCurrency();
+        OvernightIndex index = pointOn.getIndex();
+        LocalDate fixingDate = pointOn.getFixingDate();
+        LocalDate endDate = pointOn.getEndDate();
+        double amount = pointOn.getSensitivity();
+        LocalDate startDate = index.calculateEffectiveFromFixing(fixingDate);
+        double startTime = relativeTime(startDate);
+        double endTime = relativeTime(endDate);
+        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
+        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, ccy);
+        mapOn.put(key, new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, amount));
+      } else {
+        throw new IllegalArgumentException("Unknown PointSensitivity type: " + point.getClass().getSimpleName());
+      }
+    }
+    // Store all sensitivities into a CurveParameterSensitivity
+    Map<SensitivityKey, double[]> sensi = new HashMap<>();
+    for(Currency ccy : mapZero2.keySet()) {
+      String curveName = multicurve.getName(ccy);
+      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curveName, ccy);
+      double[] sensiParam = multicurve.parameterSensitivity(curveName, mapZero2.get(ccy));
+      sensi.put(keyParam, sensiParam);      
+    }
+    for (IndexCurrencySensitivityKey keyPoint : mapIbor.keySet()) {
+      String curveName = multicurve.getName(Legacy.iborIndex((IborIndex) keyPoint.getIndex()));
+      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curveName, keyPoint.getCurrency());
+      double[] sensiParam = multicurve.parameterForwardSensitivity(curveName, mapIbor.get(keyPoint));
+      sensi.merge(keyParam, sensiParam, ImmutablePricingEnvironment::combineArrays);
+    }
+    for (IndexCurrencySensitivityKey keyPoint : mapOn.keySet()) {
+      String curveName = multicurve.getName(Legacy.overnightIndex((OvernightIndex) keyPoint.getIndex()));
+      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curveName, keyPoint.getCurrency());
+      double[] sensiParam = multicurve.parameterForwardSensitivity(curveName, mapOn.get(keyPoint));
+      sensi.merge(keyParam, sensiParam, ImmutablePricingEnvironment::combineArrays);
+    }
+    return CurveParameterSensitivity.builder().sensitivities(sensi).build();
+  }
+
+  // add two arrays
+  private static double[] combineArrays(double[] a, double[] b) {
+    ArgChecker.isTrue(a.length == b.length, "Sensitivity array must have same length");
+    double[] result = new double[a.length];
+    for (int i = 0; i < a.length; i++) {
+      result[i] = a[i] + b[i];
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

@@ -14,6 +14,8 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -115,6 +117,11 @@ public class MockPricingEnvironment
 
   @Override
   public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
   }
 

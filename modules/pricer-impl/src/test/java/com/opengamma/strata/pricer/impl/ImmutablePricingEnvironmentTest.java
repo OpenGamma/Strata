@@ -39,7 +39,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
- * Test.
+ * Test related to {@link ImmutablePricingEnvironment}.
  */
 @Test
 public class ImmutablePricingEnvironmentTest {

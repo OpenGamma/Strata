@@ -31,6 +31,8 @@ import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.PricingException;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -220,6 +222,14 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
     // TODO implement MarketDataPricingEnvironment.overnightIndexRatePeriodSensitivity
     throw new UnsupportedOperationException("overnightIndexRatePeriodSensitivity not implemented");
   }
+
+  //-------------------------------------------------------------------------
+
+  @Override
+  public CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities) {
+    // TODO: Implement before creating PV01 results
+    throw new UnsupportedOperationException();
+  }  
 
   //-------------------------------------------------------------------------
   @Override

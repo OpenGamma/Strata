@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.sensitivity;
 
-import static com.opengamma.strata.basics.currency.Currency.EUR;
-import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -14,23 +12,22 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link CurveCurrencySensitivityKey}.
+ * Test {@link NameSensitivityKey}.
  */
 @Test
-public class CurveCurrencySensitivityKeyTest {
+public class NameKeySensitivityTest {
 
   private static final String NAME = "USD-LIBOR-3M";
 
   public void test_of() {
-    CurveCurrencySensitivityKey test = CurveCurrencySensitivityKey.of(NAME, EUR);
+    NameSensitivityKey test = NameSensitivityKey.of(NAME);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getCurrency(), EUR);
   }
 
   public void coverage() {
-    CurveCurrencySensitivityKey test = CurveCurrencySensitivityKey.of(NAME, EUR);
+    NameSensitivityKey test = NameSensitivityKey.of(NAME);
     coverImmutableBean(test);
-    CurveCurrencySensitivityKey test2 = CurveCurrencySensitivityKey.of("Other", GBP);
+    NameSensitivityKey test2 = NameSensitivityKey.of("Other");
     coverBeanEquals(test, test2);
   }
 

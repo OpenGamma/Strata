@@ -36,8 +36,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * The parameters can be the internal parameters of a curve or the market quotes.
  * <p>
  * The sensitivities are defined using {@link SensitivityKey}.
- * This allows different sensitivity classifications, such as {@linkplain CurveSensitivityKey by curve}
- * and {@linkplain CurveCurrencySensitivityKey by curve and currency}.
+ * This allows different sensitivity classifications, such as {@linkplain NameSensitivityKey by curve}
+ * and {@linkplain NameCurrencySensitivityKey by curve and currency}.
  */
 @BeanDefinition
 public final class CurveParameterSensitivity
