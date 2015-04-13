@@ -24,6 +24,9 @@ public interface PaymentPeriodPricerFn<T extends PaymentPeriod> {
    * <p>
    * The amount is expressed in the currency of the period.
    * This returns the value of the period with discounting.
+   * <p>
+   * The payment date of the period should not be in the past.
+   * The result of this method for payment dates in the past is undefined.
    * 
    * @param env  the pricing environment
    * @param period  the period to price
@@ -36,6 +39,9 @@ public interface PaymentPeriodPricerFn<T extends PaymentPeriod> {
    * <p>
    * The amount is expressed in the currency of the period.
    * This returns the value of the period without discounting.
+   * <p>
+   * The payment date of the period should not be in the past.
+   * The result of this method for payment dates in the past is undefined.
    * 
    * @param env  the pricing environment
    * @param period  the period to price

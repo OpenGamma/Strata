@@ -70,10 +70,13 @@ public class DefaultExpandedSwapLegPricerFn
       ExpandedSwapLeg swapLeg,
       ToDoubleBiFunction<PricingEnvironment, PaymentPeriod> periodFn,
       ToDoubleBiFunction<PricingEnvironment, PaymentEvent> eventFn) {
+
     double valuePeriods = swapLeg.getPaymentPeriods().stream()
+        .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
         .mapToDouble(p -> periodFn.applyAsDouble(env, p))
         .sum();
     double valueEvents = swapLeg.getPaymentEvents().stream()
+        .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
         .mapToDouble(e -> eventFn.applyAsDouble(env, e))
         .sum();
     return valuePeriods + valueEvents;

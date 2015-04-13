@@ -55,10 +55,6 @@ public class DiscountingRatePaymentPeriodPricerFn
 
   @Override
   public double futureValue(PricingEnvironment env, RatePaymentPeriod period) {
-    // historic payments have zero pv
-    if (period.getPaymentDate().isBefore(env.getValuationDate())) {
-      return 0;
-    }
     // notional * fxRate
     // fxRate is 1 if no FX conversion
     double notional = period.getNotional() * fxRate(env, period);
