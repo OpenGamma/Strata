@@ -122,11 +122,21 @@ public final class DefaultCalculationEngine implements CalculationEngine {
    * @return the targets with any links resolved to reference the linked objects
    */
   private List<CalculationTarget> resolveTargetLinks(List<? extends CalculationTarget> targets) {
-    return targets.stream()
-        .filter(Resolvable.class::isInstance)
-        .map(Resolvable.class::cast)
-        .map(resolvable -> resolvable.resolveLinks(linkResolver))
-        .map(CalculationTarget.class::cast)
-        .collect(toImmutableList());
+    return targets.stream().map(this::resolveTargetLinks).collect(toImmutableList());
+  }
+
+  /**
+   * Returns a calculation target with any links resolved to reference the linked objects.
+   *
+   * @param target  a calculation target
+   * @return the target with any links resolved to reference the linked objects
+   */
+  private CalculationTarget resolveTargetLinks(CalculationTarget target) {
+    if (target instanceof Resolvable) {
+      Object resolvedTarget = ((Resolvable) target).resolveLinks(linkResolver);
+      return (CalculationTarget) resolvedTarget;
+    } else {
+      return target;
+    }
   }
 }
