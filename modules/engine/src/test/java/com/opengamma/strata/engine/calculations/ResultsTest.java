@@ -27,7 +27,7 @@ public class ResultsTest {
     Results results = Results.of(0, 0, ImmutableList.of());
     assertThat(results.getRowCount()).isEqualTo(0);
     assertThat(results.getColumnCount()).isEqualTo(0);
-    assertThrows(() -> results.get(0, 0), IllegalArgumentException.class, "Row index must be between.*");
+    assertThrows(() -> results.get(0, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
   }
 
   public void nonEmpty() {
@@ -36,8 +36,8 @@ public class ResultsTest {
     assertThat(results.getColumnCount()).isEqualTo(3);
     assertThat(results.get(0, 0)).hasValue(1);
     assertThat(results.get(1, 2)).hasValue(6);
-    assertThrows(() -> results.get(2, 0), IllegalArgumentException.class, "Row index must be between.*");
-    assertThrows(() -> results.get(0, 3), IllegalArgumentException.class, "Column index must be between.*");
+    assertThrows(() -> results.get(2, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
+    assertThrows(() -> results.get(0, 3), IllegalArgumentException.class, "Column index must be greater than or.*");
   }
 
   /**
