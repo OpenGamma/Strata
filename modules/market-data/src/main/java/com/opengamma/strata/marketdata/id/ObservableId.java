@@ -17,15 +17,15 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
  * <ul>
  *   <li>A {@link StandardId} identifying the market data. This ID can come from any system. It might be
  *   an OpenGamma ID, for example {@code OG-Index~GBP_LIBOR_3M}, or it can be an ID from a market
- *   data vendor, for example {@code BloombergTicker~AAPL US Equity}.</li>
+ *   data feed, for example {@code BloombergTicker~AAPL US Equity}.</li>
  *
  *   <li>A {@link FieldName} indicating the field in the market data record containing the data. See
  *   the {@code FieldName} documentation for more details.</li>
  *
- *   <li>A {@link MarketDataVendor} indicating where the data should come from. This is chosen by
+ *   <li>A {@link MarketDataFeed} indicating where the data should come from. This is chosen by
  *   the market data rules. It is important to note that the standard ID is not necessarily related to
- *   the vendor. There is a mapping step in the market data system that maps the standard ID into an
- *   ID that can be used to look up the data in the vendor system.</li>
+ *   the feed. There is a mapping step in the market data system that maps the standard ID into an
+ *   ID that can be used to look up the data in the feed.</li>
  * </ul>
  */
 public interface ObservableId extends MarketDataId<Double>, StandardIdentifiable {
@@ -52,11 +52,11 @@ public interface ObservableId extends MarketDataId<Double>, StandardIdentifiable
   public abstract FieldName getFieldName();
 
   /**
-   * Returns the market data vendor from which the market data should be retrieved.
+   * Returns the market data feed from which the market data should be retrieved.
    *
-   * @return the market data vendor from which the market data should be retrieved
+   * @return the market data feed from which the market data should be retrieved
    */
-  public abstract MarketDataVendor getMarketDataVendor();
+  public abstract MarketDataFeed getMarketDataFeed();
 
   @Override
   public default Class<Double> getMarketDataType() {

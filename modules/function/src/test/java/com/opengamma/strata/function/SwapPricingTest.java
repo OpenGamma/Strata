@@ -59,8 +59,8 @@ import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDat
 import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
+import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.engine.marketdata.mapping.VendorIdMapping;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
@@ -156,7 +156,7 @@ public class SwapPricingTest {
         new DefaultMarketDataFactory(
             new EmptyTimeSeriesProvider(),
             ObservableMarketDataBuilder.none(),
-            VendorIdMapping.identity(),
+            FeedIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
             new IndexCurveMarketDataBuilder());
 
@@ -176,7 +176,7 @@ public class SwapPricingTest {
 
     BaseMarketData marketData = marketDataResult.getMarketData();
     Results results = calculationRunner.calculate(calculationTasks, marketData);
-    Result<?> result = results.get(0, pvColumn);
+    Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();
 
     List<?> scenarioResults = (List<?>) result.getValue();

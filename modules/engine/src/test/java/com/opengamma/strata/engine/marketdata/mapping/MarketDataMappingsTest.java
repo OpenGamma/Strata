@@ -15,8 +15,8 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
 import com.opengamma.strata.marketdata.id.IndexRateId;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.FxRateKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
@@ -66,21 +66,21 @@ public class MarketDataMappingsTest {
   }
 
   /**
-   * Tests the correct MarketDataVendor is set when converting observable keys to IDs
+   * Tests the correct MarketDataFeed is set when converting observable keys to IDs
    */
-  public void observableMarketDataVendor() {
-    MarketDataVendor vendor = MarketDataVendor.of("vendor name");
-    MarketDataMappings mappings = MarketDataMappings.builder().marketDataVendor(vendor).build();
+  public void observableMarketDataFeed() {
+    MarketDataFeed feed = MarketDataFeed.of("feed name");
+    MarketDataMappings mappings = MarketDataMappings.builder().marketDataFeed(feed).build();
     MarketDataId<Double> id = mappings.getIdForObservableKey(IndexRateKey.of(IborIndices.CHF_LIBOR_12M));
-    assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, vendor));
+    assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, feed));
   }
 
   /**
-   * Tests mapping of observable keys to IDs when no MarketDataVendor is specified
+   * Tests mapping of observable keys to IDs when no MarketDataFeed is specified
    */
-  public void defaultObservablesMarketDataVendor() {
+  public void defaultObservablesMarketDataFeed() {
     MarketDataMappings mappings = MarketDataMappings.builder().build();
     MarketDataId<Double> id = mappings.getIdForObservableKey(IndexRateKey.of(IborIndices.CHF_LIBOR_12M));
-    assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, MarketDataVendor.NONE));
+    assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, MarketDataFeed.NONE));
   }
 }

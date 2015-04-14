@@ -9,7 +9,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
@@ -17,7 +17,7 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * market data rule for the calculation. It delegates to another provider for looking up time series.
  * <p>
  * When there is no market data rule for a calculation, the {@link ObservableId} instances for the time series
- * a have the vendor {@link MarketDataVendor#NO_RULE}. This builder creates failure results for those
+ * have the feed {@link MarketDataFeed#NO_RULE}. This builder creates failure results for those
  * IDs and uses the delegate provider to provider the time series for the remaining IDs.
  */
 public final class MissingDataAwareTimeSeriesProvider implements TimeSeriesProvider {
@@ -34,8 +34,8 @@ public final class MissingDataAwareTimeSeriesProvider implements TimeSeriesProvi
 
   @Override
   public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {
-    return id.getMarketDataVendor().equals(MarketDataVendor.NO_RULE) ?
-        Result.failure(FailureReason.MISSING_DATA, "No market data rule specifying market data vendor for {}", id) :
+    return id.getMarketDataFeed().equals(MarketDataFeed.NO_RULE) ?
+        Result.failure(FailureReason.MISSING_DATA, "No market data rule specifying market data feed for {}", id) :
         delegate.timeSeries(id);
   }
 }

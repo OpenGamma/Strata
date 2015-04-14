@@ -18,6 +18,28 @@ import com.opengamma.strata.marketdata.id.ObservableId;
 public interface ScenarioMarketData {
 
   /**
+   * Returns a mutable builder for building a set of scenario market data.
+   *
+   * @param scenarioCount  the number of scenarios
+   * @return a mutable builder for building a set of scenario market data
+   */
+  public static ScenarioMarketDataBuilder builder(int scenarioCount) {
+    return new ScenarioMarketDataBuilder(scenarioCount);
+  }
+
+  /**
+   * Returns a mutable builder for building a set of scenario market data where every scenario has the
+   * same valuation date.
+   *
+   * @param scenarioCount  the number of scenarios
+   * @param valuationDate  the valuation date of all scenarios
+   * @return a mutable builder for building a set of scenario market data
+   */
+  public static ScenarioMarketDataBuilder builder(int scenarioCount, LocalDate valuationDate) {
+    return new ScenarioMarketDataBuilder(scenarioCount, valuationDate);
+  }
+
+  /**
    * @return the valuation dates of the scenarios, one for each scenario
    */
   public abstract List<LocalDate> getValuationDates();

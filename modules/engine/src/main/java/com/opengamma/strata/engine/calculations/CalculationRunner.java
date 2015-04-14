@@ -18,6 +18,8 @@ import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 
 /**
  * Runs a set of calculations over a portfolio and returns the results.
+ * <p>
+ * TODO Example code in the Javadoc showing how to use this
  */
 public interface CalculationRunner {
 
