@@ -34,6 +34,12 @@ import com.opengamma.strata.finance.rate.FixedRateObservation;
 @Test
 public class FixedRateCalculationTest {
 
+  public void test_of() {
+    FixedRateCalculation test = FixedRateCalculation.of(0.025d, ACT_365F);
+    assertEquals(test.getRate(), ValueSchedule.of(0.025d));
+    assertEquals(test.getDayCount(), ACT_365F);
+  }
+
   public void test_builder() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)

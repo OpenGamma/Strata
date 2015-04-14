@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.CHZU;
@@ -64,6 +65,7 @@ final class StandardIborIndices {
         .name("GBP-LIBOR-" + tenor)
         .currency(GBP)
         .fixingCalendar(GBLO)
+        .fixingDateOffset(DaysAdjustment.NONE)
         .effectiveDateOffset(DaysAdjustment.NONE)
         .maturityDateOffset(maturity(tenor, GBLO))
         .dayCount(ACT_365F)
@@ -88,6 +90,7 @@ final class StandardIborIndices {
         .name("CHF-LIBOR-" + tenor)
         .currency(CHF)
         .fixingCalendar(GBLO)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, cal)))
         .maturityDateOffset(maturity(tenor, cal))
         .dayCount(ACT_360)
@@ -111,6 +114,7 @@ final class StandardIborIndices {
         .name("EUR-LIBOR-" + tenor)
         .currency(EUR)
         .fixingCalendar(GBLO)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, EUTA, BusinessDayAdjustment.of(PRECEDING, GBLO)))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA))
         .maturityDateOffset(maturity(tenor, EUTA))
         .dayCount(ACT_360)
@@ -135,6 +139,7 @@ final class StandardIborIndices {
         .name("JPY-LIBOR-" + tenor)
         .currency(JPY)
         .fixingCalendar(GBLO)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, cal)))
         .maturityDateOffset(maturity(tenor, cal))
         .dayCount(ACT_360)
@@ -159,6 +164,7 @@ final class StandardIborIndices {
         .name("USD-LIBOR-" + tenor)
         .currency(USD)
         .fixingCalendar(GBLO)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, cal)))
         .maturityDateOffset(maturity(tenor, cal))
         .dayCount(ACT_360)
@@ -182,6 +188,7 @@ final class StandardIborIndices {
         .name("EUR-EURIBOR-" + tenor)
         .currency(EUR)
         .fixingCalendar(EUTA)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, EUTA))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA))
         .maturityDateOffset(maturity(tenor, EUTA))
         .dayCount(ACT_360)
@@ -204,6 +211,7 @@ final class StandardIborIndices {
         .name("JPY-TIBOR-JAPAN-" + tenor)
         .currency(JPY)
         .fixingCalendar(JPTO)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, JPTO))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO))
         .maturityDateOffset(maturity(tenor, JPTO))
         .dayCount(ACT_365F)
@@ -226,6 +234,7 @@ final class StandardIborIndices {
         .name("JPY-TIBOR-EUROYEN-" + tenor)
         .currency(JPY)
         .fixingCalendar(JPTO)
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, JPTO))
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO))
         .maturityDateOffset(maturity(tenor, JPTO))
         .dayCount(ACT_360)

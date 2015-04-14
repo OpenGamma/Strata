@@ -65,6 +65,15 @@ public final class ImmutableIborIndex
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final HolidayCalendar fixingCalendar;
   /**
+   * The adjustment applied to the effective date to obtain the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * In most cases, the fixing date is 0 or 2 days before the effective date.
+   * This data structure allows the complex rules of some indices to be represented.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final DaysAdjustment fixingDateOffset;
+  /**
    * The adjustment applied to the fixing date to obtain the effective date.
    * <p>
    * The effective date is the start date of the indexed deposit.
@@ -134,11 +143,7 @@ public final class ImmutableIborIndex
   public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
     ArgChecker.notNull(effectiveDate, "effectiveDate");
     LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
-    LocalDate fixingDate = effectiveBusinessDay;
-    while (effectiveDateOffset.adjust(fixingDate).isAfter(effectiveBusinessDay) || fixingCalendar.isHoliday(fixingDate)) {
-      fixingDate = fixingDate.minusDays(1);
-    }
-    return fixingDate;
+    return fixingDateOffset.adjust(effectiveBusinessDay);
   }
 
   /**
@@ -228,18 +233,21 @@ public final class ImmutableIborIndex
       String name,
       Currency currency,
       HolidayCalendar fixingCalendar,
+      DaysAdjustment fixingDateOffset,
       DaysAdjustment effectiveDateOffset,
       TenorAdjustment maturityDateOffset,
       DayCount dayCount) {
     JodaBeanUtils.notEmpty(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
+    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
     JodaBeanUtils.notNull(effectiveDateOffset, "effectiveDateOffset");
     JodaBeanUtils.notNull(maturityDateOffset, "maturityDateOffset");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this.name = name;
     this.currency = currency;
     this.fixingCalendar = fixingCalendar;
+    this.fixingDateOffset = fixingDateOffset;
     this.effectiveDateOffset = effectiveDateOffset;
     this.maturityDateOffset = maturityDateOffset;
     this.dayCount = dayCount;
@@ -290,6 +298,20 @@ public final class ImmutableIborIndex
   @Override
   public HolidayCalendar getFixingCalendar() {
     return fixingCalendar;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the adjustment applied to the effective date to obtain the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * In most cases, the fixing date is 0 or 2 days before the effective date.
+   * This data structure allows the complex rules of some indices to be represented.
+   * @return the value of the property, not null
+   */
+  @Override
+  public DaysAdjustment getFixingDateOffset() {
+    return fixingDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -364,6 +386,11 @@ public final class ImmutableIborIndex
     private final MetaProperty<HolidayCalendar> fixingCalendar = DirectMetaProperty.ofImmutable(
         this, "fixingCalendar", ImmutableIborIndex.class, HolidayCalendar.class);
     /**
+     * The meta-property for the {@code fixingDateOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
+        this, "fixingDateOffset", ImmutableIborIndex.class, DaysAdjustment.class);
+    /**
      * The meta-property for the {@code effectiveDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> effectiveDateOffset = DirectMetaProperty.ofImmutable(
@@ -386,6 +413,7 @@ public final class ImmutableIborIndex
         "name",
         "currency",
         "fixingCalendar",
+        "fixingDateOffset",
         "effectiveDateOffset",
         "maturityDateOffset",
         "dayCount");
@@ -405,6 +433,8 @@ public final class ImmutableIborIndex
           return currency;
         case 394230283:  // fixingCalendar
           return fixingCalendar;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         case 1571923688:  // effectiveDateOffset
           return effectiveDateOffset;
         case 1574797394:  // maturityDateOffset
@@ -456,6 +486,14 @@ public final class ImmutableIborIndex
     }
 
     /**
+     * The meta-property for the {@code fixingDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> fixingDateOffset() {
+      return fixingDateOffset;
+    }
+
+    /**
      * The meta-property for the {@code effectiveDateOffset} property.
      * @return the meta-property, not null
      */
@@ -489,6 +527,8 @@ public final class ImmutableIborIndex
           return ((ImmutableIborIndex) bean).getCurrency();
         case 394230283:  // fixingCalendar
           return ((ImmutableIborIndex) bean).getFixingCalendar();
+        case 873743726:  // fixingDateOffset
+          return ((ImmutableIborIndex) bean).getFixingDateOffset();
         case 1571923688:  // effectiveDateOffset
           return ((ImmutableIborIndex) bean).getEffectiveDateOffset();
         case 1574797394:  // maturityDateOffset
@@ -519,6 +559,7 @@ public final class ImmutableIborIndex
     private String name;
     private Currency currency;
     private HolidayCalendar fixingCalendar;
+    private DaysAdjustment fixingDateOffset;
     private DaysAdjustment effectiveDateOffset;
     private TenorAdjustment maturityDateOffset;
     private DayCount dayCount;
@@ -537,6 +578,7 @@ public final class ImmutableIborIndex
       this.name = beanToCopy.getName();
       this.currency = beanToCopy.getCurrency();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
+      this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.effectiveDateOffset = beanToCopy.getEffectiveDateOffset();
       this.maturityDateOffset = beanToCopy.getMaturityDateOffset();
       this.dayCount = beanToCopy.getDayCount();
@@ -552,6 +594,8 @@ public final class ImmutableIborIndex
           return currency;
         case 394230283:  // fixingCalendar
           return fixingCalendar;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         case 1571923688:  // effectiveDateOffset
           return effectiveDateOffset;
         case 1574797394:  // maturityDateOffset
@@ -574,6 +618,9 @@ public final class ImmutableIborIndex
           break;
         case 394230283:  // fixingCalendar
           this.fixingCalendar = (HolidayCalendar) newValue;
+          break;
+        case 873743726:  // fixingDateOffset
+          this.fixingDateOffset = (DaysAdjustment) newValue;
           break;
         case 1571923688:  // effectiveDateOffset
           this.effectiveDateOffset = (DaysAdjustment) newValue;
@@ -620,6 +667,7 @@ public final class ImmutableIborIndex
           name,
           currency,
           fixingCalendar,
+          fixingDateOffset,
           effectiveDateOffset,
           maturityDateOffset,
           dayCount);
@@ -660,6 +708,17 @@ public final class ImmutableIborIndex
     }
 
     /**
+     * Sets the {@code fixingDateOffset} property in the builder.
+     * @param fixingDateOffset  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixingDateOffset(DaysAdjustment fixingDateOffset) {
+      JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
+      this.fixingDateOffset = fixingDateOffset;
+      return this;
+    }
+
+    /**
      * Sets the {@code effectiveDateOffset} property in the builder.
      * @param effectiveDateOffset  the new value, not null
      * @return this, for chaining, not null
@@ -695,11 +754,12 @@ public final class ImmutableIborIndex
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("ImmutableIborIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
+      buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("effectiveDateOffset").append('=').append(JodaBeanUtils.toString(effectiveDateOffset)).append(',').append(' ');
       buf.append("maturityDateOffset").append('=').append(JodaBeanUtils.toString(maturityDateOffset)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));

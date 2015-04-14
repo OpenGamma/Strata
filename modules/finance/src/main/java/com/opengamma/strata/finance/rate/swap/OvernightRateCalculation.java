@@ -21,6 +21,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -60,6 +61,8 @@ public final class OvernightRateCalculation
    * The day count convention applicable.
    * <p>
    * This is used to convert dates to a numerical value.
+   * <p>
+   * When building, this will default to the day count of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
@@ -90,7 +93,7 @@ public final class OvernightRateCalculation
   @PropertyDefinition(validate = "notNull")
   private final NegativeRateMethod negativeRateMethod;
   /**
-   * The number of business days before the end of the period that the rate is cut off.
+   * The number of business days before the end of the period that the rate is cut off, defaulted to zero.
    * <p>
    * When a rate cut-off applies, the final daily rate is determined this number of days
    * before the end of the period, with any subsequent days having the same rate.
@@ -145,10 +148,35 @@ public final class OvernightRateCalculation
   private final ValueSchedule spread;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a rate calculation for the specified index with accrual by compounding.
+   * <p>
+   * The calculation will use the day count of the index.
+   * All optional fields will be set to their default values.
+   * Thus, there will be no spread, gearing or rate cut-off.
+   * If this method provides insufficient control, use the {@linkplain #builder() builder}.
+   * 
+   * @param index  the index
+   * @return the calculation
+   */
+  public static OvernightRateCalculation of(OvernightIndex index) {
+    return OvernightRateCalculation.builder().index(index).build();
+  }
+
+  //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.accrualMethod(OvernightAccrualMethod.COMPOUNDED);
     builder.negativeRateMethod(NegativeRateMethod.ALLOW_NEGATIVE);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.index != null) {
+      if (builder.dayCount == null) {
+        builder.dayCount = builder.index.getDayCount();
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -269,6 +297,8 @@ public final class OvernightRateCalculation
    * Gets the day count convention applicable.
    * <p>
    * This is used to convert dates to a numerical value.
+   * <p>
+   * When building, this will default to the day count of the index if not specified.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -315,7 +345,7 @@ public final class OvernightRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of business days before the end of the period that the rate is cut off.
+   * Gets the number of business days before the end of the period that the rate is cut off, defaulted to zero.
    * <p>
    * When a rate cut-off applies, the final daily rate is determined this number of days
    * before the end of the period, with any subsequent days having the same rate.
@@ -737,6 +767,7 @@ public final class OvernightRateCalculation
 
     @Override
     public OvernightRateCalculation build() {
+      preBuild(this);
       return new OvernightRateCalculation(
           dayCount,
           index,
