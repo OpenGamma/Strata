@@ -28,7 +28,7 @@ import com.opengamma.strata.engine.config.PricingRules;
 import com.opengamma.strata.engine.config.ReportingRules;
 
 /**
- * Defines a column in a set of calculation results. A column defines a measure and may specify
+ * Defines a column in a set of calculation results. A column specifies a measure and may specify
  * overrides for the pricing rules and market data rules.
  */
 @BeanDefinition
@@ -55,6 +55,18 @@ public final class Column implements ImmutableBean {
     builder.pricingRules(PricingRules.EMPTY);
     builder.marketDataRules(MarketDataRules.EMPTY);
     builder.reportingRules(ReportingRules.EMPTY);
+  }
+
+  /**
+   * Returns a column that contains the specified measure and uses the default calculation rules.
+   * <p>
+   * If a column is required with rules overrides, use a {@linkplain #builder() builder}.
+   *
+   * @param measure  a measure
+   * @return a column containing that specified measure that uses the default calculation rules
+   */
+  public static Column of(Measure measure) {
+    return Column.builder().measure(measure).build();
   }
 
   /**
