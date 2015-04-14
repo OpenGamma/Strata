@@ -243,11 +243,11 @@ public final class Currency
    */
   public static final Currency XXX = of("XXX");
   /**
-   * The currency 'XAG' - Gold (troy ounce).
+   * The currency 'XAG' - Silver (troy ounce).
    */
   public static final Currency XAG = of("XAG");
   /**
-   * The currency 'XAU' - Silver (troy ounce).
+   * The currency 'XAU' - Gold (troy ounce).
    */
   public static final Currency XAU = of("XAU");
   /**
