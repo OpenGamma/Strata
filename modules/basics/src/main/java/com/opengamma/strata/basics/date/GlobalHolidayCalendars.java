@@ -14,10 +14,14 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 import static java.time.temporal.TemporalAdjusters.firstInMonth;
 import static java.time.temporal.TemporalAdjusters.lastInMonth;
+import static java.util.stream.Collectors.toSet;
 
 import java.time.LocalDate;
+import java.time.MonthDay;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of some common global holiday calendars.
@@ -186,15 +190,10 @@ final class GlobalHolidayCalendars {
       // christmas
       holidays.add(christmas(year));
       holidays.add(boxingDay(year));
-      // royal wedding
-      if (year == 2011) {
-        holidays.add(date(2011, 4, 29));
-      }
-      // millenium
-      if (year == 1999) {
-        holidays.add(date(1999, 12, 31));
-      }
     }
+    holidays.add(date(2011, 4, 29));  // royal wedding
+    holidays.add(date(1999, 12, 31));  // millenium
+    removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("GBLO", holidays, SATURDAY, SUNDAY);
   }
 
@@ -203,10 +202,16 @@ final class GlobalHolidayCalendars {
   // data sources
   // http://www.legifrance.gouv.fr/affichCodeArticle.do?idArticle=LEGIARTI000006902611&cidTexte=LEGITEXT000006072050
   // http://jollyday.sourceforge.net/data/fr.html
+  // Euronext holidays only New Year, Good Friday, Easter Monday, Labour Day, Christmas Day, Boxing Day
+  // New Years Eve is holiday for cash markets and derivatives in 2015
+  // https://www.euronext.com/en/holidays-and-hours
+  // https://www.euronext.com/en/trading/nyse-euronext-trading-calendar/archives
+  // evidence suggests that Monday is holiday when Tuesday is, and Friday is holiday when Thursday is
   static ImmutableHolidayCalendar generateParis() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
       holidays.add(date(year, 1, 1));  // new year
+      holidays.add(easter(year).minusDays(2));  // good friday
       holidays.add(easter(year).plusDays(1));  // easter monday
       holidays.add(date(year, 5, 1));  // labour day
       holidays.add(date(year, 5, 8));  // victory in europe
@@ -219,7 +224,10 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 11, 1));  // all saints
       holidays.add(date(year, 11, 11));  // armistice day
       holidays.add(date(year, 12, 25));  // christmas day
+      holidays.add(date(year, 12, 26));  // saint stephen
     }
+    holidays.add(date(1999, 12, 31));  // millenium
+    applyBridging(holidays);
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
   }
@@ -230,6 +238,7 @@ final class GlobalHolidayCalendars {
   // http://jollyday.sourceforge.net/data/ch.html
   // https://github.com/lballabio/quantlib/blob/master/QuantLib/ql/time/calendars/switzerland.cpp
   // http://www.six-swiss-exchange.com/funds/trading/trading_and_settlement_calendar_en.html
+  // http://www.six-swiss-exchange.com/swx_messages/online/swx7299e.pdf
   static ImmutableHolidayCalendar generateZurich() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -244,6 +253,8 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 25));  // christmas day
       holidays.add(date(year, 12, 26));  // saint stephen
     }
+    holidays.add(date(1999, 12, 31));  // millenium
+    holidays.add(date(2000, 1, 3));  // millenium
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
   }
@@ -285,11 +296,12 @@ final class GlobalHolidayCalendars {
 
   //-------------------------------------------------------------------------
   // common US holidays
-  private static void usCommon(List<LocalDate> holidays, int year, boolean bumpBack, boolean columbusVeteran) {
+  private static void usCommon(
+      List<LocalDate> holidays, int year, boolean bumpBack, boolean columbusVeteran, int mlkStartYear) {
     // new year, adjusted if Sunday
     holidays.add(bumpSunToMon(date(year, 1, 1)));
     // martin luther king
-    if (year >= 1986) {
+    if (year >= mlkStartYear) {
       holidays.add(date(year, 1, 1).with(dayOfWeekInMonth(3, MONDAY)));
     }
     // washington
@@ -339,7 +351,7 @@ final class GlobalHolidayCalendars {
   static ImmutableHolidayCalendar generateUsGovtSecurities() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
-      usCommon(holidays, year, true, true);
+      usCommon(holidays, year, true, true, 1986);
       // good friday, in 1999/2007 only a partial holiday
       holidays.add(easter(year).minusDays(2));
       // hurricane sandy
@@ -360,7 +372,7 @@ final class GlobalHolidayCalendars {
   static ImmutableHolidayCalendar generateUsNewYork() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
-      usCommon(holidays, year, false, true);
+      usCommon(holidays, year, false, true, 1986);
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("USNY", holidays, SATURDAY, SUNDAY);
@@ -372,7 +384,7 @@ final class GlobalHolidayCalendars {
   static ImmutableHolidayCalendar generateNewYorkFed() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
-      usCommon(holidays, year, false, true);
+      usCommon(holidays, year, false, true, 1986);
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("NYFD", holidays, SATURDAY, SUNDAY);
@@ -381,13 +393,84 @@ final class GlobalHolidayCalendars {
   //-------------------------------------------------------------------------
   // generate NYSE
   // https://www.nyse.com/markets/hours-calendars
+  // http://www1.nyse.com/pdfs/closings.pdf
   static ImmutableHolidayCalendar generateNewYorkStockExchange() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
-      usCommon(holidays, year, true, false);
+      usCommon(holidays, year, true, false, 1998);
       // good friday
       holidays.add(easter(year).minusDays(2));
     }
+    // Lincoln day 1896-1953
+    // Columbus day 1909-1953
+    // Veterans day 1934-1953
+    for (int i = 1950; i <= 1953; i++) {
+      holidays.add(date(i, 2, 12));
+      holidays.add(date(i, 10, 12));
+      holidays.add(date(i, 11, 11));
+    }
+    // election day, Tue after first Monday of November
+    for (int i = 1950; i <= 1968; i++) {
+      holidays.add(date(i, 11, 1).with(TemporalAdjusters.nextOrSame(MONDAY)).plusDays(1));
+    }
+    holidays.add(date(1972, 11, 7));
+    holidays.add(date(1976, 11, 2));
+    holidays.add(date(1980, 11, 4));
+    // special days
+    holidays.add(date(1955, 12, 24));  // Christmas Eve
+    holidays.add(date(1956, 12, 24));  // Christmas Eve
+    holidays.add(date(1958, 12, 26));  // Day after Christmas
+    holidays.add(date(1961, 5, 29));  // Decoration day
+    holidays.add(date(1963, 11, 25));  // Death of John F Kennedy
+    holidays.add(date(1965, 12, 24));  // Christmas Eve
+    holidays.add(date(1968, 2, 12));  // Lincoln birthday
+    holidays.add(date(1968, 4, 9));  // Death of Martin Luther King
+    holidays.add(date(1968, 6, 12));  // Paperwork crisis
+    holidays.add(date(1968, 6, 19));  // Paperwork crisis
+    holidays.add(date(1968, 6, 26));  // Paperwork crisis
+    holidays.add(date(1968, 7, 3));  // Paperwork crisis
+    holidays.add(date(1968, 7, 5));  // Day after independence
+    holidays.add(date(1968, 7, 10));  // Paperwork crisis
+    holidays.add(date(1968, 7, 17));  // Paperwork crisis
+    holidays.add(date(1968, 7, 24));  // Paperwork crisis
+    holidays.add(date(1968, 7, 31));  // Paperwork crisis
+    holidays.add(date(1968, 8, 7));  // Paperwork crisis
+    holidays.add(date(1968, 8, 13));  // Paperwork crisis
+    holidays.add(date(1968, 8, 21));  // Paperwork crisis
+    holidays.add(date(1968, 8, 28));  // Paperwork crisis
+    holidays.add(date(1968, 9, 4));  // Paperwork crisis
+    holidays.add(date(1968, 9, 11));  // Paperwork crisis
+    holidays.add(date(1968, 9, 18));  // Paperwork crisis
+    holidays.add(date(1968, 9, 25));  // Paperwork crisis
+    holidays.add(date(1968, 10, 2));  // Paperwork crisis
+    holidays.add(date(1968, 10, 9));  // Paperwork crisis
+    holidays.add(date(1968, 10, 16));  // Paperwork crisis
+    holidays.add(date(1968, 10, 23));  // Paperwork crisis
+    holidays.add(date(1968, 10, 30));  // Paperwork crisis
+    holidays.add(date(1968, 11, 6));  // Paperwork crisis
+    holidays.add(date(1968, 11, 13));  // Paperwork crisis
+    holidays.add(date(1968, 11, 20));  // Paperwork crisis
+    holidays.add(date(1968, 11, 27));  // Paperwork crisis
+    holidays.add(date(1968, 12, 4));  // Paperwork crisis
+    holidays.add(date(1968, 12, 11));  // Paperwork crisis
+    holidays.add(date(1968, 12, 18));  // Paperwork crisis
+    holidays.add(date(1968, 12, 25));  // Paperwork crisis
+    holidays.add(date(1968, 12, 31));  // Paperwork crisis
+    holidays.add(date(1969, 2, 10));  // Snow
+    holidays.add(date(1969, 3, 31));  // Death of Dwight Eisenhower
+    holidays.add(date(1969, 7, 21));  // Lunar exploration
+    holidays.add(date(1972, 12, 28));  // Death of Harry Truman
+    holidays.add(date(1973, 1, 25));  // Death of Lyndon Johnson
+    holidays.add(date(1977, 7, 14));  // Blackout
+    holidays.add(date(1985, 9, 27));  // Hurricane Gloria
+    holidays.add(date(1994, 4, 27));  // Death of Richard Nixon
+    holidays.add(date(2001, 9, 11));  // 9/11 attack
+    holidays.add(date(2001, 9, 12));  // 9/11 attack
+    holidays.add(date(2001, 9, 13));  // 9/11 attack
+    holidays.add(date(2001, 9, 14));  // 9/11 attack
+    holidays.add(date(2004, 6, 11));  // Death of Ronald Reagan
+    holidays.add(date(2007, 1, 2));  // Death of Gerald Ford
+    holidays.add(date(2012, 10, 30));  // Hurricane Sandy
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("NYSE", holidays, SATURDAY, SUNDAY);
   }
@@ -562,6 +645,22 @@ final class GlobalHolidayCalendars {
   // remove any holidays covered by Sat/Sun
   private static void removeSatSun(List<LocalDate> holidays) {
     holidays.removeIf(date -> date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY);
+  }
+
+  // apply bridging (Mon/Fri are holidays if Tue/Thu are)
+  private static void applyBridging(List<LocalDate> holidays) {
+    Set<LocalDate> additional1 = holidays.stream()
+        .filter(date -> date.getDayOfWeek() == TUESDAY &&
+            !MonthDay.from(date).equals(MonthDay.of(1, 1)))
+        .map(date -> date.minusDays(1))
+        .collect(toSet());
+    Set<LocalDate> additional2 = holidays.stream()
+        .filter(date -> date.getDayOfWeek() == THURSDAY &&
+            !MonthDay.from(date).equals(MonthDay.of(12, 26)))
+        .map(date -> date.plusDays(1))
+        .collect(toSet());
+    holidays.addAll(additional1);
+    holidays.addAll(additional2);
   }
 
   // calculate easter day by Delambre
