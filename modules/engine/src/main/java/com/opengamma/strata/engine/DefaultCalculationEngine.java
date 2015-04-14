@@ -5,10 +5,14 @@
  */
 package com.opengamma.strata.engine;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.Resolvable;
 import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.Results;
@@ -32,12 +36,27 @@ public final class DefaultCalculationEngine implements CalculationEngine {
   private final MarketDataFactory marketDataFactory;
 
   /**
+   * Resolves any links in the calculation targets to reference the linked objects.
+   * <p>
+   * For example, trades in fungible securities use a link to refer to the security instead of
+   * embedding the security details in the trade. In order for the security to be accessible
+   * to the calculation logic, the link must be resolved.
+   */
+  private final LinkResolver linkResolver;
+
+  /**
    * @param calculationRunner  the calculation runner that performs the calculations
    * @param marketDataFactory  the factory that builds any market data not supplied by the caller
+   * @param linkResolver  resolves links in the calculation targets to reference the linked objects
    */
-  public DefaultCalculationEngine(CalculationRunner calculationRunner, MarketDataFactory marketDataFactory) {
+  public DefaultCalculationEngine(
+      CalculationRunner calculationRunner,
+      MarketDataFactory marketDataFactory,
+      LinkResolver linkResolver) {
+
     this.calculationRunner = ArgChecker.notNull(calculationRunner, "calculationRunner");
     this.marketDataFactory = ArgChecker.notNull(marketDataFactory, "marketDataFactory");
+    this.linkResolver = ArgChecker.notNull(linkResolver, "linkResolver");
   }
 
   @Override
@@ -49,7 +68,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
 
     CalculationTasksConfig config =
         calculationRunner.createCalculationConfig(
-            targets,
+            resolveTargetLinks(targets),
             columns,
             calculationRules.getPricingRules(),
             calculationRules.getMarketDataRules(),
@@ -75,7 +94,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
 
     CalculationTasksConfig config =
         calculationRunner.createCalculationConfig(
-            targets,
+            resolveTargetLinks(targets),
             columns,
             calculationRules.getPricingRules(),
             calculationRules.getMarketDataRules(),
@@ -94,5 +113,20 @@ public final class DefaultCalculationEngine implements CalculationEngine {
             scenarioDefinition);
 
     return calculationRunner.calculate(tasks, scenarioMarketData);
+  }
+
+  /**
+   * Returns calculation targets with any links resolved to reference the linked objects.
+   *
+   * @param targets  the calculation targets
+   * @return the targets with any links resolved to reference the linked objects
+   */
+  private List<CalculationTarget> resolveTargetLinks(List<? extends CalculationTarget> targets) {
+    return targets.stream()
+        .filter(Resolvable.class::isInstance)
+        .map(Resolvable.class::cast)
+        .map(resolvable -> resolvable.resolveLinks(linkResolver))
+        .map(CalculationTarget.class::cast)
+        .collect(toImmutableList());
   }
 }

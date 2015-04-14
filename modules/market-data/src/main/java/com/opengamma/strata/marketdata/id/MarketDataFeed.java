@@ -7,9 +7,13 @@ package com.opengamma.strata.marketdata.id;
 
 import com.opengamma.strata.collect.type.TypedString;
 
-// TODO Should this be a bean with feed metadata? Set of schemes and the default scheme?
 /**
  * Identifies a feed of market data, for example Bloomberg or Reuters.
+ * <p>
+ * A feed can represent the default source of data for a particular data provider, or it can
+ * represent a subset of the data from the provider, for example data from a specific broker
+ * published by Bloomberg. Therefore there can be multiple feeds providing data from a single
+ * physical market data system.
  */
 public final class MarketDataFeed extends TypedString<MarketDataFeed> {
 

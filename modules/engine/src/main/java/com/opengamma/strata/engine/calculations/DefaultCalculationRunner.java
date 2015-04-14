@@ -156,7 +156,9 @@ public class DefaultCalculationRunner implements CalculationRunner {
               .map(CalculationResult::getResult)
               .collect(toImmutableList());
 
-      return Results.of(columns.size(), results);
+      int columnCount = columns.size();
+      int rowCount = (columnCount == 0) ? 0 : calculationResults.size() / columnCount;
+      return Results.of(rowCount, columnCount, results);
     }
   }
 

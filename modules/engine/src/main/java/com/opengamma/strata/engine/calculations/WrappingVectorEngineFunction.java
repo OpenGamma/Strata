@@ -53,7 +53,7 @@ public class WrappingVectorEngineFunction<T extends CalculationTarget, R>
             .map(data -> delegate.execute(input, data, reportingRules))
             .collect(toImmutableList());
 
-    return (results.size() == 1) ?
+    return (marketData.getScenarioCount() == 1) ?
         results.get(0) :
         results;
   }
