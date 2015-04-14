@@ -18,7 +18,7 @@ The source code can be cloned using [git](http://git-scm.com/) from GitHub:
 ```
 
 The projects use [Apache Maven](http://maven.apache.org/) as the build system.
-Version 3.0.4 or later is required.
+Version 3.2.0 or later is required.
 Simply run this command to compile and install the source code locally:
 
 ```
@@ -28,5 +28,5 @@ Simply run this command to compile and install the source code locally:
 Note that Strata is based on Java SE 8.
 Version 8u40 or later is required to compile the code.
 
-For more information about developing code on the OpenGamma Strata
+For more information about developing code on OpenGamma Strata
 see the [developer website](http://developers.opengamma.com).
