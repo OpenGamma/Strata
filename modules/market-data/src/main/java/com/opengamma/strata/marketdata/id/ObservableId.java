@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
  * An observable ID contains three pieces of information:
  * <ul>
  *   <li>A {@link StandardId} identifying the market data. This ID can come from any system. It might be
- *   an OpenGamma ID, for example {@code OG-Index~GBP_LIBOR_3M}, or it can be an ID from a market
+ *   an OpenGamma ID, for example {@code OpenGammaIndex~GBP_LIBOR_3M}, or it can be an ID from a market
  *   data vendor, for example {@code BloombergTicker~AAPL US Equity}.</li>
  *
  *   <li>A {@link FieldName} indicating the field in the market data record containing the data. See
