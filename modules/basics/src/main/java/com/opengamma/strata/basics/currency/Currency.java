@@ -237,6 +237,28 @@ public final class Currency
    */
   public static final Currency ZAR = of("ZAR");
 
+  // special cases
+  /**
+   * The currency 'XXX' - No applicable currency.
+   */
+  public static final Currency XXX = of("XXX");
+  /**
+   * The currency 'XAG' - Gold (troy ounce).
+   */
+  public static final Currency XAG = of("XAG");
+  /**
+   * The currency 'XAU' - Silver (troy ounce).
+   */
+  public static final Currency XAU = of("XAU");
+  /**
+   * The currency 'XPD' - Paladium (troy ounce).
+   */
+  public static final Currency XPD = of("XPD");
+  /**
+   * The currency 'XPT' - Platinum (troy ounce).
+   */
+  public static final Currency XPT = of("XPT");
+
   /**
    * The currency code.
    */
