@@ -6,16 +6,13 @@
 package com.opengamma.strata.engine.calculations;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
@@ -154,17 +151,14 @@ public class DefaultCalculationRunner implements CalculationRunner {
      * @return the results
      */
     private static Results buildResults(List<CalculationResult> calculationResults, List<Column> columns) {
-      Map<Column, Integer> columnIndices =
-          IntStream.range(0, columns.size())
-              .mapToObj(Integer::valueOf)
-              .collect(toMap(columns::get, i -> i));
-
       List<Result<?>> results =
           calculationResults.stream()
               .map(CalculationResult::getResult)
               .collect(toImmutableList());
 
-      return Results.builder().columnIndices(columnIndices).values(results).build();
+      int columnCount = columns.size();
+      int rowCount = (columnCount == 0) ? 0 : calculationResults.size() / columnCount;
+      return Results.of(rowCount, columnCount, results);
     }
   }
 

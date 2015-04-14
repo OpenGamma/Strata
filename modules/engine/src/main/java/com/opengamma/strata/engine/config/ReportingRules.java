@@ -72,7 +72,7 @@ public interface ReportingRules {
    * @return a rule that uses the target's primary currency as the reporting currency
    */
   public static ReportingRules targetCurrency() {
-    throw new UnsupportedOperationException("TODO Use CalculationTarget.getPrimaryCurrency() when it exists");
+    return target -> Optional.empty();
   }
 
   /**

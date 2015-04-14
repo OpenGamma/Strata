@@ -29,14 +29,14 @@ import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuild
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
-import com.opengamma.strata.engine.marketdata.mapping.VendorIdMapping;
+import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
 import com.opengamma.strata.marketdata.id.IndexRateId;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.id.QuoteId;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
@@ -44,7 +44,7 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 @Test
 public class DefaultMarketDataFactoryTest {
 
-  private static final MarketDataVendor VENDOR = MarketDataVendor.of("real vendor");
+  private static final MarketDataFeed VENDOR = MarketDataFeed.of("real feed");
   private static final IndexRateId LIBOR_1M_ID = IndexRateId.of(IborIndices.USD_LIBOR_1M, VENDOR);
   private static final IndexRateId LIBOR_3M_ID = IndexRateId.of(IborIndices.USD_LIBOR_3M, VENDOR);
 
@@ -73,7 +73,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(timeSeries),
             ObservableMarketDataBuilder.none(),
-            VendorIdMapping.identity());
+            FeedIdMapping.identity());
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
@@ -101,7 +101,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             ObservableMarketDataBuilder.none(),
-            VendorIdMapping.identity(),
+            FeedIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
             new IndexCurveMarketDataBuilder());
 
@@ -123,7 +123,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             new TestObservableMarketDataBuilder(),
-            new TestVendorIdMapping());
+            new TestFeedIdMapping());
 
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
     QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
@@ -143,7 +143,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             new TestObservableMarketDataBuilder(),
-            new TestVendorIdMapping());
+            new TestFeedIdMapping());
 
     DiscountingCurveKey key = DiscountingCurveKey.of(Currency.GBP);
     MissingMappingId missingId = MissingMappingId.of(key);
@@ -162,8 +162,8 @@ public class DefaultMarketDataFactoryTest {
    * matching market data rule for a calculation.
    */
   public void noMatchingMarketDataRuleObservables() {
-    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataVendor.NO_RULE);
-    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataVendor.NO_RULE);
+    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataFeed.NO_RULE);
+    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataFeed.NO_RULE);
 
     Set<IndexRateId> requirements = ImmutableSet.of(libor6mId, libor12mId, LIBOR_1M_ID, LIBOR_3M_ID);
 
@@ -215,8 +215,8 @@ public class DefaultMarketDataFactoryTest {
    * market data rule for a calculation.
    */
   public void noMatchingMarketDataRuleTimeSeries() {
-    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataVendor.NO_RULE);
-    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataVendor.NO_RULE);
+    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataFeed.NO_RULE);
+    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataFeed.NO_RULE);
     Set<IndexRateId> requirements = ImmutableSet.of(libor6mId, libor12mId, LIBOR_1M_ID, LIBOR_3M_ID);
 
     LocalDateDoubleTimeSeries libor1mTimeSeries =
@@ -308,7 +308,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Simple ID mapping backed by a map.
    */
-  private static final class TestVendorIdMapping implements VendorIdMapping {
+  private static final class TestFeedIdMapping implements FeedIdMapping {
 
     private final Map<ObservableId, ObservableId> idMap =
         ImmutableMap.of(
@@ -316,7 +316,7 @@ public class DefaultMarketDataFactoryTest {
             QuoteId.of(StandardId.of("reqs", "b")), QuoteId.of(StandardId.of("vendor", "2")));
 
     @Override
-    public Optional<ObservableId> idForVendor(ObservableId id) {
+    public Optional<ObservableId> idForFeed(ObservableId id) {
       return Optional.ofNullable(idMap.get(id));
     }
   }

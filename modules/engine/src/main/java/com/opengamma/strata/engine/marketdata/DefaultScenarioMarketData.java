@@ -62,8 +62,10 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
 
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(valuationDates.size() == scenarioCount, "");
-    // TODO check sizes and types of everything
+    ArgChecker.isTrue(
+        valuationDates.size() == scenarioCount,
+        "The number of valuation dates must equal the number of scenarios");
+    // TODO Check the sizes of all the values in the multimaps
   }
 
   @Override

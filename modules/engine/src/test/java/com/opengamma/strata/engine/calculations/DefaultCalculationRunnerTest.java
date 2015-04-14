@@ -30,8 +30,8 @@ import com.opengamma.strata.engine.config.SimplePricingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
@@ -43,7 +43,7 @@ public class DefaultCalculationRunnerTest {
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
             .curveGroup("curve group")
-            .marketDataVendor(MarketDataVendor.of("market data vendor"))
+            .marketDataFeed(MarketDataFeed.of("market data feed"))
             .build();
     SimpleMarketDataRules marketDataRules =
         SimpleMarketDataRules.builder()
@@ -110,12 +110,12 @@ public class DefaultCalculationRunnerTest {
     assertThat(nonObservables.iterator().next()).isEqualTo(curveId);
 
     MarketDataId<?> indexId =
-        IndexRateKey.of(IborIndices.CHF_LIBOR_12M).toObservableId(MarketDataVendor.NO_RULE);
+        IndexRateKey.of(IborIndices.CHF_LIBOR_12M).toObservableId(MarketDataFeed.NO_RULE);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(indexId);
 
     MarketDataId<?> toisId =
-        IndexRateKey.of(OvernightIndices.CHF_TOIS).toObservableId(MarketDataVendor.NO_RULE);
+        IndexRateKey.of(OvernightIndices.CHF_TOIS).toObservableId(MarketDataFeed.NO_RULE);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(toisId);
   }

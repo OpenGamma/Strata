@@ -6,8 +6,8 @@
 package com.opengamma.strata.engine.calculations;
 
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 import com.opengamma.strata.marketdata.key.ObservableKey;
@@ -40,13 +40,13 @@ class NoMatchingRuleMappings implements MarketDataMappings {
   }
 
   /**
-   * Returns an ID with the market data vendor {@link MarketDataVendor#NO_RULE}.
+   * Returns an ID with the market data feed {@link MarketDataFeed#NO_RULE}.
    *
    * @param key  a market data key identifying an item of observable market data
-   * @return an ID with the market data vendor {@code NO_RULE_VENDOR}.
+   * @return an ID with the market data feed {@code NO_RULE}.
    */
   @Override
   public ObservableId getIdForObservableKey(ObservableKey key) {
-    return key.toObservableId(MarketDataVendor.NO_RULE);
+    return key.toObservableId(MarketDataFeed.NO_RULE);
   }
 }

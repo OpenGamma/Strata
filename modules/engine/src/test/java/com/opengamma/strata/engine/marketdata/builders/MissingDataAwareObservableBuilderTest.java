@@ -18,24 +18,24 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.marketdata.id.IndexRateId;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 @Test
 public class MissingDataAwareObservableBuilderTest {
 
-  private static final MarketDataVendor VENDOR = MarketDataVendor.of("real vendor");
+  private static final MarketDataFeed VENDOR = MarketDataFeed.of("real vendor");
   private static final IndexRateId LIBOR_1M_ID = IndexRateId.of(IborIndices.USD_LIBOR_1M, VENDOR);
   private static final IndexRateId LIBOR_3M_ID = IndexRateId.of(IborIndices.USD_LIBOR_3M, VENDOR);
 
   /**
-   * Tests that failures are built for IDs with no market data vendor and the delegate builder is used
+   * Tests that failures are built for IDs with no market data feed and the delegate builder is used
    * for all others.
    */
   public void buildFailuresWhenNoMarketDataRule() {
     MissingDataAwareObservableBuilder builder = new MissingDataAwareObservableBuilder(new DelegateBuilder());
-    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataVendor.NO_RULE);
-    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataVendor.NO_RULE);
+    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataFeed.NO_RULE);
+    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataFeed.NO_RULE);
     ImmutableSet<IndexRateId> requirements = ImmutableSet.of(libor6mId, libor12mId, LIBOR_1M_ID, LIBOR_3M_ID);
     Map<ObservableId, Result<Double>> marketData = builder.build(requirements);
 

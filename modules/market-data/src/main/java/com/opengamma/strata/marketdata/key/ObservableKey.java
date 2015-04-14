@@ -8,7 +8,7 @@ package com.opengamma.strata.marketdata.key;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.id.StandardIdentifiable;
 import com.opengamma.strata.marketdata.id.FieldName;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
@@ -57,8 +57,8 @@ public interface ObservableKey extends MarketDataKey<Double>, StandardIdentifiab
    * identify the market data in the global set of data. Therefore there is no mapping step required
    * for observable data and the market data ID can be directly derived from the market data key.
    *
-   * @param marketDataVendor  the market data vendor that is the source of the observable market data
+   * @param marketDataFeed  the market data feed that is the source of the observable market data
    * @return the ID corresponding to this key
    */
-  ObservableId toObservableId(MarketDataVendor marketDataVendor);
+  ObservableId toObservableId(MarketDataFeed marketDataFeed);
 }

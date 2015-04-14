@@ -21,8 +21,8 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
@@ -32,11 +32,11 @@ public class CalculationTaskTest {
 
   public void requirements() {
     String curveGroupName = "curve group";
-    MarketDataVendor marketDataVendor = MarketDataVendor.of("market data vendor");
+    MarketDataFeed marketDataFeed = MarketDataFeed.of("market data vendor");
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
             .curveGroup(curveGroupName)
-            .marketDataVendor(marketDataVendor)
+            .marketDataFeed(marketDataFeed)
             .build();
     CalculationTask task =
         new CalculationTask(
@@ -51,7 +51,7 @@ public class CalculationTaskTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> toisId = IndexRateKey.of(OvernightIndices.CHF_TOIS).toObservableId(marketDataVendor);
+    MarketDataId<?> toisId = IndexRateKey.of(OvernightIndices.CHF_TOIS).toObservableId(marketDataFeed);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(toisId);
 
@@ -59,7 +59,7 @@ public class CalculationTaskTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(curveId);
 
-    MarketDataId<?> liborId = IndexRateKey.of(IborIndices.CHF_LIBOR_12M).toObservableId(marketDataVendor);
+    MarketDataId<?> liborId = IndexRateKey.of(IborIndices.CHF_LIBOR_12M).toObservableId(marketDataFeed);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(liborId);
   }

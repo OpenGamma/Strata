@@ -15,7 +15,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.marketdata.id.MarketDataVendor;
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
@@ -23,7 +23,7 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * no market data rule for the calculation. It delegates to another builder for building data.
  * <p>
  * When there is no market data rule for a calculation, the {@link ObservableId} instances for the market
- * data have the vendor {@link MarketDataVendor#NO_RULE}. This builder creates failure results for those IDs and
+ * data have the feed {@link MarketDataFeed#NO_RULE}. This builder creates failure results for those IDs and
  * uses the delegate builder to build the data for the remaining IDs.
  */
 public final class MissingDataAwareObservableBuilder implements ObservableMarketDataBuilder {
@@ -40,15 +40,15 @@ public final class MissingDataAwareObservableBuilder implements ObservableMarket
 
   @Override
   public Map<ObservableId, Result<Double>> build(Set<? extends ObservableId> requirements) {
-    // Results for IDs with a market data vendor of NO_RULE.
+    // Results for IDs with a market data feed of NO_RULE.
     // These IDs can't be used to look up market data because there was no market data rule to specify the
-    // market data vendor.
+    // market data feed.
     Map<ObservableId, Result<Double>> failures =
         requirements.stream()
-            .filter(id -> id.getMarketDataVendor().equals(MarketDataVendor.NO_RULE))
+            .filter(id -> id.getMarketDataFeed().equals(MarketDataFeed.NO_RULE))
             .collect(toImmutableMap(id -> id, this::createFailure));
 
-    // The requirements that have a real market data vendor and can be resolved into market data
+    // The requirements that have a real market data feed and can be resolved into market data
     Set<? extends ObservableId> ids = Sets.difference(requirements, failures.keySet());
     Map<ObservableId, Result<Double>> marketData = delegate.build(ids);
     return ImmutableMap.<ObservableId, Result<Double>>builder()
@@ -60,7 +60,7 @@ public final class MissingDataAwareObservableBuilder implements ObservableMarket
   private Result<Double> createFailure(ObservableId id) {
     return Result.failure(
         FailureReason.MISSING_DATA,
-        "No market data rule specifying market data vendor for {}",
+        "No market data rule specifying market data feed for {}",
         id);
   }
 }

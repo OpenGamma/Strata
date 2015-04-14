@@ -44,21 +44,21 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FieldName fieldName;
 
-  /** The market data vendor from which the market data should be retrieved. */
+  /** The market data feed from which the market data should be retrieved. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final MarketDataVendor marketDataVendor;
+  private final MarketDataFeed marketDataFeed;
 
   /**
    * Returns an ID for market data for the specified index.
    * <p>
    * The field name containing the data is {@link FieldName#MARKET_VALUE} and the market
-   * data vendor is {@link MarketDataVendor#NONE}.
+   * data feed is {@link MarketDataFeed#NONE}.
    *
    * @param index  the index
    * @return an ID for the market data for the specified index
    */
   public static IndexRateId of(Index index) {
-    return new IndexRateId(index, FieldName.MARKET_VALUE, MarketDataVendor.NONE);
+    return new IndexRateId(index, FieldName.MARKET_VALUE, MarketDataFeed.NONE);
   }
 
   /**
@@ -67,23 +67,23 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
    * The field name containing the data is {@link FieldName#MARKET_VALUE}.
    *
    * @param index  the index
-   * @param vendor  the market data vendor from which the market data should be retrieved
+   * @param feed  the market data feed from which the market data should be retrieved
    * @return an ID for the market data for the specified index
    */
-  public static IndexRateId of(Index index, MarketDataVendor vendor) {
-    return new IndexRateId(index, FieldName.MARKET_VALUE, vendor);
+  public static IndexRateId of(Index index, MarketDataFeed feed) {
+    return new IndexRateId(index, FieldName.MARKET_VALUE, feed);
   }
 
   /**
    * Returns an ID for the curve for the specified index.
    *
    * @param index  the index
-   * @param vendor  the market data vendor from which the market data should be retrieved
+   * @param feed  the market data feed from which the market data should be retrieved
    * @param fieldName  the field name in the market data record that contains the market data item
    * @return an ID for the market data for the specified index
    */
-  public static IndexRateId of(Index index, MarketDataVendor vendor, FieldName fieldName) {
-    return new IndexRateId(index, fieldName, vendor);
+  public static IndexRateId of(Index index, MarketDataFeed feed, FieldName fieldName) {
+    return new IndexRateId(index, fieldName, feed);
   }
 
   @Override
@@ -108,13 +108,13 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
   private IndexRateId(
       Index index,
       FieldName fieldName,
-      MarketDataVendor marketDataVendor) {
+      MarketDataFeed marketDataFeed) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(fieldName, "fieldName");
-    JodaBeanUtils.notNull(marketDataVendor, "marketDataVendor");
+    JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.index = index;
     this.fieldName = fieldName;
-    this.marketDataVendor = marketDataVendor;
+    this.marketDataFeed = marketDataFeed;
   }
 
   @Override
@@ -154,12 +154,12 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data vendor from which the market data should be retrieved.
+   * Gets the market data feed from which the market data should be retrieved.
    * @return the value of the property, not null
    */
   @Override
-  public MarketDataVendor getMarketDataVendor() {
-    return marketDataVendor;
+  public MarketDataFeed getMarketDataFeed() {
+    return marketDataFeed;
   }
 
   //-----------------------------------------------------------------------
@@ -172,7 +172,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
       IndexRateId other = (IndexRateId) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getFieldName(), other.getFieldName()) &&
-          JodaBeanUtils.equal(getMarketDataVendor(), other.getMarketDataVendor());
+          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
     }
     return false;
   }
@@ -182,7 +182,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataVendor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
     return hash;
   }
 
@@ -192,7 +192,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
     buf.append("IndexRateId{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("fieldName").append('=').append(getFieldName()).append(',').append(' ');
-    buf.append("marketDataVendor").append('=').append(JodaBeanUtils.toString(getMarketDataVendor()));
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
     buf.append('}');
     return buf.toString();
   }
@@ -218,10 +218,10 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
     private final MetaProperty<FieldName> fieldName = DirectMetaProperty.ofImmutable(
         this, "fieldName", IndexRateId.class, FieldName.class);
     /**
-     * The meta-property for the {@code marketDataVendor} property.
+     * The meta-property for the {@code marketDataFeed} property.
      */
-    private final MetaProperty<MarketDataVendor> marketDataVendor = DirectMetaProperty.ofImmutable(
-        this, "marketDataVendor", IndexRateId.class, MarketDataVendor.class);
+    private final MetaProperty<MarketDataFeed> marketDataFeed = DirectMetaProperty.ofImmutable(
+        this, "marketDataFeed", IndexRateId.class, MarketDataFeed.class);
     /**
      * The meta-properties.
      */
@@ -229,7 +229,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
         this, null,
         "index",
         "fieldName",
-        "marketDataVendor");
+        "marketDataFeed");
 
     /**
      * Restricted constructor.
@@ -244,8 +244,8 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
           return index;
         case 1265009317:  // fieldName
           return fieldName;
-        case -1531580690:  // marketDataVendor
-          return marketDataVendor;
+        case 842621124:  // marketDataFeed
+          return marketDataFeed;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -283,11 +283,11 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code marketDataVendor} property.
+     * The meta-property for the {@code marketDataFeed} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataVendor> marketDataVendor() {
-      return marketDataVendor;
+    public MetaProperty<MarketDataFeed> marketDataFeed() {
+      return marketDataFeed;
     }
 
     //-----------------------------------------------------------------------
@@ -298,8 +298,8 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
           return ((IndexRateId) bean).getIndex();
         case 1265009317:  // fieldName
           return ((IndexRateId) bean).getFieldName();
-        case -1531580690:  // marketDataVendor
-          return ((IndexRateId) bean).getMarketDataVendor();
+        case 842621124:  // marketDataFeed
+          return ((IndexRateId) bean).getMarketDataFeed();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -323,7 +323,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
 
     private Index index;
     private FieldName fieldName;
-    private MarketDataVendor marketDataVendor;
+    private MarketDataFeed marketDataFeed;
 
     /**
      * Restricted constructor.
@@ -339,8 +339,8 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
           return index;
         case 1265009317:  // fieldName
           return fieldName;
-        case -1531580690:  // marketDataVendor
-          return marketDataVendor;
+        case 842621124:  // marketDataFeed
+          return marketDataFeed;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -355,8 +355,8 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
         case 1265009317:  // fieldName
           this.fieldName = (FieldName) newValue;
           break;
-        case -1531580690:  // marketDataVendor
-          this.marketDataVendor = (MarketDataVendor) newValue;
+        case 842621124:  // marketDataFeed
+          this.marketDataFeed = (MarketDataFeed) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -393,7 +393,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
       return new IndexRateId(
           index,
           fieldName,
-          marketDataVendor);
+          marketDataFeed);
     }
 
     //-----------------------------------------------------------------------
@@ -403,7 +403,7 @@ public final class IndexRateId implements ObservableId, ImmutableBean {
       buf.append("IndexRateId.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName)).append(',').append(' ');
-      buf.append("marketDataVendor").append('=').append(JodaBeanUtils.toString(marketDataVendor));
+      buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
       buf.append('}');
       return buf.toString();
     }
