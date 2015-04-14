@@ -32,10 +32,7 @@ public class DefaultIborFutureProductPricerFn
   @Override
   public double price(PricingEnvironment env, IborFuture future) {
     double forward = env.iborIndexRate(future.getIndex(), future.getLastTradeDate());
-    // TODO: Marc: getting the rounding so deep in the code will cause problem. We will need two definition of the
-    //  IborFuture, one without rounding, to be able to do standard computation like finite difference sensitivity 
-    //  computation or scenario analysis.
-    return future.getRounding().round(1.0 - forward);
+    return 1.0 - forward;
   }
 
   @Override
