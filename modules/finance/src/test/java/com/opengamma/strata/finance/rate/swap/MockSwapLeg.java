@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.io.Serializable;
@@ -26,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
@@ -36,8 +39,9 @@ import com.opengamma.strata.finance.rate.FixedRateObservation;
 @BeanDefinition
 public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
-  public static final SwapLeg MOCK_GBP1 = new MockSwapLeg(date(2012, 1, 15), date(2012, 8, 15), Currency.GBP);
+  public static final SwapLeg MOCK_GBP1 = new MockSwapLeg(PAY, date(2012, 1, 15), date(2012, 8, 15), Currency.GBP);
   public static final ExpandedSwapLeg MOCK_EXPANDED_GBP1 = ExpandedSwapLeg.builder()
+      .payReceive(PAY)
       .paymentPeriods(RatePaymentPeriod.builder()
           .paymentDate(date(2012, 8, 15))
           .accrualPeriods(RateAccrualPeriod.builder()
@@ -49,9 +53,10 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
           .currency(Currency.GBP)
           .build())
       .build();
-  public static final SwapLeg MOCK_GBP2 = new MockSwapLeg(date(2012, 1, 15), date(2012, 6, 15), Currency.GBP);
-  public static final SwapLeg MOCK_USD1 = new MockSwapLeg(date(2012, 1, 15), date(2012, 8, 15), Currency.USD);
+  public static final SwapLeg MOCK_GBP2 = new MockSwapLeg(PAY, date(2012, 1, 15), date(2012, 6, 15), Currency.GBP);
+  public static final SwapLeg MOCK_USD1 = new MockSwapLeg(RECEIVE, date(2012, 1, 15), date(2012, 8, 15), Currency.USD);
   public static final ExpandedSwapLeg MOCK_EXPANDED_USD1 = ExpandedSwapLeg.builder()
+      .payReceive(RECEIVE)
       .paymentPeriods(RatePaymentPeriod.builder()
           .paymentDate(date(2012, 8, 15))
           .accrualPeriods(RateAccrualPeriod.builder()
@@ -64,6 +69,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
           .build())
       .build();
 
+  @PropertyDefinition(overrideGet = true)
+  private final PayReceive payReceive;
   @PropertyDefinition(overrideGet = true)
   private final LocalDate startDate;
   @PropertyDefinition(overrideGet = true)
@@ -114,9 +121,11 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   }
 
   private MockSwapLeg(
+      PayReceive payReceive,
       LocalDate startDate,
       LocalDate endDate,
       Currency currency) {
+    this.payReceive = payReceive;
     this.startDate = startDate;
     this.endDate = endDate;
     this.currency = currency;
@@ -135,6 +144,16 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payReceive.
+   * @return the value of the property
+   */
+  @Override
+  public PayReceive getPayReceive() {
+    return payReceive;
   }
 
   //-----------------------------------------------------------------------
@@ -183,7 +202,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MockSwapLeg other = (MockSwapLeg) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency());
     }
@@ -193,6 +213,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
@@ -201,8 +222,9 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("MockSwapLeg{");
+    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
@@ -220,6 +242,11 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code payReceive} property.
+     */
+    private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
+        this, "payReceive", MockSwapLeg.class, PayReceive.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -240,6 +267,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "payReceive",
         "startDate",
         "endDate",
         "currency");
@@ -253,6 +281,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return payReceive;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -279,6 +309,14 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code payReceive} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<PayReceive> payReceive() {
+      return payReceive;
+    }
+
     /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
@@ -307,6 +345,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return ((MockSwapLeg) bean).getPayReceive();
         case -2129778896:  // startDate
           return ((MockSwapLeg) bean).getStartDate();
         case -1607727319:  // endDate
@@ -334,6 +374,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<MockSwapLeg> {
 
+    private PayReceive payReceive;
     private LocalDate startDate;
     private LocalDate endDate;
     private Currency currency;
@@ -349,6 +390,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(MockSwapLeg beanToCopy) {
+      this.payReceive = beanToCopy.getPayReceive();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.currency = beanToCopy.getCurrency();
@@ -358,6 +400,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return payReceive;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -372,6 +416,9 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          this.payReceive = (PayReceive) newValue;
+          break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
           break;
@@ -414,12 +461,23 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     @Override
     public MockSwapLeg build() {
       return new MockSwapLeg(
+          payReceive,
           startDate,
           endDate,
           currency);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code payReceive} property in the builder.
+     * @param payReceive  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder payReceive(PayReceive payReceive) {
+      this.payReceive = payReceive;
+      return this;
+    }
+
     /**
      * Sets the {@code startDate} property in the builder.
      * @param startDate  the new value
@@ -453,8 +511,9 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("MockSwapLeg.Builder{");
+      buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));

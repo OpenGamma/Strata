@@ -33,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.index.Index;
@@ -67,11 +68,26 @@ public final class RatePeriodSwapLeg
     implements SwapLeg, ImmutableBean, Serializable {
 
   /**
+   * Whether the leg is pay or receive.
+   * <p>
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+   * Note that negative interest rates can result in a payment in the opposite
+   * direction to that implied by this indicator.
+   * <p>
+   * The value of this flag should match the signs of the payment period notionals.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final PayReceive payReceive;
+  /**
    * The payment periods that combine to form the swap leg.
    * <p>
    * Each payment period represents part of the life-time of the leg.
    * In most cases, the periods do not overlap. However, since each payment period
    * is essentially independent the data model allows overlapping periods.
+   * <p>
+   * The start date and end date of the leg are determined from the first and last period.
+   * As such, the periods should be sorted.
    */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<RatePaymentPeriod> paymentPeriods;
@@ -138,6 +154,7 @@ public final class RatePeriodSwapLeg
   //-------------------------------------------------------------------------
   @ImmutableConstructor
   private RatePeriodSwapLeg(
+      PayReceive payReceive,
       List<RatePaymentPeriod> paymentPeriods,
       boolean initialExchange,
       boolean intermediateExchange,
@@ -145,8 +162,10 @@ public final class RatePeriodSwapLeg
       List<PaymentEvent> paymentEvents,
       BusinessDayAdjustment paymentBusinessDayAdjustment) {
 
+    JodaBeanUtils.notNull(payReceive, "payReceive");
     JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
     JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
+    this.payReceive = payReceive;
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
     this.initialExchange = initialExchange;
     this.intermediateExchange = intermediateExchange;
@@ -223,6 +242,7 @@ public final class RatePeriodSwapLeg
         .map(pp -> pp.adjustPaymentDate(paymentBusinessDayAdjustment))
         .collect(toImmutableList());
     return ExpandedSwapLeg.builder()
+        .payReceive(getPayReceive())
         .paymentPeriods(ImmutableList.copyOf(adjusted))  // copyOf needed for type conversion
         .paymentEvents(createEvents(adjusted))
         .build();
@@ -283,11 +303,31 @@ public final class RatePeriodSwapLeg
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether the leg is pay or receive.
+   * <p>
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+   * Note that negative interest rates can result in a payment in the opposite
+   * direction to that implied by this indicator.
+   * <p>
+   * The value of this flag should match the signs of the payment period notionals.
+   * @return the value of the property, not null
+   */
+  @Override
+  public PayReceive getPayReceive() {
+    return payReceive;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the payment periods that combine to form the swap leg.
    * <p>
    * Each payment period represents part of the life-time of the leg.
    * In most cases, the periods do not overlap. However, since each payment period
    * is essentially independent the data model allows overlapping periods.
+   * <p>
+   * The start date and end date of the leg are determined from the first and last period.
+   * As such, the periods should be sorted.
    * @return the value of the property, not empty
    */
   public ImmutableList<RatePaymentPeriod> getPaymentPeriods() {
@@ -385,7 +425,8 @@ public final class RatePeriodSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RatePeriodSwapLeg other = (RatePeriodSwapLeg) obj;
-      return JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
+      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
+          JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
           (isInitialExchange() == other.isInitialExchange()) &&
           (isIntermediateExchange() == other.isIntermediateExchange()) &&
           (isFinalExchange() == other.isFinalExchange()) &&
@@ -398,6 +439,7 @@ public final class RatePeriodSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
     hash = hash * 31 + JodaBeanUtils.hashCode(isInitialExchange());
     hash = hash * 31 + JodaBeanUtils.hashCode(isIntermediateExchange());
@@ -409,8 +451,9 @@ public final class RatePeriodSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("RatePeriodSwapLeg{");
+    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
     buf.append("initialExchange").append('=').append(isInitialExchange()).append(',').append(' ');
     buf.append("intermediateExchange").append('=').append(isIntermediateExchange()).append(',').append(' ');
@@ -431,6 +474,11 @@ public final class RatePeriodSwapLeg
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code payReceive} property.
+     */
+    private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
+        this, "payReceive", RatePeriodSwapLeg.class, PayReceive.class);
     /**
      * The meta-property for the {@code paymentPeriods} property.
      */
@@ -468,6 +516,7 @@ public final class RatePeriodSwapLeg
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "payReceive",
         "paymentPeriods",
         "initialExchange",
         "intermediateExchange",
@@ -484,6 +533,8 @@ public final class RatePeriodSwapLeg
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return payReceive;
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
         case -511982201:  // initialExchange
@@ -516,6 +567,14 @@ public final class RatePeriodSwapLeg
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code payReceive} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<PayReceive> payReceive() {
+      return payReceive;
+    }
+
     /**
      * The meta-property for the {@code paymentPeriods} property.
      * @return the meta-property, not null
@@ -568,6 +627,8 @@ public final class RatePeriodSwapLeg
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return ((RatePeriodSwapLeg) bean).getPayReceive();
         case -1674414612:  // paymentPeriods
           return ((RatePeriodSwapLeg) bean).getPaymentPeriods();
         case -511982201:  // initialExchange
@@ -601,6 +662,7 @@ public final class RatePeriodSwapLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<RatePeriodSwapLeg> {
 
+    private PayReceive payReceive;
     private List<RatePaymentPeriod> paymentPeriods = ImmutableList.of();
     private boolean initialExchange;
     private boolean intermediateExchange;
@@ -619,6 +681,7 @@ public final class RatePeriodSwapLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(RatePeriodSwapLeg beanToCopy) {
+      this.payReceive = beanToCopy.getPayReceive();
       this.paymentPeriods = beanToCopy.getPaymentPeriods();
       this.initialExchange = beanToCopy.isInitialExchange();
       this.intermediateExchange = beanToCopy.isIntermediateExchange();
@@ -631,6 +694,8 @@ public final class RatePeriodSwapLeg
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return payReceive;
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
         case -511982201:  // initialExchange
@@ -652,6 +717,9 @@ public final class RatePeriodSwapLeg
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          this.payReceive = (PayReceive) newValue;
+          break;
         case -1674414612:  // paymentPeriods
           this.paymentPeriods = (List<RatePaymentPeriod>) newValue;
           break;
@@ -703,6 +771,7 @@ public final class RatePeriodSwapLeg
     @Override
     public RatePeriodSwapLeg build() {
       return new RatePeriodSwapLeg(
+          payReceive,
           paymentPeriods,
           initialExchange,
           intermediateExchange,
@@ -712,6 +781,17 @@ public final class RatePeriodSwapLeg
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code payReceive} property in the builder.
+     * @param payReceive  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder payReceive(PayReceive payReceive) {
+      JodaBeanUtils.notNull(payReceive, "payReceive");
+      this.payReceive = payReceive;
+      return this;
+    }
+
     /**
      * Sets the {@code paymentPeriods} property in the builder.
      * @param paymentPeriods  the new value, not empty
@@ -798,8 +878,9 @@ public final class RatePeriodSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("RatePeriodSwapLeg.Builder{");
+      buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
       buf.append("initialExchange").append('=').append(JodaBeanUtils.toString(initialExchange)).append(',').append(' ');
       buf.append("intermediateExchange").append('=').append(JodaBeanUtils.toString(intermediateExchange)).append(',').append(' ');

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -54,10 +55,12 @@ public class ExpandedSwapTest {
       .notional(6000d)
       .build();
   private static final ExpandedSwapLeg LEG1 = ExpandedSwapLeg.builder()
+      .payReceive(RECEIVE)
       .paymentPeriods(RPP1)
       .paymentEvents(NOTIONAL_EXCHANGE)
       .build();
   private static final ExpandedSwapLeg LEG2 = ExpandedSwapLeg.builder()
+      .payReceive(RECEIVE)
       .paymentPeriods(RPP2)
       .build();
 

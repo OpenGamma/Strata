@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
@@ -88,6 +90,7 @@ public class RatePeriodSwapLegTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .initialExchange(true)
         .intermediateExchange(true)
@@ -95,6 +98,7 @@ public class RatePeriodSwapLegTest {
         .paymentEvents(NOTIONAL_EXCHANGE)
         .paymentBusinessDayAdjustment(FOLLOWING_GBLO)
         .build();
+    assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getStartDate(), DATE_2014_06_30);
     assertEquals(test.getEndDate(), DATE_2014_09_30);
     assertEquals(test.getCurrency(), GBP);
@@ -108,8 +112,10 @@ public class RatePeriodSwapLegTest {
 
   public void test_builder_defaults() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .build();
+    assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getStartDate(), DATE_2014_06_30);
     assertEquals(test.getEndDate(), DATE_2014_09_30);
     assertEquals(test.getCurrency(), GBP);
@@ -123,6 +129,7 @@ public class RatePeriodSwapLegTest {
 
   public void test_builder_invalidMixedCurrency() {
     assertThrowsIllegalArg(() -> RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP3)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build());
@@ -131,6 +138,7 @@ public class RatePeriodSwapLegTest {
   //-------------------------------------------------------------------------
   public void test_collectIndices() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
@@ -141,10 +149,12 @@ public class RatePeriodSwapLegTest {
   //-------------------------------------------------------------------------
   public void test_expand() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
@@ -153,12 +163,14 @@ public class RatePeriodSwapLegTest {
 
   public void test_expand_createNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .initialExchange(true)
         .intermediateExchange(true)
         .finalExchange(true)
         .build();
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(
             NotionalExchange.of(DATE_2014_06_30, CurrencyAmount.of(GBP, -5000d)),
@@ -169,6 +181,7 @@ public class RatePeriodSwapLegTest {
 
   public void test_expand_fxResetNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET, RPP2)
         .initialExchange(true)
         .intermediateExchange(true)
@@ -191,6 +204,7 @@ public class RatePeriodSwapLegTest {
     NotionalExchange ne2a = NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, -6000d));
     NotionalExchange ne2b = NotionalExchange.of(DATE_2014_01_02, CurrencyAmount.of(GBP, 6000d));
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET, RPP2)
         .paymentEvents(ne1a, ne1b, ne2a, ne2b)
         .build();
@@ -199,12 +213,14 @@ public class RatePeriodSwapLegTest {
 
   public void test_expand_omitFxResetNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET)
         .initialExchange(true)
         .intermediateExchange(false)
         .finalExchange(true)
         .build();
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET)
         .build();
     assertEquals(test.expand(), expected);
@@ -212,12 +228,14 @@ public class RatePeriodSwapLegTest {
 
   public void test_expand_createNotionalExchange_noInitial() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .initialExchange(false)
         .intermediateExchange(true)
         .finalExchange(true)
         .build();
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 5000d)))
         .build();
@@ -226,12 +244,14 @@ public class RatePeriodSwapLegTest {
 
   public void test_expand_createNotionalExchange_initialOnly() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .initialExchange(true)
         .intermediateExchange(false)
         .finalExchange(false)
         .build();
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(DATE_2014_06_30, CurrencyAmount.of(GBP, -5000d)))
         .build();
@@ -240,12 +260,14 @@ public class RatePeriodSwapLegTest {
 
   public void test_expand_createNotionalExchange_finalOnly() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .initialExchange(false)
         .intermediateExchange(false)
         .finalExchange(true)
         .build();
     ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 5000d)))
         .build();
@@ -255,6 +277,7 @@ public class RatePeriodSwapLegTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .paymentBusinessDayAdjustment(FOLLOWING_GBLO)
@@ -264,6 +287,7 @@ public class RatePeriodSwapLegTest {
         .build();
     coverImmutableBean(test);
     RatePeriodSwapLeg test2 = RatePeriodSwapLeg.builder()
+        .payReceive(PAY)
         .paymentPeriods(RPP2)
         .build();
     coverBeanEquals(test, test2);
@@ -271,6 +295,7 @@ public class RatePeriodSwapLegTest {
 
   public void test_serialization() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();

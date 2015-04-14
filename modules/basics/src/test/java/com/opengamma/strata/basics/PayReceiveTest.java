@@ -26,6 +26,15 @@ public class PayReceiveTest {
     assertEquals(PayReceive.ofPay(false), PayReceive.RECEIVE);
   }
 
+  public void test_ofSignedAmount() {
+    assertEquals(PayReceive.ofSignedAmount(-1d), PayReceive.PAY);
+    assertEquals(PayReceive.ofSignedAmount(-0d), PayReceive.PAY);
+    assertEquals(PayReceive.ofSignedAmount(0d), PayReceive.RECEIVE);
+    assertEquals(PayReceive.ofSignedAmount(+0d), PayReceive.RECEIVE);
+    assertEquals(PayReceive.ofSignedAmount(1d), PayReceive.RECEIVE);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_normalize_pay() {
     assertEquals(PayReceive.PAY.normalize(1d), -1d, 0d);
     assertEquals(PayReceive.PAY.normalize(0d), -0d, 0d);

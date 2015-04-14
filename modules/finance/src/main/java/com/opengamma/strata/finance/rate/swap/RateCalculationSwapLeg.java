@@ -61,7 +61,7 @@ public final class RateCalculationSwapLeg
    * Note that negative interest rates can result in a payment in the opposite
    * direction to that implied by this indicator.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PayReceive payReceive;
   /**
    * The accrual schedule.
@@ -157,6 +157,7 @@ public final class RateCalculationSwapLeg
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
         resolvedAccruals, resolvedPayments, accrualPeriods, notionalSchedule, payReceive);
     return ExpandedSwapLeg.builder()
+        .payReceive(payReceive)
         .paymentPeriods(ImmutableList.copyOf(payPeriods))  // copyOf changes generics of list without an actual copy
         .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate()))
         .build();
@@ -232,6 +233,7 @@ public final class RateCalculationSwapLeg
    * direction to that implied by this indicator.
    * @return the value of the property, not null
    */
+  @Override
   public PayReceive getPayReceive() {
     return payReceive;
   }

@@ -224,6 +224,7 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .build());
   }
@@ -318,6 +319,7 @@ public class RateCalculationSwapLegTest {
     NotionalExchange nexFinal = NotionalExchange.of(DATE_06_09, CurrencyAmount.of(GBP, -1500d));
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .paymentEvents(nexInitial, nexIntermediate, nexFinal)
         .build());
@@ -374,6 +376,7 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .payReceive(PAY)
         .paymentPeriods(rpp1)
         .build());
   }
@@ -490,6 +493,7 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .paymentEvents(ne1a, ne1b, ne2a, ne2b, ne3a, ne3b)
         .build());
