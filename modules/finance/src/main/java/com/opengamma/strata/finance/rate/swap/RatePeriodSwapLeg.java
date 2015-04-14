@@ -87,7 +87,7 @@ public final class RatePeriodSwapLeg
    * is essentially independent the data model allows overlapping periods.
    * <p>
    * The start date and end date of the leg are determined from the first and last period.
-   * As such, the legs should be sorted.
+   * As such, the periods should be sorted.
    */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<RatePaymentPeriod> paymentPeriods;
@@ -327,7 +327,7 @@ public final class RatePeriodSwapLeg
    * is essentially independent the data model allows overlapping periods.
    * <p>
    * The start date and end date of the leg are determined from the first and last period.
-   * As such, the legs should be sorted.
+   * As such, the periods should be sorted.
    * @return the value of the property, not empty
    */
   public ImmutableList<RatePaymentPeriod> getPaymentPeriods() {
