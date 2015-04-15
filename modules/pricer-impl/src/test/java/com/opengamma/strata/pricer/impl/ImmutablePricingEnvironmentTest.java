@@ -127,6 +127,7 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.fxRate(USD, GBP), 0.62d, 0d);
+    assertEquals(test.fxRate(USD, USD), 1d, 0d);
   }
 
   public void test_fxRate_pair() {
