@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import java.util.Map;
 
@@ -116,6 +117,29 @@ public class CurveParameterSensitivityTest {
     CurveParameterSensitivity multiplied = SENSI_2.multipliedBy(2d);
     CurveParameterSensitivity added = SENSI_2.combinedWith(SENSI_2);
     assertThat(multiplied).isEqualTo(added);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_totalPerKey() {
+    assertThat(SENSI_1.totalPerKey().size()).isEqualTo(1);
+    assertThat(SENSI_1.totalPerKey().get(KEY_USD)).isCloseTo(sum(VECTOR_USD1), within(1E-8));
+
+    assertThat(SENSI_2.totalPerKey().size()).isEqualTo(2);
+    assertThat(SENSI_2.totalPerKey().get(KEY_USD)).isCloseTo(sum(VECTOR_USD2), within(1E-8));
+    assertThat(SENSI_2.totalPerKey().get(KEY_EUR)).isCloseTo(sum(VECTOR_EUR1), within(1E-8));
+  }
+
+  public void test_total() {
+    assertThat(SENSI_1.total()).isCloseTo(sum(VECTOR_USD1), within(1E-8));
+    assertThat(SENSI_2.total()).isCloseTo(sum(VECTOR_USD2) + sum(VECTOR_EUR1), within(1E-8));
+  }
+
+  private static double sum(double[] array) {
+    double total = 0d;
+    for (int i = 0; i < array.length; i++) {
+      total += array[i];
+    }
+    return total;
   }
 
   //-------------------------------------------------------------------------
