@@ -49,7 +49,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.ImmutablePricingEnvironment;
-import com.opengamma.strata.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
+import com.opengamma.strata.pricer.impl.rate.swap.DefaultSwapTradePricerFn;
 import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
 
 /**
@@ -236,7 +236,7 @@ public class SwapCrossCurrencyEnd2EndTest {
   //-------------------------------------------------------------------------
   // pricer
   private SwapTradePricerFn swapPricer() {
-    return ExpandingSwapTradePricerFn.DEFAULT;
+    return DefaultSwapTradePricerFn.DEFAULT;
   }
 
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();

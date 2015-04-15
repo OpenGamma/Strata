@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.rate.swap.PaymentEventPricerFn;
 
 /**
  * Pricer implementation for the exchange of FX reset notionals.

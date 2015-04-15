@@ -9,14 +9,12 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.MockPricingEnvironment;
-import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricerFn;
 
 /**
  * Test.

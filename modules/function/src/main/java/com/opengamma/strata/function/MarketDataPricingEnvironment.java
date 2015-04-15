@@ -229,7 +229,7 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
   public CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities) {
     // TODO: Implement before creating PV01 results
     throw new UnsupportedOperationException();
-  }  
+  }
 
   //-------------------------------------------------------------------------
   @Override

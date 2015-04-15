@@ -7,13 +7,14 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import java.util.function.ToDoubleBiFunction;
 
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.rate.swap.PaymentEventPricerFn;
-import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricerFn;
 import com.opengamma.strata.pricer.rate.swap.SwapLegPricerFn;
 
 /**
@@ -21,13 +22,13 @@ import com.opengamma.strata.pricer.rate.swap.SwapLegPricerFn;
  * <p>
  * The swap leg is priced by examining the periods and events.
  */
-public class DefaultExpandedSwapLegPricerFn
-    implements SwapLegPricerFn<ExpandedSwapLeg> {
+public class DefaultSwapLegPricerFn
+    implements SwapLegPricerFn<SwapLeg> {
 
   /**
    * Default implementation.
    */
-  public static final DefaultExpandedSwapLegPricerFn DEFAULT = new DefaultExpandedSwapLegPricerFn(
+  public static final DefaultSwapLegPricerFn DEFAULT = new DefaultSwapLegPricerFn(
       DispatchingPaymentPeriodPricerFn.DEFAULT,
       DispatchingPaymentEventPricerFn.DEFAULT);
 
@@ -46,7 +47,7 @@ public class DefaultExpandedSwapLegPricerFn
    * @param paymentPeriodPricerFn  the pricer for {@link PaymentPeriod}
    * @param paymentEventPricerFn  the pricer for {@link PaymentEvent}
    */
-  public DefaultExpandedSwapLegPricerFn(
+  public DefaultSwapLegPricerFn(
       PaymentPeriodPricerFn<PaymentPeriod> paymentPeriodPricerFn,
       PaymentEventPricerFn<PaymentEvent> paymentEventPricerFn) {
     this.paymentPeriodPricerFn = ArgChecker.notNull(paymentPeriodPricerFn, "paymentPeriodPricerFn");
@@ -55,27 +56,35 @@ public class DefaultExpandedSwapLegPricerFn
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PricingEnvironment env, ExpandedSwapLeg swapLeg) {
-    return value(env, swapLeg, paymentPeriodPricerFn::presentValue, paymentEventPricerFn::presentValue);
+  public CurrencyAmount presentValue(PricingEnvironment env, SwapLeg leg, Currency currency) {
+    double pv = legValue(env, leg.expand(), paymentPeriodPricerFn::presentValue, paymentEventPricerFn::presentValue);
+    return CurrencyAmount.of(currency, (pv * env.fxRate(leg.getCurrency(), currency)));
   }
 
   @Override
-  public double futureValue(PricingEnvironment env, ExpandedSwapLeg swapLeg) {
-    return value(env, swapLeg, paymentPeriodPricerFn::futureValue, paymentEventPricerFn::futureValue);
+  public CurrencyAmount presentValue(PricingEnvironment env, SwapLeg leg) {
+    double val = legValue(env, leg.expand(), paymentPeriodPricerFn::presentValue, paymentEventPricerFn::presentValue);
+    return CurrencyAmount.of(leg.getCurrency(), val);
   }
 
-  // calculate present or future value
-  private static double value(
+  @Override
+  public CurrencyAmount futureValue(PricingEnvironment env, SwapLeg leg) {
+    double val = legValue(env, leg.expand(), paymentPeriodPricerFn::futureValue, paymentEventPricerFn::futureValue);
+    return CurrencyAmount.of(leg.getCurrency(), val);
+  }
+
+  // calculate present or future value for a leg
+  static double legValue(
       PricingEnvironment env,
-      ExpandedSwapLeg swapLeg,
+      ExpandedSwapLeg leg,
       ToDoubleBiFunction<PricingEnvironment, PaymentPeriod> periodFn,
       ToDoubleBiFunction<PricingEnvironment, PaymentEvent> eventFn) {
 
-    double valuePeriods = swapLeg.getPaymentPeriods().stream()
+    double valuePeriods = leg.getPaymentPeriods().stream()
         .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
         .mapToDouble(p -> periodFn.applyAsDouble(env, p))
         .sum();
-    double valueEvents = swapLeg.getPaymentEvents().stream()
+    double valueEvents = leg.getPaymentEvents().stream()
         .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
         .mapToDouble(e -> eventFn.applyAsDouble(env, e))
         .sum();
