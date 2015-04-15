@@ -136,7 +136,7 @@ public class SwapPricingTest {
             .addValue(CurveGroupId.of(curveGroupName), curveGroup)
             .build();
 
-    Measure presentValue = Measure.of("Present Value");
+    Measure presentValue = Measure.of("PresentValue");
 
     PricingRules pricingRules =
         SimplePricingRules.builder()
