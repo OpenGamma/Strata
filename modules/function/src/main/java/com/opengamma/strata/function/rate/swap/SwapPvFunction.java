@@ -13,7 +13,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.Sets;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
@@ -34,7 +35,7 @@ import com.opengamma.strata.pricer.impl.rate.swap.DefaultSwapProductPricerFn;
 /**
  * Calculates the present value of an interest rate swap for each of a set of scenarios.
  */
-public class SwapPvFunction implements VectorEngineFunction<SwapTrade, List<MultiCurrencyAmount>> {
+public class SwapPvFunction implements VectorEngineFunction<SwapTrade, List<CurrencyAmount>> {
 
   @Override
   public CalculationRequirements requirements(SwapTrade trade) {
@@ -65,18 +66,18 @@ public class SwapPvFunction implements VectorEngineFunction<SwapTrade, List<Mult
   }
 
   @Override
-  public List<MultiCurrencyAmount> execute(
+  public List<CurrencyAmount> execute(
       SwapTrade trade,
       CalculationMarketData marketData,
       ReportingRules reportingRules) {
 
-    // TODO Convert to the reporting currency
     Swap swap = trade.getProduct();
     ExpandedSwap expandedSwap = swap.expand();
+    Currency currency = reportingRules.reportingCurrency(trade).get();  // TODO: unchecked get()
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataPricingEnvironment::new)
-        .map(env -> DefaultSwapProductPricerFn.DEFAULT.presentValue(env, expandedSwap))
+        .map(env -> DefaultSwapProductPricerFn.DEFAULT.presentValue(env, expandedSwap, currency))
         .collect(toList());
   }
 }
