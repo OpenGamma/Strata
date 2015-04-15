@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.source.id;
+package com.opengamma.strata.source;
 
 import java.io.Serializable;
 import java.util.Map;
