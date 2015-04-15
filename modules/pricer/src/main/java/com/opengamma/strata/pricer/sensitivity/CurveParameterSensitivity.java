@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.DoubleStream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -204,6 +205,32 @@ public final class CurveParameterSensitivity
       result[i] = operator.applyAsDouble(array[i]);
     }
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Totals the sensitivity for each key.
+   * 
+   * @return a map of the total sensitivity per key
+   */
+  public ImmutableMap<SensitivityKey, Double> totalPerKey() {
+    ImmutableMap.Builder<SensitivityKey, Double> builder = ImmutableMap.builder();
+    for (SensitivityKey key : sensitivities.keySet()) {
+      double[] values = sensitivities.get(key);
+      builder.put(key, DoubleStream.of(values).sum());
+    }
+    return builder.build();
+  }
+
+  /**
+   * Totals the sensitivity for all keys.
+   * 
+   * @return the total sensitivity across all keys
+   */
+  public double total() {
+    return sensitivities.values().stream()
+        .flatMapToDouble(DoubleStream::of)
+        .sum();
   }
 
   //-------------------------------------------------------------------------
