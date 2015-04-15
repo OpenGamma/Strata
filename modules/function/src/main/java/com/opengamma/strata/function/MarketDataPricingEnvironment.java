@@ -89,6 +89,9 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
     ArgChecker.notNull(baseCurrency, "baseCurrency");
     ArgChecker.notNull(counterCurrency, "counterCurrency");
+    if (baseCurrency.equals(counterCurrency)) {
+      return 1d;
+    }
     return marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency));
   }
 
