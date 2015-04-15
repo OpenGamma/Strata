@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
@@ -16,6 +17,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,11 +30,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -74,12 +77,24 @@ public final class ImmutablePricingEnvironment
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
   /**
-   * The multi-curve bundle.
+   * The matrix of foreign exchange rates, defaulted to an empty matrix.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final MulticurveProviderInterface multicurve;
+  private final FxMatrix fxMatrix;
   /**
-   * The time-series.
+   * The discount curves, defaulted to an empty map.
+   * The curve data, predicting the future, associated with each currency.
+   */
+  @PropertyDefinition(validate = "notNull", get = "private")
+  private final ImmutableMap<Currency, YieldAndDiscountCurve> discountCurves;
+  /**
+   * The forward curves, defaulted to an empty map.
+   * The curve data, predicting the future, associated with each index.
+   */
+  @PropertyDefinition(validate = "notNull", get = "private")
+  private final ImmutableMap<Index, YieldAndDiscountCurve> indexCurves;
+  /**
+   * The time-series, defaulted to an empty map.
    * The historic data associated with each index.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
@@ -91,13 +106,19 @@ public final class ImmutablePricingEnvironment
   private final DayCount dayCount;
 
   //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.fxMatrix = FxMatrix.empty();
+    builder.discountCurves = ImmutableMap.of();
+    builder.indexCurves = ImmutableMap.of();
+    builder.timeSeries = ImmutableMap.of();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   @SuppressWarnings("unchecked")
   public <T> T rawData(Class<T> cls) {
     ArgChecker.notNull(cls, "cls");
-    if (cls == MulticurveProviderInterface.class) {
-      return (T) multicurve;
-    }
     throw new IllegalArgumentException("No raw data available for type: " + cls.getName());
   }
 
@@ -120,7 +141,7 @@ public final class ImmutablePricingEnvironment
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
-    return multicurve.getFxRate(baseCurrency, counterCurrency);
+    return fxMatrix.rate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -128,7 +149,7 @@ public final class ImmutablePricingEnvironment
   public double discountFactor(Currency currency, LocalDate date) {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(date, "date");
-    return multicurve.getDiscountFactor(currency, relativeTime(date));
+    return discountCurve(currency).getDiscountFactor(relativeTime(date));
   }
 
   @Override
@@ -136,8 +157,17 @@ public final class ImmutablePricingEnvironment
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(date, "date");
     double relativeTime = relativeTime(date);
-    double discountFactor = multicurve.getDiscountFactor(currency, relativeTime);
+    double discountFactor = discountCurve(currency).getDiscountFactor(relativeTime);
     return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);
+  }
+
+  // lookup the discount curve for the currency
+  private YieldAndDiscountCurve discountCurve(Currency currency) {
+    YieldAndDiscountCurve curve = discountCurves.get(currency);
+    if (curve == null) {
+      throw new IllegalArgumentException("Unable to find discount curve: " + currency);
+    }
+    return curve;
   }
 
   //-------------------------------------------------------------------------
@@ -176,8 +206,8 @@ public final class ImmutablePricingEnvironment
     // then derive rate from discount factors based off desired currency pair, not that of the index
     CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
     double maturity = relativeTime(index.calculateMaturityFromFixing(fixingDate));
-    double dfCcyBaseAtMaturity = multicurve.getDiscountFactor(pair.getBase(), maturity);
-    double dfCcyCounterAtMaturity = multicurve.getDiscountFactor(pair.getCounter(), maturity);
+    double dfCcyBaseAtMaturity = discountCurve(pair.getBase()).getDiscountFactor(maturity);
+    double dfCcyCounterAtMaturity = discountCurve(pair.getCounter()).getDiscountFactor(maturity);
     return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
   }
 
@@ -209,8 +239,8 @@ public final class ImmutablePricingEnvironment
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    return multicurve.getSimplyCompoundForwardRate(
-        Legacy.iborIndex(index), relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
+    return indexCurve(index).getSimplyCompoundForwardRate(
+        relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
   }
 
   @Override
@@ -222,6 +252,15 @@ public final class ImmutablePricingEnvironment
       return PointSensitivityBuilder.none();
     }
     return IborRateSensitivity.of(index, fixingDate, 1d);
+  }
+
+  // lookup the discount curve for the currency
+  private YieldAndDiscountCurve indexCurve(Index index) {
+    YieldAndDiscountCurve curve = indexCurves.get(index);
+    if (curve == null) {
+      throw new IllegalArgumentException("Unable to find index curve: " + index);
+    }
+    return curve;
   }
 
   //-------------------------------------------------------------------------
@@ -253,8 +292,8 @@ public final class ImmutablePricingEnvironment
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    return multicurve.getSimplyCompoundForwardRate(
-        Legacy.overnightIndex(index), relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
+    return indexCurve(index).getSimplyCompoundForwardRate(
+        relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
   }
 
   @Override
@@ -278,8 +317,8 @@ public final class ImmutablePricingEnvironment
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
     double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
-    return multicurve.getSimplyCompoundForwardRate(
-        Legacy.overnightIndex(index), relativeTime(startDate), relativeTime(endDate), fixingYearFraction);
+    return indexCurve(index).getSimplyCompoundForwardRate(
+        relativeTime(startDate), relativeTime(endDate), fixingYearFraction);
   }
 
   @Override
@@ -299,8 +338,8 @@ public final class ImmutablePricingEnvironment
   public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
     Map<SensitivityKey, double[]> map = new HashMap<>();
     paramSensitivityZeroRate(sensitivities, map);
-    paramSensitivityIborRate(sensitivities, map);
-    paramSensitivityOvernightRate(sensitivities, map);
+    parameterSensitivityIbor(sensitivities, map);
+    parameterSensitivityOvernight(sensitivities, map);
     return CurveParameterSensitivity.of(map);
   }
 
@@ -315,15 +354,28 @@ public final class ImmutablePricingEnvironment
     }
     // calculate per currency
     for (Currency ccy : grouped.keySet()) {
-      String curveName = multicurve.getName(ccy);
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curveName, ccy);
-      double[] sensiParam = multicurve.parameterSensitivity(curveName, grouped.get(ccy));
+      YieldAndDiscountCurve curve = discountCurve(ccy);
+      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), ccy);
+      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(ccy));
       mutableMap.put(keyParam, sensiParam);
     }
   }
 
+  // sensitivity, copied from MulticurveProviderDiscount
+  private double[] parameterSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {
+    int nbParameters = curve.getNumberOfParameters();
+    double[] result = new double[nbParameters];
+    for (DoublesPair timeAndS : pointSensitivity) {
+      double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+      for (int i = 0; i < nbParameters; i++) {
+        result[i] += timeAndS.getSecond() * sensi1Point[i];
+      }
+    }
+    return result;
+  }
+
   // handle ibor rate sensitivities
-  private void paramSensitivityIborRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
+  private void parameterSensitivityIbor(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
     // group by currency
     ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
@@ -341,15 +393,15 @@ public final class ImmutablePricingEnvironment
     }
     // calculate per currency
     for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      String curveName = multicurve.getName(Legacy.iborIndex((IborIndex) key.getIndex()));
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curveName, key.getCurrency());
-      double[] sensiParam = multicurve.parameterForwardSensitivity(curveName, grouped.get(key));
+      YieldAndDiscountCurve curve = indexCurve(key.getIndex());
+      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
+      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, ImmutablePricingEnvironment::combineArrays);
     }
   }
 
   // handle overnight rate sensitivities
-  private void paramSensitivityOvernightRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
+  private void parameterSensitivityOvernight(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
     // group by currency
     ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
@@ -368,11 +420,35 @@ public final class ImmutablePricingEnvironment
     }
     // calculate per currency
     for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      String curveName = multicurve.getName(Legacy.overnightIndex((OvernightIndex) key.getIndex()));
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curveName, key.getCurrency());
-      double[] sensiParam = multicurve.parameterForwardSensitivity(curveName, grouped.get(key));
+      YieldAndDiscountCurve curve = indexCurve(key.getIndex());
+      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
+      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, ImmutablePricingEnvironment::combineArrays);
     }
+  }
+
+  // sensitivity, copied from MulticurveProviderDiscount
+  private double[] parameterSensitivityIndex(YieldAndDiscountCurve curve, List<ForwardSensitivity> pointSensitivity) {
+    int nbParameters = curve.getNumberOfParameters();
+    double[] result = new double[nbParameters];
+    for (ForwardSensitivity timeAndS : pointSensitivity) {
+      double startTime = timeAndS.getStartTime();
+      double endTime = timeAndS.getEndTime();
+      double forwardBar = timeAndS.getValue();
+      // Implementation note: only the sensitivity to the forward is available.
+      // The sensitivity to the pseudo-discount factors need to be computed.
+      double dfForwardStart = curve.getDiscountFactor(startTime);
+      double dfForwardEnd = curve.getDiscountFactor(endTime);
+      double dFwddyStart = timeAndS.derivativeToYieldStart(dfForwardStart, dfForwardEnd);
+      double dFwddyEnd = timeAndS.derivativeToYieldEnd(dfForwardStart, dfForwardEnd);
+      double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
+      double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
+      for (int i = 0; i < nbParameters; i++) {
+        result[i] += dFwddyStart * sensiPtStart[i] * forwardBar;
+        result[i] += dFwddyEnd * sensiPtEnd[i] * forwardBar;
+      }
+    }
+    return result;
   }
 
   // add two arrays
@@ -416,15 +492,21 @@ public final class ImmutablePricingEnvironment
 
   private ImmutablePricingEnvironment(
       LocalDate valuationDate,
-      MulticurveProviderInterface multicurve,
+      FxMatrix fxMatrix,
+      Map<Currency, YieldAndDiscountCurve> discountCurves,
+      Map<Index, YieldAndDiscountCurve> indexCurves,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries,
       DayCount dayCount) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(multicurve, "multicurve");
+    JodaBeanUtils.notNull(fxMatrix, "fxMatrix");
+    JodaBeanUtils.notNull(discountCurves, "discountCurves");
+    JodaBeanUtils.notNull(indexCurves, "indexCurves");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this.valuationDate = valuationDate;
-    this.multicurve = multicurve;
+    this.fxMatrix = fxMatrix;
+    this.discountCurves = ImmutableMap.copyOf(discountCurves);
+    this.indexCurves = ImmutableMap.copyOf(indexCurves);
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
     this.dayCount = dayCount;
   }
@@ -457,16 +539,36 @@ public final class ImmutablePricingEnvironment
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the multi-curve bundle.
+   * Gets the matrix of foreign exchange rates, defaulted to an empty matrix.
    * @return the value of the property, not null
    */
-  private MulticurveProviderInterface getMulticurve() {
-    return multicurve;
+  private FxMatrix getFxMatrix() {
+    return fxMatrix;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-series.
+   * Gets the discount curves, defaulted to an empty map.
+   * The curve data, predicting the future, associated with each currency.
+   * @return the value of the property, not null
+   */
+  private ImmutableMap<Currency, YieldAndDiscountCurve> getDiscountCurves() {
+    return discountCurves;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the forward curves, defaulted to an empty map.
+   * The curve data, predicting the future, associated with each index.
+   * @return the value of the property, not null
+   */
+  private ImmutableMap<Index, YieldAndDiscountCurve> getIndexCurves() {
+    return indexCurves;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series, defaulted to an empty map.
    * The historic data associated with each index.
    * @return the value of the property, not null
    */
@@ -500,7 +602,9 @@ public final class ImmutablePricingEnvironment
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutablePricingEnvironment other = (ImmutablePricingEnvironment) obj;
       return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getMulticurve(), other.getMulticurve()) &&
+          JodaBeanUtils.equal(getFxMatrix(), other.getFxMatrix()) &&
+          JodaBeanUtils.equal(getDiscountCurves(), other.getDiscountCurves()) &&
+          JodaBeanUtils.equal(getIndexCurves(), other.getIndexCurves()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount());
     }
@@ -511,7 +615,9 @@ public final class ImmutablePricingEnvironment
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMulticurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxMatrix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexCurves());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     return hash;
@@ -519,10 +625,12 @@ public final class ImmutablePricingEnvironment
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("ImmutablePricingEnvironment{");
     buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("multicurve").append('=').append(getMulticurve()).append(',').append(' ');
+    buf.append("fxMatrix").append('=').append(getFxMatrix()).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(getDiscountCurves()).append(',').append(' ');
+    buf.append("indexCurves").append('=').append(getIndexCurves()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount()));
     buf.append('}');
@@ -545,10 +653,22 @@ public final class ImmutablePricingEnvironment
     private final MetaProperty<LocalDate> valuationDate = DirectMetaProperty.ofImmutable(
         this, "valuationDate", ImmutablePricingEnvironment.class, LocalDate.class);
     /**
-     * The meta-property for the {@code multicurve} property.
+     * The meta-property for the {@code fxMatrix} property.
      */
-    private final MetaProperty<MulticurveProviderInterface> multicurve = DirectMetaProperty.ofImmutable(
-        this, "multicurve", ImmutablePricingEnvironment.class, MulticurveProviderInterface.class);
+    private final MetaProperty<FxMatrix> fxMatrix = DirectMetaProperty.ofImmutable(
+        this, "fxMatrix", ImmutablePricingEnvironment.class, FxMatrix.class);
+    /**
+     * The meta-property for the {@code discountCurves} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<Currency, YieldAndDiscountCurve>> discountCurves = DirectMetaProperty.ofImmutable(
+        this, "discountCurves", ImmutablePricingEnvironment.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code indexCurves} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<Index, YieldAndDiscountCurve>> indexCurves = DirectMetaProperty.ofImmutable(
+        this, "indexCurves", ImmutablePricingEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
@@ -566,7 +686,9 @@ public final class ImmutablePricingEnvironment
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "valuationDate",
-        "multicurve",
+        "fxMatrix",
+        "discountCurves",
+        "indexCurves",
         "timeSeries",
         "dayCount");
 
@@ -581,8 +703,12 @@ public final class ImmutablePricingEnvironment
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
           return valuationDate;
-        case 1253345110:  // multicurve
-          return multicurve;
+        case -1198118093:  // fxMatrix
+          return fxMatrix;
+        case -624113147:  // discountCurves
+          return discountCurves;
+        case 886361302:  // indexCurves
+          return indexCurves;
         case 779431844:  // timeSeries
           return timeSeries;
         case 1905311443:  // dayCount
@@ -616,11 +742,27 @@ public final class ImmutablePricingEnvironment
     }
 
     /**
-     * The meta-property for the {@code multicurve} property.
+     * The meta-property for the {@code fxMatrix} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MulticurveProviderInterface> multicurve() {
-      return multicurve;
+    public MetaProperty<FxMatrix> fxMatrix() {
+      return fxMatrix;
+    }
+
+    /**
+     * The meta-property for the {@code discountCurves} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<Currency, YieldAndDiscountCurve>> discountCurves() {
+      return discountCurves;
+    }
+
+    /**
+     * The meta-property for the {@code indexCurves} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<Index, YieldAndDiscountCurve>> indexCurves() {
+      return indexCurves;
     }
 
     /**
@@ -645,8 +787,12 @@ public final class ImmutablePricingEnvironment
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
           return ((ImmutablePricingEnvironment) bean).getValuationDate();
-        case 1253345110:  // multicurve
-          return ((ImmutablePricingEnvironment) bean).getMulticurve();
+        case -1198118093:  // fxMatrix
+          return ((ImmutablePricingEnvironment) bean).getFxMatrix();
+        case -624113147:  // discountCurves
+          return ((ImmutablePricingEnvironment) bean).getDiscountCurves();
+        case 886361302:  // indexCurves
+          return ((ImmutablePricingEnvironment) bean).getIndexCurves();
         case 779431844:  // timeSeries
           return ((ImmutablePricingEnvironment) bean).getTimeSeries();
         case 1905311443:  // dayCount
@@ -673,7 +819,9 @@ public final class ImmutablePricingEnvironment
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutablePricingEnvironment> {
 
     private LocalDate valuationDate;
-    private MulticurveProviderInterface multicurve;
+    private FxMatrix fxMatrix;
+    private Map<Currency, YieldAndDiscountCurve> discountCurves = ImmutableMap.of();
+    private Map<Index, YieldAndDiscountCurve> indexCurves = ImmutableMap.of();
     private Map<Index, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
     private DayCount dayCount;
 
@@ -681,6 +829,7 @@ public final class ImmutablePricingEnvironment
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -689,7 +838,9 @@ public final class ImmutablePricingEnvironment
      */
     private Builder(ImmutablePricingEnvironment beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
-      this.multicurve = beanToCopy.getMulticurve();
+      this.fxMatrix = beanToCopy.getFxMatrix();
+      this.discountCurves = beanToCopy.getDiscountCurves();
+      this.indexCurves = beanToCopy.getIndexCurves();
       this.timeSeries = beanToCopy.getTimeSeries();
       this.dayCount = beanToCopy.getDayCount();
     }
@@ -700,8 +851,12 @@ public final class ImmutablePricingEnvironment
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
           return valuationDate;
-        case 1253345110:  // multicurve
-          return multicurve;
+        case -1198118093:  // fxMatrix
+          return fxMatrix;
+        case -624113147:  // discountCurves
+          return discountCurves;
+        case 886361302:  // indexCurves
+          return indexCurves;
         case 779431844:  // timeSeries
           return timeSeries;
         case 1905311443:  // dayCount
@@ -718,8 +873,14 @@ public final class ImmutablePricingEnvironment
         case 113107279:  // valuationDate
           this.valuationDate = (LocalDate) newValue;
           break;
-        case 1253345110:  // multicurve
-          this.multicurve = (MulticurveProviderInterface) newValue;
+        case -1198118093:  // fxMatrix
+          this.fxMatrix = (FxMatrix) newValue;
+          break;
+        case -624113147:  // discountCurves
+          this.discountCurves = (Map<Currency, YieldAndDiscountCurve>) newValue;
+          break;
+        case 886361302:  // indexCurves
+          this.indexCurves = (Map<Index, YieldAndDiscountCurve>) newValue;
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (Map<Index, LocalDateDoubleTimeSeries>) newValue;
@@ -761,7 +922,9 @@ public final class ImmutablePricingEnvironment
     public ImmutablePricingEnvironment build() {
       return new ImmutablePricingEnvironment(
           valuationDate,
-          multicurve,
+          fxMatrix,
+          discountCurves,
+          indexCurves,
           timeSeries,
           dayCount);
     }
@@ -779,13 +942,35 @@ public final class ImmutablePricingEnvironment
     }
 
     /**
-     * Sets the {@code multicurve} property in the builder.
-     * @param multicurve  the new value, not null
+     * Sets the {@code fxMatrix} property in the builder.
+     * @param fxMatrix  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder multicurve(MulticurveProviderInterface multicurve) {
-      JodaBeanUtils.notNull(multicurve, "multicurve");
-      this.multicurve = multicurve;
+    public Builder fxMatrix(FxMatrix fxMatrix) {
+      JodaBeanUtils.notNull(fxMatrix, "fxMatrix");
+      this.fxMatrix = fxMatrix;
+      return this;
+    }
+
+    /**
+     * Sets the {@code discountCurves} property in the builder.
+     * @param discountCurves  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder discountCurves(Map<Currency, YieldAndDiscountCurve> discountCurves) {
+      JodaBeanUtils.notNull(discountCurves, "discountCurves");
+      this.discountCurves = discountCurves;
+      return this;
+    }
+
+    /**
+     * Sets the {@code indexCurves} property in the builder.
+     * @param indexCurves  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder indexCurves(Map<Index, YieldAndDiscountCurve> indexCurves) {
+      JodaBeanUtils.notNull(indexCurves, "indexCurves");
+      this.indexCurves = indexCurves;
       return this;
     }
 
@@ -814,10 +999,12 @@ public final class ImmutablePricingEnvironment
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("ImmutablePricingEnvironment.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
-      buf.append("multicurve").append('=').append(JodaBeanUtils.toString(multicurve)).append(',').append(' ');
+      buf.append("fxMatrix").append('=').append(JodaBeanUtils.toString(fxMatrix)).append(',').append(' ');
+      buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
+      buf.append("indexCurves").append('=').append(JodaBeanUtils.toString(indexCurves)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
       buf.append('}');

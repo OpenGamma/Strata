@@ -49,6 +49,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.ImmutablePricingEnvironment;
+import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.impl.rate.swap.DefaultSwapTradePricerFn;
 import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
 
@@ -245,7 +246,9 @@ public class SwapCrossCurrencyEnd2EndTest {
   private static PricingEnvironment env() {
     return ImmutablePricingEnvironment.builder()
         .valuationDate(LocalDate.of(2014, 1, 22))
-        .multicurve(MULTICURVE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.copyOf(MULTICURVE.getDiscountingCurves()))
+        .indexCurves(Legacy.indexCurves(MULTICURVE))
         .timeSeries(ImmutableMap.of(
             USD_LIBOR_3M, TS_EMTPY,
             EUR_EURIBOR_3M, TS_EMTPY,
