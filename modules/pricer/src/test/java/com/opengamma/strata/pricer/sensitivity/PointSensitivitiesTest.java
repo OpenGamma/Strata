@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -76,6 +78,32 @@ public class PointSensitivitiesTest {
   public void test_normalized_empty() {
     assertEquals(PointSensitivities.NONE.normalized(), PointSensitivities.NONE);
   }
+
+  //-------------------------------------------------------------------------
+  public void test_equalWithTolerance_length() {
+    PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1)).normalized();
+    PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, CS2)).normalized();
+    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));    
+  }
+  
+  public void test_equalWithTolerance_date() {
+    PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
+    PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, CS2)).normalized();
+    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));    
+  }
+  
+  public void test_equalWithTolerance_value() {
+    PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
+    PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3B, CS1)).normalized();
+    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));    
+  }  
+  
+  public void test_equalWithTolerance_true() {
+    PointSensitivity cs1b = ZeroRateSensitivity.of(GBP, date(2015, 6, 30), 12.1d);
+    PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
+    PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, cs1b)).normalized();
+    assertTrue(test1.equalWithTolerance(test2, 1.0E-1));    
+  }  
 
   //-------------------------------------------------------------------------
   public void test_toMutable() {
