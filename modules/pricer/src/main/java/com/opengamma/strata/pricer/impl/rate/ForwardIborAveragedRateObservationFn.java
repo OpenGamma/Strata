@@ -42,7 +42,7 @@ public class ForwardIborAveragedRateObservationFn
       IborAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-
+    
     // take (rate * weight) for each fixing and divide by total weight
     double weightedRate = observation.getFixings().stream()
         .mapToDouble(fixing -> weightedRate(env, observation.getIndex(), fixing))

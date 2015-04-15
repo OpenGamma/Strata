@@ -85,7 +85,7 @@ public class DiscountingSwapTradePricer {
    * @return the present value curve sensitivity of the swap trade
    */
   public PointSensitivities presentValueSensitivity(PricingEnvironment env, SwapTrade trade) {
-    return productPricer.presentValueSensitivity(env, trade.getProduct().expand()).build();
+    return productPricer.presentValueSensitivity(env, trade.getProduct()).build();
   }
 
   //-------------------------------------------------------------------------
@@ -114,7 +114,7 @@ public class DiscountingSwapTradePricer {
    * @return the future value curve sensitivity of the swap trade
    */
   public PointSensitivities futureValueSensitivity(PricingEnvironment env, SwapTrade trade) {
-    return productPricer.futureValueSensitivity(env, trade.getProduct().expand()).build();
+    return productPricer.futureValueSensitivity(env, trade.getProduct()).build();
   }
 
 }

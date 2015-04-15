@@ -180,15 +180,15 @@ public class DiscountingRatePaymentPeriodPricer
     if (period.getPaymentDate().isBefore(env.getValuationDate())) {
       return PointSensitivityBuilder.none();
     }
-    // TODO find FX rate, using 1 if no FX reset occurs
     double fxRate = 1d;
     if (period.getFxReset().isPresent()) {
+      // TODO find FX rate, using 1 if no FX reset occurs
       throw new UnsupportedOperationException("FX Reset not yet implemented for futureValueSensitivity");
     }
     double notional = period.getNotional() * fxRate;
-    // TODO handle compounding
     PointSensitivityBuilder unitAccrual;
     if (period.isCompoundingApplicable()) {
+      // TODO handle compounding
       throw new UnsupportedOperationException("compounding not yet implemented for futureValueSensitivity");
     } else {
       unitAccrual = unitNotionalSensiNoCompounding(env, period);
@@ -196,20 +196,21 @@ public class DiscountingRatePaymentPeriodPricer
     return unitAccrual.multipliedBy(notional);
   }
 
+  // computes the sensitivity of the payment period to the rate observations (not to the discount factors)
   private PointSensitivityBuilder unitNotionalSensiNoCompounding(PricingEnvironment env, RatePaymentPeriod period) {
     Currency ccy = period.getCurrency();
     PointSensitivityBuilder sensi = PointSensitivityBuilder.none();
     for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
-      sensi = sensi.combinedWith(unitNotionalSensiAccrual3LD(env, accrualPeriod, ccy));
+      sensi = sensi.combinedWith(unitNotionalSensiAccrual(env, accrualPeriod, ccy));
     }
     return sensi;
   }
 
-  private PointSensitivityBuilder unitNotionalSensiAccrual3LD(PricingEnvironment env,
+  // computes the sensitivity of the accrual period to the rate observations (not to discount factors)
+  private PointSensitivityBuilder unitNotionalSensiAccrual(PricingEnvironment env,
       RateAccrualPeriod period, Currency ccy) {
     PointSensitivityBuilder sensi = rateObservationFn.rateSensitivity(
         env, period.getRateObservation(), period.getStartDate(), period.getEndDate());
-    //FIXME: need to adjust also the sensitivity
     return sensi.multipliedBy(period.getGearing() * period.getYearFraction());
   }
 

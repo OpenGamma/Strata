@@ -160,22 +160,23 @@ public class DiscountingSwapProductPricerTest {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     when(mockPeriod.presentValueSensitivity(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG.getPaymentPeriods().get(0)))
-        .thenReturn(sensiFloating);
+        .thenAnswer(t -> sensiFloating.build().toMutable());
     when(mockPeriod.presentValueSensitivity(MOCK_ENV, FIXED_EXPANDED_SWAP_LEG.getPaymentPeriods().get(0)))
-        .thenReturn(sensiFixed);
+        .thenAnswer(t -> sensiFixed.build().toMutable());
     when(mockEvent.presentValueSensitivity(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG.getPaymentEvents().get(0)))
-        .thenReturn(sensiEvent);
+        .thenAnswer(t -> sensiEvent.build().toMutable());
     when(mockEvent.presentValueSensitivity(MOCK_ENV, FIXED_EXPANDED_SWAP_LEG.getPaymentEvents().get(0)))
-        .thenReturn(sensiEvent);
+        .thenAnswer(t -> sensiEvent.build().toMutable());
     DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
-    ExpandedSwap expanded = SWAP.expand();
-    PointSensitivities res = test.presentValueSensitivity(MOCK_ENV, expanded).build();
+    PointSensitivities res = test.presentValueSensitivity(MOCK_ENV, SWAP).build();
 
     CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
 
     // test via SwapTrade
     DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.presentValueSensitivity(MOCK_ENV, SWAP_TRADE), test.presentValueSensitivity(MOCK_ENV, expanded));
+    assertEquals(
+        testTrade.presentValueSensitivity(MOCK_ENV, SWAP_TRADE),
+        test.presentValueSensitivity(MOCK_ENV, SWAP).build());
   }
 
   public void test_futureValueSensitivity() {
@@ -191,22 +192,23 @@ public class DiscountingSwapProductPricerTest {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     when(mockPeriod.futureValueSensitivity(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG.getPaymentPeriods().get(0)))
-        .thenReturn(sensiFloating);
+        .thenAnswer(t -> sensiFloating.build().toMutable());
     when(mockPeriod.futureValueSensitivity(MOCK_ENV, FIXED_EXPANDED_SWAP_LEG.getPaymentPeriods().get(0)))
-        .thenReturn(sensiFixed);
+        .thenAnswer(t -> sensiFixed.build().toMutable());
     when(mockEvent.futureValueSensitivity(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG.getPaymentEvents().get(0)))
-        .thenReturn(sensiEvent);
+        .thenAnswer(t -> sensiEvent.build().toMutable());
     when(mockEvent.futureValueSensitivity(MOCK_ENV, FIXED_EXPANDED_SWAP_LEG.getPaymentEvents().get(0)))
-        .thenReturn(sensiEvent);
+        .thenAnswer(t -> sensiEvent.build().toMutable());
     DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
-    ExpandedSwap expanded = SWAP.expand();
-    PointSensitivities res = test.futureValueSensitivity(MOCK_ENV, expanded).build();
+    PointSensitivities res = test.futureValueSensitivity(MOCK_ENV, SWAP).build();
 
     CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
 
     // test via SwapTrade
     DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.futureValueSensitivity(MOCK_ENV, SWAP_TRADE), test.futureValueSensitivity(MOCK_ENV, expanded));
+    assertEquals(
+        testTrade.futureValueSensitivity(MOCK_ENV, SWAP_TRADE),
+        test.futureValueSensitivity(MOCK_ENV, SWAP).build());
   }
 
 }
