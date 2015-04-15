@@ -338,8 +338,8 @@ public final class ImmutablePricingEnvironment
   public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
     Map<SensitivityKey, double[]> map = new HashMap<>();
     paramSensitivityZeroRate(sensitivities, map);
-    paramSensitivityIborRate(sensitivities, map);
-    paramSensitivityOvernightRate(sensitivities, map);
+    parameterSensitivityIbor(sensitivities, map);
+    parameterSensitivityOvernight(sensitivities, map);
     return CurveParameterSensitivity.of(map);
   }
 
@@ -356,13 +356,13 @@ public final class ImmutablePricingEnvironment
     for (Currency ccy : grouped.keySet()) {
       YieldAndDiscountCurve curve = discountCurve(ccy);
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), ccy);
-      double[] sensiParam = paramSensitivityZeroRate(curve, grouped.get(ccy));
+      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(ccy));
       mutableMap.put(keyParam, sensiParam);
     }
   }
 
   // sensitivity, copied from MulticurveProviderDiscount
-  private double[] paramSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {
+  private double[] parameterSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {
     int nbParameters = curve.getNumberOfParameters();
     double[] result = new double[nbParameters];
     for (DoublesPair timeAndS : pointSensitivity) {
@@ -375,7 +375,7 @@ public final class ImmutablePricingEnvironment
   }
 
   // handle ibor rate sensitivities
-  private void paramSensitivityIborRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
+  private void parameterSensitivityIbor(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
     // group by currency
     ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
@@ -395,13 +395,13 @@ public final class ImmutablePricingEnvironment
     for (IndexCurrencySensitivityKey key : grouped.keySet()) {
       YieldAndDiscountCurve curve = indexCurve(key.getIndex());
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
-      double[] sensiParam = paramSensitivityIndex(curve, grouped.get(key));
+      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, ImmutablePricingEnvironment::combineArrays);
     }
   }
 
   // handle overnight rate sensitivities
-  private void paramSensitivityOvernightRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
+  private void parameterSensitivityOvernight(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
     // group by currency
     ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
@@ -422,13 +422,13 @@ public final class ImmutablePricingEnvironment
     for (IndexCurrencySensitivityKey key : grouped.keySet()) {
       YieldAndDiscountCurve curve = indexCurve(key.getIndex());
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
-      double[] sensiParam = paramSensitivityIndex(curve, grouped.get(key));
+      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, ImmutablePricingEnvironment::combineArrays);
     }
   }
 
   // sensitivity, copied from MulticurveProviderDiscount
-  private double[] paramSensitivityIndex(YieldAndDiscountCurve curve, List<ForwardSensitivity> pointSensitivity) {
+  private double[] parameterSensitivityIndex(YieldAndDiscountCurve curve, List<ForwardSensitivity> pointSensitivity) {
     int nbParameters = curve.getNumberOfParameters();
     double[] result = new double[nbParameters];
     for (ForwardSensitivity timeAndS : pointSensitivity) {
