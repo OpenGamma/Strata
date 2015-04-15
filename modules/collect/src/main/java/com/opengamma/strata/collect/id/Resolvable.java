@@ -14,6 +14,9 @@ package com.opengamma.strata.collect.id;
  * When the resolve method is called, the result is an object of the same, or compatible, type
  * that has all links resolved.
  * <p>
+ * To resolve an arbitrary object, which may or may not implement {@code Resolvable},
+ * see {@link LinkResolver#resolveLinksIn(Object)}.
+ * <p>
  * Implementations must be immutable and thread-safe beans.
  * 
  * @param <T>  the resolved type, which is the type implementing this interface
@@ -32,7 +35,8 @@ public interface Resolvable<T> {
    * If the implementation does not need to resolve anything, {@code this} must be returned.
    * 
    * @param resolver  the resolver to use
-   * @return the resolved instance
+   * @return the resolved instance, which must be compatible with the type implementing this interface,
+   *   {@code this} if no resolution occurs
    * @throws LinkResolutionException if a link cannot be resolved
    */
   public abstract T resolveLinks(LinkResolver resolver);

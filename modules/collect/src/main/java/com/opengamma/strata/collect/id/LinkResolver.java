@@ -22,6 +22,26 @@ import com.google.common.reflect.TypeToken;
 public interface LinkResolver {
 
   /**
+   * Obtains a link resolver that is unable to resolve any links.
+   * <p>
+   * This is a special implementation of {@code LinkResolver} that will be used when
+   * it is assumed that all targets have already been resolved.
+   * Any attempt to resolve a link will throw {@code LinkResolutionException}
+   *
+   * @return the link resolver
+   */
+  public static LinkResolver none() {
+    // cannot use a lambda for LinkResolver
+    return new LinkResolver() {
+      @Override
+      public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
+        throw new LinkResolutionException("Unable to resolve link to: " + identifier + ", using LinkResolver.none()");
+      }
+    };
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Resolves the supplied link, returning the realized target of the link.
    * <p>
    * The implementation of this interface may perform any thread-safe action to obtain
@@ -63,6 +83,24 @@ public interface LinkResolver {
   public abstract <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType);
 
   //-------------------------------------------------------------------------
+  /**
+   * Resolves all the links within the specified bean.
+   * <p>
+   * This takes the specified bean and resolves any links if the object implements {@link Resolvable}.
+   * If the target is not resolvable, or the target is already resolved,
+   * then the specified input bean will be returned.
+   * <p>
+   * This method is primarily useful where the type of the input object is not known to be resolvable.
+   * For example, this might occur when processing a {@code List<Object>}.
+   * 
+   * @param bean  the target bean
+   * @return the resolved bean
+   */
+  @SuppressWarnings("unchecked")
+  public default <B> B resolveLinksIn(B bean) {
+    return (bean instanceof Resolvable ? ((Resolvable<B>) bean).resolveLinks(this) : bean);
+  }
+
   /**
    * Resolves all the links within one property of a bean.
    * <p>
