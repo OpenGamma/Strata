@@ -23,19 +23,35 @@ import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 
 /**
- * Default implementation of {@link CalculationEngine} that delegates to a {@link CalculationRunner}
- * and a {@link MarketDataFactory}.
+ * Default implementation of a calculation engine.
+ * <p>
+ * The {@link CalculationEngine} is the main entry point for performing calculations.
+ * It calculates a grid of results, where each row represents the input calculation target,
+ * typically a trade, and each column represents the value of a measure for that target.
+ * <p>
+ * This implementation delegates the main calculation to a {@link CalculationRunner}.
+ * Market data is built using a {@link MarketDataFactory}.
+ * Any links in the input targets will be resolved using a {@link LinkResolver}.
  */
 public final class DefaultCalculationEngine implements CalculationEngine {
 
-  /** The calculation runner that performs the calculations. */
-  private final CalculationRunner calculationRunner;
-
-  /** The factory that builds any market data not supplied by the caller. */
-  private final MarketDataFactory marketDataFactory;
-
   /**
-   * Resolves any links in the calculation targets to reference the linked objects.
+   * The calculation runner that performs the calculations.
+   * <p>
+   * The runner is responsible for running through each cell to calculate the result grid.
+   */
+  private final CalculationRunner calculationRunner;
+  /**
+   * The factory that builds any market data not supplied by the caller.
+   * <p>
+   * The factory is responsible for ensuring that enough market data is available to calculate the results.
+   */
+  private final MarketDataFactory marketDataFactory;
+  /**
+   * The link resolver, that resolves any links in the calculation targets.
+   * <p>
+   * Links exist to provide loose coupling between different parts of the object model.
+   * All links are resolved using this resolver prior to invoking the calculation runner.
    * <p>
    * For example, trades in fungible securities use a link to refer to the security instead of
    * embedding the security details in the trade. In order for the security to be accessible
@@ -44,6 +60,8 @@ public final class DefaultCalculationEngine implements CalculationEngine {
   private final LinkResolver linkResolver;
 
   /**
+   * Creates an instance, specifying the runner, market data factory and link resolver.
+   * 
    * @param calculationRunner  the calculation runner that performs the calculations
    * @param marketDataFactory  the factory that builds any market data not supplied by the caller
    * @param linkResolver  resolves links in the calculation targets to reference the linked objects
@@ -58,6 +76,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     this.linkResolver = ArgChecker.notNull(linkResolver, "linkResolver");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Results calculate(
       List<? extends CalculationTarget> targets,
@@ -65,6 +84,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       CalculationRules calculationRules,
       BaseMarketData marketData) {
 
+    // create the tasks to be run
     CalculationTasksConfig config =
         calculationRunner.createCalculationConfig(
             resolveTargetLinks(targets),
@@ -72,14 +92,15 @@ public final class DefaultCalculationEngine implements CalculationEngine {
             calculationRules.getPricingRules(),
             calculationRules.getMarketDataRules(),
             calculationRules.getReportingRules());
-    
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
+    // build any missing market data
     MarketDataResult marketDataResult =
         marketDataFactory.buildBaseMarketData(
             tasks.getMarketDataRequirements(),
             marketData);
 
+    // perform the calculations
     return calculationRunner.calculate(tasks, marketDataResult.getMarketData());
   }
 
@@ -91,6 +112,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       BaseMarketData baseMarketData,
       ScenarioDefinition scenarioDefinition) {
 
+    // create the tasks to be run
     CalculationTasksConfig config =
         calculationRunner.createCalculationConfig(
             resolveTargetLinks(targets),
@@ -98,19 +120,21 @@ public final class DefaultCalculationEngine implements CalculationEngine {
             calculationRules.getPricingRules(),
             calculationRules.getMarketDataRules(),
             calculationRules.getReportingRules());
-
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
+    // build any missing market data
     MarketDataResult marketDataResult =
         marketDataFactory.buildBaseMarketData(
             tasks.getMarketDataRequirements(),
             baseMarketData);
 
+    // build any required scenarios from the base market data
     ScenarioMarketData scenarioMarketData =
         marketDataFactory.buildScenarioMarketData(
             marketDataResult.getMarketData(),
             scenarioDefinition);
 
+    // perform the calculations
     return calculationRunner.calculate(tasks, scenarioMarketData);
   }
 
