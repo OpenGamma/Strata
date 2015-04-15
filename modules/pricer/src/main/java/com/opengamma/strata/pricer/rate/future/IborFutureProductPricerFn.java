@@ -28,7 +28,7 @@ public interface IborFutureProductPricerFn {
    * @return the price of the product, in decimal form
    */
   public abstract double price(PricingEnvironment env, IborFuture future);
-  
+
   /**
    * Calculates the price sensitivity of the Ibor future product.
    * <p>
@@ -44,26 +44,28 @@ public interface IborFutureProductPricerFn {
    * Calculates the number related to Ibor futures product on which the daily margin is computed.
    * <p>
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
-   *    marginIndex(future, C2) - marginIndex(future, C1).
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
    * @param iborFuture  the future
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  default double marginIndex(IborFuture iborFuture, double price) {
+  public default double marginIndex(IborFuture iborFuture, double price) {
     return price * iborFuture.getNotional() * iborFuture.getAccrualFactor();
   }
 
   /**
    * Calculates the margin index sensitivity of the Ibor future product.
    * <p>
+   * The margin index sensitivity is the sensitivity of the margin index to the underlying curves.
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
-   *    marginIndex(future, C2) - marginIndex(future, C1).
-   * The margin index sensitivity if the sensitivity of the margin index to the underlying curves.
+   *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
+   * 
    * @param iborFuture  the future
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  default PointSensitivities marginIndexSensitivity(IborFuture iborFuture, PointSensitivities priceSensitivity) {
+  public default PointSensitivities marginIndexSensitivity(IborFuture iborFuture, PointSensitivities priceSensitivity) {
     return priceSensitivity.multipliedBy(iborFuture.getNotional() * iborFuture.getAccrualFactor());
   }
 

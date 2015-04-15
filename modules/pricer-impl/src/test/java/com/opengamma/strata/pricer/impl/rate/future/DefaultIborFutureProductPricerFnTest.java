@@ -26,7 +26,7 @@ public class DefaultIborFutureProductPricerFnTest {
 
   private static final IborFutureProductPricerFn PRICER = DefaultIborFutureProductPricerFn.DEFAULT;
   private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
-  
+
   private static final double RATE = 0.045;
   private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
   static {
@@ -36,14 +36,14 @@ public class DefaultIborFutureProductPricerFnTest {
   private static final double TOLERANCE_PRICE_DELTA = 1.0e-9;
 
   //------------------------------------------------------------------------- 
-  public void test_price() {    
+  public void test_price() {
     assertEquals(PRICER.price(ENV_MOCK, FUTURE), 1.0 - RATE, TOLERANCE_PRICE);
-  }  
+  }
 
   public void test_priceSensitivity() {
-    PointSensitivities sensiExpected = 
+    PointSensitivities sensiExpected =
         PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getLastTradeDate(), -1.0d));
-    PointSensitivities sensiComputed = PRICER.priceSensitivity(ENV_MOCK, FUTURE);    
+    PointSensitivities sensiComputed = PRICER.priceSensitivity(ENV_MOCK, FUTURE);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }
 

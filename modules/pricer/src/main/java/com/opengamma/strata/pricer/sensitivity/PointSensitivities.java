@@ -194,8 +194,8 @@ public final class PointSensitivities
   /**
    * Checks if this sensitivity equals another within the specified tolerance.
    * <p>
-   * This returns true if the two instances have the PointSensitivity in the list are the same excluding sensitivity, 
-   * in the same order and the {@code double} values are equal within the specified tolerance.
+   * This returns true if the two instances have the list of {@code PointSensitivity},
+   * where the sensitivity {@code double} values are compared within the specified tolerance.
    * It is expected that this comparator will be used on the normalized version of the sensitivity.
    * 
    * @param other  the other sensitivity
@@ -207,12 +207,12 @@ public final class PointSensitivities
     ImmutableList<PointSensitivity> list2 = other.getSensitivities();
     int nbList1 = list1.size();
     int nbList2 = list1.size();
-    if(nbList1 != nbList2) {
+    if (nbList1 != nbList2) {
       return false;
     }
     for (int i1 = 0; i1 < nbList1; i1++) {
-      if(list1.get(i1).compareExcludingSensitivity(list2.get(i1)) == 0) {
-        if(Math.abs(list1.get(i1).getSensitivity() - list2.get(i1).getSensitivity()) > tolerance) {
+      if (list1.get(i1).compareExcludingSensitivity(list2.get(i1)) == 0) {
+        if (Math.abs(list1.get(i1).getSensitivity() - list2.get(i1).getSensitivity()) > tolerance) {
           return false;
         }
       } else {

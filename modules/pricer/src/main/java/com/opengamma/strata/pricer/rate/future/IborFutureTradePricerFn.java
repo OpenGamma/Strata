@@ -19,9 +19,10 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
  * Implementations must be immutable and thread-safe functions.
  */
 public interface IborFutureTradePricerFn {
-  
+
   /**
    * Returns the {@link IborFutureProductPricerFn} used for the computation related to the future underlying the trade.
+   * 
    * @return  the future product pricer
    */
   public abstract IborFutureProductPricerFn getFutureProductPricerFn();
@@ -39,6 +40,7 @@ public interface IborFutureTradePricerFn {
     return getFutureProductPricerFn().price(env, trade.getSecurity().getProduct());
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the Ibor future trade from the current price.
    * <p>
@@ -47,10 +49,10 @@ public interface IborFutureTradePricerFn {
    * @param currentPrice  the price on the valuation date
    * @param trade  the trade to price
    * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   * the trade date before any margining has taken place and the price used for the last margining otherwise.
+   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the present value
    */
-  public default CurrencyAmount presentValue(double currentPrice, IborFutureTrade trade, double referencePrice){
+  public default CurrencyAmount presentValue(double currentPrice, IborFutureTrade trade, double referencePrice) {
     IborFuture future = trade.getSecurity().getProduct();
     double priceIndex = getFutureProductPricerFn().marginIndex(future, currentPrice);
     double referenceIndex = getFutureProductPricerFn().marginIndex(future, referencePrice);
@@ -66,28 +68,12 @@ public interface IborFutureTradePricerFn {
    * @param env  the pricing environment
    * @param trade  the trade to price
    * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   * the trade date before any margining has taken place and the price used for the last margining otherwise.
+   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the present value
    */
   public default CurrencyAmount presentValue(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
     double price = price(env, trade);
     return presentValue(price, trade, referencePrice);
-  }
-  
-  /**
-   * Calculates the par spread of the ibor future trade.
-   * <p>
-   * The par spread is defined in the following way. When the reference price (or market quote) is increased by the
-   * par spread, the present value of the trade is 0.
-   * 
-   * @param env  the pricing environment
-   * @param trade  the trade to price
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   * the trade date before any margining has taken place and the price used for the last margining otherwise.
-   * @return the par spread.
-   */
-  public default double parSpread(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
-    return price(env, trade) - referencePrice;
   }
 
   /**
@@ -106,7 +92,24 @@ public interface IborFutureTradePricerFn {
     PointSensitivities marginIndexSensi = getFutureProductPricerFn().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the par spread of the ibor future trade.
+   * <p>
+   * The par spread is defined in the following way. When the reference price (or market quote)
+   * is increased by the par spread, the present value of the trade is zero.
+   * 
+   * @param env  the pricing environment
+   * @param trade  the trade to price
+   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
+   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @return the par spread.
+   */
+  public default double parSpread(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
+    return price(env, trade) - referencePrice;
+  }
+
   /**
    * Calculates the par spread sensitivity of the Ibor future trade.
    * <p>

@@ -21,7 +21,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
  * Tests {@link IborFutureProductPricerFn}.
  */
 public class IborFutureProductPricerFnTest {
-  
+
   private static final IborFutureProductPricerFn PRICER = DefaultIborFutureProductPricerFn.DEFAULT;
   private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
   private static final double TOLERANCE_DELTA = 1.0E-5;
@@ -35,7 +35,7 @@ public class IborFutureProductPricerFnTest {
     double marginIndexExpected = price * notional * accrualFactor;
     double marginIndexComputed = PRICER.marginIndex(FUTURE, price);
     assertEquals(marginIndexComputed, marginIndexExpected);
-  }  
+  }
 
   @Test
   public void test_marginIndexSensitivity() {
@@ -44,9 +44,9 @@ public class IborFutureProductPricerFnTest {
     double accrualFactor = FUTURE.getAccrualFactor();
     PointSensitivities sensiExpected = PointSensitivities.of(
         IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getLastTradeDate(), -notional * accrualFactor));
-    PointSensitivities sensiComputed = 
+    PointSensitivities sensiComputed =
         PRICER.marginIndexSensitivity(FUTURE, PRICER.priceSensitivity(mockEnv, FUTURE)).normalized();
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_DELTA));    
+    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_DELTA));
   }
-  
+
 }

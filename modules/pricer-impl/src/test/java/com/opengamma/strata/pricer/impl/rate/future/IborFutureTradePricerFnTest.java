@@ -25,14 +25,14 @@ public class IborFutureTradePricerFnTest {
   private static final IborFutureTradePricerFn PRICER_TRADE = DefaultIborFutureTradePricerFn.DEFAULT;
   private static final IborFutureProductPricerFn PRICER_PRODUCT = DefaultIborFutureProductPricerFn.DEFAULT;
   private static final IborFutureTrade TRADE = IborFutureDummyData.IBOR_FUTURE_TRADE;
-  
+
   private static final double RATE = 0.045;
   private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
   static {
-    when(ENV_MOCK.iborIndexRate(TRADE.getSecurity().getProduct().getIndex(), 
+    when(ENV_MOCK.iborIndexRate(TRADE.getSecurity().getProduct().getIndex(),
         TRADE.getSecurity().getProduct().getLastTradeDate())).thenReturn(RATE);
   }
-  
+
   private static final double TOLERANCE_PV = 1.0E-4;
 
   //------------------------------------------------------------------------- 
@@ -46,5 +46,5 @@ public class IborFutureTradePricerFnTest {
     CurrencyAmount presentValueComputed = PRICER_TRADE.presentValue(currentPrice, TRADE, referencePrice);
     assertEquals(presentValueComputed.getAmount(), presentValueExpected, TOLERANCE_PV);
   }
-  
+
 }
