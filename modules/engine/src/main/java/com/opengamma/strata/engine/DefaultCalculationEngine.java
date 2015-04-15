@@ -12,7 +12,6 @@ import java.util.List;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
 import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.Results;
@@ -122,21 +121,10 @@ public final class DefaultCalculationEngine implements CalculationEngine {
    * @return the targets with any links resolved to reference the linked objects
    */
   private List<CalculationTarget> resolveTargetLinks(List<? extends CalculationTarget> targets) {
-    return targets.stream().map(this::resolveTargetLinks).collect(toImmutableList());
+    return targets.stream()
+        .map(t -> (CalculationTarget) t)  // annoying cast for stream generics
+        .map(linkResolver::resolveLinksIn)
+        .collect(toImmutableList());
   }
 
-  /**
-   * Returns a calculation target with any links resolved to reference the linked objects.
-   *
-   * @param target  a calculation target
-   * @return the target with any links resolved to reference the linked objects
-   */
-  private CalculationTarget resolveTargetLinks(CalculationTarget target) {
-    if (target instanceof Resolvable) {
-      Object resolvedTarget = ((Resolvable) target).resolveLinks(linkResolver);
-      return (CalculationTarget) resolvedTarget;
-    } else {
-      return target;
-    }
-  }
 }
