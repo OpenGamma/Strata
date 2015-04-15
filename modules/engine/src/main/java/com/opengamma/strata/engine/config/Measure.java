@@ -25,13 +25,16 @@ public final class Measure extends TypedString<Measure> {
   // Standard measures ---------------------------------------------------------------------
 
   /** Measure representing the ID of the calculation target. */
-  public static final Measure ID = Measure.of("ID");
+  public static final Measure TARGET_ID = Measure.of("TargetId");
 
-  /** Measure representing the counterparty of the calculation target, presumably a trade. */
+  /** Measure representing the counterparty of the calculation target. */
   public static final Measure COUNTERPARTY = Measure.of("Counterparty");
 
+  /** Measure representing the trade date of the calculation target. */
+  public static final Measure TRADE_DATE = Measure.of("TradeDate");
+
   /** Measure representing the settlement date of the calculation target. */
-  public static final Measure SETTLE_DATE = Measure.of("SettleDate");
+  public static final Measure SETTLEMENT_DATE = Measure.of("SettlementDate");
 
   /** Measure representing the maturity date of the calculation target. */
   public static final Measure MATURITY_DATE = Measure.of("MaturityDate");
@@ -42,8 +45,17 @@ public final class Measure extends TypedString<Measure> {
   /** Measure representing the present value of the calculation target. */
   public static final Measure PRESENT_VALUE = Measure.of("PresentValue");
 
-  /** Measure representing the net present value of the calculation target. */
-  public static final Measure NPV = Measure.of("NPV");
+  /** Measure representing the present value of the pay leg of the calculation target. */
+  public static final Measure PRESENT_VALUE_PAY_LEG = Measure.of("PresentValuePayLeg");
+
+  /** Measure representing the present value of the receive leg of the calculation target. */
+  public static final Measure PRESENT_VALUE_RECEIVE_LEG = Measure.of("PresentValueReceiveLeg");
+
+  /** Measure representing the PV01 of the calculation target. */
+  public static final Measure PV01 = Measure.of("PV01");
+
+  /** Measure representing the accrued interest of the calculation target. */
+  public static final Measure ACCRUED_INTEREST = Measure.of("AccruedInterest");
 
   // ---------------------------------------------------------------------------------------
 
