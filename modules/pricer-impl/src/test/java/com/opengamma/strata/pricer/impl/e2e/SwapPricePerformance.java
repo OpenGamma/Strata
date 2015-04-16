@@ -67,10 +67,6 @@ public class SwapPricePerformance {
       total += test.test_VanillaFixedVsLibor3mSwapWithFixing();
       total += test.test_BasisLibor3mVsLibor6mSwapWithSpread();
       total += test.test_BasisCompoundedLibor1mVsLibor3mSwap();
-      // branch against hotspot
-      if (total < -1_000_000d) {
-        System.out.println("Negative");
-      }
     }
     System.out.println("Total: " + total);
     long end = System.nanoTime();
