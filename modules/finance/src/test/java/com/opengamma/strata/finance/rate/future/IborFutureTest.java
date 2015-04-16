@@ -54,6 +54,7 @@ public class IborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE_1);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), ROUNDING);
+    assertEquals(test.getFixingDate(), LAST_TRADE_DATE_1);
   }
 
   public void test_builder_defaults() {
@@ -68,6 +69,7 @@ public class IborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE_1);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), Rounding.none());
+    assertEquals(test.getFixingDate(), LAST_TRADE_DATE_1);
   }
 
   public void test_builder_noIndex() {
