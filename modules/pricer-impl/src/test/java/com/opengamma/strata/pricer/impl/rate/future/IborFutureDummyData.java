@@ -70,7 +70,7 @@ public class IborFutureDummyData {
           .build();
 
   /**
-   * An IborFutureSecurityTrade.
+   * An IborFutureTrade.
    */
   public static final IborFutureTrade IBOR_FUTURE_TRADE = IborFutureTrade.builder()
       .standardId(FUTURE_TRADE_ID)
@@ -102,7 +102,7 @@ public class IborFutureDummyData {
           .build();
 
   /**
-   * An IborFutureOptionSecurityTrade.
+   * An IborFutureOptionTrade.
    */
   public static final IborFutureOptionTrade IBOR_FUTURE_OPTION_TRADE =
       IborFutureOptionTrade.builder()

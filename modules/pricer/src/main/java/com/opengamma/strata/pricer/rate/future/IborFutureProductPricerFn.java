@@ -40,18 +40,19 @@ public interface IborFutureProductPricerFn {
    */
   public abstract PointSensitivities priceSensitivity(PricingEnvironment env, IborFuture future);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the number related to Ibor futures product on which the daily margin is computed.
    * <p>
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
    *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
    * 
-   * @param iborFuture  the future
+   * @param future  the future
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  public default double marginIndex(IborFuture iborFuture, double price) {
-    return price * iborFuture.getNotional() * iborFuture.getAccrualFactor();
+  public default double marginIndex(IborFuture future, double price) {
+    return price * future.getNotional() * future.getAccrualFactor();
   }
 
   /**
@@ -61,12 +62,12 @@ public interface IborFutureProductPricerFn {
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
    *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
    * 
-   * @param iborFuture  the future
+   * @param future  the future
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  public default PointSensitivities marginIndexSensitivity(IborFuture iborFuture, PointSensitivities priceSensitivity) {
-    return priceSensitivity.multipliedBy(iborFuture.getNotional() * iborFuture.getAccrualFactor());
+  public default PointSensitivities marginIndexSensitivity(IborFuture future, PointSensitivities priceSensitivity) {
+    return priceSensitivity.multipliedBy(future.getNotional() * future.getAccrualFactor());
   }
 
 }

@@ -43,7 +43,7 @@ public class IborFutureProductPricerFnTest {
     double notional = FUTURE.getNotional();
     double accrualFactor = FUTURE.getAccrualFactor();
     PointSensitivities sensiExpected = PointSensitivities.of(
-        IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getLastTradeDate(), -notional * accrualFactor));
+        IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getFixingDate(), -notional * accrualFactor));
     PointSensitivities sensiComputed =
         PRICER.marginIndexSensitivity(FUTURE, PRICER.priceSensitivity(mockEnv, FUTURE)).normalized();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_DELTA));

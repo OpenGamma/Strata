@@ -35,7 +35,7 @@ public class DefaultIborFutureTradePricerFnTest {
   private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
   static {
     when(ENV_MOCK.iborIndexRate(FUTURE_TRADE.getSecurity().getProduct().getIndex(),
-        FUTURE_TRADE.getSecurity().getProduct().getLastTradeDate())).thenReturn(RATE);
+        FUTURE_TRADE.getSecurity().getProduct().getFixingDate())).thenReturn(RATE);
   }
 
   private static final double TOLERANCE_PRICE = 1.0e-9;
@@ -70,14 +70,6 @@ public class DefaultIborFutureTradePricerFnTest {
 
   //-------------------------------------------------------------------------   
   @Test
-  public void test_parSpreadSensitivity() {
-    PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(ENV_MOCK, FUTURE_PRODUCT);
-    PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(ENV_MOCK, FUTURE_TRADE);
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
-  }
-
-  //-------------------------------------------------------------------------   
-  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities sensiPrice = PRICER_PRODUCT.priceSensitivity(ENV_MOCK, FUTURE_PRODUCT);
     PointSensitivities sensiPresentValueExpected = sensiPrice.multipliedBy(
@@ -85,6 +77,14 @@ public class DefaultIborFutureTradePricerFnTest {
     PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(ENV_MOCK, FUTURE_TRADE);
     assertTrue(sensiPresentValueComputed.equalWithTolerance(sensiPresentValueExpected, TOLERANCE_PV_DELTA));
 
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parSpreadSensitivity() {
+    PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(ENV_MOCK, FUTURE_PRODUCT);
+    PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(ENV_MOCK, FUTURE_TRADE);
+    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }
 
 }

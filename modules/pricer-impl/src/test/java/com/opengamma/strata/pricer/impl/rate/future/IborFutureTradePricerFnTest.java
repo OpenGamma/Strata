@@ -30,7 +30,7 @@ public class IborFutureTradePricerFnTest {
   private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
   static {
     when(ENV_MOCK.iborIndexRate(TRADE.getSecurity().getProduct().getIndex(),
-        TRADE.getSecurity().getProduct().getLastTradeDate())).thenReturn(RATE);
+        TRADE.getSecurity().getProduct().getFixingDate())).thenReturn(RATE);
   }
 
   private static final double TOLERANCE_PV = 1.0E-4;
