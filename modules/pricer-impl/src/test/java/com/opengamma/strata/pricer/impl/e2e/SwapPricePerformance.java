@@ -23,8 +23,6 @@ import static com.opengamma.strata.pricer.impl.e2e.SwapEnd2EndTest.swapPricer;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -48,7 +46,6 @@ import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
 /**
  * Vague performance test.
  */
-@Test
 public class SwapPricePerformance {
 
   public static void main(String[] args) throws Exception {
@@ -64,19 +61,20 @@ public class SwapPricePerformance {
     SwapPricePerformance test = new SwapPricePerformance();
     long start = System.nanoTime();
     double total = 0d;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 10_000; i++) {
       total += test.test_VanillaFixedVsLibor1mSwap();
       total += test.test_VanillaFixedVsLibor3mSwap();
       total += test.test_VanillaFixedVsLibor3mSwapWithFixing();
       total += test.test_BasisLibor3mVsLibor6mSwapWithSpread();
       total += test.test_BasisCompoundedLibor1mVsLibor3mSwap();
+      // branch against hotspot
       if (total < -1_000_000d) {
-        System.out.println("negative");
+        System.out.println("Negative");
       }
     }
-    System.out.println("positive " + total);
+    System.out.println("Total: " + total);
     long end = System.nanoTime();
-    System.out.println((end - start) / 1000000000d + " s");
+    System.out.println((end - start) / 1_000_000_000d + " s");
     return total;
   }
 
@@ -300,8 +298,13 @@ public class SwapPricePerformance {
   //-------------------------------------------------------------------------
   // fixed rate leg
   private static RateCalculationSwapLeg fixedLeg(
-      LocalDate start, LocalDate end, Frequency frequency,
-      PayReceive payReceive, NotionalSchedule notional, double fixedRate, StubConvention stubConvention) {
+      LocalDate start,
+      LocalDate end,
+      Frequency frequency,
+      PayReceive payReceive,
+      NotionalSchedule notional,
+      double fixedRate,
+      StubConvention stubConvention) {
 
     return RateCalculationSwapLeg.builder()
         .payReceive(payReceive)
