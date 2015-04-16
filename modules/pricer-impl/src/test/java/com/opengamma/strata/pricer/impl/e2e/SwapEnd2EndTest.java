@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -46,7 +45,6 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
@@ -71,12 +69,12 @@ import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
 @Test
 public class SwapEnd2EndTest {
 
-  private static final IborIndex USD_LIBOR_1M = lockIndexCalendar(IborIndices.USD_LIBOR_1M);
-  private static final IborIndex USD_LIBOR_3M = lockIndexCalendar(IborIndices.USD_LIBOR_3M);
-  private static final IborIndex USD_LIBOR_6M = lockIndexCalendar(IborIndices.USD_LIBOR_6M);
-  private static final NotionalSchedule NOTIONAL = NotionalSchedule.of(USD, 100_000_000);
-  private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
-  private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CalendarUSD.NYC);
+  static final IborIndex USD_LIBOR_1M = lockIndexCalendar(IborIndices.USD_LIBOR_1M);
+  static final IborIndex USD_LIBOR_3M = lockIndexCalendar(IborIndices.USD_LIBOR_3M);
+  static final IborIndex USD_LIBOR_6M = lockIndexCalendar(IborIndices.USD_LIBOR_6M);
+  static final NotionalSchedule NOTIONAL = NotionalSchedule.of(USD, 100_000_000);
+  static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
+  static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CalendarUSD.NYC);
   private static final LocalDateDoubleTimeSeries TS_USDLIBOR1M =
       LocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2013, 12, 10), 0.00123)
@@ -100,9 +98,8 @@ public class SwapEnd2EndTest {
           .build();
 
   // curve providers
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_OIS_PAIR =
-      StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6();
-  private static final MulticurveProviderDiscount MULTICURVE_OIS = MULTICURVE_OIS_PAIR.getFirst();
+  private static final MulticurveProviderDiscount MULTICURVE_OIS =
+      StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6().getFirst();
 
   // tolerance
   private static final double TOLERANCE_PV = 1.0E-4;
@@ -776,16 +773,16 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   // pricer
-  private SwapTradePricerFn swapPricer() {
+  static SwapTradePricerFn swapPricer() {
     return DefaultSwapTradePricerFn.DEFAULT;
   }
 
   // pricing environment
-  private static PricingEnvironment env() {
+  static PricingEnvironment env() {
     return ImmutablePricingEnvironment.builder()
         .valuationDate(LocalDate.of(2014, 1, 22))
         .fxMatrix(MULTICURVE_OIS.getFxRates())
-        .discountCurves(ImmutableMap.copyOf(MULTICURVE_OIS.getDiscountingCurves()))
+        .discountCurves(MULTICURVE_OIS.getDiscountingCurves())
         .indexCurves(Legacy.indexCurves(MULTICURVE_OIS))
         .timeSeries(ImmutableMap.of(
             USD_LIBOR_1M, TS_USDLIBOR1M,
