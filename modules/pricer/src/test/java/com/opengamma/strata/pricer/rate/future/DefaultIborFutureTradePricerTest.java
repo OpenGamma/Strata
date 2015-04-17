@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.rate.future;
+package com.opengamma.strata.pricer.rate.future;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,18 +16,16 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.rate.future.IborFutureProductPricerFn;
-import com.opengamma.strata.pricer.rate.future.IborFutureTradePricerFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
- * Test {@link DefaultIborFutureTradePricerFn}.
+ * Test {@link DefaultIborFutureTradePricer}.
  */
 @Test
-public class DefaultIborFutureTradePricerFnTest {
+public class DefaultIborFutureTradePricerTest {
 
-  private static final IborFutureTradePricerFn PRICER_TRADE = DefaultIborFutureTradePricerFn.DEFAULT;
-  private static final IborFutureProductPricerFn PRICER_PRODUCT = DefaultIborFutureProductPricerFn.DEFAULT;
+  private static final DefaultIborFutureTradePricer PRICER_TRADE = DefaultIborFutureTradePricer.DEFAULT;
+  private static final DefaultIborFutureProductPricer PRICER_PRODUCT = DefaultIborFutureProductPricer.DEFAULT;
   private static final IborFutureTrade FUTURE_TRADE = IborFutureDummyData.IBOR_FUTURE_TRADE;
   private static final IborFuture FUTURE_PRODUCT = FUTURE_TRADE.getSecurity().getProduct();
 
@@ -48,7 +46,7 @@ public class DefaultIborFutureTradePricerFnTest {
     assertEquals(PRICER_TRADE.price(ENV_MOCK, FUTURE_TRADE), 1.0 - RATE, TOLERANCE_PRICE);
   }
 
-  @Test
+  //-------------------------------------------------------------------------
   public void test_parSpread() {
     double referencePrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(ENV_MOCK, FUTURE_TRADE) - referencePrice;
@@ -60,7 +58,7 @@ public class DefaultIborFutureTradePricerFnTest {
   public void test_presentValue() {
     double lastClosingPrice = 1.025;
     IborFuture future = FUTURE_TRADE.getSecurity().getProduct();
-    IborFutureTradePricerFn pricerFn = DefaultIborFutureTradePricerFn.DEFAULT;
+    DefaultIborFutureTradePricer pricerFn = DefaultIborFutureTradePricer.DEFAULT;
     double expected = ((1.0 - RATE) - lastClosingPrice) *
         future.getAccrualFactor() * future.getNotional() * FUTURE_TRADE.getQuantity();
     CurrencyAmount computed = pricerFn.presentValue(ENV_MOCK, FUTURE_TRADE, lastClosingPrice);
@@ -69,18 +67,15 @@ public class DefaultIborFutureTradePricerFnTest {
   }
 
   //-------------------------------------------------------------------------   
-  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities sensiPrice = PRICER_PRODUCT.priceSensitivity(ENV_MOCK, FUTURE_PRODUCT);
     PointSensitivities sensiPresentValueExpected = sensiPrice.multipliedBy(
         FUTURE_PRODUCT.getNotional() * FUTURE_PRODUCT.getAccrualFactor() * FUTURE_TRADE.getQuantity());
     PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(ENV_MOCK, FUTURE_TRADE);
     assertTrue(sensiPresentValueComputed.equalWithTolerance(sensiPresentValueExpected, TOLERANCE_PV_DELTA));
-
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_parSpreadSensitivity() {
     PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(ENV_MOCK, FUTURE_PRODUCT);
     PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(ENV_MOCK, FUTURE_TRADE);

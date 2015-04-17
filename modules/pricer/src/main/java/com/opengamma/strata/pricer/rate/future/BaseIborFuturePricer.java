@@ -5,40 +5,36 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
- * Pricer for Ibor future trades.
+ * Base pricer for Ibor futures.
  * <p>
- * This function provides the ability to price an {@link IborFuture}.
- * <p>
- * Implementations must be immutable and thread-safe functions.
+ * This function provides common code used when pricing an {@link IborFuture}.
  */
-public interface IborFutureProductPricerFn {
+public class BaseIborFuturePricer {
 
   /**
-   * Calculates the price of the Ibor future product.
+   * Calculates the present value of the Ibor future trade from the current price.
    * <p>
-   * The price of the product is the price on the valuation date.
+   * The present value of the product is the value on the valuation date.
    * 
-   * @param env  the pricing environment
-   * @param future  the future to price
-   * @return the price of the product, in decimal form
+   * @param currentPrice  the price on the valuation date
+   * @param trade  the trade to price
+   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
+   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @return the present value
    */
-  public abstract double price(PricingEnvironment env, IborFuture future);
-
-  /**
-   * Calculates the price sensitivity of the Ibor future product.
-   * <p>
-   * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
-   * 
-   * @param env  the pricing environment
-   * @param future  the future to price
-   * @return the price curve sensitivity of the product
-   */
-  public abstract PointSensitivities priceSensitivity(PricingEnvironment env, IborFuture future);
+  protected CurrencyAmount presentValue(double currentPrice, IborFutureTrade trade, double referencePrice) {
+    IborFuture future = trade.getSecurity().getProduct();
+    double priceIndex = marginIndex(future, currentPrice);
+    double referenceIndex = marginIndex(future, referencePrice);
+    double pv = (priceIndex - referenceIndex) * trade.getQuantity();
+    return CurrencyAmount.of(future.getCurrency(), pv);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -51,7 +47,7 @@ public interface IborFutureProductPricerFn {
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  public default double marginIndex(IborFuture future, double price) {
+  protected double marginIndex(IborFuture future, double price) {
     return price * future.getNotional() * future.getAccrualFactor();
   }
 
@@ -66,7 +62,7 @@ public interface IborFutureProductPricerFn {
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  public default PointSensitivities marginIndexSensitivity(IborFuture future, PointSensitivities priceSensitivity) {
+  protected PointSensitivities marginIndexSensitivity(IborFuture future, PointSensitivities priceSensitivity) {
     return priceSensitivity.multipliedBy(future.getNotional() * future.getAccrualFactor());
   }
 

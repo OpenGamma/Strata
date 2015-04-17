@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.rate.future;
+package com.opengamma.strata.pricer.rate.future;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,17 +14,16 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.rate.future.IborFutureProductPricerFn;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
- * Test {@link DefaultIborFutureTradePricerFn}.
+ * Test {@link DefaultIborFutureTradePricer}.
  */
 @Test
-public class DefaultIborFutureProductPricerFnTest {
+public class DefaultIborFutureProductPricerTest {
 
-  private static final IborFutureProductPricerFn PRICER = DefaultIborFutureProductPricerFn.DEFAULT;
+  private static final DefaultIborFutureProductPricer PRICER = DefaultIborFutureProductPricer.DEFAULT;
   private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
 
   private static final double RATE = 0.045;
@@ -40,6 +39,7 @@ public class DefaultIborFutureProductPricerFnTest {
     assertEquals(PRICER.price(ENV_MOCK, FUTURE), 1.0 - RATE, TOLERANCE_PRICE);
   }
 
+  //-------------------------------------------------------------------------
   public void test_priceSensitivity() {
     PointSensitivities sensiExpected =
         PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getFixingDate(), -1.0d));

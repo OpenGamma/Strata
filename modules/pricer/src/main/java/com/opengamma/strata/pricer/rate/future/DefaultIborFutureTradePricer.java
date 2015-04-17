@@ -6,27 +6,40 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
- * Pricer for Ibor future trades.
- * <p>
- * This function provides the ability to price an {@link IborFutureTrade}.
- * <p>
- * Implementations must be immutable and thread-safe functions.
+ * Pricer implementation for Ibor future trades.
  */
-public interface IborFutureTradePricerFn {
+public class DefaultIborFutureTradePricer
+    extends BaseIborFuturePricer {
 
   /**
-   * Returns the {@link IborFutureProductPricerFn} used for the computation related to the future underlying the trade.
-   * 
-   * @return  the future product pricer
+   * Default implementation.
    */
-  public abstract IborFutureProductPricerFn getFutureProductPricerFn();
+  public static final DefaultIborFutureTradePricer DEFAULT =
+      new DefaultIborFutureTradePricer(DefaultIborFutureProductPricer.DEFAULT);
 
+  /**
+   * Underlying pricer.
+   */
+  private final DefaultIborFutureProductPricer productPricer;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param productPricer  the pricer for {@link IborFuture}
+   */
+  public DefaultIborFutureTradePricer(
+      DefaultIborFutureProductPricer productPricer) {
+    this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the price of the Ibor future trade.
    * <p>
@@ -36,28 +49,8 @@ public interface IborFutureTradePricerFn {
    * @param trade  the trade to price
    * @return the price of the trade, in decimal form
    */
-  public default double price(PricingEnvironment env, IborFutureTrade trade) {
-    return getFutureProductPricerFn().price(env, trade.getSecurity().getProduct());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the present value of the Ibor future trade from the current price.
-   * <p>
-   * The present value of the product is the value on the valuation date.
-   * 
-   * @param currentPrice  the price on the valuation date
-   * @param trade  the trade to price
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
-   * @return the present value
-   */
-  public default CurrencyAmount presentValue(double currentPrice, IborFutureTrade trade, double referencePrice) {
-    IborFuture future = trade.getSecurity().getProduct();
-    double priceIndex = getFutureProductPricerFn().marginIndex(future, currentPrice);
-    double referenceIndex = getFutureProductPricerFn().marginIndex(future, referencePrice);
-    double pv = (priceIndex - referenceIndex) * trade.getQuantity();
-    return CurrencyAmount.of(future.getCurrency(), pv);
+  public double price(PricingEnvironment env, IborFutureTrade trade) {
+    return productPricer.price(env, trade.getSecurity().getProduct());
   }
 
   /**
@@ -71,7 +64,7 @@ public interface IborFutureTradePricerFn {
    *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the present value
    */
-  public default CurrencyAmount presentValue(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
+  public CurrencyAmount presentValue(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
     double price = price(env, trade);
     return presentValue(price, trade, referencePrice);
   }
@@ -86,16 +79,16 @@ public interface IborFutureTradePricerFn {
    * @param trade  the trade to price
    * @return the present value curve sensitivity of the trade
    */
-  public default PointSensitivities presentValueSensitivity(PricingEnvironment env, IborFutureTrade trade) {
+  public PointSensitivities presentValueSensitivity(PricingEnvironment env, IborFutureTrade trade) {
     IborFuture product = trade.getSecurity().getProduct();
-    PointSensitivities priceSensi = getFutureProductPricerFn().priceSensitivity(env, product);
-    PointSensitivities marginIndexSensi = getFutureProductPricerFn().marginIndexSensitivity(product, priceSensi);
+    PointSensitivities priceSensi = productPricer.priceSensitivity(env, product);
+    PointSensitivities marginIndexSensi = marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the par spread of the ibor future trade.
+   * Calculates the par spread of the Ibor future trade.
    * <p>
    * The par spread is defined in the following way. When the reference price (or market quote)
    * is increased by the par spread, the present value of the trade is zero.
@@ -106,7 +99,7 @@ public interface IborFutureTradePricerFn {
    *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the par spread.
    */
-  public default double parSpread(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
+  public double parSpread(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
     return price(env, trade) - referencePrice;
   }
 
@@ -120,8 +113,8 @@ public interface IborFutureTradePricerFn {
    * @param trade  the trade to price
    * @return the par spread curve sensitivity of the trade
    */
-  public default PointSensitivities parSpreadSensitivity(PricingEnvironment env, IborFutureTrade trade) {
-    return getFutureProductPricerFn().priceSensitivity(env, trade.getSecurity().getProduct());
+  public PointSensitivities parSpreadSensitivity(PricingEnvironment env, IborFutureTrade trade) {
+    return productPricer.priceSensitivity(env, trade.getSecurity().getProduct());
   }
 
 }
