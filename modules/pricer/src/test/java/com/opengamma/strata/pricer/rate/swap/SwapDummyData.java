@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.rate.swap;
+package com.opengamma.strata.pricer.rate.swap;
 
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -198,6 +198,15 @@ public final class SwapDummyData {
       .standardId(StandardId.of("OG-Trade", "1"))
       .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(SWAP)
+      .build();
+
+  /**
+   * Swap trade.
+   */
+  public static final SwapTrade SWAP_TRADE_CROSS_CURRENCY = SwapTrade.builder()
+      .standardId(StandardId.of("OG-Trade", "1"))
+      .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+      .product(SWAP_CROSS_CURRENCY)
       .build();
 
   /**

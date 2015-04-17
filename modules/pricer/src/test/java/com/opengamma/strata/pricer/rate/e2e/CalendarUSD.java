@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.e2e;
+package com.opengamma.strata.pricer.rate.e2e;
 
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.ImmutableHolidayCalendar;
 
 /**
  * Dummy calendar for end-to-end tests.
+ * This exists primarily to match numbers against older ones.
  */
 public class CalendarUSD {
 
@@ -25,11 +26,11 @@ public class CalendarUSD {
     List<LocalDate> holidays = new ArrayList<>();
     int startYear = 2013;
     int endYear = 2063;
-    for (int loopy = startYear; loopy <= endYear; loopy++) {
-      holidays.add(LocalDate.of(loopy, 1, 1));
-      holidays.add(LocalDate.of(loopy, 7, 4));
-      holidays.add(LocalDate.of(loopy, 11, 11));
-      holidays.add(LocalDate.of(loopy, 12, 25));
+    for (int i = startYear; i <= endYear; i++) {
+      holidays.add(LocalDate.of(i, 1, 1));
+      holidays.add(LocalDate.of(i, 7, 4));
+      holidays.add(LocalDate.of(i, 11, 11));
+      holidays.add(LocalDate.of(i, 12, 25));
     }
     holidays.add(LocalDate.of(2014, 1, 20));
     holidays.add(LocalDate.of(2014, 2, 17));

@@ -7,24 +7,25 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 
 /**
  * Pricer implementation for the exchange of notionals.
  * <p>
  * The notional exchange is priced by discounting the value of the exchange.
  */
-public class DiscountingNotionalExchangePricerFn
-    implements PaymentEventPricerFn<NotionalExchange> {
+public class DiscountingNotionalExchangePricer
+    implements PaymentEventPricer<NotionalExchange> {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingNotionalExchangePricerFn DEFAULT = new DiscountingNotionalExchangePricerFn();
+  public static final DiscountingNotionalExchangePricer DEFAULT = new DiscountingNotionalExchangePricer();
 
   /**
    * Creates an instance.
    */
-  public DiscountingNotionalExchangePricerFn() {
+  public DiscountingNotionalExchangePricer() {
   }
 
   //-------------------------------------------------------------------------

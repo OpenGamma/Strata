@@ -7,7 +7,7 @@
 /**
  * Forward rate agreement pricer API.
  * <p>
- * Defines the API for pricing forward rate agreements (FRAs).
+ * Provides the ability to price forward rate agreements (FRAs).
  */
 package com.opengamma.strata.pricer.rate.fra;
 

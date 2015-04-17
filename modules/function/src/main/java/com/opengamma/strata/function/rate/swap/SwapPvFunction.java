@@ -30,7 +30,7 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
 import com.opengamma.strata.marketdata.key.ObservableKey;
-import com.opengamma.strata.pricer.impl.rate.swap.DefaultSwapProductPricerFn;
+import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**
  * Calculates the present value of an interest rate swap for each of a set of scenarios.
@@ -77,7 +77,7 @@ public class SwapPvFunction implements VectorEngineFunction<SwapTrade, List<Curr
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataPricingEnvironment::new)
-        .map(env -> DefaultSwapProductPricerFn.DEFAULT.presentValue(env, expandedSwap, currency))
+        .map(env -> DiscountingSwapProductPricer.DEFAULT.presentValue(env, expandedSwap, currency))
         .collect(toList());
   }
 }

@@ -102,7 +102,7 @@ public class ForwardOvernightCompoundedRateObservationFn
 
     // Composition - publication strictly before valuation date: try accessing fixing time-series
     private double pastCompositionFactor() {
-      double compositionFactor = 1.0d;   
+      double compositionFactor = 1.0d;
       LocalDate currentFixing = firstFixing;
       LocalDate currentPublication = index.calculatePublicationFromFixing(currentFixing);
       while ((currentFixing.isBefore(lastFixingNonCutoff)) && // fixing in the non-cutoff period

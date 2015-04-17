@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
-import static com.opengamma.strata.pricer.impl.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -25,7 +25,7 @@ public class DiscountingNotionalExchangePricerFnTest {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.discountFactor(NOTIONAL_EXCHANGE.getCurrency(), NOTIONAL_EXCHANGE.getPaymentDate()))
         .thenReturn(discountFactor);
-    DiscountingNotionalExchangePricerFn test = new DiscountingNotionalExchangePricerFn();
+    DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     assertEquals(
         test.presentValue(mockEnv, NOTIONAL_EXCHANGE),
         NOTIONAL_EXCHANGE.getPaymentAmount().getAmount() * discountFactor, 0d);
@@ -33,7 +33,7 @@ public class DiscountingNotionalExchangePricerFnTest {
 
   public void test_futureValue() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    DiscountingNotionalExchangePricerFn test = new DiscountingNotionalExchangePricerFn();
+    DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     assertEquals(
         test.futureValue(mockEnv, NOTIONAL_EXCHANGE),
         NOTIONAL_EXCHANGE.getPaymentAmount().getAmount(), 0d);

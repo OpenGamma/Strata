@@ -9,34 +9,35 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
 
 /**
  * Pricer implementation for payment periods using multiple dispatch.
  * <p>
  * Dispatches the request to the correct implementation.
  */
-public class DispatchingPaymentPeriodPricerFn
-    implements PaymentPeriodPricerFn<PaymentPeriod> {
+public class DispatchingPaymentPeriodPricer
+    implements PaymentPeriodPricer<PaymentPeriod> {
 
   /**
    * Default implementation.
    */
-  public static final DispatchingPaymentPeriodPricerFn DEFAULT = new DispatchingPaymentPeriodPricerFn(
-      DiscountingRatePaymentPeriodPricerFn.DEFAULT);
+  public static final DispatchingPaymentPeriodPricer DEFAULT = new DispatchingPaymentPeriodPricer(
+      DiscountingRatePaymentPeriodPricer.DEFAULT);
 
   /**
    * Pricer for {@link RatePaymentPeriod}.
    */
-  private final PaymentPeriodPricerFn<RatePaymentPeriod> ratePaymentPeriodPricerFn;
+  private final PaymentPeriodPricer<RatePaymentPeriod> ratePaymentPeriodPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param ratePaymentPeriodPricerFn  the pricer for {@link RatePaymentPeriod}
+   * @param ratePaymentPeriodPricer  the pricer for {@link RatePaymentPeriod}
    */
-  public DispatchingPaymentPeriodPricerFn(
-      PaymentPeriodPricerFn<RatePaymentPeriod> ratePaymentPeriodPricerFn) {
-    this.ratePaymentPeriodPricerFn = ArgChecker.notNull(ratePaymentPeriodPricerFn, "ratePaymentPeriodPricerFn");
+  public DispatchingPaymentPeriodPricer(
+      PaymentPeriodPricer<RatePaymentPeriod> ratePaymentPeriodPricer) {
+    this.ratePaymentPeriodPricer = ArgChecker.notNull(ratePaymentPeriodPricer, "ratePaymentPeriodPricer");
   }
 
   //-------------------------------------------------------------------------
@@ -44,7 +45,7 @@ public class DispatchingPaymentPeriodPricerFn
   public double presentValue(PricingEnvironment env, PaymentPeriod paymentPeriod) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
-      return ratePaymentPeriodPricerFn.presentValue(env, (RatePaymentPeriod) paymentPeriod);
+      return ratePaymentPeriodPricer.presentValue(env, (RatePaymentPeriod) paymentPeriod);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
@@ -54,7 +55,7 @@ public class DispatchingPaymentPeriodPricerFn
   public double futureValue(PricingEnvironment env, PaymentPeriod paymentPeriod) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
-      return ratePaymentPeriodPricerFn.futureValue(env, (RatePaymentPeriod) paymentPeriod);
+      return ratePaymentPeriodPricer.futureValue(env, (RatePaymentPeriod) paymentPeriod);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }

@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.rate.swap;
+package com.opengamma.strata.pricer.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentPeriodPricer;
 
 /**
  * Pricer for payment periods.
@@ -17,7 +18,7 @@ import com.opengamma.strata.pricer.PricingEnvironment;
  * 
  * @param <T>  the type of period
  */
-public interface PaymentPeriodPricerFn<T extends PaymentPeriod> {
+public interface PaymentPeriodPricer<T extends PaymentPeriod> {
 
   /**
    * Returns a default instance of the function.
@@ -26,8 +27,8 @@ public interface PaymentPeriodPricerFn<T extends PaymentPeriod> {
    * 
    * @return the payment period pricer
    */
-  public static PaymentPeriodPricerFn<PaymentPeriod> instance() {
-    return DispatchingPaymentPeriodPricerFn.DEFAULT;
+  public static PaymentPeriodPricer<PaymentPeriod> instance() {
+    return DispatchingPaymentPeriodPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------

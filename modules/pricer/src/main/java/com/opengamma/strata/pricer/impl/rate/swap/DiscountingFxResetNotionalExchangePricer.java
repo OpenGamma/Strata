@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 
 /**
  * Pricer implementation for the exchange of FX reset notionals.
@@ -14,19 +15,19 @@ import com.opengamma.strata.pricer.PricingEnvironment;
  * The FX reset notional exchange is priced by discounting the value of the exchange.
  * The value of the exchange is calculated by performing an FX conversion on the amount.
  */
-public class DiscountingFxResetNotionalExchangePricerFn
-    implements PaymentEventPricerFn<FxResetNotionalExchange> {
+public class DiscountingFxResetNotionalExchangePricer
+    implements PaymentEventPricer<FxResetNotionalExchange> {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxResetNotionalExchangePricerFn DEFAULT =
-      new DiscountingFxResetNotionalExchangePricerFn();
+  public static final DiscountingFxResetNotionalExchangePricer DEFAULT =
+      new DiscountingFxResetNotionalExchangePricer();
 
   /**
    * Creates an instance.
    */
-  public DiscountingFxResetNotionalExchangePricerFn() {
+  public DiscountingFxResetNotionalExchangePricer() {
   }
 
   //-------------------------------------------------------------------------

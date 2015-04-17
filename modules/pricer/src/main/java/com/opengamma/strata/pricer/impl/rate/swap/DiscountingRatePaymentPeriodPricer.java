@@ -12,6 +12,7 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
 
 /**
  * Pricer implementation for swap payment periods based on a rate.
@@ -19,13 +20,13 @@ import com.opengamma.strata.pricer.rate.RateObservationFn;
  * The value of a payment period is calculated by combining the value of each accrual period.
  * Where necessary, the accrual periods are compounded.
  */
-public class DiscountingRatePaymentPeriodPricerFn
-    implements PaymentPeriodPricerFn<RatePaymentPeriod> {
+public class DiscountingRatePaymentPeriodPricer
+    implements PaymentPeriodPricer<RatePaymentPeriod> {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingRatePaymentPeriodPricerFn DEFAULT = new DiscountingRatePaymentPeriodPricerFn(
+  public static final DiscountingRatePaymentPeriodPricer DEFAULT = new DiscountingRatePaymentPeriodPricer(
       RateObservationFn.instance());
 
   /**
@@ -38,7 +39,7 @@ public class DiscountingRatePaymentPeriodPricerFn
    * 
    * @param rateObservationFn  the rate observation function
    */
-  public DiscountingRatePaymentPeriodPricerFn(
+  public DiscountingRatePaymentPeriodPricer(
       RateObservationFn<RateObservation> rateObservationFn) {
     this.rateObservationFn = ArgChecker.notNull(rateObservationFn, "rateObservationFn");
   }

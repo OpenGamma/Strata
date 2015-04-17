@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
-import static com.opengamma.strata.pricer.impl.rate.swap.SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -29,7 +29,7 @@ public class DiscountingFxResetNotionalExchangePricerFnTest {
         .thenReturn(1.6d);
     when(mockEnv.discountFactor(ne.getCurrency(), ne.getPaymentDate()))
         .thenReturn(discountFactor);
-    DiscountingFxResetNotionalExchangePricerFn test = new DiscountingFxResetNotionalExchangePricerFn();
+    DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     assertEquals(
         test.presentValue(mockEnv, ne),
         ne.getNotional() * 1.6d * discountFactor, 0d);
@@ -40,7 +40,7 @@ public class DiscountingFxResetNotionalExchangePricerFnTest {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.fxIndexRate(ne.getIndex(), ne.getReferenceCurrency(), ne.getFixingDate()))
         .thenReturn(1.6d);
-    DiscountingFxResetNotionalExchangePricerFn test = new DiscountingFxResetNotionalExchangePricerFn();
+    DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     assertEquals(
         test.futureValue(mockEnv, ne),
         ne.getNotional() * 1.6d, 0d);

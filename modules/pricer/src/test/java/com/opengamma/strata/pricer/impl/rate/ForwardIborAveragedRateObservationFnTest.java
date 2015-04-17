@@ -36,12 +36,12 @@ public class ForwardIborAveragedRateObservationFnTest {
   private static final double[] FIXING_VALUES = {0.0123d, 0.0234d, 0.0345d, 0.0456d};
   private static final double[] WEIGHTS = {0.10d, 0.20d, 0.30d, 0.40d};
   private static final IborRateSensitivity[] SENSITIVITIES = {
-    IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[0], 1d),
-    IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[1], 1d),
-    IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[2], 1d),
-    IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[3], 1d),
+      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[0], 1d),
+      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[1], 1d),
+      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[2], 1d),
+      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[3], 1d),
   };
-  
+
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 11, 2);
   private static final double TOLERANCE_RATE = 1.0E-10;

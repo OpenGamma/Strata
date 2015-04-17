@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.e2e;
+package com.opengamma.strata.pricer.rate.e2e;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
@@ -60,8 +60,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.ImmutablePricingEnvironment;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.Legacy;
-import com.opengamma.strata.pricer.impl.rate.swap.DefaultSwapTradePricerFn;
-import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
+import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
 /**
  * Test end to end.
@@ -135,7 +134,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -1003684.8402, TOLERANCE_PV);
   }
@@ -171,7 +170,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 7170391.798257509, TOLERANCE_PV);
   }
@@ -207,7 +206,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 3588376.471608199, TOLERANCE_PV);
   }
@@ -261,7 +260,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -21875.376339152455, TOLERANCE_PV);
   }
@@ -315,7 +314,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -342874.98367929866, TOLERANCE_PV);
   }
@@ -352,7 +351,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 502890.9443281095, TOLERANCE_PV);
   }
@@ -389,7 +388,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 463962.5517136799, TOLERANCE_PV);
   }
@@ -427,7 +426,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 364832.4284058402, TOLERANCE_PV);
   }
@@ -465,7 +464,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 314215.2347116342, TOLERANCE_PV);
   }
@@ -520,7 +519,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 7850279.042216873, TOLERANCE_PV);
   }
@@ -579,7 +578,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -1850080.2895532502, TOLERANCE_PV);
   }
@@ -631,7 +630,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -9723.264518929138, TOLERANCE_PV);
   }
@@ -683,7 +682,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -7352.973875972721, TOLERANCE_PV);
   }
@@ -739,7 +738,7 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -160663.8362, TOLERANCE_PV);
   }
@@ -773,8 +772,8 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   // pricer
-  static SwapTradePricerFn swapPricer() {
-    return DefaultSwapTradePricerFn.DEFAULT;
+  private DiscountingSwapTradePricer swapPricer() {
+    return DiscountingSwapTradePricer.DEFAULT;
   }
 
   // pricing environment

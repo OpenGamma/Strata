@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.e2e;
+package com.opengamma.strata.pricer.rate.e2e;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
@@ -50,8 +50,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.ImmutablePricingEnvironment;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.Legacy;
-import com.opengamma.strata.pricer.impl.rate.swap.DefaultSwapTradePricerFn;
-import com.opengamma.strata.pricer.rate.swap.SwapTradePricerFn;
+import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
 /**
  * Test end to end for cross currency swaps.
@@ -154,7 +153,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     double pvUsdExpected = 431944.6868;
     double pvEurExpected = -731021.1778;
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(env(), trade);
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
@@ -228,7 +227,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     double pvUsdExpected = 518623.5163;
     double pvEurExpected = -731021.1778;
 
-    SwapTradePricerFn pricer = swapPricer();
+    DiscountingSwapTradePricer pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(env(), trade);
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
@@ -236,8 +235,8 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   //-------------------------------------------------------------------------
   // pricer
-  private SwapTradePricerFn swapPricer() {
-    return DefaultSwapTradePricerFn.DEFAULT;
+  private DiscountingSwapTradePricer swapPricer() {
+    return DiscountingSwapTradePricer.DEFAULT;
   }
 
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();

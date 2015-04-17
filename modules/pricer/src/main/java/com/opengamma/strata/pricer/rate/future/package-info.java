@@ -7,7 +7,7 @@
 /**
  * Futures pricer API.
  * <p>
- * Defines the API for pricing rate futures.
+ * Provides the ability to price rate futures.
  */
 package com.opengamma.strata.pricer.rate.future;
 

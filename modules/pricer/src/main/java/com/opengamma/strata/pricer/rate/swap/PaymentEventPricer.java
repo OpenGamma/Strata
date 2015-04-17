@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.rate.swap;
+package com.opengamma.strata.pricer.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 
 /**
  * Pricer for payment events.
@@ -17,7 +18,7 @@ import com.opengamma.strata.pricer.PricingEnvironment;
  * 
  * @param <T>  the type of event
  */
-public interface PaymentEventPricerFn<T extends PaymentEvent> {
+public interface PaymentEventPricer<T extends PaymentEvent> {
 
   /**
    * Returns a default instance of the function.
@@ -26,8 +27,8 @@ public interface PaymentEventPricerFn<T extends PaymentEvent> {
    * 
    * @return the payment event pricer
    */
-  public static PaymentEventPricerFn<PaymentEvent> instance() {
-    return DispatchingPaymentEventPricerFn.DEFAULT;
+  public static PaymentEventPricer<PaymentEvent> instance() {
+    return DispatchingPaymentEventPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------
