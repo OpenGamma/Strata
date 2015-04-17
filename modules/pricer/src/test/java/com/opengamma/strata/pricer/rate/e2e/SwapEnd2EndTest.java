@@ -772,7 +772,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   // pricer
-  private DiscountingSwapTradePricer swapPricer() {
+  static DiscountingSwapTradePricer swapPricer() {
     return DiscountingSwapTradePricer.DEFAULT;
   }
 
