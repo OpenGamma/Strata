@@ -5,9 +5,11 @@
  */
 
 /**
- * Standard implementation of the rate observation API.
+ * Implementations of the rate pricer API.
  * <p>
- * Provides the ability to observe rates.
+ * This package provides the ability to observe rates.
+ * <p>
+ * Code in this package and subpackages may change in a non-backwards compatible way.
  */
 package com.opengamma.strata.pricer.impl.rate;
 

@@ -29,7 +29,7 @@ public class LegacyTest {
 
   private static final com.opengamma.strata.basics.index.IborIndex NEW_GBP_3M =
       com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-  private static final com.opengamma.strata.basics.index.IborIndex CHF_LIBOR_1W =
+  private static final com.opengamma.strata.basics.index.IborIndex NEW_CHF_1W =
       com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_1W;
   private static final com.opengamma.strata.basics.index.OvernightIndex NEW_GBP_SONIA =
       com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
@@ -51,7 +51,7 @@ public class LegacyTest {
   }
 
   public void test_iborIndex_bad() {
-    assertThrowsIllegalArg(() -> Legacy.iborIndex(CHF_LIBOR_1W));
+    assertThrowsIllegalArg(() -> Legacy.iborIndex(NEW_CHF_1W));
   }
 
   //-------------------------------------------------------------------------

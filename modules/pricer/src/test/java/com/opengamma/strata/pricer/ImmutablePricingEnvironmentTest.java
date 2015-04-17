@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl;
+package com.opengamma.strata.pricer;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -17,6 +17,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -72,13 +73,14 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
-        .timeSeries(SwapMockData.TIME_SERIES)
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(ImmutablePricingEnvironment.meta().timeSeries().get(test), SwapMockData.TIME_SERIES);
+    assertEquals(ImmutablePricingEnvironment.meta().timeSeries().get(test), ImmutableMap.of(WM_GBP_USD, ts));
     assertEquals(ImmutablePricingEnvironment.meta().dayCount().get(test), ACT_ACT_ISDA);
   }
 
@@ -93,12 +95,13 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_timeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(date(2014, 6, 30), 3.2d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
-        .timeSeries(SwapMockData.TIME_SERIES)
+        .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.timeSeries(IborIndices.USD_LIBOR_3M), SwapMockData.TS_USDLIBOR3M);
+    assertEquals(test.timeSeries(IborIndices.USD_LIBOR_3M), ts);
     assertThrowsIllegalArg(() -> test.timeSeries(IborIndices.CHF_LIBOR_1W));
   }
 
@@ -107,7 +110,6 @@ public class ImmutablePricingEnvironmentTest {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.discountFactor(GBP, LocalDate.of(2014, 7, 30)), 0.99d, 0d);
@@ -138,7 +140,6 @@ public class ImmutablePricingEnvironmentTest {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.fxRate(USD, GBP), 1 / 1.6d, 0d);
@@ -149,7 +150,6 @@ public class ImmutablePricingEnvironmentTest {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / 1.6d, 0d);
@@ -160,7 +160,6 @@ public class ImmutablePricingEnvironmentTest {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     MultiCurrencyAmount mca = MultiCurrencyAmount.of(
@@ -233,7 +232,6 @@ public class ImmutablePricingEnvironmentTest {
   public void test_fxIndexRate_badCurrency() {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.fxIndexRate(WM_GBP_USD, EUR, VAL_DATE));
@@ -419,7 +417,6 @@ public class ImmutablePricingEnvironmentTest {
   public void test_relativeTime() {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.relativeTime(LocalDate.of(2014, 7, 30)),
@@ -432,7 +429,6 @@ public class ImmutablePricingEnvironmentTest {
   public void coverage() {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
-        .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
     coverImmutableBean(test);
@@ -440,7 +436,7 @@ public class ImmutablePricingEnvironmentTest {
         .valuationDate(LocalDate.of(2014, 6, 27))
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
-        .timeSeries(SwapMockData.TIME_SERIES_ON)
+        .timeSeries(ImmutableMap.of(USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
         .dayCount(ACT_365F)
         .build();
     coverBeanEquals(test, test2);

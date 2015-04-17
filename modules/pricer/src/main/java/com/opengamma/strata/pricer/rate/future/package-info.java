@@ -5,9 +5,9 @@
  */
 
 /**
- * Standard implementation of the pricer API.
+ * Futures pricer API.
  * <p>
- * Provides the ability to price financial instruments.
+ * Defines the API for pricing rate futures.
  */
-package com.opengamma.strata.pricer.impl;
+package com.opengamma.strata.pricer.rate.future;
 

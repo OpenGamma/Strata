@@ -284,7 +284,7 @@ public interface PricingEnvironment {
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Computes the parameter sensitivity.

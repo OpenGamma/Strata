@@ -49,6 +49,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-pricer</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
       <type>test-jar</type>

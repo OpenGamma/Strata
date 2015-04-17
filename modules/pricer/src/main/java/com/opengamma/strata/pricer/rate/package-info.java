@@ -5,9 +5,11 @@
  */
 
 /**
- * Rate observation API.
+ * Rate pricer API.
  * <p>
- * Defines the API for observing the rate from an index, such as 'GBP-LIBOR-3M'.
+ * Defines the API for pricing rate products.
+ * <p>
+ * This package contains an interface to allow a rate, such as 'GBP-LIBOR-3M', to be observed.
  */
 package com.opengamma.strata.pricer.rate;
 

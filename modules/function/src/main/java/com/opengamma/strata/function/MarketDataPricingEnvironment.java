@@ -30,7 +30,7 @@ import com.opengamma.strata.marketdata.key.FxRateKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.impl.PricingException;
+import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;

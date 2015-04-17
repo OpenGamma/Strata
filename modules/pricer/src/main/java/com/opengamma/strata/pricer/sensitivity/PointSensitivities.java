@@ -206,7 +206,7 @@ public final class PointSensitivities
     ImmutableList<PointSensitivity> list1 = this.getSensitivities();
     ImmutableList<PointSensitivity> list2 = other.getSensitivities();
     int nbList1 = list1.size();
-    int nbList2 = list1.size();
+    int nbList2 = list2.size();
     if (nbList1 != nbList2) {
       return false;
     }

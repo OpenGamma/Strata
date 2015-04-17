@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl;
+package com.opengamma.strata.pricer;
 
 /**
  * Exception thrown when pricing fails.

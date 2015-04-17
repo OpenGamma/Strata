@@ -21,7 +21,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.impl.PricingException;
+import com.opengamma.strata.pricer.PricingException;
 
 /**
  * Test {@link ApproxForwardOvernightAveragedRateObservationFn}.

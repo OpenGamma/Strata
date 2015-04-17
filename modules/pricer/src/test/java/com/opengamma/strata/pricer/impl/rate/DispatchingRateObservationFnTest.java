@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.ignoreThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
@@ -131,6 +133,30 @@ public class DispatchingRateObservationFnTest {
     RateObservation mockObservation = mock(RateObservation.class);
     DispatchingRateObservationFn test = DispatchingRateObservationFn.DEFAULT;
     assertThrowsIllegalArg(() -> test.rate(MOCK_ENV, mockObservation, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
+    FixedRateObservation fixed = FixedRateObservation.of(0.0123d);
+    IborRateObservation ibor = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
+    IborInterpolatedRateObservation iborInt =
+        IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
+    IborAveragedRateObservation iborAvg =
+        IborAveragedRateObservation.of(GBP_LIBOR_3M, ImmutableList.of(IborAveragedFixing.of(FIXING_DATE)));
+    OvernightCompoundedRateObservation onCpd =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+    OvernightAveragedRateObservation onAvg =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+    RateObservation mock = mock(RateObservation.class);
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, fixed, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, ibor, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, iborInt, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, iborAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, onCpd, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, onAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
+    ignoreThrows(() -> test.rateSensitivity(MOCK_ENV, mock, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
   }
 
 }
