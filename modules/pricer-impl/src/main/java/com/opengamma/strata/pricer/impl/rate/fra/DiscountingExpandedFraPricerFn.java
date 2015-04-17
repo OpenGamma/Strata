@@ -10,7 +10,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.fra.FraProductPricerFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
@@ -28,7 +27,7 @@ public class DiscountingExpandedFraPricerFn
    * Default implementation.
    */
   public static final DiscountingExpandedFraPricerFn DEFAULT = new DiscountingExpandedFraPricerFn(
-      DispatchingRateObservationFn.DEFAULT);
+      RateObservationFn.instance());
 
   /**
    * Rate observation.

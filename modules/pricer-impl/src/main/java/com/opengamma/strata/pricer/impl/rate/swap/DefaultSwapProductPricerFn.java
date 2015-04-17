@@ -33,8 +33,8 @@ public class DefaultSwapProductPricerFn
    * Default implementation.
    */
   public static final DefaultSwapProductPricerFn DEFAULT = new DefaultSwapProductPricerFn(
-      DispatchingPaymentPeriodPricerFn.DEFAULT,
-      DispatchingPaymentEventPricerFn.DEFAULT);
+      PaymentPeriodPricerFn.instance(),
+      PaymentEventPricerFn.instance());
 
   /**
    * Pricer for {@link PaymentPeriod}.

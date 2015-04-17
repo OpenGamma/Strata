@@ -11,7 +11,6 @@ import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
-import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 
 /**
@@ -27,7 +26,7 @@ public class DiscountingRatePaymentPeriodPricerFn
    * Default implementation.
    */
   public static final DiscountingRatePaymentPeriodPricerFn DEFAULT = new DiscountingRatePaymentPeriodPricerFn(
-      DispatchingRateObservationFn.DEFAULT);
+      RateObservationFn.instance());
 
   /**
    * Rate observation.

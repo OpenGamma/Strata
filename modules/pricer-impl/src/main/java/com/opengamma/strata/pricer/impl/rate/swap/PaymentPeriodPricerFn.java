@@ -20,6 +20,18 @@ import com.opengamma.strata.pricer.PricingEnvironment;
 public interface PaymentPeriodPricerFn<T extends PaymentPeriod> {
 
   /**
+   * Returns a default instance of the function.
+   * <p>
+   * Use this method to avoid a direct dependency on the implementation.
+   * 
+   * @return the payment period pricer
+   */
+  public static PaymentPeriodPricerFn<PaymentPeriod> instance() {
+    return DispatchingPaymentPeriodPricerFn.DEFAULT;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of a single payment period.
    * <p>
    * The amount is expressed in the currency of the period.

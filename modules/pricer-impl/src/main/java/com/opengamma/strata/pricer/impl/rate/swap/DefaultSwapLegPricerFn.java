@@ -18,7 +18,7 @@ import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.swap.SwapLegPricerFn;
 
 /**
- * Pricer implementation for expanded swap legs.
+ * Pricer implementation for swap legs.
  * <p>
  * The swap leg is priced by examining the periods and events.
  */
@@ -29,8 +29,8 @@ public class DefaultSwapLegPricerFn
    * Default implementation.
    */
   public static final DefaultSwapLegPricerFn DEFAULT = new DefaultSwapLegPricerFn(
-      DispatchingPaymentPeriodPricerFn.DEFAULT,
-      DispatchingPaymentEventPricerFn.DEFAULT);
+      PaymentPeriodPricerFn.instance(),
+      PaymentEventPricerFn.instance());
 
   /**
    * Pricer for {@link PaymentPeriod}.

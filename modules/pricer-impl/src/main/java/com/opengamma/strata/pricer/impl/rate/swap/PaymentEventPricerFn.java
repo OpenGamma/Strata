@@ -20,6 +20,18 @@ import com.opengamma.strata.pricer.PricingEnvironment;
 public interface PaymentEventPricerFn<T extends PaymentEvent> {
 
   /**
+   * Returns a default instance of the function.
+   * <p>
+   * Use this method to avoid a direct dependency on the implementation.
+   * 
+   * @return the payment event pricer
+   */
+  public static PaymentEventPricerFn<PaymentEvent> instance() {
+    return DispatchingPaymentEventPricerFn.DEFAULT;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of a single payment event.
    * <p>
    * The amount is expressed in the currency of the event.
