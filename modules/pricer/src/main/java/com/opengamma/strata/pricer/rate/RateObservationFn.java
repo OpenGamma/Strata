@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -23,6 +24,18 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  */
 public interface RateObservationFn<T extends RateObservation> {
 
+  /**
+   * Returns a default instance of the function.
+   * <p>
+   * Use this method to avoid a direct dependency on the implementation.
+   * 
+   * @return the rate observation function
+   */
+  public static RateObservationFn<RateObservation> instance() {
+    return DispatchingRateObservationFn.DEFAULT;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Determines the applicable rate for the observation.
    * <p>

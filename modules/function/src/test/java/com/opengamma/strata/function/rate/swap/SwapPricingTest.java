@@ -72,7 +72,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.ObservableId;
-import com.opengamma.strata.pricer.impl.e2e.CalendarUSD;
+import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
 
 @Test
 public class SwapPricingTest {

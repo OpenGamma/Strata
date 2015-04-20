@@ -32,7 +32,7 @@
     <!-- Required for the Legacy class. -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-pricer-impl</artifactId>
+      <artifactId>strata-pricer</artifactId>
     </dependency>
     <!-- Required for CurveGroupMapping -->
     <dependency>
