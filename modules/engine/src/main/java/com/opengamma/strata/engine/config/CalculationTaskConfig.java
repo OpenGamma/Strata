@@ -53,7 +53,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
 
   /** The constructor arguments from the pricing rules, used when creating the function instance. */
   @PropertyDefinition(validate = "notNull")
-  private final Map<String, Object> functionArguments;
+  private final ImmutableMap<String, Object> functionArguments;
 
   /** Mappings that specify the market data that should be used in the calculation. */
   @PropertyDefinition(validate = "notNull")
@@ -203,7 +203,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
    * Gets the constructor arguments from the pricing rules, used when creating the function instance.
    * @return the value of the property, not null
    */
-  public Map<String, Object> getFunctionArguments() {
+  public ImmutableMap<String, Object> getFunctionArguments() {
     return functionArguments;
   }
 
@@ -314,8 +314,8 @@ public final class CalculationTaskConfig implements ImmutableBean {
      * The meta-property for the {@code functionArguments} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<String, Object>> functionArguments = DirectMetaProperty.ofImmutable(
-        this, "functionArguments", CalculationTaskConfig.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<String, Object>> functionArguments = DirectMetaProperty.ofImmutable(
+        this, "functionArguments", CalculationTaskConfig.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code marketDataMappings} property.
      */
@@ -418,7 +418,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
      * The meta-property for the {@code functionArguments} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<String, Object>> functionArguments() {
+    public MetaProperty<ImmutableMap<String, Object>> functionArguments() {
       return functionArguments;
     }
 
@@ -500,7 +500,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
       this.rowIndex = beanToCopy.getRowIndex();
       this.columnIndex = beanToCopy.getColumnIndex();
       this.functionConfig = beanToCopy.getFunctionConfig();
-      this.functionArguments = ImmutableMap.copyOf(beanToCopy.getFunctionArguments());
+      this.functionArguments = beanToCopy.getFunctionArguments();
       this.marketDataMappings = beanToCopy.getMarketDataMappings();
       this.reportingRules = beanToCopy.getReportingRules();
     }

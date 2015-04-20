@@ -184,12 +184,13 @@ public class DefaultCalculationRunner implements CalculationRunner {
       Column column) {
 
     PricingRules pricingRules = column.getPricingRules();
-    Optional<ConfiguredFunctionGroup> functionGroup = pricingRules.functionGroup(target, column.getMeasure(target));
+    Measure measure = column.getMeasure(target);
+    Optional<ConfiguredFunctionGroup> functionGroup = pricingRules.functionGroup(target, measure);
 
     FunctionConfig<?> functionConfig =
         functionGroup
             .map(group -> functionConfig(group, target, column))
-            .orElse(FunctionConfig.defaultFunction());
+            .orElse(FunctionConfig.missing());
 
     Map<String, Object> functionArguments =
         functionGroup
@@ -228,7 +229,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
     @SuppressWarnings("unchecked")
     FunctionGroup<T> functionGroup = (FunctionGroup<T>) configuredGroup.getFunctionGroup();
     Measure measure = column.getMeasure(target);
-    return functionGroup.functionConfig(target, measure).orElse(FunctionConfig.defaultFunction());
+    return functionGroup.functionConfig(target, measure).orElse(FunctionConfig.missing());
   }
 
   /**

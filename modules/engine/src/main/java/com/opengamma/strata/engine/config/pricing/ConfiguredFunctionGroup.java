@@ -46,8 +46,7 @@ public final class ConfiguredFunctionGroup {
     return new ConfiguredFunctionGroup(functionGroup, ImmutableMap.of());
   }
 
-  // package-private constructor used by PricingRule
-  ConfiguredFunctionGroup(FunctionGroup<?> functionGroup, Map<String, Object> arguments) {
+  private ConfiguredFunctionGroup(FunctionGroup<?> functionGroup, Map<String, Object> arguments) {
     this.functionGroup = ArgChecker.notNull(functionGroup, "functionGroup");
     this.arguments = ArgChecker.notNull(arguments, "arguments");
   }

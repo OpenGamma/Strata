@@ -30,33 +30,15 @@ import com.opengamma.strata.engine.config.Measure;
  * The column name defaults to the measure name but a different name can be specified.
  */
 @BeanDefinition
-public final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
+final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
 
   /** The measure displayed in the column. */
   @PropertyDefinition(validate = "notNull")
   private final Measure measure;
 
   /** The column name. */
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
-  private final String name;
-
-  /**
-   * Returns a definition of a column that contains the same measure in all rows and whose name is the measure name.
-   *
-   * @return a definition of a column that contains the same measure in all rows and whose name is the measure name
-   */
-  public static SimpleColumnDefinition of(Measure measure) {
-    return new SimpleColumnDefinition(measure, measure.toString());
-  }
-
-  /**
-   * Returns a definition of a column with the specified name that contains the same measure in all rows.
-   *
-   * @return a definition of a column with the specified name that contains the same measure in all rows
-   */
-  public static SimpleColumnDefinition of(Measure measure, String name) {
-    return new SimpleColumnDefinition(measure, name);
-  }
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ColumnName name;
 
   /**
    * Returns the same {@linkplain #getMeasure() measure} for all targets.
@@ -93,9 +75,9 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
 
   private SimpleColumnDefinition(
       Measure measure,
-      String name) {
+      ColumnName name) {
     JodaBeanUtils.notNull(measure, "measure");
-    JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(name, "name");
     this.measure = measure;
     this.name = name;
   }
@@ -127,10 +109,10 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
   //-----------------------------------------------------------------------
   /**
    * Gets the column name.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   @Override
-  public String getName() {
+  public ColumnName getName() {
     return name;
   }
 
@@ -192,8 +174,8 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", SimpleColumnDefinition.class, String.class);
+    private final MetaProperty<ColumnName> name = DirectMetaProperty.ofImmutable(
+        this, "name", SimpleColumnDefinition.class, ColumnName.class);
     /**
      * The meta-properties.
      */
@@ -247,7 +229,7 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<ColumnName> name() {
       return name;
     }
 
@@ -281,7 +263,7 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
   public static final class Builder extends DirectFieldsBeanBuilder<SimpleColumnDefinition> {
 
     private Measure measure;
-    private String name;
+    private ColumnName name;
 
     /**
      * Restricted constructor.
@@ -318,7 +300,7 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
           this.measure = (Measure) newValue;
           break;
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (ColumnName) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -371,11 +353,11 @@ public final class SimpleColumnDefinition implements ColumnDefinition, Immutable
 
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not empty
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder name(String name) {
-      JodaBeanUtils.notEmpty(name, "name");
+    public Builder name(ColumnName name) {
+      JodaBeanUtils.notNull(name, "name");
       this.name = name;
       return this;
     }

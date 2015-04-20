@@ -43,6 +43,18 @@ public final class FunctionConfigBuilder<T extends CalculationTarget> {
   }
 
   /**
+   * Adds constructor arguments used when creating function instances.
+   *
+   * @param arguments  a map of constructor parameter name to constructor argument value
+   * @return this builder
+   */
+  public FunctionConfigBuilder<T> addArguments(Map<String, Object> arguments) {
+    ArgChecker.notNull(arguments, "arguments");
+    this.arguments.putAll(arguments);
+    return this;
+  }
+
+  /**
    * Returns an instance of {@code FunctionConfig} built from the data in this builder.
    *
    * @return an instance of {@code FunctionConfig} built from the data in this builder

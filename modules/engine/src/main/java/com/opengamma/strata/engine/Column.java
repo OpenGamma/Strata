@@ -67,7 +67,7 @@ public final class Column implements ImmutableBean {
    * @return a column containing that specified measure that uses the default calculation rules
    */
   public static Column of(Measure measure) {
-    return Column.builder().definition(SimpleColumnDefinition.of(measure)).build();
+    return Column.builder().definition(ColumnDefinition.of(measure)).build();
   }
 
   /**
@@ -80,7 +80,7 @@ public final class Column implements ImmutableBean {
    * @return a column with the specified measure and name that uses the default calculation rules
    */
   public static Column of(Measure measure, String name) {
-    return Column.builder().definition(SimpleColumnDefinition.of(measure, name)).build();
+    return Column.builder().definition(ColumnDefinition.of(measure, name)).build();
   }
 
   /**
@@ -122,7 +122,7 @@ public final class Column implements ImmutableBean {
    *
    * @return the column name
    */
-  public String getName() {
+  public ColumnName getName() {
     return definition.getName();
   }
 

@@ -14,11 +14,35 @@ import com.opengamma.strata.engine.config.Measure;
 public interface ColumnDefinition {
 
   /**
+   * Returns a definition of a column that contains the same measure in all rows and whose name is the measure name.
+   *
+   * @return a definition of a column that contains the same measure in all rows and whose name is the measure name
+   */
+  public static ColumnDefinition of(Measure measure) {
+    return SimpleColumnDefinition.builder()
+        .measure(measure)
+        .name(ColumnName.of(measure.toString()))
+        .build();
+  }
+
+  /**
+   * Returns a definition of a column with the specified name that contains the same measure in all rows.
+   *
+   * @return a definition of a column with the specified name that contains the same measure in all rows
+   */
+  public static ColumnDefinition of(Measure measure, String name) {
+    return SimpleColumnDefinition.builder()
+        .measure(measure)
+        .name(ColumnName.of(name))
+        .build();
+  }
+
+  /**
    * Returns the column name
    *
    * @return the column name
    */
-  public abstract String getName();
+  public abstract ColumnName getName();
 
   /**
    * Returns the measure displayed in the column for the target

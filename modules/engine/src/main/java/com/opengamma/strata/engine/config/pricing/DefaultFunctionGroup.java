@@ -34,7 +34,8 @@ import com.opengamma.strata.engine.config.Measure;
  * The default implementation of {@link FunctionGroup}.
  */
 @BeanDefinition(builderScope = "private")
-public final class DefaultFunctionGroup<T extends CalculationTarget> implements ImmutableBean, FunctionGroup<T> {
+public final class DefaultFunctionGroup<T extends CalculationTarget>
+    implements ImmutableBean, FunctionGroup<T> {
 
   /** The name of this function group. */
   @PropertyDefinition(validate = "notNull")
@@ -46,7 +47,7 @@ public final class DefaultFunctionGroup<T extends CalculationTarget> implements 
 
   /** The functions in the group, keyed by the measure they calculate. */
   @PropertyDefinition(validate = "notNull")
-  private final Map<Measure, FunctionConfig<T>> functionConfig;
+  private final ImmutableMap<Measure, FunctionConfig<T>> functionConfig;
 
   /** The arguments used when creating functions. */
   @PropertyDefinition(validate = "notNull")
@@ -159,7 +160,7 @@ public final class DefaultFunctionGroup<T extends CalculationTarget> implements 
    * Gets the functions in the group, keyed by the measure they calculate.
    * @return the value of the property, not null
    */
-  public Map<Measure, FunctionConfig<T>> getFunctionConfig() {
+  public ImmutableMap<Measure, FunctionConfig<T>> getFunctionConfig() {
     return functionConfig;
   }
 
@@ -237,8 +238,8 @@ public final class DefaultFunctionGroup<T extends CalculationTarget> implements 
      * The meta-property for the {@code functionConfig} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Measure, FunctionConfig<T>>> functionConfig = DirectMetaProperty.ofImmutable(
-        this, "functionConfig", DefaultFunctionGroup.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<Measure, FunctionConfig<T>>> functionConfig = DirectMetaProperty.ofImmutable(
+        this, "functionConfig", DefaultFunctionGroup.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code functionArguments} property.
      */
@@ -313,7 +314,7 @@ public final class DefaultFunctionGroup<T extends CalculationTarget> implements 
      * The meta-property for the {@code functionConfig} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<Measure, FunctionConfig<T>>> functionConfig() {
+    public MetaProperty<ImmutableMap<Measure, FunctionConfig<T>>> functionConfig() {
       return functionConfig;
     }
 

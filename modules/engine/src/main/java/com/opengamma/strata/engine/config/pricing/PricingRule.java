@@ -54,7 +54,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
 
   /** The measures this rule applies to. An empty set means the rule applies to all measures. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final Set<Measure> measures;
+  private final ImmutableSet<Measure> measures;
 
   // TODO Expression to validate against arbitrary properties of the target
 
@@ -102,7 +102,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
     Optional<FunctionConfig<T>> functionConfig = functionGroup.functionConfig(target, measure);
 
     return targetType.isInstance(target) && handlesMeasure(measure) && functionConfig.isPresent() ?
-        Optional.of(new ConfiguredFunctionGroup(functionGroup, arguments)) :
+        Optional.of(ConfiguredFunctionGroup.of(functionGroup, arguments)) :
         Optional.empty();
   }
 
@@ -162,7 +162,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of targets this rule applies to.
+   * Gets the type of target this rule applies to.
    * @return the value of the property, not null
    */
   private Class<T> getTargetType() {
@@ -174,7 +174,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
    * Gets the measures this rule applies to. An empty set means the rule applies to all measures.
    * @return the value of the property, not null
    */
-  private Set<Measure> getMeasures() {
+  private ImmutableSet<Measure> getMeasures() {
     return measures;
   }
 
@@ -257,8 +257,8 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
      * The meta-property for the {@code measures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<Measure>> measures = DirectMetaProperty.ofImmutable(
-        this, "measures", PricingRule.class, (Class) Set.class);
+    private final MetaProperty<ImmutableSet<Measure>> measures = DirectMetaProperty.ofImmutable(
+        this, "measures", PricingRule.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code functionGroup} property.
      */
@@ -331,7 +331,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
      * The meta-property for the {@code measures} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Set<Measure>> measures() {
+    public MetaProperty<ImmutableSet<Measure>> measures() {
       return measures;
     }
 
