@@ -8,7 +8,7 @@ package com.opengamma.strata.collect.type;
 import org.joda.convert.FromString;
 
 /**
- * The mock type.
+ * The sample type.
  */
 public final class SampleType
     extends TypedString<SampleType> {
@@ -17,7 +17,7 @@ public final class SampleType
   private static final long serialVersionUID = 1L;
 
   /**
-   * Obtains a {@code MockType} by name.
+   * Obtains a {@code SampleType} by name.
    * 
    * @param name  the name to lookup, not null
    * @return the type matching the name, not null

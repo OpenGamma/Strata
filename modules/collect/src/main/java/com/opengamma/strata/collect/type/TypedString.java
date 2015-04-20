@@ -66,9 +66,14 @@ public abstract class TypedString<T extends TypedString<T>>
    * 
    * @param name  the name, not empty
    * @param pattern  the regex pattern for validating the name
+   * @param msg  the message to use to explain validation failure
    */
-  protected TypedString(String name, Pattern pattern) {
-    this.name = ArgChecker.matches(pattern, name, "name");
+  protected TypedString(String name, Pattern pattern, String msg) {
+    ArgChecker.notEmpty(name, "name");
+    if (pattern.matcher(name).matches() == false) {
+      throw new IllegalArgumentException(msg);
+    }
+    this.name = name;
   }
 
   //-------------------------------------------------------------------------

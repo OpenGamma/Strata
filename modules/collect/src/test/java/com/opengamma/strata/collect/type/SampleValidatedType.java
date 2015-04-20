@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.joda.convert.FromString;
 
 /**
- * The mock type.
+ * The sample type.
  */
 public final class SampleValidatedType
     extends TypedString<SampleValidatedType> {
@@ -21,7 +21,7 @@ public final class SampleValidatedType
   private static final long serialVersionUID = 1L;
 
   /**
-   * Obtains a {@code MockType} by name.
+   * Obtains a {@code SampleValidatedType} by name.
    * 
    * @param name  the name to lookup, not null
    * @return the type matching the name, not null
@@ -38,7 +38,7 @@ public final class SampleValidatedType
    * @param name  the name, not null
    */
   private SampleValidatedType(String name) {
-    super(name, PATTERN);
+    super(name, PATTERN, "Name must be letters");
   }
 
 }

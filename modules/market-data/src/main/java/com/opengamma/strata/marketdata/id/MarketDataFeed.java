@@ -57,7 +57,7 @@ public final class MarketDataFeed
    * @param name  the name of the feed
    */
   private MarketDataFeed(String name) {
-    super(name, NAME_PATTERN);
+    super(name, NAME_PATTERN, "Feed name must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
 }

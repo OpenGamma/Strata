@@ -45,7 +45,7 @@ public final class FunctionGroupName
    * @param name  the name of the group
    */
   private FunctionGroupName(String name) {
-    super(name, NAME_PATTERN);
+    super(name, NAME_PATTERN, "Group name must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
 }

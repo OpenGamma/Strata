@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.marketdata.id;
 
-import java.util.regex.Pattern;
-
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.type.TypedString;
@@ -28,11 +26,6 @@ public final class FieldName
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-  /**
-   * Pattern for checking the name.
-   * It must only contains the characters A-Z, a-z, 0-9 and -.
-   */
-  private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
 
   //-------------------------------------------------------------------------
   /** The field name for market value, used as the default when no field name is specified. */
@@ -42,7 +35,7 @@ public final class FieldName
   /**
    * Obtains a {@code FieldName} by name.
    * <p>
-   * Field names must only contains the characters A-Z, a-z, 0-9 and -.
+   * Field names may contain any character, but must not be empty.
    *
    * @param name  the name of the field
    * @return a field with the specified name
@@ -58,7 +51,7 @@ public final class FieldName
    * @param name  the name of the field
    */
   private FieldName(String name) {
-    super(name, NAME_PATTERN);
+    super(name);
   }
 
 }

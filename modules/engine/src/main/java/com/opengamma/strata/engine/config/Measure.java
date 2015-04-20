@@ -87,7 +87,7 @@ public final class Measure
    * @param name  the name of the measure
    */
   private Measure(String name) {
-    super(name, NAME_PATTERN);
+    super(name, NAME_PATTERN, "Measure name must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
 }

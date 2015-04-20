@@ -21,6 +21,8 @@ public final class ColumnName
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code ColumnName} by name.
+   * <p>
+   * Column names may contain any character, but must not be empty.
    *
    * @param name  the name of the column
    * @return a column with the specified name
