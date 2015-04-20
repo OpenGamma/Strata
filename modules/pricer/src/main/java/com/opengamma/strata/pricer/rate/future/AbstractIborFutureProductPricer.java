@@ -13,7 +13,13 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
  * <p>
  * This function provides common code used when pricing an {@link IborFuture}.
  */
-public class BaseIborFutureProductPricer {
+public abstract class AbstractIborFutureProductPricer {
+
+  /**
+   * Creates an instance.
+   */
+  protected AbstractIborFutureProductPricer() {
+  }
 
   //-------------------------------------------------------------------------
   /**

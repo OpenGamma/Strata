@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
@@ -14,9 +15,11 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
  * Pricer implementation for Ibor future trades.
+ * <p>
+ * This function provides the ability to price a {@link FraTrade}.
  */
 public class DiscountingIborFutureTradePricer
-    extends BaseIborFutureTradePricer {
+    extends AbstractIborFutureTradePricer {
 
   /**
    * Default implementation.
@@ -41,7 +44,7 @@ public class DiscountingIborFutureTradePricer
 
   //-------------------------------------------------------------------------
   @Override
-  public DiscountingIborFutureProductPricer getIborFutureProductPricer() {
+  protected DiscountingIborFutureProductPricer getProductPricer() {
     return productPricer;
   }
 

@@ -16,7 +16,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
  * This function provides the ability to price a {@link IborFuture}.
  */
 public class DiscountingIborFutureProductPricer
-    extends BaseIborFutureProductPricer {
+    extends AbstractIborFutureProductPricer {
 
   /**
    * Default implementation.
