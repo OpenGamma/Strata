@@ -11,8 +11,8 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.engine.config.PricingRules;
 import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 

@@ -29,7 +29,7 @@ import com.opengamma.strata.basics.currency.Currency;
  * A reporting currency rule that always returns the same currency.
  */
 @BeanDefinition
-public final class FixedReportingRules implements ReportingRules, ImmutableBean {
+final class FixedReportingRules implements ReportingRules, ImmutableBean {
 
   /** The reporting currency that is used for every target. */
   @PropertyDefinition(validate = "notNull")

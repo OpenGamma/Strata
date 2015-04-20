@@ -54,7 +54,6 @@ public interface MarketDataRules {
     return of(this, rules);
   }
 
-  // TODO Should this return a result?
   /**
    * Returns a set of market data mappings which specify the market data that should be used when
    * performing calculations for a target.
