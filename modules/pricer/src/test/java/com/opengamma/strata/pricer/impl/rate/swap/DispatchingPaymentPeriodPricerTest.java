@@ -23,7 +23,7 @@ import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
  * Test.
  */
 @Test
-public class DispatchingPaymentPeriodPricerFnTest {
+public class DispatchingPaymentPeriodPricerTest {
 
   private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
 

@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer implementation for the exchange of FX reset notionals.
@@ -39,10 +40,21 @@ public class DiscountingFxResetNotionalExchangePricer
   }
 
   @Override
+  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, FxResetNotionalExchange event) {
+    throw new UnsupportedOperationException();  // TODO
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public double futureValue(PricingEnvironment env, FxResetNotionalExchange event) {
     // notional * fxRate
     double fxRate = env.fxIndexRate(event.getIndex(), event.getReferenceCurrency(), event.getFixingDate());
     return event.getNotional() * fxRate;
+  }
+
+  @Override
+  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, FxResetNotionalExchange event) {
+    throw new UnsupportedOperationException();  // TODO
   }
 
 }

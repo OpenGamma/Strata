@@ -6,7 +6,9 @@
 package com.opengamma.strata.pricer.rate.swap;
 
 import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.legValue;
+import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.legValueSensitivity;
 
+import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.basics.currency.Currency;
@@ -19,6 +21,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer for for rate swap products.
@@ -127,6 +130,57 @@ public class DiscountingSwapProductPricer {
           .sum();
       return MultiCurrencyAmount.of(currency, pv);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity of the swap product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param product  the product to price
+   * @return the present value curve sensitivity of the swap product
+   */
+  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, SwapProduct product) {
+    return swapValueSensitivity(
+        env,
+        product.expand(),
+        paymentPeriodPricer::presentValueSensitivity,
+        paymentEventPricer::presentValueSensitivity);
+  }
+
+  /**
+   * Calculates the future value sensitivity of the swap product.
+   * <p>
+   * The future value sensitivity of the product is the sensitivity of the future value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param product  the product to price
+   * @return the future value curve sensitivity of the swap product
+   */
+  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, SwapProduct product) {
+    return swapValueSensitivity(
+        env,
+        product.expand(),
+        paymentPeriodPricer::futureValueSensitivity,
+        paymentEventPricer::futureValueSensitivity);
+  }
+
+  // calculate present or future value sensitivity for the swap
+  private static PointSensitivityBuilder swapValueSensitivity(
+      PricingEnvironment env,
+      ExpandedSwap swap,
+      BiFunction<PricingEnvironment, PaymentPeriod, PointSensitivityBuilder> periodFn,
+      BiFunction<PricingEnvironment, PaymentEvent, PointSensitivityBuilder> eventFn) {
+
+    PointSensitivityBuilder builder = PointSensitivityBuilder.none();
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      builder = builder.combinedWith(legValueSensitivity(env, leg, periodFn, eventFn));
+    }
+    return builder;
   }
 
 }

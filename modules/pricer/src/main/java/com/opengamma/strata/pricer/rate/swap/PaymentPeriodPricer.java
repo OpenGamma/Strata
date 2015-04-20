@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.rate.swap;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentPeriodPricer;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer for payment periods.
@@ -48,6 +49,18 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
   public abstract double presentValue(PricingEnvironment env, T period);
 
   /**
+   * Calculates the present value sensitivity of a single payment period.
+   * <p>
+   * The present value sensitivity of the period is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param period  the period to price
+   * @return the present value curve sensitivity of the period
+   */
+  public abstract PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, T period);
+
+  /**
    * Calculates the future value of a single payment period.
    * <p>
    * The amount is expressed in the currency of the period.
@@ -61,5 +74,17 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * @return the future value of the period
    */
   public abstract double futureValue(PricingEnvironment env, T period);
+
+  /**
+   * Calculates the future value sensitivity of a single payment period.
+   * <p>
+   * The future value sensitivity of the period is the sensitivity of the future value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param period  the period to price
+   * @return the future value curve sensitivity of the period
+   */
+  public abstract PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, T period);
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate.swap;
 
+import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.basics.currency.Currency;
@@ -15,6 +16,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer for for rate swap legs.
@@ -119,6 +121,66 @@ public class DiscountingSwapLegPricer {
         .mapToDouble(e -> eventFn.applyAsDouble(env, e))
         .sum();
     return valuePeriods + valueEvents;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity of the swap leg.
+   * <p>
+   * The present value sensitivity of the leg is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param leg  the leg to price
+   * @return the present value curve sensitivity of the swap leg
+   */
+  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, SwapLeg leg) {
+    ExpandedSwapLeg expanded = leg.expand();
+    return legValueSensitivity(
+        env,
+        expanded,
+        paymentPeriodPricer::presentValueSensitivity,
+        paymentEventPricer::presentValueSensitivity);
+  }
+
+  /**
+   * Calculates the future value sensitivity of the swap leg.
+   * <p>
+   * The future value sensitivity of the leg is the sensitivity of the future value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param leg  the leg to price
+   * @return the future value curve sensitivity of the swap leg
+   */
+  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, SwapLeg leg) {
+    ExpandedSwapLeg expanded = leg.expand();
+    return legValueSensitivity(
+        env,
+        expanded,
+        paymentPeriodPricer::futureValueSensitivity,
+        paymentEventPricer::futureValueSensitivity);
+  }
+
+  // calculate present or future value sensitivity for a leg
+  static PointSensitivityBuilder legValueSensitivity(
+      PricingEnvironment env,
+      ExpandedSwapLeg leg,
+      BiFunction<PricingEnvironment, PaymentPeriod, PointSensitivityBuilder> periodFn,
+      BiFunction<PricingEnvironment, PaymentEvent, PointSensitivityBuilder> eventFn) {
+
+    PointSensitivityBuilder builder = PointSensitivityBuilder.none();
+    for (PaymentPeriod period : leg.getPaymentPeriods()) {
+      if (!period.getPaymentDate().isBefore(env.getValuationDate())) {
+        builder = builder.combinedWith(periodFn.apply(env, period));
+      }
+    }
+    for (PaymentEvent event : leg.getPaymentEvents()) {
+      if (!event.getPaymentDate().isBefore(env.getValuationDate())) {
+        builder = builder.combinedWith(eventFn.apply(env, event));
+      }
+    }
+    return builder;
   }
 
 }

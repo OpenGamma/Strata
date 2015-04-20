@@ -19,7 +19,7 @@ import com.opengamma.strata.pricer.PricingEnvironment;
  * Test.
  */
 @Test
-public class DiscountingFxResetNotionalExchangePricerFnTest {
+public class DiscountingFxResetNotionalExchangePricerTest {
 
   public void test_presentValue() {
     double discountFactor = 0.98d;

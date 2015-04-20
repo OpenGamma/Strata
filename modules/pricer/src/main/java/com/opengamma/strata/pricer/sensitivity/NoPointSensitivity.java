@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.sensitivity;
 import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An empty implementation of the point sensitivity builder, used where there is no sensitivity.
@@ -39,7 +40,7 @@ final class NoPointSensitivity
 
   @Override
   public PointSensitivityBuilder combinedWith(PointSensitivityBuilder other) {
-    return other;
+    return ArgChecker.notNull(other, "other");
   }
 
   @Override

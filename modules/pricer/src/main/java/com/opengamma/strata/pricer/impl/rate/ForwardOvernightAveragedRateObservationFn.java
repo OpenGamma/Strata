@@ -81,6 +81,7 @@ public class ForwardOvernightAveragedRateObservationFn
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
+    // TODO
     throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }
 
