@@ -181,6 +181,11 @@ public final class OvernightRateCalculation
 
   //-------------------------------------------------------------------------
   @Override
+  public SwapLegType getType() {
+    return SwapLegType.OVERNIGHT;
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     builder.add(index);
   }

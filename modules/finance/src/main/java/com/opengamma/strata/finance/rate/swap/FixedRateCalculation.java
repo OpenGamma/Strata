@@ -80,6 +80,11 @@ public final class FixedRateCalculation
 
   //-------------------------------------------------------------------------
   @Override
+  public SwapLegType getType() {
+    return SwapLegType.FIXED;
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     // no indices
   }

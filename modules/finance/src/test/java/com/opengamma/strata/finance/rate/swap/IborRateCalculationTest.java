@@ -110,6 +110,7 @@ public class IborRateCalculationTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     IborRateCalculation test = IborRateCalculation.of(GBP_LIBOR_3M);
+    assertEquals(test.getType(), SwapLegType.IBOR);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());

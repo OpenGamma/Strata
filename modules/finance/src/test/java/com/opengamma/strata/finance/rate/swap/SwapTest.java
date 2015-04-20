@@ -16,6 +16,10 @@ import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_EXPANDED_U
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_GBP1;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_GBP2;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_USD1;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.IBOR;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.OTHER;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.OVERNIGHT;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -61,7 +65,14 @@ public class SwapTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getLeg() {
+  public void test_getLegs_SwapLegType() {
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLegs(FIXED), ImmutableList.of(MOCK_GBP1));
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLegs(IBOR), ImmutableList.of(MOCK_USD1));
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLegs(OVERNIGHT), ImmutableList.of());
+    assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLegs(OTHER), ImmutableList.of());
+  }
+
+  public void test_getLeg_PayReceive() {
     assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLeg(PAY), Optional.of(MOCK_GBP1));
     assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getLeg(RECEIVE), Optional.of(MOCK_USD1));
     assertEquals(Swap.of(MOCK_GBP1).getLeg(PAY), Optional.of(MOCK_GBP1));
