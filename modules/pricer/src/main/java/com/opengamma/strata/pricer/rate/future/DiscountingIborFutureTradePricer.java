@@ -15,28 +15,34 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 /**
  * Pricer implementation for Ibor future trades.
  */
-public class DefaultIborFutureTradePricer
-    extends BaseIborFuturePricer {
+public class DiscountingIborFutureTradePricer
+    extends BaseIborFutureTradePricer {
 
   /**
    * Default implementation.
    */
-  public static final DefaultIborFutureTradePricer DEFAULT =
-      new DefaultIborFutureTradePricer(DefaultIborFutureProductPricer.DEFAULT);
+  public static final DiscountingIborFutureTradePricer DEFAULT =
+      new DiscountingIborFutureTradePricer(DiscountingIborFutureProductPricer.DEFAULT);
 
   /**
    * Underlying pricer.
    */
-  private final DefaultIborFutureProductPricer productPricer;
+  private final DiscountingIborFutureProductPricer productPricer;
 
   /**
    * Creates an instance.
    * 
    * @param productPricer  the pricer for {@link IborFuture}
    */
-  public DefaultIborFutureTradePricer(
-      DefaultIborFutureProductPricer productPricer) {
+  public DiscountingIborFutureTradePricer(
+      DiscountingIborFutureProductPricer productPricer) {
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public DiscountingIborFutureProductPricer getIborFutureProductPricer() {
+    return productPricer;
   }
 
   //-------------------------------------------------------------------------
@@ -66,7 +72,7 @@ public class DefaultIborFutureTradePricer
    */
   public CurrencyAmount presentValue(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
     double price = price(env, trade);
-    return presentValue(price, trade, referencePrice);
+    return presentValue(trade, price, referencePrice);
   }
 
   /**
@@ -82,7 +88,7 @@ public class DefaultIborFutureTradePricer
   public PointSensitivities presentValueSensitivity(PricingEnvironment env, IborFutureTrade trade) {
     IborFuture product = trade.getSecurity().getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(env, product);
-    PointSensitivities marginIndexSensi = marginIndexSensitivity(product, priceSensi);
+    PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
 
