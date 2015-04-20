@@ -24,6 +24,15 @@ public interface RateCalculation
     extends ImmutableBean {
 
   /**
+   * Gets the type of the leg, such as Fixed or Ibor.
+   * <p>
+   * This provides a high level categorization of the swap leg.
+   * 
+   * @return the leg type
+   */
+  public abstract SwapLegType getType();
+
+  /**
    * Collects all the indices referred to by this calculation.
    * <p>
    * A calculation will typically refer to at least one index, such as 'GBP-LIBOR-3M'.

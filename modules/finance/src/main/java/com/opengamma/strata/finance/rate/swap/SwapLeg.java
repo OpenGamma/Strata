@@ -36,6 +36,15 @@ public interface SwapLeg
     extends ImmutableBean {
 
   /**
+   * Gets the type of the leg, such as Fixed or Ibor.
+   * <p>
+   * This provides a high level categorization of the swap leg.
+   * 
+   * @return the leg type
+   */
+  public abstract SwapLegType getType();
+
+  /**
    * Gets whether the leg is pay or receive.
    * <p>
    * A value of 'Pay' implies that the resulting amount is paid to the counterparty.

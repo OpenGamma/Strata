@@ -58,6 +58,13 @@ public final class ExpandedSwapLeg
     implements SwapLeg, ImmutableBean, Serializable {
 
   /**
+   * The type of the leg, such as Fixed or Ibor.
+   * <p>
+   * This provides a high level categorization of the swap leg.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final SwapLegType type;
+  /**
    * Whether the leg is pay or receive.
    * <p>
    * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
@@ -96,12 +103,16 @@ public final class ExpandedSwapLeg
   //-------------------------------------------------------------------------
   @ImmutableConstructor
   private ExpandedSwapLeg(
+      SwapLegType type,
       PayReceive payReceive,
       List<PaymentPeriod> paymentPeriods,
       List<PaymentEvent> paymentEvents) {
+
+    JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(payReceive, "payReceive");
     JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
     JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
+    this.type = type;
     this.payReceive = payReceive;
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
     this.paymentEvents = ImmutableList.copyOf(paymentEvents);
@@ -214,6 +225,18 @@ public final class ExpandedSwapLeg
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the type of the leg, such as Fixed or Ibor.
+   * <p>
+   * This provides a high level categorization of the swap leg.
+   * @return the value of the property, not null
+   */
+  @Override
+  public SwapLegType getType() {
+    return type;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets whether the leg is pay or receive.
    * <p>
    * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
@@ -272,7 +295,8 @@ public final class ExpandedSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedSwapLeg other = (ExpandedSwapLeg) obj;
-      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
+      return JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
           JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
           JodaBeanUtils.equal(getPaymentEvents(), other.getPaymentEvents());
     }
@@ -282,6 +306,7 @@ public final class ExpandedSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentEvents());
@@ -290,8 +315,9 @@ public final class ExpandedSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ExpandedSwapLeg{");
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
     buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(getPaymentEvents()));
@@ -309,6 +335,11 @@ public final class ExpandedSwapLeg
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code type} property.
+     */
+    private final MetaProperty<SwapLegType> type = DirectMetaProperty.ofImmutable(
+        this, "type", ExpandedSwapLeg.class, SwapLegType.class);
     /**
      * The meta-property for the {@code payReceive} property.
      */
@@ -331,6 +362,7 @@ public final class ExpandedSwapLeg
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "type",
         "payReceive",
         "paymentPeriods",
         "paymentEvents");
@@ -344,6 +376,8 @@ public final class ExpandedSwapLeg
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return type;
         case -885469925:  // payReceive
           return payReceive;
         case -1674414612:  // paymentPeriods
@@ -370,6 +404,14 @@ public final class ExpandedSwapLeg
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code type} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SwapLegType> type() {
+      return type;
+    }
+
     /**
      * The meta-property for the {@code payReceive} property.
      * @return the meta-property, not null
@@ -398,6 +440,8 @@ public final class ExpandedSwapLeg
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return ((ExpandedSwapLeg) bean).getType();
         case -885469925:  // payReceive
           return ((ExpandedSwapLeg) bean).getPayReceive();
         case -1674414612:  // paymentPeriods
@@ -425,6 +469,7 @@ public final class ExpandedSwapLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwapLeg> {
 
+    private SwapLegType type;
     private PayReceive payReceive;
     private List<PaymentPeriod> paymentPeriods = ImmutableList.of();
     private List<PaymentEvent> paymentEvents = ImmutableList.of();
@@ -440,6 +485,7 @@ public final class ExpandedSwapLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ExpandedSwapLeg beanToCopy) {
+      this.type = beanToCopy.getType();
       this.payReceive = beanToCopy.getPayReceive();
       this.paymentPeriods = beanToCopy.getPaymentPeriods();
       this.paymentEvents = beanToCopy.getPaymentEvents();
@@ -449,6 +495,8 @@ public final class ExpandedSwapLeg
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return type;
         case -885469925:  // payReceive
           return payReceive;
         case -1674414612:  // paymentPeriods
@@ -464,6 +512,9 @@ public final class ExpandedSwapLeg
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          this.type = (SwapLegType) newValue;
+          break;
         case -885469925:  // payReceive
           this.payReceive = (PayReceive) newValue;
           break;
@@ -506,12 +557,24 @@ public final class ExpandedSwapLeg
     @Override
     public ExpandedSwapLeg build() {
       return new ExpandedSwapLeg(
+          type,
           payReceive,
           paymentPeriods,
           paymentEvents);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code type} property in the builder.
+     * @param type  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder type(SwapLegType type) {
+      JodaBeanUtils.notNull(type, "type");
+      this.type = type;
+      return this;
+    }
+
     /**
      * Sets the {@code payReceive} property in the builder.
      * @param payReceive  the new value, not null
@@ -568,8 +631,9 @@ public final class ExpandedSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("ExpandedSwapLeg.Builder{");
+      buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
       buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(paymentEvents));

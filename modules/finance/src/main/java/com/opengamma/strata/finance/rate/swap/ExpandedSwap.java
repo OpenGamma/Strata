@@ -5,10 +5,13 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,7 +27,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -114,6 +119,31 @@ public final class ExpandedSwap
    */
   public boolean isCrossCurrency() {
     return crossCurrency;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the legs of the swap with the specified type.
+   * <p>
+   * This returns all the legs with the given type.
+   * 
+   * @param type  the type to find
+   * @return the matching legs of the swap
+   */
+  public ImmutableList<ExpandedSwapLeg> getLegs(SwapLegType type) {
+    return legs.stream().filter(leg -> leg.getType() == type).collect(toImmutableList());
+  }
+
+  /**
+   * Gets the first pay or receive leg of the swap.
+   * <p>
+   * This returns the first pay or receive leg of the swap, empty if no matching leg.
+   * 
+   * @param payReceive  the pay or receive flag
+   * @return the first matching leg of the swap
+   */
+  public Optional<ExpandedSwapLeg> getLeg(PayReceive payReceive) {
+    return legs.stream().filter(leg -> leg.getPayReceive() == payReceive).findFirst();
   }
 
   //-------------------------------------------------------------------------
