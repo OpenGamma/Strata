@@ -27,14 +27,14 @@ public interface VectorEngineFunction<T extends CalculationTarget, R> {
   public abstract CalculationRequirements requirements(T target);
 
   /**
-   * Performs calculations for the specified input using multiple sets of market data.
+   * Performs calculations for the specified target using multiple sets of market data.
    *
-   * @param input  the function input, normally a target
+   * @param target  the target of the calculation
    * @param marketData  the market data used in the calculation
    * @param reportingRules  the currency in which monetary values should be reported
    * @return the result of the calculation
    */
-  public abstract R execute(T input, CalculationMarketData marketData, ReportingRules reportingRules);
+  public abstract R execute(T target, CalculationMarketData marketData, ReportingRules reportingRules);
 
   // TODO Getter for the target type so the engine can confirm the types are compatible?
 }

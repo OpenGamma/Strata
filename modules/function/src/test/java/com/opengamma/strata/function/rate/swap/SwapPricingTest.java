@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -48,10 +47,12 @@ import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.PricingRules;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.SimpleMarketDataRules;
-import com.opengamma.strata.engine.config.SimplePricingRules;
+import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
+import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
+import com.opengamma.strata.engine.config.pricing.FunctionGroup;
+import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataResult;
@@ -135,12 +136,19 @@ public class SwapPricingTest {
             .addValue(CurveGroupId.of(curveGroupName), curveGroup)
             .build();
 
-    Measure presentValue = Measure.of("PresentValue");
-
-    PricingRules pricingRules =
-        SimplePricingRules.builder()
-            .addCalculation(presentValue, SwapTrade.class, SwapPvFunction.class)
+    FunctionGroup<SwapTrade> functionGroup =
+        DefaultFunctionGroup.builder(SwapTrade.class)
+            .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
+            .name("FunctionGroup")
             .build();
+
+    PricingRule<SwapTrade> pricingRule =
+        PricingRule.builder(SwapTrade.class)
+            .addMeasures(Measure.PRESENT_VALUE)
+            .functionGroup(functionGroup)
+            .build();
+
+    DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
 
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
@@ -161,7 +169,7 @@ public class SwapPricingTest {
             new IndexCurveMarketDataBuilder());
 
     List<SwapTrade> trades = ImmutableList.of(trade);
-    Column pvColumn = Column.builder().measure(presentValue).build();
+    Column pvColumn = Column.of(Measure.PRESENT_VALUE);
     List<Column> columns = ImmutableList.of(pvColumn);
     CalculationRunner calculationRunner = new DefaultCalculationRunner(Executors.newSingleThreadExecutor());
     ReportingRules reportingCurrency = ReportingRules.fixedCurrency(USD);

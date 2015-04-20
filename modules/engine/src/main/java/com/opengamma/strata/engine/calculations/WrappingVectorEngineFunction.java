@@ -46,11 +46,11 @@ public class WrappingVectorEngineFunction<T extends CalculationTarget, R>
   }
 
   @Override
-  public Object execute(T input, CalculationMarketData marketData, ReportingRules reportingRules) {
+  public Object execute(T target, CalculationMarketData marketData, ReportingRules reportingRules) {
     List<R> results =
         IntStream.range(0, marketData.getScenarioCount())
             .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
-            .map(data -> delegate.execute(input, data, reportingRules))
+            .map(data -> delegate.execute(target, data, reportingRules))
             .collect(toImmutableList());
 
     return (marketData.getScenarioCount() == 1) ?

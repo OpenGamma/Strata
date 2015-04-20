@@ -22,11 +22,13 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
-import com.opengamma.strata.engine.config.EngineFunctionConfig;
+import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.SimpleMarketDataRules;
-import com.opengamma.strata.engine.config.SimplePricingRules;
+import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
+import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
+import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
@@ -40,28 +42,42 @@ import com.opengamma.strata.marketdata.key.IndexRateKey;
 public class DefaultCalculationRunnerTest {
 
   public void createCalculationConfig() {
+    Measure measure = Measure.of("foo");
+
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
             .curveGroup("curve group")
             .marketDataFeed(MarketDataFeed.of("market data feed"))
             .build();
+
     SimpleMarketDataRules marketDataRules =
         SimpleMarketDataRules.builder()
             .addMappings(TestTarget.class, marketDataMappings)
             .build();
-    Measure measure = Measure.of("foo");
-    SimplePricingRules pricingRules =
-        SimplePricingRules.builder()
-            .addCalculation(measure, TestTarget.class, TestFunction.class)
+
+    DefaultFunctionGroup<TestTarget> functionGroup =
+        DefaultFunctionGroup.builder(TestTarget.class)
+            .name("DefaultGroup")
+            .addFunction(measure, TestFunction.class)
             .build();
+
+    PricingRule pricingRule =
+        PricingRule.builder(TestTarget.class)
+            .functionGroup(functionGroup)
+            .addMeasures(measure)
+            .build();
+
+    DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
+
     ReportingRules reportingRules = ReportingRules.fixedCurrency(Currency.GBP);
     DefaultCalculationRunner engine = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     TestTarget target1 = new TestTarget();
     TestTarget target2 = new TestTarget();
     List<TestTarget> targets = ImmutableList.of(target1, target2);
-    Column column = Column.builder().measure(measure).build();
+    Column column = Column.of(measure);
     List<Column> columns = ImmutableList.of(column);
-    EngineFunctionConfig expectedFnConfig = EngineFunctionConfig.builder().functionType(TestFunction.class).build();
+
+    FunctionConfig<TestTarget> expectedFnConfig = FunctionConfig.of(TestFunction.class);
 
     CalculationTasksConfig calculationConfig =
         engine.createCalculationConfig(targets, columns, pricingRules, marketDataRules, reportingRules);
@@ -74,27 +90,38 @@ public class DefaultCalculationRunnerTest {
     assertThat(taskConfig1.getTarget()).isEqualTo(target1);
     assertThat(taskConfig1.getReportingRules()).isEqualTo(reportingRules);
     assertThat(taskConfig1.getMarketDataMappings()).isEqualTo(marketDataMappings);
-    assertThat(taskConfig1.getEngineFunctionConfig()).isEqualTo(expectedFnConfig);
+    assertThat(taskConfig1.getFunctionConfig()).isEqualTo(expectedFnConfig);
 
     CalculationTaskConfig taskConfig2 = taskConfigs.get(1);
     assertThat(taskConfig2.getTarget()).isEqualTo(target2);
     assertThat(taskConfig2.getReportingRules()).isEqualTo(reportingRules);
     assertThat(taskConfig2.getMarketDataMappings()).isEqualTo(marketDataMappings);
-    assertThat(taskConfig2.getEngineFunctionConfig()).isEqualTo(expectedFnConfig);
+    assertThat(taskConfig2.getFunctionConfig()).isEqualTo(expectedFnConfig);
   }
 
   public void noMatchingMarketDataRules() {
     SimpleMarketDataRules marketDataRules = SimpleMarketDataRules.builder().build();
     Measure measure = Measure.of("foo");
-    SimplePricingRules pricingRules =
-        SimplePricingRules.builder()
-            .addCalculation(measure, TestTarget.class, TestFunction.class)
+
+    DefaultFunctionGroup<TestTarget> functionGroup =
+        DefaultFunctionGroup.builder(TestTarget.class)
+            .name("DefaultGroup")
+            .addFunction(measure, TestFunction.class)
             .build();
+
+    PricingRule<TestTarget> pricingRule =
+        PricingRule.builder(TestTarget.class)
+            .functionGroup(functionGroup)
+            .addMeasures(measure)
+            .build();
+
+    DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
+
     ReportingRules reportingRules = ReportingRules.fixedCurrency(Currency.GBP);
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     TestTarget target1 = new TestTarget();
     List<TestTarget> targets = ImmutableList.of(target1);
-    Column column = Column.builder().measure(measure).build();
+    Column column = Column.of(measure);
     List<Column> columns = ImmutableList.of(column);
 
     CalculationTasksConfig calculationConfig =
@@ -136,7 +163,7 @@ public class DefaultCalculationRunnerTest {
     }
 
     @Override
-    public Object execute(TestTarget input, CalculationMarketData marketData, ReportingRules reportingRules) {
+    public Object execute(TestTarget target, CalculationMarketData marketData, ReportingRules reportingRules) {
       return "bar";
     }
   }

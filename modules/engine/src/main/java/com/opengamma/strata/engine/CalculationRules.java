@@ -22,8 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.engine.config.PricingRules;
 import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.config.pricing.PricingRules;
 
 /**
  * A set of rules that define how the calculation engine should perform calculations.

@@ -1,0 +1,34 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.engine.config.pricing;
+
+import java.util.Optional;
+
+import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.engine.config.FunctionConfig;
+import com.opengamma.strata.engine.config.Measure;
+
+/**
+ * A function group provides configuration for functions that perform calculations.
+ * <p>
+ * All functions in a group operate on the same type of calculation target.
+ * <p>
+ * Typically the functions in a group will be related in some way, for example they might all use the
+ * same model to calculate their result.
+ */
+public interface FunctionGroup<T extends CalculationTarget> {
+
+  /**
+   * Returns configuration for a function to calculate the value of a measure for a target.
+   * <p>
+   * If this group has no function capable of calculating the value an empty optional is returned.
+   *
+   * @param target  the target of the calculation
+   * @param measure  the measure that needs to be calculated
+   * @return configuration for a function to calculate the value of a measure for a target if this group has one
+   */
+  Optional<FunctionConfig<T>> functionConfig(CalculationTarget target, Measure measure);
+}

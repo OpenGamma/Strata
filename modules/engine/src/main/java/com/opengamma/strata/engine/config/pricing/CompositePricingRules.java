@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.config;
+package com.opengamma.strata.engine.config.pricing;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.engine.config.Measure;
 
 /**
  * A set of pricing rules that delegates to multiple underlying sets of rules, returning the first
@@ -45,9 +46,9 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
   }
 
   @Override
-  public Optional<EngineFunctionConfig> functionConfig(CalculationTarget target, Measure measure) {
+  public Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure) {
     return rules.stream()
-        .map(rule -> rule.functionConfig(target, measure))
+        .map(rule -> rule.functionGroup(target, measure))
         .flatMap(Guavate::stream)
         .findFirst();
   }

@@ -3,19 +3,20 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.config;
+package com.opengamma.strata.engine.config.pricing;
 
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.engine.config.Measure;
 
 /**
- * Pricing rules specify how a measure should be calculated for a target. This includes the model,
- * model parameters and any other parameters that control the pricing calculations.
+ * Pricing rules specify how a measure should be calculated for a target.
  * <p>
- * Pricing rules return a calculation policy for a target. The policy specifies how the calculation is
- * performed and creates the function to perform the calculation.
+ * Pricing rules return a configured function group that provides function configuration for calculating a value.
+ * The function group specifies which function implementation should be used for the calculation and also
+ * provides any arguments for configuring the function.
  */
 public interface PricingRules {
 
@@ -54,11 +55,11 @@ public interface PricingRules {
   }
 
   /**
-   * Returns the calculation policy specifying how a measure should be calculated for a target.
+   * Returns a function group specifying how a measure should be calculated for the target.
    *
    * @param target  a target
    * @param measure  a measure
-   * @return a calculation policy specifying how a measure should be calculated for a target
+   * @return a function group specifying how a measure should be calculated for the target
    */
-  public abstract Optional<EngineFunctionConfig> functionConfig(CalculationTarget target, Measure measure);
+  public abstract Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure);
 }

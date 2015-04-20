@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.config;
+package com.opengamma.strata.engine.config.pricing;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -21,9 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.engine.config.Measure;
 
 /**
- * A set of pricing rules that always returns an empty optional from {@link #functionConfig}.
+ * A set of pricing rules that always returns an empty optional from {@link #functionGroup}.
  */
 @BeanDefinition
 final class EmptyPricingRules implements PricingRules, ImmutableBean {
@@ -35,7 +36,7 @@ final class EmptyPricingRules implements PricingRules, ImmutableBean {
   }
 
   @Override
-  public Optional<EngineFunctionConfig> functionConfig(CalculationTarget target, Measure measure) {
+  public Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure) {
     return Optional.empty();
   }
 
