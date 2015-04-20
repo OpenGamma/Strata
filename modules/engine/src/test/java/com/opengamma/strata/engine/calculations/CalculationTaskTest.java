@@ -32,7 +32,7 @@ public class CalculationTaskTest {
 
   public void requirements() {
     String curveGroupName = "curve group";
-    MarketDataFeed marketDataFeed = MarketDataFeed.of("market data vendor");
+    MarketDataFeed marketDataFeed = MarketDataFeed.of("MarketDataVendor");
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
             .curveGroup(curveGroupName)

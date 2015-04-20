@@ -47,7 +47,7 @@ public class DefaultCalculationRunnerTest {
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
             .curveGroup("curve group")
-            .marketDataFeed(MarketDataFeed.of("market data feed"))
+            .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
             .build();
 
     SimpleMarketDataRules marketDataRules =

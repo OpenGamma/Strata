@@ -18,20 +18,30 @@ import org.testng.annotations.Test;
 @Test
 public class TypedStringTest {
 
-  public void test_mock_of() {
-    MockType test = MockType.of("A");
+  public void test_of() {
+    SampleType test = SampleType.of("A");
     assertEquals(test.toString(), "A");
   }
 
-  public void test_mock_of_invalid() {
-    assertThrows(() -> MockType.of(null), IllegalArgumentException.class);
-    assertThrows(() -> MockType.of(""), IllegalArgumentException.class);
+  public void test_of_invalid() {
+    assertThrows(() -> SampleType.of(null), IllegalArgumentException.class);
+    assertThrows(() -> SampleType.of(""), IllegalArgumentException.class);
   }
 
-  public void test_mock_equalsHashCode() {
-    MockType a1 = MockType.of("A");
-    MockType a2 = MockType.of("A");
-    MockType b = MockType.of("B");
+  public void test_of_validated() {
+    SampleValidatedType test = SampleValidatedType.of("ABC");
+    assertEquals(test.toString(), "ABC");
+  }
+
+  public void test_of_validated_invalid() {
+    assertThrows(() -> SampleValidatedType.of(null), IllegalArgumentException.class);
+    assertThrows(() -> SampleValidatedType.of("ABc"), IllegalArgumentException.class);
+  }
+
+  public void test_equalsHashCode() {
+    SampleType a1 = SampleType.of("A");
+    SampleType a2 = SampleType.of("A");
+    SampleType b = SampleType.of("B");
 
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
@@ -41,10 +51,10 @@ public class TypedStringTest {
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 
-  public void test_mock_compareTo() {
-    MockType a = MockType.of("A");
-    MockType b = MockType.of("B");
-    MockType c = MockType.of("C");
+  public void test_compareTo() {
+    SampleType a = SampleType.of("A");
+    SampleType b = SampleType.of("B");
+    SampleType c = SampleType.of("C");
 
     assertEquals(a.compareTo(a) == 0, true);
     assertEquals(a.compareTo(b) < 0, true);
@@ -61,11 +71,11 @@ public class TypedStringTest {
 
   //-------------------------------------------------------------------------
   public void test_serialization() {
-    assertSerialization(MockType.of("A"));
+    assertSerialization(SampleType.of("A"));
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(MockType.class, MockType.of("A"));
+    assertJodaConvert(SampleType.class, SampleType.of("A"));
   }
 
 }

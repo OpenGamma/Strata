@@ -44,7 +44,7 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 @Test
 public class DefaultMarketDataFactoryTest {
 
-  private static final MarketDataFeed VENDOR = MarketDataFeed.of("real feed");
+  private static final MarketDataFeed VENDOR = MarketDataFeed.of("RealFeed");
   private static final IndexRateId LIBOR_1M_ID = IndexRateId.of(IborIndices.USD_LIBOR_1M, VENDOR);
   private static final IndexRateId LIBOR_3M_ID = IndexRateId.of(IborIndices.USD_LIBOR_3M, VENDOR);
 

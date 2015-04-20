@@ -5,6 +5,10 @@
  */
 package com.opengamma.strata.marketdata.id;
 
+import java.util.regex.Pattern;
+
+import org.joda.convert.FromString;
+
 import com.opengamma.strata.collect.type.TypedString;
 
 /**
@@ -19,25 +23,42 @@ import com.opengamma.strata.collect.type.TypedString;
  * system. This allows calculations to request an item of data using its field name (e.g.
  * closing price) without having to know which data provider it is coming from.
  */
-public final class FieldName extends TypedString<FieldName> {
+public final class FieldName
+    extends TypedString<FieldName> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+  /**
+   * Pattern for checking the name.
+   * It must only contains the characters A-Z, a-z, 0-9 and -.
+   */
+  private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
+
+  //-------------------------------------------------------------------------
   /** The field name for market value, used as the default when no field name is specified. */
   public static final FieldName MARKET_VALUE = of("MarketValue");
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a field name identifying the specified field
+   * Obtains a {@code FieldName} by name.
+   * <p>
+   * Field names must only contains the characters A-Z, a-z, 0-9 and -.
    *
-   * @param name  the name of the field in the market data record
-   * @return a field name identifying the specified field
+   * @param name  the name of the field
+   * @return a field with the specified name
    */
+  @FromString
   public static FieldName of(String name) {
     return new FieldName(name);
   }
 
   /**
-   * @param name  the name of the field in the market data record
+   * Creates an instance.
+   * 
+   * @param name  the name of the field
    */
-  protected FieldName(String name) {
-    super(name);
+  private FieldName(String name) {
+    super(name, NAME_PATTERN);
   }
+
 }
