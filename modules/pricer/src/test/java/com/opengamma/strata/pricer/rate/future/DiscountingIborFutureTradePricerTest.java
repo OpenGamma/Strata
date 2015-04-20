@@ -19,13 +19,13 @@ import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
- * Test {@link DefaultIborFutureTradePricer}.
+ * Test {@link DiscountingIborFutureTradePricer}.
  */
 @Test
-public class DefaultIborFutureTradePricerTest {
+public class DiscountingIborFutureTradePricerTest {
 
-  private static final DefaultIborFutureTradePricer PRICER_TRADE = DefaultIborFutureTradePricer.DEFAULT;
-  private static final DefaultIborFutureProductPricer PRICER_PRODUCT = DefaultIborFutureProductPricer.DEFAULT;
+  private static final DiscountingIborFutureTradePricer PRICER_TRADE = DiscountingIborFutureTradePricer.DEFAULT;
+  private static final DiscountingIborFutureProductPricer PRICER_PRODUCT = DiscountingIborFutureProductPricer.DEFAULT;
   private static final IborFutureTrade FUTURE_TRADE = IborFutureDummyData.IBOR_FUTURE_TRADE;
   private static final IborFuture FUTURE_PRODUCT = FUTURE_TRADE.getSecurity().getProduct();
 
@@ -58,7 +58,7 @@ public class DefaultIborFutureTradePricerTest {
   public void test_presentValue() {
     double lastClosingPrice = 1.025;
     IborFuture future = FUTURE_TRADE.getSecurity().getProduct();
-    DefaultIborFutureTradePricer pricerFn = DefaultIborFutureTradePricer.DEFAULT;
+    DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
     double expected = ((1.0 - RATE) - lastClosingPrice) *
         future.getAccrualFactor() * future.getNotional() * FUTURE_TRADE.getQuantity();
     CurrencyAmount computed = pricerFn.presentValue(ENV_MOCK, FUTURE_TRADE, lastClosingPrice);

@@ -5,9 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
@@ -15,25 +13,12 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
  * <p>
  * This function provides common code used when pricing an {@link IborFuture}.
  */
-public class BaseIborFuturePricer {
+public abstract class AbstractIborFutureProductPricer {
 
   /**
-   * Calculates the present value of the Ibor future trade from the current price.
-   * <p>
-   * The present value of the product is the value on the valuation date.
-   * 
-   * @param currentPrice  the price on the valuation date
-   * @param trade  the trade to price
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
-   * @return the present value
+   * Creates an instance.
    */
-  protected CurrencyAmount presentValue(double currentPrice, IborFutureTrade trade, double referencePrice) {
-    IborFuture future = trade.getSecurity().getProduct();
-    double priceIndex = marginIndex(future, currentPrice);
-    double referenceIndex = marginIndex(future, referencePrice);
-    double pv = (priceIndex - referenceIndex) * trade.getQuantity();
-    return CurrencyAmount.of(future.getCurrency(), pv);
+  protected AbstractIborFutureProductPricer() {
   }
 
   //-------------------------------------------------------------------------
