@@ -42,7 +42,7 @@ import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
  * Test {@link DiscountingRatePaymentPeriodPricer}
  */
 @Test
-public class DiscountingRatePaymentPeriodPricerFnTest {
+public class DiscountingRatePaymentPeriodPricerTest {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 22);
   private static final LocalDate FX_DATE_1 = LocalDate.of(2014, 1, 22);

@@ -28,7 +28,7 @@ import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
  * Test.
  */
 @Test
-public class DiscountingNotionalExchangePricerFnTest {
+public class DiscountingNotionalExchangePricerTest {
 
   public void test_presentValue() {
     double discountFactor = 0.98d;

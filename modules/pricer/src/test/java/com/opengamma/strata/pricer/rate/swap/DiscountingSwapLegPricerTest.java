@@ -39,7 +39,7 @@ import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
  * Test.
  */
 @Test
-public class DiscountingSwapLegPricerFnTest {
+public class DiscountingSwapLegPricerTest {
 
   private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment(date(2014, 1, 22));
   private static final PricingEnvironment MOCK_ENV_FUTURE = new MockPricingEnvironment(date(2040, 1, 22));

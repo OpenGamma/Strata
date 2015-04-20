@@ -24,7 +24,7 @@ import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
  * Test.
  */
 @Test
-public class DispatchingPaymentEventPricerFnTest {
+public class DispatchingPaymentEventPricerTest {
 
   private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
   private static final PaymentEventPricer<NotionalExchange> MOCK_NOTIONAL_EXG = mock(PaymentEventPricer.class);
