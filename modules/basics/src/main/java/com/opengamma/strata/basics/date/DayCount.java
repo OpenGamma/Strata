@@ -43,6 +43,21 @@ public interface DayCount
   }
 
   /**
+   * Obtains an instance of the 'Bus/252' day count based on a specific calendar.
+   * <p>
+   * The 'Bus/252' day count is unusual in that it relies on a specific holiday calendar.
+   * The calendar is stored within the day count.
+   * <p>
+   * This day count is typically used in Brazil.
+   * 
+   * @param calendar  the holiday calendar
+   * @return the day count
+   */
+  public static DayCount ofBus252(HolidayCalendar calendar) {
+    return Business252DayCount.INSTANCE.of(calendar);
+  }
+
+  /**
    * Gets the extended enum helper.
    * <p>
    * This helper allows instances of {@code DayCount} to be lookup up.
