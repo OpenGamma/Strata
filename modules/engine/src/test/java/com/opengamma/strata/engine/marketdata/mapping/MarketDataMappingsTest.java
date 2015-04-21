@@ -69,7 +69,7 @@ public class MarketDataMappingsTest {
    * Tests the correct MarketDataFeed is set when converting observable keys to IDs
    */
   public void observableMarketDataFeed() {
-    MarketDataFeed feed = MarketDataFeed.of("feed name");
+    MarketDataFeed feed = MarketDataFeed.of("FeedName");
     MarketDataMappings mappings = MarketDataMappings.builder().marketDataFeed(feed).build();
     MarketDataId<Double> id = mappings.getIdForObservableKey(IndexRateKey.of(IborIndices.CHF_LIBOR_12M));
     assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, feed));

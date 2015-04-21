@@ -18,9 +18,9 @@ public class MeasureTest {
   public void namePattern() {
     assertThrows(() -> Measure.of(null), IllegalArgumentException.class);
     assertThrows(() -> Measure.of(""), IllegalArgumentException.class);
-    assertThrows(() -> Measure.of("Foo Bar"), IllegalArgumentException.class, "Measure names must.*");
-    assertThrows(() -> Measure.of("Foo_Bar"), IllegalArgumentException.class, "Measure names must.*");
-    assertThrows(() -> Measure.of("FooBar!"), IllegalArgumentException.class, "Measure names must.*");
+    assertThrows(() -> Measure.of("Foo Bar"), IllegalArgumentException.class, ".*must only contain the characters.*");
+    assertThrows(() -> Measure.of("Foo_Bar"), IllegalArgumentException.class, ".*must only contain the characters.*");
+    assertThrows(() -> Measure.of("FooBar!"), IllegalArgumentException.class, ".*must only contain the characters.*");
 
     // These should execute without throwing an exception
     Measure.of("FooBar");

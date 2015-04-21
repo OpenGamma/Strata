@@ -8,23 +8,23 @@ package com.opengamma.strata.collect.type;
 import org.joda.convert.FromString;
 
 /**
- * The mock type.
+ * The sample type.
  */
-public final class MockType
-    extends TypedString<MockType> {
+public final class SampleType
+    extends TypedString<SampleType> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * Obtains a {@code MockType} by name.
+   * Obtains a {@code SampleType} by name.
    * 
    * @param name  the name to lookup, not null
    * @return the type matching the name, not null
    */
   @FromString
-  public static MockType of(String name) {
-    return new MockType(name);
+  public static SampleType of(String name) {
+    return new SampleType(name);
   }
 
   //-------------------------------------------------------------------------
@@ -33,7 +33,7 @@ public final class MockType
    * 
    * @param name  the name, not null
    */
-  private MockType(String name) {
+  private SampleType(String name) {
     super(name);
   }
 
