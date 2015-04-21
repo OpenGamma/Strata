@@ -70,6 +70,8 @@ public abstract class TypedString<T extends TypedString<T>>
    */
   protected TypedString(String name, Pattern pattern, String msg) {
     ArgChecker.notEmpty(name, "name");
+    ArgChecker.notNull(pattern, "pattern");
+    ArgChecker.notEmpty(msg, "msg");
     if (pattern.matcher(name).matches() == false) {
       throw new IllegalArgumentException(msg);
     }
