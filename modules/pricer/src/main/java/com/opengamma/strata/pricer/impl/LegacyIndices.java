@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.pricer.impl;
 
-import static com.opengamma.analytics.convention.daycount.DayCounts.ACT_360;
-import static com.opengamma.analytics.convention.daycount.DayCounts.ACT_365;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 
 import java.time.Period;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import com.opengamma.analytics.convention.daycount.DayCount;
+import com.opengamma.analytics.convention.daycount.DayCountFactory;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.strata.basics.currency.Currency;
@@ -24,21 +24,24 @@ import com.opengamma.strata.basics.index.OvernightIndices;
  */
 public final class LegacyIndices {
 
+  private static final DayCount ACT_360 = DayCountFactory.of("Actual/360");
+  private static final DayCount ACT_365F = DayCountFactory.of("Actual/365");
+
   /**
    * Reference to the AUD BBSW 3M index.
    */
   public static final IborIndex AUDBB3M = new IborIndex(
-      Currency.AUD, Period.ofMonths(3), 1, ACT_365, MODIFIED_FOLLOWING, true, "AUDBB3M");
+      Currency.AUD, Period.ofMonths(3), 1, ACT_365F, MODIFIED_FOLLOWING, true, "AUDBB3M");
   /**
    * Reference to the AUD BBSW 6M index.
    */
   public static final IborIndex AUDBB6M = new IborIndex(
-      Currency.AUD, Period.ofMonths(6), 1, ACT_365, MODIFIED_FOLLOWING, true, "AUDBB6M");
+      Currency.AUD, Period.ofMonths(6), 1, ACT_365F, MODIFIED_FOLLOWING, true, "AUDBB6M");
   /**
    * Reference to the CAD CDOR 3M index.
    */
   public static final IborIndex CADCDOR3M = new IborIndex(
-      Currency.CAD, Period.ofMonths(3), 0, ACT_365, MODIFIED_FOLLOWING, true, "CADCDOR3M");
+      Currency.CAD, Period.ofMonths(3), 0, ACT_365F, MODIFIED_FOLLOWING, true, "CADCDOR3M");
   /**
    * Reference to the DKK CIBOR 3M index.
    */
@@ -96,43 +99,43 @@ public final class LegacyIndices {
    * Reference to the GBP LIBOR 1M index.
    */
   public static final IborIndex GBPLIBOR1M = new IborIndex(
-      Currency.GBP, Period.ofMonths(1), 0, ACT_365, MODIFIED_FOLLOWING, true, "GBPLIBOR1M");
+      Currency.GBP, Period.ofMonths(1), 0, ACT_365F, MODIFIED_FOLLOWING, true, "GBPLIBOR1M");
   /**
    * Reference to the GBP LIBOR 3M index.
    */
   public static final IborIndex GBPLIBOR3M = new IborIndex(
-      Currency.GBP, Period.ofMonths(3), 0, ACT_365, MODIFIED_FOLLOWING, true, "GBPLIBOR3M");
+      Currency.GBP, Period.ofMonths(3), 0, ACT_365F, MODIFIED_FOLLOWING, true, "GBPLIBOR3M");
   /**
    * Reference to the GBP LIBOR 6M index.
    */
   public static final IborIndex GBPLIBOR6M = new IborIndex(
-      Currency.GBP, Period.ofMonths(6), 0, ACT_365, MODIFIED_FOLLOWING, true, "GBPLIBOR6M");
+      Currency.GBP, Period.ofMonths(6), 0, ACT_365F, MODIFIED_FOLLOWING, true, "GBPLIBOR6M");
   /**
    * Reference to the GBP LIBOR 12M index.
    */
   public static final IborIndex GBPLIBOR12M = new IborIndex(
-      Currency.GBP, Period.ofMonths(12), 0, ACT_365, MODIFIED_FOLLOWING, true, "GBPLIBOR12M");
+      Currency.GBP, Period.ofMonths(12), 0, ACT_365F, MODIFIED_FOLLOWING, true, "GBPLIBOR12M");
 
   /**
    * Reference to the JPY LIBOR 1M index.
    */
   public static final IborIndex JPYLIBOR1M = new IborIndex(
-      Currency.JPY, Period.ofMonths(1), 2, ACT_365, MODIFIED_FOLLOWING, true, "JPYLIBOR1M");
+      Currency.JPY, Period.ofMonths(1), 2, ACT_365F, MODIFIED_FOLLOWING, true, "JPYLIBOR1M");
   /**
    * Reference to the JPY LIBOR 3M index.
    */
   public static final IborIndex JPYLIBOR3M = new IborIndex(
-      Currency.JPY, Period.ofMonths(3), 2, ACT_365, MODIFIED_FOLLOWING, true, "JPYLIBOR3M");
+      Currency.JPY, Period.ofMonths(3), 2, ACT_365F, MODIFIED_FOLLOWING, true, "JPYLIBOR3M");
   /**
    * Reference to the JPY LIBOR 6M index.
    */
   public static final IborIndex JPYLIBOR6M = new IborIndex(
-      Currency.JPY, Period.ofMonths(6), 2, ACT_365, MODIFIED_FOLLOWING, true, "JPYLIBOR6M");
+      Currency.JPY, Period.ofMonths(6), 2, ACT_365F, MODIFIED_FOLLOWING, true, "JPYLIBOR6M");
   /**
    * Reference to the JPY LIBOR 12M index.
    */
   public static final IborIndex JPYLIBOR12M = new IborIndex(
-      Currency.JPY, Period.ofMonths(12), 2, ACT_365, MODIFIED_FOLLOWING, true, "JPYLIBOR12M");
+      Currency.JPY, Period.ofMonths(12), 2, ACT_365F, MODIFIED_FOLLOWING, true, "JPYLIBOR12M");
 
   /**
    * Reference to the USD LIBOR 1M index.
@@ -194,11 +197,11 @@ public final class LegacyIndices {
   /**
    * Reference to the GBP SONIA index.
    */
-  public static final IndexON GBP_SONIA = new IndexON("SONIA", Currency.GBP, ACT_365, 0);
+  public static final IndexON GBP_SONIA = new IndexON("SONIA", Currency.GBP, ACT_365F, 0);
   /**
    * Reference to the JPY TONAR index.
    */
-  public static final IndexON JPY_TONAR = new IndexON("TONAR", Currency.JPY, ACT_365, 0);
+  public static final IndexON JPY_TONAR = new IndexON("TONAR", Currency.JPY, ACT_365F, 0);
   /**
    * Reference to the USD FED FUND index.
    */
