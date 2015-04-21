@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Guavate;
 
 /**
  * A rate swap.
@@ -185,7 +184,7 @@ public final class Swap
     return ExpandedSwap.builder()
         .legs(legs.stream()
             .map(SwapLeg::expand)
-            .collect(Guavate.toImmutableSet()))
+            .collect(toImmutableList()))
         .build();
   }
 
