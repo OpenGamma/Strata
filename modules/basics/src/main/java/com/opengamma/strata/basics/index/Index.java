@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
 import com.opengamma.strata.collect.named.Named;
 
 /**
- * An index of values, such as LIBOR, FED FUND or closing exchange rates.
+ * An index of values, such as LIBOR, FED FUND or daily exchange rates.
  * <p>
  * An index is an agreed mechanism for determining certain financial indicators,
  * such as exchange rate or interest rates. Most common indices are daily.
