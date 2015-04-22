@@ -29,19 +29,20 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.FxRateKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
- * The default immutable pricing environment used to calculate analytic measures.
+ * A rates provider based on market data from the engine.
  * <p>
  * This provides the environmental information against which pricing occurs.
  * This includes FX rates, discount factors and forward curves.
  */
-public final class MarketDataPricingEnvironment implements PricingEnvironment, Serializable {
+public final class MarketDataRatesProvider
+    implements RatesProvider, Serializable {
 
   /**
    * Serialization version.
@@ -56,7 +57,7 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
    */
   private final SingleCalculationMarketData marketData;
 
-  public MarketDataPricingEnvironment(SingleCalculationMarketData marketData) {
+  public MarketDataRatesProvider(SingleCalculationMarketData marketData) {
     JodaBeanUtils.notNull(marketData, "marketData");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this.marketData = marketData;
@@ -65,12 +66,6 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
   @Override
   public LocalDate getValuationDate() {
     return marketData.getValuationDate();
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T rawData(Class<T> cls) {
-    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
@@ -107,7 +102,7 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
   @Override
   public PointSensitivityBuilder discountFactorZeroRateSensitivity(
       Currency currency, LocalDate date) {
-    // TODO implement MarketDataPricingEnvironment.discountFactorZeroRateSensitivity
+    // TODO implement MarketDataRatesProvider.discountFactorZeroRateSensitivity
     throw new UnsupportedOperationException("discountFactorZeroRateSensitivity not implemented");
   }
 
@@ -170,7 +165,7 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
 
   @Override
   public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
-    // TODO implement MarketDataPricingEnvironment.iborIndexRateSensitivity
+    // TODO implement MarketDataRatesProvider.iborIndexRateSensitivity
     throw new UnsupportedOperationException("iborIndexRateSensitivity not implemented");
   }
 
@@ -200,7 +195,7 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
 
   @Override
   public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
-    // TODO implement MarketDataPricingEnvironment.overnightIndexRateSensitivity
+    // TODO implement MarketDataRatesProvider.overnightIndexRateSensitivity
     throw new UnsupportedOperationException("overnightIndexRateSensitivity not implemented");
   }
 
@@ -222,7 +217,7 @@ public final class MarketDataPricingEnvironment implements PricingEnvironment, S
   @Override
   public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
       OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    // TODO implement MarketDataPricingEnvironment.overnightIndexRatePeriodSensitivity
+    // TODO implement MarketDataRatesProvider.overnightIndexRatePeriodSensitivity
     throw new UnsupportedOperationException("overnightIndexRatePeriodSensitivity not implemented");
   }
 

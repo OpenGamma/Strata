@@ -28,7 +28,7 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.function.MarketDataPricingEnvironment;
+import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
@@ -98,8 +98,8 @@ public class SwapLegPvFunction implements VectorEngineFunction<SwapTrade, List<C
     ExpandedSwapLeg leg = optionalLeg.get().expand();
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
-        .map(MarketDataPricingEnvironment::new)
-        .map(env -> DiscountingSwapLegPricer.DEFAULT.presentValue(env, leg, currency))
+        .map(MarketDataRatesProvider::new)
+        .map(provider -> DiscountingSwapLegPricer.DEFAULT.presentValue(provider, leg, currency))
         .collect(toImmutableList());
   }
 

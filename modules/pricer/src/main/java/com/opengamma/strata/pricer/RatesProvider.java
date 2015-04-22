@@ -22,33 +22,23 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
- * The pricing environment used to calculate analytic measures.
+ * A provider of rates, such as Ibor and Overnight, used for pricing financial instruments.
  * <p>
  * This provides the environmental information against which pricing occurs.
- * This includes FX rates, discount factors and forward curves.
+ * The valuation date, FX rates, discount factors, time-series and forward curves are included.
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
-public interface PricingEnvironment {
+public interface RatesProvider {
 
   /**
    * Gets the valuation date.
    * <p>
-   * The raw data in this environment is calibrated for this date.
+   * The raw data in this provider is calibrated for this date.
    * 
    * @return the valuation date
    */
   public abstract LocalDate getValuationDate();
-
-  /**
-   * Gets the raw pricing data.
-   * <p>
-   * This method allows for raw data to be obtained without adding to this interface.
-   * 
-   * @param cls  the type of raw data to retrieve
-   * @return the raw data
-   */
-  public abstract <T> T rawData(Class<T> cls);
 
   /**
    * Gets the time series of an index.
@@ -306,7 +296,7 @@ public interface PricingEnvironment {
   /**
    * Converts a date to a relative {@code double} time.
    * <p>
-   * This uses the day-count of the environment to determine the year fraction.
+   * This uses the day-count of the provider to determine the year fraction.
    * 
    * @param date  the date to find the relative time of
    * @return the relative time

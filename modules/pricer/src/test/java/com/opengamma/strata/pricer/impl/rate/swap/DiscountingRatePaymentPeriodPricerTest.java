@@ -31,7 +31,7 @@ import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.CurveSensitivityTestUtil;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
@@ -149,68 +149,68 @@ public class DiscountingRatePaymentPeriodPricerTest {
   // most testing on futureValue as methods only differ in discountFactor
   //-------------------------------------------------------------------------
   public void test_presentValue_single() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.discountFactor(USD, PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.discountFactor(USD, PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
     double pvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * DISCOUNT_FACTOR;
-    double pvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.presentValue(env, PAYMENT_PERIOD_1);
+    double pvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.presentValue(mockProv, PAYMENT_PERIOD_1);
     assertEquals(pvComputed, pvExpected, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
   public void test_futureValue_single() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, PAYMENT_PERIOD_1);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, PAYMENT_PERIOD_1);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_single_fx() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_FX);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, PAYMENT_PERIOD_1_FX);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_single_gearingSpread() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double fvExpected = (RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_GS);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, PAYMENT_PERIOD_1_GS);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_single_gearingNoNegative() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_NEG);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, PAYMENT_PERIOD_1_NEG);
     assertEquals(fvComputed, 0d, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
   public void test_futureValue_compoundNone() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100) +
             ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, PAYMENT_PERIOD_FULL_GS);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, PAYMENT_PERIOD_FULL_GS);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_compoundNone_fx() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
             ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * RATE_FX);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, PAYMENT_PERIOD_FULL_GS_FX);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, PAYMENT_PERIOD_FULL_GS_FX);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -218,28 +218,28 @@ public class DiscountingRatePaymentPeriodPricerTest {
   public void test_futureValue_compoundStraight() {
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.STRAIGHT).build();
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING + SPREAD);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD);
     double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, period);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_compoundFlat() {
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.FLAT).build();
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double cpa1 = NOTIONAL_100 * ACCRUAL_FACTOR_1 * (RATE_1 * GEARING + SPREAD);
     double cpa2 = NOTIONAL_100 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD) +
         cpa1 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double cpa3 = NOTIONAL_100 * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD) +
         (cpa1 + cpa2) * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = cpa1 + cpa2 + cpa3;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, period);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -248,39 +248,39 @@ public class DiscountingRatePaymentPeriodPricerTest {
         .compoundingMethod(CompoundingMethod.FLAT).build();
     RatePaymentPeriod period1 = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.FLAT).notional(1.0d).build();
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    double fvComputedNot = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, periodNot);
-    double fvComputed1 = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, period1);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    double fvComputedNot = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, periodNot);
+    double fvComputed1 = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, period1);
     assertEquals(fvComputedNot, fvComputed1 * NOTIONAL_100, TOLERANCE_PV);
   }
 
   public void test_futureValue_compoundSpreadExclusive() {
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
         (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, period);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_compoundSpreadExclusive_fx() {
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX.toBuilder()
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
-    PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = NOTIONAL_100 * RATE_FX * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
         (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(env, period);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(mockProv, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -321,16 +321,16 @@ public class DiscountingRatePaymentPeriodPricerTest {
   */
   public void test_presentValueSensitivity_ibor_noCompounding() {
     double paymentTime = 0.75;
-    PricingEnvironment env = mock(PricingEnvironment.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
     RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
 
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.relativeTime(PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(paymentTime);
-    when(env.discountFactor(PAYMENT_PERIOD_FLOATING.getCurrency(), PAYMENT_PERIOD_FLOATING.getPaymentDate()))
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.relativeTime(PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(paymentTime);
+    when(mockProv.discountFactor(PAYMENT_PERIOD_FLOATING.getCurrency(), PAYMENT_PERIOD_FLOATING.getPaymentDate()))
         .thenReturn(DISCOUNT_FACTOR);
     PointSensitivityBuilder builder = ZeroRateSensitivity.of(PAYMENT_PERIOD_FLOATING.getCurrency(),
-        PAYMENT_PERIOD_FLOATING.getPaymentDate(), -DISCOUNT_FACTOR * paymentTime); // this is implemented in environment
-    when(env.discountFactorZeroRateSensitivity(PAYMENT_PERIOD_FLOATING.getCurrency(),
+        PAYMENT_PERIOD_FLOATING.getPaymentDate(), -DISCOUNT_FACTOR * paymentTime); // this is implemented in mockProvironment
+    when(mockProv.discountFactorZeroRateSensitivity(PAYMENT_PERIOD_FLOATING.getCurrency(),
         PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(builder);
 
     DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
@@ -340,15 +340,15 @@ public class DiscountingRatePaymentPeriodPricerTest {
       IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
           .getRateObservation();
       IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
-      when(obsFunc.rateSensitivity(env, observation, dates[i], dates[i + 1])).thenReturn(iborSense);
-      when(obsFunc.rate(env, observation, dates[i], dates[i + 1])).thenReturn(rates[i]);
+      when(obsFunc.rateSensitivity(mockProv, observation, dates[i], dates[i + 1])).thenReturn(iborSense);
+      when(obsFunc.rate(mockProv, observation, dates[i], dates[i + 1])).thenReturn(rates[i]);
     }
-    PointSensitivities senseComputed = pricer.presentValueSensitivity(env, PAYMENT_PERIOD_FLOATING).build();
+    PointSensitivities senseComputed = pricer.presentValueSensitivity(mockProv, PAYMENT_PERIOD_FLOATING).build();
 
     double eps = 1.e-7;
-    List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(env, PAYMENT_PERIOD_FLOATING, obsFunc, eps);
+    List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, PAYMENT_PERIOD_FLOATING, obsFunc, eps);
     PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList).multipliedBy(DISCOUNT_FACTOR);
-    List<ZeroRateSensitivity> dscExpectedList = dscSensitivityFD(env, PAYMENT_PERIOD_FLOATING, obsFunc, eps);
+    List<ZeroRateSensitivity> dscExpectedList = dscSensitivityFD(mockProv, PAYMENT_PERIOD_FLOATING, obsFunc, eps);
     PointSensitivities senseExpectedDsc = PointSensitivities.of(dscExpectedList);
 
     CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected.combinedWith(senseExpectedDsc),
@@ -359,10 +359,10 @@ public class DiscountingRatePaymentPeriodPricerTest {
    * test future value sensitivity for ibor, no compounding. 
    */
   public void test_futureValueSensitivity_ibor_noCompounding() {
-    PricingEnvironment env = mock(PricingEnvironment.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
     RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
 
-    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
     LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4 };
     double[] rates = new double[] {RATE_1, RATE_2, RATE_3 };
@@ -370,13 +370,13 @@ public class DiscountingRatePaymentPeriodPricerTest {
       IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
           .getRateObservation();
       IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
-      when(obsFunc.rateSensitivity(env, observation, dates[i], dates[i + 1])).thenReturn(iborSense);
-      when(obsFunc.rate(env, observation, dates[i], dates[i + 1])).thenReturn(rates[i]);
+      when(obsFunc.rateSensitivity(mockProv, observation, dates[i], dates[i + 1])).thenReturn(iborSense);
+      when(obsFunc.rate(mockProv, observation, dates[i], dates[i + 1])).thenReturn(rates[i]);
     }
-    PointSensitivities senseComputed = pricer.futureValueSensitivity(env, PAYMENT_PERIOD_FLOATING).build();
+    PointSensitivities senseComputed = pricer.futureValueSensitivity(mockProv, PAYMENT_PERIOD_FLOATING).build();
 
     double eps = 1.e-7;
-    List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(env, PAYMENT_PERIOD_FLOATING, obsFunc,
+    List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, PAYMENT_PERIOD_FLOATING, obsFunc,
         eps);
     PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
     CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected,
@@ -384,11 +384,11 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   @SuppressWarnings("null")
-  private List<IborRateSensitivity> futureFwdSensitivityFD(PricingEnvironment env, RatePaymentPeriod payment,
+  private List<IborRateSensitivity> futureFwdSensitivityFD(RatesProvider provider, RatePaymentPeriod payment,
       RateObservationFn<RateObservation> obsFunc, double eps) {
-    LocalDate valuationDate = env.getValuationDate();
-    PricingEnvironment envNew = mock(PricingEnvironment.class);
-    when(envNew.getValuationDate()).thenReturn(valuationDate);
+    LocalDate valuationDate = provider.getValuationDate();
+    RatesProvider provNew = mock(RatesProvider.class);
+    when(provNew.getValuationDate()).thenReturn(valuationDate);
 
     ImmutableList<RateAccrualPeriod> periods = payment.getAccrualPeriods();
     int nPeriods = periods.size();
@@ -401,59 +401,59 @@ public class DiscountingRatePaymentPeriodPricerTest {
       for (int i = 0; i < nPeriods; ++i) {
         RateAccrualPeriod period = periods.get(i);
         IborRateObservation observation = (IborRateObservation) period.getRateObservation();
-        double rate = obsFunc.rate(env, observation, period.getStartDate(), period.getEndDate());
+        double rate = obsFunc.rate(provider, observation, period.getStartDate(), period.getEndDate());
         if (i == j) {
           fixingDate = observation.getFixingDate();
           index = observation.getIndex();
-          when(obsFuncUp.rate(envNew, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate + eps);
-          when(obsFuncDown.rate(envNew, observation, period.getStartDate(), period.getEndDate()))
+          when(obsFuncUp.rate(provNew, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate + eps);
+          when(obsFuncDown.rate(provNew, observation, period.getStartDate(), period.getEndDate()))
               .thenReturn(rate - eps);
         } else {
-          when(obsFuncUp.rate(envNew, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate);
-          when(obsFuncDown.rate(envNew, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate);
+          when(obsFuncUp.rate(provNew, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate);
+          when(obsFuncDown.rate(provNew, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate);
         }
       }
       DiscountingRatePaymentPeriodPricer pricerUp = new DiscountingRatePaymentPeriodPricer(obsFuncUp);
       DiscountingRatePaymentPeriodPricer pricerDown = new DiscountingRatePaymentPeriodPricer(obsFuncDown);
-      double up = pricerUp.futureValue(envNew, payment);
-      double down = pricerDown.futureValue(envNew, payment);
+      double up = pricerUp.futureValue(provNew, payment);
+      double down = pricerDown.futureValue(provNew, payment);
       IborRateSensitivity fwdSense = IborRateSensitivity.of(index, fixingDate, 0.5 * (up - down) / eps);
       forwardRateSensi.add(fwdSense);
     }
     return forwardRateSensi;
   }
 
-  private List<ZeroRateSensitivity> dscSensitivityFD(PricingEnvironment env, RatePaymentPeriod payment,
+  private List<ZeroRateSensitivity> dscSensitivityFD(RatesProvider provider, RatePaymentPeriod payment,
       RateObservationFn<RateObservation> obsFunc, double eps) {
-    LocalDate valuationDate = env.getValuationDate();
+    LocalDate valuationDate = provider.getValuationDate();
     LocalDate paymentDate = payment.getPaymentDate();
-    double discountFactor = env.discountFactor(payment.getCurrency(), paymentDate);
-    double paymentTime = env.relativeTime(paymentDate);
+    double discountFactor = provider.discountFactor(payment.getCurrency(), paymentDate);
+    double paymentTime = provider.relativeTime(paymentDate);
     Currency currency = payment.getCurrency();
 
-    PricingEnvironment envUp = mock(PricingEnvironment.class);
-    PricingEnvironment envDw = mock(PricingEnvironment.class);
+    RatesProvider provUp = mock(RatesProvider.class);
+    RatesProvider provDw = mock(RatesProvider.class);
     RateObservationFn<RateObservation> obsFuncNewUp = mock(RateObservationFn.class);
     RateObservationFn<RateObservation> obsFuncNewDw = mock(RateObservationFn.class);
-    when(envUp.getValuationDate()).thenReturn(valuationDate);
-    when(envDw.getValuationDate()).thenReturn(valuationDate);
-    when(envUp.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(-eps * paymentTime));
-    when(envDw.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(eps * paymentTime));
+    when(provUp.getValuationDate()).thenReturn(valuationDate);
+    when(provDw.getValuationDate()).thenReturn(valuationDate);
+    when(provUp.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(-eps * paymentTime));
+    when(provDw.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(eps * paymentTime));
 
     ImmutableList<RateAccrualPeriod> periods = payment.getAccrualPeriods();
     for (int i = 0; i < periods.size(); ++i) {
       RateObservation observation = periods.get(i).getRateObservation();
       LocalDate startDate = periods.get(i).getStartDate();
       LocalDate endDate = periods.get(i).getEndDate();
-      double rate = obsFunc.rate(env, observation, startDate, endDate);
-      when(obsFuncNewUp.rate(envUp, observation, startDate, endDate)).thenReturn(rate);
-      when(obsFuncNewDw.rate(envDw, observation, startDate, endDate)).thenReturn(rate);
+      double rate = obsFunc.rate(provider, observation, startDate, endDate);
+      when(obsFuncNewUp.rate(provUp, observation, startDate, endDate)).thenReturn(rate);
+      when(obsFuncNewDw.rate(provDw, observation, startDate, endDate)).thenReturn(rate);
     }
 
     DiscountingRatePaymentPeriodPricer pricerUp = new DiscountingRatePaymentPeriodPricer(obsFuncNewUp);
     DiscountingRatePaymentPeriodPricer pricerDw = new DiscountingRatePaymentPeriodPricer(obsFuncNewDw);
-    double pvUp = pricerUp.presentValue(envUp, payment);
-    double pvDw = pricerDw.presentValue(envDw, payment);
+    double pvUp = pricerUp.presentValue(provUp, payment);
+    double pvDw = pricerDw.presentValue(provDw, payment);
     double res = 0.5 * (pvUp - pvDw) / eps;
     List<ZeroRateSensitivity> zeroRateSensi = new ArrayList<>();
     zeroRateSensi.add(ZeroRateSensitivity.of(currency, paymentDate, res));

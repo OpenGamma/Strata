@@ -13,7 +13,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -50,40 +50,40 @@ public class DiscountingRatePaymentPeriodPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PricingEnvironment env, RatePaymentPeriod period) {
+  public double presentValue(RatesProvider provider, RatePaymentPeriod period) {
     // futureValue * discountFactor
-    double df = env.discountFactor(period.getCurrency(), period.getPaymentDate());
-    return futureValue(env, period) * df;
+    double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+    return futureValue(provider, period) * df;
   }
 
   @Override
-  public double futureValue(PricingEnvironment env, RatePaymentPeriod period) {
+  public double futureValue(RatesProvider provider, RatePaymentPeriod period) {
     // notional * fxRate
     // fxRate is 1 if no FX conversion
-    double notional = period.getNotional() * fxRate(env, period);
+    double notional = period.getNotional() * fxRate(provider, period);
     // handle simple case and more complex compounding for whole payment period
     if (period.getAccrualPeriods().size() == 1) {
       RateAccrualPeriod accrualPeriod = period.getAccrualPeriods().get(0);
-      return unitNotionalAccrual(env, accrualPeriod, accrualPeriod.getSpread()) * notional;
+      return unitNotionalAccrual(provider, accrualPeriod, accrualPeriod.getSpread()) * notional;
     }
-    return accrueCompounded(env, period, notional);
+    return accrueCompounded(provider, period, notional);
   }
 
   //-------------------------------------------------------------------------
   // resolve the FX rate from the FX reset, returning an FX rate of 1 if not applicable
-  private double fxRate(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
+  private double fxRate(RatesProvider provider, RatePaymentPeriod paymentPeriod) {
     // inefficient to use Optional.orElse because double primitive type would be boxed
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
-      return env.fxIndexRate(fxReset.getIndex(), fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      return provider.fxIndexRate(fxReset.getIndex(), fxReset.getReferenceCurrency(), fxReset.getFixingDate());
     } else {
       return 1d;
     }
   }
 
   // calculate the accrual for a unit notional
-  private double unitNotionalAccrual(PricingEnvironment env, RateAccrualPeriod accrualPeriod, double spread) {
-    double rawRate = rawRate(env, accrualPeriod);
+  private double unitNotionalAccrual(RatesProvider provider, RateAccrualPeriod accrualPeriod, double spread) {
+    double rawRate = rawRate(provider, accrualPeriod);
     return unitNotionalAccrualRaw(rawRate, accrualPeriod, spread);
   }
 
@@ -95,9 +95,9 @@ public class DiscountingRatePaymentPeriodPricer
 
   // finds the raw rate for the accrual period
   // the raw rate is the rate before gearing, spread and negative checks are applied
-  private double rawRate(PricingEnvironment env, RateAccrualPeriod accrualPeriod) {
+  private double rawRate(RatesProvider provider, RateAccrualPeriod accrualPeriod) {
     return rateObservationFn.rate(
-        env,
+        provider,
         accrualPeriod.getRateObservation(),
         accrualPeriod.getStartDate(),
         accrualPeriod.getEndDate());
@@ -105,35 +105,35 @@ public class DiscountingRatePaymentPeriodPricer
 
   //-------------------------------------------------------------------------
   // apply compounding
-  private double accrueCompounded(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
+  private double accrueCompounded(RatesProvider provider, RatePaymentPeriod paymentPeriod, double notional) {
     switch (paymentPeriod.getCompoundingMethod()) {
       case STRAIGHT:
-        return compoundedStraight(env, paymentPeriod, notional);
+        return compoundedStraight(provider, paymentPeriod, notional);
       case FLAT:
-        return compoundedFlat(env, paymentPeriod, notional);
+        return compoundedFlat(provider, paymentPeriod, notional);
       case SPREAD_EXCLUSIVE:
-        return compoundedSpreadExclusive(env, paymentPeriod, notional);
+        return compoundedSpreadExclusive(provider, paymentPeriod, notional);
       case NONE:
       default:
-        return compoundingNone(env, paymentPeriod, notional);
+        return compoundingNone(provider, paymentPeriod, notional);
     }
   }
 
   // straight compounding
-  private double compoundedStraight(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
+  private double compoundedStraight(RatesProvider provider, RatePaymentPeriod paymentPeriod, double notional) {
     double notionalAccrued = notional;
     for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
-      double investFactor = 1 + unitNotionalAccrual(env, accrualPeriod, accrualPeriod.getSpread());
+      double investFactor = 1 + unitNotionalAccrual(provider, accrualPeriod, accrualPeriod.getSpread());
       notionalAccrued *= investFactor;
     }
     return (notionalAccrued - notional);
   }
 
   // flat compounding
-  private double compoundedFlat(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
+  private double compoundedFlat(RatesProvider provider, RatePaymentPeriod paymentPeriod, double notional) {
     double cpaAccumulated = 0d;
     for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
-      double rate = rawRate(env, accrualPeriod);
+      double rate = rawRate(provider, accrualPeriod);
       cpaAccumulated += cpaAccumulated * unitNotionalAccrualRaw(rate, accrualPeriod, 0) +
           unitNotionalAccrualRaw(rate, accrualPeriod, accrualPeriod.getSpread());
     }
@@ -141,11 +141,11 @@ public class DiscountingRatePaymentPeriodPricer
   }
 
   // spread exclusive compounding
-  private double compoundedSpreadExclusive(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
+  private double compoundedSpreadExclusive(RatesProvider provider, RatePaymentPeriod paymentPeriod, double notional) {
     double notionalAccrued = notional;
     double spreadAccrued = 0;
     for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
-      double investFactor = 1 + unitNotionalAccrual(env, accrualPeriod, 0);
+      double investFactor = 1 + unitNotionalAccrual(provider, accrualPeriod, 0);
       notionalAccrued *= investFactor;
       spreadAccrued += notional * accrualPeriod.getSpread() * accrualPeriod.getYearFraction();
     }
@@ -153,31 +153,31 @@ public class DiscountingRatePaymentPeriodPricer
   }
 
   // no compounding, just sum each accrual period
-  private double compoundingNone(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
+  private double compoundingNone(RatesProvider provider, RatePaymentPeriod paymentPeriod, double notional) {
     return paymentPeriod.getAccrualPeriods().stream()
-        .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, accrualPeriod, accrualPeriod.getSpread()) * notional)
+        .mapToDouble(accrualPeriod -> unitNotionalAccrual(provider, accrualPeriod, accrualPeriod.getSpread()) * notional)
         .sum();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, RatePaymentPeriod period) {
+  public PointSensitivityBuilder presentValueSensitivity(RatesProvider provider, RatePaymentPeriod period) {
     Currency ccy = period.getCurrency();
     LocalDate paymentDate = period.getPaymentDate();
-    double df = env.discountFactor(period.getCurrency(), paymentDate);
-    PointSensitivityBuilder fwdSensitivity = futureValueSensitivity(env, period);
+    double df = provider.discountFactor(period.getCurrency(), paymentDate);
+    PointSensitivityBuilder fwdSensitivity = futureValueSensitivity(provider, period);
     fwdSensitivity = fwdSensitivity.multipliedBy(df);
-    double futureValue = futureValue(env, period);
-    PointSensitivityBuilder dscSensitivity = env.discountFactorZeroRateSensitivity(ccy, paymentDate);
+    double futureValue = futureValue(provider, period);
+    PointSensitivityBuilder dscSensitivity = provider.discountFactorZeroRateSensitivity(ccy, paymentDate);
     dscSensitivity = dscSensitivity.multipliedBy(futureValue);
     return fwdSensitivity.combinedWith(dscSensitivity);
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env,
+  public PointSensitivityBuilder futureValueSensitivity(RatesProvider provider,
       RatePaymentPeriod period) {
     // historic payments have zero sensi
-    if (period.getPaymentDate().isBefore(env.getValuationDate())) {
+    if (period.getPaymentDate().isBefore(provider.getValuationDate())) {
       return PointSensitivityBuilder.none();
     }
     double fxRate = 1d;
@@ -191,26 +191,26 @@ public class DiscountingRatePaymentPeriodPricer
       // TODO handle compounding
       throw new UnsupportedOperationException("compounding not yet implemented for futureValueSensitivity");
     } else {
-      unitAccrual = unitNotionalSensiNoCompounding(env, period);
+      unitAccrual = unitNotionalSensiNoCompounding(provider, period);
     }
     return unitAccrual.multipliedBy(notional);
   }
 
   // computes the sensitivity of the payment period to the rate observations (not to the discount factors)
-  private PointSensitivityBuilder unitNotionalSensiNoCompounding(PricingEnvironment env, RatePaymentPeriod period) {
+  private PointSensitivityBuilder unitNotionalSensiNoCompounding(RatesProvider provider, RatePaymentPeriod period) {
     Currency ccy = period.getCurrency();
     PointSensitivityBuilder sensi = PointSensitivityBuilder.none();
     for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
-      sensi = sensi.combinedWith(unitNotionalSensiAccrual(env, accrualPeriod, ccy));
+      sensi = sensi.combinedWith(unitNotionalSensiAccrual(provider, accrualPeriod, ccy));
     }
     return sensi;
   }
 
   // computes the sensitivity of the accrual period to the rate observations (not to discount factors)
-  private PointSensitivityBuilder unitNotionalSensiAccrual(PricingEnvironment env,
+  private PointSensitivityBuilder unitNotionalSensiAccrual(RatesProvider provider,
       RateAccrualPeriod period, Currency ccy) {
     PointSensitivityBuilder sensi = rateObservationFn.rateSensitivity(
-        env, period.getRateObservation(), period.getStartDate(), period.getEndDate());
+        provider, period.getRateObservation(), period.getStartDate(), period.getEndDate());
     return sensi.multipliedBy(period.getGearing() * period.getYearFraction());
   }
 

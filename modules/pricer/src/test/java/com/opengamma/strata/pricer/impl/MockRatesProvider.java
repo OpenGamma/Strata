@@ -13,17 +13,17 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
- * Mock implementation of pricing environment.
- * Throws exceptions for all methods.
+ * Mock implementation of rate provider.
+ * Throws exceptions for most methods.
  */
-public class MockPricingEnvironment
-    implements PricingEnvironment {
+public class MockRatesProvider
+    implements RatesProvider {
 
   /**
    * The FX rate.
@@ -38,7 +38,7 @@ public class MockPricingEnvironment
   /**
    * Creates an instance.
    */
-  public MockPricingEnvironment() {
+  public MockRatesProvider() {
     this.valuationDate = null;
   }
 
@@ -47,15 +47,8 @@ public class MockPricingEnvironment
    * 
    * @param valuationDate  the valuation date
    */
-  public MockPricingEnvironment(LocalDate valuationDate) {
+  public MockRatesProvider(LocalDate valuationDate) {
     this.valuationDate = valuationDate;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T rawData(Class<T> cls) {
-    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
