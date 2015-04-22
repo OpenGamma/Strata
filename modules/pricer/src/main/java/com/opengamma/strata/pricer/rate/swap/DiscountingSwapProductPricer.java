@@ -139,7 +139,7 @@ public class DiscountingSwapProductPricer {
    * Computes the par rate for swaps with a fixed leg. 
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
-   * 
+   * <p>
    * At least one leg should be a fixed leg. The par rate will be computed with respect to the first fixed leg.
    * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
    * 
@@ -152,11 +152,9 @@ public class DiscountingSwapProductPricer {
     ExpandedSwap swap = product.expand();
     List<ExpandedSwapLeg> legs = swap.getLegs();
     ExpandedSwapLeg fixedLeg = null;
-    int fixedLegIndex = 0;
-    for (int i = 0; i < legs.size(); i++) {
-      if (legs.get(i).getType() == SwapLegType.FIXED) {
-        fixedLeg = legs.get(i);
-        fixedLegIndex = i;
+    for(ExpandedSwapLeg leg: legs) {
+      if (leg.getType() == SwapLegType.FIXED) {
+        fixedLeg = leg;
         break;
       }
     }
@@ -164,17 +162,16 @@ public class DiscountingSwapProductPricer {
     @SuppressWarnings("null")
     Currency ccyFixedLeg = fixedLeg.getCurrency();
     // other payments (not fixed leg coupons) converted in fixed leg currency
-    ToDoubleBiFunction<PricingEnvironment, PaymentEvent> eventFn = paymentEventPricer::presentValue;
     double otherLegsConvertedPv = 0.0;
-    for (int i = 0; i < legs.size(); i++) {
-      if (i != fixedLegIndex) {
-        double pvLocal = legValue(env, legs.get(i), paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
-        otherLegsConvertedPv += (pvLocal * env.fxRate(legs.get(i).getCurrency(), ccyFixedLeg));
+    for (ExpandedSwapLeg leg: legs) {
+      if (leg != fixedLeg) {
+        double pvLocal = legValue(env, leg, paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
+        otherLegsConvertedPv += (pvLocal * env.fxRate(leg.getCurrency(), ccyFixedLeg));
       }
     }
     double fixedLegEventsPv = fixedLeg.getPaymentEvents().stream()
         .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
-        .mapToDouble(e -> eventFn.applyAsDouble(env, e))
+        .mapToDouble(e -> paymentEventPricer.presentValue(env, e))
         .sum();
     // PVBP
     double pvbpFixedLeg = pvbp(env, fixedLeg);

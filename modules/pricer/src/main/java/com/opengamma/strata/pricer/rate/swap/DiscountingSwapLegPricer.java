@@ -112,12 +112,12 @@ public class DiscountingSwapLegPricer {
    * <p>
    * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1. A better name would
    * be "Present Value of 1". The quantity is also known as "physical annuity" or "level".
-   * 
+   * <p>
    * All the payments in the fixed leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
    * 
    * @param env  the pricing environment
    * @param fixedLeg  the swap fixed leg
-   * @return the par rate
+   * @return the Present Value of a Basis Point
    */
   public static double pvbp(PricingEnvironment env, SwapLeg fixedLeg) {
     double pvbpFixedLeg = 0.0;
@@ -131,12 +131,12 @@ public class DiscountingSwapLegPricer {
   // computes Present Value of a Basis Point for fixed payment with a unique accrual period (no compounding) and 
   // no FX reset.
   private static double pvbpPayment(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
-    double df = env.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
     ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent());
-    double notional = paymentPeriod.getNotional();
     ArgChecker.isTrue(paymentPeriod.getAccrualPeriods().size() == 1);
     RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
     ArgChecker.isTrue(accrualPeriod.getRateObservation() instanceof FixedRateObservation);
+    double df = env.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
+    double notional = paymentPeriod.getNotional();
     return df * accrualPeriod.getYearFraction() * notional;
   }
 
