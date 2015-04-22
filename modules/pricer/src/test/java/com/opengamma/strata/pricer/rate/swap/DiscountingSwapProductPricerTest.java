@@ -77,9 +77,10 @@ public class DiscountingSwapProductPricerTest {
         .thenReturn(pvNotional);
     when(mockEvent.presentValue(mockEnv, NOTIONAL_EXCHANGE_PAY_GBP))
         .thenReturn(-pvNotional);
-    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ExpandedSwap expanded = SWAP.expand();
-    double pvbp = DiscountingSwapLegPricer.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY);
+    double pvbp = pricerLeg.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY);
     double parRateExpected1 = -(pvCpnIbor + -pvNotional + pvNotional) / pvbp;
     double parRateExpected2 = fwdRate;
     double parRateComputed = pricerSwap.parRate(mockEnv, expanded);
@@ -108,9 +109,10 @@ public class DiscountingSwapProductPricerTest {
     double pvNotionalUsd = -fxGbpUsd * 981_000d;
     when(mockEvent.presentValue(mockEnv, NOTIONAL_EXCHANGE_PAY_USD))
         .thenReturn(pvNotionalUsd);
-    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    double pvbp = DiscountingSwapLegPricer.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY_USD);
+    double pvbp = pricerLeg.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY_USD);
     double parRateExpected = -((pvCpnIborGbp + pvNotionalGbp) * fxGbpUsd + pvNotionalUsd) / pvbp;
     double parRateComputed = pricerSwap.parRate(mockEnv, expanded);
     assertEquals(parRateComputed, parRateExpected, TOLERANCE);
@@ -122,7 +124,8 @@ public class DiscountingSwapProductPricerTest {
         .build();
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     assertThrowsIllegalArg(() -> pricerSwap.parRate(MOCK_ENV, swap));
   }
 
@@ -138,13 +141,16 @@ public class DiscountingSwapProductPricerTest {
         .thenReturn(35d);
     when(mockEvent.presentValue(MOCK_ENV, NOTIONAL_EXCHANGE_PAY_GBP))
         .thenReturn(-30d);
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ExpandedSwap expanded = SWAP.expand();
-    assertEquals(test.presentValue(MOCK_ENV, expanded), MultiCurrencyAmount.of(GBP, 505d));
+    assertEquals(pricerSwap.presentValue(MOCK_ENV, expanded), MultiCurrencyAmount.of(GBP, 505d));
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.presentValue(MOCK_ENV, SWAP_TRADE), test.presentValue(MOCK_ENV, expanded));
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(
+        pricerTrade.presentValue(MOCK_ENV, SWAP_TRADE),
+        pricerSwap.presentValue(MOCK_ENV, expanded));
   }
 
   public void test_presentValue_crossCurrency() {
@@ -154,14 +160,17 @@ public class DiscountingSwapProductPricerTest {
     when(mockPeriod.presentValue(MOCK_ENV, FIXED_RATE_PAYMENT_PERIOD_PAY_USD))
         .thenReturn(-500d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(GBP, 1000d), CurrencyAmount.of(USD, -500d));
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    assertEquals(test.presentValue(MOCK_ENV, expanded), expected);
+    assertEquals(pricerSwap.presentValue(MOCK_ENV, expanded), expected);
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.presentValue(MOCK_ENV, SWAP_TRADE_CROSS_CURRENCY), test.presentValue(MOCK_ENV, expanded));
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(
+        pricerTrade.presentValue(MOCK_ENV, SWAP_TRADE_CROSS_CURRENCY),
+        pricerSwap.presentValue(MOCK_ENV, expanded));
   }
 
   public void test_presentValue_withCurrency_crossCurrency() {
@@ -171,14 +180,17 @@ public class DiscountingSwapProductPricerTest {
     when(mockPeriod.presentValue(MOCK_ENV, FIXED_RATE_PAYMENT_PERIOD_PAY_USD))
         .thenReturn(-500d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     CurrencyAmount expected = CurrencyAmount.of(USD, 1000d * MockPricingEnvironment.RATE - 500d);
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    assertEquals(test.presentValue(MOCK_ENV, expanded, USD), expected);
+    assertEquals(pricerSwap.presentValue(MOCK_ENV, expanded, USD), expected);
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.presentValue(MOCK_ENV, SWAP_TRADE_CROSS_CURRENCY), test.presentValue(MOCK_ENV, expanded));
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(
+        pricerTrade.presentValue(MOCK_ENV, SWAP_TRADE_CROSS_CURRENCY, USD),
+        pricerSwap.presentValue(MOCK_ENV, expanded, USD));
   }
 
   //-------------------------------------------------------------------------
@@ -189,13 +201,16 @@ public class DiscountingSwapProductPricerTest {
     when(mockPeriod.futureValue(MOCK_ENV, FIXED_RATE_PAYMENT_PERIOD_PAY))
         .thenReturn(-500d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ExpandedSwap expanded = SWAP.expand();
-    assertEquals(test.futureValue(MOCK_ENV, expanded), MultiCurrencyAmount.of(GBP, 500d));
+    assertEquals(pricerSwap.futureValue(MOCK_ENV, expanded), MultiCurrencyAmount.of(GBP, 500d));
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.futureValue(MOCK_ENV, SWAP_TRADE), test.futureValue(MOCK_ENV, expanded));
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(
+        pricerTrade.futureValue(MOCK_ENV, SWAP_TRADE),
+        pricerSwap.futureValue(MOCK_ENV, expanded));
   }
 
   public void test_futureValue_crossCurrency() {
@@ -205,14 +220,17 @@ public class DiscountingSwapProductPricerTest {
     when(mockPeriod.futureValue(MOCK_ENV, FIXED_RATE_PAYMENT_PERIOD_PAY_USD))
         .thenReturn(-500d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(GBP, 1000d), CurrencyAmount.of(USD, -500d));
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    assertEquals(test.futureValue(MOCK_ENV, expanded), expected);
+    assertEquals(pricerSwap.futureValue(MOCK_ENV, expanded), expected);
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
-    assertEquals(testTrade.futureValue(MOCK_ENV, SWAP_TRADE_CROSS_CURRENCY), test.futureValue(MOCK_ENV, expanded));
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(
+        pricerTrade.futureValue(MOCK_ENV, SWAP_TRADE_CROSS_CURRENCY),
+        pricerSwap.futureValue(MOCK_ENV, expanded));
   }
 
   //-------------------------------------------------------------------------
@@ -245,16 +263,17 @@ public class DiscountingSwapProductPricerTest {
         .thenAnswer(t -> sensiEvent.build().toMutable());
     when(mockEvent.presentValueSensitivity(MOCK_ENV, FIXED_EXPANDED_SWAP_LEG_PAY.getPaymentEvents().get(0)))
         .thenAnswer(t -> sensiEvent.build().toMutable());
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
-    PointSensitivities res = test.presentValueSensitivity(MOCK_ENV, SWAP).build();
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    PointSensitivities res = pricerSwap.presentValueSensitivity(MOCK_ENV, SWAP).build();
 
     CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
-        testTrade.presentValueSensitivity(MOCK_ENV, SWAP_TRADE),
-        test.presentValueSensitivity(MOCK_ENV, SWAP).build());
+        pricerTrade.presentValueSensitivity(MOCK_ENV, SWAP_TRADE),
+        pricerSwap.presentValueSensitivity(MOCK_ENV, SWAP).build());
   }
 
   public void test_futureValueSensitivity() {
@@ -277,16 +296,17 @@ public class DiscountingSwapProductPricerTest {
         .thenAnswer(t -> sensiEvent.build().toMutable());
     when(mockEvent.futureValueSensitivity(MOCK_ENV, FIXED_EXPANDED_SWAP_LEG_PAY.getPaymentEvents().get(0)))
         .thenAnswer(t -> sensiEvent.build().toMutable());
-    DiscountingSwapProductPricer test = new DiscountingSwapProductPricer(mockPeriod, mockEvent);
-    PointSensitivities res = test.futureValueSensitivity(MOCK_ENV, SWAP).build();
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    PointSensitivities res = pricerSwap.futureValueSensitivity(MOCK_ENV, SWAP).build();
 
     CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
 
     // test via SwapTrade
-    DiscountingSwapTradePricer testTrade = new DiscountingSwapTradePricer(test);
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
-        testTrade.futureValueSensitivity(MOCK_ENV, SWAP_TRADE),
-        test.futureValueSensitivity(MOCK_ENV, SWAP).build());
+        pricerTrade.futureValueSensitivity(MOCK_ENV, SWAP_TRADE),
+        pricerSwap.futureValueSensitivity(MOCK_ENV, SWAP).build());
   }
 
 }

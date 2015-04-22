@@ -88,8 +88,12 @@ public class DiscountingSwapLegPricer {
    * @return the present value of the swap leg
    */
   public CurrencyAmount presentValue(PricingEnvironment env, SwapLeg leg) {
-    double val = legValue(env, leg.expand(), paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
-    return CurrencyAmount.of(leg.getCurrency(), val);
+    return CurrencyAmount.of(leg.getCurrency(), presentValueInternal(env, leg));
+  }
+
+  // calculates the present value in the currency of the swap leg
+  double presentValueInternal(PricingEnvironment env, SwapLeg leg) {
+    return legValue(env, leg.expand(), paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
   }
 
   /**
@@ -103,61 +107,81 @@ public class DiscountingSwapLegPricer {
    * @return the future value of the swap leg
    */
   public CurrencyAmount futureValue(PricingEnvironment env, SwapLeg leg) {
-    double val = legValue(env, leg.expand(), paymentPeriodPricer::futureValue, paymentEventPricer::futureValue);
-    return CurrencyAmount.of(leg.getCurrency(), val);
+    return CurrencyAmount.of(leg.getCurrency(), futureValueInternal(env, leg));
   }
 
+  // calculates the present value in the currency of the swap leg
+  double futureValueInternal(PricingEnvironment env, SwapLeg leg) {
+    return legValue(env, leg.expand(), paymentPeriodPricer::futureValue, paymentEventPricer::futureValue);
+  }
+
+  // calculate present or future value for a leg
+  private double legValue(
+      PricingEnvironment env,
+      ExpandedSwapLeg leg,
+      ToDoubleBiFunction<PricingEnvironment, PaymentPeriod> periodFn,
+      ToDoubleBiFunction<PricingEnvironment, PaymentEvent> eventFn) {
+
+    double total = 0d;
+    for (PaymentPeriod period : leg.getPaymentPeriods()) {
+      if (!period.getPaymentDate().isBefore(env.getValuationDate())) {
+        total += periodFn.applyAsDouble(env, period);
+      }
+    }
+    for (PaymentEvent event : leg.getPaymentEvents()) {
+      if (!event.getPaymentDate().isBefore(env.getValuationDate())) {
+        total += eventFn.applyAsDouble(env, event);
+      }
+    }
+    return total;
+  }
+
+  // calculates the present value in the currency of the swap leg
+  double presentValueEventsInternal(PricingEnvironment env, SwapLeg leg) {
+    double total = 0d;
+    for (PaymentEvent event : leg.expand().getPaymentEvents()) {
+      if (!event.getPaymentDate().isBefore(env.getValuationDate())) {
+        total += paymentEventPricer.presentValue(env, event);
+      }
+    }
+    return total;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Computes the Present Value of a Basis Point for a fixed swap leg. 
    * <p>
-   * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1. A better name would
-   * be "Present Value of 1". The quantity is also known as "physical annuity" or "level".
+   * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1.
+   * A better name would be "Present Value of 1".
+   * The quantity is also known as "physical annuity" or "level".
    * <p>
-   * All the payments in the fixed leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * All the payments periods must be of type {@link RatePaymentPeriod}.
+   * Each period must have a fixed rate, no FX reset and no compounding.
    * 
    * @param env  the pricing environment
    * @param fixedLeg  the swap fixed leg
    * @return the Present Value of a Basis Point
    */
-  static double pvbp(PricingEnvironment env, SwapLeg fixedLeg) {
-    // TODO: make public and non-static
+  public double pvbp(PricingEnvironment env, SwapLeg fixedLeg) {
     double pvbpFixedLeg = 0.0;
-    for (PaymentPeriod p : fixedLeg.expand().getPaymentPeriods()) {
-      RatePaymentPeriod rp = (RatePaymentPeriod) p;
-      pvbpFixedLeg += pvbpPayment(env, rp);
+    for (PaymentPeriod period : fixedLeg.expand().getPaymentPeriods()) {
+      ArgChecker.isTrue(period instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
+      pvbpFixedLeg += pvbpPayment(env, (RatePaymentPeriod) period);
     }
     return pvbpFixedLeg;
   }
 
   // computes Present Value of a Basis Point for fixed payment with a unique accrual period (no compounding) and 
   // no FX reset.
-  private static double pvbpPayment(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
-    ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent());
-    ArgChecker.isTrue(paymentPeriod.getAccrualPeriods().size() == 1);
+  private double pvbpPayment(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
+    ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent(), "FX reset is not supported");
+    ArgChecker.isTrue(paymentPeriod.getAccrualPeriods().size() == 1, "Compounding is not supported");
     RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
-    ArgChecker.isTrue(accrualPeriod.getRateObservation() instanceof FixedRateObservation);
+    ArgChecker.isTrue(
+        accrualPeriod.getRateObservation() instanceof FixedRateObservation,
+        "RateObservation must be instance of FixedRateObservation");
     double df = env.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
-    double notional = paymentPeriod.getNotional();
-    return df * accrualPeriod.getYearFraction() * notional;
-  }
-
-  //-------------------------------------------------------------------------
-  // calculate present or future value for a leg
-  static double legValue(
-      PricingEnvironment env,
-      ExpandedSwapLeg leg,
-      ToDoubleBiFunction<PricingEnvironment, PaymentPeriod> periodFn,
-      ToDoubleBiFunction<PricingEnvironment, PaymentEvent> eventFn) {
-
-    double valuePeriods = leg.getPaymentPeriods().stream()
-        .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
-        .mapToDouble(p -> periodFn.applyAsDouble(env, p))
-        .sum();
-    double valueEvents = leg.getPaymentEvents().stream()
-        .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
-        .mapToDouble(e -> eventFn.applyAsDouble(env, e))
-        .sum();
-    return valuePeriods + valueEvents;
+    return df * accrualPeriod.getYearFraction() * paymentPeriod.getNotional();
   }
 
   //-------------------------------------------------------------------------
@@ -200,7 +224,7 @@ public class DiscountingSwapLegPricer {
   }
 
   // calculate present or future value sensitivity for a leg
-  static PointSensitivityBuilder legValueSensitivity(
+  private PointSensitivityBuilder legValueSensitivity(
       PricingEnvironment env,
       ExpandedSwapLeg leg,
       BiFunction<PricingEnvironment, PaymentPeriod, PointSensitivityBuilder> periodFn,
