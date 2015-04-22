@@ -11,9 +11,12 @@ import java.util.function.ToDoubleBiFunction;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -102,6 +105,40 @@ public class DiscountingSwapLegPricer {
   public CurrencyAmount futureValue(PricingEnvironment env, SwapLeg leg) {
     double val = legValue(env, leg.expand(), paymentPeriodPricer::futureValue, paymentEventPricer::futureValue);
     return CurrencyAmount.of(leg.getCurrency(), val);
+  }
+
+  /**
+   * Computes the Present Value of a Basis Point for a fixed swap leg. 
+   * <p>
+   * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1. A better name would
+   * be "Present Value of 1". The quantity is also known as "physical annuity" or "level".
+   * <p>
+   * All the payments in the fixed leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * 
+   * @param env  the pricing environment
+   * @param fixedLeg  the swap fixed leg
+   * @return the Present Value of a Basis Point
+   */
+  static double pvbp(PricingEnvironment env, SwapLeg fixedLeg) {
+    // TODO: make public and non-static
+    double pvbpFixedLeg = 0.0;
+    for (PaymentPeriod p : fixedLeg.expand().getPaymentPeriods()) {
+      RatePaymentPeriod rp = (RatePaymentPeriod) p;
+      pvbpFixedLeg += pvbpPayment(env, rp);
+    }
+    return pvbpFixedLeg;
+  }
+
+  // computes Present Value of a Basis Point for fixed payment with a unique accrual period (no compounding) and 
+  // no FX reset.
+  private static double pvbpPayment(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
+    ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent());
+    ArgChecker.isTrue(paymentPeriod.getAccrualPeriods().size() == 1);
+    RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
+    ArgChecker.isTrue(accrualPeriod.getRateObservation() instanceof FixedRateObservation);
+    double df = env.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
+    double notional = paymentPeriod.getNotional();
+    return df * accrualPeriod.getYearFraction() * notional;
   }
 
   //-------------------------------------------------------------------------

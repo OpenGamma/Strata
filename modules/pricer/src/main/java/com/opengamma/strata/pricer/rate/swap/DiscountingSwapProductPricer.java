@@ -7,7 +7,9 @@ package com.opengamma.strata.pricer.rate.swap;
 
 import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.legValue;
 import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.legValueSensitivity;
+import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.pvbp;
 
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
@@ -19,6 +21,7 @@ import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -130,6 +133,45 @@ public class DiscountingSwapProductPricer {
           .sum();
       return MultiCurrencyAmount.of(currency, pv);
     }
+  }
+
+  /**
+   * Computes the par rate for swaps with a fixed leg. 
+   * <p>
+   * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
+   * <p>
+   * At least one leg should be a fixed leg. The par rate will be computed with respect to the first fixed leg.
+   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * 
+   * @param env  the pricing environment
+   * @param product  the swap product for which the par rate should be computed
+   * @return the par rate
+   */
+  public double parRate(PricingEnvironment env, SwapProduct product) {
+    // find fixed leg
+    ExpandedSwap swap = product.expand();
+    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+    if (fixedLegs.isEmpty()) {
+      throw new IllegalArgumentException("Swap must contain a fixed leg");
+    }
+    ExpandedSwapLeg fixedLeg = fixedLegs.get(0);
+    Currency ccyFixedLeg = fixedLeg.getCurrency();
+    // other payments (not fixed leg coupons) converted in fixed leg currency
+    double otherLegsConvertedPv = 0.0;
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      if (leg != fixedLeg) {
+        double pvLocal = legValue(env, leg, paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
+        otherLegsConvertedPv += (pvLocal * env.fxRate(leg.getCurrency(), ccyFixedLeg));
+      }
+    }
+    double fixedLegEventsPv = fixedLeg.getPaymentEvents().stream()
+        .filter(p -> !p.getPaymentDate().isBefore(env.getValuationDate()))
+        .mapToDouble(e -> paymentEventPricer.presentValue(env, e))
+        .sum();
+    // PVBP
+    double pvbpFixedLeg = pvbp(env, fixedLeg);
+    // Par rate
+    return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
   }
 
   //-------------------------------------------------------------------------

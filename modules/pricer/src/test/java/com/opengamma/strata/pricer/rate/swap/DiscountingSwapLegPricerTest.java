@@ -5,14 +5,19 @@
  */
 package com.opengamma.strata.pricer.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_EXPANDED_SWAP_LEG;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_EXPANDED_SWAP_LEG_REC;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_RATE_OBSERVATION;
-import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD;
-import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -36,7 +41,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
- * Test.
+ * Tests {@link DiscountingSwapLegPricer}.
  */
 @Test
 public class DiscountingSwapLegPricerTest {
@@ -45,16 +50,47 @@ public class DiscountingSwapLegPricerTest {
   private static final PricingEnvironment MOCK_ENV_FUTURE = new MockPricingEnvironment(date(2040, 1, 22));
   private static final double TOLERANCE = 1.0e-12;
 
+  public void test_pvbp_OnePeriod() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    double df = 0.99d;
+    when(mockEnv.discountFactor(USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate()))
+        .thenReturn(df);
+    double expected = df * FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getNotional() *
+        FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getAccrualPeriods().get(0).getYearFraction();
+    assertEquals(DiscountingSwapLegPricer.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY_USD), expected, TOLERANCE);
+  }
+
+  public void test_pvbp_TwoPeriods() {
+    ExpandedSwapLeg leg = ExpandedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2)
+        .build();
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    double df1 = 0.99d;
+    when(mockEnv.discountFactor(USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate()))
+        .thenReturn(df1);
+    double df2 = 0.98d;
+    when(mockEnv.discountFactor(USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2.getPaymentDate()))
+        .thenReturn(df2);
+    double expected = df1 * FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getNotional() *
+        FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getAccrualPeriods().get(0).getYearFraction();
+    expected += df2 * FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2.getNotional() *
+        FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2.getAccrualPeriods().get(0).getYearFraction();
+    assertEquals(DiscountingSwapLegPricer.pvbp(mockEnv, leg), expected, TOLERANCE);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_presentValue_withCurrency() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
-    when(mockPeriod.presentValue(MOCK_ENV, IBOR_RATE_PAYMENT_PERIOD))
+    when(mockPeriod.presentValue(MOCK_ENV, IBOR_RATE_PAYMENT_PERIOD_REC))
         .thenReturn(1000d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockEvent.presentValue(MOCK_ENV, NOTIONAL_EXCHANGE))
+    when(mockEvent.presentValue(MOCK_ENV, NOTIONAL_EXCHANGE_REC_GBP))
         .thenReturn(1000d);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(USD, 2000d * 1.6d);
-    assertEquals(test.presentValue(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG, USD), expected);
+    assertEquals(test.presentValue(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG_REC, USD), expected);
   }
 
   public void test_presentValue_withCurrency_past() {
@@ -62,20 +98,20 @@ public class DiscountingSwapLegPricerTest {
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(USD, 0d);
-    assertEquals(test.presentValue(MOCK_ENV_FUTURE, IBOR_EXPANDED_SWAP_LEG, USD), expected);
+    assertEquals(test.presentValue(MOCK_ENV_FUTURE, IBOR_EXPANDED_SWAP_LEG_REC, USD), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
-    when(mockPeriod.presentValue(MOCK_ENV, IBOR_RATE_PAYMENT_PERIOD))
+    when(mockPeriod.presentValue(MOCK_ENV, IBOR_RATE_PAYMENT_PERIOD_REC))
         .thenReturn(1000d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockEvent.presentValue(MOCK_ENV, NOTIONAL_EXCHANGE))
+    when(mockEvent.presentValue(MOCK_ENV, NOTIONAL_EXCHANGE_REC_GBP))
         .thenReturn(1000d);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(GBP, 2000d);
-    assertEquals(test.presentValue(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG), expected);
+    assertEquals(test.presentValue(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG_REC), expected);
   }
 
   public void test_presentValue_past() {
@@ -83,20 +119,20 @@ public class DiscountingSwapLegPricerTest {
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(GBP, 0d);
-    assertEquals(test.presentValue(MOCK_ENV_FUTURE, IBOR_EXPANDED_SWAP_LEG), expected);
+    assertEquals(test.presentValue(MOCK_ENV_FUTURE, IBOR_EXPANDED_SWAP_LEG_REC), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_futureValue() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
-    when(mockPeriod.futureValue(MOCK_ENV, IBOR_RATE_PAYMENT_PERIOD))
+    when(mockPeriod.futureValue(MOCK_ENV, IBOR_RATE_PAYMENT_PERIOD_REC))
         .thenReturn(1000d);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockEvent.futureValue(MOCK_ENV, NOTIONAL_EXCHANGE))
+    when(mockEvent.futureValue(MOCK_ENV, NOTIONAL_EXCHANGE_REC_GBP))
         .thenReturn(1000d);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(GBP, 2000d);
-    assertEquals(test.futureValue(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG), expected);
+    assertEquals(test.futureValue(MOCK_ENV, IBOR_EXPANDED_SWAP_LEG_REC), expected);
   }
 
   public void test_futureValue_past() {
@@ -104,21 +140,21 @@ public class DiscountingSwapLegPricerTest {
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     CurrencyAmount expected = CurrencyAmount.of(GBP, 0d);
-    assertEquals(test.futureValue(MOCK_ENV_FUTURE, IBOR_EXPANDED_SWAP_LEG), expected);
+    assertEquals(test.futureValue(MOCK_ENV_FUTURE, IBOR_EXPANDED_SWAP_LEG_REC), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG;
+    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC;
     IborIndex index = GBP_LIBOR_3M;
     Currency ccy = GBP_LIBOR_3M.getCurrency();
     LocalDate fixingDate = IBOR_RATE_OBSERVATION.getFixingDate();
-    LocalDate paymentDate = IBOR_RATE_PAYMENT_PERIOD.getPaymentDate();
+    LocalDate paymentDate = IBOR_RATE_PAYMENT_PERIOD_REC.getPaymentDate();
 
     IborRateSensitivity fwdSense = IborRateSensitivity.of(index, ccy, fixingDate, 140.0);
     ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(ccy, paymentDate, -162.0);
     PointSensitivityBuilder sensiPeriod = fwdSense.combinedWith(dscSense);
-    LocalDate paymentDateEvent = NOTIONAL_EXCHANGE.getPaymentDate();
+    LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
     PointSensitivityBuilder sensiEvent = ZeroRateSensitivity.of(ccy, paymentDateEvent, -134.0);
     PointSensitivities expected = sensiPeriod.build().combinedWith(sensiEvent.build());
 
@@ -135,7 +171,7 @@ public class DiscountingSwapLegPricerTest {
   }
 
   public void test_futureValueSensitivity() {
-    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG;
+    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC;
     IborIndex index = GBP_LIBOR_3M;
     Currency ccy = GBP_LIBOR_3M.getCurrency();
     LocalDate fixingDate = IBOR_RATE_OBSERVATION.getFixingDate();

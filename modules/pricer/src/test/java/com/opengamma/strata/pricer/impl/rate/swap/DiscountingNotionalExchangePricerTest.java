@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
-import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -33,20 +33,20 @@ public class DiscountingNotionalExchangePricerTest {
   public void test_presentValue() {
     double discountFactor = 0.98d;
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.discountFactor(NOTIONAL_EXCHANGE.getCurrency(), NOTIONAL_EXCHANGE.getPaymentDate()))
+    when(mockEnv.discountFactor(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate()))
         .thenReturn(discountFactor);
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     assertEquals(
-        test.presentValue(mockEnv, NOTIONAL_EXCHANGE),
-        NOTIONAL_EXCHANGE.getPaymentAmount().getAmount() * discountFactor, 0d);
+        test.presentValue(mockEnv, NOTIONAL_EXCHANGE_REC_GBP),
+        NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * discountFactor, 0d);
   }
 
   public void test_futureValue() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     assertEquals(
-        test.futureValue(mockEnv, NOTIONAL_EXCHANGE),
-        NOTIONAL_EXCHANGE.getPaymentAmount().getAmount(), 0d);
+        test.futureValue(mockEnv, NOTIONAL_EXCHANGE_REC_GBP),
+        NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), 0d);
   }
 
   /**
@@ -56,20 +56,20 @@ public class DiscountingNotionalExchangePricerTest {
     double discountFactor = 0.98d;
     double paymentTime = 0.75;
     PricingEnvironment env = mock(PricingEnvironment.class);
-    when(env.relativeTime(NOTIONAL_EXCHANGE.getPaymentDate())).thenReturn(paymentTime);
-    when(env.discountFactor(NOTIONAL_EXCHANGE.getCurrency(), NOTIONAL_EXCHANGE.getPaymentDate())).thenReturn(
+    when(env.relativeTime(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())).thenReturn(paymentTime);
+    when(env.discountFactor(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())).thenReturn(
         discountFactor);
-    PointSensitivityBuilder builder = ZeroRateSensitivity.of(NOTIONAL_EXCHANGE.getCurrency(),
-        NOTIONAL_EXCHANGE.getPaymentDate(), -discountFactor * paymentTime); // this is implemented in environment
-    when(env.discountFactorZeroRateSensitivity(NOTIONAL_EXCHANGE.getCurrency(), NOTIONAL_EXCHANGE.getPaymentDate()))
+    PointSensitivityBuilder builder = ZeroRateSensitivity.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(),
+        NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate(), -discountFactor * paymentTime); // this is implemented in environment
+    when(env.discountFactorZeroRateSensitivity(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate()))
         .thenReturn(builder);
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.presentValueSensitivity(env, NOTIONAL_EXCHANGE).build();
+    PointSensitivities senseComputed = pricer.presentValueSensitivity(env, NOTIONAL_EXCHANGE_REC_GBP).build();
 
     double eps = 1.0e-7;
     PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(env,
-        NOTIONAL_EXCHANGE, eps));
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected, NOTIONAL_EXCHANGE
+        NOTIONAL_EXCHANGE_REC_GBP, eps));
+    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected, NOTIONAL_EXCHANGE_REC_GBP
         .getPaymentAmount().getAmount() * eps);
   }
 
@@ -79,11 +79,11 @@ public class DiscountingNotionalExchangePricerTest {
   public void test_futureValueSensitivity() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.futureValueSensitivity(env, NOTIONAL_EXCHANGE).build();
+    PointSensitivities senseComputed = pricer.futureValueSensitivity(env, NOTIONAL_EXCHANGE_REC_GBP).build();
 
     double eps = 1.0e-12;
     PointSensitivities senseExpected = PointSensitivities.NONE;
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected, NOTIONAL_EXCHANGE
+    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected, NOTIONAL_EXCHANGE_REC_GBP
         .getPaymentAmount().getAmount() * eps);
   }
 
