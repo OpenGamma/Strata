@@ -47,27 +47,26 @@ public class ApproxForwardOvernightAveragedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
+
     OvernightIndex index = observation.getIndex();
     LocalDate valuationDate = provider.getValuationDate();
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate startPublicationDate = index.calculatePublicationFromFixing(startFixingDate);
     // No fixing to analyze. Go directly to approximation and cut-off.
     if (valuationDate.isBefore(startPublicationDate)) {
-      return rateForward(provider, observation);
+      return rateForward(observation, provider);
     }
-    ObservationDetails details = new ObservationDetails(provider, observation);
+    ObservationDetails details = new ObservationDetails(observation, provider);
     return details.calculateRate();
   }
 
   // Compute the approximated rate in the case where the whole period is forward. 
   // There is no need to compute overnight periods, except for the cut-off period.
-  private double rateForward(
-      RatesProvider provider,
-      OvernightAveragedRateObservation observation) {
+  private double rateForward(OvernightAveragedRateObservation observation, RatesProvider provider) {
     OvernightIndex index = observation.getIndex();
     HolidayCalendar calendar = index.getFixingCalendar();
     LocalDate startFixingDate = observation.getStartDate();
@@ -96,14 +95,18 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       }
     }
     // Approximated part
-    accumulatedInterest += approximatedInterest(provider, index, onRateStartDate, onRateNoCutOffEndDate);
+    accumulatedInterest += approximatedInterest(index, onRateStartDate, onRateNoCutOffEndDate, provider);
     // final rate
     return accumulatedInterest / accrualFactorTotal;
   }
 
   // Compute the accrued interest on a given period by approximation.
   private static double approximatedInterest(
-      RatesProvider provider, OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+      OvernightIndex index,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider) {
+
     double remainingFixingAccrualFactor = index.getDayCount().yearFraction(startDate, endDate);
     double forwardRate = provider.overnightIndexRatePeriod(index, startDate, endDate);
     return Math.log(1.0 + forwardRate * remainingFixingAccrualFactor);
@@ -111,10 +114,10 @@ public class ApproxForwardOvernightAveragedRateObservationFn
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
     // TODO
     throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }
@@ -137,7 +140,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
 
     // Construct all the details related to the observation: fixing dates, publication dates, start and end dates, 
     // accrual factors, number of already fixed ON rates.
-    private ObservationDetails(RatesProvider provider, OvernightAveragedRateObservation observation) {
+    private ObservationDetails(OvernightAveragedRateObservation observation, RatesProvider provider) {
       this.provider = provider;
       index = observation.getIndex();
       ArrayList<LocalDate> fixingDatesCstr = new ArrayList<>();
@@ -218,7 +221,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       if (fixedPeriod < nbPeriodNotCutOff) {
         LocalDate startDateApprox = onRatePeriodEffectiveDates.get(fixedPeriod);
         LocalDate endDateApprox = onRatePeriodMaturityDates.get(nbPeriodNotCutOff - 1);
-        return approximatedInterest(provider, index, startDateApprox, endDateApprox);
+        return approximatedInterest(index, startDateApprox, endDateApprox, provider);
       }
       return 0.0d;
     }

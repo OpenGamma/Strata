@@ -77,7 +77,7 @@ public class SwapPvFunction implements VectorEngineFunction<SwapTrade, List<Curr
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
-        .map(provider -> DiscountingSwapProductPricer.DEFAULT.presentValue(provider, expandedSwap, currency))
+        .map(provider -> DiscountingSwapProductPricer.DEFAULT.presentValue(expandedSwap, currency, provider))
         .collect(toList());
   }
 }

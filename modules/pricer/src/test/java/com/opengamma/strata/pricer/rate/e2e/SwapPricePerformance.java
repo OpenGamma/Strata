@@ -107,7 +107,7 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor1mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(PROVIDER, TRADE1, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE1, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -143,7 +143,7 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor3mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(PROVIDER, TRADE2, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE2, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -179,7 +179,7 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor3mSwapWithFixing() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(PROVIDER, TRADE3, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE3, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -233,7 +233,7 @@ public class SwapPricePerformance {
 
   public double test_BasisLibor3mVsLibor6mSwapWithSpread() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(PROVIDER, TRADE4, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE4, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -287,7 +287,7 @@ public class SwapPricePerformance {
 
   public double test_BasisCompoundedLibor1mVsLibor3mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(PROVIDER, TRADE5, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE5, USD, PROVIDER);
     return pv.getAmount();
   }
 

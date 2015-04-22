@@ -59,7 +59,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       accruedRate += FIXING_RATES[i] * af;
     }
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockProv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
@@ -88,7 +88,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     accrualFactorTotal += af;
     accruedRate += FIXING_RATES[indexLast - 1] * af;
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockProv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
@@ -116,7 +116,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       accruedRate += FIXING_RATES[i] * af;
     }
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockProv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
@@ -142,7 +142,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       accruedRate += FIXING_RATES[i] * af;
     }
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockProv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 

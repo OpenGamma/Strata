@@ -42,19 +42,19 @@ public class ForwardOvernightCompoundedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       OvernightCompoundedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
-    return new ObservationDetails(provider, observation).calculateRate();
+      LocalDate endDate,
+      RatesProvider provider) {
+    return new ObservationDetails(observation, provider).calculateRate();
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       OvernightCompoundedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
     // TODO
     throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }
@@ -76,7 +76,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     private final double[] accrualFactorCutoff; // Accrual factors for the sub-periods using the cutoff rate.
     private LocalDate nextFixing; // Running variable through the different methods: next fixing date to be analyzed
 
-    private ObservationDetails(RatesProvider provider, OvernightCompoundedRateObservation observation) {
+    private ObservationDetails(OvernightCompoundedRateObservation observation, RatesProvider provider) {
       this.provider = provider;
       index = observation.getIndex();
       fixingCalendar = index.getFixingCalendar();

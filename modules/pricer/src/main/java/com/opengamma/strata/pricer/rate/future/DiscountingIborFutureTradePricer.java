@@ -54,12 +54,12 @@ public class DiscountingIborFutureTradePricer
    * <p>
    * The price of the trade is the price on the valuation date.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the price of the trade, in decimal form
    */
-  public double price(RatesProvider provider, IborFutureTrade trade) {
-    return productPricer.price(provider, trade.getSecurity().getProduct());
+  public double price(IborFutureTrade trade, RatesProvider provider) {
+    return productPricer.price(trade.getSecurity().getProduct(), provider);
   }
 
   /**
@@ -67,14 +67,14 @@ public class DiscountingIborFutureTradePricer
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @param referencePrice  the price with respect to which the margining should be done. The reference price is
    *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the present value
    */
-  public CurrencyAmount presentValue(RatesProvider provider, IborFutureTrade trade, double referencePrice) {
-    double price = price(provider, trade);
+  public CurrencyAmount presentValue(IborFutureTrade trade, RatesProvider provider, double referencePrice) {
+    double price = price(trade, provider);
     return presentValue(trade, price, referencePrice);
   }
 
@@ -84,13 +84,13 @@ public class DiscountingIborFutureTradePricer
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivity(RatesProvider provider, IborFutureTrade trade) {
+  public PointSensitivities presentValueSensitivity(IborFutureTrade trade, RatesProvider provider) {
     IborFuture product = trade.getSecurity().getProduct();
-    PointSensitivities priceSensi = productPricer.priceSensitivity(provider, product);
+    PointSensitivities priceSensi = productPricer.priceSensitivity(product, provider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
@@ -102,14 +102,14 @@ public class DiscountingIborFutureTradePricer
    * The par spread is defined in the following way. When the reference price (or market quote)
    * is increased by the par spread, the present value of the trade is zero.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @param referencePrice  the price with respect to which the margining should be done. The reference price is
    *   the trade date before any margining has taken place and the price used for the last margining otherwise.
    * @return the par spread.
    */
-  public double parSpread(RatesProvider provider, IborFutureTrade trade, double referencePrice) {
-    return price(provider, trade) - referencePrice;
+  public double parSpread(IborFutureTrade trade, RatesProvider provider, double referencePrice) {
+    return price(trade, provider) - referencePrice;
   }
 
   /**
@@ -118,12 +118,12 @@ public class DiscountingIborFutureTradePricer
    * The par spread sensitivity of the trade is the sensitivity of the par spread to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the par spread curve sensitivity of the trade
    */
-  public PointSensitivities parSpreadSensitivity(RatesProvider provider, IborFutureTrade trade) {
-    return productPricer.priceSensitivity(provider, trade.getSecurity().getProduct());
+  protected PointSensitivities parSpreadSensitivity(IborFutureTrade trade, RatesProvider provider) {
+    return productPricer.priceSensitivity(trade.getSecurity().getProduct(), provider);
   }
 
 }

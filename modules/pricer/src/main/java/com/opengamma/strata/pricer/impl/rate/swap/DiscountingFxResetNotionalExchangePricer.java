@@ -33,27 +33,27 @@ public class DiscountingFxResetNotionalExchangePricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(RatesProvider provider, FxResetNotionalExchange event) {
+  public double presentValue(FxResetNotionalExchange event, RatesProvider provider) {
     // futureValue * discountFactor
     double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
-    return futureValue(provider, event) * df;
+    return futureValue(event, provider) * df;
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(RatesProvider provider, FxResetNotionalExchange event) {
+  public PointSensitivityBuilder presentValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
     throw new UnsupportedOperationException();  // TODO
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(RatesProvider provider, FxResetNotionalExchange event) {
+  public double futureValue(FxResetNotionalExchange event, RatesProvider provider) {
     // notional * fxRate
     double fxRate = provider.fxIndexRate(event.getIndex(), event.getReferenceCurrency(), event.getFixingDate());
     return event.getNotional() * fxRate;
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(RatesProvider provider, FxResetNotionalExchange event) {
+  public PointSensitivityBuilder futureValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
     throw new UnsupportedOperationException();  // TODO
   }
 

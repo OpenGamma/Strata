@@ -42,11 +42,11 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The payment date of the period should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param provider  the rates provider
    * @param period  the period to price
+   * @param provider  the rates provider
    * @return the present value of the period
    */
-  public abstract double presentValue(RatesProvider provider, T period);
+  public abstract double presentValue(T period, RatesProvider provider);
 
   /**
    * Calculates the present value sensitivity of a single payment period.
@@ -54,11 +54,11 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The present value sensitivity of the period is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param period  the period to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the period
    */
-  public abstract PointSensitivityBuilder presentValueSensitivity(RatesProvider provider, T period);
+  public abstract PointSensitivityBuilder presentValueSensitivity(T period, RatesProvider provider);
 
   /**
    * Calculates the future value of a single payment period.
@@ -69,11 +69,11 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The payment date of the period should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param provider  the rates provider
    * @param period  the period to price
+   * @param provider  the rates provider
    * @return the future value of the period
    */
-  public abstract double futureValue(RatesProvider provider, T period);
+  public abstract double futureValue(T period, RatesProvider provider);
 
   /**
    * Calculates the future value sensitivity of a single payment period.
@@ -81,10 +81,10 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The future value sensitivity of the period is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param period  the period to price
+   * @param provider  the rates provider
    * @return the future value curve sensitivity of the period
    */
-  public abstract PointSensitivityBuilder futureValueSensitivity(RatesProvider provider, T period);
+  public abstract PointSensitivityBuilder futureValueSensitivity(T period, RatesProvider provider);
 
 }

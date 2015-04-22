@@ -55,7 +55,7 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     double weight3M = (days6M - daysCpn) / (days6M - days3M);
     double weight6M = (daysCpn - days3M) / (days6M - days3M);
     double rateExpected = (weight3M * RATE3 + weight6M * RATE6);
-    double rateComputed = obs.rate(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double rateComputed = obs.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
   }
 
@@ -78,7 +78,7 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     IborRateSensitivity sens3 = IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATE, weight3M);
     IborRateSensitivity sens6 = IborRateSensitivity.of(GBP_LIBOR_6M, FIXING_DATE, weight6M);
     PointSensitivities expected = PointSensitivities.of(ImmutableList.of(sens3, sens6));
-    PointSensitivityBuilder test = obsFn.rateSensitivity(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
     assertEquals(test.build(), expected);
   }
 
@@ -89,26 +89,26 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(SENSITIVITY6);
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     ForwardIborInterpolatedRateObservationFn obs = ForwardIborInterpolatedRateObservationFn.DEFAULT;
-    PointSensitivityBuilder test = obs.rateSensitivity(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    PointSensitivityBuilder test = obs.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
 
     RatesProvider mockProvUp3M = mock(RatesProvider.class);
     when(mockProvUp3M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3 + eps);
     when(mockProvUp3M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6);
-    double rateUp3M = obs.rate(mockProvUp3M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double rateUp3M = obs.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvUp3M);
     RatesProvider mockProvDw3M = mock(RatesProvider.class);
     when(mockProvDw3M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3 - eps);
     when(mockProvDw3M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6);
-    double rateDw3M = obs.rate(mockProvDw3M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double rateDw3M = obs.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvDw3M);
     double senseExpected3M = 0.5 * (rateUp3M - rateDw3M) / eps;
 
     RatesProvider mockProvUp6M = mock(RatesProvider.class);
     when(mockProvUp6M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3);
     when(mockProvUp6M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6 + eps);
-    double rateUp6M = obs.rate(mockProvUp6M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double rateUp6M = obs.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvUp6M);
     RatesProvider mockProvDw6M = mock(RatesProvider.class);
     when(mockProvDw6M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3);
     when(mockProvDw6M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6 - eps);
-    double rateDw6M = obs.rate(mockProvDw6M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double rateDw6M = obs.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvDw6M);
     double senseExpected6M = 0.5 * (rateUp6M - rateDw6M) / eps;
 
     assertEquals(test.build().getSensitivities().get(0).getSensitivity(), senseExpected3M, eps);

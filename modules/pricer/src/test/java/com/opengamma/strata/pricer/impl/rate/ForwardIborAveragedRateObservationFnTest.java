@@ -65,7 +65,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     double rateExpected = totalWeightedRate / totalWeight;
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
-    double rateComputed = obsFn.rate(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
   }
 
@@ -90,7 +90,7 @@ public class ForwardIborAveragedRateObservationFnTest {
         IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[3], WEIGHTS[3] / totalWeight)));
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
-    PointSensitivityBuilder test = obsFn.rateSensitivity(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
     assertEquals(test.build(), expected);
   }
 
@@ -110,7 +110,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     }
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
-    PointSensitivityBuilder test = obsFn.rateSensitivity(mockProvBase, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvBase);
     for (int i = 0; i < nDates; ++i) {
       RatesProvider mockProvUp = mock(RatesProvider.class);
       RatesProvider mockProvDw = mock(RatesProvider.class);
@@ -123,8 +123,8 @@ public class ForwardIborAveragedRateObservationFnTest {
           when(mockProvDw.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
         }
       }
-      double rateUp = obsFn.rate(mockProvUp, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
-      double rateDw = obsFn.rate(mockProvDw, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+      double rateUp = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvUp);
+      double rateDw = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvDw);
       double resExpected = 0.5 * (rateUp - rateDw) / eps;
       assertEquals(test.build().getSensitivities().get(i).getSensitivity(), resExpected, eps);
     }

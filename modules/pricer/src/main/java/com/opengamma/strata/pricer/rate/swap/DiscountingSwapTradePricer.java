@@ -50,13 +50,13 @@ public class DiscountingSwapTradePricer {
    * This is the discounted future value.
    * The result is converted to the specified currency.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
    * @param currency  the currency to convert to
+   * @param provider  the rates provider
    * @return the present value of the swap trade in the specified currency
    */
-  public CurrencyAmount presentValue(RatesProvider provider, SwapTrade trade, Currency currency) {
-    return productPricer.presentValue(provider, trade.getProduct(), currency);
+  public CurrencyAmount presentValue(SwapTrade trade, Currency currency, RatesProvider provider) {
+    return productPricer.presentValue(trade.getProduct(), currency, provider);
   }
 
   /**
@@ -66,12 +66,12 @@ public class DiscountingSwapTradePricer {
    * This is the discounted future value.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the present value of the swap trade
    */
-  public MultiCurrencyAmount presentValue(RatesProvider provider, SwapTrade trade) {
-    return productPricer.presentValue(provider, trade.getProduct());
+  public MultiCurrencyAmount presentValue(SwapTrade trade, RatesProvider provider) {
+    return productPricer.presentValue(trade.getProduct(), provider);
   }
 
   /**
@@ -80,12 +80,12 @@ public class DiscountingSwapTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the swap trade
    */
-  public PointSensitivities presentValueSensitivity(RatesProvider provider, SwapTrade trade) {
-    return productPricer.presentValueSensitivity(provider, trade.getProduct()).build();
+  public PointSensitivities presentValueSensitivity(SwapTrade trade, RatesProvider provider) {
+    return productPricer.presentValueSensitivity(trade.getProduct(), provider).build();
   }
 
   //-------------------------------------------------------------------------
@@ -95,12 +95,12 @@ public class DiscountingSwapTradePricer {
    * The future value of the trade is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the future value of the swap trade
    */
-  public MultiCurrencyAmount futureValue(RatesProvider provider, SwapTrade trade) {
-    return productPricer.futureValue(provider, trade.getProduct());
+  public MultiCurrencyAmount futureValue(SwapTrade trade, RatesProvider provider) {
+    return productPricer.futureValue(trade.getProduct(), provider);
   }
 
   /**
@@ -109,12 +109,12 @@ public class DiscountingSwapTradePricer {
    * The future value sensitivity of the trade is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the future value curve sensitivity of the swap trade
    */
-  public PointSensitivities futureValueSensitivity(RatesProvider provider, SwapTrade trade) {
-    return productPricer.futureValueSensitivity(provider, trade.getProduct()).build();
+  public PointSensitivities futureValueSensitivity(SwapTrade trade, RatesProvider provider) {
+    return productPricer.futureValueSensitivity(trade.getProduct(), provider).build();
   }
 
 }

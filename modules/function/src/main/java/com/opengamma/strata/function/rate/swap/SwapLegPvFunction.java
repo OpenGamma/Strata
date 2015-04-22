@@ -99,7 +99,7 @@ public class SwapLegPvFunction implements VectorEngineFunction<SwapTrade, List<C
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
-        .map(provider -> DiscountingSwapLegPricer.DEFAULT.presentValue(provider, leg, currency))
+        .map(provider -> DiscountingSwapLegPricer.DEFAULT.presentValue(leg, currency, provider))
         .collect(toImmutableList());
   }
 

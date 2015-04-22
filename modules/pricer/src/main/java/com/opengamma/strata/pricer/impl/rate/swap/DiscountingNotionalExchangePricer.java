@@ -31,27 +31,27 @@ public class DiscountingNotionalExchangePricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(RatesProvider provider, NotionalExchange event) {
+  public double presentValue(NotionalExchange event, RatesProvider provider) {
     // futureValue * discountFactor
     double df = provider.discountFactor(event.getPaymentAmount().getCurrency(), event.getPaymentDate());
-    return futureValue(provider, event) * df;
+    return futureValue(event, provider) * df;
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(RatesProvider provider, NotionalExchange event) {
+  public PointSensitivityBuilder presentValueSensitivity(NotionalExchange event, RatesProvider provider) {
     PointSensitivityBuilder sensi = provider.discountFactorZeroRateSensitivity(event.getCurrency(), event.getPaymentDate());
     return sensi.multipliedBy(event.getPaymentAmount().getAmount());
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(RatesProvider provider, NotionalExchange event) {
+  public double futureValue(NotionalExchange event, RatesProvider provider) {
     // paymentAmount
     return event.getPaymentAmount().getAmount();
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(RatesProvider provider, NotionalExchange event) {
+  public PointSensitivityBuilder futureValueSensitivity(NotionalExchange event, RatesProvider provider) {
     return PointSensitivityBuilder.none();
   }
 

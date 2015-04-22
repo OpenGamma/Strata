@@ -43,14 +43,14 @@ public class DiscountingIborFutureTradePricerTest {
 
   //------------------------------------------------------------------------- 
   public void test_price() {
-    assertEquals(PRICER_TRADE.price(MOCK_PROV, FUTURE_TRADE), 1.0 - RATE, TOLERANCE_PRICE);
+    assertEquals(PRICER_TRADE.price(FUTURE_TRADE, MOCK_PROV), 1.0 - RATE, TOLERANCE_PRICE);
   }
 
   //-------------------------------------------------------------------------
   public void test_parSpread() {
     double referencePrice = 0.99;
-    double parSpreadExpected = PRICER_TRADE.price(MOCK_PROV, FUTURE_TRADE) - referencePrice;
-    double parSpreadComputed = PRICER_TRADE.parSpread(MOCK_PROV, FUTURE_TRADE, referencePrice);
+    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, MOCK_PROV) - referencePrice;
+    double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, MOCK_PROV, referencePrice);
     assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
   }
 
@@ -61,24 +61,24 @@ public class DiscountingIborFutureTradePricerTest {
     DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
     double expected = ((1.0 - RATE) - lastClosingPrice) *
         future.getAccrualFactor() * future.getNotional() * FUTURE_TRADE.getQuantity();
-    CurrencyAmount computed = pricerFn.presentValue(MOCK_PROV, FUTURE_TRADE, lastClosingPrice);
+    CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, MOCK_PROV, lastClosingPrice);
     assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
     assertEquals(computed.getCurrency(), future.getCurrency());
   }
 
   //-------------------------------------------------------------------------   
   public void test_presentValueSensitivity() {
-    PointSensitivities sensiPrice = PRICER_PRODUCT.priceSensitivity(MOCK_PROV, FUTURE_PRODUCT);
+    PointSensitivities sensiPrice = PRICER_PRODUCT.priceSensitivity(FUTURE_PRODUCT, MOCK_PROV);
     PointSensitivities sensiPresentValueExpected = sensiPrice.multipliedBy(
         FUTURE_PRODUCT.getNotional() * FUTURE_PRODUCT.getAccrualFactor() * FUTURE_TRADE.getQuantity());
-    PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(MOCK_PROV, FUTURE_TRADE);
+    PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(FUTURE_TRADE, MOCK_PROV);
     assertTrue(sensiPresentValueComputed.equalWithTolerance(sensiPresentValueExpected, TOLERANCE_PV_DELTA));
   }
 
   //-------------------------------------------------------------------------
   public void test_parSpreadSensitivity() {
-    PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(MOCK_PROV, FUTURE_PRODUCT);
-    PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(MOCK_PROV, FUTURE_TRADE);
+    PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(FUTURE_PRODUCT, MOCK_PROV);
+    PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(FUTURE_TRADE, MOCK_PROV);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }
 

@@ -89,10 +89,10 @@ public class DispatchingRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       RateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     // dispatch by runtime type
     if (observation instanceof FixedRateObservation) {
@@ -100,19 +100,19 @@ public class DispatchingRateObservationFn
       return ((FixedRateObservation) observation).getRate();
     } else if (observation instanceof IborRateObservation) {
       return iborRateObservationFn.rate(
-          provider, (IborRateObservation) observation, startDate, endDate);
+          (IborRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof IborInterpolatedRateObservation) {
       return iborInterpolatedRateObservationFn.rate(
-          provider, (IborInterpolatedRateObservation) observation, startDate, endDate);
+          (IborInterpolatedRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof IborAveragedRateObservation) {
       return iborAveragedRateObservationFn.rate(
-          provider, (IborAveragedRateObservation) observation, startDate, endDate);
+          (IborAveragedRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof OvernightAveragedRateObservation) {
       return overnightAveragedRateObservationFn.rate(
-          provider, (OvernightAveragedRateObservation) observation, startDate, endDate);
+          (OvernightAveragedRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof OvernightCompoundedRateObservation) {
       return overnightCompoundedRateObservationFn.rate(
-          provider, (OvernightCompoundedRateObservation) observation, startDate, endDate);
+          (OvernightCompoundedRateObservation) observation, startDate, endDate, provider);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }
@@ -120,10 +120,10 @@ public class DispatchingRateObservationFn
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       RateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     // dispatch by runtime type
     if (observation instanceof FixedRateObservation) {
@@ -131,19 +131,19 @@ public class DispatchingRateObservationFn
       return PointSensitivityBuilder.none();
     } else if (observation instanceof IborRateObservation) {
       return iborRateObservationFn.rateSensitivity(
-          provider, (IborRateObservation) observation, startDate, endDate);
+          (IborRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof IborInterpolatedRateObservation) {
       return iborInterpolatedRateObservationFn.rateSensitivity(
-          provider, (IborInterpolatedRateObservation) observation, startDate, endDate);
+          (IborInterpolatedRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof IborAveragedRateObservation) {
       return iborAveragedRateObservationFn.rateSensitivity(
-          provider, (IborAveragedRateObservation) observation, startDate, endDate);
+          (IborAveragedRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof OvernightAveragedRateObservation) {
       return overnightAveragedRateObservationFn.rateSensitivity(
-          provider, (OvernightAveragedRateObservation) observation, startDate, endDate);
+          (OvernightAveragedRateObservation) observation, startDate, endDate, provider);
     } else if (observation instanceof OvernightCompoundedRateObservation) {
       return overnightCompoundedRateObservationFn.rateSensitivity(
-          provider, (OvernightCompoundedRateObservation) observation, startDate, endDate);
+          (OvernightCompoundedRateObservation) observation, startDate, endDate, provider);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }

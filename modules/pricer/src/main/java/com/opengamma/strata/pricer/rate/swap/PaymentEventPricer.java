@@ -42,11 +42,11 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The payment date of the event should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param provider  the rates provider
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the present value of the event
    */
-  public abstract double presentValue(RatesProvider provider, T event);
+  public abstract double presentValue(T event, RatesProvider provider);
 
   /**
    * Calculates the present value sensitivity of a single payment event.
@@ -54,11 +54,11 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The present value sensitivity of the event is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the event
    */
-  public abstract PointSensitivityBuilder presentValueSensitivity(RatesProvider provider, T event);
+  public abstract PointSensitivityBuilder presentValueSensitivity(T event, RatesProvider provider);
 
   /**
    * Calculates the future value of a single payment event.
@@ -69,11 +69,11 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The payment date of the event should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param provider  the rates provider
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the future value of the event
    */
-  public abstract double futureValue(RatesProvider provider, T event);
+  public abstract double futureValue(T event, RatesProvider provider);
 
   /**
    * Calculates the future value sensitivity of a single payment event.
@@ -81,10 +81,10 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The future value sensitivity of the event is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the future value curve sensitivity of the event
    */
-  public abstract PointSensitivityBuilder futureValueSensitivity(RatesProvider provider, T event);
+  public abstract PointSensitivityBuilder futureValueSensitivity(T event, RatesProvider provider);
 
 }

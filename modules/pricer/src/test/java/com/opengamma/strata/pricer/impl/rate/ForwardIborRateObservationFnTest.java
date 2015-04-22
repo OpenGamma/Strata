@@ -37,7 +37,7 @@ public class ForwardIborRateObservationFnTest {
         .thenReturn(RATE);
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
-    assertEquals(obsFn.rate(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), RATE);
+    assertEquals(obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv), RATE);
   }
 
   public void test_rateSensitivity() {
@@ -46,7 +46,7 @@ public class ForwardIborRateObservationFnTest {
         .thenReturn(SENSITIVITY);
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
-    assertEquals(obsFn.rateSensitivity(mockProv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), SENSITIVITY);
+    assertEquals(obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv), SENSITIVITY);
   }
 
 }

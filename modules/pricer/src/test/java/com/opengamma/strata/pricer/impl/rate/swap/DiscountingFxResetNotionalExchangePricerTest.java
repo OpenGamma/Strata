@@ -31,7 +31,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .thenReturn(discountFactor);
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     assertEquals(
-        test.presentValue(mockProv, ne),
+        test.presentValue(ne, mockProv),
         ne.getNotional() * 1.6d * discountFactor, 0d);
   }
 
@@ -42,7 +42,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .thenReturn(1.6d);
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     assertEquals(
-        test.futureValue(mockProv, ne),
+        test.futureValue(ne, mockProv),
         ne.getNotional() * 1.6d, 0d);
   }
 

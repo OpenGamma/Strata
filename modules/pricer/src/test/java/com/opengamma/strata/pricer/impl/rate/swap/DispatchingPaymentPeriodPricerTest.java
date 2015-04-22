@@ -30,32 +30,32 @@ public class DispatchingPaymentPeriodPricerTest {
   public void test_presentValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
-    when(mockNotionalExchangeFn.presentValue(MOCK_PROV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC))
+    when(mockNotionalExchangeFn.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn);
-    assertEquals(test.presentValue(MOCK_PROV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC), expected, 0d);
+    assertEquals(test.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV), expected, 0d);
   }
 
   public void test_presentValue_unknownType() {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValue(MOCK_PROV, mockPaymentPeriod));
+    assertThrowsIllegalArg(() -> test.presentValue(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
   public void test_futureValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
-    when(mockNotionalExchangeFn.futureValue(MOCK_PROV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC))
+    when(mockNotionalExchangeFn.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn);
-    assertEquals(test.futureValue(MOCK_PROV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC), expected, 0d);
+    assertEquals(test.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV), expected, 0d);
   }
 
   public void test_futureValue_unknownType() {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.futureValue(MOCK_PROV, mockPaymentPeriod));
+    assertThrowsIllegalArg(() -> test.futureValue(mockPaymentPeriod, MOCK_PROV));
   }
 
 }

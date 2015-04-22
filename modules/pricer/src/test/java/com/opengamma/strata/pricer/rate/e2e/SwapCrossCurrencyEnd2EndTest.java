@@ -154,7 +154,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     double pvEurExpected = -731021.1778;
 
     DiscountingSwapTradePricer pricer = swapPricer();
-    MultiCurrencyAmount pv = pricer.presentValue(provider(), trade);
+    MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
   }
@@ -228,7 +228,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     double pvEurExpected = -731021.1778;
 
     DiscountingSwapTradePricer pricer = swapPricer();
-    MultiCurrencyAmount pv = pricer.presentValue(provider(), trade);
+    MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
   }

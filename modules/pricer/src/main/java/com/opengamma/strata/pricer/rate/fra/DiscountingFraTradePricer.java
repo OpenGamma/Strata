@@ -48,12 +48,12 @@ public class DiscountingFraTradePricer {
    * The present value of the trade is the value on the valuation date.
    * This is the discounted future value.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the present value of the trade
    */
-  public CurrencyAmount presentValue(RatesProvider provider, FraTrade trade) {
-    return productPricer.presentValue(provider, trade.getProduct());
+  public CurrencyAmount presentValue(FraTrade trade, RatesProvider provider) {
+    return productPricer.presentValue(trade.getProduct(), provider);
   }
 
   /**
@@ -62,12 +62,12 @@ public class DiscountingFraTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(RatesProvider provider, FraTrade trade) {
-    return productPricer.presentValueSensitivity(provider, trade.getProduct());
+  public PointSensitivities presentValueSensitivity(FraTrade trade, RatesProvider provider) {
+    return productPricer.presentValueSensitivity(trade.getProduct(), provider);
   }
 
   //-------------------------------------------------------------------------
@@ -76,12 +76,12 @@ public class DiscountingFraTradePricer {
    * <p>
    * The future value of the trade is the value on the valuation date without present value discounting.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the future value of the trade
    */
-  public CurrencyAmount futureValue(RatesProvider provider, FraTrade trade) {
-    return productPricer.futureValue(provider, trade.getProduct());
+  public CurrencyAmount futureValue(FraTrade trade, RatesProvider provider) {
+    return productPricer.futureValue(trade.getProduct(), provider);
   }
 
   /**
@@ -90,12 +90,12 @@ public class DiscountingFraTradePricer {
    * The future value sensitivity of the product is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param trade  the trade to price
+   * @param provider  the rates provider
    * @return the point sensitivity of the future value
    */
-  public PointSensitivities futureValueSensitivity(RatesProvider provider, FraTrade trade) {
-    return productPricer.futureValueSensitivity(provider, trade.getProduct());
+  public PointSensitivities futureValueSensitivity(FraTrade trade, RatesProvider provider) {
+    return productPricer.futureValueSensitivity(trade.getProduct(), provider);
   }
 
 }

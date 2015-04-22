@@ -43,21 +43,21 @@ public class DispatchingPaymentPeriodPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(RatesProvider provider, PaymentPeriod paymentPeriod) {
+  public double presentValue(PaymentPeriod paymentPeriod, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
-      return ratePaymentPeriodPricer.presentValue(provider, (RatePaymentPeriod) paymentPeriod);
+      return ratePaymentPeriodPricer.presentValue((RatePaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(RatesProvider provider,
-      PaymentPeriod paymentPeriod) {
+  public PointSensitivityBuilder presentValueSensitivity(PaymentPeriod paymentPeriod,
+      RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
-      return ratePaymentPeriodPricer.presentValueSensitivity(provider, (RatePaymentPeriod) paymentPeriod);
+      return ratePaymentPeriodPricer.presentValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
@@ -65,21 +65,21 @@ public class DispatchingPaymentPeriodPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(RatesProvider provider, PaymentPeriod paymentPeriod) {
+  public double futureValue(PaymentPeriod paymentPeriod, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
-      return ratePaymentPeriodPricer.futureValue(provider, (RatePaymentPeriod) paymentPeriod);
+      return ratePaymentPeriodPricer.futureValue((RatePaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(RatesProvider provider,
-      PaymentPeriod paymentPeriod) {
+  public PointSensitivityBuilder futureValueSensitivity(PaymentPeriod paymentPeriod,
+      RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
-      return ratePaymentPeriodPricer.futureValueSensitivity(provider, (RatePaymentPeriod) paymentPeriod);
+      return ratePaymentPeriodPricer.futureValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }

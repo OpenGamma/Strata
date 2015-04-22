@@ -36,10 +36,10 @@ public class ForwardOvernightAveragedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
     OvernightIndex index = observation.getIndex();
     LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
@@ -77,10 +77,10 @@ public class ForwardOvernightAveragedRateObservationFn
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
     // TODO
     throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }

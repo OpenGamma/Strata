@@ -38,44 +38,44 @@ public class ForwardIborAveragedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       IborAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     // take (rate * weight) for each fixing and divide by total weight
     double weightedRate = observation.getFixings().stream()
-        .mapToDouble(fixing -> weightedRate(provider, observation.getIndex(), fixing))
+        .mapToDouble(fixing -> weightedRate(observation.getIndex(), fixing, provider))
         .sum();
     return weightedRate / observation.getTotalWeight();
   }
 
   // Compute the rate adjusted by the weight for one IborAverageFixing.
-  private double weightedRate(RatesProvider provider, IborIndex iborIndex, IborAveragedFixing fixing) {
+  private double weightedRate(IborIndex iborIndex, IborAveragedFixing fixing, RatesProvider provider) {
     double rate = fixing.getFixedRate().orElse(provider.iborIndexRate(iborIndex, fixing.getFixingDate()));
     return rate * fixing.getWeight();
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       IborAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     // combine the weighted sensitivity to each fixing
     // omit fixed rates as they have no sensitivity to a curve
     return observation.getFixings().stream()
         .filter(fixing -> !fixing.getFixedRate().isPresent())
-        .map(fixing -> weightedSensitivity(provider, observation, fixing))
+        .map(fixing -> weightedSensitivity(observation, fixing, provider))
         .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith);
   }
 
   // Compute the weighted sensitivity for one IborAverageFixing.
   private PointSensitivityBuilder weightedSensitivity(
-      RatesProvider provider,
       IborAveragedRateObservation observation,
-      IborAveragedFixing fixing) {
+      IborAveragedFixing fixing,
+      RatesProvider provider) {
 
     return provider.iborIndexRateSensitivity(observation.getIndex(), fixing.getFixingDate())
         .multipliedBy(fixing.getWeight() / observation.getTotalWeight());

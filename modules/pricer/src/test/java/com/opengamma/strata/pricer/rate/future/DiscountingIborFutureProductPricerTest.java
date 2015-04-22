@@ -36,14 +36,14 @@ public class DiscountingIborFutureProductPricerTest {
 
   //------------------------------------------------------------------------- 
   public void test_price() {
-    assertEquals(PRICER.price(MOCK_PROV, FUTURE), 1.0 - RATE, TOLERANCE_PRICE);
+    assertEquals(PRICER.price(FUTURE, MOCK_PROV), 1.0 - RATE, TOLERANCE_PRICE);
   }
 
   //-------------------------------------------------------------------------
   public void test_priceSensitivity() {
     PointSensitivities sensiExpected =
         PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getFixingDate(), -1.0d));
-    PointSensitivities sensiComputed = PRICER.priceSensitivity(MOCK_PROV, FUTURE);
+    PointSensitivities sensiComputed = PRICER.priceSensitivity(FUTURE, MOCK_PROV);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }
 

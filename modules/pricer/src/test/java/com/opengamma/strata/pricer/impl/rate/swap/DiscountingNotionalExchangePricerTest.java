@@ -37,7 +37,7 @@ public class DiscountingNotionalExchangePricerTest {
         .thenReturn(discountFactor);
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     assertEquals(
-        test.presentValue(mockProv, NOTIONAL_EXCHANGE_REC_GBP),
+        test.presentValue(NOTIONAL_EXCHANGE_REC_GBP, mockProv),
         NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * discountFactor, 0d);
   }
 
@@ -45,7 +45,7 @@ public class DiscountingNotionalExchangePricerTest {
     RatesProvider mockProv = mock(RatesProvider.class);
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
     assertEquals(
-        test.futureValue(mockProv, NOTIONAL_EXCHANGE_REC_GBP),
+        test.futureValue(NOTIONAL_EXCHANGE_REC_GBP, mockProv),
         NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), 0d);
   }
 
@@ -66,7 +66,7 @@ public class DiscountingNotionalExchangePricerTest {
     when(mockProv.discountFactorZeroRateSensitivity(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), paymentDate))
         .thenReturn(builder);
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.presentValueSensitivity(mockProv, NOTIONAL_EXCHANGE_REC_GBP).build();
+    PointSensitivities senseComputed = pricer.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, mockProv).build();
 
     double eps = 1.0e-7;
     PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(mockProv,
@@ -81,7 +81,7 @@ public class DiscountingNotionalExchangePricerTest {
   public void test_futureValueSensitivity() {
     RatesProvider mockProv = mock(RatesProvider.class);
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.futureValueSensitivity(mockProv, NOTIONAL_EXCHANGE_REC_GBP).build();
+    PointSensitivities senseComputed = pricer.futureValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, mockProv).build();
 
     double eps = 1.0e-12;
     PointSensitivities senseExpected = PointSensitivities.NONE;
@@ -99,8 +99,8 @@ public class DiscountingNotionalExchangePricerTest {
     when(provUp.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(-eps * paymentTime));
     when(provDw.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(eps * paymentTime));
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    double pvUp = pricer.presentValue(provUp, event);
-    double pvDw = pricer.presentValue(provDw, event);
+    double pvUp = pricer.presentValue(event, provUp);
+    double pvDw = pricer.presentValue(event, provDw);
     double res = 0.5 * (pvUp - pvDw) / eps;
     List<ZeroRateSensitivity> zeroRateSensi = new ArrayList<>();
     zeroRateSensi.add(ZeroRateSensitivity.of(currency, paymentDate, res));

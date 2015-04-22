@@ -38,10 +38,10 @@ public class ForwardIborInterpolatedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       IborInterpolatedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     LocalDate fixingDate = observation.getFixingDate();
     IborIndex index1 = observation.getShortIndex();
@@ -54,10 +54,10 @@ public class ForwardIborInterpolatedRateObservationFn
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       IborInterpolatedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     LocalDate fixingDate = observation.getFixingDate();
     // computes the dates related to the underlying deposits associated to the indices

@@ -34,19 +34,21 @@ public class ForwardIborRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      RatesProvider provider,
       IborRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
+
     return provider.iborIndexRate(observation.getIndex(), observation.getFixingDate());
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      RatesProvider provider,
       IborRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
+
     return provider.iborIndexRateSensitivity(observation.getIndex(), observation.getFixingDate());
   }
 

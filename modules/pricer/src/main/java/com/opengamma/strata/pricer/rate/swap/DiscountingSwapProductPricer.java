@@ -58,15 +58,15 @@ public class DiscountingSwapProductPricer {
    * This is the discounted future value.
    * The result is converted to the specified currency.
    * 
-   * @param provider  the rates provider
    * @param product  the product to price
    * @param currency  the currency to convert to
+   * @param provider  the rates provider
    * @return the present value of the swap product in the specified currency
    */
-  public CurrencyAmount presentValue(RatesProvider provider, SwapProduct product, Currency currency) {
+  public CurrencyAmount presentValue(SwapProduct product, Currency currency, RatesProvider provider) {
     double totalPv = 0;
     for (ExpandedSwapLeg leg : product.expand().getLegs()) {
-      double pv = legPricer.presentValueInternal(provider, leg);
+      double pv = legPricer.presentValueInternal(leg, provider);
       totalPv += (pv * provider.fxRate(leg.getCurrency(), currency));
     }
     return CurrencyAmount.of(currency, totalPv);
@@ -79,11 +79,11 @@ public class DiscountingSwapProductPricer {
    * This is the discounted future value.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param provider  the rates provider
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the present value of the swap product
    */
-  public MultiCurrencyAmount presentValue(RatesProvider provider, SwapProduct product) {
+  public MultiCurrencyAmount presentValue(SwapProduct product, RatesProvider provider) {
     return swapValue(provider, product.expand(), legPricer::presentValueInternal);
   }
 
@@ -93,11 +93,11 @@ public class DiscountingSwapProductPricer {
    * The future value of the product is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param provider  the rates provider
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the future value of the swap product
    */
-  public MultiCurrencyAmount futureValue(RatesProvider provider, SwapProduct product) {
+  public MultiCurrencyAmount futureValue(SwapProduct product, RatesProvider provider) {
     return swapValue(provider, product.expand(), legPricer::futureValueInternal);
   }
 
@@ -106,17 +106,17 @@ public class DiscountingSwapProductPricer {
   private static MultiCurrencyAmount swapValue(
       RatesProvider provider,
       ExpandedSwap swap,
-      ToDoubleBiFunction<RatesProvider, SwapLeg> legFn) {
+      ToDoubleBiFunction<SwapLeg, RatesProvider> legFn) {
 
     if (swap.isCrossCurrency()) {
       return swap.getLegs().stream()
-          .map(leg -> CurrencyAmount.of(leg.getCurrency(), legFn.applyAsDouble(provider, leg)))
+          .map(leg -> CurrencyAmount.of(leg.getCurrency(), legFn.applyAsDouble(leg, provider)))
           .collect(MultiCurrencyAmount.collector());
     } else {
       Currency currency = swap.getLegs().iterator().next().getCurrency();
       double total = 0d;
       for (ExpandedSwapLeg leg : swap.getLegs()) {
-        total += legFn.applyAsDouble(provider, leg);
+        total += legFn.applyAsDouble(leg, provider);
       }
       return MultiCurrencyAmount.of(currency, total);
     }
@@ -130,11 +130,11 @@ public class DiscountingSwapProductPricer {
    * At least one leg should be a fixed leg. The par rate will be computed with respect to the first fixed leg.
    * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
    * 
-   * @param provider  the rates provider
    * @param product  the swap product for which the par rate should be computed
+   * @param provider  the rates provider
    * @return the par rate
    */
-  public double parRate(RatesProvider provider, SwapProduct product) {
+  public double parRate(SwapProduct product, RatesProvider provider) {
     // find fixed leg
     ExpandedSwap swap = product.expand();
     List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
@@ -147,13 +147,13 @@ public class DiscountingSwapProductPricer {
     double otherLegsConvertedPv = 0.0;
     for (ExpandedSwapLeg leg : swap.getLegs()) {
       if (leg != fixedLeg) {
-        double pvLocal = legPricer.presentValueInternal(provider, leg);
+        double pvLocal = legPricer.presentValueInternal(leg, provider);
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
       }
     }
-    double fixedLegEventsPv = legPricer.presentValueEventsInternal(provider, fixedLeg);
+    double fixedLegEventsPv = legPricer.presentValueEventsInternal(fixedLeg, provider);
     // PVBP
-    double pvbpFixedLeg = legPricer.pvbp(provider, fixedLeg);
+    double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
     // Par rate
     return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
   }
@@ -165,14 +165,14 @@ public class DiscountingSwapProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder presentValueSensitivity(RatesProvider provider, SwapProduct product) {
+  public PointSensitivityBuilder presentValueSensitivity(SwapProduct product, RatesProvider provider) {
     return swapValueSensitivity(
-        provider,
         product.expand(),
+        provider,
         legPricer::presentValueSensitivity);
   }
 
@@ -182,26 +182,26 @@ public class DiscountingSwapProductPricer {
    * The future value sensitivity of the product is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param provider  the rates provider
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the future value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder futureValueSensitivity(RatesProvider provider, SwapProduct product) {
+  public PointSensitivityBuilder futureValueSensitivity(SwapProduct product, RatesProvider provider) {
     return swapValueSensitivity(
-        provider,
         product.expand(),
+        provider,
         legPricer::futureValueSensitivity);
   }
 
   // calculate present or future value sensitivity for the swap
   private static PointSensitivityBuilder swapValueSensitivity(
-      RatesProvider provider,
       ExpandedSwap swap,
-      BiFunction<RatesProvider, SwapLeg, PointSensitivityBuilder> legFn) {
+      RatesProvider provider,
+      BiFunction<SwapLeg, RatesProvider, PointSensitivityBuilder> legFn) {
 
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
     for (ExpandedSwapLeg leg : swap.getLegs()) {
-      builder = builder.combinedWith(legFn.apply(provider, leg));
+      builder = builder.combinedWith(legFn.apply(leg, provider));
     }
     return builder;
   }
