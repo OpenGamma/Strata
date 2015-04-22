@@ -47,8 +47,8 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.pricer.ImmutablePricingEnvironment;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
@@ -154,7 +154,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     double pvEurExpected = -731021.1778;
 
     DiscountingSwapTradePricer pricer = swapPricer();
-    MultiCurrencyAmount pv = pricer.presentValue(env(), trade);
+    MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
   }
@@ -228,7 +228,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     double pvEurExpected = -731021.1778;
 
     DiscountingSwapTradePricer pricer = swapPricer();
-    MultiCurrencyAmount pv = pricer.presentValue(env(), trade);
+    MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
   }
@@ -241,9 +241,9 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
-  // pricing environment
-  private static PricingEnvironment env() {
-    return ImmutablePricingEnvironment.builder()
+  // rates provider
+  private static RatesProvider provider() {
+    return ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 1, 22))
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.copyOf(MULTICURVE.getDiscountingCurves()))

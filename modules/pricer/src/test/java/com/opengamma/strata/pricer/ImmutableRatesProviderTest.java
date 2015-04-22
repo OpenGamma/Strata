@@ -41,10 +41,10 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
- * Test {@link ImmutablePricingEnvironment}.
+ * Test {@link ImmutableRatesProvider}.
  */
 @Test
-public class ImmutablePricingEnvironmentTest {
+public class ImmutableRatesProviderTest {
 
   private static final LocalDate PREV2_DATE = LocalDate.of(2014, 6, 26);
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
@@ -74,29 +74,20 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(ImmutablePricingEnvironment.meta().timeSeries().get(test), ImmutableMap.of(WM_GBP_USD, ts));
-    assertEquals(ImmutablePricingEnvironment.meta().dayCount().get(test), ACT_ACT_ISDA);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_rawData() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
-        .valuationDate(VAL_DATE)
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    assertThrowsIllegalArg(() -> test.rawData(Object.class));
+    assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(WM_GBP_USD, ts));
+    assertEquals(ImmutableRatesProvider.meta().dayCount().get(test), ACT_ACT_ISDA);
   }
 
   //-------------------------------------------------------------------------
   public void test_timeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(date(2014, 6, 30), 3.2d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -107,7 +98,7 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_discountFactor() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .dayCount(ACT_ACT_ISDA)
@@ -116,7 +107,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_discountFactor_notKnown() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -126,7 +117,7 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_discountFactorZeroRateSensitivity() {
     double relativeTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .dayCount(ACT_ACT_ISDA)
@@ -137,7 +128,7 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_fxRate_separate() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .dayCount(ACT_ACT_ISDA)
@@ -147,7 +138,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_fxRate_pair() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .dayCount(ACT_ACT_ISDA)
@@ -157,7 +148,7 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_fxConvert() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .dayCount(ACT_ACT_ISDA)
@@ -171,7 +162,7 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_fxIndexRate_beforeToday_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -182,7 +173,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_fxIndexRate_beforeToday_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -194,7 +185,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_fxIndexRate_today_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -205,7 +196,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_fxIndexRate_today_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
@@ -218,7 +209,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_fxIndexRate_afterToday() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
@@ -230,7 +221,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_fxIndexRate_badCurrency() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -240,7 +231,7 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_iborIndexRate_beforeToday_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.0123d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -251,7 +242,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_iborIndexRate_beforeToday_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -265,7 +256,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_iborIndexRate_today_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.0123d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -276,7 +267,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_iborIndexRate_today_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_LIBOR_3M, USD_LIBOR_CURVE))
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
@@ -290,7 +281,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_iborIndexRate_afterToday() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_LIBOR_3M, USD_LIBOR_CURVE))
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
@@ -304,7 +295,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_iborIndexRate_notKnown() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -315,7 +306,7 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_overnightIndexRateFixing_beforePublication_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV2_DATE, 0.0123d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -326,7 +317,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_overnightIndexRateFixing_beforePublication_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -340,7 +331,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_overnightIndexRateFixing_publication_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.0123d);
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -351,7 +342,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_overnightIndexRateFixing_publication_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
@@ -364,7 +355,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_overnightIndexRateFixing_afterPublication() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
@@ -378,7 +369,7 @@ public class ImmutablePricingEnvironmentTest {
   //-------------------------------------------------------------------------
   public void test_overnightIndexRatePeriod_badDatesNotSorted() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -389,7 +380,7 @@ public class ImmutablePricingEnvironmentTest {
 
   public void test_overnightIndexRatePeriod_BadDateInPast() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
@@ -402,7 +393,7 @@ public class ImmutablePricingEnvironmentTest {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     LocalDate startDate = NEXT_DATE;
     LocalDate endDate = NEXT_DATE.plus(Period.ofMonths(3));
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
@@ -415,7 +406,7 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_relativeTime() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -427,12 +418,12 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .dayCount(ACT_ACT_ISDA)
         .build();
     coverImmutableBean(test);
-    ImmutablePricingEnvironment test2 = ImmutablePricingEnvironment.builder()
+    ImmutableRatesProvider test2 = ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 6, 27))
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))

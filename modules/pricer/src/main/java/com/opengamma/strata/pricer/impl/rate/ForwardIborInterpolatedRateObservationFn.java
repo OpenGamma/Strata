@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -18,7 +18,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  * Rate observation implementation for rate based on the weighted average of the fixing
  * on a single date of two IBOR-like indices.
  * <p>
- * The rate observation query the rates from the {@code PricingEnvironment} and average them.
+ * The rate observation query the rates from the {@code RatesProvider} and average them.
  * There is no convexity adjustment computed in this implementation.
  */
 public class ForwardIborInterpolatedRateObservationFn
@@ -38,26 +38,26 @@ public class ForwardIborInterpolatedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      PricingEnvironment env,
       IborInterpolatedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     LocalDate fixingDate = observation.getFixingDate();
     IborIndex index1 = observation.getShortIndex();
     IborIndex index2 = observation.getLongIndex();
-    double rate1 = env.iborIndexRate(index1, fixingDate);
-    double rate2 = env.iborIndexRate(index2, fixingDate);
+    double rate1 = provider.iborIndexRate(index1, fixingDate);
+    double rate2 = provider.iborIndexRate(index2, fixingDate);
     DoublesPair weights = weights(index1, index2, fixingDate, endDate);
     return ((rate1 * weights.getFirst()) + (rate2 * weights.getSecond())) / (weights.getFirst() + weights.getSecond());
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      PricingEnvironment env,
       IborInterpolatedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     LocalDate fixingDate = observation.getFixingDate();
     // computes the dates related to the underlying deposits associated to the indices
@@ -66,9 +66,9 @@ public class ForwardIborInterpolatedRateObservationFn
     DoublesPair weights = weights(index1, index2, fixingDate, endDate);
     double totalWeight = weights.getFirst() + weights.getSecond();
     PointSensitivityBuilder sens1 = 
-        env.iborIndexRateSensitivity(index1, fixingDate).multipliedBy(weights.getFirst() / totalWeight);
+        provider.iborIndexRateSensitivity(index1, fixingDate).multipliedBy(weights.getFirst() / totalWeight);
     PointSensitivityBuilder sens2 = 
-        env.iborIndexRateSensitivity(index2, fixingDate).multipliedBy(weights.getSecond() / totalWeight);
+        provider.iborIndexRateSensitivity(index2, fixingDate).multipliedBy(weights.getSecond() / totalWeight);
     return sens1.combinedWith(sens2);
   }
   

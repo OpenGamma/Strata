@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 
 /**
  * Test {@link ForwardOvernightAveragedRateObservationFn}.
@@ -41,9 +41,9 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and no cutoff period. */
   @Test
   public void rateFedFundNoCutOff() {
-    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
     for (int i = 0; i < FIXING_DATES.length; i++) {
-      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockProv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
@@ -59,16 +59,16 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       accruedRate += FIXING_RATES[i] * af;
     }
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and cutoff=2 (FedFund swaps). */
   @Test
   public void rateFedFund() {
-    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
     for (int i = 0; i < FIXING_DATES.length; i++) {
-      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockProv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
@@ -88,7 +88,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     accrualFactorTotal += af;
     accruedRate += FIXING_RATES[indexLast - 1] * af;
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
@@ -98,9 +98,9 @@ public class ForwardOvernightAveragedRateObservationFnTest {
    */
   @Test
   public void rateChfNoCutOff() {
-    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
     for (int i = 0; i < FIXING_DATES.length; i++) {
-      when(mockEnv.overnightIndexRate(CHF_TOIS, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockProv.overnightIndexRate(CHF_TOIS, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
@@ -116,7 +116,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       accruedRate += FIXING_RATES[i] * af;
     }
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
@@ -124,9 +124,9 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
   @Test
   public void rateGbpNoCutOff() {
-    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
     for (int i = 0; i < FIXING_DATES.length; i++) {
-      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockProv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
@@ -142,7 +142,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       accruedRate += FIXING_RATES[i] * af;
     }
     double rateExpected = accruedRate / accrualFactorTotal;
-    double rateComputed = obsFn.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 

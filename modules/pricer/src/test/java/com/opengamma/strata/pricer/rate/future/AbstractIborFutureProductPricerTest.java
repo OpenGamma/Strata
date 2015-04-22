@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.pricer.impl.MockPricingEnvironment;
+import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
@@ -42,7 +42,7 @@ public class AbstractIborFutureProductPricerTest {
     double accrualFactor = FUTURE.getAccrualFactor();
     PointSensitivities sensiExpected = PointSensitivities.of(
         IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getFixingDate(), -notional * accrualFactor));
-    PointSensitivities priceSensitivity = PRICER_PRODUCT.priceSensitivity(new MockPricingEnvironment(), FUTURE);
+    PointSensitivities priceSensitivity = PRICER_PRODUCT.priceSensitivity(FUTURE, new MockRatesProvider());
     PointSensitivities sensiComputed = PRICER.marginIndexSensitivity(FUTURE, priceSensitivity).normalized();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_DELTA));
   }

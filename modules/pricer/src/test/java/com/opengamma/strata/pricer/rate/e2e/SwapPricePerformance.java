@@ -40,7 +40,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
 /**
@@ -103,11 +103,11 @@ public class SwapPricePerformance {
       .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
       .product(Swap.of(PAY1, RECEIVE1))
       .build();
-  private static final PricingEnvironment ENV = SwapEnd2EndTest.env();
+  private static final RatesProvider PROVIDER = SwapEnd2EndTest.provider();
 
   public double test_VanillaFixedVsLibor1mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(ENV, TRADE1, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE1, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -143,7 +143,7 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor3mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(ENV, TRADE2, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE2, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -179,7 +179,7 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor3mSwapWithFixing() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(ENV, TRADE3, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE3, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -233,7 +233,7 @@ public class SwapPricePerformance {
 
   public double test_BasisLibor3mVsLibor6mSwapWithSpread() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(ENV, TRADE4, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE4, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -287,7 +287,7 @@ public class SwapPricePerformance {
 
   public double test_BasisCompoundedLibor1mVsLibor3mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(ENV, TRADE5, USD);
+    CurrencyAmount pv = pricer.presentValue(TRADE5, USD, PROVIDER);
     return pv.getAmount();
   }
 

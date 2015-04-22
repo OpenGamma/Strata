@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -17,7 +17,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 * Rate observation implementation for a rate based on a single overnight index that is arithmetically averaged.
 * <p>
 * The rate observation retrieve the rate at each fixing date in the period 
-* from the {@link PricingEnvironment} and average them. 
+* from the {@link RatesProvider} and average them. 
 */
 public class ForwardOvernightAveragedRateObservationFn
     implements RateObservationFn<OvernightAveragedRateObservation> {
@@ -36,10 +36,10 @@ public class ForwardOvernightAveragedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      PricingEnvironment env,
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
     OvernightIndex index = observation.getIndex();
     LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
@@ -57,7 +57,7 @@ public class ForwardOvernightAveragedRateObservationFn
       accrualFactorTotal += accrualFactor;
       cutoffAccrualFactor += accrualFactor;
     }
-    double forwardRateCutOff = env.overnightIndexRate(index, lastNonCutoffFixing);
+    double forwardRateCutOff = provider.overnightIndexRate(index, lastNonCutoffFixing);
     accumulatedInterest += cutoffAccrualFactor * forwardRateCutOff;
     LocalDate currentFixingNonCutoff = observation.getStartDate();
     while (currentFixingNonCutoff.isBefore(lastNonCutoffFixing)) {
@@ -66,7 +66,7 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate currentOnRateStart = index.calculateEffectiveFromFixing(currentFixingNonCutoff);
       LocalDate currentOnRateEnd = index.calculateMaturityFromEffective(currentOnRateStart);
       double accrualFactor = index.getDayCount().yearFraction(currentOnRateStart, currentOnRateEnd);
-      double forwardRate = env.overnightIndexRate(index, currentFixingNonCutoff);
+      double forwardRate = provider.overnightIndexRate(index, currentFixingNonCutoff);
       accrualFactorTotal += accrualFactor;
       accumulatedInterest += accrualFactor * forwardRate;
       currentFixingNonCutoff = index.getFixingCalendar().next(currentFixingNonCutoff);
@@ -77,10 +77,10 @@ public class ForwardOvernightAveragedRateObservationFn
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      PricingEnvironment env,
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
     // TODO
     throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }

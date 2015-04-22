@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -31,27 +31,27 @@ public class DiscountingNotionalExchangePricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PricingEnvironment env, NotionalExchange event) {
+  public double presentValue(NotionalExchange event, RatesProvider provider) {
     // futureValue * discountFactor
-    double df = env.discountFactor(event.getPaymentAmount().getCurrency(), event.getPaymentDate());
-    return futureValue(env, event) * df;
+    double df = provider.discountFactor(event.getPaymentAmount().getCurrency(), event.getPaymentDate());
+    return futureValue(event, provider) * df;
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, NotionalExchange event) {
-    PointSensitivityBuilder sensi = env.discountFactorZeroRateSensitivity(event.getCurrency(), event.getPaymentDate());
+  public PointSensitivityBuilder presentValueSensitivity(NotionalExchange event, RatesProvider provider) {
+    PointSensitivityBuilder sensi = provider.discountFactorZeroRateSensitivity(event.getCurrency(), event.getPaymentDate());
     return sensi.multipliedBy(event.getPaymentAmount().getAmount());
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(PricingEnvironment env, NotionalExchange event) {
+  public double futureValue(NotionalExchange event, RatesProvider provider) {
     // paymentAmount
     return event.getPaymentAmount().getAmount();
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, NotionalExchange event) {
+  public PointSensitivityBuilder futureValueSensitivity(NotionalExchange event, RatesProvider provider) {
     return PointSensitivityBuilder.none();
   }
 

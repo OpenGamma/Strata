@@ -9,7 +9,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -53,24 +53,24 @@ public class DispatchingPaymentEventPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PricingEnvironment env, PaymentEvent paymentEvent) {
+  public double presentValue(PaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
-      return notionalExchangePricer.presentValue(env, (NotionalExchange) paymentEvent);
+      return notionalExchangePricer.presentValue((NotionalExchange) paymentEvent, provider);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
-      return fxResetNotionalExchangePricer.presentValue(env, (FxResetNotionalExchange) paymentEvent);
+      return fxResetNotionalExchangePricer.presentValue((FxResetNotionalExchange) paymentEvent, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, PaymentEvent paymentEvent) {
+  public PointSensitivityBuilder presentValueSensitivity(PaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
-      return notionalExchangePricer.presentValueSensitivity(env, (NotionalExchange) paymentEvent);
+      return notionalExchangePricer.presentValueSensitivity((NotionalExchange) paymentEvent, provider);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
-      return fxResetNotionalExchangePricer.presentValueSensitivity(env, (FxResetNotionalExchange) paymentEvent);
+      return fxResetNotionalExchangePricer.presentValueSensitivity((FxResetNotionalExchange) paymentEvent, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }
@@ -78,24 +78,24 @@ public class DispatchingPaymentEventPricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(PricingEnvironment env, PaymentEvent paymentEvent) {
+  public double futureValue(PaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
-      return notionalExchangePricer.futureValue(env, (NotionalExchange) paymentEvent);
+      return notionalExchangePricer.futureValue((NotionalExchange) paymentEvent, provider);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
-      return fxResetNotionalExchangePricer.futureValue(env, (FxResetNotionalExchange) paymentEvent);
+      return fxResetNotionalExchangePricer.futureValue((FxResetNotionalExchange) paymentEvent, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, PaymentEvent paymentEvent) {
+  public PointSensitivityBuilder futureValueSensitivity(PaymentEvent paymentEvent, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
-      return notionalExchangePricer.futureValueSensitivity(env, (NotionalExchange) paymentEvent);
+      return notionalExchangePricer.futureValueSensitivity((NotionalExchange) paymentEvent, provider);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
-      return fxResetNotionalExchangePricer.futureValueSensitivity(env, (FxResetNotionalExchange) paymentEvent);
+      return fxResetNotionalExchangePricer.futureValueSensitivity((FxResetNotionalExchange) paymentEvent, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }

@@ -41,9 +41,9 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
- * Tests related to {@link ImmutablePricingEnvironment} for the computation of curve parameters sensitivities.
+ * Tests related to {@link ImmutableRatesProvider} for the computation of curve parameters sensitivities.
  */
-public class ImmutablePricingEnvironmentParameterSensitivityTest {
+public class ImmutableRatesProviderParameterSensitivityTest {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 22);
   private static final Currency USD = Currency.USD;
@@ -100,8 +100,8 @@ public class ImmutablePricingEnvironmentParameterSensitivityTest {
     MULTICURVE.setForexMatrix(FX_MATRIX);
   }
 
-  // pricing environment
-  private static PricingEnvironment ENV = ImmutablePricingEnvironment.builder()
+  // rates provider
+  private static RatesProvider PROVIDER = ImmutableRatesProvider.builder()
       .valuationDate(VALUATION_DATE)
       .fxMatrix(FX_MATRIX)
       .discountCurves(MULTICURVE.getDiscountingCurves())
@@ -119,8 +119,8 @@ public class ImmutablePricingEnvironmentParameterSensitivityTest {
 
   @Test
   public void pointToParameterOnePointZero() {
-    CurveParameterSensitivity ps = ENV.parameterSensitivity(POINT_ZERO_1);
-    DoublesPair pair = DoublesPair.of(ENV.relativeTime(DATE_1), AMOUNT_1);
+    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_ZERO_1);
+    DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(USD), list);
@@ -131,11 +131,11 @@ public class ImmutablePricingEnvironmentParameterSensitivityTest {
 
   @Test
   public void pointToParameterOnePointIbor() {
-    CurveParameterSensitivity ps = ENV.parameterSensitivity(POINT_IBOR_1);
+    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_IBOR_1);
     LocalDate startDate = USD_LIBOR_3M.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_LIBOR_3M.calculateMaturityFromEffective(startDate);
-    double startTime = ENV.relativeTime(startDate);
-    double endTime = ENV.relativeTime(endDate);
+    double startTime = PROVIDER.relativeTime(startDate);
+    double endTime = PROVIDER.relativeTime(endDate);
     double af = USD_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
     ForwardSensitivity fwd = new SimplyCompoundedForwardSensitivity(startTime, endTime, af, AMOUNT_1);
     List<ForwardSensitivity> list = new ArrayList<>();
@@ -149,11 +149,11 @@ public class ImmutablePricingEnvironmentParameterSensitivityTest {
 
   @Test
   public void pointToParameterOnePointOnOneDate() {
-    CurveParameterSensitivity ps = ENV.parameterSensitivity(POINT_ON_1);
+    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_ON_1);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(startDate);
-    double startTime = ENV.relativeTime(startDate);
-    double endTime = ENV.relativeTime(endDate);
+    double startTime = PROVIDER.relativeTime(startDate);
+    double endTime = PROVIDER.relativeTime(endDate);
     double af = USD_FED_FUND.getDayCount().yearFraction(startDate, endDate);
     ForwardSensitivity fwd = new SimplyCompoundedForwardSensitivity(startTime, endTime, af, AMOUNT_1);
     List<ForwardSensitivity> list = new ArrayList<>();
@@ -167,10 +167,10 @@ public class ImmutablePricingEnvironmentParameterSensitivityTest {
 
   @Test
   public void pointToParameterOnePointOnTwoDates() {
-    CurveParameterSensitivity psComputed = ENV.parameterSensitivity(POINT_ON_2);
+    CurveParameterSensitivity psComputed = PROVIDER.parameterSensitivity(POINT_ON_2);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
-    double startTime = ENV.relativeTime(startDate);
-    double endTime = ENV.relativeTime(DATE_2);
+    double startTime = PROVIDER.relativeTime(startDate);
+    double endTime = PROVIDER.relativeTime(DATE_2);
     double af = USD_FED_FUND.getDayCount().yearFraction(startDate, DATE_2);
     ForwardSensitivity fwd = new SimplyCompoundedForwardSensitivity(startTime, endTime, af, AMOUNT_1);
     List<ForwardSensitivity> list = new ArrayList<>();
@@ -184,11 +184,11 @@ public class ImmutablePricingEnvironmentParameterSensitivityTest {
 
   @Test
   public void pointToParameterMultiple() {
-    CurveParameterSensitivity psComputed = ENV.parameterSensitivity(POINT);
+    CurveParameterSensitivity psComputed = PROVIDER.parameterSensitivity(POINT);
     assertEquals(psComputed.getSensitivities().size(), 5);
     CurveParameterSensitivity psExpected = CurveParameterSensitivity.empty();
     for (int i = 0; i < POINTS.length; i++) {
-      psExpected = psExpected.combinedWith(ENV.parameterSensitivity(POINTS[i]));
+      psExpected = psExpected.combinedWith(PROVIDER.parameterSensitivity(POINTS[i]));
     }
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }

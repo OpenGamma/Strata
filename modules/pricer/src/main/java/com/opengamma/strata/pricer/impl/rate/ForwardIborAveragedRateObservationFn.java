@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -18,7 +18,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  * Rate observation implementation for a rate based on the average of multiple fixings of a
  * single IBOR-like floating rate index.
  * <p>
- * The rate observation query the rates from the {@code PricingEnvironment} and weighted-average them.
+ * The rate observation query the rates from the {@code RatesProvider} and weighted-average them.
  * There is no convexity adjustment computed in this implementation.
  */
 public class ForwardIborAveragedRateObservationFn
@@ -38,46 +38,46 @@ public class ForwardIborAveragedRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      PricingEnvironment env,
       IborAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     // take (rate * weight) for each fixing and divide by total weight
     double weightedRate = observation.getFixings().stream()
-        .mapToDouble(fixing -> weightedRate(env, observation.getIndex(), fixing))
+        .mapToDouble(fixing -> weightedRate(observation.getIndex(), fixing, provider))
         .sum();
     return weightedRate / observation.getTotalWeight();
   }
 
   // Compute the rate adjusted by the weight for one IborAverageFixing.
-  private double weightedRate(PricingEnvironment env, IborIndex iborIndex, IborAveragedFixing fixing) {
-    double rate = fixing.getFixedRate().orElse(env.iborIndexRate(iborIndex, fixing.getFixingDate()));
+  private double weightedRate(IborIndex iborIndex, IborAveragedFixing fixing, RatesProvider provider) {
+    double rate = fixing.getFixedRate().orElse(provider.iborIndexRate(iborIndex, fixing.getFixingDate()));
     return rate * fixing.getWeight();
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      PricingEnvironment env,
       IborAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate,
+      RatesProvider provider) {
 
     // combine the weighted sensitivity to each fixing
     // omit fixed rates as they have no sensitivity to a curve
     return observation.getFixings().stream()
         .filter(fixing -> !fixing.getFixedRate().isPresent())
-        .map(fixing -> weightedSensitivity(env, observation, fixing))
+        .map(fixing -> weightedSensitivity(observation, fixing, provider))
         .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith);
   }
 
   // Compute the weighted sensitivity for one IborAverageFixing.
   private PointSensitivityBuilder weightedSensitivity(
-      PricingEnvironment env,
       IborAveragedRateObservation observation,
-      IborAveragedFixing fixing) {
+      IborAveragedFixing fixing,
+      RatesProvider provider) {
 
-    return env.iborIndexRateSensitivity(observation.getIndex(), fixing.getFixingDate())
+    return provider.iborIndexRateSensitivity(observation.getIndex(), fixing.getFixingDate())
         .multipliedBy(fixing.getWeight() / observation.getTotalWeight());
   }
 

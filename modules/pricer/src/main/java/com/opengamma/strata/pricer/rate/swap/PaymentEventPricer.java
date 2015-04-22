@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -42,11 +42,11 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The payment date of the event should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param env  the pricing environment
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the present value of the event
    */
-  public abstract double presentValue(PricingEnvironment env, T event);
+  public abstract double presentValue(T event, RatesProvider provider);
 
   /**
    * Calculates the present value sensitivity of a single payment event.
@@ -54,11 +54,11 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The present value sensitivity of the event is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the event
    */
-  public abstract PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, T event);
+  public abstract PointSensitivityBuilder presentValueSensitivity(T event, RatesProvider provider);
 
   /**
    * Calculates the future value of a single payment event.
@@ -69,11 +69,11 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The payment date of the event should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param env  the pricing environment
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the future value of the event
    */
-  public abstract double futureValue(PricingEnvironment env, T event);
+  public abstract double futureValue(T event, RatesProvider provider);
 
   /**
    * Calculates the future value sensitivity of a single payment event.
@@ -81,10 +81,10 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The future value sensitivity of the event is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param event  the event to price
+   * @param provider  the rates provider
    * @return the future value curve sensitivity of the event
    */
-  public abstract PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, T event);
+  public abstract PointSensitivityBuilder futureValueSensitivity(T event, RatesProvider provider);
 
 }
