@@ -57,7 +57,8 @@ public class DiscountingSwapLegPricerTest {
         .thenReturn(df);
     double expected = df * FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getNotional() *
         FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getAccrualPeriods().get(0).getYearFraction();
-    assertEquals(DiscountingSwapLegPricer.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY_USD), expected, TOLERANCE);
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    assertEquals(test.pvbp(mockEnv, FIXED_EXPANDED_SWAP_LEG_PAY_USD), expected, TOLERANCE);
   }
 
   public void test_pvbp_TwoPeriods() {
@@ -77,7 +78,8 @@ public class DiscountingSwapLegPricerTest {
         FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getAccrualPeriods().get(0).getYearFraction();
     expected += df2 * FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2.getNotional() *
         FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2.getAccrualPeriods().get(0).getYearFraction();
-    assertEquals(DiscountingSwapLegPricer.pvbp(mockEnv, leg), expected, TOLERANCE);
+    DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
+    assertEquals(test.pvbp(mockEnv, leg), expected, TOLERANCE);
   }
 
   //-------------------------------------------------------------------------
