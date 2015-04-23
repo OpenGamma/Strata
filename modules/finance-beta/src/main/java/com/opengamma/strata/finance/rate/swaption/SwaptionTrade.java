@@ -26,13 +26,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.fx.FxPayment;
 
 /**
  * A trade in an option on an underlying swap.
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link Swaption}.
  * <p>
- * A swaption is a financial instrument that provides an option based on the future value of a swap.
+ * A swaption is a financial instrument that provides the option to enter into a swap at a future date.
  * The option is European, exercised only on the exercise date.
  */
 @BeanDefinition
@@ -61,6 +62,14 @@ public final class SwaptionTrade
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Swaption product;
+  /**
+   * The premium of the swaption.
+   * <p>
+   * The premium sign should be compatible with the product Long/Short flag, i.e. premium is negative for long and
+   * positive for short swaption.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final FxPayment premium;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -99,12 +108,15 @@ public final class SwaptionTrade
   private SwaptionTrade(
       StandardId standardId,
       TradeInfo tradeInfo,
-      Swaption product) {
+      Swaption product,
+      FxPayment premium) {
     JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(product, "product");
+    JodaBeanUtils.notNull(premium, "premium");
     this.standardId = standardId;
     this.tradeInfo = tradeInfo;
     this.product = product;
+    this.premium = premium;
   }
 
   @Override
@@ -161,6 +173,18 @@ public final class SwaptionTrade
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the premium of the swaption.
+   * <p>
+   * The premium sign should be compatible with the product Long/Short flag, i.e. premium is negative for long and
+   * positive for short swaption.
+   * @return the value of the property, not null
+   */
+  public FxPayment getPremium() {
+    return premium;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -177,7 +201,8 @@ public final class SwaptionTrade
       SwaptionTrade other = (SwaptionTrade) obj;
       return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
           JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getProduct(), other.getProduct());
+          JodaBeanUtils.equal(getProduct(), other.getProduct()) &&
+          JodaBeanUtils.equal(getPremium(), other.getPremium());
     }
     return false;
   }
@@ -188,16 +213,18 @@ public final class SwaptionTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
     hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SwaptionTrade{");
     buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
     buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(getProduct()));
+    buf.append("product").append('=').append(getProduct()).append(',').append(' ');
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(getPremium()));
     buf.append('}');
     return buf.toString();
   }
@@ -228,13 +255,19 @@ public final class SwaptionTrade
     private final MetaProperty<Swaption> product = DirectMetaProperty.ofImmutable(
         this, "product", SwaptionTrade.class, Swaption.class);
     /**
+     * The meta-property for the {@code premium} property.
+     */
+    private final MetaProperty<FxPayment> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", SwaptionTrade.class, FxPayment.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "standardId",
         "tradeInfo",
-        "product");
+        "product",
+        "premium");
 
     /**
      * Restricted constructor.
@@ -251,6 +284,8 @@ public final class SwaptionTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
+        case -318452137:  // premium
+          return premium;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -295,6 +330,14 @@ public final class SwaptionTrade
       return product;
     }
 
+    /**
+     * The meta-property for the {@code premium} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FxPayment> premium() {
+      return premium;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -305,6 +348,8 @@ public final class SwaptionTrade
           return ((SwaptionTrade) bean).getTradeInfo();
         case -309474065:  // product
           return ((SwaptionTrade) bean).getProduct();
+        case -318452137:  // premium
+          return ((SwaptionTrade) bean).getPremium();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -329,6 +374,7 @@ public final class SwaptionTrade
     private StandardId standardId;
     private TradeInfo tradeInfo;
     private Swaption product;
+    private FxPayment premium;
 
     /**
      * Restricted constructor.
@@ -345,6 +391,7 @@ public final class SwaptionTrade
       this.standardId = beanToCopy.getStandardId();
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.product = beanToCopy.getProduct();
+      this.premium = beanToCopy.getPremium();
     }
 
     //-----------------------------------------------------------------------
@@ -357,6 +404,8 @@ public final class SwaptionTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
+        case -318452137:  // premium
+          return premium;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -373,6 +422,9 @@ public final class SwaptionTrade
           break;
         case -309474065:  // product
           this.product = (Swaption) newValue;
+          break;
+        case -318452137:  // premium
+          this.premium = (FxPayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -409,7 +461,8 @@ public final class SwaptionTrade
       return new SwaptionTrade(
           standardId,
           tradeInfo,
-          product);
+          product,
+          premium);
     }
 
     //-----------------------------------------------------------------------
@@ -445,14 +498,26 @@ public final class SwaptionTrade
       return this;
     }
 
+    /**
+     * Sets the {@code premium} property in the builder.
+     * @param premium  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder premium(FxPayment premium) {
+      JodaBeanUtils.notNull(premium, "premium");
+      this.premium = premium;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("SwaptionTrade.Builder{");
       buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
-      buf.append("product").append('=').append(JodaBeanUtils.toString(product));
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+      buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
       buf.append('}');
       return buf.toString();
     }
