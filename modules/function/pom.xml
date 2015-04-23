@@ -31,7 +31,6 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-basics</artifactId>
     </dependency>
-    <!-- TODO This is a temporary dependency on legacy code -->
     <dependency>
       <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>

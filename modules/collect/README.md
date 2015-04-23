@@ -1,10 +1,10 @@
 Strata-Collect
 --------------
-This directory contains the `strata-collect` project.
+This directory contains the `strata-collect` module.
 
 ### Overview
 
-This project provides data structures used by OpenGamma Strata:
+This module provides data structures used by OpenGamma Strata:
 
 * identifier - standard identifier with scheme and value
 * range - holds representations of ranges
@@ -15,7 +15,7 @@ This project provides data structures used by OpenGamma Strata:
 
 ### Source code
 
-This project is released as Open Source Software using the
+This module is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 
