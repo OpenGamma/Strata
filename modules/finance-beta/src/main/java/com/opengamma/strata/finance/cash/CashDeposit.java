@@ -88,9 +88,9 @@ public class CashDeposit
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the currency of the payment.
+   * Gets the currency of the deposit.
    * 
-   * @return the currency of the payment
+   * @return the currency of the deposit
    */
   public Currency getCurrency() {
     return principal.getCurrency();
