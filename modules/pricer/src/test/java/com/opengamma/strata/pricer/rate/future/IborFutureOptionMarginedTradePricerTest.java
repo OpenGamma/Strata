@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,7 +23,7 @@ import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 
 /**
  * Tests {@link IborFutureOptionMarginedTradePricer}
@@ -49,7 +50,7 @@ public class IborFutureOptionMarginedTradePricerTest {
       .initialPrice(TRADE_PRICE).build();
   
   private static final double RATE = 0.015;
-  private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
+  private static final RatesProvider ENV_MOCK = mock(RatesProvider.class);
   static {
     when(ENV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getIndex(), 
         FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getLastTradeDate())).thenReturn(RATE);
@@ -67,16 +68,25 @@ public class IborFutureOptionMarginedTradePricerTest {
   @Test
   public void presentvalue_from_no_trade_date() {
     double optionPrice = 0.0125;
-    double lastClosingPrice  = 0.0150;
+    double lastClosingPrice = 0.0150;
     IborFutureOptionTrade trade = IborFutureOptionTrade.builder()
         .standardId(OPTION_TRADE_ID).tradeInfo(TradeInfo.builder().build())
         .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY)).quantity(OPTION_QUANTITY)
         .initialPrice(TRADE_PRICE).build();
-    OPTION_TRADE_PRICER
-        .presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice);
+    assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice));
   }
-
-  // ----------     present value     ----------
+  
+  @Test
+  public void presentvalue_from_no_trade_price() {
+    double optionPrice = 0.0125;
+    double lastClosingPrice = 0.0150;
+    IborFutureOptionTrade trade = IborFutureOptionTrade.builder()
+        .standardId(OPTION_TRADE_ID).tradeInfo(TradeInfo.builder().tradeDate(VALUATION_DATE).build())
+        .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY)).quantity(OPTION_QUANTITY)
+        .build();
+    assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice));
+  }
+  
   @Test
   public void presentvalue_from_option_price_trade_date() {
     double optionPrice = 0.0125;

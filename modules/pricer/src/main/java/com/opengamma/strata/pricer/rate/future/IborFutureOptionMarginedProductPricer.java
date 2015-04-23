@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
@@ -24,24 +24,24 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * <p>
    * The price of the option is the price on the valuation date.
    * @param option  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * 
    * @return the price of the product, in decimal form
    */
-  public abstract double price(IborFutureOption option, PricingEnvironment env, IborFutureParameters parameters);
+  public abstract double price(IborFutureOption option, RatesProvider prov, IborFutureParameters parameters);
   
   /**
    * Calculates the price sensitivity of the Ibor future option product.
    * <p>
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * @param option  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * 
    * @return the price curve sensitivity of the product
    */
-  public abstract PointSensitivities priceSensitivity(IborFutureOption option, PricingEnvironment env, 
+  public abstract PointSensitivities priceSensitivity(IborFutureOption option, RatesProvider prov, 
       IborFutureParameters parameters);
 
   /**

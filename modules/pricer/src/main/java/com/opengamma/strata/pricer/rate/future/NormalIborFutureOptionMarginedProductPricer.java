@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.option.IborFutureOptionSensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.option.OptionPointSensitivity;
@@ -44,13 +44,13 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
   }
 
   @Override
-  public double price(IborFutureOption futureOption, PricingEnvironment env,
+  public double price(IborFutureOption futureOption, RatesProvider prov,
       IborFutureParameters parameters) {
     IborFuture future = futureOption.getUnderlying().getProduct();
-    double futurePrice = futurePricerFn.price(env, future);
+    double futurePrice = futurePricerFn.price(future, prov);
     ArgChecker.isTrue(parameters instanceof NormalVolatilityIborFutureParameters, 
         "parameters should be of type NormalIborFutureVolatilityParameters");
-    return price(futureOption, env, (NormalVolatilityIborFutureParameters) parameters, futurePrice);
+    return price(futureOption, prov, (NormalVolatilityIborFutureParameters) parameters, futurePrice);
   }
 
   /**
@@ -58,13 +58,13 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * <p>
    * The price of the option is the price on the valuation date.
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * @param futurePrice  the price of the underlying future
    * 
    * @return the price of the product, in decimal form
    */
-  public double price(IborFutureOption futureOption, PricingEnvironment env, 
+  public double price(IborFutureOption futureOption, RatesProvider prov, 
       NormalVolatilityIborFutureParameters parameters, double futurePrice) {
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN), 
         "premium style should be DAILY_MARGIN");
@@ -81,16 +81,16 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * The delta of the product is the sensitivity of the option price to the future price.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * 
    * @return the price curve sensitivity of the product
    */
-  public double deltaStickyStrike(IborFutureOption futureOption, PricingEnvironment env, 
+  public double deltaStickyStrike(IborFutureOption futureOption, RatesProvider prov, 
       NormalVolatilityIborFutureParameters parameters) {
     IborFuture future = futureOption.getUnderlying().getProduct();
-    double futurePrice = futurePricerFn.price(env, future);
-    return deltaStickyStrike(futureOption, env, parameters, futurePrice);
+    double futurePrice = futurePricerFn.price(future, prov);
+    return deltaStickyStrike(futureOption, prov, parameters, futurePrice);
   }
 
   /**
@@ -100,13 +100,13 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * @param futurePrice  the price of the underlying future
    * 
    * @return the price curve sensitivity of the product
    */
-  public double deltaStickyStrike(IborFutureOption futureOption, PricingEnvironment env, 
+  public double deltaStickyStrike(IborFutureOption futureOption, RatesProvider prov, 
       NormalVolatilityIborFutureParameters parameters, double futurePrice) {
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN), 
         "premium style should be DAILY_MARGIN");
@@ -125,17 +125,17 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name. 
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * @param futurePrice  the price of the underlying future
    * 
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivityStickyStrike(IborFutureOption futureOption, PricingEnvironment env, 
+  public PointSensitivities priceSensitivityStickyStrike(IborFutureOption futureOption, RatesProvider prov, 
       NormalVolatilityIborFutureParameters parameters, double futurePrice) {
-    double delta = deltaStickyStrike(futureOption, env, parameters, futurePrice);
+    double delta = deltaStickyStrike(futureOption, prov, parameters, futurePrice);
     PointSensitivities futurePriceSensitivity = 
-        futurePricerFn.priceSensitivity(env, futureOption.getUnderlying().getProduct());
+        futurePricerFn.priceSensitivity(futureOption.getUnderlying().getProduct(), prov);
     return futurePriceSensitivity.multipliedBy(delta);
   }
 
@@ -145,26 +145,26 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name. 
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters  the model parameters
    * 
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivityStickyStrike(IborFutureOption futureOption, PricingEnvironment env, 
+  public PointSensitivities priceSensitivityStickyStrike(IborFutureOption futureOption, RatesProvider prov, 
       NormalVolatilityIborFutureParameters parameters) {
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN), 
         "premium style should be DAILY_MARGIN");
     IborFuture future = futureOption.getUnderlying().getProduct();
-    double futurePrice = futurePricerFn.price(env, future);
-    return priceSensitivityStickyStrike(futureOption, env, (NormalVolatilityIborFutureParameters) parameters, futurePrice);
+    double futurePrice = futurePricerFn.price(future, prov);
+    return priceSensitivityStickyStrike(futureOption, prov, (NormalVolatilityIborFutureParameters) parameters, futurePrice);
   }
 
   @Override
-  public PointSensitivities priceSensitivity(IborFutureOption futureOption, PricingEnvironment env, 
+  public PointSensitivities priceSensitivity(IborFutureOption futureOption, RatesProvider prov, 
       IborFutureParameters parameters) {
     ArgChecker.isTrue(parameters instanceof NormalVolatilityIborFutureParameters, 
         "parameters should be of type NormalIborFutureVolatilityParameters");
-    return priceSensitivityStickyStrike(futureOption, env, (NormalVolatilityIborFutureParameters) parameters);
+    return priceSensitivityStickyStrike(futureOption, prov, (NormalVolatilityIborFutureParameters) parameters);
   }
   
   /**
@@ -173,16 +173,16 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * This sensitivity is also called the price normal vega.
    * 
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters the normal volatility parameters
    * 
    * @return the sensitivity
    */
   public OptionPointSensitivity priceSensitivityNormalVolatility(IborFutureOption futureOption, 
-      PricingEnvironment env, NormalVolatilityIborFutureParameters parameters) {
+      RatesProvider prov, NormalVolatilityIborFutureParameters parameters) {
     IborFuture future = futureOption.getUnderlying().getProduct();
-    double futurePrice = futurePricerFn.price(env, future);
-    return priceSensitivityNormalVolatility(futureOption, env, parameters, futurePrice);
+    double futurePrice = futurePricerFn.price(future, prov);
+    return priceSensitivityNormalVolatility(futureOption, prov, parameters, futurePrice);
   }
   
   /**
@@ -191,14 +191,14 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
    * This sensitivity is also called the price normal vega.
    * 
    * @param futureOption  the option product to price
-   * @param env  the pricing environment
+   * @param prov  the pricing environment
    * @param parameters the normal volatility parameters
    * @param futurePrice  the underlying future price
    * 
    * @return the sensitivity
    */
   public OptionPointSensitivity priceSensitivityNormalVolatility(IborFutureOption futureOption, 
-      PricingEnvironment env, NormalVolatilityIborFutureParameters parameters, double futurePrice) {
+      RatesProvider prov, NormalVolatilityIborFutureParameters parameters, double futurePrice) {
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN), 
         "premium style should be DAILY_MARGIN");
     // Forward sweep

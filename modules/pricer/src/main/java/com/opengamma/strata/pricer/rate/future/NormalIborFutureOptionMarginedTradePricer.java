@@ -11,7 +11,7 @@ import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.option.OptionPointSensitivity;
 
 /**
@@ -46,18 +46,18 @@ public class NormalIborFutureOptionMarginedTradePricer extends IborFutureOptionM
    * <p>
    * The present value of the product is the value on the valuation date.
    * @param trade  the trade to price
-   * @param env  the pricing environment
+   * @param provider  the pricing environment
    * @param parameters  the model parameters
    * @param futurePrice  the price of the underlying future
    * @param lastClosingPrice  the last closing price
    * 
    * @return the present value
    */
-  public CurrencyAmount presentValue(IborFutureOptionTrade trade, PricingEnvironment env, 
+  public CurrencyAmount presentValue(IborFutureOptionTrade trade, RatesProvider provider, 
       NormalVolatilityIborFutureParameters parameters, double futurePrice, double lastClosingPrice) {
-    double optionPrice = getFutureOptionProductPricerFn().price(trade.getSecurity().getProduct(), env, 
+    double optionPrice = getFutureOptionProductPricerFn().price(trade.getSecurity().getProduct(), provider, 
         parameters, futurePrice);
-    return presentValue(trade, env.getValuationDate(), optionPrice, lastClosingPrice);
+    return presentValue(trade, provider.getValuationDate(), optionPrice, lastClosingPrice);
   }
 
   /**
@@ -66,18 +66,18 @@ public class NormalIborFutureOptionMarginedTradePricer extends IborFutureOptionM
    * The result is a single sensitivity to the volatility used. The volatility is the one associated to a 
    * expiry/delay/strike/future price key combination.
    * @param futureOptionTrade  the trade to price
-   * @param env  the pricing environment
+   * @param provider  the pricing environment
    * @param parameters  the model parameters
    * @param futurePrice  the price of the underlying future
    * 
    * @return the price sensitivity
    */
   public OptionPointSensitivity presentValueSensitivityNormalVolatility(
-      IborFutureOptionTrade futureOptionTrade, PricingEnvironment env, NormalVolatilityIborFutureParameters parameters, 
+      IborFutureOptionTrade futureOptionTrade, RatesProvider provider, NormalVolatilityIborFutureParameters parameters, 
       double futurePrice) {
     IborFutureOption product = futureOptionTrade.getSecurity().getProduct();
     OptionPointSensitivity priceSensitivity =
-        futureOptionPricerFn.priceSensitivityNormalVolatility(product, env, parameters, futurePrice);
+        futureOptionPricerFn.priceSensitivityNormalVolatility(product, provider, parameters, futurePrice);
     double factor = futureOptionPricerFn.marginIndex(product, 1) * futureOptionTrade.getQuantity();
     return priceSensitivity.withSensitivity(priceSensitivity.getValue() * factor);
   }
@@ -90,17 +90,17 @@ public class NormalIborFutureOptionMarginedTradePricer extends IborFutureOptionM
    * expiry/delay/strike/future price key combination.
    * The underlying future price is computed from the PricingEnvoronment using the underlying future pricer.
    * @param futureOptionTrade  the trade to price
-   * @param env  the pricing environment
+   * @param provider  the pricing environment
    * @param parameters  the model parameters
    * 
    * @return the price sensitivity
    */
   public OptionPointSensitivity presentValueSensitivityNormalVolatility(
-      IborFutureOptionTrade futureOptionTrade, PricingEnvironment env, 
+      IborFutureOptionTrade futureOptionTrade, RatesProvider provider, 
       NormalVolatilityIborFutureParameters parameters) {
     IborFuture future = futureOptionTrade.getSecurity().getProduct().getUnderlying().getProduct();
-    double futurePrice = futureOptionPricerFn.getFuturePricerFn().price(env, future);
-    return presentValueSensitivityNormalVolatility(futureOptionTrade, env, parameters, futurePrice);
+    double futurePrice = futureOptionPricerFn.getFuturePricerFn().price(future, provider);
+    return presentValueSensitivityNormalVolatility(futureOptionTrade, provider, parameters, futurePrice);
   }
 
 }

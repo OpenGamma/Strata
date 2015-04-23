@@ -29,7 +29,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.option.IborFutureOptionSensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.option.OptionPointSensitivity;
@@ -63,7 +63,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
   private static final IborFutureOption FUTURE_OPTION_PRODUCT = IborFutureDummyData.IBOR_FUTURE_OPTION_2;
   
   private static final double RATE = 0.015;
-  private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
+  private static final RatesProvider ENV_MOCK = mock(RatesProvider.class);
   static {
     when(ENV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getIndex(), 
         FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getLastTradeDate())).thenReturn(RATE);
@@ -132,7 +132,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
   public void priceSensitivityStickyStrike_from_future_price() {
     double futurePrice = 0.9875;
     PointSensitivities futurePriceSensitivity = 
-        FUTURE_PRICER.priceSensitivity(ENV_MOCK, FUTURE_OPTION_PRODUCT.getUnderlying().getProduct());
+        FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct(), ENV_MOCK);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, ENV_MOCK, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed = 
@@ -143,7 +143,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
   @Test
   public void priceSensitivityStickyStrike_from_env() {
     PointSensitivities futurePriceSensitivity = OPTION_PRICER.getFuturePricerFn()
-        .priceSensitivity(ENV_MOCK, FUTURE_OPTION_PRODUCT.getUnderlying().getProduct());
+        .priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct(), ENV_MOCK);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, ENV_MOCK, VOL_SIMPLE_MONEY_PRICE);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed = 

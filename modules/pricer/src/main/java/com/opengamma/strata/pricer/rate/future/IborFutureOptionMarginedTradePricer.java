@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
@@ -39,13 +39,13 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * <p>
    * The price of the trade is the price on the valuation date.
    * @param trade  the trade to price
-   * @param env  the pricing environment
+   * @param provider  the pricing environment
    * @param parameters  the model parameters
    * 
    * @return the price of the product, in decimal form
    */
-  public double price(IborFutureOptionTrade trade, PricingEnvironment env, IborFutureParameters parameters) {
-    return getFutureOptionProductPricerFn().price(trade.getSecurity().getProduct(), env, parameters);
+  public double price(IborFutureOptionTrade trade, RatesProvider provider, IborFutureParameters parameters) {
+    return getFutureOptionProductPricerFn().price(trade.getSecurity().getProduct(), provider, parameters);
   }
 
   /**
@@ -81,16 +81,16 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * @param trade  the trade to price
-   * @param env  the pricing environment
+   * @param provider  the pricing environment
    * @param parameters  the model parameters
    * @param lastClosingPrice  the last closing price
    * 
    * @return the present value
    */
-  public CurrencyAmount presentValue(IborFutureOptionTrade trade, PricingEnvironment env, 
+  public CurrencyAmount presentValue(IborFutureOptionTrade trade, RatesProvider provider, 
       IborFutureParameters parameters, double lastClosingPrice) {
-    double price = price(trade, env, parameters);
-    return presentValue(trade, env.getValuationDate(), price, lastClosingPrice);
+    double price = price(trade, provider, parameters);
+    return presentValue(trade, provider.getValuationDate(), price, lastClosingPrice);
   }  
   
   /**
@@ -99,14 +99,14 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * @param trade  the trade to price
-   * @param env  the pricing environment
+   * @param provider  the pricing environment
    * 
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivities presentValueSensitivity(IborFutureOptionTrade trade, PricingEnvironment env, 
+  public PointSensitivities presentValueSensitivity(IborFutureOptionTrade trade, RatesProvider provider, 
       IborFutureParameters parameters) {
     IborFutureOption product = trade.getSecurity().getProduct();
-    PointSensitivities priceSensi = getFutureOptionProductPricerFn().priceSensitivity(product, env, parameters);
+    PointSensitivities priceSensi = getFutureOptionProductPricerFn().priceSensitivity(product, provider, parameters);
     PointSensitivities marginIndexSensi = getFutureOptionProductPricerFn().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
