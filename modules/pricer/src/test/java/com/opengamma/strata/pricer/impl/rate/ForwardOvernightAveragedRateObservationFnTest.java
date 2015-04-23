@@ -14,12 +14,17 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -38,6 +43,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       0.0012, 0.0023, 0.0034,
       0.0045, 0.0056, 0.0067, 0.0078};
   private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double EPS_FD = 1.0E-7;
 
   //-------------------------------------------------------------------------
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and no cutoff period. */
@@ -63,6 +69,32 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = accruedRate / accrualFactorTotal;
     double rateComputed = obsFn.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+  }
+
+  /** Test against FD approximation for the case where publication lag=1, effective offset=0 (USD conventions) and 
+   * no cutoff period. Note that all the rates are bumped here, i.e., all the rates are treated as forward rates.*/
+  @Test
+  public void rateFedFundNoCutOffSensitivity() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(USD_FED_FUND, FIXING_DATES[i])).thenReturn(sensitivity);
+    }
+    OvernightAveragedRateObservation ro = OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE,
+        FIXING_END_DATE, 0);
+    ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
+    PointSensitivityBuilder sensitivityBuilderComputed = obsFn.rateSensitivity(mockEnv, ro, DUMMY_ACCRUAL_START_DATE,
+        DUMMY_ACCRUAL_END_DATE);
+    PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
+    Double[] sensitivityExpected = computedSensitivityFD(ro, USD_FED_FUND);
+    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    for (int i = 0; i < sensitivityExpected.length; ++i) {
+      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+    }
   }
 
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and cutoff=2 (FedFund swaps). */
@@ -94,6 +126,34 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
+  /** Test against FD approximation for the case where publication lag=1, effective offset=0 (USD conventions) and 
+   * cutoff=2 (FedFund swaps). 
+   * Note that all the rates are bumped here, i.e., all the rates are treated as forward rates. */
+  @Test
+  public void rateFedFundSensitivity() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(USD_FED_FUND, FIXING_DATES[i])).thenReturn(sensitivity);
+    }
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
+
+    PointSensitivityBuilder sensitivityBuilderComputed = obsFn.rateSensitivity(mockEnv, ro, DUMMY_ACCRUAL_START_DATE,
+        DUMMY_ACCRUAL_END_DATE);
+    PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
+    Double[] sensitivityExpected = computedSensitivityFD(ro, USD_FED_FUND);
+    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    for (int i = 0; i < sensitivityExpected.length; ++i) {
+      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+    }
+  }
+
   /**
    * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period. 
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
@@ -122,6 +182,34 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
+  /**
+   * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period. 
+   * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
+   */
+  @Test
+  public void rateChfNoCutOffSensitivity() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(CHF_TOIS, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      LocalDate fixingStartDate = CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = CHF_TOIS.calculateMaturityFromEffective(fixingStartDate);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(CHF_TOIS, CHF_TOIS.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(CHF_TOIS, FIXING_DATES[i])).thenReturn(sensitivity);
+    }
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
+    ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
+    PointSensitivityBuilder sensitivityBuilderComputed = obsFn.rateSensitivity(mockEnv, ro, DUMMY_ACCRUAL_START_DATE,
+        DUMMY_ACCRUAL_END_DATE);
+    PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
+    Double[] sensitivityExpected = computedSensitivityFD(ro, CHF_TOIS);
+    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    for (int i = 0; i < sensitivityExpected.length; ++i) {
+      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+    }
+  }
+
   /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period. 
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
   @Test
@@ -148,20 +236,64 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
 
+  /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period. 
+    *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
   @Test
-  public void rateSensitivityTest() {
-    OvernightAveragedRateObservation ro =
-        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+  public void rateGbpNoCutOffSensitivity() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      LocalDate fixingStartDate = GBP_SONIA.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(GBP_SONIA, FIXING_DATES[i])).thenReturn(sensitivity);
+    }
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
     ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
-
-    PointSensitivityBuilder builder = obsFn.rateSensitivity(mockEnv, ro, DUMMY_ACCRUAL_START_DATE,
+    PointSensitivityBuilder sensitivityBuilderComputed = obsFn.rateSensitivity(mockEnv, ro, DUMMY_ACCRUAL_START_DATE,
         DUMMY_ACCRUAL_END_DATE);
-    OvernightRateSensitivity senseComputed = (OvernightRateSensitivity) builder.build().getSensitivities().get(0);
-    assertEquals(senseComputed.getSensitivity(), 1.0);
-    assertEquals(senseComputed.getDate(), FIXING_START_DATE);
-    assertEquals(senseComputed.getIndex(), USD_FED_FUND);
-    assertEquals(senseComputed.getFixingDate(), USD_FED_FUND.calculateFixingFromEffective(FIXING_START_DATE));
+    PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
+    Double[] sensitivityExpected = computedSensitivityFD(ro, GBP_SONIA);
+    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    for (int i = 0; i < sensitivityExpected.length; ++i) {
+      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+    }
   }
 
+  private Double[] computedSensitivityFD(OvernightAveragedRateObservation ro, OvernightIndex index) {
+    int nRates = FIXING_DATES.length;
+    PricingEnvironment[] mockEnvUp = new PricingEnvironment[nRates];
+    PricingEnvironment[] mockEnvDw = new PricingEnvironment[nRates];
+    double[][] ratesUp = new double[nRates][];
+    double[][] ratesDw = new double[nRates][];
+    for (int i = 0; i < nRates; ++i) {
+      mockEnvUp[i] = mock(PricingEnvironment.class);
+      mockEnvDw[i] = mock(PricingEnvironment.class);
+      ratesUp[i] = Arrays.copyOf(FIXING_RATES, nRates);
+      ratesDw[i] = Arrays.copyOf(FIXING_RATES, nRates);
+      ratesUp[i][i] += EPS_FD;
+      ratesDw[i][i] -= EPS_FD;
+    }
+    for (int i = 0; i < nRates; i++) {
+      for (int j = 0; j < nRates; ++j) {
+        when(mockEnvUp[j].overnightIndexRate(index, FIXING_DATES[i])).thenReturn(ratesUp[j][i]);
+        when(mockEnvDw[j].overnightIndexRate(index, FIXING_DATES[i])).thenReturn(ratesDw[j][i]);
+      }
+    }
+    ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
+    List<Double> sensitivityExpected = new ArrayList<Double>();
+    for (int i = 0; i < nRates; ++i) {
+      double rateUp = obsFn.rate(mockEnvUp[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+      double rateDw = obsFn.rate(mockEnvDw[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+      double res = 0.5 * (rateUp - rateDw) / EPS_FD;
+      if (Math.abs(res) > 1.0e-14) {
+        sensitivityExpected.add(res);
+      }
+    }
+    int size = sensitivityExpected.size();
+    Double[] result = new Double[size];
+    return sensitivityExpected.toArray(result);
+  }
 }
