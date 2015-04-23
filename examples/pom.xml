@@ -21,7 +21,15 @@
     <!-- OpenGamma, relying on transitive dependencies -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-finance</artifactId>
+      <artifactId>strata-finance-beta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-function-beta</artifactId>
     </dependency>
     <dependency>
       <groupId>javafx</groupId>

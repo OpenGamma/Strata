@@ -21,6 +21,10 @@
     <!-- OpenGamma -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-basics</artifactId>
     </dependency>
     <!-- Testing -->
