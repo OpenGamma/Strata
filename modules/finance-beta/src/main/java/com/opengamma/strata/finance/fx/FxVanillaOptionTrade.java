@@ -30,6 +30,8 @@ import com.opengamma.strata.finance.TradeInfo;
 /**
  * A trade in a vanilla FX option.
  * <p>
+ * An Over-The-Counter (OTC) trade in an {@link FxVanillaOption}.
+ * <p>
  * An FX option is a financial instrument that provides an option based on the future value of
  * a foreign exchange. The option is European, exercised only on the exercise date.
  */

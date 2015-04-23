@@ -30,6 +30,8 @@ import com.opengamma.strata.finance.TradeInfo;
 /**
  * A trade in an option on an underlying swap.
  * <p>
+ * An Over-The-Counter (OTC) trade in a {@link Swaption}.
+ * <p>
  * A swaption is a financial instrument that provides an option based on the future value of a swap.
  * The option is European, exercised only on the exercise date.
  */
