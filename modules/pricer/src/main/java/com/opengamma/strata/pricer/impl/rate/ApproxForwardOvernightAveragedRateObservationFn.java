@@ -18,7 +18,6 @@ import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
-import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -64,6 +63,24 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     return details.calculateRate();
   }
 
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      OvernightAveragedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    OvernightIndex index = observation.getIndex();
+    LocalDate valuationDate = env.getValuationDate();
+    LocalDate startFixingDate = observation.getStartDate();
+    LocalDate startPublicationDate = index.calculatePublicationFromFixing(startFixingDate);
+    // No fixing to analyze. Go directly to approximation and cut-off.
+    if (valuationDate.isBefore(startPublicationDate)) {
+      return rateForwardSensitivity(env, observation);
+    }
+    ObservationDetails details = new ObservationDetails(env, observation);
+    return details.calculateRateSensitivity();
+  }
+
   // Compute the approximated rate in the case where the whole period is forward. 
   // There is no need to compute overnight periods, except for the cut-off period.
   private double rateForward(
@@ -102,6 +119,48 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     return accumulatedInterest / accrualFactorTotal;
   }
 
+  private PointSensitivityBuilder rateForwardSensitivity(
+      PricingEnvironment env,
+      OvernightAveragedRateObservation observation) {
+    OvernightIndex index = observation.getIndex();
+    HolidayCalendar calendar = index.getFixingCalendar();
+    LocalDate startFixingDate = observation.getStartDate();
+    LocalDate endFixingDateP1 = observation.getEndDate();
+    LocalDate endFixingDate = calendar.previous(endFixingDateP1);
+    LocalDate onRateEndDate = index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(endFixingDate));
+    LocalDate onRateStartDate = index.calculateEffectiveFromFixing(startFixingDate);
+    LocalDate onRateNoCutOffEndDate = onRateEndDate;
+    int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
+    PointSensitivityBuilder combinedPointSensitivityBuilder = PointSensitivityBuilder.none();
+    double accrualFactorTotal = index.getDayCount().yearFraction(onRateStartDate, onRateEndDate);
+    if (cutoffOffset > 1) { // Cut-off period
+      final List<Double> noCutOffAccrualFactorList = new ArrayList<>();
+      LocalDate currentFixing = endFixingDateP1;
+      LocalDate cutOffEffectiveDate;
+      for (int i = 0; i < cutoffOffset; i++) {
+        currentFixing = calendar.previous(currentFixing);
+        cutOffEffectiveDate = index.calculateEffectiveFromFixing(currentFixing);
+        onRateNoCutOffEndDate = index.calculateMaturityFromEffective(cutOffEffectiveDate);
+        double accrualFactor = index.getDayCount().yearFraction(cutOffEffectiveDate, onRateNoCutOffEndDate);
+        noCutOffAccrualFactorList.add(accrualFactor);
+      }
+      PointSensitivityBuilder forwardRateCutOffSensitivity = env.overnightIndexRateSensitivity(index, currentFixing);
+      double totalAccrualFactor = 0.0;
+      for (int i = 0; i < cutoffOffset - 1; i++) {
+        totalAccrualFactor += noCutOffAccrualFactorList.get(i);
+      }
+      forwardRateCutOffSensitivity = forwardRateCutOffSensitivity.multipliedBy(totalAccrualFactor);
+      combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateCutOffSensitivity);
+    }
+    // Approximated part
+    PointSensitivityBuilder approximatedInterestAndSensitivity = approximatedInterestSensitivity(env, index,
+        onRateStartDate, onRateNoCutOffEndDate);
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(approximatedInterestAndSensitivity);
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.multipliedBy(1.0 / accrualFactorTotal);
+    // final rate
+    return combinedPointSensitivityBuilder;
+  }
+
   // Compute the accrued interest on a given period by approximation.
   private static double approximatedInterest(
       PricingEnvironment env, OvernightIndex index, LocalDate startDate, LocalDate endDate) {
@@ -110,19 +169,14 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     return Math.log(1.0 + forwardRate * remainingFixingAccrualFactor);
   }
 
-  @Override
-  public PointSensitivityBuilder rateSensitivity(
-      PricingEnvironment env,
-      OvernightAveragedRateObservation observation,
-      LocalDate startDate,
-      LocalDate endDate) {
-    // TODO startDate, endDate are the same as those stored in observation?
-    LocalDate start = observation.getStartDate();
-    LocalDate end = observation.getEndDate();
-    OvernightIndex index = observation.getIndex();
-    // TODO fixing date is the best parameter to pass?
-    LocalDate fixing = index.calculateFixingFromEffective(start);
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixing, end, 1.0);
+  private static PointSensitivityBuilder approximatedInterestSensitivity(
+      PricingEnvironment env, OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+    double remainingFixingAccrualFactor = index.getDayCount().yearFraction(startDate, endDate);
+    double forwardRate = env.overnightIndexRatePeriod(index, startDate, endDate);
+    PointSensitivityBuilder forwardRateSensitivity = env.overnightIndexRatePeriodSensitivity(index, startDate, endDate);
+    double rateExp = 1.0 + forwardRate * remainingFixingAccrualFactor;
+    forwardRateSensitivity = forwardRateSensitivity.multipliedBy(remainingFixingAccrualFactor / rateExp);
+    return forwardRateSensitivity;
   }
 
   //-------------------------------------------------------------------------
@@ -229,6 +283,16 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       return 0.0d;
     }
 
+    private PointSensitivityBuilder approximatedForwardAccumulationSensitivity() {
+      int nbPeriodNotCutOff = nbPeriods - cutoffOffset + 1;
+      if (fixedPeriod < nbPeriodNotCutOff) {
+        LocalDate startDateApprox = onRatePeriodEffectiveDates.get(fixedPeriod);
+        LocalDate endDateApprox = onRatePeriodMaturityDates.get(nbPeriodNotCutOff - 1);
+        return approximatedInterestSensitivity(env, index, startDateApprox, endDateApprox);
+      }
+      return PointSensitivityBuilder.none();
+    }
+
     // Accumulated rate - cutoff part if not fixed
     private double cutOffAccumulation() {
       double accumulatedInterest = 0.0d;
@@ -240,11 +304,36 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       return accumulatedInterest;
     }
 
+    private PointSensitivityBuilder cutOffAccumulationSensitivity() {
+      PointSensitivityBuilder combinedPointSensitivityBuilder = PointSensitivityBuilder.none();
+      int nbPeriodNotCutOff = nbPeriods - cutoffOffset + 1;
+      for (int i = Math.max(fixedPeriod, nbPeriodNotCutOff); i < nbPeriods; i++) {
+        PointSensitivityBuilder forwardRateSensitivity = env.overnightIndexRateSensitivity(index, fixingDates.get(i));
+        forwardRateSensitivity = forwardRateSensitivity.multipliedBy(accrualFactors.get(i));
+        combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivity);
+      }
+      return combinedPointSensitivityBuilder;
+    }
+
     // Calculate the total rate.
     private double calculateRate() {
       return (pastAccumulation() + valuationDateAccumulation()
           + approximatedForwardAccumulation() + cutOffAccumulation())
           / accrualFactorTotal;
+    }
+
+    private PointSensitivityBuilder calculateRateSensitivity() {
+      // TODO check if these are needed to push forward some dates
+      //      pastAccumulation();
+      //      valuationDateAccumulation();
+      PointSensitivityBuilder combinedPointSensitivity = PointSensitivityBuilder.none();
+      PointSensitivityBuilder approximatedForwardAccumulationSensitivity = approximatedForwardAccumulationSensitivity();
+      PointSensitivityBuilder cutOffAccumulationSensitivity = cutOffAccumulationSensitivity();
+
+      combinedPointSensitivity = combinedPointSensitivity.combinedWith(approximatedForwardAccumulationSensitivity);
+      combinedPointSensitivity = combinedPointSensitivity.combinedWith(cutOffAccumulationSensitivity);
+      combinedPointSensitivity = combinedPointSensitivity.multipliedBy(1.0d / accrualFactorTotal);
+      return combinedPointSensitivity;
     }
 
     // Check that the fixing is present. Throws an exception if not and return the rate as double.

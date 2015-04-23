@@ -11,11 +11,11 @@ import java.util.OptionalDouble;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
-import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -56,13 +56,7 @@ public class ForwardOvernightCompoundedRateObservationFn
       OvernightCompoundedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-    // TODO startDate, endDate are the same as those stored in observation?
-    LocalDate start = observation.getStartDate();
-    LocalDate end = observation.getEndDate();
-    OvernightIndex index = observation.getIndex();
-    // TODO fixing date is the best parameter to pass?
-    LocalDate fixing = index.calculateFixingFromEffective(start);
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixing, end, 1.0);
+    return new ObservationDetails(env, observation).calculateRateSensitivity();
   }
 
   //-------------------------------------------------------------------------
@@ -174,6 +168,20 @@ public class ForwardOvernightCompoundedRateObservationFn
       return 1.0d;
     }
 
+    private Pair<Double, PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff() {
+      if (nextFixing.isBefore(lastFixingNonCutoff)) {
+        LocalDate startDate = index.calculateEffectiveFromFixing(nextFixing);
+        LocalDate endDate = index.calculateMaturityFromEffective(index
+            .calculateEffectiveFromFixing(lastFixingNonCutoff));
+        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
+        double rate = env.overnightIndexRatePeriod(index, startDate, endDate);
+        PointSensitivityBuilder rateSensitivity = env.overnightIndexRatePeriodSensitivity(index, startDate, endDate);
+        rateSensitivity = rateSensitivity.multipliedBy(accrualFactor);
+        return Pair.of(1.0d + accrualFactor * rate, rateSensitivity);
+      }
+      return Pair.of(1.0d, PointSensitivityBuilder.none());
+    }
+
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
     private double compositionFactorCutoff() {
       if (nextFixing.isBefore(lastFixingNonCutoff)) {
@@ -187,10 +195,43 @@ public class ForwardOvernightCompoundedRateObservationFn
       return 1.0d;
     }
 
+    private Pair<Double, PointSensitivityBuilder> compositionFactorAndSensitivityCutoff() {
+      if (nextFixing.isBefore(lastFixingNonCutoff)) {
+        double rate = env.overnightIndexRate(index, lastFixingNonCutoff);
+        double compositionFactor = 1.0d;
+        double compositionFactorDerivative = 0.0;
+        for (int i = 0; i < cutoffOffset - 1; i++) {
+          compositionFactor *= 1.0d + accrualFactorCutoff[i] * rate;
+          compositionFactorDerivative += accrualFactorCutoff[i] / (1.0d + accrualFactorCutoff[i] * rate);
+        }
+        compositionFactorDerivative *= compositionFactor;
+        PointSensitivityBuilder rateSensitivity = cutoffOffset <= 1 ? PointSensitivityBuilder.none() : env
+            .overnightIndexRateSensitivity(index, lastFixingNonCutoff);
+        rateSensitivity = rateSensitivity.multipliedBy(compositionFactorDerivative);
+        return Pair.of(compositionFactor, rateSensitivity);
+      }
+      return Pair.of(1.0d, PointSensitivityBuilder.none());
+    }
+
     // Calculate the total rate
     private double calculateRate() {
       return (pastCompositionFactor() * valuationCompositionFactor() *
           compositionFactorNonCutoff() * compositionFactorCutoff() - 1.0d) / accrualFactorTotal;
+    }
+
+    private PointSensitivityBuilder calculateRateSensitivity() {
+      PointSensitivityBuilder combinedPointSensitivity = PointSensitivityBuilder.none();
+      double factor = pastCompositionFactor() * valuationCompositionFactor() / accrualFactorTotal;
+      Pair<Double, PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff = compositionFactorAndSensitivityNonCutoff();
+      Pair<Double, PointSensitivityBuilder> compositionFactorAndSensitivityCutoff = compositionFactorAndSensitivityCutoff();
+
+      combinedPointSensitivity = combinedPointSensitivity.combinedWith(compositionFactorAndSensitivityNonCutoff
+          .getSecond().multipliedBy(compositionFactorAndSensitivityCutoff.getFirst()));
+      combinedPointSensitivity = combinedPointSensitivity.combinedWith(compositionFactorAndSensitivityCutoff
+          .getSecond().multipliedBy(compositionFactorAndSensitivityNonCutoff.getFirst()));
+      combinedPointSensitivity = combinedPointSensitivity.multipliedBy(factor);
+
+      return combinedPointSensitivity;
     }
 
     // Check that the fixing is present. Throws an exception if not and return the rate as double.

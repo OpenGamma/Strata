@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
-import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -82,13 +81,43 @@ public class ForwardOvernightAveragedRateObservationFn
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-    // TODO startDate, endDate are the same as those stored in observation?
-    LocalDate start = observation.getStartDate();
-    LocalDate end = observation.getEndDate();
-    OvernightIndex index = observation.getIndex();
-    // TODO fixing date is the best parameter to pass?
-    LocalDate fixing = index.calculateFixingFromEffective(start);
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixing, end, 1.0);
-  }
 
+    OvernightIndex index = observation.getIndex();
+    LocalDate lastNonCutoffFixing = observation.getEndDate();
+    int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
+    PointSensitivityBuilder combinedPointSensitivityBuilder = PointSensitivityBuilder.none();
+    double accrualFactorTotal = 0.0d;
+    // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end. 
+    // When the fixing period end-date is not a good business day in the index calendar, 
+    // the last fixing end date will be after the fixing end-date.
+    double cutoffAccrualFactor = 0.0;
+    for (int i = 0; i < cutoffOffset; i++) {
+      lastNonCutoffFixing = index.getFixingCalendar().previous(lastNonCutoffFixing);
+      LocalDate cutoffEffectiveDate = index.calculateEffectiveFromFixing(lastNonCutoffFixing);
+      LocalDate cutoffMaturityDate = index.calculateMaturityFromEffective(cutoffEffectiveDate);
+      double accrualFactor = index.getDayCount().yearFraction(cutoffEffectiveDate, cutoffMaturityDate);
+      accrualFactorTotal += accrualFactor;
+      cutoffAccrualFactor += accrualFactor;
+    }
+    PointSensitivityBuilder forwardRateSensitivityCutOff = env
+        .overnightIndexRateSensitivity(index, lastNonCutoffFixing);
+    forwardRateSensitivityCutOff = forwardRateSensitivityCutOff.multipliedBy(cutoffAccrualFactor);
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivityCutOff);
+
+    LocalDate currentFixingNonCutoff = observation.getStartDate();
+    while (currentFixingNonCutoff.isBefore(lastNonCutoffFixing)) {
+      // All dates involved in the period are computed. Potentially slow.
+      // The fixing periods are added as long as their start date is (strictly) before the no cutoff period end-date.
+      LocalDate currentOnRateStart = index.calculateEffectiveFromFixing(currentFixingNonCutoff);
+      LocalDate currentOnRateEnd = index.calculateMaturityFromEffective(currentOnRateStart);
+      double accrualFactor = index.getDayCount().yearFraction(currentOnRateStart, currentOnRateEnd);
+      PointSensitivityBuilder forwardRateSensitivity = env.overnightIndexRateSensitivity(index, currentFixingNonCutoff);
+      forwardRateSensitivity = forwardRateSensitivity.multipliedBy(accrualFactor);
+      combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivity);
+      accrualFactorTotal += accrualFactor;
+      currentFixingNonCutoff = index.getFixingCalendar().next(currentFixingNonCutoff);
+    }
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.multipliedBy(1.0 / accrualFactorTotal);
+    return combinedPointSensitivityBuilder;
+  }
 }
