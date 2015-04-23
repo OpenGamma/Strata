@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -25,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 
 /**
  * A simple foreign exchange between two counterparties.
@@ -33,80 +34,103 @@ import com.opengamma.strata.collect.ArgChecker;
  * This represents a single foreign exchange on a specific date.
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  * <p>
- * Application code will generally use {@link FxForward} instead of this class.
+ * The two payments are identified as the base and counter currencies in a standardized currency pair.
+ * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
+ * See {@link CurrencyPair} for details of the configuration that determines the ordering.
+ * <p>
+ * An FX forward and an FX spot can be represented using this product.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class FxExchange
     implements FxExchangeProduct, ImmutableBean, Serializable {
 
   /**
-   * The amount to be paid.
+   * The payment in the base currency, positive if receiving, negative if paying.
    * <p>
-   * This amount will be paid to the counterparty.
-   * The amount must be negative as an additional indication that this is to be paid.
-   * The currency must differ from the received amount.
+   * The payment amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxPayment pay;
+  private final FxPayment baseCurrencyPayment;
   /**
-   * The amount to be received.
+   * The payment in the counter currency, positive if receiving, negative if paying.
    * <p>
-   * This amount will be received from the counterparty.
-   * The amount must be positive as an additional indication that this is to be received.
-   * The currency must differ from the pay amount.
+   * The payment amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxPayment receive;
+  private final FxPayment counterCurrencyPayment;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code FxExchange} from two amounts and the value date.
-   * <p>
-   * The signs of the amounts will be normalized as necessary.
-   * The currencies of the amounts must differ.
-   * 
-   * @param pay  the amount to be paid
-   * @param receive  the amount to be received
-   * @param valueDate  the value date
-   * @return the foreign exchange
-   */
-  public static FxExchange of(CurrencyAmount pay, CurrencyAmount receive, LocalDate valueDate) {
-    return new FxExchange(FxPayment.ofPay(valueDate, pay), FxPayment.ofReceive(valueDate, receive));
-  }
-
-  /**
-   * Creates an {@code FxExchange} from two payments.
+   * Creates an {@code FxExchange} from two equivalent payments in different currencies.
    * <p>
    * The payments must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
+   * <p>
+   * This factory identifies the currency pair of the exchange and assigns the payments
+   * to match the base or counter currency of the standardized currency pair.
+   * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
    * 
-   * @param pay  the amount to be paid
-   * @param receive  the amount to be received
+   * @param payment1  the first payment
+   * @param payment2  the second payment
    * @return the foreign exchange
    */
-  public static FxExchange of(FxPayment pay, FxPayment receive) {
-    return new FxExchange(pay, receive);
+  public static FxExchange of(FxPayment payment1, FxPayment payment2) {
+    CurrencyPair pair = CurrencyPair.of(payment2.getCurrency(), payment1.getCurrency());
+    if (pair.isConventional()) {
+      return new FxExchange(payment2, payment1);
+    } else {
+      return new FxExchange(payment1, payment2);
+    }
+  }
+
+  /**
+   * Creates an {@code FxExchange} from two amounts and the value date.
+   * <p>
+   * The amounts must be of the correct type, one pay and one receive.
+   * The currencies of the payments must differ.
+   * <p>
+   * This factory identifies the currency pair of the exchange and assigns the payments
+   * to match the base or counter currency of the standardized currency pair.
+   * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
+   * 
+   * @param amount1  the amount to be paid
+   * @param amount2  the amount to be received
+   * @param valueDate  the value date
+   * @return the foreign exchange
+   */
+  public static FxExchange of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
+    return FxExchange.of(FxPayment.of(valueDate, amount1), FxPayment.of(valueDate, amount2));
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(pay.getPayReceive().isPay(), "Must not pass a receive amount into the pay field");
-    ArgChecker.isTrue(receive.getPayReceive().isReceive(), "Must not pass a pay amount into the receive field");
-    ArgChecker.isFalse(pay.getCurrency().equals(receive.getCurrency()),
-        "Pay and Receive must have different currencies");
+    if (baseCurrencyPayment.getCurrency().equals(counterCurrencyPayment.getCurrency())) {
+      throw new IllegalArgumentException("Payments must have different currencies");
+    }
+    if (baseCurrencyPayment.getAmount() != 0d || counterCurrencyPayment.getAmount() != 0d) {
+      // zero is valid
+    } else {
+      if (Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
+        throw new IllegalArgumentException("Payments must have different signs");
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
   /**
    * Returns the inverse exchange.
    * <p>
-   * The inverse exchange swaps the pay and receive amounts, and their signs.
+   * The result has the base and counter payments negated.
    * 
    * @return the inverse exchange
    */
   public FxExchange inverse() {
-    return new FxExchange(receive.inverse(), pay.inverse());
+    return new FxExchange(baseCurrencyPayment.inverse(), counterCurrencyPayment.inverse());
   }
 
   //-------------------------------------------------------------------------
@@ -139,21 +163,13 @@ public final class FxExchange
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static FxExchange.Builder builder() {
-    return new FxExchange.Builder();
-  }
-
   private FxExchange(
-      FxPayment pay,
-      FxPayment receive) {
-    JodaBeanUtils.notNull(pay, "pay");
-    JodaBeanUtils.notNull(receive, "receive");
-    this.pay = pay;
-    this.receive = receive;
+      FxPayment baseCurrencyPayment,
+      FxPayment counterCurrencyPayment) {
+    JodaBeanUtils.notNull(baseCurrencyPayment, "baseCurrencyPayment");
+    JodaBeanUtils.notNull(counterCurrencyPayment, "counterCurrencyPayment");
+    this.baseCurrencyPayment = baseCurrencyPayment;
+    this.counterCurrencyPayment = counterCurrencyPayment;
     validate();
   }
 
@@ -174,39 +190,31 @@ public final class FxExchange
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount to be paid.
+   * Gets the payment in the base currency, positive if receiving, negative if paying.
    * <p>
-   * This amount will be paid to the counterparty.
-   * The amount must be negative as an additional indication that this is to be paid.
-   * The currency must differ from the received amount.
+   * The payment amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
    * @return the value of the property, not null
    */
-  public FxPayment getPay() {
-    return pay;
+  public FxPayment getBaseCurrencyPayment() {
+    return baseCurrencyPayment;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount to be received.
+   * Gets the payment in the counter currency, positive if receiving, negative if paying.
    * <p>
-   * This amount will be received from the counterparty.
-   * The amount must be positive as an additional indication that this is to be received.
-   * The currency must differ from the pay amount.
+   * The payment amount is signed.
+   * A positive amount indicates the payment is to be received.
+   * A negative amount indicates the payment is to be paid.
    * @return the value of the property, not null
    */
-  public FxPayment getReceive() {
-    return receive;
+  public FxPayment getCounterCurrencyPayment() {
+    return counterCurrencyPayment;
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -214,8 +222,8 @@ public final class FxExchange
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxExchange other = (FxExchange) obj;
-      return JodaBeanUtils.equal(getPay(), other.getPay()) &&
-          JodaBeanUtils.equal(getReceive(), other.getReceive());
+      return JodaBeanUtils.equal(getBaseCurrencyPayment(), other.getBaseCurrencyPayment()) &&
+          JodaBeanUtils.equal(getCounterCurrencyPayment(), other.getCounterCurrencyPayment());
     }
     return false;
   }
@@ -223,8 +231,8 @@ public final class FxExchange
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPay());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReceive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyPayment());
     return hash;
   }
 
@@ -232,8 +240,8 @@ public final class FxExchange
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxExchange{");
-    buf.append("pay").append('=').append(getPay()).append(',').append(' ');
-    buf.append("receive").append('=').append(JodaBeanUtils.toString(getReceive()));
+    buf.append("baseCurrencyPayment").append('=').append(getBaseCurrencyPayment()).append(',').append(' ');
+    buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(getCounterCurrencyPayment()));
     buf.append('}');
     return buf.toString();
   }
@@ -249,22 +257,22 @@ public final class FxExchange
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code pay} property.
+     * The meta-property for the {@code baseCurrencyPayment} property.
      */
-    private final MetaProperty<FxPayment> pay = DirectMetaProperty.ofImmutable(
-        this, "pay", FxExchange.class, FxPayment.class);
+    private final MetaProperty<FxPayment> baseCurrencyPayment = DirectMetaProperty.ofImmutable(
+        this, "baseCurrencyPayment", FxExchange.class, FxPayment.class);
     /**
-     * The meta-property for the {@code receive} property.
+     * The meta-property for the {@code counterCurrencyPayment} property.
      */
-    private final MetaProperty<FxPayment> receive = DirectMetaProperty.ofImmutable(
-        this, "receive", FxExchange.class, FxPayment.class);
+    private final MetaProperty<FxPayment> counterCurrencyPayment = DirectMetaProperty.ofImmutable(
+        this, "counterCurrencyPayment", FxExchange.class, FxPayment.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "pay",
-        "receive");
+        "baseCurrencyPayment",
+        "counterCurrencyPayment");
 
     /**
      * Restricted constructor.
@@ -275,16 +283,16 @@ public final class FxExchange
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 110760:  // pay
-          return pay;
-        case 1082290915:  // receive
-          return receive;
+        case 765258148:  // baseCurrencyPayment
+          return baseCurrencyPayment;
+        case -863240423:  // counterCurrencyPayment
+          return counterCurrencyPayment;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public FxExchange.Builder builder() {
+    public BeanBuilder<? extends FxExchange> builder() {
       return new FxExchange.Builder();
     }
 
@@ -300,29 +308,29 @@ public final class FxExchange
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code pay} property.
+     * The meta-property for the {@code baseCurrencyPayment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxPayment> pay() {
-      return pay;
+    public MetaProperty<FxPayment> baseCurrencyPayment() {
+      return baseCurrencyPayment;
     }
 
     /**
-     * The meta-property for the {@code receive} property.
+     * The meta-property for the {@code counterCurrencyPayment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxPayment> receive() {
-      return receive;
+    public MetaProperty<FxPayment> counterCurrencyPayment() {
+      return counterCurrencyPayment;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 110760:  // pay
-          return ((FxExchange) bean).getPay();
-        case 1082290915:  // receive
-          return ((FxExchange) bean).getReceive();
+        case 765258148:  // baseCurrencyPayment
+          return ((FxExchange) bean).getBaseCurrencyPayment();
+        case -863240423:  // counterCurrencyPayment
+          return ((FxExchange) bean).getCounterCurrencyPayment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -342,10 +350,10 @@ public final class FxExchange
   /**
    * The bean-builder for {@code FxExchange}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FxExchange> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FxExchange> {
 
-    private FxPayment pay;
-    private FxPayment receive;
+    private FxPayment baseCurrencyPayment;
+    private FxPayment counterCurrencyPayment;
 
     /**
      * Restricted constructor.
@@ -353,23 +361,14 @@ public final class FxExchange
     private Builder() {
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FxExchange beanToCopy) {
-      this.pay = beanToCopy.getPay();
-      this.receive = beanToCopy.getReceive();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 110760:  // pay
-          return pay;
-        case 1082290915:  // receive
-          return receive;
+        case 765258148:  // baseCurrencyPayment
+          return baseCurrencyPayment;
+        case -863240423:  // counterCurrencyPayment
+          return counterCurrencyPayment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -378,11 +377,11 @@ public final class FxExchange
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 110760:  // pay
-          this.pay = (FxPayment) newValue;
+        case 765258148:  // baseCurrencyPayment
+          this.baseCurrencyPayment = (FxPayment) newValue;
           break;
-        case 1082290915:  // receive
-          this.receive = (FxPayment) newValue;
+        case -863240423:  // counterCurrencyPayment
+          this.counterCurrencyPayment = (FxPayment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -417,31 +416,8 @@ public final class FxExchange
     @Override
     public FxExchange build() {
       return new FxExchange(
-          pay,
-          receive);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code pay} property in the builder.
-     * @param pay  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder pay(FxPayment pay) {
-      JodaBeanUtils.notNull(pay, "pay");
-      this.pay = pay;
-      return this;
-    }
-
-    /**
-     * Sets the {@code receive} property in the builder.
-     * @param receive  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder receive(FxPayment receive) {
-      JodaBeanUtils.notNull(receive, "receive");
-      this.receive = receive;
-      return this;
+          baseCurrencyPayment,
+          counterCurrencyPayment);
     }
 
     //-----------------------------------------------------------------------
@@ -449,8 +425,8 @@ public final class FxExchange
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("FxExchange.Builder{");
-      buf.append("pay").append('=').append(JodaBeanUtils.toString(pay)).append(',').append(' ');
-      buf.append("receive").append('=').append(JodaBeanUtils.toString(receive));
+      buf.append("baseCurrencyPayment").append('=').append(JodaBeanUtils.toString(baseCurrencyPayment)).append(',').append(' ');
+      buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment));
       buf.append('}');
       return buf.toString();
     }

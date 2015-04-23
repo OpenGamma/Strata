@@ -16,8 +16,7 @@ import com.opengamma.strata.finance.Product;
  * This class represents a single foreign exchange on a specific date.
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  * <p>
- * The standard implementation of this interface is {@link FxExchange}, however
- * application code will generally use {@link FxForward}.
+ * An FX forward and an FX spot can be represented using this product.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */

@@ -95,11 +95,27 @@ public final class FxPayment
   //-------------------------------------------------------------------------
   /**
    * Gets the currency of the payment.
+   * <p>
+   * This simply returns {@code getValue().getCurrency()}.
    * 
    * @return the currency of the payment
    */
   public Currency getCurrency() {
     return value.getCurrency();
+  }
+
+  /**
+   * Gets the amount of the payment.
+   * <p>
+   * The payment value is signed.
+   * A negative value indicates a payment while a positive value indicates receipt.
+   * <p>
+   * This simply returns {@code getValue().getAmount()}.
+   * 
+   * @return the amount of the payment
+   */
+  public double getAmount() {
+    return value.getAmount();
   }
 
   /**
