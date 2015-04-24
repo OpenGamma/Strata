@@ -53,6 +53,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * @param trade  the trade to price
+   * @param valuationDate  the valuation date; required to asses if the trade or last closing price should be used
    * @param currentOptionPrice  the option price on the valuation date
    * @param lastClosingPrice  the last closing price
    * 
@@ -100,6 +101,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * the underlying curves.
    * @param trade  the trade to price
    * @param provider  the pricing environment
+   * @param parameters the ibor future option model parameters
    * 
    * @return the present value curve sensitivity of the trade
    */

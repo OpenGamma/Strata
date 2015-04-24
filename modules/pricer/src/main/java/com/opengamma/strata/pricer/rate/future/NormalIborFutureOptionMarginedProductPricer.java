@@ -17,6 +17,9 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.option.IborFutureOptionSensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.option.OptionPointSensitivity;
 
+/**
+ * Pricer of options on Ibor future with a normal model on the underlying future price.
+ */
 public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptionMarginedProductPricer{
 
   /**
@@ -110,13 +113,9 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
       NormalVolatilityIborFutureParameters parameters, double futurePrice) {
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN), 
         "premium style should be DAILY_MARGIN");
-    // Forward sweep
     EuropeanVanillaOption option = createOption(futureOption, parameters);
     NormalFunctionData normalPoint = createData(createKey(futureOption, futurePrice, parameters), parameters);
-    // Backward sweep
-    double[] priceAdjoint = new double[3];
-    NORMAL_FUNCTION.getPriceAdjoint(option, normalPoint, priceAdjoint);
-    return priceAdjoint[0];
+    return  NORMAL_FUNCTION.getDelta(option, normalPoint);
   }
 
   /**
@@ -201,15 +200,12 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
       RatesProvider prov, NormalVolatilityIborFutureParameters parameters, double futurePrice) {
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN), 
         "premium style should be DAILY_MARGIN");
-    // Forward sweep
     NormalVolatilityIborFutureParameters normalParameters = (NormalVolatilityIborFutureParameters) parameters;
     EuropeanVanillaOption option = createOption(futureOption, parameters);
     IborFutureOptionSensitivityKey key = createKey(futureOption, futurePrice, parameters);
     NormalFunctionData normalPoint = createData(key, normalParameters);
-    // Backward sweep
-    double[] priceAdjoint = new double[3];
-    NORMAL_FUNCTION.getPriceAdjoint(option, normalPoint, priceAdjoint);
-    return new OptionPointSensitivity(key, priceAdjoint[1], futureOption.getUnderlying().getProduct().getCurrency());
+    return new OptionPointSensitivity(key, NORMAL_FUNCTION.getVega(option, normalPoint), 
+        futureOption.getUnderlying().getProduct().getCurrency());
   }
 
   //-------------------------------------------------------------------------
