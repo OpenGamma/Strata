@@ -323,9 +323,8 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     }
 
     private PointSensitivityBuilder calculateRateSensitivity() {
-      // TODO check if these are needed to push forward some dates
-      //      pastAccumulation();
-      //      valuationDateAccumulation();
+      pastAccumulation();
+      valuationDateAccumulation();
       PointSensitivityBuilder combinedPointSensitivity = PointSensitivityBuilder.none();
       PointSensitivityBuilder approximatedForwardAccumulationSensitivity = approximatedForwardAccumulationSensitivity();
       PointSensitivityBuilder cutOffAccumulationSensitivity = cutOffAccumulationSensitivity();
