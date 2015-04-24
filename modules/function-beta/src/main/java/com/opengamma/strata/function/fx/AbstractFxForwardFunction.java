@@ -17,38 +17,39 @@ import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.finance.fx.FxExchange;
-import com.opengamma.strata.finance.fx.FxExchangeTrade;
+import com.opengamma.strata.finance.fx.FxForward;
+import com.opengamma.strata.finance.fx.FxForwardTrade;
+import com.opengamma.strata.finance.fx.FxTransaction;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.pricer.fx.DiscountingFxExchangeProductPricerBeta;
+import com.opengamma.strata.pricer.fx.DiscountingFxTransactionProductPricerBeta;
 
 /**
- * Calculates a result for an {@code FxExchange} for each of a set of scenarios.
+ * Calculates a result for an {@code FxForward} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */
-public abstract class AbstractFxExchangeFunction<T>
-    implements EngineSingleFunction<FxExchangeTrade, List<T>> {
+public abstract class AbstractFxForwardFunction<T>
+    implements EngineSingleFunction<FxForwardTrade, List<T>> {
 
   // Pricer
-  private static final DiscountingFxExchangeProductPricerBeta PRICER = DiscountingFxExchangeProductPricerBeta.DEFAULT;
+  private static final DiscountingFxTransactionProductPricerBeta PRICER = DiscountingFxTransactionProductPricerBeta.DEFAULT;
 
   /**
    * Returns the pricer.
    * 
    * @return the pricer
    */
-  protected DiscountingFxExchangeProductPricerBeta pricer() {
+  protected DiscountingFxTransactionProductPricerBeta pricer() {
     return PRICER;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public CalculationRequirements requirements(FxExchangeTrade trade) {
-    FxExchange fx = trade.getProduct();
-    Currency baseCurrency = fx.getBaseCurrencyPayment().getCurrency();
-    Currency counterCurrency = fx.getCounterCurrencyPayment().getCurrency();
+  public CalculationRequirements requirements(FxForwardTrade trade) {
+    FxForward fx = trade.getProduct();
+    Currency baseCurrency = fx.getBaseCurrencyAmount().getCurrency();
+    Currency counterCurrency = fx.getCounterCurrencyAmount().getCurrency();
 
     Set<DiscountingCurveKey> discountingCurveKeys = ImmutableSet.of(
         DiscountingCurveKey.of(baseCurrency), DiscountingCurveKey.of(counterCurrency));
@@ -61,8 +62,8 @@ public abstract class AbstractFxExchangeFunction<T>
   }
 
   @Override
-  public List<T> execute(FxExchangeTrade trade, CalculationMarketData marketData) {
-    FxExchange product = trade.getProduct().expand();
+  public List<T> execute(FxForwardTrade trade, CalculationMarketData marketData) {
+    FxTransaction product = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
@@ -71,6 +72,6 @@ public abstract class AbstractFxExchangeFunction<T>
   }
 
   // execute for a single trade
-  protected abstract T execute(FxExchange product, MarketDataRatesProvider provider);
+  protected abstract T execute(FxTransaction product, MarketDataRatesProvider provider);
 
 }

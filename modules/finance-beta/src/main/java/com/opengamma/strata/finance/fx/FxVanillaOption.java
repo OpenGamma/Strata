@@ -42,7 +42,7 @@ import com.opengamma.strata.basics.PutCall;
  * If the option is a put, the option holder has the right to enter into the opposite of the specified exchange.
  * <p>
  * For example, a call on a 'EUR 1.00 / USD -1.41' exchange is the option to
- * perform a foreign exchange on the expiration date, where USD 1.41 is paid to receive EUR 1.00.
+ * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00.
  * A put on the same exchange is the option to pay EUR 1.00 and receive USD 1.41.
  */
 @BeanDefinition
@@ -66,59 +66,59 @@ public class FxVanillaOption
   @PropertyDefinition
   private final LongShort longShort;
   /**
-   * The expiration date of the option.  
+   * The expiry date of the option.  
    * <p>
-   * The option is European, and can only be exercised on the expiration date. 
+   * The option is European, and can only be exercised on the expiry date. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate expirationDate;
+  private final LocalDate expiryDate;
   /**
-   * The expiration time of the option.  
+   * The expiry time of the option.  
    * <p>
-   * The expiration time is related to the expiration date and time-zone.
+   * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalTime expirationTime;
+  private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiration time.  
+   * The time-zone of the expiry time.  
    * <p>
-   * The expiration time-zone is related to the expiration date and time.
+   * The expiry time-zone is related to the expiry date and time.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ZoneId expirationZone;
+  private final ZoneId expiryZone;
   /**
-   * The underlying foreign exchange.
+   * The underlying foreign exchange transaction.
    * <p>
    * At expiry, if the option is in the money, this foreign exchange will occur.
-   * A call option permits the exchange as specified to occur.
-   * A put option permits the inverse exchange to occur.
+   * A call option permits the transaction as specified to occur.
+   * A put option permits the inverse transaction to occur.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxExchange underlying;
+  private final FxTransaction underlying;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     inOrderOrEqual(
-        expirationDate, underlying.getBaseCurrencyPayment().getDate(),
-        "expirationDate", "underlying.baseCurrencyPayment.date");
+        expiryDate, underlying.getBaseCurrencyPayment().getDate(),
+        "expiryDate", "underlying.baseCurrencyPayment.date");
     inOrderOrEqual(
-        expirationDate, underlying.getCounterCurrencyPayment().getDate(),
-        "expirationDate", "underlying.counterCurrencyPayment.date");
+        expiryDate, underlying.getCounterCurrencyPayment().getDate(),
+        "expiryDate", "underlying.counterCurrencyPayment.date");
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the expiration date-time.
+   * Gets the expiry date-time.
    * <p>
    * The option expires at this date and time.
    * <p>
-   * The result is returned by combining the expiration date, time and time-zone.
+   * The result is returned by combining the expiry date, time and time-zone.
    * 
-   * @return the expiration date and time
+   * @return the expiry date and time
    */
-  public ZonedDateTime getExpirationDateTime() {
-    return expirationDate.atTime(expirationTime).atZone(expirationZone);
+  public ZonedDateTime getExpiryDateTime() {
+    return expiryDate.atTime(expiryTime).atZone(expiryZone);
   }
 
   //-------------------------------------------------------------------------
@@ -164,15 +164,15 @@ public class FxVanillaOption
    * @param builder  the builder to copy from, not null
    */
   protected FxVanillaOption(FxVanillaOption.Builder builder) {
-    JodaBeanUtils.notNull(builder.expirationDate, "expirationDate");
-    JodaBeanUtils.notNull(builder.expirationTime, "expirationTime");
-    JodaBeanUtils.notNull(builder.expirationZone, "expirationZone");
+    JodaBeanUtils.notNull(builder.expiryDate, "expiryDate");
+    JodaBeanUtils.notNull(builder.expiryTime, "expiryTime");
+    JodaBeanUtils.notNull(builder.expiryZone, "expiryZone");
     JodaBeanUtils.notNull(builder.underlying, "underlying");
     this.putCall = builder.putCall;
     this.longShort = builder.longShort;
-    this.expirationDate = builder.expirationDate;
-    this.expirationTime = builder.expirationTime;
-    this.expirationZone = builder.expirationZone;
+    this.expiryDate = builder.expiryDate;
+    this.expiryTime = builder.expiryTime;
+    this.expiryZone = builder.expiryZone;
     this.underlying = builder.underlying;
     validate();
   }
@@ -218,47 +218,47 @@ public class FxVanillaOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration date of the option.
+   * Gets the expiry date of the option.
    * <p>
-   * The option is European, and can only be exercised on the expiration date.
+   * The option is European, and can only be exercised on the expiry date.
    * @return the value of the property, not null
    */
-  public LocalDate getExpirationDate() {
-    return expirationDate;
+  public LocalDate getExpiryDate() {
+    return expiryDate;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration time of the option.
+   * Gets the expiry time of the option.
    * <p>
-   * The expiration time is related to the expiration date and time-zone.
+   * The expiry time is related to the expiry date and time-zone.
    * @return the value of the property, not null
    */
-  public LocalTime getExpirationTime() {
-    return expirationTime;
+  public LocalTime getExpiryTime() {
+    return expiryTime;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-zone of the expiration time.
+   * Gets the time-zone of the expiry time.
    * <p>
-   * The expiration time-zone is related to the expiration date and time.
+   * The expiry time-zone is related to the expiry date and time.
    * @return the value of the property, not null
    */
-  public ZoneId getExpirationZone() {
-    return expirationZone;
+  public ZoneId getExpiryZone() {
+    return expiryZone;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying foreign exchange.
+   * Gets the underlying foreign exchange transaction.
    * <p>
    * At expiry, if the option is in the money, this foreign exchange will occur.
-   * A call option permits the exchange as specified to occur.
-   * A put option permits the inverse exchange to occur.
+   * A call option permits the transaction as specified to occur.
+   * A put option permits the inverse transaction to occur.
    * @return the value of the property, not null
    */
-  public FxExchange getUnderlying() {
+  public FxTransaction getUnderlying() {
     return underlying;
   }
 
@@ -280,9 +280,9 @@ public class FxVanillaOption
       FxVanillaOption other = (FxVanillaOption) obj;
       return JodaBeanUtils.equal(getPutCall(), other.getPutCall()) &&
           JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
-          JodaBeanUtils.equal(getExpirationDate(), other.getExpirationDate()) &&
-          JodaBeanUtils.equal(getExpirationTime(), other.getExpirationTime()) &&
-          JodaBeanUtils.equal(getExpirationZone(), other.getExpirationZone()) &&
+          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
+          JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
+          JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying());
     }
     return false;
@@ -293,9 +293,9 @@ public class FxVanillaOption
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
     hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationZone());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
     return hash;
   }
@@ -316,9 +316,9 @@ public class FxVanillaOption
   protected void toString(StringBuilder buf) {
     buf.append("putCall").append('=').append(JodaBeanUtils.toString(getPutCall())).append(',').append(' ');
     buf.append("longShort").append('=').append(JodaBeanUtils.toString(getLongShort())).append(',').append(' ');
-    buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(getExpirationDate())).append(',').append(' ');
-    buf.append("expirationTime").append('=').append(JodaBeanUtils.toString(getExpirationTime())).append(',').append(' ');
-    buf.append("expirationZone").append('=').append(JodaBeanUtils.toString(getExpirationZone())).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(getExpiryDate())).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(getExpiryTime())).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(getExpiryZone())).append(',').append(' ');
     buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
   }
 
@@ -343,25 +343,25 @@ public class FxVanillaOption
     private final MetaProperty<LongShort> longShort = DirectMetaProperty.ofImmutable(
         this, "longShort", FxVanillaOption.class, LongShort.class);
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      */
-    private final MetaProperty<LocalDate> expirationDate = DirectMetaProperty.ofImmutable(
-        this, "expirationDate", FxVanillaOption.class, LocalDate.class);
+    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
+        this, "expiryDate", FxVanillaOption.class, LocalDate.class);
     /**
-     * The meta-property for the {@code expirationTime} property.
+     * The meta-property for the {@code expiryTime} property.
      */
-    private final MetaProperty<LocalTime> expirationTime = DirectMetaProperty.ofImmutable(
-        this, "expirationTime", FxVanillaOption.class, LocalTime.class);
+    private final MetaProperty<LocalTime> expiryTime = DirectMetaProperty.ofImmutable(
+        this, "expiryTime", FxVanillaOption.class, LocalTime.class);
     /**
-     * The meta-property for the {@code expirationZone} property.
+     * The meta-property for the {@code expiryZone} property.
      */
-    private final MetaProperty<ZoneId> expirationZone = DirectMetaProperty.ofImmutable(
-        this, "expirationZone", FxVanillaOption.class, ZoneId.class);
+    private final MetaProperty<ZoneId> expiryZone = DirectMetaProperty.ofImmutable(
+        this, "expiryZone", FxVanillaOption.class, ZoneId.class);
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<FxExchange> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", FxVanillaOption.class, FxExchange.class);
+    private final MetaProperty<FxTransaction> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", FxVanillaOption.class, FxTransaction.class);
     /**
      * The meta-properties.
      */
@@ -369,9 +369,9 @@ public class FxVanillaOption
         this, null,
         "putCall",
         "longShort",
-        "expirationDate",
-        "expirationTime",
-        "expirationZone",
+        "expiryDate",
+        "expiryTime",
+        "expiryZone",
         "underlying");
 
     /**
@@ -387,12 +387,12 @@ public class FxVanillaOption
           return putCall;
         case 116685664:  // longShort
           return longShort;
-        case -668811523:  // expirationDate
-          return expirationDate;
-        case -668327396:  // expirationTime
-          return expirationTime;
-        case -668142853:  // expirationZone
-          return expirationZone;
+        case -816738431:  // expiryDate
+          return expiryDate;
+        case -816254304:  // expiryTime
+          return expiryTime;
+        case -816069761:  // expiryZone
+          return expiryZone;
         case -1770633379:  // underlying
           return underlying;
       }
@@ -432,34 +432,34 @@ public class FxVanillaOption
     }
 
     /**
-     * The meta-property for the {@code expirationDate} property.
+     * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> expirationDate() {
-      return expirationDate;
+    public final MetaProperty<LocalDate> expiryDate() {
+      return expiryDate;
     }
 
     /**
-     * The meta-property for the {@code expirationTime} property.
+     * The meta-property for the {@code expiryTime} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalTime> expirationTime() {
-      return expirationTime;
+    public final MetaProperty<LocalTime> expiryTime() {
+      return expiryTime;
     }
 
     /**
-     * The meta-property for the {@code expirationZone} property.
+     * The meta-property for the {@code expiryZone} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZoneId> expirationZone() {
-      return expirationZone;
+    public final MetaProperty<ZoneId> expiryZone() {
+      return expiryZone;
     }
 
     /**
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<FxExchange> underlying() {
+    public final MetaProperty<FxTransaction> underlying() {
       return underlying;
     }
 
@@ -471,12 +471,12 @@ public class FxVanillaOption
           return ((FxVanillaOption) bean).getPutCall();
         case 116685664:  // longShort
           return ((FxVanillaOption) bean).getLongShort();
-        case -668811523:  // expirationDate
-          return ((FxVanillaOption) bean).getExpirationDate();
-        case -668327396:  // expirationTime
-          return ((FxVanillaOption) bean).getExpirationTime();
-        case -668142853:  // expirationZone
-          return ((FxVanillaOption) bean).getExpirationZone();
+        case -816738431:  // expiryDate
+          return ((FxVanillaOption) bean).getExpiryDate();
+        case -816254304:  // expiryTime
+          return ((FxVanillaOption) bean).getExpiryTime();
+        case -816069761:  // expiryZone
+          return ((FxVanillaOption) bean).getExpiryZone();
         case -1770633379:  // underlying
           return ((FxVanillaOption) bean).getUnderlying();
       }
@@ -502,10 +502,10 @@ public class FxVanillaOption
 
     private PutCall putCall;
     private LongShort longShort;
-    private LocalDate expirationDate;
-    private LocalTime expirationTime;
-    private ZoneId expirationZone;
-    private FxExchange underlying;
+    private LocalDate expiryDate;
+    private LocalTime expiryTime;
+    private ZoneId expiryZone;
+    private FxTransaction underlying;
 
     /**
      * Restricted constructor.
@@ -520,9 +520,9 @@ public class FxVanillaOption
     protected Builder(FxVanillaOption beanToCopy) {
       this.putCall = beanToCopy.getPutCall();
       this.longShort = beanToCopy.getLongShort();
-      this.expirationDate = beanToCopy.getExpirationDate();
-      this.expirationTime = beanToCopy.getExpirationTime();
-      this.expirationZone = beanToCopy.getExpirationZone();
+      this.expiryDate = beanToCopy.getExpiryDate();
+      this.expiryTime = beanToCopy.getExpiryTime();
+      this.expiryZone = beanToCopy.getExpiryZone();
       this.underlying = beanToCopy.getUnderlying();
     }
 
@@ -534,12 +534,12 @@ public class FxVanillaOption
           return putCall;
         case 116685664:  // longShort
           return longShort;
-        case -668811523:  // expirationDate
-          return expirationDate;
-        case -668327396:  // expirationTime
-          return expirationTime;
-        case -668142853:  // expirationZone
-          return expirationZone;
+        case -816738431:  // expiryDate
+          return expiryDate;
+        case -816254304:  // expiryTime
+          return expiryTime;
+        case -816069761:  // expiryZone
+          return expiryZone;
         case -1770633379:  // underlying
           return underlying;
         default:
@@ -556,17 +556,17 @@ public class FxVanillaOption
         case 116685664:  // longShort
           this.longShort = (LongShort) newValue;
           break;
-        case -668811523:  // expirationDate
-          this.expirationDate = (LocalDate) newValue;
+        case -816738431:  // expiryDate
+          this.expiryDate = (LocalDate) newValue;
           break;
-        case -668327396:  // expirationTime
-          this.expirationTime = (LocalTime) newValue;
+        case -816254304:  // expiryTime
+          this.expiryTime = (LocalTime) newValue;
           break;
-        case -668142853:  // expirationZone
-          this.expirationZone = (ZoneId) newValue;
+        case -816069761:  // expiryZone
+          this.expiryZone = (ZoneId) newValue;
           break;
         case -1770633379:  // underlying
-          this.underlying = (FxExchange) newValue;
+          this.underlying = (FxTransaction) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -625,35 +625,35 @@ public class FxVanillaOption
     }
 
     /**
-     * Sets the {@code expirationDate} property in the builder.
-     * @param expirationDate  the new value, not null
+     * Sets the {@code expiryDate} property in the builder.
+     * @param expiryDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationDate(LocalDate expirationDate) {
-      JodaBeanUtils.notNull(expirationDate, "expirationDate");
-      this.expirationDate = expirationDate;
+    public Builder expiryDate(LocalDate expiryDate) {
+      JodaBeanUtils.notNull(expiryDate, "expiryDate");
+      this.expiryDate = expiryDate;
       return this;
     }
 
     /**
-     * Sets the {@code expirationTime} property in the builder.
-     * @param expirationTime  the new value, not null
+     * Sets the {@code expiryTime} property in the builder.
+     * @param expiryTime  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationTime(LocalTime expirationTime) {
-      JodaBeanUtils.notNull(expirationTime, "expirationTime");
-      this.expirationTime = expirationTime;
+    public Builder expiryTime(LocalTime expiryTime) {
+      JodaBeanUtils.notNull(expiryTime, "expiryTime");
+      this.expiryTime = expiryTime;
       return this;
     }
 
     /**
-     * Sets the {@code expirationZone} property in the builder.
-     * @param expirationZone  the new value, not null
+     * Sets the {@code expiryZone} property in the builder.
+     * @param expiryZone  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder expirationZone(ZoneId expirationZone) {
-      JodaBeanUtils.notNull(expirationZone, "expirationZone");
-      this.expirationZone = expirationZone;
+    public Builder expiryZone(ZoneId expiryZone) {
+      JodaBeanUtils.notNull(expiryZone, "expiryZone");
+      this.expiryZone = expiryZone;
       return this;
     }
 
@@ -662,7 +662,7 @@ public class FxVanillaOption
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlying(FxExchange underlying) {
+    public Builder underlying(FxTransaction underlying) {
       JodaBeanUtils.notNull(underlying, "underlying");
       this.underlying = underlying;
       return this;
@@ -685,9 +685,9 @@ public class FxVanillaOption
     protected void toString(StringBuilder buf) {
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
-      buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(expirationDate)).append(',').append(' ');
-      buf.append("expirationTime").append('=').append(JodaBeanUtils.toString(expirationTime)).append(',').append(' ');
-      buf.append("expirationZone").append('=').append(JodaBeanUtils.toString(expirationZone)).append(',').append(' ');
+      buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
+      buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
+      buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
       buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
     }
 

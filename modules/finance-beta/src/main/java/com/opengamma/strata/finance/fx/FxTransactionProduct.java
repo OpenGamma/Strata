@@ -20,7 +20,7 @@ import com.opengamma.strata.finance.Product;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface FxExchangeProduct
-    extends Product, Expandable<FxExchange>, ImmutableBean {
+public interface FxTransactionProduct
+    extends Product, Expandable<FxTransaction>, ImmutableBean {
 
 }

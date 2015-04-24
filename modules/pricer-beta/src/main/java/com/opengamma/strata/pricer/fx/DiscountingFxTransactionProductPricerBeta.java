@@ -7,31 +7,31 @@ package com.opengamma.strata.pricer.fx;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.FxExchange;
-import com.opengamma.strata.finance.fx.FxExchangeProduct;
 import com.opengamma.strata.finance.fx.FxPayment;
+import com.opengamma.strata.finance.fx.FxTransaction;
+import com.opengamma.strata.finance.fx.FxTransactionProduct;
 import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
- * Pricer for for foreign exchange products.
+ * Pricer for for foreign exchange transaction products.
  * <p>
- * This function provides the ability to price an {@link FxExchange}.
+ * This function provides the ability to price an {@link FxTransaction}.
  */
-public class DiscountingFxExchangeProductPricerBeta {
+public class DiscountingFxTransactionProductPricerBeta {
   // copied/modified from ForexDiscountingMethod
   // TODO: check valuation date vs payment date (pv of zero?)
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxExchangeProductPricerBeta DEFAULT = new DiscountingFxExchangeProductPricerBeta();
+  public static final DiscountingFxTransactionProductPricerBeta DEFAULT = new DiscountingFxTransactionProductPricerBeta();
 
   /**
    * Creates an instance.
    */
-  public DiscountingFxExchangeProductPricerBeta() {
+  public DiscountingFxTransactionProductPricerBeta() {
   }
 
   //-------------------------------------------------------------------------
@@ -42,8 +42,8 @@ public class DiscountingFxExchangeProductPricerBeta {
    * @param provider  the rates provider
    * @return the present value in the two natural currencies
    */
-  public MultiCurrencyAmount presentValue(FxExchangeProduct product, RatesProvider provider) {
-    FxExchange fx = product.expand();
+  public MultiCurrencyAmount presentValue(FxTransactionProduct product, RatesProvider provider) {
+    FxTransaction fx = product.expand();
     CurrencyAmount pv1 = presentValue(fx.getBaseCurrencyPayment(), provider);
     CurrencyAmount pv2 = presentValue(fx.getCounterCurrencyPayment(), provider);
     return MultiCurrencyAmount.of(pv1, pv2);
@@ -61,7 +61,7 @@ public class DiscountingFxExchangeProductPricerBeta {
    * @param provider  the rates provider
    * @return the currency exposure
    */
-  public MultiCurrencyAmount currencyExposure(FxExchangeProduct product, RatesProvider provider) {
+  public MultiCurrencyAmount currencyExposure(FxTransactionProduct product, RatesProvider provider) {
     return presentValue(product, provider);
   }
 
@@ -72,8 +72,8 @@ public class DiscountingFxExchangeProductPricerBeta {
    * @param provider  the rates provider
    * @return the spread
    */
-  public double parSpread(FxExchangeProduct product, RatesProvider provider) {
-    FxExchange fx = product.expand();
+  public double parSpread(FxTransactionProduct product, RatesProvider provider) {
+    FxTransaction fx = product.expand();
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
     double pv2 = provider.fxConvert(presentValue(fx, provider), counterPayment.getCurrency()).getAmount();
@@ -90,8 +90,8 @@ public class DiscountingFxExchangeProductPricerBeta {
    * @param provider  the rates provider
    * @return the forward rate
    */
-  public double forwardFxRate(FxExchangeProduct product, RatesProvider provider) {
-    FxExchange fx = product.expand();
+  public double forwardFxRate(FxTransactionProduct product, RatesProvider provider) {
+    FxTransaction fx = product.expand();
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
     // TODO: domestic/foreign vs base/counter?
@@ -109,8 +109,8 @@ public class DiscountingFxExchangeProductPricerBeta {
    * @param provider  the rates provider
    * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivity(FxExchangeProduct product, RatesProvider provider) {
-    FxExchange fx = product.expand();
+  public PointSensitivities presentValueSensitivity(FxTransactionProduct product, RatesProvider provider) {
+    FxTransaction fx = product.expand();
     PointSensitivityBuilder pvcs1 = presentValueSensitivity(fx.getBaseCurrencyPayment(), provider);
     PointSensitivityBuilder pvcs2 = presentValueSensitivity(fx.getCounterCurrencyPayment(), provider);
     return pvcs1.combinedWith(pvcs2).build();
