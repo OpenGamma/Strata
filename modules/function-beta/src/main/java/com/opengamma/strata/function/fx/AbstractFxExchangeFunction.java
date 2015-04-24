@@ -15,8 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.VectorEngineFunction;
-import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.fx.FxExchange;
 import com.opengamma.strata.finance.fx.FxExchangeTrade;
@@ -30,7 +29,7 @@ import com.opengamma.strata.pricer.fx.DiscountingFxExchangeProductPricerBeta;
  * @param <T>  the return type
  */
 public abstract class AbstractFxExchangeFunction<T>
-    implements VectorEngineFunction<FxExchangeTrade, List<T>> {
+    implements EngineSingleFunction<FxExchangeTrade, List<T>> {
 
   // Pricer
   private static final DiscountingFxExchangeProductPricerBeta PRICER = DiscountingFxExchangeProductPricerBeta.DEFAULT;
@@ -62,11 +61,7 @@ public abstract class AbstractFxExchangeFunction<T>
   }
 
   @Override
-  public List<T> execute(
-      FxExchangeTrade trade,
-      CalculationMarketData marketData,
-      ReportingRules reportingRules) {
-
+  public List<T> execute(FxExchangeTrade trade, CalculationMarketData marketData) {
     FxExchange product = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))

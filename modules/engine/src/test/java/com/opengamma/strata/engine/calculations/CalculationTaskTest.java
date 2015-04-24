@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
@@ -60,7 +61,7 @@ public class CalculationTaskTest {
 
   private static class TestTarget implements CalculationTarget { }
 
-  public static final class TestFunction implements VectorEngineFunction<TestTarget, Object> {
+  public static final class TestFunction implements EngineSingleFunction<TestTarget, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
@@ -74,7 +75,7 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Object execute(TestTarget target, CalculationMarketData marketData, ReportingRules reportingRules) {
+    public Object execute(TestTarget target, CalculationMarketData marketData) {
       return "bar";
     }
   }

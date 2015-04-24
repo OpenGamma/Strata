@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
@@ -45,11 +44,7 @@ public class FraParRateAnalyticsFunction
   // Note that this does not handle interpolated index Fra, or non-ISDA discounting
 
   @Override
-  public List<Double> execute(
-      FraTrade trade,
-      CalculationMarketData marketData,
-      ReportingRules reportingRules) {
-
+  public List<Double> execute(FraTrade trade, CalculationMarketData marketData) {
     if (trade.getProduct().getIndexInterpolated().isPresent()) {
       throw new UnsupportedOperationException("Fra with interpolated index not supported");
     }

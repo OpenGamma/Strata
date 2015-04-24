@@ -18,8 +18,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.VectorEngineFunction;
-import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
@@ -37,7 +36,7 @@ import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
  * @param <T>  the return type
  */
 public abstract class AbstractFraFunction<T>
-    implements VectorEngineFunction<FraTrade, List<T>> {
+    implements EngineSingleFunction<FraTrade, List<T>> {
 
   // Fra pricer
   private static final DiscountingFraProductPricer PRICER = DiscountingFraProductPricer.DEFAULT;
@@ -80,11 +79,7 @@ public abstract class AbstractFraFunction<T>
   }
 
   @Override
-  public List<T> execute(
-      FraTrade trade,
-      CalculationMarketData marketData,
-      ReportingRules reportingRules) {
-
+  public List<T> execute(FraTrade trade, CalculationMarketData marketData) {
     ExpandedFra product = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
