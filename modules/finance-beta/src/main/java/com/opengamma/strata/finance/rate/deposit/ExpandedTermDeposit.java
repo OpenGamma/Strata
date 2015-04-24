@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.cash;
+package com.opengamma.strata.finance.rate.deposit;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -14,7 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -25,22 +25,24 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A cash deposit.
+ * An expanded term deposit, with information calculated ready for pricing.
  * <p>
- * A cash deposit is a financial instrument that provides a fixed rate of interest on
+ * <p>
+ * A term deposit is a financial instrument that provides a fixed rate of interest on
  * an amount for a specific term.
  * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
+ * <p>
+ * An {@code ExpandedTermDeposit} contains information based on holiday calendars.
+ * If a holiday calendar changes, the adjusted dates may no longer be correct.
+ * Care must be taken when placing the expanded form in a cache or persistence layer.
  */
 @BeanDefinition
-public class CashDeposit
-    implements CashDepositProduct, ImmutableBean, Serializable {
-  // TODO: who deposits and who pays interest?
-  // TODO: business day adjustment?
+public class ExpandedTermDeposit
+    implements TermDepositProduct, ImmutableBean, Serializable {
 
   /**
    * The start date of the deposit.
@@ -60,65 +62,93 @@ public class CashDeposit
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
   /**
-   * The day count convention.
+   * The year fraction that the period represents.
    * <p>
-   * This is used to convert dates to a numerical value.
+   * The value is usually calculated using a {@link DayCount}.
+   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
+   * The fraction may be greater than 1, but not less than 0.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final DayCount dayCount;
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double yearFraction;
+  /**
+   * The currency.
+   * <p>
+   * The currency of the deposit.
+   */
+  @PropertyDefinition
+  private final Currency currency;
   /**
    * The principal amount.
    * <p>
    * The amount that is deposited.
    */
   @PropertyDefinition
-  private final CurrencyAmount principal;
+  private final double principal;
   /**
    * The fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
    */
   @PropertyDefinition(validate = "notNull")
   private final double rate;
-
-  //-------------------------------------------------------------------------
-  @ImmutableValidator
-  private void validate() {
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-  }
-
-  //-------------------------------------------------------------------------
   /**
-   * Gets the currency of the deposit.
-   * 
-   * @return the currency of the deposit
+   * The accrued interest.
+   * <p>
+   * The interest is {@code rate * principal * yearFraction}.
    */
-  public Currency getCurrency() {
-    return principal.getCurrency();
+  private final double interest;  // not a property
+
+  //-------------------------------------------------------------------------
+  @ImmutableConstructor
+  private ExpandedTermDeposit(ExpandedTermDeposit.Builder builder) {
+    JodaBeanUtils.notNull(builder.startDate, "startDate");
+    JodaBeanUtils.notNull(builder.endDate, "endDate");
+    ArgChecker.inOrderNotEqual(builder.startDate, builder.endDate, "startDate", "endDate");
+    ArgChecker.notNegative(builder.yearFraction, "yearFraction");
+    JodaBeanUtils.notNull(builder.rate, "rate");
+    this.startDate = builder.startDate;
+    this.endDate = builder.endDate;
+    this.yearFraction = builder.yearFraction;
+    this.currency = builder.currency;
+    this.principal = builder.principal;
+    this.rate = builder.rate;
+    interest = (rate * principal * yearFraction);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Expands this cash deposit, trivially returning {@code this}.
+   * Gets the accrued interest.
+   * <p>
+   * The interest is {@code rate * principal * yearFraction}.
+   * 
+   * @return the accrued interest
+   */
+  public double getInterest() {
+    return interest;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Expands this term deposit, trivially returning {@code this}.
    * 
    * @return this
    */
   @Override
-  public CashDeposit expand() {
+  public ExpandedTermDeposit expand() {
     return this;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CashDeposit}.
+   * The meta-bean for {@code ExpandedTermDeposit}.
    * @return the meta-bean, not null
    */
-  public static CashDeposit.Meta meta() {
-    return CashDeposit.Meta.INSTANCE;
+  public static ExpandedTermDeposit.Meta meta() {
+    return ExpandedTermDeposit.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CashDeposit.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ExpandedTermDeposit.Meta.INSTANCE);
   }
 
   /**
@@ -130,30 +160,13 @@ public class CashDeposit
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static CashDeposit.Builder builder() {
-    return new CashDeposit.Builder();
-  }
-
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected CashDeposit(CashDeposit.Builder builder) {
-    JodaBeanUtils.notNull(builder.startDate, "startDate");
-    JodaBeanUtils.notNull(builder.endDate, "endDate");
-    JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    JodaBeanUtils.notNull(builder.rate, "rate");
-    this.startDate = builder.startDate;
-    this.endDate = builder.endDate;
-    this.dayCount = builder.dayCount;
-    this.principal = builder.principal;
-    this.rate = builder.rate;
-    validate();
+  public static ExpandedTermDeposit.Builder builder() {
+    return new ExpandedTermDeposit.Builder();
   }
 
   @Override
-  public CashDeposit.Meta metaBean() {
-    return CashDeposit.Meta.INSTANCE;
+  public ExpandedTermDeposit.Meta metaBean() {
+    return ExpandedTermDeposit.Meta.INSTANCE;
   }
 
   @Override
@@ -193,13 +206,26 @@ public class CashDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention.
+   * Gets the year fraction that the period represents.
    * <p>
-   * This is used to convert dates to a numerical value.
-   * @return the value of the property, not null
+   * The value is usually calculated using a {@link DayCount}.
+   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
+   * The fraction may be greater than 1, but not less than 0.
+   * @return the value of the property
    */
-  public DayCount getDayCount() {
-    return dayCount;
+  public double getYearFraction() {
+    return yearFraction;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * <p>
+   * The currency of the deposit.
+   * @return the value of the property
+   */
+  public Currency getCurrency() {
+    return currency;
   }
 
   //-----------------------------------------------------------------------
@@ -209,7 +235,7 @@ public class CashDeposit
    * The amount that is deposited.
    * @return the value of the property
    */
-  public CurrencyAmount getPrincipal() {
+  public double getPrincipal() {
     return principal;
   }
 
@@ -238,10 +264,11 @@ public class CashDeposit
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CashDeposit other = (CashDeposit) obj;
+      ExpandedTermDeposit other = (ExpandedTermDeposit) obj;
       return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getPrincipal(), other.getPrincipal()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
     }
@@ -253,7 +280,8 @@ public class CashDeposit
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPrincipal());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
@@ -261,8 +289,8 @@ public class CashDeposit
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("CashDeposit{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("ExpandedTermDeposit{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -275,14 +303,15 @@ public class CashDeposit
   protected void toString(StringBuilder buf) {
     buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(getYearFraction())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
     buf.append("principal").append('=').append(JodaBeanUtils.toString(getPrincipal())).append(',').append(' ');
     buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CashDeposit}.
+   * The meta-bean for {@code ExpandedTermDeposit}.
    */
   public static class Meta extends DirectMetaBean {
     /**
@@ -294,27 +323,32 @@ public class CashDeposit
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", CashDeposit.class, LocalDate.class);
+        this, "startDate", ExpandedTermDeposit.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", CashDeposit.class, LocalDate.class);
+        this, "endDate", ExpandedTermDeposit.class, LocalDate.class);
     /**
-     * The meta-property for the {@code dayCount} property.
+     * The meta-property for the {@code yearFraction} property.
      */
-    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", CashDeposit.class, DayCount.class);
+    private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
+        this, "yearFraction", ExpandedTermDeposit.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", ExpandedTermDeposit.class, Currency.class);
     /**
      * The meta-property for the {@code principal} property.
      */
-    private final MetaProperty<CurrencyAmount> principal = DirectMetaProperty.ofImmutable(
-        this, "principal", CashDeposit.class, CurrencyAmount.class);
+    private final MetaProperty<Double> principal = DirectMetaProperty.ofImmutable(
+        this, "principal", ExpandedTermDeposit.class, Double.TYPE);
     /**
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Double> rate = DirectMetaProperty.ofImmutable(
-        this, "rate", CashDeposit.class, Double.TYPE);
+        this, "rate", ExpandedTermDeposit.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -322,7 +356,8 @@ public class CashDeposit
         this, null,
         "startDate",
         "endDate",
-        "dayCount",
+        "yearFraction",
+        "currency",
         "principal",
         "rate");
 
@@ -339,8 +374,10 @@ public class CashDeposit
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case 1905311443:  // dayCount
-          return dayCount;
+        case -1731780257:  // yearFraction
+          return yearFraction;
+        case 575402001:  // currency
+          return currency;
         case -1812041682:  // principal
           return principal;
         case 3493088:  // rate
@@ -350,13 +387,13 @@ public class CashDeposit
     }
 
     @Override
-    public CashDeposit.Builder builder() {
-      return new CashDeposit.Builder();
+    public ExpandedTermDeposit.Builder builder() {
+      return new ExpandedTermDeposit.Builder();
     }
 
     @Override
-    public Class<? extends CashDeposit> beanType() {
-      return CashDeposit.class;
+    public Class<? extends ExpandedTermDeposit> beanType() {
+      return ExpandedTermDeposit.class;
     }
 
     @Override
@@ -382,18 +419,26 @@ public class CashDeposit
     }
 
     /**
-     * The meta-property for the {@code dayCount} property.
+     * The meta-property for the {@code yearFraction} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCount() {
-      return dayCount;
+    public final MetaProperty<Double> yearFraction() {
+      return yearFraction;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return currency;
     }
 
     /**
      * The meta-property for the {@code principal} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount> principal() {
+    public final MetaProperty<Double> principal() {
       return principal;
     }
 
@@ -410,15 +455,17 @@ public class CashDeposit
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -2129778896:  // startDate
-          return ((CashDeposit) bean).getStartDate();
+          return ((ExpandedTermDeposit) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((CashDeposit) bean).getEndDate();
-        case 1905311443:  // dayCount
-          return ((CashDeposit) bean).getDayCount();
+          return ((ExpandedTermDeposit) bean).getEndDate();
+        case -1731780257:  // yearFraction
+          return ((ExpandedTermDeposit) bean).getYearFraction();
+        case 575402001:  // currency
+          return ((ExpandedTermDeposit) bean).getCurrency();
         case -1812041682:  // principal
-          return ((CashDeposit) bean).getPrincipal();
+          return ((ExpandedTermDeposit) bean).getPrincipal();
         case 3493088:  // rate
-          return ((CashDeposit) bean).getRate();
+          return ((ExpandedTermDeposit) bean).getRate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -436,14 +483,15 @@ public class CashDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CashDeposit}.
+   * The bean-builder for {@code ExpandedTermDeposit}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<CashDeposit> {
+  public static class Builder extends DirectFieldsBeanBuilder<ExpandedTermDeposit> {
 
     private LocalDate startDate;
     private LocalDate endDate;
-    private DayCount dayCount;
-    private CurrencyAmount principal;
+    private double yearFraction;
+    private Currency currency;
+    private double principal;
     private double rate;
 
     /**
@@ -456,10 +504,11 @@ public class CashDeposit
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(CashDeposit beanToCopy) {
+    protected Builder(ExpandedTermDeposit beanToCopy) {
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
-      this.dayCount = beanToCopy.getDayCount();
+      this.yearFraction = beanToCopy.getYearFraction();
+      this.currency = beanToCopy.getCurrency();
       this.principal = beanToCopy.getPrincipal();
       this.rate = beanToCopy.getRate();
     }
@@ -472,8 +521,10 @@ public class CashDeposit
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case 1905311443:  // dayCount
-          return dayCount;
+        case -1731780257:  // yearFraction
+          return yearFraction;
+        case 575402001:  // currency
+          return currency;
         case -1812041682:  // principal
           return principal;
         case 3493088:  // rate
@@ -492,11 +543,14 @@ public class CashDeposit
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
           break;
-        case 1905311443:  // dayCount
-          this.dayCount = (DayCount) newValue;
+        case -1731780257:  // yearFraction
+          this.yearFraction = (Double) newValue;
+          break;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
           break;
         case -1812041682:  // principal
-          this.principal = (CurrencyAmount) newValue;
+          this.principal = (Double) newValue;
           break;
         case 3493088:  // rate
           this.rate = (Double) newValue;
@@ -532,8 +586,8 @@ public class CashDeposit
     }
 
     @Override
-    public CashDeposit build() {
-      return new CashDeposit(this);
+    public ExpandedTermDeposit build() {
+      return new ExpandedTermDeposit(this);
     }
 
     //-----------------------------------------------------------------------
@@ -560,13 +614,23 @@ public class CashDeposit
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
-     * @param dayCount  the new value, not null
+     * Sets the {@code yearFraction} property in the builder.
+     * @param yearFraction  the new value
      * @return this, for chaining, not null
      */
-    public Builder dayCount(DayCount dayCount) {
-      JodaBeanUtils.notNull(dayCount, "dayCount");
-      this.dayCount = dayCount;
+    public Builder yearFraction(double yearFraction) {
+      ArgChecker.notNegative(yearFraction, "yearFraction");
+      this.yearFraction = yearFraction;
+      return this;
+    }
+
+    /**
+     * Sets the {@code currency} property in the builder.
+     * @param currency  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      this.currency = currency;
       return this;
     }
 
@@ -575,7 +639,7 @@ public class CashDeposit
      * @param principal  the new value
      * @return this, for chaining, not null
      */
-    public Builder principal(CurrencyAmount principal) {
+    public Builder principal(double principal) {
       this.principal = principal;
       return this;
     }
@@ -594,8 +658,8 @@ public class CashDeposit
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("CashDeposit.Builder{");
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("ExpandedTermDeposit.Builder{");
       int len = buf.length();
       toString(buf);
       if (buf.length() > len) {
@@ -608,7 +672,8 @@ public class CashDeposit
     protected void toString(StringBuilder buf) {
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("principal").append('=').append(JodaBeanUtils.toString(principal)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
     }
