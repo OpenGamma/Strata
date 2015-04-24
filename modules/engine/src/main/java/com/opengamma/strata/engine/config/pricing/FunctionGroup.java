@@ -21,6 +21,13 @@ import com.opengamma.strata.engine.config.Measure;
  */
 public interface FunctionGroup<T extends CalculationTarget> {
 
+  // TODO 2 methods
+  //   boolean isFunctionAvailable(target, measure)
+  //   SomeStructure functionConfig(target, measures) // N.B. not an optional - only invoke with supported measures
+
+  // Would allow calc runner to figure out exactly which groups could calculate which measures, and then
+  // the groups could provide functions that calculate one or more measures at the same time.
+
   /**
    * Returns configuration for a function to calculate the value of a measure for a target.
    * <p>

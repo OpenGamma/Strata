@@ -10,21 +10,22 @@ import java.util.Map;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.engine.calculations.VectorEngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineFunction;
 
 /**
  * Mutable builder for building instances of {@link FunctionConfig}.
  */
 public final class FunctionConfigBuilder<T extends CalculationTarget> {
 
+  // TODO FunctionMetadata instead of function type - includes type and set of calculated measures
   /** The type of the function. */
-  private final Class<? extends VectorEngineFunction<T, ?>> functionType;
+  private final Class<? extends EngineFunction<T, ?>> functionType;
 
   /** The arguments to the function constructor. */
   private final Map<String, Object> arguments = new HashMap<>();
 
   // package-private constructor so it's visible from FunctionConfig.builder()
-  FunctionConfigBuilder(Class<? extends VectorEngineFunction<T, ?>> functionType) {
+  FunctionConfigBuilder(Class<? extends EngineFunction<T, ?>> functionType) {
     this.functionType = ArgChecker.notNull(functionType, "functionType");
   }
 

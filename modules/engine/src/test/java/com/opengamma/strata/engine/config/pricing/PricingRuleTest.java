@@ -14,10 +14,9 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
-import com.opengamma.strata.engine.calculations.VectorEngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineFunction;
 import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
 @Test
@@ -90,7 +89,7 @@ public class PricingRuleTest {
 
   private static final class TestTrade2 implements CalculationTarget { }
 
-  private static final class TestFunction1 implements VectorEngineFunction<TestTrade1, Object> {
+  private static final class TestFunction1 implements EngineFunction<TestTrade1, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTrade1 trade) {
@@ -98,12 +97,12 @@ public class PricingRuleTest {
     }
 
     @Override
-    public Object execute(TestTrade1 target, CalculationMarketData marketData, ReportingRules reportingRules) {
+    public Object execute(TestTrade1 target, CalculationMarketData marketData) {
       return "foo";
     }
   }
 
-  private static final class TestFunction2 implements VectorEngineFunction<TestTrade1, Object> {
+  private static final class TestFunction2 implements EngineFunction<TestTrade1, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTrade1 trade) {
@@ -111,12 +110,12 @@ public class PricingRuleTest {
     }
 
     @Override
-    public Object execute(TestTrade1 target, CalculationMarketData marketData, ReportingRules reportingRules) {
+    public Object execute(TestTrade1 target, CalculationMarketData marketData) {
       return "foo";
     }
   }
 
-  private static final class TestFunction3 implements VectorEngineFunction<TestTrade2, Object> {
+  private static final class TestFunction3 implements EngineFunction<TestTrade2, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTrade2 target) {
@@ -124,7 +123,7 @@ public class PricingRuleTest {
     }
 
     @Override
-    public Object execute(TestTrade2 target, CalculationMarketData marketData, ReportingRules reportingRules) {
+    public Object execute(TestTrade2 target, CalculationMarketData marketData) {
       return "bar";
     }
   }
