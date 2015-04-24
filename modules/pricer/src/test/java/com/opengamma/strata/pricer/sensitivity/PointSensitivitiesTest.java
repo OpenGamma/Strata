@@ -83,27 +83,26 @@ public class PointSensitivitiesTest {
   public void test_equalWithTolerance_length() {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, CS2)).normalized();
-    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));
+    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));    
   }
-
+  
   public void test_equalWithTolerance_date() {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, CS2)).normalized();
-    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));
+    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));    
   }
-
+  
   public void test_equalWithTolerance_value() {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3B, CS1)).normalized();
-    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));
-  }
-
+    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));    
+  }  
   public void test_equalWithTolerance_true() {
     PointSensitivity cs1b = ZeroRateSensitivity.of(GBP, date(2015, 6, 30), 12.1d);
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, cs1b)).normalized();
-    assertTrue(test1.equalWithTolerance(test2, 1.0E-1));
-  }
+    assertTrue(test1.equalWithTolerance(test2, 1.0E-1));    
+  }  
 
   //-------------------------------------------------------------------------
   public void test_toMutable() {
