@@ -93,7 +93,7 @@ public class Swaption
    * 
    * @return the expiration date and time
    */
-  public ZonedDateTime getExpirationDateTime() {
+  public ZonedDateTime getExpiryDateTime() {
     return expiryDate.atTime(expiryTime).atZone(expiryZone);
   }
 
