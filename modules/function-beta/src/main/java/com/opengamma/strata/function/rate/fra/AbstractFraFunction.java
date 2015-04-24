@@ -28,18 +28,16 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
 import com.opengamma.strata.marketdata.key.ObservableKey;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
 /**
- * Calculates a result for a Forward Rate Agreement for each of a set of scenarios.
+ * Calculates a result of a {@code FraTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */
 public abstract class AbstractFraFunction<T>
     implements EngineSingleFunction<FraTrade, List<T>> {
-
-  // Fra pricer
-  private static final DiscountingFraProductPricer PRICER = DiscountingFraProductPricer.DEFAULT;
 
   /**
    * Returns the Fra pricer.
@@ -47,7 +45,7 @@ public abstract class AbstractFraFunction<T>
    * @return the pricer
    */
   protected DiscountingFraProductPricer pricer() {
-    return PRICER;
+    return DiscountingFraProductPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------
@@ -89,6 +87,6 @@ public abstract class AbstractFraFunction<T>
   }
 
   // execute for a single trade
-  protected abstract T execute(ExpandedFra product, MarketDataRatesProvider provider);
+  protected abstract T execute(ExpandedFra product, RatesProvider provider);
 
 }

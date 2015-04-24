@@ -22,18 +22,16 @@ import com.opengamma.strata.finance.fx.FxForwardTrade;
 import com.opengamma.strata.finance.fx.FxTransaction;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.fx.DiscountingFxTransactionProductPricerBeta;
 
 /**
- * Calculates a result for an {@code FxForward} for each of a set of scenarios.
+ * Calculates a result for an {@code FxForwardTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */
 public abstract class AbstractFxForwardFunction<T>
     implements EngineSingleFunction<FxForwardTrade, List<T>> {
-
-  // Pricer
-  private static final DiscountingFxTransactionProductPricerBeta PRICER = DiscountingFxTransactionProductPricerBeta.DEFAULT;
 
   /**
    * Returns the pricer.
@@ -41,7 +39,7 @@ public abstract class AbstractFxForwardFunction<T>
    * @return the pricer
    */
   protected DiscountingFxTransactionProductPricerBeta pricer() {
-    return PRICER;
+    return DiscountingFxTransactionProductPricerBeta.DEFAULT;
   }
 
   //-------------------------------------------------------------------------
@@ -72,6 +70,6 @@ public abstract class AbstractFxForwardFunction<T>
   }
 
   // execute for a single trade
-  protected abstract T execute(FxTransaction product, MarketDataRatesProvider provider);
+  protected abstract T execute(FxTransaction product, RatesProvider provider);
 
 }

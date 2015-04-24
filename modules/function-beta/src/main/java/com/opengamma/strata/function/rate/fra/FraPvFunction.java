@@ -7,16 +7,16 @@ package com.opengamma.strata.function.rate.fra;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.RatesProvider;
 
 /**
- * Calculates the present value of a Forward Rate Agreement for each of a set of scenarios.
+ * Calculates the present value of a {@code FraTrade} for each of a set of scenarios.
  */
 public class FraPvFunction
     extends AbstractFraFunction<CurrencyAmount> {
 
   @Override
-  protected CurrencyAmount execute(ExpandedFra product, MarketDataRatesProvider provider) {
+  protected CurrencyAmount execute(ExpandedFra product, RatesProvider provider) {
     return pricer().presentValue(product, provider);
   }
 

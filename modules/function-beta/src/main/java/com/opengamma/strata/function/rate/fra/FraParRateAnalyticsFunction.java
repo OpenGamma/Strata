@@ -31,13 +31,13 @@ import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
- * Calculates the par rate of a Forward Rate Agreement for each of a set of scenarios.
+ * Calculates the par rate of a {@code FraTrade} for each of a set of scenarios.
  */
 public class FraParRateAnalyticsFunction
     extends AbstractFraFunction<Double> {
@@ -113,7 +113,7 @@ public class FraParRateAnalyticsFunction
   }
 
   @Override
-  protected Double execute(ExpandedFra product, MarketDataRatesProvider provider) {
+  protected Double execute(ExpandedFra product, RatesProvider provider) {
     throw new IllegalStateException("Never invoked");
   }
 
