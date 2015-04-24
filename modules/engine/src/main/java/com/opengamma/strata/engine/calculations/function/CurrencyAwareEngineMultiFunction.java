@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
@@ -32,15 +31,8 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
  *
  * @param <T>  the type of target handled by this function
  */
-public interface CurrencyConvertingEngineMultiFunction<T extends CalculationTarget> {
-
-  /**
-   * Returns requirements specifying the market data the function needs to perform its calculations.
-   *
-   * @param target  a target
-   * @return requirements specifying the market data the function needs to perform its calculations for the target
-   */
-  public abstract CalculationRequirements requirements(T target);
+public interface CurrencyAwareEngineMultiFunction<T extends CalculationTarget>
+    extends EngineFunction<T> {
 
   /**
    * Calculates values of multiple measures for the target using multiple sets of market data and converts

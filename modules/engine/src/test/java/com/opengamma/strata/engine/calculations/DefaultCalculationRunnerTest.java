@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.calculations.function.EngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -150,7 +150,7 @@ public class DefaultCalculationRunnerTest {
 
   private static class TestTarget implements CalculationTarget { }
 
-  public static final class TestFunction implements EngineFunction<TestTarget, Object> {
+  public static final class TestFunction implements EngineSingleFunction<TestTarget, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {

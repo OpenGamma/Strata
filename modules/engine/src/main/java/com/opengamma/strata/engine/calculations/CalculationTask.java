@@ -8,7 +8,7 @@ package com.opengamma.strata.engine.calculations;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculations.function.EngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
@@ -35,7 +35,7 @@ public class CalculationTask {
   private final int columnIndex;
 
   /** The function that performs the calculations. */
-  private final EngineFunction<CalculationTarget, ?> function;
+  private final EngineSingleFunction<CalculationTarget, ?> function;
 
   /** The mappings to select market data. */
   private final MarketDataMappings marketDataMappings;
@@ -61,7 +61,7 @@ public class CalculationTask {
       CalculationTarget target,
       int rowIndex,
       int columnIndex,
-      EngineFunction<? extends CalculationTarget, ?> function,
+      EngineSingleFunction<? extends CalculationTarget, ?> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
@@ -71,7 +71,7 @@ public class CalculationTask {
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
     // TODO check the target types are compatible
-    this.function = (EngineFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
+    this.function = (EngineSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
   }
 
   /**

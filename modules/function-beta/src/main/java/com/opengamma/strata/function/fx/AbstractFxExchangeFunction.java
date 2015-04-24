@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.fx.FxExchange;
 import com.opengamma.strata.finance.fx.FxExchangeTrade;
@@ -29,7 +29,7 @@ import com.opengamma.strata.pricer.fx.DiscountingFxExchangeProductPricerBeta;
  * @param <T>  the return type
  */
 public abstract class AbstractFxExchangeFunction<T>
-    implements EngineFunction<FxExchangeTrade, List<T>> {
+    implements EngineSingleFunction<FxExchangeTrade, List<T>> {
 
   // Pricer
   private static final DiscountingFxExchangeProductPricerBeta PRICER = DiscountingFxExchangeProductPricerBeta.DEFAULT;

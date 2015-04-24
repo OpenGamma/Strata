@@ -7,21 +7,18 @@ package com.opengamma.strata.engine.calculations.function;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
 /**
- * A function that calculates a value for a target using multiple sets of market data.
+ * Supertype of all functions that calculate values of measures for a target.
  * <p>
- * If the calculated value contains any currency amounts and implements {@link CurrencyConvertible}
- * the calculation engine will automatically convert the amounts into the reporting currencies.
+ * All functions must be able to specify the data they require to perform their calculations.
  * <p>
- * If the calculated value contains any currency amounts and the automatic currency conversion is
- * insufficient the function should implement {@link CurrencyConvertingEngineFunction}.
+ * More specific function types can calculate values for one measure or multiple measures, and
+ * may rely on the engine to convert values into the reporting currency or handle it themselves.
  *
  * @param <T>  the type of target handled by this function
- * @param <R>  the return type of this function
  */
-public interface EngineFunction<T extends CalculationTarget, R> {
+public interface EngineFunction<T extends CalculationTarget> {
 
   /**
    * Returns requirements specifying the market data the function needs to perform its calculations.
@@ -30,16 +27,4 @@ public interface EngineFunction<T extends CalculationTarget, R> {
    * @return requirements specifying the market data the function needs to perform its calculations for the target
    */
   public abstract CalculationRequirements requirements(T target);
-
-  /**
-   * Calculates a value for the target using multiple sets of market data.
-   * <p>
-   * If the calculated value contains any currency amounts and implements {@link CurrencyConvertible}
-   * the calculation engine will automatically convert the amounts into the reporting currency.
-   *
-   * @param target  the target of the calculation
-   * @param marketData  the market data used in the calculation
-   * @return the result of the calculation
-   */
-  public abstract R execute(T target, CalculationMarketData marketData);
 }

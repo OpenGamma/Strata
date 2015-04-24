@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.Swap;
@@ -33,7 +33,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 /**
  * Calculates the present value of an interest rate swap for each of a set of scenarios.
  */
-public class SwapPvFunction implements EngineFunction<SwapTrade, List<MultiCurrencyAmount>> {
+public class SwapPvFunction implements EngineSingleFunction<SwapTrade, List<MultiCurrencyAmount>> {
 
   @Override
   public CalculationRequirements requirements(SwapTrade trade) {

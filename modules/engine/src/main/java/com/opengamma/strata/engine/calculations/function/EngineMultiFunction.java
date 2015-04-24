@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
@@ -20,19 +19,12 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
  * the calculation engine will automatically convert the amounts into the reporting currency.
  * <p>
  * If any of the calculated values contain currency amounts and the automatic currency conversion is
- * insufficient the function should implement {@link CurrencyConvertingEngineMultiFunction}.
+ * insufficient the function should implement {@link CurrencyAwareEngineMultiFunction}.
  *
  * @param <T>  the type of target handled by this function
  */
-public interface EngineMultiFunction<T extends CalculationTarget> {
-
-  /**
-   * Returns requirements specifying the market data the function needs to perform its calculations.
-   *
-   * @param target  a target
-   * @return requirements specifying the market data the function needs to perform its calculations for the target
-   */
-  public abstract CalculationRequirements requirements(T target);
+public interface EngineMultiFunction<T extends CalculationTarget>
+    extends EngineFunction<T> {
 
   // TODO Parameter of a set of measures in case the engine only requires a subset of what the function provides?
   /**

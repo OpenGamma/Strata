@@ -21,7 +21,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
@@ -38,7 +38,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
  * <p>
  * The result consists of a list of present values, one for each scenario.
  */
-public class SwapLegPvFunction implements EngineFunction<SwapTrade, List<CurrencyAmount>> {
+public class SwapLegPvFunction implements EngineSingleFunction<SwapTrade, List<CurrencyAmount>> {
 
   /**
    * Whether to get calculate for the pay leg or the receive leg.

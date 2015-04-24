@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
 /**
@@ -22,25 +21,18 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
  * A function should implement this interface if it calculates contains any currency amounts and
  * it needs to perform the conversion into the reporting currencies itself.
  * <p>
- * It is recommended that functions which calculate currency amounts implement {@link EngineFunction} and
+ * It is recommended that functions which calculate currency amounts implement {@link EngineSingleFunction} and
  * return an implementation of {@link CurrencyConvertible}. This allows the calculation engine to convert
  * currency values into the reporting currencies. This interface is should only be implemented by
  * functions where the automatic currency conversion is insufficient.
  * <p>
- * If the calculated value contains no currency amounts it is recommended to implement {@link EngineFunction}.
+ * If the calculated value contains no currency amounts it is recommended to implement {@link EngineSingleFunction}.
  *
  * @param <T>  the type of target handled by this function
  * @param <R>  the type of value calculated by this function
  */
-public interface CurrencyConvertingEngineFunction<T extends CalculationTarget, R> {
-
-  /**
-   * Returns requirements specifying the market data the function needs to perform its calculations.
-   *
-   * @param target  a target
-   * @return requirements specifying the market data the function needs to perform its calculations for the target
-   */
-  public abstract CalculationRequirements requirements(T target);
+public interface CurrencyAwareEngineSingleFunction<T extends CalculationTarget, R>
+    extends EngineFunction<T> {
 
   /**
    * Calculates a value for the target using multiple sets of market data and converts it into each of the
