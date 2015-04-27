@@ -22,7 +22,8 @@ public final class ResultsFormatter {
    */
   private ResultsFormatter() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Outputs the results of a calculation as an ASCII-formatted table.
    * 
@@ -30,7 +31,9 @@ public final class ResultsFormatter {
    * @param columns  the ordered columns whose names are to be used in the column headers
    */
   public static void print(Results results, List<Column> columns) {
-    String[] headers = columns.stream().map(c -> c.getName().toString()).toArray(String[]::new);
+    String[] headers = columns.stream()
+        .map(c -> c.getName().toString())
+        .toArray(String[]::new);
     String[][] rows = new String[results.getRowCount()][headers.length];
     for (int i = 0; i < results.getRowCount(); i++) {
       for (int j = 0; j < columns.size(); j++) {
@@ -39,12 +42,13 @@ public final class ResultsFormatter {
     }
     AsciiTableInstance.get().printTable(headers, rows);
   }
-  
+
+  // formats an individual result
   private static String formatResult(Result<?> result) {
     if (result.isFailure()) {
       return "FAIL: " + result.getFailure().getMessage();
     }
     return result.getValue().toString();
   }
-  
+
 }

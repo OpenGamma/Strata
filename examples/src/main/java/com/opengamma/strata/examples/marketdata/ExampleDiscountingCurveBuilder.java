@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,8 @@ import com.opengamma.strata.marketdata.id.DiscountingCurveId;
  * <code>[currency]</code> is the curve currency and <code>[yyyy-mm-dd]</code> is
  * the valuation date.
  */
-public class ExampleDiscountingCurveBuilder implements MarketDataBuilder<YieldCurve, DiscountingCurveId> {
+public class ExampleDiscountingCurveBuilder
+    implements MarketDataBuilder<YieldCurve, DiscountingCurveId> {
 
   @Override
   public MarketDataRequirements requirements(DiscountingCurveId id) {
@@ -34,9 +36,10 @@ public class ExampleDiscountingCurveBuilder implements MarketDataBuilder<YieldCu
 
   @Override
   public Map<DiscountingCurveId, Result<YieldCurve>> build(Set<DiscountingCurveId> requirements, BaseMarketData builtData) {
+    LocalDate valuationDate = builtData.getValuationDate();
     ImmutableMap.Builder<DiscountingCurveId, Result<YieldCurve>> resultBuilder = ImmutableMap.builder();
     for (DiscountingCurveId curveId : requirements) {
-      YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), curveId.getCurrency() + "-discounting");
+      YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, curveId.getCurrency() + "-discounting");
       resultBuilder.put(curveId, Result.success(curve));
     }
     return resultBuilder.build();

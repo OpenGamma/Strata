@@ -26,16 +26,20 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
  */
 public final class ExampleMarketData {
 
+  /**
+   * Standard set of market data rules.
+   */
   private static final MarketDataRules RULES = SimpleMarketDataRules.builder()
       .addMappings(SwapTrade.class, MarketDataMappings.builder().curveGroup("Default").build())
       .build();
-  
+
   /**
    * Restricted constructor.
    */
   private ExampleMarketData() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the market data rules to be used with the example market data.
    * <p>
@@ -47,7 +51,7 @@ public final class ExampleMarketData {
   public static MarketDataRules rules() {
     return RULES;
   }
-  
+
   /**
    * Loads a time-series from a JSON resource.
    * <p>
@@ -63,7 +67,7 @@ public final class ExampleMarketData {
     String resourceName = String.format("/timeseries/%s.json", identifiable.getStandardId().toString().toLowerCase());
     return loadFromJson(resourceName, LocalDateDoubleTimeSeries.class);
   }
-  
+
   /**
    * Loads a yield curve from a JSON resource.
    * <p>
@@ -81,11 +85,12 @@ public final class ExampleMarketData {
     InterpolatedCurve curve = loadFromJson(resourceName, InterpolatedCurve.class);
     return curve.toYieldCurve();
   }
-  
+
+  // loads a resource from JSON
   private static <T> T loadFromJson(String resourceName, Class<T> clazz) {
     InputStream tsResource = SwapPricingExample.class.getResourceAsStream(resourceName);
     Reader tsReader = new InputStreamReader(tsResource);
     return JodaBeanSer.COMPACT.jsonReader().read(tsReader, clazz);
   }
-  
+
 }

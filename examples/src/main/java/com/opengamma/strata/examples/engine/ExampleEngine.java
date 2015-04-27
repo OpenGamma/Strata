@@ -32,7 +32,8 @@ public final class ExampleEngine {
    */
   private ExampleEngine() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a calculation engine instance configured for use in the examples environment.
    * <p>
@@ -43,29 +44,33 @@ public final class ExampleEngine {
    * @return a new calculation engine instance
    */
   public static CalculationEngine create() {
+    // create the calculation runner, that calculates the results
     ExecutorService executor = createExecutor();
     CalculationRunner calcRunner = new DefaultCalculationRunner(executor);
-    
+
+    // create the market data factory, that builds market data
     ExampleTimeSeriesProvider timeSeriesProvider = new ExampleTimeSeriesProvider();
     ExampleDiscountingCurveBuilder discountingCurveBuilder = new ExampleDiscountingCurveBuilder();
     ExampleForwardCurveBuilder forwardCurveBuilder = new ExampleForwardCurveBuilder();
-    
     MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
         timeSeriesProvider,
         ObservableMarketDataBuilder.none(),
         FeedIdMapping.identity(),
-        discountingCurveBuilder, forwardCurveBuilder);
-    
+        discountingCurveBuilder,
+        forwardCurveBuilder);
+
+    // combine the runner and market data factory
     return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());
   }
 
+  // create an executor with daemon threads
   private static ExecutorService createExecutor() {
-    ExecutorService executor = Executors.newFixedThreadPool(1, r ->  {
+    ExecutorService executor = Executors.newFixedThreadPool(1, r -> {
       Thread t = Executors.defaultThreadFactory().newThread(r);
       t.setDaemon(true);
       return t;
     });
     return executor;
   }
-  
+
 }

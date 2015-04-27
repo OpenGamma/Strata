@@ -17,7 +17,8 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * <code>/timeseries/[id].json</code>, where <code>[id]</code> is the identifier
  * of the observable.
  */
-public class ExampleTimeSeriesProvider implements TimeSeriesProvider {
+public class ExampleTimeSeriesProvider
+    implements TimeSeriesProvider {
 
   @Override
   public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {

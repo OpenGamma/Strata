@@ -26,7 +26,8 @@ import com.opengamma.strata.marketdata.id.IndexCurveId;
  * <code>[index]</code> is name of the curve index and <code>[yyyy-mm-dd]</code> is
  * the valuation date.
  */
-public class ExampleForwardCurveBuilder implements MarketDataBuilder<YieldCurve, IndexCurveId> {
+public class ExampleForwardCurveBuilder
+    implements MarketDataBuilder<YieldCurve, IndexCurveId> {
 
   @Override
   public MarketDataRequirements requirements(IndexCurveId id) {
