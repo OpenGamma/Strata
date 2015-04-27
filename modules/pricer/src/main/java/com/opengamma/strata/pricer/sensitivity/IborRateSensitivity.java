@@ -61,7 +61,7 @@ public final class IborRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code IborRateSensitivity} from the index, fixing date and value.
+   * Obtains an {@code IborRateSensitivity} from the index, fixing date and value.
    * <p>
    * The currency is defaulted from the index.
    * 
@@ -85,15 +85,6 @@ public final class IborRateSensitivity
    */
   public static IborRateSensitivity of(IborIndex index, Currency currency, LocalDate fixingDate, double sensitivity) {
     return new IborRateSensitivity(index, currency, fixingDate, sensitivity);
-  }
-
-  //-------------------------------------------------------------------------
-  public Object getCurveKey() {
-    return index;
-  }
-
-  public LocalDate getDate() {
-    return fixingDate;
   }
 
   //-------------------------------------------------------------------------

@@ -10,9 +10,9 @@ import org.joda.beans.ImmutableBean;
 import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * Point sensitivity against a single curve.
+ * Point sensitivity.
  * <p>
- * The sensitivity to a single point on a curve, known as <i>point sensitivity</i>.
+ * The sensitivity to a single point on a curve, surface or similar.
  * This is used within {@link PointSensitivities}.
  * <p>
  * Implementations must be immutable and thread-safe beans.

@@ -67,11 +67,6 @@ public final class ZeroRateSensitivity
   }
 
   //-------------------------------------------------------------------------
-  public Object getCurveKey() {
-    return currency;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity withCurrency(Currency currency) {
     return this;
