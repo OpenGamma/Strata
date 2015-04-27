@@ -1,0 +1,6 @@
+{
+ "@bean": "com.opengamma.strata.examples.marketdata.InterpolatedCurve",
+ "yearFractions": "0.268493151, 0.526027397, 1.016438356, 2.021917808, 3.023010704, 5.016438356, 10.01917808",
+ "rates": "0.001763775, 0.002187884, 0.004437206, 0.011476741, 0.017859057, 0.026257102, 0.035521988",
+ "interpolatorName": "Linear"
+}
