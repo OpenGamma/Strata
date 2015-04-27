@@ -45,7 +45,7 @@ public final class ZeroRateSensitivity
   /**
    * The date that was looked up on the curve.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate date;
   /**
    * The value of the sensitivity.
@@ -64,12 +64,6 @@ public final class ZeroRateSensitivity
    */
   public static ZeroRateSensitivity of(Currency currency, LocalDate date, double sensitivity) {
     return new ZeroRateSensitivity(currency, date, sensitivity);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public Object getCurveKey() {
-    return currency;
   }
 
   //-------------------------------------------------------------------------
@@ -171,7 +165,6 @@ public final class ZeroRateSensitivity
    * Gets the date that was looked up on the curve.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getDate() {
     return date;
   }

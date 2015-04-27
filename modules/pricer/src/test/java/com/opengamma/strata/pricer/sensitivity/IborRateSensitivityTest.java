@@ -30,18 +30,18 @@ public class IborRateSensitivityTest {
     IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDate(), date(2015, 8, 27));
+    assertEquals(test.getFixingDate(), date(2015, 8, 27));
     assertEquals(test.getSensitivity(), 32d);
-    assertEquals(test.getCurveKey(), GBP_LIBOR_3M);
+    assertEquals(test.getIndex(), GBP_LIBOR_3M);
   }
 
   public void test_of_withCurrency() {
     IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M, GBP, date(2015, 8, 27), 32d);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDate(), date(2015, 8, 27));
+    assertEquals(test.getFixingDate(), date(2015, 8, 27));
     assertEquals(test.getSensitivity(), 32d);
-    assertEquals(test.getCurveKey(), GBP_LIBOR_3M);
+    assertEquals(test.getIndex(), GBP_LIBOR_3M);
   }
 
   //-------------------------------------------------------------------------

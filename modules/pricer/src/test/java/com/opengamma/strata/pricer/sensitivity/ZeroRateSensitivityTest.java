@@ -30,7 +30,7 @@ public class ZeroRateSensitivityTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getDate(), date(2015, 8, 27));
     assertEquals(test.getSensitivity(), 32d);
-    assertEquals(test.getCurveKey(), GBP);
+    assertEquals(test.getCurrency(), GBP);
   }
 
   //-------------------------------------------------------------------------

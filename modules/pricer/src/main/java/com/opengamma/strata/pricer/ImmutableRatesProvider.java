@@ -340,7 +340,8 @@ public final class ImmutableRatesProvider
     ListMultimap<Currency, DoublesPair> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
       if (point instanceof ZeroRateSensitivity) {
-        grouped.put(point.getCurrency(), DoublesPair.of(relativeTime(point.getDate()), point.getSensitivity()));
+        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
+        grouped.put(point.getCurrency(), DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
       }
     }
     // calculate per currency
@@ -373,7 +374,7 @@ public final class ImmutableRatesProvider
       if (point instanceof IborRateSensitivity) {
         IborRateSensitivity pt = (IborRateSensitivity) point;
         IborIndex index = pt.getIndex();
-        LocalDate startDate = index.calculateEffectiveFromFixing(pt.getDate());
+        LocalDate startDate = index.calculateEffectiveFromFixing(pt.getFixingDate());
         LocalDate endDate = index.calculateMaturityFromEffective(startDate);
         double startTime = relativeTime(startDate);
         double endTime = relativeTime(endDate);

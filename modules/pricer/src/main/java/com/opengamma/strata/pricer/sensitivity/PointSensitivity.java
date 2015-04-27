@@ -5,16 +5,14 @@
  */
 package com.opengamma.strata.pricer.sensitivity;
 
-import java.time.LocalDate;
-
 import org.joda.beans.ImmutableBean;
 
 import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * Point sensitivity against a single curve.
+ * Point sensitivity.
  * <p>
- * The sensitivity to a single point on a curve, known as <i>point sensitivity</i>.
+ * The sensitivity to a single point on a curve, surface or similar.
  * This is used within {@link PointSensitivities}.
  * <p>
  * Implementations must be immutable and thread-safe beans.
@@ -23,30 +21,11 @@ public interface PointSensitivity
     extends ImmutableBean {
 
   /**
-   * Gets the key to the curve that the point sensitivity refers to.
-   * <p>
-   * The string form of the object must be a meaningful name, as it is used in
-   * {@link #compareExcludingSensitivity(PointSensitivity)}.
-   * 
-   * @return the key, such as the index or currency
-   */
-  public abstract Object getCurveKey();
-
-  /**
    * Gets the currency of the point sensitivity.
    * 
    * @return the currency
    */
   public abstract Currency getCurrency();
-
-  /**
-   * Gets the date that was looked up on the curve.
-   * <p>
-   * For example, this might be the fixing date of an IBOR-like index.
-   * 
-   * @return the date
-   */
-  public abstract LocalDate getDate();
 
   /**
    * Gets the point sensitivity value.

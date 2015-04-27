@@ -33,10 +33,10 @@ public class OvernightRateSensitivityTest {
     OvernightRateSensitivity test = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), 32d);
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDate(), date(2015, 8, 27));
+    assertEquals(test.getFixingDate(), date(2015, 8, 27));
     assertEquals(test.getEndDate(), date(2015, 8, 28));
     assertEquals(test.getSensitivity(), 32d);
-    assertEquals(test.getCurveKey(), GBP_SONIA);
+    assertEquals(test.getIndex(), GBP_SONIA);
   }
 
   public void test_of() {
@@ -44,10 +44,10 @@ public class OvernightRateSensitivityTest {
         GBP_SONIA, GBP, date(2015, 8, 27), date(2015, 10, 27), 32d);
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDate(), date(2015, 8, 27));
+    assertEquals(test.getFixingDate(), date(2015, 8, 27));
     assertEquals(test.getEndDate(), date(2015, 10, 27));
     assertEquals(test.getSensitivity(), 32d);
-    assertEquals(test.getCurveKey(), GBP_SONIA);
+    assertEquals(test.getIndex(), GBP_SONIA);
   }
 
   public void test_badDateOrder() {

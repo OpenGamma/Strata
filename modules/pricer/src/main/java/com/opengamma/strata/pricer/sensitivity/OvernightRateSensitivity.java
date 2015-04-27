@@ -114,17 +114,6 @@ public final class OvernightRateSensitivity
 
   //-------------------------------------------------------------------------
   @Override
-  public Object getCurveKey() {
-    return index;
-  }
-
-  @Override
-  public LocalDate getDate() {
-    return fixingDate;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public OvernightRateSensitivity withCurrency(Currency currency) {
     if (this.currency.equals(currency)) {
       return this;
