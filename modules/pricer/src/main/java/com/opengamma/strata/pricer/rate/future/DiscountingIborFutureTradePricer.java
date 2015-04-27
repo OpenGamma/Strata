@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
@@ -14,29 +15,37 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
  * Pricer implementation for Ibor future trades.
+ * <p>
+ * This function provides the ability to price a {@link FraTrade}.
  */
-public class DefaultIborFutureTradePricer
-    extends BaseIborFuturePricer {
+public class DiscountingIborFutureTradePricer
+    extends AbstractIborFutureTradePricer {
 
   /**
    * Default implementation.
    */
-  public static final DefaultIborFutureTradePricer DEFAULT =
-      new DefaultIborFutureTradePricer(DefaultIborFutureProductPricer.DEFAULT);
+  public static final DiscountingIborFutureTradePricer DEFAULT =
+      new DiscountingIborFutureTradePricer(DiscountingIborFutureProductPricer.DEFAULT);
 
   /**
    * Underlying pricer.
    */
-  private final DefaultIborFutureProductPricer productPricer;
+  private final DiscountingIborFutureProductPricer productPricer;
 
   /**
    * Creates an instance.
    * 
    * @param productPricer  the pricer for {@link IborFuture}
    */
-  public DefaultIborFutureTradePricer(
-      DefaultIborFutureProductPricer productPricer) {
+  public DiscountingIborFutureTradePricer(
+      DiscountingIborFutureProductPricer productPricer) {
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected DiscountingIborFutureProductPricer getProductPricer() {
+    return productPricer;
   }
 
   //-------------------------------------------------------------------------
@@ -66,7 +75,7 @@ public class DefaultIborFutureTradePricer
    */
   public CurrencyAmount presentValue(PricingEnvironment env, IborFutureTrade trade, double referencePrice) {
     double price = price(env, trade);
-    return presentValue(price, trade, referencePrice);
+    return presentValue(trade, price, referencePrice);
   }
 
   /**
@@ -82,7 +91,7 @@ public class DefaultIborFutureTradePricer
   public PointSensitivities presentValueSensitivity(PricingEnvironment env, IborFutureTrade trade) {
     IborFuture product = trade.getSecurity().getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(env, product);
-    PointSensitivities marginIndexSensi = marginIndexSensitivity(product, priceSensi);
+    PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
 

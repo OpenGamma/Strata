@@ -18,12 +18,12 @@ import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
- * Test {@link DefaultIborFutureTradePricer}.
+ * Test {@link DiscountingIborFutureTradePricer}.
  */
 @Test
-public class DefaultIborFutureProductPricerTest {
+public class DiscountingIborFutureProductPricerTest {
 
-  private static final DefaultIborFutureProductPricer PRICER = DefaultIborFutureProductPricer.DEFAULT;
+  private static final DiscountingIborFutureProductPricer PRICER = DiscountingIborFutureProductPricer.DEFAULT;
   private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
 
   private static final double RATE = 0.045;
