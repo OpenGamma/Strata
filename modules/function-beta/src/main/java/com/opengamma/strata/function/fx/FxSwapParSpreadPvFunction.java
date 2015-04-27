@@ -5,17 +5,17 @@
  */
 package com.opengamma.strata.function.fx;
 
-import com.opengamma.strata.finance.fx.ExpandedFx;
+import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.pricer.RatesProvider;
 
 /**
- * Calculates the par spread of an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates the present value of an {@code FxSwapTrade} for each of a set of scenarios.
  */
-public class FxForwardParSpreadFunction
-    extends AbstractFxForwardFunction<Double> {
+public class FxSwapParSpreadPvFunction
+    extends AbstractFxSwapFunction<Double> {
 
   @Override
-  protected Double execute(ExpandedFx product, RatesProvider provider) {
+  protected Double execute(ExpandedFxSwap product, RatesProvider provider) {
     return pricer().parSpread(product, provider);
   }
 

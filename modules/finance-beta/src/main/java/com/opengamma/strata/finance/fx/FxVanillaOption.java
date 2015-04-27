@@ -94,17 +94,12 @@ public class FxVanillaOption
    * A put option permits the inverse transaction to occur.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxTransaction underlying;
+  private final FxForward underlying;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    inOrderOrEqual(
-        expiryDate, underlying.getBaseCurrencyPayment().getDate(),
-        "expiryDate", "underlying.baseCurrencyPayment.date");
-    inOrderOrEqual(
-        expiryDate, underlying.getCounterCurrencyPayment().getDate(),
-        "expiryDate", "underlying.counterCurrencyPayment.date");
+    inOrderOrEqual(expiryDate, underlying.getValueDate(), "expiryDate", "underlying.valueDate");
   }
 
   //-------------------------------------------------------------------------
@@ -258,7 +253,7 @@ public class FxVanillaOption
    * A put option permits the inverse transaction to occur.
    * @return the value of the property, not null
    */
-  public FxTransaction getUnderlying() {
+  public FxForward getUnderlying() {
     return underlying;
   }
 
@@ -360,8 +355,8 @@ public class FxVanillaOption
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<FxTransaction> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", FxVanillaOption.class, FxTransaction.class);
+    private final MetaProperty<FxForward> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", FxVanillaOption.class, FxForward.class);
     /**
      * The meta-properties.
      */
@@ -459,7 +454,7 @@ public class FxVanillaOption
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<FxTransaction> underlying() {
+    public final MetaProperty<FxForward> underlying() {
       return underlying;
     }
 
@@ -505,7 +500,7 @@ public class FxVanillaOption
     private LocalDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
-    private FxTransaction underlying;
+    private FxForward underlying;
 
     /**
      * Restricted constructor.
@@ -566,7 +561,7 @@ public class FxVanillaOption
           this.expiryZone = (ZoneId) newValue;
           break;
         case -1770633379:  // underlying
-          this.underlying = (FxTransaction) newValue;
+          this.underlying = (FxForward) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -662,7 +657,7 @@ public class FxVanillaOption
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlying(FxTransaction underlying) {
+    public Builder underlying(FxForward underlying) {
       JodaBeanUtils.notNull(underlying, "underlying");
       this.underlying = underlying;
       return this;
