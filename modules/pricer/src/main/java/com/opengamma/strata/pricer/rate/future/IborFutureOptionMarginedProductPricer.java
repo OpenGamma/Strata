@@ -37,7 +37,7 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * @param futureProvider  the provider of future/option pricing data
    * @return the price of the product, in decimal form
    */
-  public abstract double price(
+  abstract double price(
       IborFutureOption option,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider);
@@ -53,7 +53,7 @@ public abstract class IborFutureOptionMarginedProductPricer {
    * @param futureProvider  the provider of future/option pricing data
    * @return the price curve sensitivity of the product
    */
-  public abstract PointSensitivities priceSensitivity(
+  abstract PointSensitivities priceSensitivity(
       IborFutureOption option,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider);

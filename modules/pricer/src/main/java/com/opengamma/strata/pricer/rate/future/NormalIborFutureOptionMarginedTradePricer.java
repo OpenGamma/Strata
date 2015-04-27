@@ -78,6 +78,30 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * <p>
    * The result is a single sensitivity to the volatility used.
    * The volatility is associated with the expiry/delay/strike/future price key combination.
+   * <p>
+   * This calculates the underlying future price using the future pricer.
+   * 
+   * @param futureOptionTrade  the trade to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the provider of normal volatility
+   * @return the price sensitivity
+   */
+  public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
+      IborFutureOptionTrade futureOptionTrade,
+      RatesProvider ratesProvider,
+      NormalVolatilityIborFutureProvider volatilityProvider) {
+
+    IborFuture future = futureOptionTrade.getSecurity().getProduct().getUnderlying().getProduct();
+    double futurePrice = futureOptionPricer.getFuturePricer().price(future, ratesProvider);
+    return presentValueSensitivityNormalVolatility(futureOptionTrade, ratesProvider, volatilityProvider, futurePrice);
+  }
+
+  /**
+   * Computes the present value sensitivity to the normal volatility used in the pricing
+   * based on the price of the underlying future.
+   * <p>
+   * The result is a single sensitivity to the volatility used.
+   * The volatility is associated with the expiry/delay/strike/future price key combination.
    * 
    * @param futureOptionTrade  the trade to price
    * @param ratesProvider  the rates provider
@@ -96,28 +120,6 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
         futureOptionPricer.priceSensitivityNormalVolatility(product, ratesProvider, volatilityProvider, futurePrice);
     double factor = futureOptionPricer.marginIndex(product, 1) * futureOptionTrade.getQuantity();
     return priceSensitivity.withSensitivity(priceSensitivity.getSensitivity() * factor);
-  }
-
-  /**
-   * Computes the present value sensitivity to the normal volatility used in the pricing.
-   * <p>
-   * The underlying future price is computed using the underlying future pricer.
-   * The result is a single sensitivity to the volatility used.
-   * The volatility is associated with the expiry/delay/strike/future price key combination.
-   * 
-   * @param futureOptionTrade  the trade to price
-   * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the provider of normal volatility
-   * @return the price sensitivity
-   */
-  public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
-      IborFutureOptionTrade futureOptionTrade,
-      RatesProvider ratesProvider,
-      NormalVolatilityIborFutureProvider volatilityProvider) {
-
-    IborFuture future = futureOptionTrade.getSecurity().getProduct().getUnderlying().getProduct();
-    double futurePrice = futureOptionPricer.getFuturePricer().price(future, ratesProvider);
-    return presentValueSensitivityNormalVolatility(futureOptionTrade, ratesProvider, volatilityProvider, futurePrice);
   }
 
 }
