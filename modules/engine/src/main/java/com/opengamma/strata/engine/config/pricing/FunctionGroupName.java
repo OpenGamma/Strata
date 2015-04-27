@@ -7,44 +7,45 @@ package com.opengamma.strata.engine.config.pricing;
 
 import java.util.regex.Pattern;
 
+import org.joda.convert.FromString;
+
 import com.opengamma.strata.collect.type.TypedString;
 
 /**
  * The name of a {@link FunctionGroup}.
  */
-public final class FunctionGroupName extends TypedString<FunctionGroupName> {
+public final class FunctionGroupName
+    extends TypedString<FunctionGroupName> {
 
-  /** Pattern for checking the measure name. It must only contains the characters A-Z, a-z, 0-9 and -. */
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+  /**
+   * Pattern for checking the name.
+   * It must only contains the characters A-Z, a-z, 0-9 and -.
+   */
   private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a function group name.
+   * Obtains a {@code FunctionGroupName} by name.
+   * <p>
+   * Group names must only contains the characters A-Z, a-z, 0-9 and -.
    *
-   * @return a function group name
+   * @param name  the name of the group
+   * @return a group with the specified name
    */
+  @FromString
   public static FunctionGroupName of(String name) {
     return new FunctionGroupName(name);
   }
 
   /**
    * Creates an instance.
-   *
-   * @param name the name, not empty
+   * 
+   * @param name  the name of the group
    */
-  protected FunctionGroupName(String name) {
-    super(name);
-    validateName(name);
+  private FunctionGroupName(String name) {
+    super(name, NAME_PATTERN, "Group name must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
-  /**
-   * Checks the name matches {@link #NAME_PATTERN}.
-   *
-   * @param name  the name
-   * @throws IllegalArgumentException if the name doesn't match the pattern
-   */
-  private static void validateName(String name) {
-    if (!NAME_PATTERN.matcher(name).matches()) {
-      throw new IllegalArgumentException("Function group names must only contains the characters A-Z, a-z, 0-9 and -");
-    }
-  }
 }

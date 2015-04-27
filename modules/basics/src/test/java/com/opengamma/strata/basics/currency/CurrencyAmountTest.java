@@ -26,6 +26,7 @@ public class CurrencyAmountTest {
   private static final double AMT1 = 100;
   private static final double AMT2 = 200;
   private static final CurrencyAmount CCY_AMOUNT = CurrencyAmount.of(CCY1, AMT1);
+  private static final CurrencyAmount CCY_AMOUNT_NEGATIVE = CurrencyAmount.of(CCY1, -AMT1);
 
   public void test_fixture() {
     assertEquals(CCY_AMOUNT.getCurrency(), CCY1);
@@ -150,14 +151,25 @@ public class CurrencyAmountTest {
     assertEquals(test, CurrencyAmount.of(CCY1, AMT1 * 3.5));
   }
 
-  public void test_negated() {
-    CurrencyAmount test = CCY_AMOUNT.negated();
-    assertEquals(test, CurrencyAmount.of(CCY1, -AMT1));
-  }
-
   public void test_mapAmount() {
     CurrencyAmount test = CCY_AMOUNT.mapAmount(v -> v * 2 + 1);
     assertEquals(test, CurrencyAmount.of(CCY1, AMT1 * 2 + 1));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_negated() {
+    assertEquals(CCY_AMOUNT.negated(), CCY_AMOUNT_NEGATIVE);
+    assertEquals(CCY_AMOUNT_NEGATIVE.negated(), CCY_AMOUNT);
+  }
+
+  public void test_negative() {
+    assertEquals(CCY_AMOUNT.negative(), CCY_AMOUNT_NEGATIVE);
+    assertEquals(CCY_AMOUNT_NEGATIVE.negative(), CCY_AMOUNT_NEGATIVE);
+  }
+
+  public void test_positive() {
+    assertEquals(CCY_AMOUNT.positive(), CCY_AMOUNT);
+    assertEquals(CCY_AMOUNT_NEGATIVE.positive(), CCY_AMOUNT);
   }
 
   //-------------------------------------------------------------------------

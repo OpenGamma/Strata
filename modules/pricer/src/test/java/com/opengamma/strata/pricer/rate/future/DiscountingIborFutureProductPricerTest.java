@@ -13,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
@@ -27,23 +27,23 @@ public class DiscountingIborFutureProductPricerTest {
   private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
 
   private static final double RATE = 0.045;
-  private static final PricingEnvironment ENV_MOCK = mock(PricingEnvironment.class);
+  private static final RatesProvider MOCK_PROV = mock(RatesProvider.class);
   static {
-    when(ENV_MOCK.iborIndexRate(FUTURE.getIndex(), FUTURE.getFixingDate())).thenReturn(RATE);
+    when(MOCK_PROV.iborIndexRate(FUTURE.getIndex(), FUTURE.getFixingDate())).thenReturn(RATE);
   }
   private static final double TOLERANCE_PRICE = 1.0e-9;
   private static final double TOLERANCE_PRICE_DELTA = 1.0e-9;
 
   //------------------------------------------------------------------------- 
   public void test_price() {
-    assertEquals(PRICER.price(ENV_MOCK, FUTURE), 1.0 - RATE, TOLERANCE_PRICE);
+    assertEquals(PRICER.price(FUTURE, MOCK_PROV), 1.0 - RATE, TOLERANCE_PRICE);
   }
 
   //-------------------------------------------------------------------------
   public void test_priceSensitivity() {
     PointSensitivities sensiExpected =
         PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getFixingDate(), -1.0d));
-    PointSensitivities sensiComputed = PRICER.priceSensitivity(ENV_MOCK, FUTURE);
+    PointSensitivities sensiComputed = PRICER.priceSensitivity(FUTURE, MOCK_PROV);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }
 

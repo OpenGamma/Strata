@@ -72,6 +72,8 @@ public class DefaultCalculationRunner implements CalculationRunner {
 
     for (int i = 0; i < targets.size(); i++) {
       for (int j = 0; j < columns.size(); j++) {
+        // TODO For each target, build a map of function group to set of measures.
+        // Then request function config from the group for all measures at once
         configBuilder.add(createTaskConfig(i, j, targets.get(i), effectiveColumns.get(j)));
       }
     }
@@ -168,6 +170,12 @@ public class DefaultCalculationRunner implements CalculationRunner {
     }
   }
 
+  // TODO This needs to handle a whole set of columns and return a list of config
+  // TODO Need to group the columns by configured function group, market data mappings and reporting rules.
+  //   Columns are only eligible to be calculated by the same fn if all the rules are the same
+  //   Need a compound key? ConfigKey[ConfiguredFunctionGroup, MarketDataMappings]. ConfigGroup?
+  //   What's the value? Column? Measure? Index? Some combination of the 3?
+  // TODO Does this need to return an object containing different types of task config? CalculationTasksConfig?
   /**
    * Creates configuration for calculating the value of a single measure for a target.
    *
@@ -183,9 +191,17 @@ public class DefaultCalculationRunner implements CalculationRunner {
       CalculationTarget target,
       Column column) {
 
-    PricingRules pricingRules = column.getPricingRules();
     Measure measure = column.getMeasure(target);
-    Optional<ConfiguredFunctionGroup> functionGroup = pricingRules.functionGroup(target, measure);
+
+    Optional<ConfiguredFunctionGroup> functionGroup = column.getPricingRules().functionGroup(target, measure);
+
+    // Use the mappings from the market data rules, else create a set of mappings that cause a failure to
+    // be returned in the market data with an error message saying the rules didn't match the target
+    MarketDataMappings marketDataMappings =
+        column.getMarketDataRules().mappings(target)
+            .orElse(NoMatchingRuleMappings.INSTANCE);
+
+    ReportingRules reportingRules = column.getReportingRules();
 
     FunctionConfig<?> functionConfig =
         functionGroup
@@ -197,12 +213,6 @@ public class DefaultCalculationRunner implements CalculationRunner {
             .map(ConfiguredFunctionGroup::getArguments)
             .orElse(ImmutableMap.of());
 
-    // Use the mappings from the market data rules, else create a set of mappings that cause a failure to
-    // be returned in the market data with an error message saying the rules didn't match the target
-    MarketDataMappings marketDataMappings =
-        column.getMarketDataRules().mappings(target)
-            .orElse(NoMatchingRuleMappings.INSTANCE);
-
     return CalculationTaskConfig.of(
         target,
         rowIndex,
@@ -210,7 +220,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
         functionConfig,
         functionArguments,
         marketDataMappings,
-        column.getReportingRules());
+        reportingRules);
   }
 
   /**

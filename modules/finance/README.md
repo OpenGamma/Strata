@@ -1,10 +1,10 @@
 Strata-Finance
 --------------
-This directory contains the `strata-finance` project.
+This directory contains the `strata-finance` module.
 
 ### Overview
 
-This project provides a domain model for entities in finance used by OpenGamma Strata:
+This module provides a domain model for entities in finance used by OpenGamma Strata:
 
 * trades
 * securities
@@ -13,7 +13,7 @@ This project provides a domain model for entities in finance used by OpenGamma S
 
 ### Source code
 
-This project is released as Open Source Software using the
+This module is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

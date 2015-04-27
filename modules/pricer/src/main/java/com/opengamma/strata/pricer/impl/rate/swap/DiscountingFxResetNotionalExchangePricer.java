@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -33,27 +33,27 @@ public class DiscountingFxResetNotionalExchangePricer
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PricingEnvironment env, FxResetNotionalExchange event) {
+  public double presentValue(FxResetNotionalExchange event, RatesProvider provider) {
     // futureValue * discountFactor
-    double df = env.discountFactor(event.getCurrency(), event.getPaymentDate());
-    return futureValue(env, event) * df;
+    double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
+    return futureValue(event, provider) * df;
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, FxResetNotionalExchange event) {
+  public PointSensitivityBuilder presentValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
     throw new UnsupportedOperationException();  // TODO
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double futureValue(PricingEnvironment env, FxResetNotionalExchange event) {
+  public double futureValue(FxResetNotionalExchange event, RatesProvider provider) {
     // notional * fxRate
-    double fxRate = env.fxIndexRate(event.getIndex(), event.getReferenceCurrency(), event.getFixingDate());
+    double fxRate = provider.fxIndexRate(event.getIndex(), event.getReferenceCurrency(), event.getFixingDate());
     return event.getNotional() * fxRate;
   }
 
   @Override
-  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, FxResetNotionalExchange event) {
+  public PointSensitivityBuilder futureValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
     throw new UnsupportedOperationException();  // TODO
   }
 

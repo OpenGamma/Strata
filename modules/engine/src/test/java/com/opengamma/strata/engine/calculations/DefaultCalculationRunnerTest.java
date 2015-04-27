@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.engine.Column;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -47,7 +48,7 @@ public class DefaultCalculationRunnerTest {
     MarketDataMappings marketDataMappings =
         MarketDataMappings.builder()
             .curveGroup("curve group")
-            .marketDataFeed(MarketDataFeed.of("market data feed"))
+            .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
             .build();
 
     SimpleMarketDataRules marketDataRules =
@@ -149,7 +150,7 @@ public class DefaultCalculationRunnerTest {
 
   private static class TestTarget implements CalculationTarget { }
 
-  public static final class TestFunction implements VectorEngineFunction<TestTarget, Object> {
+  public static final class TestFunction implements EngineSingleFunction<TestTarget, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
@@ -163,7 +164,7 @@ public class DefaultCalculationRunnerTest {
     }
 
     @Override
-    public Object execute(TestTarget target, CalculationMarketData marketData, ReportingRules reportingRules) {
+    public Object execute(TestTarget target, CalculationMarketData marketData) {
       return "bar";
     }
   }

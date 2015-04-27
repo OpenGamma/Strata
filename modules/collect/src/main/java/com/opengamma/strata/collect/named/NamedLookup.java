@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.collect.named;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 
 /**
  * A lookup for named instances.
@@ -15,6 +15,8 @@ import com.google.common.collect.ImmutableMap;
  * @param <T>  the named type
  */
 public interface NamedLookup<T extends Named> {
+  // this interface is unusual in that the methods returns null and Map rather than Optional and ImmutableMap
+  // this design choice is intended to avoid boxing/copying as this is performance sensitive code
 
   /**
    * Looks up an instance by name, returning null if not found.
@@ -34,15 +36,15 @@ public interface NamedLookup<T extends Named> {
   }
 
   /**
-   * Returns the map of known instances by name.
+   * Returns the immutable map of known instances by name.
    * <p>
    * This method returns all known instances.
    * It is permitted for an implementation to return an empty map, however this will
    * reduce the usefulness of the matching method on {@link ExtendedEnum}.
    * The map may include instances keyed under an alternate name.
    * 
-   * @return the map of enum instance by name
+   * @return the immutable map of enum instance by name
    */
-  public abstract ImmutableMap<String, T> lookupAll();
+  public abstract Map<String, T> lookupAll();
 
 }

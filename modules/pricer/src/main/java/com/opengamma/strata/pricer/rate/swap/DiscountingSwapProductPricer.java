@@ -5,9 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate.swap;
 
-import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.legValue;
-import static com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer.legValueSensitivity;
-
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
@@ -17,10 +15,10 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.PaymentEvent;
-import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
+import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -35,29 +33,21 @@ public class DiscountingSwapProductPricer {
    * Default implementation.
    */
   public static final DiscountingSwapProductPricer DEFAULT = new DiscountingSwapProductPricer(
-      PaymentPeriodPricer.instance(),
-      PaymentEventPricer.instance());
+      DiscountingSwapLegPricer.DEFAULT);
 
   /**
-   * Pricer for {@link PaymentPeriod}.
+   * Pricer for {@link SwapLeg}.
    */
-  private final PaymentPeriodPricer<PaymentPeriod> paymentPeriodPricer;
-  /**
-   * Pricer for {@link PaymentEvent}.
-   */
-  private final PaymentEventPricer<PaymentEvent> paymentEventPricer;
+  private final DiscountingSwapLegPricer legPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param paymentPeriodPricer  the pricer for {@link PaymentPeriod}
-   * @param paymentEventPricer  the pricer for {@link PaymentEvent}
+   * @param legPricer  the pricer for {@link SwapLeg}
    */
   public DiscountingSwapProductPricer(
-      PaymentPeriodPricer<PaymentPeriod> paymentPeriodPricer,
-      PaymentEventPricer<PaymentEvent> paymentEventPricer) {
-    this.paymentPeriodPricer = ArgChecker.notNull(paymentPeriodPricer, "paymentPeriodPricer");
-    this.paymentEventPricer = ArgChecker.notNull(paymentEventPricer, "paymentEventPricer");
+      DiscountingSwapLegPricer legPricer) {
+    this.legPricer = ArgChecker.notNull(legPricer, "legPricer");
   }
 
   //-------------------------------------------------------------------------
@@ -68,16 +58,16 @@ public class DiscountingSwapProductPricer {
    * This is the discounted future value.
    * The result is converted to the specified currency.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
    * @param currency  the currency to convert to
+   * @param provider  the rates provider
    * @return the present value of the swap product in the specified currency
    */
-  public CurrencyAmount presentValue(PricingEnvironment env, SwapProduct product, Currency currency) {
+  public CurrencyAmount presentValue(SwapProduct product, Currency currency, RatesProvider provider) {
     double totalPv = 0;
     for (ExpandedSwapLeg leg : product.expand().getLegs()) {
-      double pv = legValue(env, leg, paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
-      totalPv += (pv * env.fxRate(leg.getCurrency(), currency));
+      double pv = legPricer.presentValueInternal(leg, provider);
+      totalPv += (pv * provider.fxRate(leg.getCurrency(), currency));
     }
     return CurrencyAmount.of(currency, totalPv);
   }
@@ -89,12 +79,12 @@ public class DiscountingSwapProductPricer {
    * This is the discounted future value.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the present value of the swap product
    */
-  public MultiCurrencyAmount presentValue(PricingEnvironment env, SwapProduct product) {
-    return swapValue(env, product.expand(), paymentPeriodPricer::presentValue, paymentEventPricer::presentValue);
+  public MultiCurrencyAmount presentValue(SwapProduct product, RatesProvider provider) {
+    return swapValue(provider, product.expand(), legPricer::presentValueInternal);
   }
 
   /**
@@ -103,33 +93,69 @@ public class DiscountingSwapProductPricer {
    * The future value of the product is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the future value of the swap product
    */
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, SwapProduct product) {
-    return swapValue(env, product.expand(), paymentPeriodPricer::futureValue, paymentEventPricer::futureValue);
+  public MultiCurrencyAmount futureValue(SwapProduct product, RatesProvider provider) {
+    return swapValue(provider, product.expand(), legPricer::futureValueInternal);
   }
 
   //-------------------------------------------------------------------------
   // calculate present or future value for the swap
   private static MultiCurrencyAmount swapValue(
-      PricingEnvironment env,
+      RatesProvider provider,
       ExpandedSwap swap,
-      ToDoubleBiFunction<PricingEnvironment, PaymentPeriod> periodFn,
-      ToDoubleBiFunction<PricingEnvironment, PaymentEvent> eventFn) {
+      ToDoubleBiFunction<SwapLeg, RatesProvider> legFn) {
 
     if (swap.isCrossCurrency()) {
       return swap.getLegs().stream()
-          .map(leg -> CurrencyAmount.of(leg.getCurrency(), legValue(env, leg, periodFn, eventFn)))
+          .map(leg -> CurrencyAmount.of(leg.getCurrency(), legFn.applyAsDouble(leg, provider)))
           .collect(MultiCurrencyAmount.collector());
     } else {
       Currency currency = swap.getLegs().iterator().next().getCurrency();
-      double pv = swap.getLegs().stream()
-          .mapToDouble(leg -> legValue(env, leg, periodFn, eventFn))
-          .sum();
-      return MultiCurrencyAmount.of(currency, pv);
+      double total = 0d;
+      for (ExpandedSwapLeg leg : swap.getLegs()) {
+        total += legFn.applyAsDouble(leg, provider);
+      }
+      return MultiCurrencyAmount.of(currency, total);
     }
+  }
+
+  /**
+   * Computes the par rate for swaps with a fixed leg. 
+   * <p>
+   * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
+   * <p>
+   * At least one leg should be a fixed leg. The par rate will be computed with respect to the first fixed leg.
+   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * 
+   * @param product  the swap product for which the par rate should be computed
+   * @param provider  the rates provider
+   * @return the par rate
+   */
+  public double parRate(SwapProduct product, RatesProvider provider) {
+    // find fixed leg
+    ExpandedSwap swap = product.expand();
+    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+    if (fixedLegs.isEmpty()) {
+      throw new IllegalArgumentException("Swap must contain a fixed leg");
+    }
+    ExpandedSwapLeg fixedLeg = fixedLegs.get(0);
+    Currency ccyFixedLeg = fixedLeg.getCurrency();
+    // other payments (not fixed leg coupons) converted in fixed leg currency
+    double otherLegsConvertedPv = 0.0;
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      if (leg != fixedLeg) {
+        double pvLocal = legPricer.presentValueInternal(leg, provider);
+        otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
+      }
+    }
+    double fixedLegEventsPv = legPricer.presentValueEventsInternal(fixedLeg, provider);
+    // PVBP
+    double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
+    // Par rate
+    return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
   }
 
   //-------------------------------------------------------------------------
@@ -139,16 +165,15 @@ public class DiscountingSwapProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the present value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, SwapProduct product) {
+  public PointSensitivityBuilder presentValueSensitivity(SwapProduct product, RatesProvider provider) {
     return swapValueSensitivity(
-        env,
         product.expand(),
-        paymentPeriodPricer::presentValueSensitivity,
-        paymentEventPricer::presentValueSensitivity);
+        provider,
+        legPricer::presentValueSensitivity);
   }
 
   /**
@@ -157,28 +182,26 @@ public class DiscountingSwapProductPricer {
    * The future value sensitivity of the product is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the future value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, SwapProduct product) {
+  public PointSensitivityBuilder futureValueSensitivity(SwapProduct product, RatesProvider provider) {
     return swapValueSensitivity(
-        env,
         product.expand(),
-        paymentPeriodPricer::futureValueSensitivity,
-        paymentEventPricer::futureValueSensitivity);
+        provider,
+        legPricer::futureValueSensitivity);
   }
 
   // calculate present or future value sensitivity for the swap
   private static PointSensitivityBuilder swapValueSensitivity(
-      PricingEnvironment env,
       ExpandedSwap swap,
-      BiFunction<PricingEnvironment, PaymentPeriod, PointSensitivityBuilder> periodFn,
-      BiFunction<PricingEnvironment, PaymentEvent, PointSensitivityBuilder> eventFn) {
+      RatesProvider provider,
+      BiFunction<SwapLeg, RatesProvider, PointSensitivityBuilder> legFn) {
 
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
     for (ExpandedSwapLeg leg : swap.getLegs()) {
-      builder = builder.combinedWith(legValueSensitivity(env, leg, periodFn, eventFn));
+      builder = builder.combinedWith(legFn.apply(leg, provider));
     }
     return builder;
   }

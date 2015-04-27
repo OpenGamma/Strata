@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,6 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Guavate;
 
 /**
  * A rate swap.
@@ -83,6 +84,19 @@ public final class Swap
   public static Swap of(List<SwapLeg> legs) {
     ArgChecker.notEmpty(legs, "legs");
     return new Swap(ImmutableList.copyOf(legs));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the legs of the swap with the specified type.
+   * <p>
+   * This returns all the legs with the given type.
+   * 
+   * @param type  the type to find
+   * @return the matching legs of the swap
+   */
+  public ImmutableList<SwapLeg> getLegs(SwapLegType type) {
+    return legs.stream().filter(leg -> leg.getType() == type).collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------
@@ -170,7 +184,7 @@ public final class Swap
     return ExpandedSwap.builder()
         .legs(legs.stream()
             .map(SwapLeg::expand)
-            .collect(Guavate.toImmutableSet()))
+            .collect(toImmutableList()))
         .build();
   }
 

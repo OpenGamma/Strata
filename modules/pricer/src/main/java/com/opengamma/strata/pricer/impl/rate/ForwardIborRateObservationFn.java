@@ -8,14 +8,14 @@ package com.opengamma.strata.pricer.impl.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.IborRateObservation;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
 * Rate observation implementation for an IBOR-like index.
 * <p>
-* The implementation simply returns the rate from the {@code PricingEnvironment}.
+* The implementation simply returns the rate from the {@code RatesProvider}.
 */
 public class ForwardIborRateObservationFn
     implements RateObservationFn<IborRateObservation> {
@@ -34,20 +34,22 @@ public class ForwardIborRateObservationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      PricingEnvironment env,
       IborRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
-    return env.iborIndexRate(observation.getIndex(), observation.getFixingDate());
+      LocalDate endDate,
+      RatesProvider provider) {
+
+    return provider.iborIndexRate(observation.getIndex(), observation.getFixingDate());
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      PricingEnvironment env,
       IborRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate) {
-    return env.iborIndexRateSensitivity(observation.getIndex(), observation.getFixingDate());
+      LocalDate endDate,
+      RatesProvider provider) {
+
+    return provider.iborIndexRateSensitivity(observation.getIndex(), observation.getFixingDate());
   }
 
 }

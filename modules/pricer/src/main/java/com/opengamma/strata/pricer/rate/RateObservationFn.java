@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
@@ -45,13 +45,13 @@ public interface RateObservationFn<T extends RateObservation> {
    * In many cases, this information is not necessary, however it does enable some
    * implementations that would not otherwise be possible.
    * 
-   * @param env  the pricing environment
    * @param observation  the rate to be observed
    * @param startDate  the start date of the accrual period
    * @param endDate  the end date of the accrual period
+   * @param provider  the rates provider
    * @return the applicable rate
    */
-  public abstract double rate(PricingEnvironment env, T observation, LocalDate startDate, LocalDate endDate);
+  public abstract double rate(T observation, LocalDate startDate, LocalDate endDate, RatesProvider provider);
 
   /**
    * Determines the point sensitivity for the rate observation.
@@ -59,16 +59,16 @@ public interface RateObservationFn<T extends RateObservation> {
    * This returns a sensitivity instance referring to the curves used to determine
    * each forward rate.
    * 
-   * @param env  the pricing environment
    * @param observation  the rate that the sensitivity is for
    * @param startDate  the start date of the accrual period
    * @param endDate  the end date of the accrual period
+   * @param provider  the rates provider
    * @return the point sensitivity
    */
   public abstract PointSensitivityBuilder rateSensitivity(
-      PricingEnvironment env,
       T observation,
       LocalDate startDate,
-      LocalDate endDate);
+      LocalDate endDate,
+      RatesProvider provider);
 
 }

@@ -8,6 +8,7 @@ package com.opengamma.strata.engine.calculations;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
@@ -34,11 +35,13 @@ public class CalculationTask {
   private final int columnIndex;
 
   /** The function that performs the calculations. */
-  private final VectorEngineFunction<CalculationTarget, ?> function;
+  private final EngineSingleFunction<CalculationTarget, ?> function;
 
   /** The mappings to select market data. */
   private final MarketDataMappings marketDataMappings;
 
+  // These aren't used at the moment but will be required when we add support for functions that perform
+  // their own currency conversion
   /** The rules for reporting the output. */
   private final ReportingRules reportingRules;
 
@@ -58,7 +61,7 @@ public class CalculationTask {
       CalculationTarget target,
       int rowIndex,
       int columnIndex,
-      VectorEngineFunction<? extends CalculationTarget, ?> function,
+      EngineSingleFunction<? extends CalculationTarget, ?> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
@@ -68,7 +71,7 @@ public class CalculationTask {
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
     // TODO check the target types are compatible
-    this.function = (VectorEngineFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
+    this.function = (EngineSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
   }
 
   /**
@@ -98,7 +101,7 @@ public class CalculationTask {
    */
   public CalculationResult execute(ScenarioMarketData marketData) {
     DefaultCalculationMarketData calculationData = new DefaultCalculationMarketData(marketData, marketDataMappings);
-    Result<?> result = Result.of(() -> function.execute(target, calculationData, reportingRules));
+    Result<?> result = Result.of(() -> function.execute(target, calculationData));
     return CalculationResult.of(target, rowIndex, columnIndex, result);
   }
 }

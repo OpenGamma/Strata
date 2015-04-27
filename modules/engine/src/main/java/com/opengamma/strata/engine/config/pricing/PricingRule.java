@@ -71,6 +71,9 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<String, Object> arguments;
 
+  /** The function group and arguments bundled up together. */
+  private final ConfiguredFunctionGroup configuredFunctionGroup;
+
   /**
    * Returns a builder for building pricing rules.
    *
@@ -89,6 +92,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
     this.measures = ImmutableSet.copyOf(measures);
     this.functionGroup = ArgChecker.notNull(functionGroup, "functionGroup");
     this.arguments = ImmutableMap.copyOf(arguments);
+    this.configuredFunctionGroup = ConfiguredFunctionGroup.of(this.functionGroup, this.arguments);
   }
 
   /**
@@ -102,7 +106,7 @@ public final class PricingRule<T extends CalculationTarget> implements Immutable
     Optional<FunctionConfig<T>> functionConfig = functionGroup.functionConfig(target, measure);
 
     return targetType.isInstance(target) && handlesMeasure(measure) && functionConfig.isPresent() ?
-        Optional.of(ConfiguredFunctionGroup.of(functionGroup, arguments)) :
+        Optional.of(configuredFunctionGroup) :
         Optional.empty();
   }
 

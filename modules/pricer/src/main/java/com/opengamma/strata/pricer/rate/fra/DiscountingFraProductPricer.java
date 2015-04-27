@@ -10,7 +10,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -51,15 +51,15 @@ public class DiscountingFraProductPricer {
    * The present value of the product is the value on the valuation date.
    * This is the discounted future value.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the present value of the product
    */
-  public CurrencyAmount presentValue(PricingEnvironment env, FraProduct product) {
+  public CurrencyAmount presentValue(FraProduct product, RatesProvider provider) {
     // futureValue * discountFactor
     ExpandedFra fra = product.expand();
-    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    double pv = futureValue(env, fra) * df;
+    double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    double pv = futureValue(fra, provider) * df;
     return CurrencyAmount.of(fra.getCurrency(), pv);
   }
 
@@ -69,20 +69,20 @@ public class DiscountingFraProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(PricingEnvironment env, FraProduct product) {
+  public PointSensitivities presentValueSensitivity(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
     double notional = fra.getNotional();
-    double unitAmount = unitAmount(env, fra);
-    double derivative = derivative(env, fra);
-    PointSensitivityBuilder iborSens = forwardRateSensitivity(env, fra)
+    double unitAmount = unitAmount(fra, provider);
+    double derivative = derivative(fra, provider);
+    PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
         .multipliedBy(derivative * df * notional);
     PointSensitivityBuilder discSens =
-        env.discountFactorZeroRateSensitivity(fra.getCurrency(), fra.getPaymentDate())
+        provider.discountFactorZeroRateSensitivity(fra.getCurrency(), fra.getPaymentDate())
             .multipliedBy(unitAmount * notional);
     return iborSens.withCurrency(fra.getCurrency()).combinedWith(discSens).build();
   }
@@ -93,13 +93,13 @@ public class DiscountingFraProductPricer {
    * <p>
    * The future value of the product is the value on the valuation date without present value discounting.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the future value of the product
    */
-  public CurrencyAmount futureValue(PricingEnvironment env, FraProduct product) {
+  public CurrencyAmount futureValue(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    double fv = futureValue(env, fra);
+    double fv = futureValue(fra, provider);
     return CurrencyAmount.of(fra.getCurrency(), fv);
   }
 
@@ -109,99 +109,99 @@ public class DiscountingFraProductPricer {
    * The future value sensitivity of the product is the sensitivity of the future value to
    * the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param product  the product to price
+   * @param provider  the rates provider
    * @return the point sensitivity of the future value
    */
-  public PointSensitivities futureValueSensitivity(PricingEnvironment env, FraProduct product) {
+  public PointSensitivities futureValueSensitivity(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
     double notional = fra.getNotional();
-    double derivative = derivative(env, fra);
-    PointSensitivityBuilder iborSens = forwardRateSensitivity(env, fra)
+    double derivative = derivative(fra, provider);
+    PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
         .multipliedBy(derivative * notional);
     return iborSens.withCurrency(fra.getCurrency()).build();
   }
 
   //-------------------------------------------------------------------------
   // calculates the future value
-  private double futureValue(PricingEnvironment env, ExpandedFra fra) {
-    if (fra.getPaymentDate().isBefore(env.getValuationDate())) {
+  private double futureValue(ExpandedFra fra, RatesProvider provider) {
+    if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
       return 0d;
     }
     // notional * unitAmount
-    return fra.getNotional() * unitAmount(env, fra);
+    return fra.getNotional() * unitAmount(fra, provider);
   }
 
   // unit amount in various discounting methods
-  private double unitAmount(PricingEnvironment env, ExpandedFra fra) {
+  private double unitAmount(ExpandedFra fra, RatesProvider provider) {
     switch (fra.getDiscounting()) {
       case NONE:
-        return unitAmountNone(env, fra);
+        return unitAmountNone(fra, provider);
       case ISDA:
-        return unitAmountIsda(env, fra);
+        return unitAmountIsda(fra, provider);
       case AFMA:
-        return unitAmountAfma(env, fra);
+        return unitAmountAfma(fra, provider);
       default:
         throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
     }
   }
 
   // NONE discounting method
-  private double unitAmountNone(PricingEnvironment env, ExpandedFra fra) {
+  private double unitAmountNone(ExpandedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
-    double forwardRate = forwardRate(env, fra);
+    double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
     return (forwardRate - fixedRate) * yearFraction;
   }
 
   // ISDA discounting method
-  private double unitAmountIsda(PricingEnvironment env, ExpandedFra fra) {
+  private double unitAmountIsda(ExpandedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
-    double forwardRate = forwardRate(env, fra);
+    double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
     return ((forwardRate - fixedRate) / (1.0 + forwardRate * yearFraction)) * yearFraction;
   }
 
   // AFMA discounting method
-  private double unitAmountAfma(PricingEnvironment env, ExpandedFra fra) {
+  private double unitAmountAfma(ExpandedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
-    double forwardRate = forwardRate(env, fra);
+    double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
     return (1.0 / (1.0 + fixedRate * yearFraction)) - (1.0 / (1.0 + forwardRate * yearFraction));
   }
 
   //-------------------------------------------------------------------------
   // determine the derivative
-  private double derivative(PricingEnvironment env, ExpandedFra fra) {
+  private double derivative(ExpandedFra fra, RatesProvider provider) {
     switch (fra.getDiscounting()) {
       case NONE:
-        return derivativeNone(env, fra);
+        return derivativeNone(fra, provider);
       case ISDA:
-        return derivativeIsda(env, fra);
+        return derivativeIsda(fra, provider);
       case AFMA:
-        return derivativeAfma(env, fra);
+        return derivativeAfma(fra, provider);
       default:
         throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
     }
   }
 
   // NONE discounting method
-  private double derivativeNone(PricingEnvironment env, ExpandedFra fra) {
+  private double derivativeNone(ExpandedFra fra, RatesProvider provider) {
     return fra.getYearFraction();
   }
 
   // ISDA discounting method
-  private double derivativeIsda(PricingEnvironment env, ExpandedFra fra) {
+  private double derivativeIsda(ExpandedFra fra, RatesProvider provider) {
     double fixedRate = fra.getFixedRate();
-    double forwardRate = forwardRate(env, fra);
+    double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
     double dsc = 1.0 / (1.0 + forwardRate * yearFraction);
     return (1.0 + fixedRate * yearFraction) * yearFraction * dsc * dsc;
   }
 
   // AFMA discounting method
-  private double derivativeAfma(PricingEnvironment env, ExpandedFra fra) {
-    double forwardRate = forwardRate(env, fra);
+  private double derivativeAfma(ExpandedFra fra, RatesProvider provider) {
+    double forwardRate = forwardRate(fra, provider);
     double yearFraction = fra.getYearFraction();
     double dsc = 1.0 / (1.0 + forwardRate * yearFraction);
     return yearFraction * dsc * dsc;
@@ -209,13 +209,13 @@ public class DiscountingFraProductPricer {
 
   //-------------------------------------------------------------------------
   // query the forward rate
-  private double forwardRate(PricingEnvironment env, ExpandedFra fra) {
-    return rateObservationFn.rate(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
+  private double forwardRate(ExpandedFra fra, RatesProvider provider) {
+    return rateObservationFn.rate(fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provider);
   }
 
   // query the sensitivity
-  private PointSensitivityBuilder forwardRateSensitivity(PricingEnvironment env, ExpandedFra fra) {
-    return rateObservationFn.rateSensitivity(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
+  private PointSensitivityBuilder forwardRateSensitivity(ExpandedFra fra, RatesProvider provider) {
+    return rateObservationFn.rateSensitivity(fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provider);
   }
 
 }

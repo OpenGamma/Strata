@@ -69,6 +69,7 @@ public class OvernightRateCalculationTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     OvernightRateCalculation test = OvernightRateCalculation.of(GBP_SONIA);
+    assertEquals(test.getType(), SwapLegType.OVERNIGHT);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getAccrualMethod(), COMPOUNDED);

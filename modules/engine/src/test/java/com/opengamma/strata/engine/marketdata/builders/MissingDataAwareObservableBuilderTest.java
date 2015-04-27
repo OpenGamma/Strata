@@ -24,7 +24,7 @@ import com.opengamma.strata.marketdata.id.ObservableId;
 @Test
 public class MissingDataAwareObservableBuilderTest {
 
-  private static final MarketDataFeed VENDOR = MarketDataFeed.of("real vendor");
+  private static final MarketDataFeed VENDOR = MarketDataFeed.of("RealVendor");
   private static final IndexRateId LIBOR_1M_ID = IndexRateId.of(IborIndices.USD_LIBOR_1M, VENDOR);
   private static final IndexRateId LIBOR_3M_ID = IndexRateId.of(IborIndices.USD_LIBOR_3M, VENDOR);
 

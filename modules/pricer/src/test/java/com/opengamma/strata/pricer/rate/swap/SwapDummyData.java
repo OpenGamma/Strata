@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.pricer.rate.swap;
 
+import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.IBOR;
 
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
@@ -47,11 +50,25 @@ public final class SwapDummyData {
    */
   public static final double NOTIONAL = 1_000_000d;
   /**
-   * NotionalExchange.
+   * NotionalExchange (receive - GBP).
    */
-  public static final NotionalExchange NOTIONAL_EXCHANGE = NotionalExchange.builder()
+  public static final NotionalExchange NOTIONAL_EXCHANGE_REC_GBP = NotionalExchange.builder()
       .paymentDate(date(2014, 7, 1))
       .paymentAmount(CurrencyAmount.of(Currency.GBP, NOTIONAL))
+      .build();
+  /**
+   * NotionalExchange (pay - GBP).
+   */
+  public static final NotionalExchange NOTIONAL_EXCHANGE_PAY_GBP = NotionalExchange.builder()
+      .paymentDate(date(2014, 7, 1))
+      .paymentAmount(CurrencyAmount.of(Currency.GBP, -NOTIONAL))
+      .build();
+  /**
+   * NotionalExchange (pay - USD).
+   */
+  public static final NotionalExchange NOTIONAL_EXCHANGE_PAY_USD = NotionalExchange.builder()
+      .paymentDate(date(2014, 7, 1))
+      .paymentAmount(CurrencyAmount.of(Currency.USD, -1.5d * NOTIONAL))
       .build();
   /**
    * NotionalExchange.
@@ -80,7 +97,7 @@ public final class SwapDummyData {
   /**
    * RatePaymentPeriod (ibor).
    */
-  public static final RatePaymentPeriod IBOR_RATE_PAYMENT_PERIOD = RatePaymentPeriod.builder()
+  public static final RatePaymentPeriod IBOR_RATE_PAYMENT_PERIOD_REC = RatePaymentPeriod.builder()
       .paymentDate(date(2014, 10, 4))
       .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD)
       .currency(Currency.GBP)
@@ -89,10 +106,11 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg (ibor).
    */
-  public static final ExpandedSwapLeg IBOR_EXPANDED_SWAP_LEG = ExpandedSwapLeg.builder()
+  public static final ExpandedSwapLeg IBOR_EXPANDED_SWAP_LEG_REC = ExpandedSwapLeg.builder()
+      .type(IBOR)
       .payReceive(RECEIVE)
-      .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD)
-      .paymentEvents(NOTIONAL_EXCHANGE)
+      .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD_REC)
+      .paymentEvents(NOTIONAL_EXCHANGE_REC_GBP)
       .build();
   /**
    * RateCalculationSwapLeg (ibor).
@@ -127,37 +145,93 @@ public final class SwapDummyData {
       .yearFraction(0.25d)
       .build();
   /**
-   * RatePaymentPeriod (fixed).
+   * RateAccuralPeriod (fixed).
    */
-  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD = RatePaymentPeriod.builder()
+  public static final RateAccrualPeriod FIXED_RATE_ACCRUAL_PERIOD_2 = RateAccrualPeriod.builder()
+      .startDate(date(2014, 10, 2))
+      .endDate(date(2015, 1, 2))
+      .rateObservation(FIXED_RATE_OBSERVATION)
+      .yearFraction(0.25d)
+      .build();
+  /**
+   * RatePaymentPeriod (fixed - receiver).
+   */
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_REC = RatePaymentPeriod.builder()
       .paymentDate(date(2014, 10, 4))
       .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD)
       .currency(Currency.GBP)
       .notional(NOTIONAL)
       .build();
   /**
-   * ExpandedSwapLeg (fixed).
+   * RatePaymentPeriod (fixed - payer).
    */
-  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG = ExpandedSwapLeg.builder()
-      .payReceive(RECEIVE)
-      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD)
-      .paymentEvents(NOTIONAL_EXCHANGE)
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_PAY = RatePaymentPeriod.builder()
+      .paymentDate(date(2014, 10, 4))
+      .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD)
+      .currency(Currency.GBP)
+      .notional(-NOTIONAL)
       .build();
   /**
-   * RatePaymentPeriod (fixed).
+   * ExpandedSwapLeg (GBP - fixed - receiver).
    */
-  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_USD = RatePaymentPeriod.builder()
+  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_REC = ExpandedSwapLeg.builder()
+      .type(FIXED)
+      .payReceive(RECEIVE)
+      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_REC)
+      .paymentEvents(NOTIONAL_EXCHANGE_REC_GBP)
+      .build();
+  /**
+   * ExpandedSwapLeg (GBP - fixed - payer).
+   */
+  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_PAY = ExpandedSwapLeg.builder()
+      .type(FIXED)
+      .payReceive(PAY)
+      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY)
+      .paymentEvents(NOTIONAL_EXCHANGE_PAY_GBP)
+      .build();
+  /**
+   * RatePaymentPeriod (USD - fixed - receiver).
+   */
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_REC_USD = RatePaymentPeriod.builder()
       .paymentDate(date(2014, 10, 4))
       .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD)
       .currency(Currency.USD)
       .notional(NOTIONAL)
       .build();
   /**
-   * ExpandedSwapLeg (fixed).
+   * RatePaymentPeriod (USD - fixed - receiver).
    */
-  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_USD = ExpandedSwapLeg.builder()
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_PAY_USD = RatePaymentPeriod.builder()
+      .paymentDate(date(2014, 10, 4))
+      .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD)
+      .currency(Currency.USD)
+      .notional(-NOTIONAL)
+      .build();
+  /**
+   * RatePaymentPeriod (USD - fixed - receiver).
+   */
+  public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2 = RatePaymentPeriod.builder()
+      .paymentDate(date(2015, 1, 4))
+      .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD_2)
+      .currency(Currency.USD)
+      .notional(-NOTIONAL)
+      .build();
+  /**
+   * ExpandedSwapLeg  (USD - fixed - receiver).
+   */
+  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_REC_USD = ExpandedSwapLeg.builder()
+      .type(FIXED)
       .payReceive(RECEIVE)
-      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_USD)
+      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_REC_USD)
+      .build();
+  /**
+   * ExpandedSwapLeg  (USD - fixed - receiver).
+   */
+  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_PAY_USD = ExpandedSwapLeg.builder()
+      .type(FIXED)
+      .payReceive(PAY)
+      .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD)
+      .paymentEvents(NOTIONAL_EXCHANGE_PAY_USD)
       .build();
   /**
    * RateCalculationSwapLeg (fixed).
@@ -182,13 +256,13 @@ public final class SwapDummyData {
    * Swap.
    */
   public static final Swap SWAP = Swap.builder()
-      .legs(IBOR_EXPANDED_SWAP_LEG, FIXED_EXPANDED_SWAP_LEG)
+      .legs(IBOR_EXPANDED_SWAP_LEG_REC, FIXED_EXPANDED_SWAP_LEG_PAY)
       .build();
   /**
    * Swap.
    */
   public static final Swap SWAP_CROSS_CURRENCY = Swap.builder()
-      .legs(IBOR_EXPANDED_SWAP_LEG, FIXED_EXPANDED_SWAP_LEG_USD)
+      .legs(IBOR_EXPANDED_SWAP_LEG_REC, FIXED_EXPANDED_SWAP_LEG_PAY_USD)
       .build();
 
   /**

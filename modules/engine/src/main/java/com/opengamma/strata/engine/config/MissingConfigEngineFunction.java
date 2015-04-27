@@ -9,13 +9,13 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
-import com.opengamma.strata.engine.calculations.VectorEngineFunction;
+import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
 /**
  * Function used when there is no function registered that can calculate a requested value.
  */
-public class MissingConfigEngineFunction implements VectorEngineFunction<CalculationTarget, Object> {
+public class MissingConfigEngineFunction implements EngineSingleFunction<CalculationTarget, Object> {
 
   @Override
   public CalculationRequirements requirements(CalculationTarget target) {
@@ -23,11 +23,7 @@ public class MissingConfigEngineFunction implements VectorEngineFunction<Calcula
   }
 
   @Override
-  public Result<Object> execute(
-      CalculationTarget target,
-      CalculationMarketData marketData,
-      ReportingRules reportingRules) {
-
+  public Result<Object> execute(CalculationTarget target, CalculationMarketData marketData) {
     // TODO Pass in the measure and include it in the error message
     return Result.failure(FailureReason.INVALID_INPUT, "No configuration found to calculate a value for {}", target);
   }

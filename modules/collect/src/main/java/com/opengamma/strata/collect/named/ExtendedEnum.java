@@ -165,7 +165,7 @@ public final class ExtendedEnum<T extends Named> {
           if (!Modifier.isStatic(field.getModifiers()) || !NamedLookup.class.isAssignableFrom(field.getType())) {
             throw new IllegalArgumentException("Invalid enum provider instance: " + cls.getName() + ".INSTANCE");
           }
-          if (!Modifier.isPublic(field.getModifiers())) {
+          if (!Modifier.isPublic(cls.getModifiers()) || !Modifier.isPublic(field.getModifiers())) {
             field.setAccessible(true);
           }
           builder.add((NamedLookup<R>) field.get(null));
@@ -295,7 +295,7 @@ public final class ExtendedEnum<T extends Named> {
   public ImmutableMap<String, T> lookupAll() {
     Map<String, T> map = new HashMap<>();
     for (NamedLookup<T> lookup : lookups) {
-      ImmutableMap<String, T> lookupMap = lookup.lookupAll();
+      Map<String, T> lookupMap = lookup.lookupAll();
       for (Entry<String, T> entry : lookupMap.entrySet()) {
         map.putIfAbsent(entry.getKey(), entry.getValue());
       }

@@ -12,18 +12,28 @@ import org.joda.convert.FromString;
 import com.opengamma.strata.collect.type.TypedString;
 
 /**
- * Identifies a measure that can be produced by the system, for example present value, or par rate.
+ * Identifies a measure that can be produced by the system.
+ * <p>
+ * A measure identifies the calculation result that is required.
+ * For example present value, par rate or spread.
+ * <p>
+ * Some measures represent aspects of the calculation target rather than a calculation.
+ * For example, the target identifier, counterparty and trade date.
+ * <p>
+ * Note that not all measures will be available for all targets.
  */
-public final class Measure extends TypedString<Measure> {
+public final class Measure
+    extends TypedString<Measure> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  /** Pattern for checking the measure name. It must only contains the characters A-Z, a-z, 0-9 and -. */
+  /**
+   * Pattern for checking the name.
+   * It must only contains the characters A-Z, a-z, 0-9 and -.
+   */
   private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
 
-  // Standard measures ---------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /** Measure representing the ID of the calculation target. */
   public static final Measure TARGET_ID = Measure.of("TargetId");
 
@@ -57,15 +67,14 @@ public final class Measure extends TypedString<Measure> {
   /** Measure representing the accrued interest of the calculation target. */
   public static final Measure ACCRUED_INTEREST = Measure.of("AccruedInterest");
 
-  // ---------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Obtains a {@code Measure} by name.
    * <p>
    * Measure names must only contains the characters A-Z, a-z, 0-9 and -.
    *
    * @param name  the name of the measure
-   * @return the measure matching the name
+   * @return a measure with the specified name
    */
   @FromString
   public static Measure of(String name) {
@@ -73,22 +82,12 @@ public final class Measure extends TypedString<Measure> {
   }
 
   /**
-   * @param name the name of the measure
+   * Creates an instance.
+   * 
+   * @param name  the name of the measure
    */
   private Measure(String name) {
-    super(name);
-    validateName(name);
+    super(name, NAME_PATTERN, "Measure name must only contain the characters A-Z, a-z, 0-9 and -");
   }
 
-  /**
-   * Checks the name matches {@link #NAME_PATTERN}.
-   *
-   * @param name  the name
-   * @throws IllegalArgumentException if the name doesn't match the pattern
-   */
-  private static void validateName(String name) {
-    if (!NAME_PATTERN.matcher(name).matches()) {
-      throw new IllegalArgumentException("Measure names must only contains the characters A-Z, a-z, 0-9 and -");
-    }
-  }
 }

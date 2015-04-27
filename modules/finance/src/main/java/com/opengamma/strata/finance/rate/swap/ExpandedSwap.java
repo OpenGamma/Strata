@@ -5,10 +5,14 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,7 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -56,15 +61,11 @@ public final class ExpandedSwap
    * The legs of the swap.
    * <p>
    * A swap consists of one or more legs.
-   * <p>
-   * The legs of a swap are essentially unordered and it is desirable to have
-   * two swaps with the same legs be considered equal no matter what order the
-   * legs were passed in during construction. The use of {@link ImmutableSet}
-   * ensures that the order remains consistent during processing without
-   * compromising the definition of equals.
+   * The legs of a swap are essentially unordered, however it is more efficient
+   * and closer to user expectation to treat them as being ordered.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableSet<ExpandedSwapLeg> legs;
+  private final ImmutableList<ExpandedSwapLeg> legs;
   /**
    * Whether the swap is cross currency or not.
    */
@@ -81,19 +82,19 @@ public final class ExpandedSwap
    */
   public static ExpandedSwap of(ExpandedSwapLeg... legs) {
     ArgChecker.notEmpty(legs, "legs");
-    return new ExpandedSwap(ImmutableSet.copyOf(legs));
+    return new ExpandedSwap(ImmutableList.copyOf(legs));
   }
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
-  private ExpandedSwap(Set<ExpandedSwapLeg> legs) {
+  private ExpandedSwap(List<ExpandedSwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
-    this.legs = ImmutableSet.copyOf(legs);
+    this.legs = ImmutableList.copyOf(legs);
     this.crossCurrency = checkIfCrossCurrency(legs);
   }
 
   // profiling showed a hotspot when using streams, removed when using this approach
-  private static boolean checkIfCrossCurrency(Set<ExpandedSwapLeg> legs) {
+  private static boolean checkIfCrossCurrency(List<ExpandedSwapLeg> legs) {
     Iterator<ExpandedSwapLeg> it = legs.iterator();
     Currency currency = it.next().getCurrency();
     while (it.hasNext()) {
@@ -114,6 +115,31 @@ public final class ExpandedSwap
    */
   public boolean isCrossCurrency() {
     return crossCurrency;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the legs of the swap with the specified type.
+   * <p>
+   * This returns all the legs with the given type.
+   * 
+   * @param type  the type to find
+   * @return the matching legs of the swap
+   */
+  public ImmutableList<ExpandedSwapLeg> getLegs(SwapLegType type) {
+    return legs.stream().filter(leg -> leg.getType() == type).collect(toImmutableList());
+  }
+
+  /**
+   * Gets the first pay or receive leg of the swap.
+   * <p>
+   * This returns the first pay or receive leg of the swap, empty if no matching leg.
+   * 
+   * @param payReceive  the pay or receive flag
+   * @return the first matching leg of the swap
+   */
+  public Optional<ExpandedSwapLeg> getLeg(PayReceive payReceive) {
+    return legs.stream().filter(leg -> leg.getPayReceive() == payReceive).findFirst();
   }
 
   //-------------------------------------------------------------------------
@@ -174,15 +200,11 @@ public final class ExpandedSwap
    * Gets the legs of the swap.
    * <p>
    * A swap consists of one or more legs.
-   * <p>
-   * The legs of a swap are essentially unordered and it is desirable to have
-   * two swaps with the same legs be considered equal no matter what order the
-   * legs were passed in during construction. The use of {@link ImmutableSet}
-   * ensures that the order remains consistent during processing without
-   * compromising the definition of equals.
+   * The legs of a swap are essentially unordered, however it is more efficient
+   * and closer to user expectation to treat them as being ordered.
    * @return the value of the property, not empty
    */
-  public ImmutableSet<ExpandedSwapLeg> getLegs() {
+  public ImmutableList<ExpandedSwapLeg> getLegs() {
     return legs;
   }
 
@@ -237,8 +259,8 @@ public final class ExpandedSwap
      * The meta-property for the {@code legs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<ExpandedSwapLeg>> legs = DirectMetaProperty.ofImmutable(
-        this, "legs", ExpandedSwap.class, (Class) ImmutableSet.class);
+    private final MetaProperty<ImmutableList<ExpandedSwapLeg>> legs = DirectMetaProperty.ofImmutable(
+        this, "legs", ExpandedSwap.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -281,7 +303,7 @@ public final class ExpandedSwap
      * The meta-property for the {@code legs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<ExpandedSwapLeg>> legs() {
+    public MetaProperty<ImmutableList<ExpandedSwapLeg>> legs() {
       return legs;
     }
 
@@ -312,7 +334,7 @@ public final class ExpandedSwap
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwap> {
 
-    private Set<ExpandedSwapLeg> legs = ImmutableSet.of();
+    private List<ExpandedSwapLeg> legs = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -344,7 +366,7 @@ public final class ExpandedSwap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
-          this.legs = (Set<ExpandedSwapLeg>) newValue;
+          this.legs = (List<ExpandedSwapLeg>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -388,7 +410,7 @@ public final class ExpandedSwap
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder legs(Set<ExpandedSwapLeg> legs) {
+    public Builder legs(List<ExpandedSwapLeg> legs) {
       JodaBeanUtils.notEmpty(legs, "legs");
       this.legs = legs;
       return this;
@@ -401,7 +423,7 @@ public final class ExpandedSwap
      * @return this, for chaining, not null
      */
     public Builder legs(ExpandedSwapLeg... legs) {
-      return legs(ImmutableSet.copyOf(legs));
+      return legs(ImmutableList.copyOf(legs));
     }
 
     //-----------------------------------------------------------------------

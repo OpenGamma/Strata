@@ -24,6 +24,8 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.finance.rate.swap.CompoundingMethod.STRAIGHT;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
+import static com.opengamma.strata.finance.rate.swap.SwapLegType.IBOR;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -130,6 +132,7 @@ public class RateCalculationSwapLegTest {
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
   }
 
   public void test_collectIndices_fxReset() {
@@ -163,6 +166,7 @@ public class RateCalculationSwapLegTest {
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, ECB_EUR_GBP));
+    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M, ECB_EUR_GBP));
   }
 
   //-------------------------------------------------------------------------
@@ -224,6 +228,7 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .build());
@@ -319,6 +324,7 @@ public class RateCalculationSwapLegTest {
     NotionalExchange nexFinal = NotionalExchange.of(DATE_06_09, CurrencyAmount.of(GBP, -1500d));
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .type(IBOR)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .paymentEvents(nexInitial, nexIntermediate, nexFinal)
@@ -376,6 +382,7 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1)
         .build());
@@ -493,6 +500,7 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
+        .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .paymentEvents(ne1a, ne1b, ne2a, ne2b, ne3a, ne3b)

@@ -68,6 +68,13 @@ public final class RatePeriodSwapLeg
     implements SwapLeg, ImmutableBean, Serializable {
 
   /**
+   * The type of the leg, such as Fixed or Ibor.
+   * <p>
+   * This provides a high level categorization of the swap leg.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final SwapLegType type;
+  /**
    * Whether the leg is pay or receive.
    * <p>
    * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
@@ -154,6 +161,7 @@ public final class RatePeriodSwapLeg
   //-------------------------------------------------------------------------
   @ImmutableConstructor
   private RatePeriodSwapLeg(
+      SwapLegType type,
       PayReceive payReceive,
       List<RatePaymentPeriod> paymentPeriods,
       boolean initialExchange,
@@ -162,9 +170,11 @@ public final class RatePeriodSwapLeg
       List<PaymentEvent> paymentEvents,
       BusinessDayAdjustment paymentBusinessDayAdjustment) {
 
+    JodaBeanUtils.notNull(type, "type");
     JodaBeanUtils.notNull(payReceive, "payReceive");
     JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
     JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
+    this.type = type;
     this.payReceive = payReceive;
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
     this.initialExchange = initialExchange;
@@ -242,7 +252,8 @@ public final class RatePeriodSwapLeg
         .map(pp -> pp.adjustPaymentDate(paymentBusinessDayAdjustment))
         .collect(toImmutableList());
     return ExpandedSwapLeg.builder()
-        .payReceive(getPayReceive())
+        .type(type)
+        .payReceive(payReceive)
         .paymentPeriods(ImmutableList.copyOf(adjusted))  // copyOf needed for type conversion
         .paymentEvents(createEvents(adjusted))
         .build();
@@ -299,6 +310,18 @@ public final class RatePeriodSwapLeg
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the type of the leg, such as Fixed or Ibor.
+   * <p>
+   * This provides a high level categorization of the swap leg.
+   * @return the value of the property, not null
+   */
+  @Override
+  public SwapLegType getType() {
+    return type;
   }
 
   //-----------------------------------------------------------------------
@@ -425,7 +448,8 @@ public final class RatePeriodSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RatePeriodSwapLeg other = (RatePeriodSwapLeg) obj;
-      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
+      return JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
           JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
           (isInitialExchange() == other.isInitialExchange()) &&
           (isIntermediateExchange() == other.isIntermediateExchange()) &&
@@ -439,6 +463,7 @@ public final class RatePeriodSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
     hash = hash * 31 + JodaBeanUtils.hashCode(isInitialExchange());
@@ -451,8 +476,9 @@ public final class RatePeriodSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("RatePeriodSwapLeg{");
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
     buf.append("initialExchange").append('=').append(isInitialExchange()).append(',').append(' ');
@@ -474,6 +500,11 @@ public final class RatePeriodSwapLeg
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code type} property.
+     */
+    private final MetaProperty<SwapLegType> type = DirectMetaProperty.ofImmutable(
+        this, "type", RatePeriodSwapLeg.class, SwapLegType.class);
     /**
      * The meta-property for the {@code payReceive} property.
      */
@@ -516,6 +547,7 @@ public final class RatePeriodSwapLeg
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "type",
         "payReceive",
         "paymentPeriods",
         "initialExchange",
@@ -533,6 +565,8 @@ public final class RatePeriodSwapLeg
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return type;
         case -885469925:  // payReceive
           return payReceive;
         case -1674414612:  // paymentPeriods
@@ -567,6 +601,14 @@ public final class RatePeriodSwapLeg
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code type} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SwapLegType> type() {
+      return type;
+    }
+
     /**
      * The meta-property for the {@code payReceive} property.
      * @return the meta-property, not null
@@ -627,6 +669,8 @@ public final class RatePeriodSwapLeg
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return ((RatePeriodSwapLeg) bean).getType();
         case -885469925:  // payReceive
           return ((RatePeriodSwapLeg) bean).getPayReceive();
         case -1674414612:  // paymentPeriods
@@ -662,6 +706,7 @@ public final class RatePeriodSwapLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<RatePeriodSwapLeg> {
 
+    private SwapLegType type;
     private PayReceive payReceive;
     private List<RatePaymentPeriod> paymentPeriods = ImmutableList.of();
     private boolean initialExchange;
@@ -681,6 +726,7 @@ public final class RatePeriodSwapLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(RatePeriodSwapLeg beanToCopy) {
+      this.type = beanToCopy.getType();
       this.payReceive = beanToCopy.getPayReceive();
       this.paymentPeriods = beanToCopy.getPaymentPeriods();
       this.initialExchange = beanToCopy.isInitialExchange();
@@ -694,6 +740,8 @@ public final class RatePeriodSwapLeg
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return type;
         case -885469925:  // payReceive
           return payReceive;
         case -1674414612:  // paymentPeriods
@@ -717,6 +765,9 @@ public final class RatePeriodSwapLeg
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          this.type = (SwapLegType) newValue;
+          break;
         case -885469925:  // payReceive
           this.payReceive = (PayReceive) newValue;
           break;
@@ -771,6 +822,7 @@ public final class RatePeriodSwapLeg
     @Override
     public RatePeriodSwapLeg build() {
       return new RatePeriodSwapLeg(
+          type,
           payReceive,
           paymentPeriods,
           initialExchange,
@@ -781,6 +833,17 @@ public final class RatePeriodSwapLeg
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code type} property in the builder.
+     * @param type  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder type(SwapLegType type) {
+      JodaBeanUtils.notNull(type, "type");
+      this.type = type;
+      return this;
+    }
+
     /**
      * Sets the {@code payReceive} property in the builder.
      * @param payReceive  the new value, not null
@@ -878,8 +941,9 @@ public final class RatePeriodSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("RatePeriodSwapLeg.Builder{");
+      buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
       buf.append("initialExchange").append('=').append(JodaBeanUtils.toString(initialExchange)).append(',').append(' ');

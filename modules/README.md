@@ -1,15 +1,15 @@
 Strata-Parent
 -------------
-This directory contains the `strata-parent` project.
+This directory contains the `strata-parent` module.
 
 ### Overview
 
-This project contains a number of modules that together form OpenGamma Strata.
+This directory contains a number of modules that together form OpenGamma Strata.
 
 
 ### Source code
 
-This project is released as Open Source Software using the
+This module is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

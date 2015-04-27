@@ -248,6 +248,11 @@ public final class IborRateCalculation
 
   //-------------------------------------------------------------------------
   @Override
+  public SwapLegType getType() {
+    return SwapLegType.IBOR;
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     builder.add(index);
     if (initialStub != null) {

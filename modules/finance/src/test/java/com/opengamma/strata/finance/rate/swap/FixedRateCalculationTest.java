@@ -13,7 +13,6 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -36,6 +35,7 @@ public class FixedRateCalculationTest {
 
   public void test_of() {
     FixedRateCalculation test = FixedRateCalculation.of(0.025d, ACT_365F);
+    assertEquals(test.getType(), SwapLegType.FIXED);
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
   }

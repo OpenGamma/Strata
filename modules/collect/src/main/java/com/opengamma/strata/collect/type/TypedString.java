@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.type;
 
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 import org.joda.convert.ToString;
 
@@ -58,6 +59,23 @@ public abstract class TypedString<T extends TypedString<T>>
    */
   protected TypedString(String name) {
     this.name = ArgChecker.notEmpty(name, "name");
+  }
+
+  /**
+   * Creates an instance, validating the name against a regex.
+   * 
+   * @param name  the name, not empty
+   * @param pattern  the regex pattern for validating the name
+   * @param msg  the message to use to explain validation failure
+   */
+  protected TypedString(String name, Pattern pattern, String msg) {
+    ArgChecker.notEmpty(name, "name");
+    ArgChecker.notNull(pattern, "pattern");
+    ArgChecker.notEmpty(msg, "msg");
+    if (pattern.matcher(name).matches() == false) {
+      throw new IllegalArgumentException(msg);
+    }
+    this.name = name;
   }
 
   //-------------------------------------------------------------------------

@@ -1,17 +1,17 @@
 Strata-Source
 -------------
-This directory contains the `strata-source` project.
+This directory contains the `strata-source` module.
 
 ### Overview
 
-This project provides interfaces to enable external data sources.
+This module provides interfaces to enable external data sources.
 
 A *source* interface provides simple, straightforward access to an entity using a standard identifier.
 
 
 ### Source code
 
-This project is released as Open Source Software using the
+This module is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

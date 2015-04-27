@@ -243,19 +243,6 @@ public final class CurrencyAmount
   }
 
   /**
-   * Returns a copy of this {@code CurrencyAmount} with the amount negated.
-   * <p>
-   * This takes this amount and negates it.
-   * <p>
-   * This instance is immutable and unaffected by this method. 
-   * 
-   * @return an amount based on this with the amount negated
-   */
-  public CurrencyAmount negated() {
-    return new CurrencyAmount(currency, -amount);
-  }
-
-  /**
    * Applies an operation to the amount.
    * <p>
    * This is generally used to apply a mathematical operation to the amount.
@@ -270,6 +257,46 @@ public final class CurrencyAmount
   public CurrencyAmount mapAmount(DoubleUnaryOperator mapper) {
     ArgChecker.notNull(mapper, "mapper");
     return new CurrencyAmount(currency, mapper.applyAsDouble(amount));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this {@code CurrencyAmount} with the amount negated.
+   * <p>
+   * This takes this amount and negates it.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @return an amount based on this with the amount negated
+   */
+  public CurrencyAmount negated() {
+    return new CurrencyAmount(currency, -amount);
+  }
+
+  /**
+   * Returns a copy of this {@code CurrencyAmount} with a positive amount.
+   * <p>
+   * The result of this method will always be positive, where the amount is equal to {@code Math.abs(amount)}.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @return a currency amount based on this where the amount is positive
+   */
+  public CurrencyAmount positive() {
+    return amount < 0 ? negated() : this;
+  }
+
+  /**
+   * Returns a copy of this {@code CurrencyAmount} with a negative amount.
+   * <p>
+   * The result of this method will always be negative, equal to {@code -Math.abs(amount)}.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @return a currency amount based on this where the amount is negative
+   */
+  public CurrencyAmount negative() {
+    return amount > 0 ? negated() : this;
   }
 
   //-------------------------------------------------------------------------

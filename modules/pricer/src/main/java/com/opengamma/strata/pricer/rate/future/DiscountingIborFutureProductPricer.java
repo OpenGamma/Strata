@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
@@ -35,12 +35,12 @@ public class DiscountingIborFutureProductPricer
    * <p>
    * The price of the product is the price on the valuation date.
    * 
-   * @param env  the pricing environment
    * @param future  the future to price
+   * @param provider  the rates provider
    * @return the price of the product, in decimal form
    */
-  public double price(PricingEnvironment env, IborFuture future) {
-    double forward = env.iborIndexRate(future.getIndex(), future.getFixingDate());
+  public double price(IborFuture future, RatesProvider provider) {
+    double forward = provider.iborIndexRate(future.getIndex(), future.getFixingDate());
     return 1.0 - forward;
   }
 
@@ -49,11 +49,11 @@ public class DiscountingIborFutureProductPricer
    * <p>
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * 
-   * @param env  the pricing environment
    * @param future  the future to price
+   * @param provider  the rates provider
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivity(PricingEnvironment env, IborFuture future) {
+  public PointSensitivities priceSensitivity(IborFuture future, RatesProvider provider) {
     IborRateSensitivity sensi = IborRateSensitivity.of(future.getIndex(), future.getFixingDate(), -1.0d);
     // The sensitivity should be to no currency or currency XXX. To avoid useless conversion, the dimension-less 
     // price sensitivity is reported in the future currency.

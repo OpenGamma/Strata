@@ -98,6 +98,11 @@ public final class RateCalculationSwapLeg
   private final RateCalculation calculation;
 
   //-------------------------------------------------------------------------
+  @Override
+  public SwapLegType getType() {
+    return calculation.getType();
+  }
+
   /**
    * Gets the start date of the leg.
    * <p>
@@ -157,6 +162,7 @@ public final class RateCalculationSwapLeg
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
         resolvedAccruals, resolvedPayments, accrualPeriods, notionalSchedule, payReceive);
     return ExpandedSwapLeg.builder()
+        .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(ImmutableList.copyOf(payPeriods))  // copyOf changes generics of list without an actual copy
         .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate()))

@@ -1,10 +1,10 @@
 Strata-Basics
 -------------
-This directory contains the `strata-basics` project.
+This directory contains the `strata-basics` module.
 
 ### Overview
 
-This project provides common financial concepts used by OpenGamma Strata:
+This module provides common financial concepts used by OpenGamma Strata:
 
 * money and currency
 * day counts
@@ -15,7 +15,7 @@ This project provides common financial concepts used by OpenGamma Strata:
 
 ### Source code
 
-This project is released as Open Source Software using the
+This module is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 
