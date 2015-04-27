@@ -43,8 +43,8 @@ public final class OpenGammaPricingRules {
    * <p>
    * The supported asset classes are:
    * <ul>
-   *   <li>FRA ({@link FraTrade})
-   *   <li>Swap ({@link SwapTrade})
+   *   <li>Forward Rate Agreement - {@link FraTrade}
+   *   <li>Rate Swap - {@link SwapTrade}
    * </ul>
    * 
    * @return the default pricing rules

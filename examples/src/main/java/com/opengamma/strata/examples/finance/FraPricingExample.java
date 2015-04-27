@@ -39,9 +39,16 @@ import com.opengamma.strata.function.OpenGammaPricingRules;
  */
 public class FraPricingExample {
 
+  /**
+   * Runs the example, pricing the instruments, producing the output as an ASCII table.
+   * 
+   * @param args  ignored
+   */
   public static void main(String[] args) {
+    // the trades that will have measures calculated
     List<Trade> trades = ImmutableList.of(createTrade1());
 
+    // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.ID),
         Column.of(Measure.COUNTERPARTY),
@@ -50,12 +57,13 @@ public class FraPricingExample {
         Column.of(Measure.PAR_RATE),
         Column.of(Measure.PAR_SPREAD));
 
+    // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(ExampleMarketData.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
-    
+
     // Use an empty snapshot of market data, indicating only the valuation date.
     // The engine will attempt to source the data for us, which the example engine is
     // configured to load from JSON resources. We could alternatively populate the snapshot
@@ -63,13 +71,16 @@ public class FraPricingExample {
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     BaseMarketData baseMarketData = BaseMarketData.empty(valuationDate);
 
+    // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
-    
+
+    // produce an ASCII table of the results
     ResultsFormatter.print(results, columns);
-	}
+  }
 
   //-----------------------------------------------------------------------  
+  // create a FRA trade
   private static Trade createTrade1() {
     Fra fra = Fra.builder()
         .buySell(BuySell.SELL)
@@ -82,6 +93,7 @@ public class FraPricingExample {
         .notional(10_000_000)
         .dayCount(DayCounts.ACT_360)
         .build();
+
     return FraTrade.builder()
         .standardId(StandardId.of("example", "1"))
         .product(fra)
