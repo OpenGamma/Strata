@@ -30,8 +30,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.engine.calculations.MissingMappingId;
+import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
+import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**
  * Basic definition of {@link ScenarioMarketData} that is a Joda bean.
@@ -70,6 +73,15 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
 
   @Override
   public <T, I extends MarketDataId<T>> List<T> getValues(I id) {
+    // Special handling of these special ID types to provide more helpful error messages
+    if (id instanceof NoMatchingRuleId) {
+      MarketDataKey key = ((NoMatchingRuleId) id).getKey();
+      throw new IllegalArgumentException("No market data rules were available to build the market data for " + key);
+    }
+    if (id instanceof MissingMappingId) {
+      MarketDataKey<?> key = ((MissingMappingId) id).getKey();
+      throw new IllegalArgumentException("No market data mapping found for market data " + key);
+    }
     List<?> values = this.values.get(id);
 
     if (values == null) {
