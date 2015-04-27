@@ -84,13 +84,13 @@ public final class ImmutableRatesProvider
    * The discount curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each currency.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull", get = "protected")
   private final ImmutableMap<Currency, YieldAndDiscountCurve> discountCurves;
   /**
    * The forward curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each index.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull", get = "protected")
   private final ImmutableMap<Index, YieldAndDiscountCurve> indexCurves;
   /**
    * The time-series, defaulted to an empty map.
@@ -122,7 +122,7 @@ public final class ImmutableRatesProvider
       throw new IllegalArgumentException("Unknown index: " + index.getName());
     }
     return series;
-  }
+  } 
 
   //-------------------------------------------------------------------------
   @Override
@@ -544,7 +544,7 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each currency.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Currency, YieldAndDiscountCurve> getDiscountCurves() {
+  protected ImmutableMap<Currency, YieldAndDiscountCurve> getDiscountCurves() {
     return discountCurves;
   }
 
@@ -554,7 +554,7 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each index.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Index, YieldAndDiscountCurve> getIndexCurves() {
+  protected ImmutableMap<Index, YieldAndDiscountCurve> getIndexCurves() {
     return indexCurves;
   }
 
