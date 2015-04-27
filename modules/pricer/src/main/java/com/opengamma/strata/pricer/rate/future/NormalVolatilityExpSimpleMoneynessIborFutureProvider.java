@@ -5,17 +5,25 @@
  */
 package com.opengamma.strata.pricer.rate.future;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
@@ -25,47 +33,46 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.pricer.sensitivity.IborFutureOptionSensitivity;
 
-import java.util.NoSuchElementException;
-
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
- * Volatility environment for Ibor future options in the normal or Bachelier model. 
+ * Data provider of volatility for Ibor future options in the normal or Bachelier model. 
+ * <p>
  * The volatility is represented by a surface on the expiration and simple moneyness. 
  * The simple moneyness can be on the price or on the rate (1-price).
  */
 @BeanDefinition
-public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider 
-    implements  NormalVolatilityIborFutureProvider, ImmutableBean, Serializable { 
-  
-  /** The normal volatility surface. The order of the dimensions is expiry/simple moneyness. Not null. */
+public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
+    implements NormalVolatilityIborFutureProvider, ImmutableBean {
+  // TODO: Day count handling time, not just dates
+
+  /**
+   * The normal volatility surface.
+   * The order of the dimensions is expiry/simple moneyness.
+   */
   @PropertyDefinition(validate = "notNull")
   private final InterpolatedDoublesSurface parameters;
-  /** Flag indicating if the moneyness is on the price (true) or on the rate (false). */
+  /**
+   * Flag indicating if the moneyness is on the price (true) or on the rate (false).
+   */
   @PropertyDefinition
   private final boolean isMoneynessOnPrice;
-  /** The Ibor index of the underlying future. Not null. */
+  /**
+   * The Ibor index of the underlying future.
+   */
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
-  /** The day count applicable to the model. TODO: To be changed to incorporate time, not only dates. */
+  /**
+   * The day count applicable to the model.
+   */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
-  /** The valuation date. All data items in this environment are calibrated for this date. */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate valuationDate;
-  /** The valuation time. All data items in this environment are calibrated for this time. */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalTime valuationTime;
-  /** The valuation zone.*/
-  @PropertyDefinition(validate = "notNull")
-  private final ZoneId valuationZone;
-  
+  /**
+   * The valuation date-time.
+   * All data items in this provider is calibrated for this date-time.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ZonedDateTime valuationDateTime;
+
+  //-------------------------------------------------------------------------
   /**
    * Obtains an {@code NormalVolatilityExpSimpleMoneynessIborFutureProvider}.
    * 
@@ -76,15 +83,20 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
    * @param valuationDate  the valuation date
    * @param valuationTime  the valuation time
    * @param valuationZone  the zone related to the valuation time
-   * @return the parameters
+   * @return the provider
    */
-  public static NormalVolatilityExpSimpleMoneynessIborFutureProvider of(InterpolatedDoublesSurface surface, 
-      boolean isMoneynessOnPrice, IborIndex index, DayCount dayCount, LocalDate valuationDate, LocalTime valuationTime,
-      ZoneId valuationZone) {
-    return new NormalVolatilityExpSimpleMoneynessIborFutureProvider(surface, isMoneynessOnPrice, index, dayCount, 
-        valuationDate, valuationTime, valuationZone);
+  public static NormalVolatilityExpSimpleMoneynessIborFutureProvider of(
+      InterpolatedDoublesSurface surface,
+      boolean isMoneynessOnPrice,
+      IborIndex index,
+      DayCount dayCount,
+      ZonedDateTime valuationTime) {
+
+    return new NormalVolatilityExpSimpleMoneynessIborFutureProvider(
+        surface, isMoneynessOnPrice, index, dayCount, valuationTime);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
@@ -95,32 +107,34 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   @Override
   public IborIndex getFutureIndex() {
     return index;
-  }  
-  
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double relativeTime(LocalDate date, LocalTime time, ZoneId zone) {
     ArgChecker.notNull(date, "date");
-    return dayCount.relativeYearFraction(valuationDate, date);
+    return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), date);
   }
-  
+
   /**
-   * Computes the sensitivity to the nodes used in the description of the normal volatility from a point 
-   * sensitivity.
+   * Computes the sensitivity to the nodes used in the description of the normal volatility
+   * from a point  sensitivity.
+   * 
    * @param point  the point sensitivity at a given key
    * @return the sensitivity to the surface nodes
    */
   public Map<DoublesPair, Double> nodeSensitivity(IborFutureOptionSensitivity point) {
-    double simpleMoneyness = isMoneynessOnPrice ? point.getStrikePrice() - point.getFuturePrice() 
-        : point.getFuturePrice() - point.getStrikePrice();
+    // TODO: should this be on the interface?
+    double simpleMoneyness = isMoneynessOnPrice ?
+        point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
     double expiryTime = relativeTime(point.getExpiryDate(), null, null); // TODO: time and zone
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = parameters.getInterpolator().getNodeSensitivitiesForValue(
-        (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(), 
+        (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(),
         DoublesPair.of(expiryTime, simpleMoneyness));
     return result;
   }
-  
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -136,11 +150,6 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   }
 
   /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
-
-  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -153,22 +162,16 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
       boolean isMoneynessOnPrice,
       IborIndex index,
       DayCount dayCount,
-      LocalDate valuationDate,
-      LocalTime valuationTime,
-      ZoneId valuationZone) {
+      ZonedDateTime valuationDateTime) {
     JodaBeanUtils.notNull(parameters, "parameters");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(dayCount, "dayCount");
-    JodaBeanUtils.notNull(valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(valuationTime, "valuationTime");
-    JodaBeanUtils.notNull(valuationZone, "valuationZone");
+    JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
     this.parameters = parameters;
     this.isMoneynessOnPrice = isMoneynessOnPrice;
     this.index = index;
     this.dayCount = dayCount;
-    this.valuationDate = valuationDate;
-    this.valuationTime = valuationTime;
-    this.valuationZone = valuationZone;
+    this.valuationDateTime = valuationDateTime;
   }
 
   @Override
@@ -188,7 +191,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the normal volatility surface. The order of the dimensions is expiry/simple moneyness. Not null.
+   * Gets the normal volatility surface.
+   * The order of the dimensions is expiry/simple moneyness.
    * @return the value of the property, not null
    */
   public InterpolatedDoublesSurface getParameters() {
@@ -206,7 +210,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Ibor index of the underlying future. Not null.
+   * Gets the Ibor index of the underlying future.
    * @return the value of the property, not null
    */
   public IborIndex getIndex() {
@@ -215,7 +219,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count applicable to the model. TODO: To be changed to incorporate time, not only dates.
+   * Gets the day count applicable to the model.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -224,29 +228,13 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuation date. All data items in this environment are calibrated for this date.
+   * Gets the valuation date-time.
+   * All data items in this provider is calibrated for this date-time.
    * @return the value of the property, not null
    */
-  public LocalDate getValuationDate() {
-    return valuationDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the valuation time. All data items in this environment are calibrated for this time.
-   * @return the value of the property, not null
-   */
-  public LocalTime getValuationTime() {
-    return valuationTime;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the valuation zone.
-   * @return the value of the property, not null
-   */
-  public ZoneId getValuationZone() {
-    return valuationZone;
+  @Override
+  public ZonedDateTime getValuationDateTime() {
+    return valuationDateTime;
   }
 
   //-----------------------------------------------------------------------
@@ -269,9 +257,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
           (isIsMoneynessOnPrice() == other.isIsMoneynessOnPrice()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
-          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
-          JodaBeanUtils.equal(getValuationZone(), other.getValuationZone());
+          JodaBeanUtils.equal(getValuationDateTime(), other.getValuationDateTime());
     }
     return false;
   }
@@ -283,23 +269,19 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     hash = hash * 31 + JodaBeanUtils.hashCode(isIsMoneynessOnPrice());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationZone());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDateTime());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("NormalVolatilityExpSimpleMoneynessIborFutureProvider{");
     buf.append("parameters").append('=').append(getParameters()).append(',').append(' ');
     buf.append("isMoneynessOnPrice").append('=').append(isIsMoneynessOnPrice()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
-    buf.append("valuationZone").append('=').append(JodaBeanUtils.toString(getValuationZone()));
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(getValuationDateTime()));
     buf.append('}');
     return buf.toString();
   }
@@ -335,20 +317,10 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", NormalVolatilityExpSimpleMoneynessIborFutureProvider.class, DayCount.class);
     /**
-     * The meta-property for the {@code valuationDate} property.
+     * The meta-property for the {@code valuationDateTime} property.
      */
-    private final MetaProperty<LocalDate> valuationDate = DirectMetaProperty.ofImmutable(
-        this, "valuationDate", NormalVolatilityExpSimpleMoneynessIborFutureProvider.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code valuationTime} property.
-     */
-    private final MetaProperty<LocalTime> valuationTime = DirectMetaProperty.ofImmutable(
-        this, "valuationTime", NormalVolatilityExpSimpleMoneynessIborFutureProvider.class, LocalTime.class);
-    /**
-     * The meta-property for the {@code valuationZone} property.
-     */
-    private final MetaProperty<ZoneId> valuationZone = DirectMetaProperty.ofImmutable(
-        this, "valuationZone", NormalVolatilityExpSimpleMoneynessIborFutureProvider.class, ZoneId.class);
+    private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
+        this, "valuationDateTime", NormalVolatilityExpSimpleMoneynessIborFutureProvider.class, ZonedDateTime.class);
     /**
      * The meta-properties.
      */
@@ -358,9 +330,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
         "isMoneynessOnPrice",
         "index",
         "dayCount",
-        "valuationDate",
-        "valuationTime",
-        "valuationZone");
+        "valuationDateTime");
 
     /**
      * Restricted constructor.
@@ -379,12 +349,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
           return index;
         case 1905311443:  // dayCount
           return dayCount;
-        case 113107279:  // valuationDate
-          return valuationDate;
-        case 113591406:  // valuationTime
-          return valuationTime;
-        case 113775949:  // valuationZone
-          return valuationZone;
+        case -949589828:  // valuationDateTime
+          return valuationDateTime;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -438,27 +404,11 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     }
 
     /**
-     * The meta-property for the {@code valuationDate} property.
+     * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> valuationDate() {
-      return valuationDate;
-    }
-
-    /**
-     * The meta-property for the {@code valuationTime} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalTime> valuationTime() {
-      return valuationTime;
-    }
-
-    /**
-     * The meta-property for the {@code valuationZone} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ZoneId> valuationZone() {
-      return valuationZone;
+    public MetaProperty<ZonedDateTime> valuationDateTime() {
+      return valuationDateTime;
     }
 
     //-----------------------------------------------------------------------
@@ -473,12 +423,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
           return ((NormalVolatilityExpSimpleMoneynessIborFutureProvider) bean).getIndex();
         case 1905311443:  // dayCount
           return ((NormalVolatilityExpSimpleMoneynessIborFutureProvider) bean).getDayCount();
-        case 113107279:  // valuationDate
-          return ((NormalVolatilityExpSimpleMoneynessIborFutureProvider) bean).getValuationDate();
-        case 113591406:  // valuationTime
-          return ((NormalVolatilityExpSimpleMoneynessIborFutureProvider) bean).getValuationTime();
-        case 113775949:  // valuationZone
-          return ((NormalVolatilityExpSimpleMoneynessIborFutureProvider) bean).getValuationZone();
+        case -949589828:  // valuationDateTime
+          return ((NormalVolatilityExpSimpleMoneynessIborFutureProvider) bean).getValuationDateTime();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -504,9 +450,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     private boolean isMoneynessOnPrice;
     private IborIndex index;
     private DayCount dayCount;
-    private LocalDate valuationDate;
-    private LocalTime valuationTime;
-    private ZoneId valuationZone;
+    private ZonedDateTime valuationDateTime;
 
     /**
      * Restricted constructor.
@@ -523,9 +467,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
       this.isMoneynessOnPrice = beanToCopy.isIsMoneynessOnPrice();
       this.index = beanToCopy.getIndex();
       this.dayCount = beanToCopy.getDayCount();
-      this.valuationDate = beanToCopy.getValuationDate();
-      this.valuationTime = beanToCopy.getValuationTime();
-      this.valuationZone = beanToCopy.getValuationZone();
+      this.valuationDateTime = beanToCopy.getValuationDateTime();
     }
 
     //-----------------------------------------------------------------------
@@ -540,12 +482,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
           return index;
         case 1905311443:  // dayCount
           return dayCount;
-        case 113107279:  // valuationDate
-          return valuationDate;
-        case 113591406:  // valuationTime
-          return valuationTime;
-        case 113775949:  // valuationZone
-          return valuationZone;
+        case -949589828:  // valuationDateTime
+          return valuationDateTime;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -566,14 +504,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
-        case 113107279:  // valuationDate
-          this.valuationDate = (LocalDate) newValue;
-          break;
-        case 113591406:  // valuationTime
-          this.valuationTime = (LocalTime) newValue;
-          break;
-        case 113775949:  // valuationZone
-          this.valuationZone = (ZoneId) newValue;
+        case -949589828:  // valuationDateTime
+          this.valuationDateTime = (ZonedDateTime) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -612,9 +544,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
           isMoneynessOnPrice,
           index,
           dayCount,
-          valuationDate,
-          valuationTime,
-          valuationZone);
+          valuationDateTime);
     }
 
     //-----------------------------------------------------------------------
@@ -662,50 +592,26 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     }
 
     /**
-     * Sets the {@code valuationDate} property in the builder.
-     * @param valuationDate  the new value, not null
+     * Sets the {@code valuationDateTime} property in the builder.
+     * @param valuationDateTime  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder valuationDate(LocalDate valuationDate) {
-      JodaBeanUtils.notNull(valuationDate, "valuationDate");
-      this.valuationDate = valuationDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code valuationTime} property in the builder.
-     * @param valuationTime  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valuationTime(LocalTime valuationTime) {
-      JodaBeanUtils.notNull(valuationTime, "valuationTime");
-      this.valuationTime = valuationTime;
-      return this;
-    }
-
-    /**
-     * Sets the {@code valuationZone} property in the builder.
-     * @param valuationZone  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valuationZone(ZoneId valuationZone) {
-      JodaBeanUtils.notNull(valuationZone, "valuationZone");
-      this.valuationZone = valuationZone;
+    public Builder valuationDateTime(ZonedDateTime valuationDateTime) {
+      JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
+      this.valuationDateTime = valuationDateTime;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("NormalVolatilityExpSimpleMoneynessIborFutureProvider.Builder{");
       buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
       buf.append("isMoneynessOnPrice").append('=').append(JodaBeanUtils.toString(isMoneynessOnPrice)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
-      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(valuationTime)).append(',').append(' ');
-      buf.append("valuationZone").append('=').append(JodaBeanUtils.toString(valuationZone));
+      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
       buf.append('}');
       return buf.toString();
     }

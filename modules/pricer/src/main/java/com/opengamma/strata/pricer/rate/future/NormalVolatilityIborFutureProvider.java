@@ -8,34 +8,42 @@ package com.opengamma.strata.pricer.rate.future;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.joda.beans.ImmutableBean;
 
 import com.opengamma.strata.basics.index.IborIndex;
 
 /**
- * Volatility environment for Ibor future options in the normal or Bachelier model.
+ * Data provider of volatility for Ibor future options in the normal or Bachelier model.
  */
-public interface NormalVolatilityIborFutureProvider 
-    extends IborFutureParameters, ImmutableBean {
+public interface NormalVolatilityIborFutureProvider
+    extends IborFutureProvider, ImmutableBean {
+
+  /**
+   * Gets the valuation date-time.
+   * 
+   * @return the valuation date-time
+   */
+  public abstract ZonedDateTime getValuationDateTime();
 
   /**
    * Returns the normal volatility.
+   * 
    * @param expiryDate  the option expiry
    * @param fixingDate  the underlying future fixing date
    * @param strikePrice  the option strike price
    * @param futurePrice  the price of the underlying future
    * @return the volatility
    */
-  public double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice);
-  
+  public abstract double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice);
+
   /**
    * Returns the index on which the underlying future is based.
    * @return the index
    */
-  public IborIndex getFutureIndex();
+  public abstract IborIndex getFutureIndex();
 
-  //-------------------------------------------------------------------------
   /**
    * Converts a date to a relative {@code double} time.
    * 

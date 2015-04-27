@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.rate.future;
 import org.joda.beans.ImmutableBean;
 
 /**
- * A generic interface for model parameters related to Ibor future and their options.
+ * Data provider for for model parameters related to Ibor futures and their options.
  */
-public interface IborFutureParameters
+public interface IborFutureProvider
     extends ImmutableBean {
 
 }
