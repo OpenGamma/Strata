@@ -28,8 +28,11 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.engine.calculations.MissingMappingId;
+import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
+import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 // TODO This needs to store values in MarketDataItem with a timestamp and attributes (to store entitlements, ticker)
 /**
@@ -105,6 +108,15 @@ public final class BaseMarketData implements ImmutableBean {
    */
   @SuppressWarnings("unchecked")
   public <T, I extends MarketDataId<T>> T getValue(I id) {
+    // Special handling of these special ID types to provide more helpful error messages
+    if (id instanceof NoMatchingRuleId) {
+      MarketDataKey key = ((NoMatchingRuleId) id).getKey();
+      throw new IllegalArgumentException("No market data rules were available to build the market data for " + key);
+    }
+    if (id instanceof MissingMappingId) {
+      MarketDataKey<?> key = ((MissingMappingId) id).getKey();
+      throw new IllegalArgumentException("No market data mapping found for market data " + key);
+    }
     Object value = values.get(id);
 
     if (value == null) {
