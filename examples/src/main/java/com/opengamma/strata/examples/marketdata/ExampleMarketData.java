@@ -19,6 +19,7 @@ import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.examples.finance.SwapPricingExample;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
 /**
@@ -31,6 +32,7 @@ public final class ExampleMarketData {
    */
   private static final MarketDataRules RULES = SimpleMarketDataRules.builder()
       .addMappings(SwapTrade.class, MarketDataMappings.builder().curveGroup("Default").build())
+      .addMappings(FraTrade.class, MarketDataMappings.builder().curveGroup("Default").build())
       .build();
 
   /**
@@ -89,6 +91,9 @@ public final class ExampleMarketData {
   // loads a resource from JSON
   private static <T> T loadFromJson(String resourceName, Class<T> clazz) {
     InputStream tsResource = SwapPricingExample.class.getResourceAsStream(resourceName);
+    if (tsResource == null) {
+      throw new MissingExampleDataException(resourceName);
+    }
     Reader tsReader = new InputStreamReader(tsResource);
     return JodaBeanSer.COMPACT.jsonReader().read(tsReader, clazz);
   }
