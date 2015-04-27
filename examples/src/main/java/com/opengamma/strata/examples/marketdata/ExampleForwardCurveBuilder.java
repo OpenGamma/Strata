@@ -38,7 +38,7 @@ public class ExampleForwardCurveBuilder
   public Map<IndexCurveId, Result<YieldCurve>> build(Set<IndexCurveId> requirements, BaseMarketData builtData) {
     ImmutableMap.Builder<IndexCurveId, Result<YieldCurve>> resultBuilder = ImmutableMap.builder();
     for (IndexCurveId curveId : requirements) {
-      YieldCurve curve = ExampleMarketData.loadYieldCurve(LocalDate.of(2009, 7, 31), curveId.getIndex().getName());
+      YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), curveId.getIndex().getName());
       resultBuilder.put(curveId, Result.success(curve));
     }
     return resultBuilder.build();
