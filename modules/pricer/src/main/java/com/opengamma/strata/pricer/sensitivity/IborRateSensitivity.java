@@ -88,12 +88,10 @@ public final class IborRateSensitivity
   }
 
   //-------------------------------------------------------------------------
-  @Override
   public Object getCurveKey() {
     return index;
   }
 
-  @Override
   public LocalDate getDate() {
     return fixingDate;
   }

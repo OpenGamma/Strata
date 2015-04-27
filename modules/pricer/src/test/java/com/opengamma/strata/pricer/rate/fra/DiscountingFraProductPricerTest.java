@@ -219,7 +219,7 @@ public class DiscountingFraProductPricerTest {
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 1);
-    PointSensitivity sensitivity0 = sensitivities.get(0);
+    IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getCurveKey(), FRA.getIndex());
     assertEquals(sensitivity0.getDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
@@ -251,7 +251,7 @@ public class DiscountingFraProductPricerTest {
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 1);
-    PointSensitivity sensitivity0 = sensitivities.get(0);
+    IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getCurveKey(), FRA_NONE.getIndex());
     assertEquals(sensitivity0.getDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
@@ -279,7 +279,7 @@ public class DiscountingFraProductPricerTest {
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 1);
-    PointSensitivity sensitivity0 = sensitivities.get(0);
+    IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getCurveKey(), FRA_AFMA.getIndex());
     assertEquals(sensitivity0.getDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
@@ -317,11 +317,11 @@ public class DiscountingFraProductPricerTest {
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 2);
-    PointSensitivity sensitivity0 = sensitivities.get(0);
+    IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getCurveKey(), FRA.getIndex());
     assertEquals(sensitivity0.getDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
-    PointSensitivity sensitivity1 = sensitivities.get(1);
+    ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurveKey(), FRA.getCurrency());
     assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA.getNotional() * eps);
@@ -362,11 +362,11 @@ public class DiscountingFraProductPricerTest {
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 2);
-    PointSensitivity sensitivity0 = sensitivities.get(0);
+    IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getCurveKey(), FRA_NONE.getIndex());
     assertEquals(sensitivity0.getDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
-    PointSensitivity sensitivity1 = sensitivities.get(1);
+    ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurveKey(), FRA_NONE.getCurrency());
     assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_NONE.getNotional() * eps);
@@ -403,11 +403,11 @@ public class DiscountingFraProductPricerTest {
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 2);
-    PointSensitivity sensitivity0 = sensitivities.get(0);
+    IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getCurveKey(), FRA_AFMA.getIndex());
     assertEquals(sensitivity0.getDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
-    PointSensitivity sensitivity1 = sensitivities.get(1);
+    ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurveKey(), FRA_AFMA.getCurrency());
     assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_AFMA.getNotional() * eps);

@@ -22,15 +22,15 @@ import com.opengamma.strata.basics.currency.Currency;
 public interface PointSensitivity
     extends ImmutableBean {
 
-  /**
-   * Gets the key to the curve that the point sensitivity refers to.
-   * <p>
-   * The string form of the object must be a meaningful name, as it is used in
-   * {@link #compareExcludingSensitivity(PointSensitivity)}.
-   * 
-   * @return the key, such as the index or currency
-   */
-  public abstract Object getCurveKey();
+//  /**
+//   * Gets the key to the curve that the point sensitivity refers to.
+//   * <p>
+//   * The string form of the object must be a meaningful name, as it is used in
+//   * {@link #compareExcludingSensitivity(PointSensitivity)}.
+//   * 
+//   * @return the key, such as the index or currency
+//   */
+//  public abstract Object getCurveKey();
 
   /**
    * Gets the currency of the point sensitivity.
@@ -39,14 +39,14 @@ public interface PointSensitivity
    */
   public abstract Currency getCurrency();
 
-  /**
-   * Gets the date that was looked up on the curve.
-   * <p>
-   * For example, this might be the fixing date of an IBOR-like index.
-   * 
-   * @return the date
-   */
-  public abstract LocalDate getDate();
+//  /**
+//   * Gets the date that was looked up on the curve.
+//   * <p>
+//   * For example, this might be the fixing date of an IBOR-like index.
+//   * 
+//   * @return the date
+//   */
+//  public abstract LocalDate getDate();
 
   /**
    * Gets the point sensitivity value.

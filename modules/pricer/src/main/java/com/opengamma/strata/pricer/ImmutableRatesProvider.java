@@ -340,7 +340,8 @@ public final class ImmutableRatesProvider
     ListMultimap<Currency, DoublesPair> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
       if (point instanceof ZeroRateSensitivity) {
-        grouped.put(point.getCurrency(), DoublesPair.of(relativeTime(point.getDate()), point.getSensitivity()));
+        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
+        grouped.put(point.getCurrency(), DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
       }
     }
     // calculate per currency
