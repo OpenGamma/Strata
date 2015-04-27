@@ -173,6 +173,23 @@ public interface RatesProvider {
    */
   public abstract double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate);
 
+  /**
+   * Gets the curve sensitivity for forward rate of an FX rate given a currency pair.
+   * <p>
+   * The rate of the FX index varies over time.
+   * This method obtains sensitivity of the estimated rate for the fixing date.
+   * <p>
+   * There is no sensitivity if a time-series is used, otherwise this retrieves 
+   * the sensitivity of the estimated rate.
+   * 
+   * @param index  the index to find the rate for
+   * @param baseCurrency  the base currency that the rate should be expressed against
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the point sensitivity of the rate
+   */
+  public PointSensitivityBuilder fxIndexRateSensitivity(FxIndex index, Currency baseCurrency, LocalDate fixingDate);
+  
+  
   //-------------------------------------------------------------------------
   /**
    * Gets the historic or forward rate of an IBOR-like index.

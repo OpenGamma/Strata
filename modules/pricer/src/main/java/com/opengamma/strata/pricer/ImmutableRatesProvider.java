@@ -177,6 +177,22 @@ public final class ImmutableRatesProvider
     return fxIndexForwardRate(index, fixingDate, inverse);
   }
 
+  @Override
+  public PointSensitivityBuilder fxIndexRateSensitivity(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(baseCurrency, "baseCurrency");
+    ArgChecker.notNull(fixingDate, "fixingDate");
+    ArgChecker.isTrue(
+        index.getCurrencyPair().contains(baseCurrency),
+        "Currency {} invalid for FxIndex {}", baseCurrency, index);
+    boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
+    if (fixingDate.isBefore(valuationDate) ||
+        (fixingDate.equals(valuationDate) && timeSeries(index).get(fixingDate).isPresent())) {
+      return PointSensitivityBuilder.none();
+    }
+    return fxIndexForwardRateSensitivity(index, fixingDate, inverse);
+  }
+
   // historic rate
   private double fxIndexHistoricRate(FxIndex index, LocalDate fixingDate, boolean inverse) {
     OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
@@ -191,7 +207,7 @@ public final class ImmutableRatesProvider
     }
   }
 
-  // forward rate
+  // fx rate
   private double fxIndexForwardRate(FxIndex index, LocalDate fixingDate, boolean inverse) {
     // use the specified base currency to determine the desired currency pair
     // then derive rate from discount factors based off desired currency pair, not that of the index
@@ -200,6 +216,25 @@ public final class ImmutableRatesProvider
     double dfCcyBaseAtMaturity = discountCurve(pair.getBase()).getDiscountFactor(maturity);
     double dfCcyCounterAtMaturity = discountCurve(pair.getCounter()).getDiscountFactor(maturity);
     return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+  }
+
+  private PointSensitivityBuilder fxIndexForwardRateSensitivity(FxIndex index, LocalDate fixingDate, boolean inverse) {
+    // use the specified base currency to determine the desired currency pair
+    // then derive rate from discount factors based off desired currency pair, not that of the index
+    CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
+    LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
+    double maturity = relativeTime(maturityDate);
+    double dfCcyBaseAtMaturity = discountCurve(pair.getBase()).getDiscountFactor(maturity);
+    double dfCcyCounterAtMaturityInv = 1.0 / discountCurve(pair.getCounter()).getDiscountFactor(maturity);
+    PointSensitivityBuilder dfCcyBaseAtMaturitySensitivity = discountFactorZeroRateSensitivity(pair.getBase(),
+        maturityDate);
+    dfCcyBaseAtMaturitySensitivity = dfCcyBaseAtMaturitySensitivity.multipliedBy(fxRate(pair) *
+        dfCcyCounterAtMaturityInv);
+    PointSensitivityBuilder dfCcyCounterAtMaturitySensitivity = discountFactorZeroRateSensitivity(pair.getCounter(),
+        maturityDate);
+    dfCcyCounterAtMaturitySensitivity = dfCcyCounterAtMaturitySensitivity.multipliedBy(-fxRate(pair) *
+        dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv * dfCcyCounterAtMaturityInv);
+    return dfCcyBaseAtMaturitySensitivity.combinedWith(dfCcyCounterAtMaturitySensitivity);
   }
 
   //-------------------------------------------------------------------------

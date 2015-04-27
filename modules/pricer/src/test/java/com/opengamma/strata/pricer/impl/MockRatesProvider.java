@@ -80,6 +80,11 @@ public class MockRatesProvider
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public PointSensitivityBuilder fxIndexRateSensitivity(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
+    throw new UnsupportedOperationException();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double iborIndexRate(IborIndex index, LocalDate fixingDate) {
