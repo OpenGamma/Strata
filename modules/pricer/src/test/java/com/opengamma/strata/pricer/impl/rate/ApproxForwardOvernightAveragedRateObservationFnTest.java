@@ -223,7 +223,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockEnv.overnightIndexRatePeriodSensitivity(USD_FED_FUND, FIXING_START_DATE,
         USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(pointSensitivity);
     setPricingEnvironments(mockEnvUp, mockEnvDw, mockEnvPeriodUp, mockEnvPeriodDw, ro, USD_FED_FUND, FIXING_START_DATE,
-        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), rateCmp);
+        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), rateCmp, null);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockEnvPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -261,9 +261,9 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   private void setPricingEnvironments(PricingEnvironment[] mockEnvUp, PricingEnvironment[] mockEnvDw,
-      PricingEnvironment mockEnvPeriodUp, PricingEnvironment mockEnvPeriodDw,
-      OvernightAveragedRateObservation ro, OvernightIndex index, LocalDate periodStartDate, LocalDate PeriodEndDate,
-      double rateCmp) {
+      PricingEnvironment mockEnvPeriodUp, PricingEnvironment mockEnvPeriodDw, OvernightAveragedRateObservation ro,
+      OvernightIndex index, LocalDate periodStartDate, LocalDate PeriodEndDate, double rateCmp,
+      LocalDateDoubleTimeSeriesBuilder tsb) {
     int nRates = FIXING_DATES.length;
     double[][] ratesUp = new double[nRates][];
     double[][] ratesDw = new double[nRates][];
@@ -291,6 +291,14 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         rateCmp + EPS_FD);
     when(mockEnvPeriodDw.overnightIndexRatePeriod(index, periodStartDate, PeriodEndDate)).thenReturn(
         rateCmp - EPS_FD);
+    if (tsb != null) {
+      when(mockEnvPeriodUp.timeSeries(index)).thenReturn(tsb.build());
+      when(mockEnvPeriodDw.timeSeries(index)).thenReturn(tsb.build());
+      for (int i = 0; i < nRates; i++) {
+        when(mockEnvUp[i].timeSeries(index)).thenReturn(tsb.build());
+        when(mockEnvDw[i].timeSeries(index)).thenReturn(tsb.build());
+      }
+    }
   }
 
   /** Two days cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate.*/
@@ -389,9 +397,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(periodSensitivity);
     setPricingEnvironments(mockEnvUp, mockEnvDw, mockEnvPeriodUp, mockEnvPeriodDw, ro, USD_FED_FUND, USD_FED_FUND
         .getFixingCalendar().next(FIXING_START_DATE), USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE),
-        rateCmp);
-    when(mockEnvPeriodUp.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
-    when(mockEnvPeriodDw.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
+        rateCmp, tsb);
     for (int i = 0; i < 2; i++) {
       when(mockEnvPeriodUp.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockEnvPeriodDw.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
@@ -488,6 +494,101 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     }
   }
 
+  /** Test rate sensitivity against FD approximation.  
+   * Two days cutoff and two already fixed ON rate. ON index is Fed Fund. */
+  @Test
+  public void rateFedFund2CutOffValuation2Sensitivity() {
+    // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
+    LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
+    int lastFixing = 3;
+    for (int i = 0; i < lastFixing; i++) {
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
+    }
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    int nRates = FIXING_DATES.length;
+    PricingEnvironment[] mockEnvUp = new PricingEnvironment[nRates];
+    PricingEnvironment[] mockEnvDw = new PricingEnvironment[nRates];
+    PricingEnvironment mockEnvPeriodUp = mock(PricingEnvironment.class);
+    PricingEnvironment mockEnvPeriodDw = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockEnv.overnightIndexRateSensitivity(USD_FED_FUND, FIXING_DATES[i])).thenReturn(
+          PointSensitivityBuilder.none());
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+      LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
+      PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(USD_FED_FUND, FIXING_DATES[i])).thenReturn(pointSensitivity);
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = lastFixing; i < 5; i++) {
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, FIXING_DATES[lastFixing],
+        FIXING_DATES[5])).thenReturn(rateCmp);
+    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
+        FIXING_DATES[lastFixing], FIXING_DATES[5], 1d);
+    when(mockEnv.overnightIndexRatePeriodSensitivity(USD_FED_FUND, FIXING_DATES[lastFixing], FIXING_DATES[5]))
+        .thenReturn(periodSensitivity);
+    setPricingEnvironments(mockEnvUp, mockEnvDw, mockEnvPeriodUp, mockEnvPeriodDw, ro, USD_FED_FUND,
+        FIXING_DATES[lastFixing], FIXING_DATES[5], rateCmp, tsb);
+    when(mockEnvPeriodUp.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
+    when(mockEnvPeriodDw.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnvPeriodUp.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockEnvPeriodDw.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      for (int j = 0; j < nRates; ++j) {
+        when(mockEnvUp[j].overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+        when(mockEnvDw[j].overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      }
+    }
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockEnvPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockEnvPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(mockEnv, ro,
+          DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+
+      PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
+      for (int i = 0; i < nRates; ++i) {
+        when(mockEnvUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockEnvDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        double rateUp = OBS_FN_APPROX_FWD.rate(mockEnvUp[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+        double rateDw = OBS_FN_APPROX_FWD.rate(mockEnvDw[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+        double res = 0.5 * (rateUp - rateDw) / EPS_FD;
+        LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
+        LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
+        sensitivityBuilderExpected1 = res == 0.0 ? sensitivityBuilderExpected1 : sensitivityBuilderExpected1
+            .combinedWith(OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(), FIXING_DATES[i],
+                fixingEndDate, res));
+      }
+      double ratePeriodUp = OBS_FN_APPROX_FWD.rate(mockEnvPeriodUp, ro, DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE);
+      double ratePeriodDw = OBS_FN_APPROX_FWD.rate(mockEnvPeriodDw, ro, DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE);
+      double periodSensitivityExpected = 0.5 * (ratePeriodUp - ratePeriodDw) / EPS_FD;
+      PointSensitivityBuilder sensitivityBuilderExpected2 = OvernightRateSensitivity.of(USD_FED_FUND,
+          USD_FED_FUND.getCurrency(), FIXING_DATES[lastFixing], FIXING_DATES[5], periodSensitivityExpected);
+      PointSensitivityBuilder sensitivityBuilderExpected = sensitivityBuilderExpected1
+          .combinedWith(sensitivityBuilderExpected2);
+
+      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
+          sensitivityBuilderExpected.build(), EPS_FD);
+    }
+  }
+
   /** Two days cutoff and two already fixed ON rate. ON index is SONIA. */
   @Test
   public void rateSonia2CutOffValuation2() {
@@ -540,6 +641,101 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     }
   }
 
+  /** Test rate sensitivity against FD approximation.  
+   * Two days cutoff and two already fixed ON rate. ON index is SONIA. */
+  @Test
+  public void rateSonia2CutOffValuation2Sensitivity() {
+    // publication=0, cutoff=2, effective offset=0, TS: Fixing 2
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 2);
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
+    int lastFixing = 3;
+    for (int i = 0; i < lastFixing; i++) {
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
+    }
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    int nRates = FIXING_DATES.length;
+    PricingEnvironment[] mockEnvUp = new PricingEnvironment[nRates];
+    PricingEnvironment[] mockEnvDw = new PricingEnvironment[nRates];
+    PricingEnvironment mockEnvPeriodUp = mock(PricingEnvironment.class);
+    PricingEnvironment mockEnvPeriodDw = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockEnv.overnightIndexRateSensitivity(GBP_SONIA, FIXING_DATES[i])).thenReturn(
+          PointSensitivityBuilder.none());
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+      LocalDate fixingStartDate = GBP_SONIA.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
+      PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(GBP_SONIA, FIXING_DATES[i])).thenReturn(pointSensitivity);
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = lastFixing; i < 5; i++) {
+      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRatePeriod(GBP_SONIA, FIXING_DATES[lastFixing],
+        FIXING_DATES[5])).thenReturn(rateCmp);
+    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
+        FIXING_DATES[lastFixing], FIXING_DATES[5], 1d);
+    when(mockEnv.overnightIndexRatePeriodSensitivity(GBP_SONIA, FIXING_DATES[lastFixing], FIXING_DATES[5]))
+        .thenReturn(periodSensitivity);
+    setPricingEnvironments(mockEnvUp, mockEnvDw, mockEnvPeriodUp, mockEnvPeriodDw, ro, GBP_SONIA,
+        FIXING_DATES[lastFixing], FIXING_DATES[5], rateCmp, tsb);
+    when(mockEnvPeriodUp.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
+    when(mockEnvPeriodDw.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnvPeriodUp.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockEnvPeriodDw.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      for (int j = 0; j < nRates; ++j) {
+        when(mockEnvUp[j].overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+        when(mockEnvDw[j].overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      }
+    }
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockEnvPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockEnvPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(mockEnv, ro,
+          DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+
+      PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
+      for (int i = 0; i < nRates; ++i) {
+        when(mockEnvUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockEnvDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        double rateUp = OBS_FN_APPROX_FWD.rate(mockEnvUp[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+        double rateDw = OBS_FN_APPROX_FWD.rate(mockEnvDw[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+        double res = 0.5 * (rateUp - rateDw) / EPS_FD;
+        LocalDate fixingStartDate = GBP_SONIA.calculateEffectiveFromFixing(FIXING_DATES[i]);
+        LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
+        sensitivityBuilderExpected1 = res == 0.0 ? sensitivityBuilderExpected1 : sensitivityBuilderExpected1
+            .combinedWith(OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(), FIXING_DATES[i],
+                fixingEndDate, res));
+      }
+      double ratePeriodUp = OBS_FN_APPROX_FWD.rate(mockEnvPeriodUp, ro, DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE);
+      double ratePeriodDw = OBS_FN_APPROX_FWD.rate(mockEnvPeriodDw, ro, DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE);
+      double periodSensitivityExpected = 0.5 * (ratePeriodUp - ratePeriodDw) / EPS_FD;
+      PointSensitivityBuilder sensitivityBuilderExpected2 = OvernightRateSensitivity.of(GBP_SONIA,
+          GBP_SONIA.getCurrency(), FIXING_DATES[lastFixing], FIXING_DATES[5], periodSensitivityExpected);
+      PointSensitivityBuilder sensitivityBuilderExpected = sensitivityBuilderExpected1
+          .combinedWith(sensitivityBuilderExpected2);
+
+      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
+          sensitivityBuilderExpected.build(), EPS_FD);
+    }
+  }
+
   /** No cutoff period and two already fixed ON rate. ON index is SONIA. */
   @Test
   public void rateSonia0CutOffValuation2() {
@@ -586,6 +782,101 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+
+  /** Test rate sensitivity against FD approximation. 
+   * No cutoff period and two already fixed ON rate. ON index is SONIA. */
+  @Test
+  public void rateSonia0CutOffValuation2Sensitivity() {
+    // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
+    int lastFixing = 3;
+    for (int i = 0; i < lastFixing; i++) {
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
+    }
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    int nRates = FIXING_DATES.length;
+    PricingEnvironment[] mockEnvUp = new PricingEnvironment[nRates];
+    PricingEnvironment[] mockEnvDw = new PricingEnvironment[nRates];
+    PricingEnvironment mockEnvPeriodUp = mock(PricingEnvironment.class);
+    PricingEnvironment mockEnvPeriodDw = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockEnv.overnightIndexRateSensitivity(GBP_SONIA, FIXING_DATES[i])).thenReturn(
+          PointSensitivityBuilder.none());
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+      LocalDate fixingStartDate = GBP_SONIA.calculateEffectiveFromFixing(FIXING_DATES[i]);
+      LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
+      PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
+          FIXING_DATES[i], fixingEndDate, 1d);
+      when(mockEnv.overnightIndexRateSensitivity(GBP_SONIA, FIXING_DATES[i])).thenReturn(pointSensitivity);
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = lastFixing; i < 6; i++) {
+      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRatePeriod(GBP_SONIA, FIXING_DATES[lastFixing],
+        FIXING_DATES[6])).thenReturn(rateCmp);
+    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
+        FIXING_DATES[lastFixing], FIXING_DATES[6], 1d);
+    when(mockEnv.overnightIndexRatePeriodSensitivity(GBP_SONIA, FIXING_DATES[lastFixing], FIXING_DATES[6]))
+        .thenReturn(periodSensitivity);
+    setPricingEnvironments(mockEnvUp, mockEnvDw, mockEnvPeriodUp, mockEnvPeriodDw, ro, GBP_SONIA,
+        FIXING_DATES[lastFixing], FIXING_DATES[6], rateCmp, tsb);
+    when(mockEnvPeriodUp.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
+    when(mockEnvPeriodDw.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnvPeriodUp.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockEnvPeriodDw.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      for (int j = 0; j < nRates; ++j) {
+        when(mockEnvUp[j].overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+        when(mockEnvDw[j].overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      }
+    }
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockEnvPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockEnvPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(mockEnv, ro,
+          DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+
+      PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
+      for (int i = 0; i < nRates; ++i) {
+        when(mockEnvUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockEnvDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        double rateUp = OBS_FN_APPROX_FWD.rate(mockEnvUp[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+        double rateDw = OBS_FN_APPROX_FWD.rate(mockEnvDw[i], ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+        double res = 0.5 * (rateUp - rateDw) / EPS_FD;
+        LocalDate fixingStartDate = GBP_SONIA.calculateEffectiveFromFixing(FIXING_DATES[i]);
+        LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
+        sensitivityBuilderExpected1 = res == 0.0 ? sensitivityBuilderExpected1 : sensitivityBuilderExpected1
+            .combinedWith(OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(), FIXING_DATES[i],
+                fixingEndDate, res));
+      }
+      double ratePeriodUp = OBS_FN_APPROX_FWD.rate(mockEnvPeriodUp, ro, DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE);
+      double ratePeriodDw = OBS_FN_APPROX_FWD.rate(mockEnvPeriodDw, ro, DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE);
+      double periodSensitivityExpected = 0.5 * (ratePeriodUp - ratePeriodDw) / EPS_FD;
+      PointSensitivityBuilder sensitivityBuilderExpected2 = OvernightRateSensitivity.of(GBP_SONIA,
+          GBP_SONIA.getCurrency(), FIXING_DATES[lastFixing], FIXING_DATES[6], periodSensitivityExpected);
+      PointSensitivityBuilder sensitivityBuilderExpected = sensitivityBuilderExpected1
+          .combinedWith(sensitivityBuilderExpected2);
+
+      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
+          sensitivityBuilderExpected.build(), EPS_FD);
     }
   }
 
