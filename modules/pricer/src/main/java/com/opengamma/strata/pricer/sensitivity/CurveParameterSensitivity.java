@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.sensitivity;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -245,10 +246,24 @@ public final class CurveParameterSensitivity
    * @return true if equal up to the tolerance
    */
   public boolean equalWithTolerance(CurveParameterSensitivity other, double tolerance) {
+    Set<SensitivityKey> intersection = sensitivities.keySet();
     if (!sensitivities.keySet().equals(other.sensitivities.keySet())) {
-      return false;
+      // check that the element outside the intersection have a sensitivity below the tolerance
+      Set<SensitivityKey> amb = new HashSet<>(sensitivities.keySet());
+      amb.removeAll(other.sensitivities.keySet());
+      if (!checkSmall(amb, sensitivities, tolerance)) {
+        return false;
+      }
+      Set<SensitivityKey> bma = new HashSet<>(other.sensitivities.keySet());
+      bma.removeAll(sensitivities.keySet());
+      if (!checkSmall(bma, other.sensitivities, tolerance)) {
+        return false;
+      }
+      // construct the key interestion set for the next step
+      intersection = new HashSet<>(sensitivities.keySet());
+      intersection.retainAll(other.sensitivities.keySet());
     }
-    for (SensitivityKey key : sensitivities.keySet()) {
+    for (SensitivityKey key : intersection) {
       double[] vector1 = sensitivities.get(key);
       double[] vector2 = other.sensitivities.get(key);
       if (vector1.length != vector2.length) {
@@ -256,6 +271,19 @@ public final class CurveParameterSensitivity
       }
       for (int i = 0; i < vector1.length; i++) {
         if (!DoubleMath.fuzzyEquals(vector1[i], vector2[i], tolerance)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  
+  // check that the sensitivities in a curve sensitivity are small for key in a givne key set
+  private boolean checkSmall(Set<SensitivityKey> kSet, ImmutableMap<SensitivityKey, double[]> s, double tolerance) {
+    for (SensitivityKey k : kSet) {
+      double[] v = s.get(k);
+      for (int i = 0; i < v.length; i++) {
+        if (!DoubleMath.fuzzyEquals(v[i], 0, tolerance)) {
           return false;
         }
       }
