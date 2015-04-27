@@ -38,6 +38,16 @@
       <scope>system</scope>
       <systemPath>${javafx.jar.path}</systemPath>
     </dependency>
+    <dependency>
+      <groupId>com.chaschev</groupId>
+      <artifactId>chutils</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.6.4</version>
+    </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->
