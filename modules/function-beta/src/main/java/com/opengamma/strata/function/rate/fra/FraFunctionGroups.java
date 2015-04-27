@@ -17,7 +17,10 @@ import com.opengamma.strata.finance.rate.fra.FraTrade;
  * measures provided by the functions in the group.
  */
 public final class FraFunctionGroups {
-  
+
+  /**
+   * The group with pricers based on discounting methods.
+   */
   private static final FunctionGroup<FraTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(FraTrade.class).name("FraDiscounting")
           .addFunction(Measure.PAR_RATE, FraParRateFunction.class)
@@ -25,13 +28,14 @@ public final class FraFunctionGroups {
           .addFunction(Measure.PRESENT_VALUE, FraPvFunction.class)
           .addFunction(Measure.PV01, FraPvParameterSensitivityFunction.class)
           .build();
-  
+
   /**
    * Restricted constructor.
    */
   private FraFunctionGroups() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Obtains the function group providing all built-in measures on FRA trades,
    * using the standard discounting calculation method.
@@ -49,5 +53,5 @@ public final class FraFunctionGroups {
   public static FunctionGroup<FraTrade> discounting() {
     return DISCOUNTING_GROUP;
   }
-  
+
 }

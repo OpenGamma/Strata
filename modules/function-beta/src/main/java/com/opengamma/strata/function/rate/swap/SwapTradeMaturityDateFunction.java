@@ -6,6 +6,7 @@
 package com.opengamma.strata.function.rate.swap;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
@@ -16,7 +17,8 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 /**
  * Returns the maturity date of a {@code SwapTrade}.
  */
-public class SwapTradeMaturityDateFunction implements EngineSingleFunction<SwapTrade, LocalDate> {
+public class SwapTradeMaturityDateFunction
+    implements EngineSingleFunction<SwapTrade, LocalDate> {
 
   @Override
   public CalculationRequirements requirements(SwapTrade target) {
@@ -25,8 +27,10 @@ public class SwapTradeMaturityDateFunction implements EngineSingleFunction<SwapT
 
   @Override
   public LocalDate execute(SwapTrade input, CalculationMarketData marketData) {
-    SwapLeg leg = input.getProduct().getLegs().stream().findFirst().get();
-    return leg.getEndDate();
+    return input.getProduct().getLegs().stream()
+        .map(SwapLeg::getEndDate)
+        .max(Comparator.naturalOrder())
+        .get();  // there is at least one leg
   }
 
 }

@@ -17,20 +17,25 @@ import com.opengamma.strata.finance.Trade;
  * measures provided by the functions in the group.
  */
 public final class TradeFunctionGroups {
-  
-  private static final FunctionGroup<Trade> ALL_GROUP =
+
+  /**
+   * The group containing all available measures.
+   */
+  private static final FunctionGroup<Trade> ALL =
       DefaultFunctionGroup.builder(Trade.class).name("TradeAll")
           .addFunction(Measure.ID, TradeIdFunction.class)
           .addFunction(Measure.COUNTERPARTY, TradeCounterpartyFunction.class)
+          .addFunction(Measure.TRADE_DATE, TradeDateFunction.class)
           .addFunction(Measure.SETTLEMENT_DATE, TradeSettlementDateFunction.class)
           .build();
-  
+
   /**
    * Restricted constructor.
    */
   private TradeFunctionGroups() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Obtains the function group providing all built-in measures on any trade.
    * <p>
@@ -38,13 +43,14 @@ public final class TradeFunctionGroups {
    * <ul>
    *   <li>{@linkplain Measure#ID ID}</li>
    *   <li>{@linkplain Measure#COUNTERPARTY Counterparty}</li>
+   *   <li>{@linkplain Measure#TRADE_DATE Trade date}</li>
    *   <li>{@linkplain Measure#SETTLEMENT_DATE Settlement date}</li>
    * </ul>
    * 
    * @return the function group
    */
   public static FunctionGroup<Trade> all() {
-    return ALL_GROUP;
+    return ALL;
   }
-  
+
 }

@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.range.LocalDateRange;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
@@ -30,7 +31,9 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 /**
  * Calculates the accrued interest for a {@code SwapTrade} for each of a set of scenarios.
  */
-public class SwapTradeAccruedInterestFunction implements EngineSingleFunction<SwapTrade, List<CurrencyAmount>> {
+public class SwapTradeAccruedInterestFunction
+    implements EngineSingleFunction<SwapTrade, List<MultiCurrencyAmount>> {
+  // TODO: implementation needs more work to handle edge cases
 
   @Override
   public CalculationRequirements requirements(SwapTrade target) {
@@ -38,7 +41,7 @@ public class SwapTradeAccruedInterestFunction implements EngineSingleFunction<Sw
   }
 
   @Override
-  public List<CurrencyAmount> execute(SwapTrade trade, CalculationMarketData marketData) {
+  public List<MultiCurrencyAmount> execute(SwapTrade trade, CalculationMarketData marketData) {
     ExpandedSwap expandedSwap = trade.getProduct().expand();
     
     return IntStream.range(0, marketData.getScenarioCount())
@@ -48,8 +51,8 @@ public class SwapTradeAccruedInterestFunction implements EngineSingleFunction<Sw
         .collect(toList());
   }
   
-  private CurrencyAmount accruedInterest(MarketDataRatesProvider env, ExpandedSwap expandedSwap) {
-    CurrencyAmount result = null;
+  private MultiCurrencyAmount accruedInterest(MarketDataRatesProvider env, ExpandedSwap expandedSwap) {
+    MultiCurrencyAmount result = MultiCurrencyAmount.empty();
     for (ExpandedSwapLeg leg : expandedSwap.getLegs()) {
       for (PaymentPeriod period : leg.getPaymentPeriods()) {
         RatePaymentPeriod ratePeriod = (RatePaymentPeriod) period;
@@ -69,7 +72,7 @@ public class SwapTradeAccruedInterestFunction implements EngineSingleFunction<Sw
               .paymentPeriods(adjustedPaymentPeriod)
               .build();
           CurrencyAmount accrual = DiscountingSwapLegPricer.DEFAULT.futureValue(adjustedLeg, env);
-          result = result == null ? accrual : result.plus(accrual);
+          result = result.plus(accrual);
           break;
         }
       }

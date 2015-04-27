@@ -19,7 +19,10 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
  * measures provided by the functions in the group.
  */
 public final class SwapFunctionGroups {
-  
+
+  /**
+   * The group with pricers based on discounting methods.
+   */
   private static final FunctionGroup<SwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(SwapTrade.class).name("SwapDiscounting")
           .addFunction(Measure.MATURITY_DATE, SwapTradeMaturityDateFunction.class)
@@ -31,13 +34,14 @@ public final class SwapFunctionGroups {
               FunctionConfig.builder(SwapLegPvFunction.class).addArgument("payReceive", PayReceive.RECEIVE).build())
           .addFunction(Measure.ACCRUED_INTEREST, SwapTradeAccruedInterestFunction.class)
           .build();
-  
+
   /**
    * Restricted constructor.
    */
   private SwapFunctionGroups() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Obtains the function group providing all built-in measures on swap trades,
    * using the standard discounting calculation method.
@@ -57,5 +61,5 @@ public final class SwapFunctionGroups {
   public static FunctionGroup<SwapTrade> discounting() {
     return DISCOUNTING_GROUP;
   }
-  
+
 }

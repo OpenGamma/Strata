@@ -15,7 +15,8 @@ import com.opengamma.strata.finance.Trade;
 /**
  * Returns the settlement date of a trade.
  */
-public class TradeSettlementDateFunction implements EngineSingleFunction<Trade, LocalDate> {
+public class TradeSettlementDateFunction
+    implements EngineSingleFunction<Trade, LocalDate> {
 
   @Override
   public CalculationRequirements requirements(Trade target) {

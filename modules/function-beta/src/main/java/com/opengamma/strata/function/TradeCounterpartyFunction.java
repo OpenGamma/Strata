@@ -14,7 +14,8 @@ import com.opengamma.strata.finance.Trade;
 /**
  * Returns the counterparty of a trade.
  */
-public class TradeCounterpartyFunction implements EngineSingleFunction<Trade, StandardId> {
+public class TradeCounterpartyFunction
+    implements EngineSingleFunction<Trade, StandardId> {
 
   @Override
   public CalculationRequirements requirements(Trade target) {

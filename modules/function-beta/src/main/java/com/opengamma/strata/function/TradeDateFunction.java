@@ -5,17 +5,18 @@
  */
 package com.opengamma.strata.function;
 
-import com.opengamma.strata.collect.id.StandardId;
+import java.time.LocalDate;
+
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.Trade;
 
 /**
- * Returns the identifer of a trade.
+ * Returns the trade date of a trade.
  */
-public class TradeIdFunction
-    implements EngineSingleFunction<Trade, StandardId> {
+public class TradeDateFunction
+    implements EngineSingleFunction<Trade, LocalDate> {
 
   @Override
   public CalculationRequirements requirements(Trade target) {
@@ -23,8 +24,8 @@ public class TradeIdFunction
   }
 
   @Override
-  public StandardId execute(Trade input, CalculationMarketData marketData) {
-    return input.getStandardId();
+  public LocalDate execute(Trade input, CalculationMarketData marketData) {
+    return input.getTradeInfo().getTradeDate().orElse(null);
   }
 
 }
