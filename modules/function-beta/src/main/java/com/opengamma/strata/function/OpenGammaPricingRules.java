@@ -9,7 +9,9 @@ import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.function.rate.fra.FraFunctionGroups;
 import com.opengamma.strata.function.rate.swap.SwapFunctionGroups;
 
 /**
@@ -19,6 +21,7 @@ public final class OpenGammaPricingRules {
 
   private static final PricingRules STANDARD = DefaultPricingRules.of(
       PricingRule.builder(Trade.class).functionGroup(TradeFunctionGroups.all()).build(),
+      PricingRule.builder(FraTrade.class).functionGroup(FraFunctionGroups.discounting()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build());
   
   /**
@@ -36,7 +39,8 @@ public final class OpenGammaPricingRules {
    * <p>
    * The supported asset classes are:
    * <ul>
-   *   <li>Swap ({@link SwapTrade})</li>
+   *   <li>FRA ({@link FraTrade})
+   *   <li>Swap ({@link SwapTrade})
    * </ul>
    * 
    * @return the default pricing rules
