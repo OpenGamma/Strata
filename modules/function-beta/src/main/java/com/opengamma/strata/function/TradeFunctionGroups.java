@@ -20,7 +20,7 @@ public final class TradeFunctionGroups {
   
   private static final FunctionGroup<Trade> ALL_GROUP =
       DefaultFunctionGroup.builder(Trade.class).name("TradeAll")
-          .addFunction(Measure.TARGET_ID, TradeIdFunction.class)
+          .addFunction(Measure.ID, TradeIdFunction.class)
           .addFunction(Measure.COUNTERPARTY, TradeCounterpartyFunction.class)
           .addFunction(Measure.SETTLEMENT_DATE, TradeSettlementDateFunction.class)
           .build();
@@ -36,7 +36,7 @@ public final class TradeFunctionGroups {
    * <p>
    * The supported built-in measures are:
    * <ul>
-   *   <li>{@linkplain Measure#TARGET_ID Target ID}</li>
+   *   <li>{@linkplain Measure#ID ID}</li>
    *   <li>{@linkplain Measure#COUNTERPARTY Counterparty}</li>
    *   <li>{@linkplain Measure#SETTLEMENT_DATE Settlement date}</li>
    * </ul>
