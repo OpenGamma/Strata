@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -246,11 +247,45 @@ public final class CurveParameterSensitivity
    */
   public boolean equalWithTolerance(CurveParameterSensitivity other, double tolerance) {
     if (!sensitivities.keySet().equals(other.sensitivities.keySet())) {
-      return false;
+      // check that the element outside the intersection have a sensitivity below the tolerance
+      Set<SensitivityKey> amb = Sets.difference(sensitivities.keySet(), other.sensitivities.keySet());
+      if (!checkSmall(amb, sensitivities, tolerance)) {
+        return false;
+      }
+      Set<SensitivityKey> bma = Sets.difference(other.sensitivities.keySet(), sensitivities.keySet());
+      if (!checkSmall(bma, other.sensitivities, tolerance)) {
+        return false;
+      }
+      // construct the key interestion set for the next step
+      Set<SensitivityKey> intersection = Sets.intersection(sensitivities.keySet(), other.sensitivities.keySet());
+      return checkCommon(intersection, sensitivities, other.sensitivities, tolerance);
     }
-    for (SensitivityKey key : sensitivities.keySet()) {
-      double[] vector1 = sensitivities.get(key);
-      double[] vector2 = other.sensitivities.get(key);
+    return checkCommon(sensitivities.keySet(), sensitivities, other.sensitivities, tolerance);
+  }
+
+  // checks that the sensitivities in a curve sensitivity are small for key in a given key set
+  private boolean checkSmall(Set<SensitivityKey> kSet, ImmutableMap<SensitivityKey, double[]> s, double tolerance) {
+    for (SensitivityKey k : kSet) {
+      double[] v = s.get(k);
+      for (int i = 0; i < v.length; i++) {
+        if (!DoubleMath.fuzzyEquals(v[i], 0, tolerance)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  // checks that the difference on the common keys are within hte tolerance
+  private boolean checkCommon(
+      Set<SensitivityKey> common,
+      ImmutableMap<SensitivityKey, double[]> s1,
+      ImmutableMap<SensitivityKey, double[]> s2,
+      double tolerance) {
+
+    for (SensitivityKey key : common) {
+      double[] vector1 = s1.get(key);
+      double[] vector2 = s2.get(key);
       if (vector1.length != vector2.length) {
         return false;
       }
