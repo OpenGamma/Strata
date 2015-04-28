@@ -21,11 +21,13 @@ import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHA
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -33,11 +35,16 @@ import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.pricer.CurveSensitivityTestUtil;
+import com.opengamma.strata.pricer.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.ImmutableRatesProviderFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -49,6 +56,7 @@ public class DiscountingSwapLegPricerTest {
   private static final RatesProvider MOCK_PROV = new MockRatesProvider(date(2014, 1, 22));
   private static final RatesProvider MOCK_PROV_FUTURE = new MockRatesProvider(date(2040, 1, 22));
   private static final double TOLERANCE = 1.0e-12;
+  private static final double TOLERANCE_DELTA = 1.0E+0;
 
   public void test_pvbp_OnePeriod() {
     RatesProvider mockProv = mock(RatesProvider.class);
@@ -170,6 +178,23 @@ public class DiscountingSwapLegPricerTest {
     PointSensitivities res = test.presentValueSensitivity(expSwapLeg, MOCK_PROV).build();
 
     CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
+  }
+  
+
+  public void test_presentValueSensitivity_finiteDifference() {
+    ImmutableRatesProvider provider = RatesProviderDataSets.GBP_MULTI;
+    DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
+    ImmutableRatesProviderFiniteDifferenceSensitivityCalculator fd = 
+        new ImmutableRatesProviderFiniteDifferenceSensitivityCalculator(1.0E-7);
+    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC;
+    PointSensitivities point = pricer.presentValueSensitivity(expSwapLeg, provider).build();
+    CurveParameterSensitivity psAd = provider.parameterSensitivity(point);
+    CurveParameterSensitivity psFd = fd.sensitivity(provider, (p) -> pricer.presentValue(expSwapLeg, p));
+    ImmutableMap<SensitivityKey, double[]> mapAd = psAd.getSensitivities();
+    ImmutableMap<SensitivityKey, double[]> mapFd = psFd.getSensitivities();
+    assertTrue(mapAd.size() == 2); // No Libor 6M sensitivity
+    assertTrue(mapFd.size() == 3); // Libor 6M sensitivity equal to 0 in Finite Difference
+    assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
   }
 
   public void test_futureValueSensitivity() {
