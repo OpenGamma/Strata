@@ -27,14 +27,7 @@ import com.opengamma.strata.marketdata.id.DiscountingCurveId;
  * it is possible that it will change, but there are many other changes needed before other curve types
  * can be used.
  */
-public class DiscountingCurveMarketDataBuilder extends SingleValueMarketDataBuilder<YieldCurve, DiscountingCurveId> {
-
-  /**
-   * Default constructor.
-   */
-  public DiscountingCurveMarketDataBuilder() {
-    super(DiscountingCurveId.class);
-  }
+public class DiscountingCurveMarketDataBuilder implements MarketDataBuilder<YieldCurve, DiscountingCurveId> {
 
   @Override
   public MarketDataRequirements requirements(DiscountingCurveId id) {
@@ -45,7 +38,7 @@ public class DiscountingCurveMarketDataBuilder extends SingleValueMarketDataBuil
   }
 
   @Override
-  protected Result<YieldCurve> buildSingleValue(DiscountingCurveId requirement, BaseMarketData builtData) {
+  public Result<YieldCurve> build(DiscountingCurveId requirement, BaseMarketData builtData) {
     String curveGroupName = requirement.getCurveGroupName();
     CurveGroupId curveGroupId = CurveGroupId.of(curveGroupName);
 
@@ -55,6 +48,11 @@ public class DiscountingCurveMarketDataBuilder extends SingleValueMarketDataBuil
     CurveGroup curveGroup = builtData.getValue(curveGroupId);
     Result<YieldAndDiscountCurve> result = getCurve(curveGroup, curveGroupName, requirement.getCurrency());
     return result.flatMap(curve -> castCurve(curve, requirement));
+  }
+
+  @Override
+  public Class<DiscountingCurveId> getMarketDataIdType() {
+    return DiscountingCurveId.class;
   }
 
   /**

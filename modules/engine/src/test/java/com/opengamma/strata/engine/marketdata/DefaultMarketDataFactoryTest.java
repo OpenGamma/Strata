@@ -329,16 +329,14 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Map<DiscountingCurveId, Result<YieldCurve>> build(
-        Set<DiscountingCurveId> requirements,
-        BaseMarketData builtData) {
-
+    public Result<YieldCurve> build(DiscountingCurveId requirement, BaseMarketData builtData) {
       DiscountingCurveId curveId = DiscountingCurveId.of(Currency.EUR, "curve group");
-      if (requirements.size() == 1 && requirements.iterator().next().equals(curveId)) {
+
+      if (requirement.equals(curveId)) {
         YieldCurve yieldCurve = mock(YieldCurve.class);
-        return ImmutableMap.of(curveId, Result.success(yieldCurve));
+        return Result.success(yieldCurve);
       } else {
-        throw new IllegalArgumentException("Unexpected requirements " + requirements);
+        throw new IllegalArgumentException("Unexpected requirement " + requirement);
       }
     }
 

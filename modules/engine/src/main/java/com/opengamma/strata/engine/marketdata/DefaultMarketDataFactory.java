@@ -6,7 +6,7 @@
 package com.opengamma.strata.engine.marketdata;
 
 import static com.opengamma.strata.collect.Guavate.not;
-import static java.util.stream.Collectors.groupingBy;
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +17,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -115,27 +114,19 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // into a tree and build the data from the leaves inwards.
     // This is only necessary for non-observable IDs as observable market data has no dependencies.
 
-    buildObservableData(requirements.getObservables(), baseDataBuilder, failureBuilder);
+    // Filter out IDs for the data that is already present in suppliedData
+    Set<ObservableId> observableIds =
+        requirements.getObservables().stream()
+            .filter(not(suppliedData::containsValue))
+            .collect(toImmutableSet());
 
-    // TODO Is this necessary any more? Building in bulk was done for observable data which is now separate.
-    // Group the IDs by type so each type of market data can be built in bulk.
-    // This can be more efficient for some types of data.
-    Map<Class<?>, List<MarketDataId<?>>> idsByType =
-        requirements.getNonObservables().stream()
-            .collect(groupingBy(Object::getClass));
+    buildObservableData(observableIds, baseDataBuilder, failureBuilder);
 
-    // Build all instances of the same type of market data at the same time
-    for (Map.Entry<Class<?>, List<MarketDataId<?>>> entry : idsByType.entrySet()) {
-      Class<?> idType = entry.getKey();
-      Set<MarketDataId<?>> ids = ImmutableSet.copyOf(entry.getValue());
-      MarketDataBuilder<?, ?> builder = builders.get(idType);
+    // Filter out IDs for the data that is already present in suppliedData and build the rest
+    requirements.getNonObservables().stream()
+        .filter(not(suppliedData::containsValue))
+        .forEach(id -> buildNonObservableData(id, suppliedData, baseDataBuilder, failureBuilder));
 
-      if (builder != null) {
-        buildNonObservableData(builder, ids, suppliedData, baseDataBuilder, failureBuilder);
-      } else {
-        addFailuresForMissingBuilder(failureBuilder, idType, ids);
-      }
-    }
     return MarketDataResult.builder()
         .marketData(baseDataBuilder.build())
         .singleValueFailures(failureBuilder.build())
@@ -206,16 +197,14 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   /**
    * Builds items of non-observable market data using a market data builder and adds them to the results.
    *
-   * @param builder  the builder for building the market data
-   * @param ids  IDs of the market data that should be built
+   * @param id  ID of the market data that should be built
    * @param suppliedData  existing set of market data that contains any data required to build the values
    * @param baseDataBuilder  a builder to receive the built data
    * @param failureBuilder  a builder to receive details of data that couldn't be built
    */
   @SuppressWarnings("unchecked")
   private void buildNonObservableData(
-      MarketDataBuilder<?, ?> builder,
-      Set<MarketDataId<?>> ids,
+      MarketDataId id,
       BaseMarketData suppliedData,
       BaseMarketDataBuilder baseDataBuilder,
       ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder) {
@@ -226,40 +215,38 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // parameter information. When the builders are extracted from the map and used it's impossible to
     // convince the compiler the operations are safe, although the logic guarantees it.
 
-    Map<? extends MarketDataId<?>, ? extends Result<?>> builtValues =
-        builder.build(((Set) ids), suppliedData);
+    MarketDataBuilder marketDataBuilder = builders.get(id.getClass());
 
-    for (Map.Entry<? extends MarketDataId<?>, ? extends Result<?>> valueEntry : builtValues.entrySet()) {
-      MarketDataId id = valueEntry.getKey();
-      Result<?> result = valueEntry.getValue();
+    if (marketDataBuilder == null) {
+      addFailureForMissingBuilder(failureBuilder, id);
+      return;
+    }
+    Result<?> result = marketDataBuilder.build(id, suppliedData);
 
-      if (result.isSuccess()) {
-        baseDataBuilder.addValue(id, result.getValue());
-      } else {
-        failureBuilder.put(id, result);
-      }
+    if (result.isSuccess()) {
+      baseDataBuilder.addValue(id, result.getValue());
+    } else {
+      failureBuilder.put(id, result);
     }
   }
 
   /**
-   * Adds a failure for each of the IDs indicating there is no builder available to handle it.
+   * Adds a failure for the ID indicating there is no builder available to handle it.
    *
    * @param failureBuilder  builder for collecting failures when building market data
-   * @param idType  the type of the market data IDs
-   * @param ids  the market data IDs
+   * @param id  the market data ID
    */
-  private void addFailuresForMissingBuilder(
+  private void addFailureForMissingBuilder(
       ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder,
-      Class<?> idType,
-      Set<MarketDataId<?>> ids) {
+      MarketDataId<?> id) {
 
     Result<Object> failure =
         Result.failure(
             FailureReason.INVALID_INPUT,
             "No builder found for ID type {}",
-            idType.getName());
+            id.getClass().getName());
 
-    ids.forEach(id -> failureBuilder.put(id, failure));
+    failureBuilder.put(id, failure);
   }
 
   /**

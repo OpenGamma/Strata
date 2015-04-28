@@ -27,6 +27,7 @@ import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.SWAP_TRADE_CRO
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
@@ -39,7 +40,6 @@ import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.pricer.CurveSensitivityTestUtil;
 import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
@@ -267,7 +267,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     PointSensitivities res = pricerSwap.presentValueSensitivity(SWAP, MOCK_PROV).build();
 
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
+    assertTrue(res.equalWithTolerance(expected, TOLERANCE));
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
@@ -300,7 +300,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     PointSensitivities res = pricerSwap.futureValueSensitivity(SWAP, MOCK_PROV).build();
 
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(res, expected, TOLERANCE);
+    assertTrue(res.equalWithTolerance(expected, TOLERANCE));
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);

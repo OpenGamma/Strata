@@ -33,7 +33,7 @@ public class DiscountingCurveMarketDataBuilderTest {
     BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DiscountingCurveMarketDataBuilder builder = new DiscountingCurveMarketDataBuilder();
 
-    Result<YieldCurve> result = builder.buildSingleValue(curveId, marketData);
+    Result<YieldCurve> result = builder.build(curveId, marketData);
     assertThat(result).hasValue(curve);
   }
 
@@ -50,10 +50,10 @@ public class DiscountingCurveMarketDataBuilderTest {
     BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DiscountingCurveMarketDataBuilder builder = new DiscountingCurveMarketDataBuilder();
 
-    Result<YieldCurve> result1 = builder.buildSingleValue(curveId1, marketData);
+    Result<YieldCurve> result1 = builder.build(curveId1, marketData);
     assertThat(result1).hasValue(curve1);
 
-    Result<YieldCurve> result2 = builder.buildSingleValue(curveId2, marketData);
+    Result<YieldCurve> result2 = builder.build(curveId2, marketData);
     assertThat(result2).hasValue(curve2);
   }
 
@@ -85,16 +85,16 @@ public class DiscountingCurveMarketDataBuilderTest {
 
     DiscountingCurveMarketDataBuilder builder = new DiscountingCurveMarketDataBuilder();
 
-    Result<YieldCurve> result1 = builder.buildSingleValue(curveId1, marketData);
+    Result<YieldCurve> result1 = builder.build(curveId1, marketData);
     assertThat(result1).hasValue(curve1);
 
-    Result<YieldCurve> result2 = builder.buildSingleValue(curveId2, marketData);
+    Result<YieldCurve> result2 = builder.build(curveId2, marketData);
     assertThat(result2).hasValue(curve2);
 
-    Result<YieldCurve> result3 = builder.buildSingleValue(curveId3, marketData);
+    Result<YieldCurve> result3 = builder.build(curveId3, marketData);
     assertThat(result3).hasValue(curve3);
 
-    Result<YieldCurve> result4 = builder.buildSingleValue(curveId4, marketData);
+    Result<YieldCurve> result4 = builder.build(curveId4, marketData);
     assertThat(result4).hasValue(curve4);
   }
 

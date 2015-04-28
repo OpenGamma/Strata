@@ -5,11 +5,6 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -18,7 +13,7 @@ import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
 
 /**
- * Market data builder that satisifes requests for forward curves by loading the
+ * Market data builder that satisfies requests for forward curves by loading the
  * calibrated curves from JSON resources.
  * <p>
  * Curves must be available as resources with a name of the form
@@ -35,13 +30,9 @@ public class ExampleForwardCurveBuilder
   }
 
   @Override
-  public Map<IndexCurveId, Result<YieldCurve>> build(Set<IndexCurveId> requirements, BaseMarketData builtData) {
-    ImmutableMap.Builder<IndexCurveId, Result<YieldCurve>> resultBuilder = ImmutableMap.builder();
-    for (IndexCurveId curveId : requirements) {
-      YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), curveId.getIndex().getName());
-      resultBuilder.put(curveId, Result.success(curve));
-    }
-    return resultBuilder.build();
+  public Result<YieldCurve> build(IndexCurveId requirement, BaseMarketData builtData) {
+    YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), requirement.getIndex().getName());
+    return Result.success(curve);
   }
 
   @Override
