@@ -262,7 +262,7 @@ public final class CurveParameterSensitivity
     }
     return checkCommon(sensitivities.keySet(), sensitivities, other.sensitivities, tolerance);
   }
-  
+
   // checks that the sensitivities in a curve sensitivity are small for key in a given key set
   private boolean checkSmall(Set<SensitivityKey> kSet, ImmutableMap<SensitivityKey, double[]> s, double tolerance) {
     for (SensitivityKey k : kSet) {
@@ -275,7 +275,7 @@ public final class CurveParameterSensitivity
     }
     return true;
   }
-  
+
   // checks that the difference on the common keys are within hte tolerance
   private boolean checkCommon(
       Set<SensitivityKey> common,

@@ -22,7 +22,6 @@ import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
 
-
 /**
  * Computes the curve parameter sensitivity related to a {@link ImmutableRatesProvider} by finite difference.
  * <p>
@@ -33,12 +32,12 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
   /**
    * Default implementation. The shift is one basis point (0.0001).
    */
-  public static final ImmutableRatesProviderFiniteDifferenceSensitivityCalculator DEFAULT = 
+  public static final ImmutableRatesProviderFiniteDifferenceSensitivityCalculator DEFAULT =
       new ImmutableRatesProviderFiniteDifferenceSensitivityCalculator(1.0E-4);
-  
+
   /** The shift used for finite difference. */
   private final double shift;
-  
+
   /**
    * Create an instance of the finite difference calculator.
    * @param shift  the shift used in the finite difference computation
@@ -59,9 +58,9 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
    * @return the sensitivity with the {@link SensitivityKey} containing the curves names.
    */
   public CurveParameterSensitivity sensitivity(
-      ImmutableRatesProvider provider, 
+      ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn) {
-    
+
     CurrencyAmount valueInit = valueFn.apply(provider);
     CurveParameterSensitivity result = sensitivityDiscounting(provider, valueFn, valueInit);
     return result.combinedWith(sensitivityForward(provider, valueFn, valueInit));
@@ -71,7 +70,8 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
   private InterpolatedDoublesCurve checkInterpolated(YieldAndDiscountCurve curve) {
     ArgChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
     YieldCurve curveYield = (YieldCurve) curve;
-    ArgChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
+    ArgChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve,
+        "Yield curve should be based on InterpolatedDoublesCurve");
     return (InterpolatedDoublesCurve) curveYield.getCurve();
   }
 
@@ -81,7 +81,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
     yieldBumped[loopnode] += shift;
     return new YieldCurve(curveInt.getName(),
         new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-  }  
+  }
 
   // computes the sensitivity with respect to the discounting curves
   private CurveParameterSensitivity sensitivityDiscounting(
@@ -106,7 +106,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
       result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
     }
     return result;
-  }  
+  }
 
   // computes the sensitivity with respect to the forward curves
   private CurveParameterSensitivity sensitivityForward(
@@ -129,7 +129,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
       String name = entry.getValue().getName();
       result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
     }
-    return result;    
+    return result;
   }
 
 }

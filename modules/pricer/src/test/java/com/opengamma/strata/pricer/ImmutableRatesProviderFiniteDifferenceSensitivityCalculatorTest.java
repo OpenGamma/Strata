@@ -30,10 +30,10 @@ import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
  * Tests {@link ImmutableRatesProviderFiniteDifferenceSensitivityCalculator}.
  */
 public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
-  
-  private static final ImmutableRatesProviderFiniteDifferenceSensitivityCalculator FD_CALCULATOR = 
+
+  private static final ImmutableRatesProviderFiniteDifferenceSensitivityCalculator FD_CALCULATOR =
       ImmutableRatesProviderFiniteDifferenceSensitivityCalculator.DEFAULT;
-  
+
   private static final double TOLERANCE_DELTA = 1.0E-8;
 
   @Test
@@ -73,7 +73,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
       assertEquals(times3[i], s3[i], TOLERANCE_DELTA);
     }
   }
-  
+
   // private function for testing. Returns the sum of rates multiplied by time
   private CurrencyAmount fn(ImmutableRatesProvider provider) {
     double result = 0.0;
@@ -89,14 +89,14 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
       InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
       result += sumProduct(curveInt);
     }
-    return CurrencyAmount.of(USD, result);    
-  }  
+    return CurrencyAmount.of(USD, result);
+  }
 
   // compute the sum of the product of times and rates
   private double sumProduct(InterpolatedDoublesCurve curveInt) {
     double result = 0.0;
-    double [] x = curveInt.getXDataAsPrimitive();
-    double [] y = curveInt.getYDataAsPrimitive();
+    double[] x = curveInt.getXDataAsPrimitive();
+    double[] y = curveInt.getYDataAsPrimitive();
     int nbNodePoint = curveInt.getXDataAsPrimitive().length;
     for (int i = 0; i < nbNodePoint; i++) {
       result += x[i] * y[i];
@@ -108,8 +108,9 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
   private InterpolatedDoublesCurve checkInterpolated(YieldAndDiscountCurve curve) {
     ArgChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
     YieldCurve curveYield = (YieldCurve) curve;
-    ArgChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
+    ArgChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve,
+        "Yield curve should be based on InterpolatedDoublesCurve");
     return (InterpolatedDoublesCurve) curveYield.getCurve();
   }
-  
+
 }

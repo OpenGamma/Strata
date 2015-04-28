@@ -41,7 +41,7 @@ public class CurveParameterSensitivityTest {
   private static final Map<SensitivityKey, double[]> MAP_0 = ImmutableMap.of(KEY_3, VECTOR_ZERO_4);
   private static final CurveParameterSensitivity SENSI_0 =
       CurveParameterSensitivity.builder().sensitivities(MAP_0).build();
-  
+
   private static final Map<SensitivityKey, double[]> MAP_1 = ImmutableMap.of(KEY_USD, VECTOR_USD1);
   private static final CurveParameterSensitivity SENSI_1 =
       CurveParameterSensitivity.builder().sensitivities(MAP_1).build();
@@ -49,7 +49,7 @@ public class CurveParameterSensitivityTest {
   private static final Map<SensitivityKey, double[]> MAP_2 = ImmutableMap.of(KEY_USD, VECTOR_USD2, KEY_EUR, VECTOR_EUR1);
   private static final CurveParameterSensitivity SENSI_2 =
       CurveParameterSensitivity.builder().sensitivities(MAP_2).build();
-  
+
   private static final double TOLERENCE_CMP = 1.0E-8;
 
   //-------------------------------------------------------------------------
