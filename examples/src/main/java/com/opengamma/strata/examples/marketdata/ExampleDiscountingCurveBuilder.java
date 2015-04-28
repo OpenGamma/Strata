@@ -6,10 +6,7 @@
 package com.opengamma.strata.examples.marketdata;
 
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -18,7 +15,7 @@ import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
 
 /**
- * Market data builder that satisifes requests for discounting curves by loading the
+ * Market data builder that satisfies requests for discounting curves by loading the
  * calibrated curves from JSON resources.
  * <p>
  * Curves must be available as resources with a name of the form
@@ -35,14 +32,10 @@ public class ExampleDiscountingCurveBuilder
   }
 
   @Override
-  public Map<DiscountingCurveId, Result<YieldCurve>> build(Set<DiscountingCurveId> requirements, BaseMarketData builtData) {
+  public Result<YieldCurve> build(DiscountingCurveId requirement, BaseMarketData builtData) {
     LocalDate valuationDate = builtData.getValuationDate();
-    ImmutableMap.Builder<DiscountingCurveId, Result<YieldCurve>> resultBuilder = ImmutableMap.builder();
-    for (DiscountingCurveId curveId : requirements) {
-      YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, curveId.getCurrency() + "-discounting");
-      resultBuilder.put(curveId, Result.success(curve));
-    }
-    return resultBuilder.build();
+    YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, requirement.getCurrency() + "-discounting");
+    return Result.success(curve);
   }
 
   @Override
