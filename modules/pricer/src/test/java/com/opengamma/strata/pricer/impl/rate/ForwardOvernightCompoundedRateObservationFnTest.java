@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
@@ -21,7 +22,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
-import com.opengamma.strata.pricer.CurveSensitivityTestUtil;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
@@ -100,8 +100,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           USD_FED_FUND.getCurrency(), FIXING_START_DATE, FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
-      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
-          sensitivityBuilderExpected.build(), EPS_FD);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD));
     }
   }
 
@@ -231,8 +231,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           .combinedWith(sensitivityBuilderExpected2);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
-      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
-          sensitivityBuilderExpected.build(), EPS_FD);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD));
     }
   }
 
@@ -328,8 +328,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
-      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
-          sensitivityBuilderExpected.build(), EPS_FD);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD));
     }
   }
 
@@ -431,8 +431,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           GBP_SONIA.getCurrency(), FIXING_DATES[lastFixing], FIXING_DATES[6], sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
-      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
-          sensitivityBuilderExpected.build(), EPS_FD);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD));
     }
   }
 
@@ -547,8 +547,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
-      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
-          sensitivityBuilderExpected.build(), EPS_FD);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD));
     }
   }
 
@@ -652,8 +652,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
 
-      CurveSensitivityTestUtil.assertMulticurveSensitivity(sensitivityBuilderComputed.build(),
-          sensitivityBuilderExpected.build(), EPS_FD);
+      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD));
     }
   }
 
