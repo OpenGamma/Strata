@@ -45,7 +45,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
     double[] s = sensi.get(NameCurrencySensitivityKey.of(RatesProviderDataSets.USD_SINGLE_NAME, USD));
     assertTrue(s.length == times.length);
     for (int i = 0; i < times.length; i++) {
-      assertEquals(times[i] * 4.0d, s[i], TOLERANCE_DELTA);
+      assertEquals(s[i], times[i] * 4.0d, TOLERANCE_DELTA);
     }
   }
 

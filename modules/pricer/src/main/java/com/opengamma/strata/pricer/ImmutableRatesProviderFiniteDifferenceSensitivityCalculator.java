@@ -64,8 +64,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
     
     CurrencyAmount valueInit = valueFn.apply(provider);
     CurveParameterSensitivity result = sensitivityDiscounting(provider, valueFn, valueInit);
-    result.combinedWith(sensitivityForward(provider, valueFn, valueInit));
-    return result;
+    return result.combinedWith(sensitivityForward(provider, valueFn, valueInit));
   }
 
   // check that the curve is yield curve and the underlying is an InterpolatedDoublesCurve and returns the last
