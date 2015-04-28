@@ -226,16 +226,14 @@ public class ForwardOvernightCompoundedRateObservationFn
 
     // Calculate the total rate sensitivity
     private PointSensitivityBuilder calculateRateSensitivity() {
-      PointSensitivityBuilder combinedPointSensitivity = PointSensitivityBuilder.none();
       double factor = pastCompositionFactor() * valuationCompositionFactor() / accrualFactorTotal;
       ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff = compositionFactorAndSensitivityNonCutoff();
       ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff = compositionFactorAndSensitivityCutoff();
 
-      combinedPointSensitivity = combinedPointSensitivity.combinedWith(compositionFactorAndSensitivityNonCutoff
-          .getFirst().multipliedBy(compositionFactorAndSensitivityCutoff.getSecond()));
+      PointSensitivityBuilder combinedPointSensitivity = compositionFactorAndSensitivityNonCutoff.getFirst().
+          multipliedBy(compositionFactorAndSensitivityCutoff.getSecond() * factor);
       combinedPointSensitivity = combinedPointSensitivity.combinedWith(compositionFactorAndSensitivityCutoff
-          .getFirst().multipliedBy(compositionFactorAndSensitivityNonCutoff.getSecond()));
-      combinedPointSensitivity = combinedPointSensitivity.multipliedBy(factor);
+          .getFirst().multipliedBy(compositionFactorAndSensitivityNonCutoff.getSecond() * factor));
 
       return combinedPointSensitivity;
     }
