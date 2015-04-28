@@ -191,8 +191,8 @@ public class DiscountingSwapLegPricerTest {
     CurveParameterSensitivity psFd = fd.sensitivity(provider, (p) -> pricer.presentValue(expSwapLeg, p));
     ImmutableMap<SensitivityKey, double[]> mapAd = psAd.getSensitivities();
     ImmutableMap<SensitivityKey, double[]> mapFd = psFd.getSensitivities();
-    assertTrue(mapAd.size() == 2); // No Libor 6M sensitivity
-    assertTrue(mapFd.size() == 3); // Libor 6M sensitivity equal to 0 in Finite Difference
+    assertEquals(mapAd.size(), 2); // No Libor 6M sensitivity
+    assertEquals(mapFd.size(), 3); // Libor 6M sensitivity equal to 0 in Finite Difference
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
   }
 

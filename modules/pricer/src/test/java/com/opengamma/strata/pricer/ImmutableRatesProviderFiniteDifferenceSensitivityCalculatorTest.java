@@ -5,9 +5,8 @@
  */
 package com.opengamma.strata.pricer;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Map.Entry;
 
@@ -41,9 +40,9 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
     CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, this::fn);
     double[] times = RatesProviderDataSets.TIMES_1;
     ImmutableMap<SensitivityKey, double[]> sensi = sensiComputed.getSensitivities();
-    assertTrue(sensi.size() == 1);
+    assertEquals(sensi.size(), 1);
     double[] s = sensi.get(NameCurrencySensitivityKey.of(RatesProviderDataSets.USD_SINGLE_NAME, USD));
-    assertTrue(s.length == times.length);
+    assertEquals(s.length, times.length);
     for (int i = 0; i < times.length; i++) {
       assertEquals(s[i], times[i] * 4.0d, TOLERANCE_DELTA);
     }
@@ -56,19 +55,19 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
     double[] times2 = RatesProviderDataSets.TIMES_2;
     double[] times3 = RatesProviderDataSets.TIMES_3;
     ImmutableMap<SensitivityKey, double[]> sensi = sensiComputed.getSensitivities();
-    assertTrue(sensi.size() == 3);
+    assertEquals(sensi.size(), 3);
     double[] s1 = sensi.get(NameCurrencySensitivityKey.of(RatesProviderDataSets.USD_DSC_NAME, USD));
-    assertTrue(s1.length == times1.length);
+    assertEquals(s1.length, times1.length);
     for (int i = 0; i < times1.length; i++) {
       assertEquals(times1[i] * 2.0d, s1[i], TOLERANCE_DELTA);
     }
     double[] s2 = sensi.get(NameCurrencySensitivityKey.of(RatesProviderDataSets.USD_L3_NAME, USD));
-    assertTrue(s2.length == times2.length);
+    assertEquals(s2.length, times2.length);
     for (int i = 0; i < times2.length; i++) {
       assertEquals(times2[i], s2[i], TOLERANCE_DELTA);
     }
     double[] s3 = sensi.get(NameCurrencySensitivityKey.of(RatesProviderDataSets.USD_L6_NAME, USD));
-    assertTrue(s3.length == times3.length);
+    assertEquals(s3.length, times3.length);
     for (int i = 0; i < times3.length; i++) {
       assertEquals(times3[i], s3[i], TOLERANCE_DELTA);
     }
