@@ -37,9 +37,10 @@ public class FxMatrixTest {
   public static final Offset<Double> TOL = offset(TOLERANCE);
 
   public void emptyMatrixCanHandleTrivialRate() {
-    FxMatrix matrix = FxMatrix.builder().build();
+    FxMatrix matrix = FxMatrix.empty();
     assertThat(matrix.getCurrencies()).isEmpty();
     assertThat(matrix.rate(USD, USD)).isEqualTo(1.0);
+    assertThat(matrix.toString()).isEqualTo("FxMatrix[ : ]");
   }
 
   public void emptyMatrixCannotDoConversion() {
@@ -48,7 +49,22 @@ public class FxMatrixTest {
     assertThrows(() -> matrix.rate(USD, EUR), IllegalArgumentException.class);
   }
 
-  public void singleRateMatrix() {
+  public void singleRateMatrixByOfCurrencyPairFactory() {
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), 1.6);
+    assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
+    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.rate(USD, GBP)).isEqualTo(0.625);
+    assertThat(matrix.toString()).isEqualTo("FxMatrix[GBP, USD : [1.0, 1.6],[0.625, 1.0]]");
+  }
+
+  public void singleRateMatrixByOfCurrenciesFactory() {
+    FxMatrix matrix = FxMatrix.of(GBP, USD, 1.6);
+    assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
+    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.rate(USD, GBP)).isEqualTo(0.625);
+  }
+
+  public void singleRateMatrixByBuilder() {
     FxMatrix matrix = FxMatrix.builder()
         .addRate(GBP, USD, 1.6)
         .build();
