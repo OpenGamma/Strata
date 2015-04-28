@@ -5,11 +5,6 @@
  */
 package com.opengamma.strata.engine.marketdata.builders;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-
-import java.util.Map;
-import java.util.Set;
-
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
@@ -35,21 +30,11 @@ public final class MissingMappingMarketDataBuilder implements MarketDataBuilder<
   }
 
   @Override
-  public Map<MissingMappingId, Result<Void>> build(Set<MissingMappingId> requirements, BaseMarketData builtData) {
-    return requirements.stream().collect(toImmutableMap(id -> id, this::createResult));
-  }
-
-  /**
-   * Returns a failure result with an error message explaining there was no market data mapping for the key.
-   *
-   * @param id  an ID wrapping a market data key for which there was no market data mapping
-   * @return a failure result with an error message explaining there was no market data mapping for the key
-   */
-  private Result<Void> createResult(MissingMappingId id) {
+  public Result<Void> build(MissingMappingId requirement, BaseMarketData builtData) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data mapping found for market data key {}",
-        id.getKey());
+        requirement.getKey());
   }
 
   @Override
