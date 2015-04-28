@@ -11,8 +11,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.engine.CalculationEngine;
@@ -86,12 +84,9 @@ public class FraPricingExample {
         .buySell(BuySell.SELL)
         .index(IborIndices.USD_LIBOR_3M)
         .startDate(LocalDate.of(2014, 9, 12))
-        .fixingOffset(IborIndices.USD_LIBOR_3M.getFixingDateOffset())
         .endDate(LocalDate.of(2014, 12, 12))
-        .paymentDate(AdjustableDate.of(LocalDate.of(2014, 9, 12)))
         .fixedRate(0.0125)
         .notional(10_000_000)
-        .dayCount(DayCounts.ACT_360)
         .build();
 
     return FraTrade.builder()

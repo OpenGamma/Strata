@@ -69,6 +69,8 @@ public final class Fra
    * The date that payment occurs.
    * <p>
    * The date that payment is made when settling the FRA with support for business day adjustments.
+   * <p>
+   * When building, this will default to the start date if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final AdjustableDate paymentDate;
@@ -148,6 +150,8 @@ public final class Fra
    * The offset is typically a negative number of business days.
    * The data model permits the fixing offset to differ from that of the index,
    * however the two are typically the same.
+   * <p>
+   * When building, this will default to the fixing offset of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment fixingOffset;
@@ -189,6 +193,9 @@ public final class Fra
       if (builder.dayCount == null) {
         builder.dayCount = builder.index.getDayCount();
       }
+      if (builder.fixingOffset == null) {
+        builder.fixingOffset = builder.index.getFixingDateOffset();
+      }
       if (builder.currency == null) {
         builder.currency = builder.index.getCurrency();
       }
@@ -196,6 +203,9 @@ public final class Fra
         Currency curr = builder.index.getCurrency();
         builder.discounting = (curr.equals(AUD) || curr.equals(NZD) ? AFMA : ISDA);
       }
+    }
+    if (builder.paymentDate == null && builder.startDate != null) {
+      builder.paymentDate = AdjustableDate.of(builder.startDate);
     }
   }
 
@@ -344,6 +354,8 @@ public final class Fra
    * Gets the date that payment occurs.
    * <p>
    * The date that payment is made when settling the FRA with support for business day adjustments.
+   * <p>
+   * When building, this will default to the start date if not specified.
    * @return the value of the property, not null
    */
   public AdjustableDate getPaymentDate() {
@@ -455,6 +467,8 @@ public final class Fra
    * The offset is typically a negative number of business days.
    * The data model permits the fixing offset to differ from that of the index,
    * however the two are typically the same.
+   * <p>
+   * When building, this will default to the fixing offset of the index if not specified.
    * @return the value of the property, not null
    */
   public DaysAdjustment getFixingOffset() {
