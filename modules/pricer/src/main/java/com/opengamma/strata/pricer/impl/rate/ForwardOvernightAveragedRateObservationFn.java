@@ -40,6 +40,7 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
+
     OvernightIndex index = observation.getIndex();
     LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
@@ -81,8 +82,43 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
-    // TODO
-    throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
+
+    OvernightIndex index = observation.getIndex();
+    LocalDate lastNonCutoffFixing = observation.getEndDate();
+    int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
+    double accrualFactorTotal = 0.0d;
+    // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end. 
+    // When the fixing period end-date is not a good business day in the index calendar, 
+    // the last fixing end date will be after the fixing end-date.
+    double cutoffAccrualFactor = 0.0;
+    for (int i = 0; i < cutoffOffset; i++) {
+      lastNonCutoffFixing = index.getFixingCalendar().previous(lastNonCutoffFixing);
+      LocalDate cutoffEffectiveDate = index.calculateEffectiveFromFixing(lastNonCutoffFixing);
+      LocalDate cutoffMaturityDate = index.calculateMaturityFromEffective(cutoffEffectiveDate);
+      double accrualFactor = index.getDayCount().yearFraction(cutoffEffectiveDate, cutoffMaturityDate);
+      accrualFactorTotal += accrualFactor;
+      cutoffAccrualFactor += accrualFactor;
+    }
+    PointSensitivityBuilder combinedPointSensitivityBuilder =
+        provider.overnightIndexRateSensitivity(index, lastNonCutoffFixing);
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.multipliedBy(cutoffAccrualFactor);
+
+    LocalDate currentFixingNonCutoff = observation.getStartDate();
+    while (currentFixingNonCutoff.isBefore(lastNonCutoffFixing)) {
+      // All dates involved in the period are computed. Potentially slow.
+      // The fixing periods are added as long as their start date is (strictly) before the no cutoff period end-date.
+      LocalDate currentOnRateStart = index.calculateEffectiveFromFixing(currentFixingNonCutoff);
+      LocalDate currentOnRateEnd = index.calculateMaturityFromEffective(currentOnRateStart);
+      double accrualFactor = index.getDayCount().yearFraction(currentOnRateStart, currentOnRateEnd);
+      PointSensitivityBuilder forwardRateSensitivity =
+          provider.overnightIndexRateSensitivity(index, currentFixingNonCutoff);
+      forwardRateSensitivity = forwardRateSensitivity.multipliedBy(accrualFactor);
+      combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivity);
+      accrualFactorTotal += accrualFactor;
+      currentFixingNonCutoff = index.getFixingCalendar().next(currentFixingNonCutoff);
+    }
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.multipliedBy(1.0 / accrualFactorTotal);
+    return combinedPointSensitivityBuilder;
   }
 
 }

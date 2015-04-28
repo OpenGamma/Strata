@@ -9,6 +9,7 @@ import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHA
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
-import com.opengamma.strata.pricer.CurveSensitivityTestUtil;
 import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -71,8 +71,8 @@ public class DiscountingNotionalExchangePricerTest {
     double eps = 1.0e-7;
     PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(mockProv,
         NOTIONAL_EXCHANGE_REC_GBP, eps));
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected, NOTIONAL_EXCHANGE_REC_GBP
-        .getPaymentAmount().getAmount() * eps);
+    assertTrue(senseComputed.equalWithTolerance(
+        senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
   }
 
   /**
@@ -85,8 +85,8 @@ public class DiscountingNotionalExchangePricerTest {
 
     double eps = 1.0e-12;
     PointSensitivities senseExpected = PointSensitivities.NONE;
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected, NOTIONAL_EXCHANGE_REC_GBP
-        .getPaymentAmount().getAmount() * eps);
+    assertTrue(senseComputed.equalWithTolerance(
+        senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
   }
 
   private List<ZeroRateSensitivity> dscSensitivityFD(RatesProvider provider, NotionalExchange event, double eps) {
