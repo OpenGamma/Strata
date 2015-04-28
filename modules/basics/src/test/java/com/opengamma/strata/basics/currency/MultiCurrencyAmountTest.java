@@ -362,6 +362,40 @@ public class MultiCurrencyAmountTest {
     assertEquals(test.get(CA2.getCurrency()), Double.valueOf(CA2.getAmount()));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_convert_rateProvider_noConversionSize1() {
+    FxRateProvider provider = (ccy1, ccy2) -> {
+      throw new IllegalArgumentException();
+    };
+    MultiCurrencyAmount test = MultiCurrencyAmount.of(CA2);
+    assertEquals(test.convert(CCY2, provider), CA2);
+  }
+
+  public void test_convert_rateProvider_conversionSize1() {
+    FxRateProvider provider = (ccy1, ccy2) -> {
+      if (ccy1.equals(CCY1) && ccy2.equals(CCY2)) {
+        return 2.5d;
+      }
+      throw new IllegalArgumentException();
+    };
+    MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1);
+    assertEquals(test.convert(CCY2, provider), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+  }
+
+  public void test_convert_rateProvider_conversionSize2() {
+    FxRateProvider provider = (ccy1, ccy2) -> {
+      if (ccy1.equals(ccy2)) {
+        return 1d;
+      }
+      if (ccy1.equals(CCY1) && ccy2.equals(CCY2)) {
+        return 2.5d;
+      }
+      throw new IllegalArgumentException();
+    };
+    MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
+    assertEquals(test.convert(CCY2, provider), CA2.plus(CurrencyAmount.of(CCY2, AMT1 * 2.5d)));
+  }
+
   //-----------------------------------------------------------------------
   public void test_serialization() {
     assertSerialization(MultiCurrencyAmount.of(CA1, CA2, CA3));

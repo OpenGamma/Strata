@@ -33,7 +33,8 @@ import com.opengamma.strata.collect.tuple.Pair;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class FxMatrix {
+public final class FxMatrix
+    implements FxRateProvider {
 
   /**
    * An empty FX matrix containing neither currencies nor rates.
@@ -178,13 +179,31 @@ public final class FxMatrix {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the exchange rate between two currencies.
+   * Gets the FX rate for the specified currency pair.
    * <p>
-   * The rate is based on this formula: {@code (1.0 * baseCurrency = rate * counterCurrency)}.
+   * The rate returned is the rate from the base currency to the counter currency
+   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
+   * 
+   * @param baseCurrency  the base currency, to convert from
+   * @param counterCurrency  the counter currency, to convert to
+   * @return the FX rate for the currency pair
+   * @throws IllegalArgumentException if no FX rate could be found
+   */
+  @Override
+  public double fxRate(Currency baseCurrency, Currency counterCurrency) {
+    return rate(baseCurrency, counterCurrency);
+  }
+
+  /**
+   * Gets the FX rate for the specified currency pair.
+   * <p>
+   * The rate returned is the rate from the base currency to the counter currency
+   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
    *
    * @param baseCurrency  the first currency
    * @param counterCurrency  the second currency
    * @return the exchange rate
+   * @throws IllegalArgumentException if no FX rate could be found
    */
   public double rate(Currency baseCurrency, Currency counterCurrency) {
     if (baseCurrency.equals(counterCurrency)) {

@@ -91,7 +91,7 @@ public class DiscountingFxSwapProductPricerBeta {
     FxPayment basePaymentNear = fx.getNearLeg().getBaseCurrencyPayment();
     FxPayment counterPaymentNear = fx.getNearLeg().getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
-    double pvCounterCcy = provider.fxConvert(pv, counterPaymentNear.getCurrency()).getAmount();
+    double pvCounterCcy = pv.convert(counterPaymentNear.getCurrency(), provider).getAmount();
     // TODO: is basePaymentNear.getCurrency() correct?
     double dfEnd = provider.discountFactor(basePaymentNear.getCurrency(), fx.getFarLeg().getValueDate());
     double notionalBaseCcy = basePaymentNear.getAmount();

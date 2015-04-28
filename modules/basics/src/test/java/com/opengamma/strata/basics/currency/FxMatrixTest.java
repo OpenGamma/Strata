@@ -39,7 +39,7 @@ public class FxMatrixTest {
   public void emptyMatrixCanHandleTrivialRate() {
     FxMatrix matrix = FxMatrix.empty();
     assertThat(matrix.getCurrencies()).isEmpty();
-    assertThat(matrix.rate(USD, USD)).isEqualTo(1.0);
+    assertThat(matrix.fxRate(USD, USD)).isEqualTo(1.0);
     assertThat(matrix.toString()).isEqualTo("FxMatrix[ : ]");
   }
 
