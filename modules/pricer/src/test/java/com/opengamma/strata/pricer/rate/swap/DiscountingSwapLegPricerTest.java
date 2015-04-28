@@ -35,12 +35,12 @@ import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.pricer.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.ImmutableRatesProviderFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
@@ -183,8 +183,8 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_finiteDifference() {
     ImmutableRatesProvider provider = RatesProviderDataSets.GBP_MULTI;
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    ImmutableRatesProviderFiniteDifferenceSensitivityCalculator fd = 
-        new ImmutableRatesProviderFiniteDifferenceSensitivityCalculator(1.0E-7);
+    RatesFiniteDifferenceSensitivityCalculator fd = 
+        new RatesFiniteDifferenceSensitivityCalculator(1.0E-7);
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC;
     PointSensitivities point = pricer.presentValueSensitivity(expSwapLeg, provider).build();
     CurveParameterSensitivity psAd = provider.parameterSensitivity(point);

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer;
+package com.opengamma.strata.pricer.sensitivity;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.testng.Assert.assertEquals;
@@ -20,18 +20,20 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.pricer.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
 
 /**
- * Tests {@link ImmutableRatesProviderFiniteDifferenceSensitivityCalculator}.
+ * Tests {@link RatesFiniteDifferenceSensitivityCalculator}.
  */
-public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
+public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
-  private static final ImmutableRatesProviderFiniteDifferenceSensitivityCalculator FD_CALCULATOR =
-      ImmutableRatesProviderFiniteDifferenceSensitivityCalculator.DEFAULT;
+  private static final RatesFiniteDifferenceSensitivityCalculator FD_CALCULATOR =
+      RatesFiniteDifferenceSensitivityCalculator.DEFAULT;
 
   private static final double TOLERANCE_DELTA = 1.0E-8;
 

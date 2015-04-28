@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer;
+package com.opengamma.strata.pricer.sensitivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,34 +18,36 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
-import com.opengamma.strata.pricer.sensitivity.SensitivityKey;
+import com.opengamma.strata.pricer.ImmutableRatesProvider;
 
 /**
- * Computes the curve parameter sensitivity related to a {@link ImmutableRatesProvider} by finite difference.
+ * Computes the curve parameter sensitivity by finite difference.
  * <p>
+ * This is based on an {@link ImmutableRatesProvider}, and calculates the sensitivity by finite difference.
  * The curves underlying the rates provider should be {@link YieldCurve} based on {@link InterpolatedDoublesCurve}.
  */
-public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
+public class RatesFiniteDifferenceSensitivityCalculator {
 
   /**
    * Default implementation. The shift is one basis point (0.0001).
    */
-  public static final ImmutableRatesProviderFiniteDifferenceSensitivityCalculator DEFAULT =
-      new ImmutableRatesProviderFiniteDifferenceSensitivityCalculator(1.0E-4);
+  public static final RatesFiniteDifferenceSensitivityCalculator DEFAULT =
+      new RatesFiniteDifferenceSensitivityCalculator(1.0E-4);
 
-  /** The shift used for finite difference. */
+  /**
+   * The shift used for finite difference.
+   */
   private final double shift;
 
   /**
    * Create an instance of the finite difference calculator.
    * @param shift  the shift used in the finite difference computation
    */
-  public ImmutableRatesProviderFiniteDifferenceSensitivityCalculator(double shift) {
+  public RatesFiniteDifferenceSensitivityCalculator(double shift) {
     this.shift = shift;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Computes the first order sensitivities of a function of a RatesProvider to a double by finite difference.
    * <p>
@@ -88,7 +90,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
       ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
       CurrencyAmount valueInit) {
-    // Currency
+
     CurveParameterSensitivity result = CurveParameterSensitivity.empty();
     ImmutableMap<Currency, YieldAndDiscountCurve> mapCurrency = provider.getDiscountCurves();
     for (Entry<Currency, YieldAndDiscountCurve> entry : mapCurrency.entrySet()) {
@@ -113,6 +115,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
       ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
       CurrencyAmount valueInit) {
+
     CurveParameterSensitivity result = CurveParameterSensitivity.empty();
     ImmutableMap<Index, YieldAndDiscountCurve> mapIndex = provider.getIndexCurves();
     for (Entry<Index, YieldAndDiscountCurve> entry : mapIndex.entrySet()) {
