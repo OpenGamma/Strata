@@ -89,7 +89,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
       StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
-  private static final FxMatrix FX_MATRIX = FxMatrix.builder().addRate(EUR, USD, 1.20).build();
+  private static final FxMatrix FX_MATRIX = FxMatrix.of(EUR, USD, 1.20);
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_USD_PAIR.getFirst();
   static {
     MULTICURVE.setCurve(EUR, MULTICURVE_EUR_PAIR.getFirst().getCurve(EUR));
