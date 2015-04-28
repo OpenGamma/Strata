@@ -98,8 +98,8 @@ public class ForwardOvernightAveragedRateObservationFn
       accrualFactorTotal += accrualFactor;
       cutoffAccrualFactor += accrualFactor;
     }
-    PointSensitivityBuilder forwardRateSensitivityCutOff = provider.overnightIndexRateSensitivity(index,
-        lastNonCutoffFixing);
+    PointSensitivityBuilder forwardRateSensitivityCutOff =
+        provider.overnightIndexRateSensitivity(index, lastNonCutoffFixing);
     forwardRateSensitivityCutOff = forwardRateSensitivityCutOff.multipliedBy(cutoffAccrualFactor);
     combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivityCutOff);
 
@@ -110,8 +110,8 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate currentOnRateStart = index.calculateEffectiveFromFixing(currentFixingNonCutoff);
       LocalDate currentOnRateEnd = index.calculateMaturityFromEffective(currentOnRateStart);
       double accrualFactor = index.getDayCount().yearFraction(currentOnRateStart, currentOnRateEnd);
-      PointSensitivityBuilder forwardRateSensitivity = provider.overnightIndexRateSensitivity(index,
-          currentFixingNonCutoff);
+      PointSensitivityBuilder forwardRateSensitivity =
+          provider.overnightIndexRateSensitivity(index, currentFixingNonCutoff);
       forwardRateSensitivity = forwardRateSensitivity.multipliedBy(accrualFactor);
       combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivity);
       accrualFactorTotal += accrualFactor;

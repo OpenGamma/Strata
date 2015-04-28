@@ -99,8 +99,11 @@ public abstract class CurveSensitivityTestUtil {
     }
   }
 
-  private static void createSensitivityLists(List<PointSensitivity> originalList, List<IborRateSensitivity> iborList,
-      List<OvernightRateSensitivity> onList, List<ZeroRateSensitivity> dscList) {
+  private static void createSensitivityLists(
+      List<PointSensitivity> originalList,
+      List<IborRateSensitivity> iborList,
+      List<OvernightRateSensitivity> onList,
+      List<ZeroRateSensitivity> dscList) {
     int totalSize = originalList.size();
     for (int i = 0; i < totalSize; ++i) {
       PointSensitivity sense = originalList.get(i);
