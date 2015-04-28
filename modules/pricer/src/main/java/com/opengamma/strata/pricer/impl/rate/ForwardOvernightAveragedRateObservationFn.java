@@ -84,7 +84,6 @@ public class ForwardOvernightAveragedRateObservationFn
     OvernightIndex index = observation.getIndex();
     LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
-    PointSensitivityBuilder combinedPointSensitivityBuilder = PointSensitivityBuilder.none();
     double accrualFactorTotal = 0.0d;
     // Cut-off period. Starting from the end as the cutoff period is defined as a lag from the end. 
     // When the fixing period end-date is not a good business day in the index calendar, 
@@ -98,10 +97,9 @@ public class ForwardOvernightAveragedRateObservationFn
       accrualFactorTotal += accrualFactor;
       cutoffAccrualFactor += accrualFactor;
     }
-    PointSensitivityBuilder forwardRateSensitivityCutOff =
+    PointSensitivityBuilder combinedPointSensitivityBuilder =
         provider.overnightIndexRateSensitivity(index, lastNonCutoffFixing);
-    forwardRateSensitivityCutOff = forwardRateSensitivityCutOff.multipliedBy(cutoffAccrualFactor);
-    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivityCutOff);
+    combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.multipliedBy(cutoffAccrualFactor);
 
     LocalDate currentFixingNonCutoff = observation.getStartDate();
     while (currentFixingNonCutoff.isBefore(lastNonCutoffFixing)) {
