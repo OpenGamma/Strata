@@ -226,14 +226,14 @@ public final class ImmutableRatesProvider
     double maturity = relativeTime(maturityDate);
     double dfCcyBaseAtMaturity = discountCurve(pair.getBase()).getDiscountFactor(maturity);
     double dfCcyCounterAtMaturityInv = 1.0 / discountCurve(pair.getCounter()).getDiscountFactor(maturity);
-    PointSensitivityBuilder dfCcyBaseAtMaturitySensitivity = discountFactorZeroRateSensitivity(pair.getBase(),
-        maturityDate);
-    dfCcyBaseAtMaturitySensitivity = dfCcyBaseAtMaturitySensitivity.multipliedBy(fxRate(pair) *
-        dfCcyCounterAtMaturityInv);
-    PointSensitivityBuilder dfCcyCounterAtMaturitySensitivity = discountFactorZeroRateSensitivity(pair.getCounter(),
-        maturityDate);
-    dfCcyCounterAtMaturitySensitivity = dfCcyCounterAtMaturitySensitivity.multipliedBy(-fxRate(pair) *
-        dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv * dfCcyCounterAtMaturityInv);
+    PointSensitivityBuilder dfCcyBaseAtMaturitySensitivity =
+        discountFactorZeroRateSensitivity(pair.getBase(), maturityDate);
+    dfCcyBaseAtMaturitySensitivity =
+        dfCcyBaseAtMaturitySensitivity.multipliedBy(fxRate(pair) * dfCcyCounterAtMaturityInv);
+    PointSensitivityBuilder dfCcyCounterAtMaturitySensitivity =
+        discountFactorZeroRateSensitivity(pair.getCounter(), maturityDate);
+    dfCcyCounterAtMaturitySensitivity = dfCcyCounterAtMaturitySensitivity.multipliedBy(
+        -fxRate(pair) * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv * dfCcyCounterAtMaturityInv);
     return dfCcyBaseAtMaturitySensitivity.combinedWith(dfCcyCounterAtMaturitySensitivity);
   }
 
