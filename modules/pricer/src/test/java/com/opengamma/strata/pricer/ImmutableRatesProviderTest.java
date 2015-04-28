@@ -52,7 +52,7 @@ public class ImmutableRatesProviderTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
   private static final LocalDate NEXT_DATE = LocalDate.of(2014, 7, 1);
 
-  private static final FxMatrix FX_MATRIX = FxMatrix.builder().addRate(GBP, USD, 1.6d).build();
+  private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, 1.6d);
   private static final DiscountCurve DISCOUNT_CURVE_GBP =
       new DiscountCurve("GBP-Discount", new ConstantDoublesCurve(0.99d));
   private static final DiscountCurve DISCOUNT_CURVE_USD =

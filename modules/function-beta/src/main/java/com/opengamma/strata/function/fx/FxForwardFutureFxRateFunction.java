@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.fx;
 
-import com.opengamma.strata.finance.fx.FxTransaction;
+import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.pricer.RatesProvider;
 
 /**
@@ -15,7 +15,7 @@ public class FxForwardFutureFxRateFunction
     extends AbstractFxForwardFunction<Double> {
 
   @Override
-  protected Double execute(FxTransaction product, RatesProvider provider) {
+  protected Double execute(ExpandedFx product, RatesProvider provider) {
     return pricer().forwardFxRate(product, provider);
   }
 

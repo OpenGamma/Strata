@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.fx;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.FxTransaction;
+import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.pricer.RatesProvider;
 
 /**
@@ -16,7 +16,7 @@ public class FxForwardCurrencyExposureFunction
     extends AbstractFxForwardFunction<MultiCurrencyAmount> {
 
   @Override
-  protected MultiCurrencyAmount execute(FxTransaction product, RatesProvider provider) {
+  protected MultiCurrencyAmount execute(ExpandedFx product, RatesProvider provider) {
     return pricer().currencyExposure(product, provider);
   }
 

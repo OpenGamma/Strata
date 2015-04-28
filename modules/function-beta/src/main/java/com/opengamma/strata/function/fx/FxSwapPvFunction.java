@@ -6,17 +6,17 @@
 package com.opengamma.strata.function.fx;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.ExpandedFx;
+import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.pricer.RatesProvider;
 
 /**
- * Calculates the present value of an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates the present value of an {@code FxSwapTrade} for each of a set of scenarios.
  */
-public class FxForwardPvFunction
-    extends AbstractFxForwardFunction<MultiCurrencyAmount> {
+public class FxSwapPvFunction
+    extends AbstractFxSwapFunction<MultiCurrencyAmount> {
 
   @Override
-  protected MultiCurrencyAmount execute(ExpandedFx product, RatesProvider provider) {
+  protected MultiCurrencyAmount execute(ExpandedFxSwap product, RatesProvider provider) {
     return pricer().presentValue(product, provider);
   }
 

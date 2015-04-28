@@ -28,22 +28,24 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A simple foreign exchange transaction.
+ * An expanded single FX transaction, the low level representation of a simple foreign exchange.
  * <p>
  * This represents a single foreign exchange on a specific date.
- * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
- * <p>
  * The two payments are identified as the base and counter currencies in a standardized currency pair.
  * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
  * See {@link CurrencyPair} for details of the configuration that determines the ordering.
  * <p>
- * An FX forward and an FX spot can be represented using this product.
+ * An {@code ExpandedFx} may contain information based on holiday calendars.
+ * If a holiday calendar changes, the adjusted dates may no longer be correct.
+ * Care must be taken when placing the expanded form in a cache or persistence layer.
+ * Application code should use {@link FxForward}, not this class.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxTransaction
-    implements FxTransactionProduct, ImmutableBean, Serializable {
+public final class ExpandedFx
+    implements FxProduct, ImmutableBean, Serializable {
 
   /**
    * The payment in the base currency, positive if receiving, negative if paying.
@@ -63,10 +65,18 @@ public final class FxTransaction
    */
   @PropertyDefinition(validate = "notNull")
   private final FxPayment counterCurrencyPayment;
+  /**
+   * The date that the transaction is valued.
+   * <p>
+   * This is the primary date of the transaction.
+   * The payment date of each part is typically the same as this date, but is permitted to be later.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate valueDate;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code FxTransaction} from two equivalent payments in different currencies.
+   * Creates an {@code ExpandedFx} from two equivalent payments in different currencies.
    * <p>
    * The payments must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
@@ -77,19 +87,20 @@ public final class FxTransaction
    * 
    * @param payment1  the first payment
    * @param payment2  the second payment
-   * @return the foreign exchange transaction
+   * @param valueDate  the value date
+   * @return the expanded foreign exchange transaction
    */
-  public static FxTransaction of(FxPayment payment1, FxPayment payment2) {
+  public static ExpandedFx of(FxPayment payment1, FxPayment payment2, LocalDate valueDate) {
     CurrencyPair pair = CurrencyPair.of(payment2.getCurrency(), payment1.getCurrency());
     if (pair.isConventional()) {
-      return new FxTransaction(payment2, payment1);
+      return new ExpandedFx(payment2, payment1, valueDate);
     } else {
-      return new FxTransaction(payment1, payment2);
+      return new ExpandedFx(payment1, payment2, valueDate);
     }
   }
 
   /**
-   * Creates an {@code FxTransaction} from two amounts and the value date.
+   * Creates an {@code ExpandedFx} from two amounts and the value date.
    * <p>
    * The amounts must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
@@ -98,13 +109,13 @@ public final class FxTransaction
    * to match the base or counter currency of the standardized currency pair.
    * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
    * 
-   * @param amount1  the amount to be paid
-   * @param amount2  the amount to be received
+   * @param amount1  the amount in the first currency
+   * @param amount2  the amount in the second currency
    * @param valueDate  the value date
-   * @return the foreign exchange transaction
+   * @return the expanded foreign exchange transaction
    */
-  public static FxTransaction of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
-    return FxTransaction.of(FxPayment.of(valueDate, amount1), FxPayment.of(valueDate, amount2));
+  public static ExpandedFx of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
+    return ExpandedFx.of(FxPayment.of(valueDate, amount1), FxPayment.of(valueDate, amount2), valueDate);
   }
 
   //-------------------------------------------------------------------------
@@ -117,6 +128,8 @@ public final class FxTransaction
         Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
       throw new IllegalArgumentException("Payments must have different signs");
     }
+    ArgChecker.inOrderOrEqual(valueDate, baseCurrencyPayment.getDate(), "valueDate", "baseCurrencyPayment.date");
+    ArgChecker.inOrderOrEqual(valueDate, counterCurrencyPayment.getDate(), "valueDate", "counterCurrencyPayment.date");
   }
 
   @ImmutablePreBuild
@@ -140,8 +153,8 @@ public final class FxTransaction
    * 
    * @return the inverse transaction
    */
-  public FxTransaction inverse() {
-    return new FxTransaction(baseCurrencyPayment.inverse(), counterCurrencyPayment.inverse());
+  public ExpandedFx inverse() {
+    return new ExpandedFx(baseCurrencyPayment.inverse(), counterCurrencyPayment.inverse(), valueDate);
   }
 
   //-------------------------------------------------------------------------
@@ -151,22 +164,22 @@ public final class FxTransaction
    * @return this transaction
    */
   @Override
-  public FxTransaction expand() {
+  public ExpandedFx expand() {
     return this;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FxTransaction}.
+   * The meta-bean for {@code ExpandedFx}.
    * @return the meta-bean, not null
    */
-  public static FxTransaction.Meta meta() {
-    return FxTransaction.Meta.INSTANCE;
+  public static ExpandedFx.Meta meta() {
+    return ExpandedFx.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FxTransaction.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ExpandedFx.Meta.INSTANCE);
   }
 
   /**
@@ -174,19 +187,22 @@ public final class FxTransaction
    */
   private static final long serialVersionUID = 1L;
 
-  private FxTransaction(
+  private ExpandedFx(
       FxPayment baseCurrencyPayment,
-      FxPayment counterCurrencyPayment) {
+      FxPayment counterCurrencyPayment,
+      LocalDate valueDate) {
     JodaBeanUtils.notNull(baseCurrencyPayment, "baseCurrencyPayment");
     JodaBeanUtils.notNull(counterCurrencyPayment, "counterCurrencyPayment");
+    JodaBeanUtils.notNull(valueDate, "valueDate");
     this.baseCurrencyPayment = baseCurrencyPayment;
     this.counterCurrencyPayment = counterCurrencyPayment;
+    this.valueDate = valueDate;
     validate();
   }
 
   @Override
-  public FxTransaction.Meta metaBean() {
-    return FxTransaction.Meta.INSTANCE;
+  public ExpandedFx.Meta metaBean() {
+    return ExpandedFx.Meta.INSTANCE;
   }
 
   @Override
@@ -226,15 +242,28 @@ public final class FxTransaction
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the date that the transaction is valued.
+   * <p>
+   * This is the primary date of the transaction.
+   * The payment date of each part is typically the same as this date, but is permitted to be later.
+   * @return the value of the property, not null
+   */
+  public LocalDate getValueDate() {
+    return valueDate;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FxTransaction other = (FxTransaction) obj;
+      ExpandedFx other = (ExpandedFx) obj;
       return JodaBeanUtils.equal(getBaseCurrencyPayment(), other.getBaseCurrencyPayment()) &&
-          JodaBeanUtils.equal(getCounterCurrencyPayment(), other.getCounterCurrencyPayment());
+          JodaBeanUtils.equal(getCounterCurrencyPayment(), other.getCounterCurrencyPayment()) &&
+          JodaBeanUtils.equal(getValueDate(), other.getValueDate());
     }
     return false;
   }
@@ -244,22 +273,24 @@ public final class FxTransaction
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyPayment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueDate());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("FxTransaction{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ExpandedFx{");
     buf.append("baseCurrencyPayment").append('=').append(getBaseCurrencyPayment()).append(',').append(' ');
-    buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(getCounterCurrencyPayment()));
+    buf.append("counterCurrencyPayment").append('=').append(getCounterCurrencyPayment()).append(',').append(' ');
+    buf.append("valueDate").append('=').append(JodaBeanUtils.toString(getValueDate()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FxTransaction}.
+   * The meta-bean for {@code ExpandedFx}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -271,19 +302,25 @@ public final class FxTransaction
      * The meta-property for the {@code baseCurrencyPayment} property.
      */
     private final MetaProperty<FxPayment> baseCurrencyPayment = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyPayment", FxTransaction.class, FxPayment.class);
+        this, "baseCurrencyPayment", ExpandedFx.class, FxPayment.class);
     /**
      * The meta-property for the {@code counterCurrencyPayment} property.
      */
     private final MetaProperty<FxPayment> counterCurrencyPayment = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyPayment", FxTransaction.class, FxPayment.class);
+        this, "counterCurrencyPayment", ExpandedFx.class, FxPayment.class);
+    /**
+     * The meta-property for the {@code valueDate} property.
+     */
+    private final MetaProperty<LocalDate> valueDate = DirectMetaProperty.ofImmutable(
+        this, "valueDate", ExpandedFx.class, LocalDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "baseCurrencyPayment",
-        "counterCurrencyPayment");
+        "counterCurrencyPayment",
+        "valueDate");
 
     /**
      * Restricted constructor.
@@ -298,18 +335,20 @@ public final class FxTransaction
           return baseCurrencyPayment;
         case -863240423:  // counterCurrencyPayment
           return counterCurrencyPayment;
+        case -766192449:  // valueDate
+          return valueDate;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends FxTransaction> builder() {
-      return new FxTransaction.Builder();
+    public BeanBuilder<? extends ExpandedFx> builder() {
+      return new ExpandedFx.Builder();
     }
 
     @Override
-    public Class<? extends FxTransaction> beanType() {
-      return FxTransaction.class;
+    public Class<? extends ExpandedFx> beanType() {
+      return ExpandedFx.class;
     }
 
     @Override
@@ -334,14 +373,24 @@ public final class FxTransaction
       return counterCurrencyPayment;
     }
 
+    /**
+     * The meta-property for the {@code valueDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> valueDate() {
+      return valueDate;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 765258148:  // baseCurrencyPayment
-          return ((FxTransaction) bean).getBaseCurrencyPayment();
+          return ((ExpandedFx) bean).getBaseCurrencyPayment();
         case -863240423:  // counterCurrencyPayment
-          return ((FxTransaction) bean).getCounterCurrencyPayment();
+          return ((ExpandedFx) bean).getCounterCurrencyPayment();
+        case -766192449:  // valueDate
+          return ((ExpandedFx) bean).getValueDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -359,12 +408,13 @@ public final class FxTransaction
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FxTransaction}.
+   * The bean-builder for {@code ExpandedFx}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxTransaction> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ExpandedFx> {
 
     private FxPayment baseCurrencyPayment;
     private FxPayment counterCurrencyPayment;
+    private LocalDate valueDate;
 
     /**
      * Restricted constructor.
@@ -380,6 +430,8 @@ public final class FxTransaction
           return baseCurrencyPayment;
         case -863240423:  // counterCurrencyPayment
           return counterCurrencyPayment;
+        case -766192449:  // valueDate
+          return valueDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -393,6 +445,9 @@ public final class FxTransaction
           break;
         case -863240423:  // counterCurrencyPayment
           this.counterCurrencyPayment = (FxPayment) newValue;
+          break;
+        case -766192449:  // valueDate
+          this.valueDate = (LocalDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -425,20 +480,22 @@ public final class FxTransaction
     }
 
     @Override
-    public FxTransaction build() {
+    public ExpandedFx build() {
       preBuild(this);
-      return new FxTransaction(
+      return new ExpandedFx(
           baseCurrencyPayment,
-          counterCurrencyPayment);
+          counterCurrencyPayment,
+          valueDate);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("FxTransaction.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("ExpandedFx.Builder{");
       buf.append("baseCurrencyPayment").append('=').append(JodaBeanUtils.toString(baseCurrencyPayment)).append(',').append(' ');
-      buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment));
+      buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment)).append(',').append(' ');
+      buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate));
       buf.append('}');
       return buf.toString();
     }

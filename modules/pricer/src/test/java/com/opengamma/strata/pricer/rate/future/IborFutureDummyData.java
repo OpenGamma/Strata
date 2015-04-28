@@ -44,6 +44,7 @@ public class IborFutureDummyData {
 
   private static final LocalDate EXPIRY_DATE = date(2015, 5, 20);
   private static final double STRIKE_PRICE = 1.075;
+  private static final double STRIKE_PRICE_2 = 0.99;
   private static final long OPTION_QUANTITY = 65L;
   private static final double OPTION_INITIAL_PRICE = 0.065;
   private static final StandardId OPTION_TRADE_ID = StandardId.of("OG-Trade", "2");
@@ -86,6 +87,19 @@ public class IborFutureDummyData {
   public static final IborFutureOption IBOR_FUTURE_OPTION = IborFutureOption.builder()
       .putCall(PutCall.CALL)
       .strikePrice(STRIKE_PRICE)
+      .expirationDate(EXPIRY_DATE)
+      .expirationTime(LocalTime.of(11, 0))
+      .expirationZone(ZoneId.of("Europe/London"))
+      .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
+      .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY))
+      .build();
+
+  /**
+   * An IborFutureOption.
+   */
+  public static final IborFutureOption IBOR_FUTURE_OPTION_2 = IborFutureOption.builder()
+      .putCall(PutCall.CALL)
+      .strikePrice(STRIKE_PRICE_2)
       .expirationDate(EXPIRY_DATE)
       .expirationTime(LocalTime.of(11, 0))
       .expirationZone(ZoneId.of("Europe/London"))
