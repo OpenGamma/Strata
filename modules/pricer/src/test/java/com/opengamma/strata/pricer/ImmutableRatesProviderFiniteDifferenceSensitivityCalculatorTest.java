@@ -38,7 +38,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_single_curve() {
-    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, (p) -> fn(p));
+    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, this::fn);
     double[] times = RatesProviderDataSets.TIMES_1;
     ImmutableMap<SensitivityKey, double[]> sensi = sensiComputed.getSensitivities();
     assertTrue(sensi.size() == 1);
@@ -51,7 +51,7 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_multi_curve() {
-    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_MULTI, (p) -> fn(p));
+    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_MULTI, this::fn);
     double[] times1 = RatesProviderDataSets.TIMES_1;
     double[] times2 = RatesProviderDataSets.TIMES_2;
     double[] times3 = RatesProviderDataSets.TIMES_3;
@@ -98,8 +98,8 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculatorTest {
     double [] x = curveInt.getXDataAsPrimitive();
     double [] y = curveInt.getYDataAsPrimitive();
     int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-    for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-      result += x[loopnode] * y[loopnode];
+    for (int i = 0; i < nbNodePoint; i++) {
+      result += x[i] * y[i];
     }
     return result;
   }

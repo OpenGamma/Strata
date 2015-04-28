@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.datasets;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -25,6 +30,9 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.pricer.ImmutableRatesProvider;
 
+/**
+ * RatesProvider data sets for testing.
+ */
 public class RatesProviderDataSets {
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
@@ -43,7 +51,7 @@ public class RatesProviderDataSets {
   public static final double[] RATES_3 = new double[]
   {0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200, 0.0210 };
   
-  /*     =====     USD     =====     */
+  //     =====     USD     =====     
   
   private static final FxMatrix FX_MATRIX_USD =
       FxMatrix.builder().addRate(USD, USD, 1.00).build();
@@ -93,7 +101,7 @@ public class RatesProviderDataSets {
       .discountCurves(USD_MULTI_CCY_MAP).indexCurves(USD_MULTI_IND_MAP).valuationDate(LocalDate.of(2015, 4, 27))
       .dayCount(ACT_360).build();
   
-  /*     =====     GBP     =====     */
+  //     =====     GBP     =====     
   
   private static final FxMatrix FX_MATRIX_GBP =
       FxMatrix.builder().addRate(GBP, GBP, 1.00).build();

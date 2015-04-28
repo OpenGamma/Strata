@@ -27,6 +27,7 @@ public class CurveParameterSensitivityTest {
   private static final double FACTOR1 = 3.14;
   private static final double[] VECTOR_USD1 = new double[] {100.0, 200.0, 300.0, 123.0};
   private static final double[] VECTOR_USD2 = new double[] {1000.0, 250.0, 321.0, 123.0};
+  private static final double[] VECTOR_ZERO_4 = new double[] {0.0, 0.0, 0.0, 0.0};
   private static final double[] TOTAL_USD = new double[] {1100.0, 450.0, 621.0, 246.0};
   private static final double[] VECTOR_EUR1 = new double[] {1000.0, 250.0, 321.0, 123.0, 321.0};
   private static final Currency USD = Currency.USD;
@@ -35,7 +36,12 @@ public class CurveParameterSensitivityTest {
   private static final String NAME2 = "NAME-2";
   private static final NameCurrencySensitivityKey KEY_USD = NameCurrencySensitivityKey.of(NAME1, USD);
   private static final NameCurrencySensitivityKey KEY_EUR = NameCurrencySensitivityKey.of(NAME2, EUR);
+  private static final NameCurrencySensitivityKey KEY_3 = NameCurrencySensitivityKey.of(NAME2, USD);
 
+  private static final Map<SensitivityKey, double[]> MAP_0 = ImmutableMap.of(KEY_3, VECTOR_ZERO_4);
+  private static final CurveParameterSensitivity SENSI_0 =
+      CurveParameterSensitivity.builder().sensitivities(MAP_0).build();
+  
   private static final Map<SensitivityKey, double[]> MAP_1 = ImmutableMap.of(KEY_USD, VECTOR_USD1);
   private static final CurveParameterSensitivity SENSI_1 =
       CurveParameterSensitivity.builder().sensitivities(MAP_1).build();
@@ -43,6 +49,8 @@ public class CurveParameterSensitivityTest {
   private static final Map<SensitivityKey, double[]> MAP_2 = ImmutableMap.of(KEY_USD, VECTOR_USD2, KEY_EUR, VECTOR_EUR1);
   private static final CurveParameterSensitivity SENSI_2 =
       CurveParameterSensitivity.builder().sensitivities(MAP_2).build();
+  
+  private static final double TOLERENCE_CMP = 1.0E-8;
 
   //-------------------------------------------------------------------------
   public void test_empty() {
@@ -144,10 +152,15 @@ public class CurveParameterSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_equalWithTolerance() {
-    assertThat(SENSI_1.equalWithTolerance(SENSI_1, 1.0E-8)).isTrue();
-    assertThat(SENSI_1.equalWithTolerance(CurveParameterSensitivity.of(KEY_USD, TOTAL_USD), 1.0E-8)).isFalse();
-    assertThat(SENSI_1.equalWithTolerance(CurveParameterSensitivity.of(KEY_USD, VECTOR_EUR1), 1.0E-8)).isFalse();
-    assertThat(SENSI_1.equalWithTolerance(SENSI_2, 1.0E-8)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isTrue();
+    assertThat(SENSI_1.equalWithTolerance(CurveParameterSensitivity.of(KEY_USD, TOTAL_USD), TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(CurveParameterSensitivity.of(KEY_USD, VECTOR_EUR1), TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(SENSI_2, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_2.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_0.equalWithTolerance(CurveParameterSensitivity.empty(), TOLERENCE_CMP)).isTrue();
+    assertThat(CurveParameterSensitivity.empty().equalWithTolerance(SENSI_0, TOLERENCE_CMP)).isTrue();
+    assertThat(SENSI_2.equalWithTolerance(SENSI_2.combinedWith(SENSI_0), TOLERENCE_CMP)).isTrue();
+    assertThat(SENSI_2.combinedWith(SENSI_0).equalWithTolerance(SENSI_2, TOLERENCE_CMP)).isTrue();
   }
 
   //-------------------------------------------------------------------------

@@ -58,42 +58,13 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
    * @param valueFn  the function from a rate provider to a currency amount for which the sensitivity should be computed
    * @return the sensitivity with the {@link SensitivityKey} containing the curves names.
    */
-  public CurveParameterSensitivity sensitivity(ImmutableRatesProvider provider, 
+  public CurveParameterSensitivity sensitivity(
+      ImmutableRatesProvider provider, 
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn) {
-    CurveParameterSensitivity result = CurveParameterSensitivity.empty();
+    
     CurrencyAmount valueInit = valueFn.apply(provider);
-    // Currency
-    ImmutableMap<Currency, YieldAndDiscountCurve> mapCurrency = provider.getDiscountCurves();
-    for (Entry<Currency, YieldAndDiscountCurve> entry : mapCurrency.entrySet()) {
-      InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[] sensitivity = new double[nbNodePoint];
-      for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        YieldAndDiscountCurve dscBumped = bumpedCurve(curveInt, loopnode);
-        Map<Currency, YieldAndDiscountCurve> mapBumped = new HashMap<>(mapCurrency);
-        mapBumped.put(entry.getKey(), dscBumped);
-        ImmutableRatesProvider providerDscBumped = provider.toBuilder().discountCurves(mapBumped).build();
-        sensitivity[loopnode] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
-      }
-      String name = entry.getValue().getName();
-      result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
-    }
-    // Index
-    ImmutableMap<Index, YieldAndDiscountCurve> mapIndex = provider.getIndexCurves();
-    for (Entry<Index, YieldAndDiscountCurve> entry : mapIndex.entrySet()) {
-      InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
-      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
-      double[] sensitivity = new double[nbNodePoint];
-      for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
-        YieldAndDiscountCurve indexBumped = bumpedCurve(curveInt, loopnode);
-        Map<Index, YieldAndDiscountCurve> mapBumped = new HashMap<>(mapIndex);
-        mapBumped.put(entry.getKey(), indexBumped);
-        ImmutableRatesProvider providerFwdBumped = provider.toBuilder().indexCurves(mapBumped).build();
-        sensitivity[loopnode] = (valueFn.apply(providerFwdBumped).getAmount() - valueInit.getAmount()) / shift;
-      }
-      String name = entry.getValue().getName();
-      result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
-    }
+    CurveParameterSensitivity result = sensitivityDiscounting(provider, valueFn, valueInit);
+    result.combinedWith(sensitivityForward(provider, valueFn, valueInit));
     return result;
   }
 
@@ -111,6 +82,55 @@ public class ImmutableRatesProviderFiniteDifferenceSensitivityCalculator {
     yieldBumped[loopnode] += shift;
     return new YieldCurve(curveInt.getName(),
         new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
+  }  
+
+  // computes the sensitivity with respect to the discounting curves
+  private CurveParameterSensitivity sensitivityDiscounting(
+      ImmutableRatesProvider provider,
+      Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
+      CurrencyAmount valueInit) {
+    // Currency
+    CurveParameterSensitivity result = CurveParameterSensitivity.empty();
+    ImmutableMap<Currency, YieldAndDiscountCurve> mapCurrency = provider.getDiscountCurves();
+    for (Entry<Currency, YieldAndDiscountCurve> entry : mapCurrency.entrySet()) {
+      InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
+      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      double[] sensitivity = new double[nbNodePoint];
+      for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
+        YieldAndDiscountCurve dscBumped = bumpedCurve(curveInt, loopnode);
+        Map<Currency, YieldAndDiscountCurve> mapBumped = new HashMap<>(mapCurrency);
+        mapBumped.put(entry.getKey(), dscBumped);
+        ImmutableRatesProvider providerDscBumped = provider.toBuilder().discountCurves(mapBumped).build();
+        sensitivity[loopnode] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
+      }
+      String name = entry.getValue().getName();
+      result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
+    }
+    return result;
+  }  
+
+  // computes the sensitivity with respect to the forward curves
+  private CurveParameterSensitivity sensitivityForward(
+      ImmutableRatesProvider provider,
+      Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
+      CurrencyAmount valueInit) {
+    CurveParameterSensitivity result = CurveParameterSensitivity.empty();
+    ImmutableMap<Index, YieldAndDiscountCurve> mapIndex = provider.getIndexCurves();
+    for (Entry<Index, YieldAndDiscountCurve> entry : mapIndex.entrySet()) {
+      InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
+      int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+      double[] sensitivity = new double[nbNodePoint];
+      for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
+        YieldAndDiscountCurve indexBumped = bumpedCurve(curveInt, loopnode);
+        Map<Index, YieldAndDiscountCurve> mapBumped = new HashMap<>(mapIndex);
+        mapBumped.put(entry.getKey(), indexBumped);
+        ImmutableRatesProvider providerFwdBumped = provider.toBuilder().indexCurves(mapBumped).build();
+        sensitivity[loopnode] = (valueFn.apply(providerFwdBumped).getAmount() - valueInit.getAmount()) / shift;
+      }
+      String name = entry.getValue().getName();
+      result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
+    }
+    return result;    
   }
 
 }
