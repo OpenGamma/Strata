@@ -93,8 +93,8 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final double RATE = 0.015;
   private static final RatesProvider PROV_MOCK = mock(RatesProvider.class);
   static {
-    when(PROV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getIndex(),
-        FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getLastTradeDate())).thenReturn(RATE);
+    when(PROV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getIndex(),
+        FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
   }
 
   private static final DiscountingIborFutureProductPricer FUTURE_PRICER = DiscountingIborFutureProductPricer.DEFAULT;

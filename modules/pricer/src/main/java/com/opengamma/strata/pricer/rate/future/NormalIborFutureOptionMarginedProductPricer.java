@@ -100,12 +100,12 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlying().getProduct().getIndex().equals(volatilityProvider.getFutureIndex()),
+    ArgChecker.isTrue(futureOption.getUnderlying().getIndex().equals(volatilityProvider.getFutureIndex()),
         "Future index should be the same as data index");
 
     EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
     double strike = futureOption.getStrikePrice();
-    IborFuture future = futureOption.getUnderlying().getProduct();
+    IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(
         futureOption.getExpirationDate(), future.getLastTradeDate(), strike, futurePrice);
 
@@ -171,7 +171,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
 
     EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
     double strike = futureOption.getStrikePrice();
-    IborFuture future = futureOption.getUnderlying().getProduct();
+    IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpirationDate(),
         future.getLastTradeDate(), strike, futurePrice);
 
@@ -226,7 +226,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
 
     double delta = deltaStickyStrike(futureOption, ratesProvider, volatilityProvider, futurePrice);
     PointSensitivities futurePriceSensitivity =
-        futurePricer.priceSensitivity(futureOption.getUnderlying().getProduct(), ratesProvider);
+        futurePricer.priceSensitivity(futureOption.getUnderlying(), ratesProvider);
     return futurePriceSensitivity.multipliedBy(delta);
   }
 
@@ -287,7 +287,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
 
     EuropeanVanillaOption option = createOption(futureOption, volatilityProvider);
     double strike = futureOption.getStrikePrice();
-    IborFuture future = futureOption.getUnderlying().getProduct();
+    IborFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpirationDate(),
         future.getLastTradeDate(), strike, futurePrice);
 
@@ -299,7 +299,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
   //-------------------------------------------------------------------------
   // calculate the price of the underlying future
   private double futurePrice(IborFutureOption futureOption, RatesProvider ratesProvider) {
-    IborFuture future = futureOption.getUnderlying().getProduct();
+    IborFuture future = futureOption.getUnderlying();
     return futurePricer.price(future, ratesProvider);
   }
 
