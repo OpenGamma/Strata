@@ -60,6 +60,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
 /**
@@ -100,8 +101,12 @@ public class SwapEnd2EndTest {
   private static final MulticurveProviderDiscount MULTICURVE_OIS =
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6().getFirst();
 
+  private static final DiscountingSwapProductPricer PRICER_PRODUCT =
+      DiscountingSwapProductPricer.DEFAULT;
+
   // tolerance
   private static final double TOLERANCE_PV = 1.0E-4;
+  private static final double TOLERANCE_RATE = 1.0E-10;
 
   //-----------------------------------------------------------------------
   public void test_VanillaFixedVsLibor1mSwap() {
@@ -143,27 +148,8 @@ public class SwapEnd2EndTest {
   public void test_VanillaFixedVsLibor3mSwap() {
     RateCalculationSwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
-
-    RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
-        .payReceive(RECEIVE)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
-            .frequency(P3M)
-            .businessDayAdjustment(BDA_MF)
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(P3M)
-            .paymentOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(NOTIONAL)
-        .calculation(IborRateCalculation.builder()
-            .dayCount(ACT_360)
-            .index(USD_LIBOR_3M)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .build())
-        .build();
-
+    RateCalculationSwapLeg receiveLeg = iborLeg(LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12),
+        USD_LIBOR_3M, RECEIVE, NOTIONAL, null);
     SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
@@ -173,6 +159,12 @@ public class SwapEnd2EndTest {
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
     assertEquals(pv.getAmount(), 7170391.798257509, TOLERANCE_PV);
+    double parRate = PRICER_PRODUCT.parRate(trade.getProduct(), provider());
+    assertEquals(parRate, 0.02589471566819517, TOLERANCE_RATE);    
+    Swap swapPV0 = Swap.of(
+        fixedLeg(LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, parRate, null), receiveLeg);
+    CurrencyAmount pv0 = PRICER_PRODUCT.presentValue(swapPV0, provider()).getAmount(USD);
+    assertEquals(pv0.getAmount(), 0, TOLERANCE_PV); // PV at par rate should be 0
   }
 
   //-------------------------------------------------------------------------
@@ -766,6 +758,33 @@ public class SwapEnd2EndTest {
         .calculation(FixedRateCalculation.builder()
             .dayCount(THIRTY_U_360)
             .rate(ValueSchedule.of(fixedRate))
+            .build())
+        .build();
+  }
+  
+  // fixed rate leg
+  private static RateCalculationSwapLeg iborLeg(
+      LocalDate start, LocalDate end, IborIndex index,
+      PayReceive payReceive, NotionalSchedule notional, StubConvention stubConvention) {
+    Frequency freq = Frequency.of(index.getTenor().getPeriod());
+    return RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(start)
+            .endDate(end)
+            .frequency(freq)
+            .businessDayAdjustment(BDA_MF)
+            .stubConvention(stubConvention)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(freq)
+            .paymentOffset(DaysAdjustment.NONE)
+            .build())
+        .notionalSchedule(NOTIONAL)
+        .calculation(IborRateCalculation.builder()
+            .dayCount(index.getDayCount())
+            .index(index)
+            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, index.getFixingCalendar(), BDA_P))
             .build())
         .build();
   }

@@ -29,10 +29,10 @@ public class DispatchingPaymentPeriodPricerTest {
   public void test_presentValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
-    when(mockNotionalExchangeFn.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV))
+    when(mockNotionalExchangeFn.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn);
-    assertEquals(test.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV), expected, 0d);
+    assertEquals(test.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
   }
 
   public void test_presentValue_unknownType() {
@@ -45,10 +45,10 @@ public class DispatchingPaymentPeriodPricerTest {
   public void test_futureValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricer.class);
-    when(mockNotionalExchangeFn.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV))
+    when(mockNotionalExchangeFn.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricer test = new DispatchingPaymentPeriodPricer(mockNotionalExchangeFn);
-    assertEquals(test.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC, MOCK_PROV), expected, 0d);
+    assertEquals(test.futureValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
   }
 
   public void test_futureValue_unknownType() {
