@@ -37,14 +37,17 @@ import com.opengamma.strata.engine.config.Measure;
  * <p>
  * A rule matches a calculation if
  * <ul>
- *   <li>The calculation target is an instance of the {@linkplain #getTargetType() target type}</li>
+ *   <li>The calculation target is an instance of the target type</li>
  *   <li>The set of measures in the rule contains the measure, or the rule has an empty set of measures,
  *   meaning it handles all measures</li>
  *   <li>The function group has a function to calculate the measure for the target</li>
  * </ul>
+ * 
+ * @param <T>  the type of the calculation target
  */
 @BeanDefinition(builderScope = "private")
-public final class PricingRule<T extends CalculationTarget> implements ImmutableBean {
+public final class PricingRule<T extends CalculationTarget>
+    implements ImmutableBean {
 
   // Fields that define whether the rule applies to a calculation for a target and measure -----------------------------
 

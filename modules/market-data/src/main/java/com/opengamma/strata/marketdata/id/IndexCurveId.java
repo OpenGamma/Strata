@@ -48,6 +48,7 @@ public final class IndexCurveId implements CurveId, ImmutableBean {
    * Returns an ID for the curve for the specified index.
    *
    * @param index  the curve index
+   * @param curveGroupName  the group name
    * @return an ID for the curve for the specified index
    */
   public static IndexCurveId of(Index index, String curveGroupName) {

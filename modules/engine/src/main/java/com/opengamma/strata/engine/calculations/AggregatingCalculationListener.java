@@ -12,8 +12,11 @@ import java.util.concurrent.ExecutionException;
 /**
  * Superclass for mutable calculation listeners that collect the results of individual calculations and
  * create a single aggregate result when the calculations are complete.
+ * 
+ * @param <T>  the type of the aggregate result
  */
-public abstract class AggregatingCalculationListener<T> implements CalculationListener {
+public abstract class AggregatingCalculationListener<T>
+    implements CalculationListener {
 
   /** A future representing the aggregate result. */
   private final CompletableFuture<T> future = new CompletableFuture<>();

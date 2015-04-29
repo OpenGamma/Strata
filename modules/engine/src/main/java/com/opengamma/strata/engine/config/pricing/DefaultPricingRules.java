@@ -43,6 +43,7 @@ public final class DefaultPricingRules implements PricingRules, ImmutableBean {
   /**
    * Returns a set of pricing rules containing the specified individual rules.
    *
+   * @param rules  the array of pricing rules
    * @return a set of pricing rules containing the specified individual rules
    */
   public static DefaultPricingRules of(PricingRule<?>... rules) {
@@ -52,6 +53,7 @@ public final class DefaultPricingRules implements PricingRules, ImmutableBean {
   /**
    * Returns a set of pricing rules containing the specified individual rules.
    *
+   * @param rules  the list of pricing rules
    * @return a set of pricing rules containing the specified individual rules
    */
   public static DefaultPricingRules of(List<PricingRule<?>> rules) {

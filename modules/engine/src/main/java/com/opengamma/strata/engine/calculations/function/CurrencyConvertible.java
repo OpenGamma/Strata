@@ -11,8 +11,10 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 /**
  * Interface for objects containing currency amounts that can be automatically converted to a different currency
  * by the calculation engine for reporting purposes.
+ * 
+ * @param <R>  the type of the currency converted result
  */
-public interface CurrencyConvertible<T> {
+public interface CurrencyConvertible<R> {
 
   /**
    * Returns a copy of the object with any currency amounts converted into the reporting currency.
@@ -21,5 +23,6 @@ public interface CurrencyConvertible<T> {
    * @param marketData  market data for multiple scenarios containing any FX rates needed to perform the conversion
    * @return a copy of the object with any currency amounts converted into the reporting currency
    */
-  public abstract T convertedTo(Currency reportingCurrency, CalculationMarketData marketData);
+  public abstract R convertedTo(Currency reportingCurrency, CalculationMarketData marketData);
+
 }

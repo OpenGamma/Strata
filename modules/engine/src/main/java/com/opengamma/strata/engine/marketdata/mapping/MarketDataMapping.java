@@ -22,6 +22,9 @@ import com.opengamma.strata.marketdata.key.MarketDataKey;
  * the data. For example, the system might contains many curve groups, and each curve group can
  * contain a USD discounting curve. So the market data ID for a USD discounting curve must include the
  * name of the curve group that contains it.
+ * 
+ * @param <T>  the type of the market data identified by the key
+ * @param <K>  the type of the market data key
  */
 public interface MarketDataMapping<T, K extends MarketDataKey<T>> {
 
