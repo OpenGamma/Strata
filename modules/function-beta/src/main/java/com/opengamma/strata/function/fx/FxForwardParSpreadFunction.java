@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.fx;
 
 import com.opengamma.strata.finance.fx.ExpandedFx;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Calculates the par spread of an {@code FxForwardTrade} for each of a set of scenarios.

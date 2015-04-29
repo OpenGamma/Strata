@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.pricer.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
  * Computes the curve parameter sensitivity by finite difference.

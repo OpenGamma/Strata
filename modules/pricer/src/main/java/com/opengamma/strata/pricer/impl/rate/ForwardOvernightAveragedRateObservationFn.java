@@ -9,8 +9,8 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**

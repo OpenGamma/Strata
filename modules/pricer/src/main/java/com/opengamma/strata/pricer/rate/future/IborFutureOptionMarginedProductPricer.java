@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**

@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositProduct;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

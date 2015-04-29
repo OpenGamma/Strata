@@ -32,7 +32,7 @@ import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 

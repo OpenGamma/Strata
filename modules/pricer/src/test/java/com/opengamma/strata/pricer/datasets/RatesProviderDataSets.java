@@ -28,7 +28,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.pricer.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
  * RatesProvider data sets for testing.

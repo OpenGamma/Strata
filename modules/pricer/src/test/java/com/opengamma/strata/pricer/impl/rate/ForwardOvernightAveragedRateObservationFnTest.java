@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;

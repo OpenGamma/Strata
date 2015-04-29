@@ -9,11 +9,10 @@ import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FX_RESET_NOTIO
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Test.

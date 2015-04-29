@@ -22,8 +22,8 @@ import com.opengamma.strata.finance.fx.FxForwardTrade;
 import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.fx.DiscountingFxProductPricerBeta;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Calculates a result for an {@code FxForwardTrade} for each of a set of scenarios.
