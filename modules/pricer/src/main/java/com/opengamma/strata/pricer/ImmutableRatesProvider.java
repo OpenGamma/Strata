@@ -152,6 +152,16 @@ public final class ImmutableRatesProvider
     return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);
   }
 
+  private PointSensitivityBuilder discountFactorZeroRateSensitivity(
+      Currency curveCurrency,
+      Currency targetCurrency,
+      LocalDate date) {
+    double relativeTime = relativeTime(date);
+    double discountFactor = discountCurve(curveCurrency).getDiscountFactor(relativeTime);
+    // TODO use the new constructor
+    return ZeroRateSensitivity.of(targetCurrency, date, -discountFactor * relativeTime);
+  }
+
   // lookup the discount curve for the currency
   private YieldAndDiscountCurve discountCurve(Currency currency) {
     YieldAndDiscountCurve curve = discountCurves.get(currency);
@@ -222,16 +232,17 @@ public final class ImmutableRatesProvider
     // use the specified base currency to determine the desired currency pair
     // then derive rate from discount factors based off desired currency pair, not that of the index
     CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
+    Currency referenceCurrency = pair.getCounter();
     LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
     double maturity = relativeTime(maturityDate);
     double dfCcyBaseAtMaturity = discountCurve(pair.getBase()).getDiscountFactor(maturity);
     double dfCcyCounterAtMaturityInv = 1.0 / discountCurve(pair.getCounter()).getDiscountFactor(maturity);
     PointSensitivityBuilder dfCcyBaseAtMaturitySensitivity =
-        discountFactorZeroRateSensitivity(pair.getBase(), maturityDate);
+        discountFactorZeroRateSensitivity(pair.getBase(), referenceCurrency, maturityDate);
     dfCcyBaseAtMaturitySensitivity =
         dfCcyBaseAtMaturitySensitivity.multipliedBy(fxRate(pair) * dfCcyCounterAtMaturityInv);
     PointSensitivityBuilder dfCcyCounterAtMaturitySensitivity =
-        discountFactorZeroRateSensitivity(pair.getCounter(), maturityDate);
+        discountFactorZeroRateSensitivity(pair.getCounter(), referenceCurrency, maturityDate);
     dfCcyCounterAtMaturitySensitivity = dfCcyCounterAtMaturitySensitivity.multipliedBy(
         -fxRate(pair) * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv * dfCcyCounterAtMaturityInv);
     return dfCcyBaseAtMaturitySensitivity.combinedWith(dfCcyCounterAtMaturitySensitivity);
