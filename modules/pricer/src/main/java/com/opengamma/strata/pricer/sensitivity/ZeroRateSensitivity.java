@@ -41,17 +41,17 @@ public final class ZeroRateSensitivity
    * The currency of the curve for which the sensitivity is computed.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Currency currencyCurve;
-  /**
-   * The date that was looked up on the curve.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate date;
+  private final Currency curveCurrency;
   /**
    * The currency of the sensitivity.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
+  /**
+   * The date that was looked up on the curve.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate date;
   /**
    * The value of the sensitivity.
    */
@@ -70,7 +70,7 @@ public final class ZeroRateSensitivity
    * @return the point sensitivity object
    */
   public static ZeroRateSensitivity of(Currency currencyCurve, LocalDate date, double sensitivity) {
-    return new ZeroRateSensitivity(currencyCurve, date, currencyCurve, sensitivity);
+    return new ZeroRateSensitivity(currencyCurve, currencyCurve, date, sensitivity);
   }
   
   /**
@@ -78,17 +78,18 @@ public final class ZeroRateSensitivity
    * <p>
    * The currency representing the curve is used also for the sensitivity currency.
    * 
-   * @param currencyCurve  the currency of the curve
+   * @param curveCurrency  the currency of the curve
+   * @param sensitivityCurrency  the currency of the sensitivity
    * @param date  the date that was looked up on the curve
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static ZeroRateSensitivity of(
-      Currency currencyCurve, 
+      Currency curveCurrency, 
+      Currency sensitivityCurrency, 
       LocalDate date, 
-      Currency currencySensitivity, 
       double sensitivity) {
-    return new ZeroRateSensitivity(currencyCurve, date, currencySensitivity, sensitivity);
+    return new ZeroRateSensitivity(curveCurrency, sensitivityCurrency, date, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -97,12 +98,12 @@ public final class ZeroRateSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new ZeroRateSensitivity(currencyCurve, date, currency, sensitivity);
+    return new ZeroRateSensitivity(curveCurrency, currency, date, sensitivity);
   }
 
   @Override
   public ZeroRateSensitivity withSensitivity(double sensitivity) {
-    return new ZeroRateSensitivity(currencyCurve, date, currency, sensitivity);
+    return new ZeroRateSensitivity(curveCurrency, currency, date, sensitivity);
   }
 
   @Override
@@ -110,9 +111,9 @@ public final class ZeroRateSensitivity
     if (other instanceof ZeroRateSensitivity) {
       ZeroRateSensitivity otherZero = (ZeroRateSensitivity) other;
       return ComparisonChain.start()
-          .compare(currencyCurve, otherZero.currencyCurve)
-          .compare(date, otherZero.date)
+          .compare(curveCurrency, otherZero.curveCurrency)
           .compare(currency, otherZero.currency)
+          .compare(date, otherZero.date)
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
@@ -121,12 +122,12 @@ public final class ZeroRateSensitivity
   //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity multipliedBy(double factor) {
-    return new ZeroRateSensitivity(currencyCurve, date, currency, sensitivity * factor);
+    return new ZeroRateSensitivity(curveCurrency, currency, date, sensitivity * factor);
   }
 
   @Override
   public ZeroRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new ZeroRateSensitivity(currencyCurve, date, currency, operator.applyAsDouble(sensitivity));
+    return new ZeroRateSensitivity(curveCurrency, currency, date, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -154,16 +155,16 @@ public final class ZeroRateSensitivity
   private static final long serialVersionUID = 1L;
 
   private ZeroRateSensitivity(
-      Currency currencyCurve,
-      LocalDate date,
+      Currency curveCurrency,
       Currency currency,
+      LocalDate date,
       double sensitivity) {
-    JodaBeanUtils.notNull(currencyCurve, "currencyCurve");
-    JodaBeanUtils.notNull(date, "date");
+    JodaBeanUtils.notNull(curveCurrency, "curveCurrency");
     JodaBeanUtils.notNull(currency, "currency");
-    this.currencyCurve = currencyCurve;
-    this.date = date;
+    JodaBeanUtils.notNull(date, "date");
+    this.curveCurrency = curveCurrency;
     this.currency = currency;
+    this.date = date;
     this.sensitivity = sensitivity;
   }
 
@@ -187,17 +188,8 @@ public final class ZeroRateSensitivity
    * Gets the currency of the curve for which the sensitivity is computed.
    * @return the value of the property, not null
    */
-  public Currency getCurrencyCurve() {
-    return currencyCurve;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date that was looked up on the curve.
-   * @return the value of the property, not null
-   */
-  public LocalDate getDate() {
-    return date;
+  public Currency getCurveCurrency() {
+    return curveCurrency;
   }
 
   //-----------------------------------------------------------------------
@@ -208,6 +200,15 @@ public final class ZeroRateSensitivity
   @Override
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the date that was looked up on the curve.
+   * @return the value of the property, not null
+   */
+  public LocalDate getDate() {
+    return date;
   }
 
   //-----------------------------------------------------------------------
@@ -228,9 +229,9 @@ public final class ZeroRateSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ZeroRateSensitivity other = (ZeroRateSensitivity) obj;
-      return JodaBeanUtils.equal(getCurrencyCurve(), other.getCurrencyCurve()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate()) &&
+      return JodaBeanUtils.equal(getCurveCurrency(), other.getCurveCurrency()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getDate(), other.getDate()) &&
           JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
     }
     return false;
@@ -239,9 +240,9 @@ public final class ZeroRateSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyCurve());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
     return hash;
   }
@@ -250,9 +251,9 @@ public final class ZeroRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ZeroRateSensitivity{");
-    buf.append("currencyCurve").append('=').append(getCurrencyCurve()).append(',').append(' ');
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
+    buf.append("curveCurrency").append('=').append(getCurveCurrency()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("date").append('=').append(getDate()).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
     buf.append('}');
     return buf.toString();
@@ -269,20 +270,20 @@ public final class ZeroRateSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code currencyCurve} property.
+     * The meta-property for the {@code curveCurrency} property.
      */
-    private final MetaProperty<Currency> currencyCurve = DirectMetaProperty.ofImmutable(
-        this, "currencyCurve", ZeroRateSensitivity.class, Currency.class);
-    /**
-     * The meta-property for the {@code date} property.
-     */
-    private final MetaProperty<LocalDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", ZeroRateSensitivity.class, LocalDate.class);
+    private final MetaProperty<Currency> curveCurrency = DirectMetaProperty.ofImmutable(
+        this, "curveCurrency", ZeroRateSensitivity.class, Currency.class);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", ZeroRateSensitivity.class, Currency.class);
+    /**
+     * The meta-property for the {@code date} property.
+     */
+    private final MetaProperty<LocalDate> date = DirectMetaProperty.ofImmutable(
+        this, "date", ZeroRateSensitivity.class, LocalDate.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
@@ -293,9 +294,9 @@ public final class ZeroRateSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "currencyCurve",
-        "date",
+        "curveCurrency",
         "currency",
+        "date",
         "sensitivity");
 
     /**
@@ -307,12 +308,12 @@ public final class ZeroRateSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1083409246:  // currencyCurve
-          return currencyCurve;
-        case 3076014:  // date
-          return date;
+        case 1303639584:  // curveCurrency
+          return curveCurrency;
         case 575402001:  // currency
           return currency;
+        case 3076014:  // date
+          return date;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -336,19 +337,11 @@ public final class ZeroRateSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code currencyCurve} property.
+     * The meta-property for the {@code curveCurrency} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currencyCurve() {
-      return currencyCurve;
-    }
-
-    /**
-     * The meta-property for the {@code date} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> date() {
-      return date;
+    public MetaProperty<Currency> curveCurrency() {
+      return curveCurrency;
     }
 
     /**
@@ -357,6 +350,14 @@ public final class ZeroRateSensitivity
      */
     public MetaProperty<Currency> currency() {
       return currency;
+    }
+
+    /**
+     * The meta-property for the {@code date} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> date() {
+      return date;
     }
 
     /**
@@ -371,12 +372,12 @@ public final class ZeroRateSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1083409246:  // currencyCurve
-          return ((ZeroRateSensitivity) bean).getCurrencyCurve();
-        case 3076014:  // date
-          return ((ZeroRateSensitivity) bean).getDate();
+        case 1303639584:  // curveCurrency
+          return ((ZeroRateSensitivity) bean).getCurveCurrency();
         case 575402001:  // currency
           return ((ZeroRateSensitivity) bean).getCurrency();
+        case 3076014:  // date
+          return ((ZeroRateSensitivity) bean).getDate();
         case 564403871:  // sensitivity
           return ((ZeroRateSensitivity) bean).getSensitivity();
       }
@@ -400,9 +401,9 @@ public final class ZeroRateSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ZeroRateSensitivity> {
 
-    private Currency currencyCurve;
-    private LocalDate date;
+    private Currency curveCurrency;
     private Currency currency;
+    private LocalDate date;
     private double sensitivity;
 
     /**
@@ -415,12 +416,12 @@ public final class ZeroRateSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1083409246:  // currencyCurve
-          return currencyCurve;
-        case 3076014:  // date
-          return date;
+        case 1303639584:  // curveCurrency
+          return curveCurrency;
         case 575402001:  // currency
           return currency;
+        case 3076014:  // date
+          return date;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -431,14 +432,14 @@ public final class ZeroRateSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1083409246:  // currencyCurve
-          this.currencyCurve = (Currency) newValue;
-          break;
-        case 3076014:  // date
-          this.date = (LocalDate) newValue;
+        case 1303639584:  // curveCurrency
+          this.curveCurrency = (Currency) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
+          break;
+        case 3076014:  // date
+          this.date = (LocalDate) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (Double) newValue;
@@ -476,9 +477,9 @@ public final class ZeroRateSensitivity
     @Override
     public ZeroRateSensitivity build() {
       return new ZeroRateSensitivity(
-          currencyCurve,
-          date,
+          curveCurrency,
           currency,
+          date,
           sensitivity);
     }
 
@@ -487,9 +488,9 @@ public final class ZeroRateSensitivity
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ZeroRateSensitivity.Builder{");
-      buf.append("currencyCurve").append('=').append(JodaBeanUtils.toString(currencyCurve)).append(',').append(' ');
-      buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+      buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();
