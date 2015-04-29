@@ -173,6 +173,19 @@ public class CurrencyAmountTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_convertedTo_explicitRate() {
+    assertEquals(CCY_AMOUNT.convertedTo(CCY2, 2.5d), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+    assertEquals(CCY_AMOUNT.convertedTo(CCY1, 1d), CCY_AMOUNT);
+    assertThrowsIllegalArg(() -> CCY_AMOUNT.convertedTo(CCY1, 1.5d));
+  }
+
+  public void test_convertedTo_rateProvider() {
+    FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
+    assertEquals(CCY_AMOUNT.convertedTo(CCY2, provider), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+    assertEquals(CCY_AMOUNT.convertedTo(CCY1, provider), CCY_AMOUNT);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals_hashCode() {
     CurrencyAmount other = CurrencyAmount.of(CCY1, AMT1);
     assertTrue(CCY_AMOUNT.equals(CCY_AMOUNT));

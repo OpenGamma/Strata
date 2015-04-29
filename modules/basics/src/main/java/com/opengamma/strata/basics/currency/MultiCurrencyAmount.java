@@ -49,7 +49,7 @@ import com.opengamma.strata.collect.Guavate;
  */
 @BeanDefinition(builderScope = "private")
 public final class MultiCurrencyAmount
-    implements ImmutableBean, Serializable {
+    implements FxConvertible<CurrencyAmount>, ImmutableBean, Serializable {
   // the choice of a set as the internal storage is driven by serialization concerns
   // the ideal storage form would be Map<Currency, CurrencyAmount> but this
   // would duplicate the currency in the serialized form
@@ -429,6 +429,30 @@ public final class MultiCurrencyAmount
     return amounts.stream()
         .map(ca -> ca.mapAmount(mapper))
         .collect(MultiCurrencyAmount.collectorInternal());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this amount to an equivalent amount the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency.
+   * If conversion is needed, the provider will be used to supply the FX rate.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws RuntimeException if no FX rate could be found
+   */
+  @Override
+  public CurrencyAmount convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    if (amounts.size() == 1) {
+      return amounts.first().convertedTo(resultCurrency, rateProvider);
+    }
+    double total = 0d;
+    for (CurrencyAmount amount : amounts) {
+      total += amount.getAmount() * rateProvider.fxRate(amount.getCurrency(), resultCurrency);
+    }
+    return CurrencyAmount.of(resultCurrency, total);
   }
 
   //-------------------------------------------------------------------------
