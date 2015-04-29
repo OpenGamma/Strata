@@ -44,7 +44,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * This class is immutable and thread-safe.
  */
 public final class CurrencyAmount
-    implements Comparable<CurrencyAmount>, Serializable {
+    implements FxConvertible<CurrencyAmount>, Comparable<CurrencyAmount>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -297,6 +297,51 @@ public final class CurrencyAmount
    */
   public CurrencyAmount negative() {
     return amount > 0 ? negated() : this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this amount to an equivalent amount the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency, converting
+   * using the specified FX rate.
+   * <p>
+   * For example, if this represents 'GBP 100' and this method is called with
+   * arguments {@code (USD, 1.6)} then the result will be 'USD 160'.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param fxRate  the FX rate from this currency to the result currency
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
+   */
+  public CurrencyAmount convertedTo(Currency resultCurrency, double fxRate) {
+    if (currency.equals(resultCurrency)) {
+      if (DoubleMath.fuzzyEquals(fxRate, 1d, 1e-8)) {
+        return this;
+      }
+      throw new IllegalArgumentException("FX rate must be 1 when no conversion required");
+    }
+    return CurrencyAmount.of(resultCurrency, amount * fxRate);
+  }
+
+  /**
+   * Converts this amount to an equivalent amount the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency.
+   * If conversion is needed, the provider will be used to supply the FX rate.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws RuntimeException if no FX rate could be found
+   */
+  @Override
+  public CurrencyAmount convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    if (currency.equals(resultCurrency)) {
+      return this;
+    }
+    double fxRate = rateProvider.fxRate(currency, resultCurrency);
+    return CurrencyAmount.of(resultCurrency, amount * fxRate);
   }
 
   //-------------------------------------------------------------------------

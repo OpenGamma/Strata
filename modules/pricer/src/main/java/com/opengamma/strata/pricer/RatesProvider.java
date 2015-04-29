@@ -8,14 +8,12 @@ package com.opengamma.strata.pricer;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
@@ -29,7 +27,8 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
-public interface RatesProvider {
+public interface RatesProvider
+    extends FxRateProvider {
 
   /**
    * Gets the valuation date.
@@ -52,66 +51,32 @@ public interface RatesProvider {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the FX rate for a currency pair on the valuation date.
+   * Gets the FX rate for the specified currency pair on the valuation date.
    * <p>
-   * The rate returned is the rate from the base to counter as defined by the
-   * specified currency pair - {@code 1 * base = fxRate * counter}.
+   * The rate returned is the rate from the base currency to the counter currency
+   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
    * 
    * @param baseCurrency  the base currency, to convert from
    * @param counterCurrency  the counter currency, to convert to
    * @return the current FX rate for the currency pair
+   * @throws RuntimeException if no FX rate could be found
    */
+  @Override
   public abstract double fxRate(Currency baseCurrency, Currency counterCurrency);
 
   /**
-   * Gets the FX rate for a currency pair on the valuation date.
+   * Gets the FX rate for the specified currency pair on the valuation date.
    * <p>
-   * The rate returned is the rate from the base to counter as defined by the
-   * specified currency pair - {@code 1 * base = fxRate * counter}.
+   * The rate returned is the rate from the base currency to the counter currency
+   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
    * 
    * @param currencyPair  the ordered currency pair defining the rate required
    * @return the current FX rate for the currency pair
+   * @throws RuntimeException if no FX rate could be found
    */
+  @Override
   public default double fxRate(CurrencyPair currencyPair) {
     return fxRate(currencyPair.getBase(), currencyPair.getCounter());
-  }
-
-  /**
-   * Converts the currency of an amount.
-   * <p>
-   * The input amount is a set of amounts in one or more currencies. 
-   * This converts the amount to the target currency.
-   * This conversion uses the current FX rate as returned by {@link #fxRate(Currency, Currency)}.
-   * 
-   * @param amount  the amount to convert
-   * @param targetCurrency  the currency to convert to
-   * @return the converted amount
-   */
-  public default CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency targetCurrency) {
-    ArgChecker.notNull(amount, "amount");
-    ArgChecker.notNull(targetCurrency, "targetCurrency");
-    return CurrencyAmount.of(targetCurrency, amount.stream()
-        .mapToDouble(ca -> fxRate(ca.getCurrency(), targetCurrency) * ca.getAmount())
-        .sum());
-  }
-
-  /**
-   * Converts the currency of an amount.
-   * <p>
-   * This converts the specified amount to the target currency.
-   * This conversion uses the current FX rate as returned by {@link #fxRate(Currency, Currency)}.
-   * 
-   * @param amount  the amount to convert
-   * @param targetCurrency  the currency to convert to
-   * @return the converted amount
-   */
-  public default CurrencyAmount fxConvert(CurrencyAmount amount, Currency targetCurrency) {
-    ArgChecker.notNull(amount, "amount");
-    ArgChecker.notNull(targetCurrency, "targetCurrency");
-    if (amount.getCurrency().equals(targetCurrency)) {
-      return amount;
-    }
-    return CurrencyAmount.of(targetCurrency, fxRate(amount.getCurrency(), targetCurrency) * amount.getAmount());
   }
 
   //-------------------------------------------------------------------------

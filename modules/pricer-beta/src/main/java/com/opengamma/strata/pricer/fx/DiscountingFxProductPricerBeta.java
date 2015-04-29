@@ -77,7 +77,7 @@ public class DiscountingFxProductPricerBeta {
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
-    double pvCounterCcy = provider.fxConvert(pv, counterPayment.getCurrency()).getAmount();
+    double pvCounterCcy = pv.convertedTo(counterPayment.getCurrency(), provider).getAmount();
     double dfEnd = provider.discountFactor(counterPayment.getCurrency(), fx.getValueDate());
     double notionalBaseCcy = basePayment.getAmount();
     return pvCounterCcy / (notionalBaseCcy * dfEnd);

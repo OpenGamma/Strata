@@ -76,7 +76,7 @@ public interface SecurityTrade<P extends Product>
    * @return the product
    * @throws IllegalStateException if the security link is not resolved
    */
-  public default Product getProduct() {
+  public default P getProduct() {
     return getSecurity().getProduct();
   }
 
