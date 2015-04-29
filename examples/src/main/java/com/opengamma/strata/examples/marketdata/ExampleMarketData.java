@@ -5,12 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.time.LocalDate;
-
-import org.joda.beans.ser.JodaBeanSer;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.id.StandardIdentifiable;
@@ -18,7 +13,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.examples.finance.SwapPricingExample;
+import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
@@ -67,7 +62,7 @@ public final class ExampleMarketData {
    */
   public static LocalDateDoubleTimeSeries loadTimeSeries(StandardIdentifiable identifiable) {
     String resourceName = String.format("/timeseries/%s.json", identifiable.getStandardId().toString().toLowerCase());
-    return loadFromJson(resourceName, LocalDateDoubleTimeSeries.class);
+    return ExampleData.loadFromJson(resourceName, LocalDateDoubleTimeSeries.class);
   }
 
   /**
@@ -84,18 +79,8 @@ public final class ExampleMarketData {
    */
   public static YieldCurve loadYieldCurve(LocalDate curveDate, String curveName) {
     String resourceName = String.format("/yieldcurve/%s_%s.json", curveName.toLowerCase(), curveDate);
-    InterpolatedCurve curve = loadFromJson(resourceName, InterpolatedCurve.class);
+    InterpolatedCurve curve = ExampleData.loadFromJson(resourceName, InterpolatedCurve.class);
     return curve.toYieldCurve();
-  }
-
-  // loads a resource from JSON
-  private static <T> T loadFromJson(String resourceName, Class<T> clazz) {
-    InputStream tsResource = SwapPricingExample.class.getResourceAsStream(resourceName);
-    if (tsResource == null) {
-      throw new MissingExampleDataException(resourceName);
-    }
-    Reader tsReader = new InputStreamReader(tsResource);
-    return JodaBeanSer.COMPACT.jsonReader().read(tsReader, clazz);
   }
 
 }
