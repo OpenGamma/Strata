@@ -6,9 +6,10 @@
 package com.opengamma.strata.pricer.fx;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.ExpandedFx;
+import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.FxProduct;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
@@ -84,13 +85,13 @@ public class DiscountingFxProductPricerBeta {
   }
 
   /**
-   * Computes the forward exchange rate associated to the FxExchangeProduct instrument (1 Cyy1 = fwd Cyy2).
+   * Computes the forward exchange rate.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
    * @return the forward rate
    */
-  public double forwardFxRate(FxProduct product, RatesProvider provider) {
+  public FxRate forwardFxRate(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
@@ -98,12 +99,12 @@ public class DiscountingFxProductPricerBeta {
     double dfDomestic = provider.discountFactor(counterPayment.getCurrency(), counterPayment.getDate());
     double dfForeign = provider.discountFactor(basePayment.getCurrency(), basePayment.getDate());
     double spot = provider.fxRate(basePayment.getCurrency(), counterPayment.getCurrency());
-    return spot * dfForeign / dfDomestic;
+    return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), spot * dfForeign / dfDomestic);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Compute the present value sensitivity to rates of a forex transaction.
+   * Compute the present value sensitivity.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -121,37 +122,5 @@ public class DiscountingFxProductPricerBeta {
     return provider.discountFactorZeroRateSensitivity(payment.getCurrency(), payment.getDate())
         .multipliedBy(payment.getAmount());
   }
-
-//  /**
-//   * Computes the par spread curve sensitivity.
-//   * 
-//   * @param product  the product to price
-//   * @param provider  the rates provider
-//   * @return the par spread sensitivity
-//   */
-//  public MulticurveSensitivity parSpreadCurveSensitivity(FxExchangeProduct product, RatesProvider provider) {
-//    FxExchange fx = product.expand();
-//    FxPayment basePayment = fx.getBaseCurrencyPayment();
-//    FxPayment counterPayment = fx.getCounterCurrencyPayment();
-//    Currency counterCcy = counterPayment.getCurrency();
-//    double payTime = provider.relativeTime(counterPayment.getDate());
-//    double pv2 = provider.fxConvert(presentValue(fx, provider), counterCcy).getAmount();
-//    double dfEnd = provider.discountFactor(counterCcy, counterPayment.getDate());
-//    double notional1 = basePayment.getAmount();
-//    // Backward sweep
-//    double spreadBar = 1.0;
-//    double dfEndBar = -pv2 / (notional1 * dfEnd * dfEnd) * spreadBar;
-//    double pv2Bar = spreadBar / (notional1 * dfEnd);
-//    PointSensitivities pv2DrMC = presentValueSensitivity(fx, provider);
-//    // TODO: this converts sensitivity to a single currency
-//    MulticurveSensitivity pv2Dr = pv2DrMC.converted(counterCcy, provider.getFxRates()).getSensitivity(counterCcy);
-//
-//    List<DoublesPair> list = new ArrayList<>();
-//    list.add(DoublesPair.of(payTime, -payTime * dfEnd * dfEndBar));
-//    Map<String, List<DoublesPair>> result = new HashMap<>();
-//    result.put(provider.getName(counterCcy), list);
-//    MulticurveSensitivity dfEndDr = MulticurveSensitivity.ofYieldDiscounting(result);
-//    return pv2Dr.multipliedBy(pv2Bar).plus(dfEndDr);
-//  }
 
 }
