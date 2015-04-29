@@ -283,9 +283,9 @@ public class ImmutableRatesProviderTest {
         test_gbp_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
     double sense_usd1 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE) -
         test_usd_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
-    PointSensitivityBuilder sensitivityBuilderExpectedGBP = ZeroRateSensitivity.of(GBP, matuirtyDate, sense_gbp1);
+    PointSensitivityBuilder sensitivityBuilderExpectedGBP = ZeroRateSensitivity.of(GBP, USD, matuirtyDate, sense_gbp1);
     sensitivityBuilderExpectedGBP = sensitivityBuilderExpectedGBP.combinedWith(
-        ZeroRateSensitivity.of(USD, matuirtyDate, sense_usd1));
+        ZeroRateSensitivity.of(USD, USD, matuirtyDate, sense_usd1));
     assertTrue(sensitivityBuilderComputedGBP.build().normalized()
         .equalWithTolerance(sensitivityBuilderExpectedGBP.build().normalized(), EPS_FD));
 
@@ -294,9 +294,9 @@ public class ImmutableRatesProviderTest {
         test_gbp_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
     double sense_usd2 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, USD, VAL_DATE) -
         test_usd_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
-    PointSensitivityBuilder sensitivityBuilderExpectedUSD = ZeroRateSensitivity.of(GBP, matuirtyDate, sense_gbp2);
+    PointSensitivityBuilder sensitivityBuilderExpectedUSD = ZeroRateSensitivity.of(GBP, GBP, matuirtyDate, sense_gbp2);
     sensitivityBuilderExpectedUSD = sensitivityBuilderExpectedUSD.combinedWith(
-        ZeroRateSensitivity.of(USD, matuirtyDate, sense_usd2));
+        ZeroRateSensitivity.of(USD, GBP, matuirtyDate, sense_usd2));
     assertTrue(sensitivityBuilderComputedUSD.build().normalized()
         .equalWithTolerance(sensitivityBuilderExpectedUSD.build().normalized(), EPS_FD));
   }
@@ -359,9 +359,9 @@ public class ImmutableRatesProviderTest {
         test_gbp_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
     double sense_usd1 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE) -
         test_usd_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
-    PointSensitivityBuilder sensitivityBuilderExpectedGBP = ZeroRateSensitivity.of(GBP, matuirtyDate, sense_gbp1);
+    PointSensitivityBuilder sensitivityBuilderExpectedGBP = ZeroRateSensitivity.of(GBP, USD, matuirtyDate, sense_gbp1);
     sensitivityBuilderExpectedGBP = sensitivityBuilderExpectedGBP.combinedWith(
-        ZeroRateSensitivity.of(USD, matuirtyDate, sense_usd1));
+        ZeroRateSensitivity.of(USD, USD, matuirtyDate, sense_usd1));
     assertTrue(sensitivityBuilderComputedGBP.build().normalized()
         .equalWithTolerance(sensitivityBuilderExpectedGBP.build().normalized(), EPS_FD));
 
@@ -370,9 +370,9 @@ public class ImmutableRatesProviderTest {
         test_gbp_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
     double sense_usd2 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, USD, VAL_DATE) -
         test_usd_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
-    PointSensitivityBuilder sensitivityBuilderExpectedUSD = ZeroRateSensitivity.of(GBP, matuirtyDate, sense_gbp2);
+    PointSensitivityBuilder sensitivityBuilderExpectedUSD = ZeroRateSensitivity.of(GBP, GBP, matuirtyDate, sense_gbp2);
     sensitivityBuilderExpectedUSD = sensitivityBuilderExpectedUSD.combinedWith(
-        ZeroRateSensitivity.of(USD, matuirtyDate, sense_usd2));
+        ZeroRateSensitivity.of(USD, GBP, matuirtyDate, sense_usd2));
     assertTrue(sensitivityBuilderComputedUSD.build().normalized()
         .equalWithTolerance(sensitivityBuilderExpectedUSD.build().normalized(), EPS_FD));
   }
