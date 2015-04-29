@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.marketdata;
+package com.opengamma.strata.examples.data;
 
 /**
  * Runtime exception used by the example market data loader to indicate that required
