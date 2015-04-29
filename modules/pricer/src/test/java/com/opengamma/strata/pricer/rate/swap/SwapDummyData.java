@@ -73,10 +73,18 @@ public final class SwapDummyData {
   /**
    * NotionalExchange.
    */
-  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE = FxResetNotionalExchange.builder()
+  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_REC_USD = FxResetNotionalExchange.builder()
       .paymentDate(date(2014, 7, 1))
       .referenceCurrency(Currency.USD)
       .notional(NOTIONAL)
+      .index(FxIndices.WM_GBP_USD)
+      .fixingDate(date(2014, 7, 1))
+      .build();
+
+  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP = FxResetNotionalExchange.builder()
+      .paymentDate(date(2014, 7, 1))
+      .referenceCurrency(Currency.GBP)
+      .notional(-NOTIONAL)
       .index(FxIndices.WM_GBP_USD)
       .fixingDate(date(2014, 7, 1))
       .build();

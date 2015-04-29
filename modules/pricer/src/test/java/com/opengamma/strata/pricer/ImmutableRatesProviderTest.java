@@ -19,6 +19,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -68,6 +69,18 @@ public class ImmutableRatesProviderTest {
           return 0.0123d;
         }
       };
+
+  private static final double GBP_DSC = 0.99d;
+  private static final double USD_DSC = 0.95d;
+  private static final double EPS_FD = 1.0e-8;
+  private static final DiscountCurve DISCOUNT_CURVE_GBP_UP =
+      new DiscountCurve("GBP-Discount", new ConstantDoublesCurve(GBP_DSC + EPS_FD));
+  private static final DiscountCurve DISCOUNT_CURVE_USD_UP =
+      new DiscountCurve("USD-Discount", new ConstantDoublesCurve(USD_DSC + EPS_FD));
+  private static final DiscountCurve DISCOUNT_CURVE_GBP_DOWN =
+      new DiscountCurve("GBP-Discount", new ConstantDoublesCurve(GBP_DSC - EPS_FD));
+  private static final DiscountCurve DISCOUNT_CURVE_USD_DOWN =
+      new DiscountCurve("USD-Discount", new ConstantDoublesCurve(USD_DSC - EPS_FD));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -156,6 +169,17 @@ public class ImmutableRatesProviderTest {
     assertEquals(test.fxIndexRate(WM_GBP_USD, USD, PREV_DATE), 1d / 0.62d, 0d);
   }
 
+  public void test_fxIndexRateSensitivity_beforeToday_inTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.fxIndexRateSensitivity(WM_GBP_USD, GBP, PREV_DATE), PointSensitivityBuilder.none());
+    assertEquals(test.fxIndexRateSensitivity(WM_GBP_USD, USD, PREV_DATE), PointSensitivityBuilder.none());
+  }
+
   public void test_fxIndexRate_beforeToday_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
@@ -168,6 +192,17 @@ public class ImmutableRatesProviderTest {
         PricingException.class);
   }
 
+  public void test_fxIndexRateSensitivity_beforeToday_notInTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    // error is not returned, consistent behavior with Ibor index
+    assertEquals(test.fxIndexRateSensitivity(WM_GBP_USD, USD, PREV_DATE), PointSensitivityBuilder.none());
+  }
+
   public void test_fxIndexRate_today_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
@@ -177,6 +212,17 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), 0.62d, 0d);
     assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), 1d / 0.62d, 0d);
+  }
+
+  public void test_fxIndexRateSensitivity_today_inTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.fxIndexRateSensitivity(WM_GBP_USD, GBP, VAL_DATE), PointSensitivityBuilder.none());
+    assertEquals(test.fxIndexRateSensitivity(WM_GBP_USD, USD, VAL_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_fxIndexRate_today_notInTimeSeries() {
@@ -192,6 +238,69 @@ public class ImmutableRatesProviderTest {
     assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / 1.6d) * (0.95d / 0.99d), 0d);
   }
 
+  public void test_fxIndexRateSensitivity_today_notInTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    LocalDate matuirtyDate = WM_GBP_USD.calculateMaturityFromFixing(VAL_DATE);
+    double maturityTime = test.relativeTime(matuirtyDate);
+
+    PointSensitivityBuilder sensitivityBuilderComputedGBP = test.fxIndexRateSensitivity(WM_GBP_USD, GBP, VAL_DATE);
+    double sense_gbp1 = 0.5 * (test_gbp_up.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE) -
+        test_gbp_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double sense_usd1 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE) -
+        test_usd_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
+    PointSensitivityBuilder sensitivityBuilderExpectedGBP = ZeroRateSensitivity.of(GBP, USD, matuirtyDate, sense_gbp1);
+    sensitivityBuilderExpectedGBP = sensitivityBuilderExpectedGBP.combinedWith(
+        ZeroRateSensitivity.of(USD, USD, matuirtyDate, sense_usd1));
+    assertTrue(sensitivityBuilderComputedGBP.build().normalized()
+        .equalWithTolerance(sensitivityBuilderExpectedGBP.build().normalized(), EPS_FD));
+
+    PointSensitivityBuilder sensitivityBuilderComputedUSD = test.fxIndexRateSensitivity(WM_GBP_USD, USD, VAL_DATE);
+    double sense_gbp2 = 0.5 * (test_gbp_up.fxIndexRate(WM_GBP_USD, USD, VAL_DATE) -
+        test_gbp_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double sense_usd2 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, USD, VAL_DATE) -
+        test_usd_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
+    PointSensitivityBuilder sensitivityBuilderExpectedUSD = ZeroRateSensitivity.of(GBP, GBP, matuirtyDate, sense_gbp2);
+    sensitivityBuilderExpectedUSD = sensitivityBuilderExpectedUSD.combinedWith(
+        ZeroRateSensitivity.of(USD, GBP, matuirtyDate, sense_usd2));
+    assertTrue(sensitivityBuilderComputedUSD.build().normalized()
+        .equalWithTolerance(sensitivityBuilderExpectedUSD.build().normalized(), EPS_FD));
+  }
+
   public void test_fxIndexRate_afterToday() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
@@ -205,12 +314,83 @@ public class ImmutableRatesProviderTest {
     assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / 1.6d) * (0.95d / 0.99d), 0d);
   }
 
+  public void test_fxIndexRateSensitivity_afterToday() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
+        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    LocalDate matuirtyDate = WM_GBP_USD.calculateMaturityFromFixing(VAL_DATE);
+    double maturityTime = test.relativeTime(matuirtyDate);
+
+    PointSensitivityBuilder sensitivityBuilderComputedGBP = test.fxIndexRateSensitivity(WM_GBP_USD, GBP, VAL_DATE);
+    double sense_gbp1 = 0.5 * (test_gbp_up.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE) -
+        test_gbp_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double sense_usd1 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE) -
+        test_usd_dw.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
+    PointSensitivityBuilder sensitivityBuilderExpectedGBP = ZeroRateSensitivity.of(GBP, USD, matuirtyDate, sense_gbp1);
+    sensitivityBuilderExpectedGBP = sensitivityBuilderExpectedGBP.combinedWith(
+        ZeroRateSensitivity.of(USD, USD, matuirtyDate, sense_usd1));
+    assertTrue(sensitivityBuilderComputedGBP.build().normalized()
+        .equalWithTolerance(sensitivityBuilderExpectedGBP.build().normalized(), EPS_FD));
+
+    PointSensitivityBuilder sensitivityBuilderComputedUSD = test.fxIndexRateSensitivity(WM_GBP_USD, USD, VAL_DATE);
+    double sense_gbp2 = 0.5 * (test_gbp_up.fxIndexRate(WM_GBP_USD, USD, VAL_DATE) -
+        test_gbp_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double sense_usd2 = 0.5 * (test_usd_up.fxIndexRate(WM_GBP_USD, USD, VAL_DATE) -
+        test_usd_dw.fxIndexRate(WM_GBP_USD, USD, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
+    PointSensitivityBuilder sensitivityBuilderExpectedUSD = ZeroRateSensitivity.of(GBP, GBP, matuirtyDate, sense_gbp2);
+    sensitivityBuilderExpectedUSD = sensitivityBuilderExpectedUSD.combinedWith(
+        ZeroRateSensitivity.of(USD, GBP, matuirtyDate, sense_usd2));
+    assertTrue(sensitivityBuilderComputedUSD.build().normalized()
+        .equalWithTolerance(sensitivityBuilderExpectedUSD.build().normalized(), EPS_FD));
+  }
+
   public void test_fxIndexRate_badCurrency() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.fxIndexRate(WM_GBP_USD, EUR, VAL_DATE));
+  }
+
+  public void test_fxIndexRateSensitivity_badCurrency() {
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertThrowsIllegalArg(() -> test.fxIndexRateSensitivity(WM_GBP_USD, EUR, VAL_DATE));
   }
 
   //-------------------------------------------------------------------------

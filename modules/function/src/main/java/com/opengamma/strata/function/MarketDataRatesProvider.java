@@ -29,8 +29,8 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.FxRateKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.PricingException;
+import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -137,6 +137,12 @@ public final class MarketDataRatesProvider
     double dfCcyBaseAtMaturity = baseDiscountingCurve.getDiscountFactor(maturity);
     double dfCcyCounterAtMaturity = counterDiscountingCurve.getDiscountFactor(maturity);
     return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+  }
+
+  @Override
+  public PointSensitivityBuilder fxIndexRateSensitivity(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
+    // TODO implement MarketDataRatesProvider.fxIndexRateSensitivity
+    throw new UnsupportedOperationException("fxIndexRateSensitivity not implemented");
   }
 
   //-------------------------------------------------------------------------
