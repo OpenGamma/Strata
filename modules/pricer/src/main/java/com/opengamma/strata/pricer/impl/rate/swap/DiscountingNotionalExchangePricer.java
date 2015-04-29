@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

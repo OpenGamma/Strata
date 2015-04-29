@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer;
+package com.opengamma.strata.pricer.rate;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;

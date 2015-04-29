@@ -11,7 +11,7 @@ import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.FxProduct;
 import com.opengamma.strata.finance.fx.FxSwapProduct;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**

@@ -40,7 +40,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
 /**

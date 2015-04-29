@@ -28,7 +28,7 @@ import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
 import com.opengamma.strata.marketdata.key.ObservableKey;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
 /**

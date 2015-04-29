@@ -18,7 +18,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**

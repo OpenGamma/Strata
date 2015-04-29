@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;

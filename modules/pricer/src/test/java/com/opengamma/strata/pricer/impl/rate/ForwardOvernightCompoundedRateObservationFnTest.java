@@ -23,7 +23,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.pricer.PricingException;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.finance.fx.FxProduct;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

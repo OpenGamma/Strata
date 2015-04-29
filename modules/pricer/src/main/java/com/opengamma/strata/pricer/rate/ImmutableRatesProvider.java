@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer;
+package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -45,6 +45,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IndexCurrencySensitivityKey;

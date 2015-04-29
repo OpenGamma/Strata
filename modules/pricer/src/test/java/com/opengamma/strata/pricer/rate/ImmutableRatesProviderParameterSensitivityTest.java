@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer;
+package com.opengamma.strata.pricer.rate;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;

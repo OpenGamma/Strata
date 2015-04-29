@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.rate.deposit;
 
 import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
