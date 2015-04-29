@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.pricer.CurveSensitivityTestUtil;
 import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
@@ -351,8 +351,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
     List<ZeroRateSensitivity> dscExpectedList = dscSensitivityFD(mockProv, PAYMENT_PERIOD_FLOATING, obsFunc, eps);
     PointSensitivities senseExpectedDsc = PointSensitivities.of(dscExpectedList);
 
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected.combinedWith(senseExpectedDsc),
-        eps * PAYMENT_PERIOD_FLOATING.getNotional());
+    assertTrue(senseComputed.equalWithTolerance(
+        senseExpected.combinedWith(senseExpectedDsc), eps * PAYMENT_PERIOD_FLOATING.getNotional()));
   }
 
   /**
@@ -379,8 +379,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, PAYMENT_PERIOD_FLOATING, obsFunc,
         eps);
     PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
-    CurveSensitivityTestUtil.assertMulticurveSensitivity(senseComputed, senseExpected,
-        eps * PAYMENT_PERIOD_FLOATING.getNotional());
+    assertTrue(senseComputed.equalWithTolerance(senseExpected, eps * PAYMENT_PERIOD_FLOATING.getNotional()));
   }
 
   @SuppressWarnings("null")

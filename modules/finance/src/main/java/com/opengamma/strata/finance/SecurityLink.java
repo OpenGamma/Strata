@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.Link;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
@@ -258,12 +257,11 @@ public final class SecurityLink<P extends Product>
    * <p>
    * First, the security is resolved using {@link #resolve(LinkResolver)}.
    * Second, if the security implements {@link Resolvable}, it is resolved as well.
-   * The result is wrapped using {@link Link#resolved(IdentifiableBean)}.
    * The returned security should not contain any unresolved links.
    * <p>
    * An exception is thrown if a link cannot be resolved.
    *
-   * @param linkResolver  the resolver to use for the resolution
+   * @param resolver  the resolver to use for the resolution
    * @return the fully resolved link
    * @throws LinkResolutionException if a link cannot be resolved
    */

@@ -29,10 +29,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
@@ -51,7 +49,7 @@ public class ImmutableRatesProviderTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
   private static final LocalDate NEXT_DATE = LocalDate.of(2014, 7, 1);
 
-  private static final FxMatrix FX_MATRIX = FxMatrix.builder().addRate(GBP, USD, 1.6d).build();
+  private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, 1.6d);
   private static final DiscountCurve DISCOUNT_CURVE_GBP =
       new DiscountCurve("GBP-Discount", new ConstantDoublesCurve(0.99d));
   private static final DiscountCurve DISCOUNT_CURVE_USD =
@@ -144,19 +142,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / 1.6d, 0d);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_fxConvert() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .fxMatrix(FX_MATRIX)
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    MultiCurrencyAmount mca = MultiCurrencyAmount.of(
-        CurrencyAmount.of(GBP, 100),
-        CurrencyAmount.of(USD, 200));
-    assertEquals(test.fxConvert(mca, GBP), CurrencyAmount.of(GBP, 100 + (1 / 1.6d) * 200));
   }
 
   //-------------------------------------------------------------------------

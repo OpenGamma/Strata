@@ -177,6 +177,8 @@ public final class ScenarioMarketDataBuilder {
   /**
    * Adds a global value that is applicable to all scenarios.
    *
+   * @param id  the identifier to associate the value with
+   * @param value  the value to add
    * @return this builder
    */
   public <T> ScenarioMarketDataBuilder addGlobalValue(MarketDataId<T> id, T value) {

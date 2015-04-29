@@ -71,8 +71,7 @@ public class SwapCrossCurrencyEnd2EndTest {
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
       StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
-  private static final FxMatrix FX_MATRIX =
-      FxMatrix.builder().addRate(Currency.EUR, Currency.USD, 1.20).build();
+  private static final FxMatrix FX_MATRIX = FxMatrix.of(Currency.EUR, Currency.USD, 1.20);
   private static final com.opengamma.analytics.financial.instrument.index.IborIndex EUREURIBOR3M =
       MULTICURVE_EUR_PAIR.getFirst().getIndexesIbor().iterator().next();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_USD_PAIR.getFirst();

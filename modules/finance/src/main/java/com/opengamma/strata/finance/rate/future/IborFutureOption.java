@@ -167,8 +167,31 @@ public class IborFutureOption
    * @return full details of the security
    * @throws LinkResolutionException if the security is not resolved
    */
-  public Security<IborFuture> getUnderlying() {
+  public Security<IborFuture> getUnderlyingSecurity() {
     return underlyingLink.resolvedTarget();
+  }
+
+  /**
+   * Gets the underlying Ibor future that was traded, throwing an exception if not resolved.
+   * <p>
+   * Returns the underlying product that captures the contracted financial details of the trade.
+   * This method accesses the security via the {@link #getUnderlyingLink() underlyingLink} property.
+   * The link has two states, resolvable and resolved.
+   * <p>
+   * In the resolved state, the security is known and available for use.
+   * The security object will be directly embedded in the link held within this trade.
+   * <p>
+   * In the resolvable state, only the identifier and type of the security are known.
+   * These act as a pointer to the security, and as such the security is not directly available.
+   * The link must be resolved before use.
+   * This can be achieved by calling {@link #resolveLinks(LinkResolver)} on this trade.
+   * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
+   * 
+   * @return the product underlying the option
+   * @throws LinkResolutionException if the security is not resolved
+   */
+  public IborFuture getUnderlying() {
+    return getUnderlyingSecurity().getProduct();
   }
 
   //-------------------------------------------------------------------------

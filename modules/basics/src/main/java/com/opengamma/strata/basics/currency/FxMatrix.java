@@ -18,6 +18,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
@@ -32,7 +33,8 @@ import com.opengamma.strata.collect.tuple.Pair;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class FxMatrix {
+public final class FxMatrix
+    implements FxRateProvider {
 
   /**
    * An empty FX matrix containing neither currencies nor rates.
@@ -80,6 +82,45 @@ public final class FxMatrix {
   }
 
   /**
+   * Obtains an {@code FxMatrix} containing a single FX rate.
+   * <p>
+   * This is most likely to be used in testing.
+   * <p>
+   * An invocation of the method with {@code FxMatrix.of(CurrencyPair.of(GBP, USD), 1.6)}
+   * indicates that 1 pound sterling is worth 1.6 US dollars.
+   * The matrix can also be queried for the reverse rate, from USD to GBP.
+   *
+   * @param currencyPair  the currency pair to be added
+   * @param rate  the FX rate between the base currency of the pair and the
+   *   counter currency. The rate indicates the value of one unit of the base
+   *   currency in terms of the counter currency.
+   * @return a matrix containing the single FX rate
+   */
+  public static FxMatrix of(CurrencyPair currencyPair, double rate) {
+    return FxMatrix.of(currencyPair.getBase(), currencyPair.getCounter(), rate);
+  }
+
+  /**
+   * Obtains an {@code FxMatrix} containing a single FX rate.
+   * <p>
+   * This is most likely to be used in testing.
+   * <p>
+   * An invocation of the method with {@code FxMatrix.of(GBP, USD, 1.6)}
+   * indicates that 1 pound sterling is worth 1.6 US dollars.
+   * The matrix can also be queried for the reverse rate, from USD to GBP.
+   *
+   * @param ccy1  the first currency of the pair
+   * @param ccy2  the second currency of the pair
+   * @param rate  the FX rate between the first currency and the second currency.
+   *   The rate indicates the value of one unit of the first currency in terms
+   *   of the second currency.
+   * @return a matrix containing the single FX rate
+   */
+  public static FxMatrix of(Currency ccy1, Currency ccy2, double rate) {
+    return new FxMatrix.Builder().addRate(ccy1, ccy2, rate).build();
+  }
+
+  /**
    * Creates a builder that can be used to build instances of {@code FxMatrix}.
    *
    * @return a new builder
@@ -88,6 +129,7 @@ public final class FxMatrix {
     return new FxMatrix.Builder();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a {@code Collector} that allows a {@code Map.Entry} of currency pair to rate
    * to be streamed and collected into a new {@code FxMatrix}.
@@ -127,17 +169,30 @@ public final class FxMatrix {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the exchange rate between two currencies.
-   * <p>
-   * The rate is based on this formula: {@code 1.0 * baseCurrency = rate * counterCurrency}.
+   * Returns the set of currencies held within this matrix.
    *
-   * @param baseCurrency  the first currency
-   * @param counterCurrency  the second currency
-   * @return the exchange rate
+   * @return the currencies in this matrix
    */
-  public double rate(Currency baseCurrency, Currency counterCurrency) {
+  public ImmutableSet<Currency> getCurrencies() {
+    return currencies.keySet();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the FX rate for the specified currency pair.
+   * <p>
+   * The rate returned is the rate from the base currency to the counter currency
+   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
+   * 
+   * @param baseCurrency  the base currency, to convert from
+   * @param counterCurrency  the counter currency, to convert to
+   * @return the FX rate for the currency pair
+   * @throws IllegalArgumentException if no FX rate could be found
+   */
+  @Override
+  public double fxRate(Currency baseCurrency, Currency counterCurrency) {
     if (baseCurrency.equals(counterCurrency)) {
-      return 1;
+      return 1d;
     }
     Integer index1 = currencies.get(baseCurrency);
     Integer index2 = currencies.get(counterCurrency);
@@ -151,7 +206,7 @@ public final class FxMatrix {
   }
 
   /**
-   * Convert a {@code CurrencyAmount} into an amount in the specified
+   * Converts a {@code CurrencyAmount} into an amount in the specified
    * currency using the rates in this matrix.
    *
    * @param amount  the {@code CurrencyAmount} to be converted
@@ -166,11 +221,11 @@ public final class FxMatrix {
     if (originalCurrency.equals(targetCurrency)) {
       return amount;
     }
-    return CurrencyAmount.of(targetCurrency, amount.getAmount() * rate(originalCurrency, targetCurrency));
+    return CurrencyAmount.of(targetCurrency, amount.getAmount() * fxRate(originalCurrency, targetCurrency));
   }
 
   /**
-   * Convert a {@code MultipleCurrencyAmount} into an amount in the
+   * Converts a {@code MultipleCurrencyAmount} into an amount in the
    * specified currency using the rates in this matrix.
    *
    * @param amount  the {@code MultipleCurrencyAmount} to be converted
@@ -185,22 +240,12 @@ public final class FxMatrix {
     // avoid creating extra objects we'll use doubles
     double total = amount.getAmounts()
         .stream()
-        .mapToDouble(ca -> ca.getAmount() * rate(ca.getCurrency(), targetCurrency))
+        .mapToDouble(ca -> ca.getAmount() * fxRate(ca.getCurrency(), targetCurrency))
         .sum();
     return CurrencyAmount.of(targetCurrency, total);
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a new builder using the data from this matrix to
-   * create a set of initial entries.
-   *
-   * @return a new builder containing the data from this matrix
-   */
-  public FxMatrix.Builder toBuilder() {
-    return new FxMatrix.Builder(currencies, rates);
-  }
-
   /**
    * Merges the entries from the other matrix into this one.
    * <p>
@@ -222,12 +267,13 @@ public final class FxMatrix {
   }
 
   /**
-   * Returns the set of currencies held within this matrix.
+   * Creates a new builder using the data from this matrix to
+   * create a set of initial entries.
    *
-   * @return the currencies in this matrix
+   * @return a new builder containing the data from this matrix
    */
-  public ImmutableSet<Currency> getCurrencies() {
-    return currencies.keySet();
+  public FxMatrix.Builder toBuilder() {
+    return new FxMatrix.Builder(currencies, rates);
   }
 
   //-------------------------------------------------------------------------
@@ -250,7 +296,8 @@ public final class FxMatrix {
 
   @Override
   public String toString() {
-    return getCurrencies() + " - " + Stream.of(rates).map(Arrays::toString).collect(Collectors.joining());
+    return "FxMatrix[" + Joiner.on(", ").join(getCurrencies()) + " : " +
+        Stream.of(rates).map(Arrays::toString).collect(Collectors.joining(",")) + "]";
   }
 
   //-------------------------------------------------------------------------

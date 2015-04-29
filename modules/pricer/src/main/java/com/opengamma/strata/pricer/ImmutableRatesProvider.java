@@ -84,13 +84,13 @@ public final class ImmutableRatesProvider
    * The discount curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each currency.
    */
-  @PropertyDefinition(validate = "notNull", get = "protected")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Currency, YieldAndDiscountCurve> discountCurves;
   /**
    * The forward curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each index.
    */
-  @PropertyDefinition(validate = "notNull", get = "protected")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Index, YieldAndDiscountCurve> indexCurves;
   /**
    * The time-series, defaulted to an empty map.
@@ -132,7 +132,7 @@ public final class ImmutableRatesProvider
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
-    return fxMatrix.rate(baseCurrency, counterCurrency);
+    return fxMatrix.fxRate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -337,21 +337,22 @@ public final class ImmutableRatesProvider
   // handle zero rate sensitivities
   private void paramSensitivityZeroRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
     // group by currency
-    ListMultimap<Currency, DoublesPair> grouped = ArrayListMultimap.create();
+    ListMultimap<CurrencyPair, DoublesPair> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
       if (point instanceof ZeroRateSensitivity) {
         ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
-        grouped.put(point.getCurrency(), DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
+        CurrencyPair pair = CurrencyPair.of(pt.getCurveCurrency(), pt.getCurrency());
+        grouped.put(pair, DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
       }
     }
     // calculate per currency
-    for (Currency ccy : grouped.keySet()) {
-      YieldAndDiscountCurve curve = discountCurve(ccy);
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), ccy);
-      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(ccy));
+    for (CurrencyPair key : grouped.keySet()) {
+      YieldAndDiscountCurve curve = discountCurves.get(key.getBase());
+      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(key));
+      NameCurrencySensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCounter());
       mutableMap.put(keyParam, sensiParam);
+      }
     }
-  }
 
   // sensitivity, copied from MulticurveProviderDiscount
   private double[] parameterSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {
@@ -544,7 +545,7 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each currency.
    * @return the value of the property, not null
    */
-  protected ImmutableMap<Currency, YieldAndDiscountCurve> getDiscountCurves() {
+  public ImmutableMap<Currency, YieldAndDiscountCurve> getDiscountCurves() {
     return discountCurves;
   }
 
@@ -554,7 +555,7 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each index.
    * @return the value of the property, not null
    */
-  protected ImmutableMap<Index, YieldAndDiscountCurve> getIndexCurves() {
+  public ImmutableMap<Index, YieldAndDiscountCurve> getIndexCurves() {
     return indexCurves;
   }
 

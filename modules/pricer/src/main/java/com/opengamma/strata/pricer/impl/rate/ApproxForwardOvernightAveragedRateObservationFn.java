@@ -343,12 +343,9 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       // call these methods to ensure mutable fixedPeriod variable is updated
       pastAccumulation();
       valuationDateAccumulation();
-      // calculate the sensitivity
-      PointSensitivityBuilder combinedPointSensitivity = PointSensitivityBuilder.none();
-      PointSensitivityBuilder approximatedForwardAccumulationSensitivity = approximatedForwardAccumulationSensitivity();
+      // calculate sensitivity
+      PointSensitivityBuilder combinedPointSensitivity = approximatedForwardAccumulationSensitivity();
       PointSensitivityBuilder cutOffAccumulationSensitivity = cutOffAccumulationSensitivity();
-
-      combinedPointSensitivity = combinedPointSensitivity.combinedWith(approximatedForwardAccumulationSensitivity);
       combinedPointSensitivity = combinedPointSensitivity.combinedWith(cutOffAccumulationSensitivity);
       combinedPointSensitivity = combinedPointSensitivity.multipliedBy(1.0d / accrualFactorTotal);
       return combinedPointSensitivity;

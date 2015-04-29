@@ -37,24 +37,40 @@ public class FxMatrixTest {
   public static final Offset<Double> TOL = offset(TOLERANCE);
 
   public void emptyMatrixCanHandleTrivialRate() {
-    FxMatrix matrix = FxMatrix.builder().build();
+    FxMatrix matrix = FxMatrix.empty();
     assertThat(matrix.getCurrencies()).isEmpty();
-    assertThat(matrix.rate(USD, USD)).isEqualTo(1.0);
+    assertThat(matrix.fxRate(USD, USD)).isEqualTo(1.0);
+    assertThat(matrix.toString()).isEqualTo("FxMatrix[ : ]");
   }
 
   public void emptyMatrixCannotDoConversion() {
     FxMatrix matrix = FxMatrix.builder().build();
     assertThat(matrix.getCurrencies()).isEmpty();
-    assertThrows(() -> matrix.rate(USD, EUR), IllegalArgumentException.class);
+    assertThrows(() -> matrix.fxRate(USD, EUR), IllegalArgumentException.class);
   }
 
-  public void singleRateMatrix() {
+  public void singleRateMatrixByOfCurrencyPairFactory() {
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), 1.6);
+    assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(0.625);
+    assertThat(matrix.toString()).isEqualTo("FxMatrix[GBP, USD : [1.0, 1.6],[0.625, 1.0]]");
+  }
+
+  public void singleRateMatrixByOfCurrenciesFactory() {
+    FxMatrix matrix = FxMatrix.of(GBP, USD, 1.6);
+    assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(0.625);
+  }
+
+  public void singleRateMatrixByBuilder() {
     FxMatrix matrix = FxMatrix.builder()
         .addRate(GBP, USD, 1.6)
         .build();
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(0.625);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(0.625);
   }
 
   public void canAddRateUsingCurrencyPair() {
@@ -62,8 +78,8 @@ public class FxMatrixTest {
         .addRate(CurrencyPair.of(GBP, USD), 1.6)
         .build();
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(0.625);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(0.625);
   }
 
   public void singleRateMatrixCannotDoConversionForUnknownCurrency() {
@@ -71,7 +87,7 @@ public class FxMatrixTest {
         .addRate(GBP, USD, 1.6)
         .build();
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
-    assertThrows(() -> matrix.rate(USD, EUR), IllegalArgumentException.class);
+    assertThrows(() -> matrix.fxRate(USD, EUR), IllegalArgumentException.class);
   }
 
   public void matrixCalculatesCrossRates() {
@@ -84,13 +100,13 @@ public class FxMatrixTest {
 
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD, EUR, CHF);
 
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(1 / 1.6);
-    assertThat(matrix.rate(EUR, USD)).isEqualTo(1.4);
-    assertThat(matrix.rate(USD, EUR)).isEqualTo(1 / 1.4);
-    assertThat(matrix.rate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
-    assertThat(matrix.rate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
-    assertThat(matrix.rate(EUR, CHF)).isEqualTo(1.2);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(1 / 1.6);
+    assertThat(matrix.fxRate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix.fxRate(USD, EUR)).isEqualTo(1 / 1.4);
+    assertThat(matrix.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
+    assertThat(matrix.fxRate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
+    assertThat(matrix.fxRate(EUR, CHF)).isEqualTo(1.2);
   }
 
   public void cannotAddEntryWithNoCommonCurrencyAndBuild() {
@@ -117,8 +133,8 @@ public class FxMatrixTest {
         .addRate(GBP, USD, 1.6)
         .build();
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(0.625);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(0.625);
   }
 
   public void ratedCanBeUpdatedAndAddedViaBuilder() {
@@ -127,7 +143,7 @@ public class FxMatrixTest {
         .build();
 
     assertThat(matrix1.getCurrencies()).containsOnly(GBP, USD);
-    assertThat(matrix1.rate(GBP, USD)).isEqualTo(1.5);
+    assertThat(matrix1.fxRate(GBP, USD)).isEqualTo(1.5);
 
     FxMatrix matrix2 = matrix1.toBuilder()
         .addRate(GBP, USD, 1.6)
@@ -135,8 +151,8 @@ public class FxMatrixTest {
         .build();
 
     assertThat(matrix2.getCurrencies()).containsOnly(GBP, USD, EUR);
-    assertThat(matrix2.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix2.rate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix2.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix2.fxRate(EUR, USD)).isEqualTo(1.4);
   }
 
   public void updatingRateIsNotSymmetric() {
@@ -179,27 +195,27 @@ EUR {1.4, 0.933, 1.0}}
     assertThat(matrix2).isNotEqualTo(matrix3);
 
     assertThat(matrix1.getCurrencies()).hasSize(3);
-    assertThat(matrix1.rate(GBP, USD)).isEqualTo(1.5);
-    assertThat(matrix1.rate(EUR, USD)).isEqualTo(1.4);
-    assertThat(matrix1.rate(EUR, GBP)).isEqualTo(1.4 / 1.5, TOL);
+    assertThat(matrix1.fxRate(GBP, USD)).isEqualTo(1.5);
+    assertThat(matrix1.fxRate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix1.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.5, TOL);
 
     // The rate we updated
-    assertThat(matrix2.rate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix2.fxRate(GBP, USD)).isEqualTo(1.6);
 
     // Matrix2 update was restating USD wrt GBP so
     // EUR/USD is affected
-    assertThat(matrix2.rate(EUR, USD)).isEqualTo(1.4 * (1.6 / 1.5), TOL); // = 1.49333
+    assertThat(matrix2.fxRate(EUR, USD)).isEqualTo(1.4 * (1.6 / 1.5), TOL); // = 1.49333
     // but EUR/GBP is not
-    assertThat(matrix2.rate(EUR, GBP)).isEqualTo(1.4 / 1.5, TOL);  // = 0.9333
+    assertThat(matrix2.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.5, TOL);  // = 0.9333
 
     // The rate we updated
-    assertThat(matrix3.rate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix3.fxRate(GBP, USD)).isEqualTo(1.6);
 
     // As matrix3 update was restating GBP wrt USD, there is
     // no effect on EUR/USD
-    assertThat(matrix3.rate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix3.fxRate(EUR, USD)).isEqualTo(1.4);
     // but there is an effect on EUR/GBP
-    assertThat(matrix3.rate(EUR, GBP)).isEqualTo((1.4 / 1.5) * (1.5 / 1.6), TOL); // = 0.875
+    assertThat(matrix3.fxRate(EUR, GBP)).isEqualTo((1.4 / 1.5) * (1.5 / 1.6), TOL); // = 0.875
   }
 
   public void rateCanBeUpdatedWithDirectionSwitched() {
@@ -208,14 +224,14 @@ EUR {1.4, 0.933, 1.0}}
         .build();
 
     assertThat(matrix1.getCurrencies()).hasSize(2);
-    assertThat(matrix1.rate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix1.fxRate(GBP, USD)).isEqualTo(1.6);
 
     FxMatrix matrix2 = matrix1.toBuilder()
         .addRate(USD, GBP, 0.625)
         .build();
 
     assertThat(matrix2.getCurrencies()).hasSize(2);
-    assertThat(matrix2.rate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix2.fxRate(GBP, USD)).isEqualTo(1.6);
   }
 
 
@@ -233,12 +249,12 @@ EUR {1.4, 0.933, 1.0}}
         .addRates(rates)
         .build();
 
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(1 / 1.6);
-    assertThat(matrix.rate(EUR, USD)).isEqualTo(1.4);
-    assertThat(matrix.rate(USD, EUR)).isEqualTo(1 / 1.4);
-    assertThat(matrix.rate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
-    assertThat(matrix.rate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(1 / 1.6);
+    assertThat(matrix.fxRate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix.fxRate(USD, EUR)).isEqualTo(1 / 1.4);
+    assertThat(matrix.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
+    assertThat(matrix.fxRate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
   }
   
   public void addMultipleRatesContainingEntryWithNoCommonCurrency() {
@@ -272,13 +288,13 @@ EUR {1.4, 0.933, 1.0}}
         .addRates(rates)
         .build();
 
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(1 / 1.6);
-    assertThat(matrix.rate(EUR, USD)).isEqualTo(1.4);
-    assertThat(matrix.rate(USD, EUR)).isEqualTo(1 / 1.4);
-    assertThat(matrix.rate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
-    assertThat(matrix.rate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
-    assertThat(matrix.rate(EUR, CHF)).isEqualTo(1.2);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(1 / 1.6);
+    assertThat(matrix.fxRate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix.fxRate(USD, EUR)).isEqualTo(1 / 1.4);
+    assertThat(matrix.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
+    assertThat(matrix.fxRate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
+    assertThat(matrix.fxRate(EUR, CHF)).isEqualTo(1.2);
   }
 
   public void streamEntriesToMatrix() {
@@ -299,8 +315,8 @@ EUR {1.4, 0.933, 1.0}}
         .stream()
         .collect(entriesToFxMatrix());
 
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(EUR, USD)).isEqualTo(1.4);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(EUR, USD)).isEqualTo(1.4);
   }
 
   public void streamPairsToMatrix() {
@@ -324,8 +340,8 @@ EUR {1.4, 0.933, 1.0}}
         .map(e -> Pair.of(e.getKey(), e.getValue() * 1.01)) // Apply some shift
         .collect(pairsToFxMatrix());
 
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.616);
-    assertThat(matrix.rate(EUR, USD)).isEqualTo(1.414);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.616);
+    assertThat(matrix.fxRate(EUR, USD)).isEqualTo(1.414);
   }
 
   // By adding more than 8 currencies we force a resizing
@@ -344,13 +360,13 @@ EUR {1.4, 0.933, 1.0}}
         .addRate(USD, NZD, 1.3)
         .build();
 
-    assertThat(matrix.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(matrix.rate(USD, GBP)).isEqualTo(1 / 1.6);
-    assertThat(matrix.rate(EUR, USD)).isEqualTo(1.4, TOL);
-    assertThat(matrix.rate(USD, EUR)).isEqualTo(1 / 1.4, TOL);
-    assertThat(matrix.rate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
-    assertThat(matrix.rate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
-    assertThat(matrix.rate(EUR, CHF)).isEqualTo(1.2);
+    assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(matrix.fxRate(USD, GBP)).isEqualTo(1 / 1.6);
+    assertThat(matrix.fxRate(EUR, USD)).isEqualTo(1.4, TOL);
+    assertThat(matrix.fxRate(USD, EUR)).isEqualTo(1 / 1.4, TOL);
+    assertThat(matrix.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
+    assertThat(matrix.fxRate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
+    assertThat(matrix.fxRate(EUR, CHF)).isEqualTo(1.2);
   }
 
   public void convertCurrencyAmount() {
@@ -489,14 +505,14 @@ EUR {1.4, 0.933, 1.0}}
     FxMatrix result = matrix1.merge(matrix2);
     assertThat(result.getCurrencies()).contains(USD, GBP, EUR, CHF, AUD);
 
-    assertThat(result.rate(GBP, USD)).isEqualTo(1.6);
-    assertThat(result.rate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
+    assertThat(result.fxRate(GBP, USD)).isEqualTo(1.6);
+    assertThat(result.fxRate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
 
-    assertThat(result.rate(EUR, CHF)).isEqualTo(1.2);
-    assertThat(result.rate(CHF, AUD)).isEqualTo(1.2);
+    assertThat(result.fxRate(EUR, CHF)).isEqualTo(1.2);
+    assertThat(result.fxRate(CHF, AUD)).isEqualTo(1.2);
 
-    assertThat(result.rate(GBP, CHF)).isEqualTo((1.6 / 1.4) * 1.2, TOL);
-    assertThat(result.rate(GBP, AUD)).isEqualTo((1.6 / 1.4) * 1.2 * 1.2, TOL);
+    assertThat(result.fxRate(GBP, CHF)).isEqualTo((1.6 / 1.4) * 1.2, TOL);
+    assertThat(result.fxRate(GBP, AUD)).isEqualTo((1.6 / 1.4) * 1.2 * 1.2, TOL);
   }
 
   public void equalsGood() {

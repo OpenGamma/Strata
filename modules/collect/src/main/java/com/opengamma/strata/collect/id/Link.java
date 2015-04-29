@@ -73,9 +73,9 @@ public interface Link<T extends IdentifiableBean>
    * Returns the target type as a {@link TypeToken}, either directly or from the target.
    * A {@code TypeToken} is used to express generic parameterized types, such as {@code Trade<Swap>}:
    * <p>
-   * <pre>{@code
-   *  new TypeToken<Trade<Swap>>() {};
-   * }</pre>
+   * <pre>
+   *  new TypeToken&lt;Trade&lt;Swap&gt;&gt;() {};
+   * </pre>
    * 
    * @return the target type of the link
    */

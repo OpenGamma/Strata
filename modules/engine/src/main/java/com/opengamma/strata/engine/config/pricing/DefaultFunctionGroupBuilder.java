@@ -16,6 +16,8 @@ import com.opengamma.strata.engine.config.Measure;
 
 /**
  * A mutable builder for building instances of {@link DefaultFunctionGroup}.
+ * 
+ * @param <T>  the type of the calculation target
  */
 public final class DefaultFunctionGroupBuilder<T extends CalculationTarget> {
 

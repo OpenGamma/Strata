@@ -5,10 +5,6 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
@@ -38,13 +34,11 @@ public final class NoMatchingRulesMarketDataBuilder implements MarketDataBuilder
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map build(Set requirements, BaseMarketData builtData) {
-    ImmutableMap.Builder builder = ImmutableMap.builder();
-
-    for (Object id : requirements) {
-      builder.put(id, createResult((NoMatchingRuleId) id));
-    }
-    return builder.build();
+  public Result build(MarketDataId requirement, BaseMarketData builtData) {
+    return Result.failure(
+        FailureReason.MISSING_DATA,
+        "No market data rules were available to build the market data for key {}",
+        ((NoMatchingRuleId) requirement).getKey());
   }
 
   @Override
@@ -52,16 +46,4 @@ public final class NoMatchingRulesMarketDataBuilder implements MarketDataBuilder
     return NoMatchingRuleId.class;
   }
 
-  /**
-   * Returns a failure result with an error message explaining there was no market data rule for the calculation.
-   *
-   * @param id  an ID wrapping a market data key requested by a calculation with no market data rule
-   * @return a failure result with an error message explaining there was no market data rule for the calculation
-   */
-  private Result<Void> createResult(NoMatchingRuleId id) {
-    return Result.failure(
-        FailureReason.MISSING_DATA,
-        "No market data rules were available to build the market data for key {}",
-        id.getKey());
-  }
 }

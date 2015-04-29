@@ -50,7 +50,6 @@ public interface CalculationMarketData {
    * Returns a list of market data time series, one from each scenario.
    *
    * @param key  a key identifying the market data
-   * @param <K>  type of the market data key
    * @return a list of market data time series, one from each scenario
    */
   public abstract List<LocalDateDoubleTimeSeries> getTimeSeries(ObservableKey key);

@@ -16,6 +16,7 @@ public interface ColumnDefinition {
   /**
    * Returns a definition of a column that contains the same measure in all rows and whose name is the measure name.
    *
+   * @param measure  the measure to base the column on
    * @return a definition of a column that contains the same measure in all rows and whose name is the measure name
    */
   public static ColumnDefinition of(Measure measure) {
@@ -28,6 +29,8 @@ public interface ColumnDefinition {
   /**
    * Returns a definition of a column with the specified name that contains the same measure in all rows.
    *
+   * @param measure  the measure to base the column on
+   * @param name  the name of the column
    * @return a definition of a column with the specified name that contains the same measure in all rows
    */
   public static ColumnDefinition of(Measure measure, String name) {

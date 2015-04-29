@@ -78,7 +78,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
       double currentOptionPrice,
       double lastClosingPrice) {
 
-    IborFutureOption option = trade.getSecurity().getProduct();
+    IborFutureOption option = trade.getProduct();
     Optional<LocalDate> tradeDateOpt = trade.getTradeInfo().getTradeDate();
     ArgChecker.isTrue(tradeDateOpt.isPresent(), "trade date not present");
     double priceIndex = getProductPricer().marginIndex(option, currentOptionPrice);
@@ -91,7 +91,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
     }
     double referenceIndex = getProductPricer().marginIndex(option, marginReferencePrice);
     double pv = (priceIndex - referenceIndex) * trade.getQuantity();
-    return CurrencyAmount.of(option.getUnderlying().getProduct().getCurrency(), pv);
+    return CurrencyAmount.of(option.getUnderlying().getCurrency(), pv);
   }
 
   /**
@@ -132,7 +132,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider) {
 
-    IborFutureOption product = trade.getSecurity().getProduct();
+    IborFutureOption product = trade.getProduct();
     PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, futureProvider);
     PointSensitivities marginIndexSensi = getProductPricer().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());

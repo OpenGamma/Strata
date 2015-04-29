@@ -79,6 +79,7 @@ public final class BaseMarketData implements ImmutableBean {
   /**
    * Returns an empty mutable builder for building a new instance of {@code BaseMarketData}.
    *
+   * @param valuationDate  the valuation date
    * @return an empty mutable builder for building a new instance of {@code BaseMarketData}
    */
   public static BaseMarketDataBuilder builder(LocalDate valuationDate) {
@@ -110,7 +111,7 @@ public final class BaseMarketData implements ImmutableBean {
   public <T, I extends MarketDataId<T>> T getValue(I id) {
     // Special handling of these special ID types to provide more helpful error messages
     if (id instanceof NoMatchingRuleId) {
-      MarketDataKey key = ((NoMatchingRuleId) id).getKey();
+      MarketDataKey<?> key = ((NoMatchingRuleId) id).getKey();
       throw new IllegalArgumentException("No market data rules were available to build the market data for " + key);
     }
     if (id instanceof MissingMappingId) {

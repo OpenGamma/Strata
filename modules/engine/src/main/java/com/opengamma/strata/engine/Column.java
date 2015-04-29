@@ -88,6 +88,7 @@ public final class Column implements ImmutableBean {
    * <p>
    * If a column is required with rules overrides, use a {@linkplain #builder() builder}.
    *
+   * @param definition  the column definition to base the column on
    * @return a column defined by the definition that uses the default calculation rules
    */
   public static Column of(ColumnDefinition definition) {

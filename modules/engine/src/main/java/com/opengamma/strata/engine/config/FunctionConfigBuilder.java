@@ -14,6 +14,8 @@ import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 
 /**
  * Mutable builder for building instances of {@link FunctionConfig}.
+ * 
+ * @param <T>  the type of the calculation target
  */
 public final class FunctionConfigBuilder<T extends CalculationTarget> {
 

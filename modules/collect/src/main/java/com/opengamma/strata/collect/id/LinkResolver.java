@@ -70,9 +70,9 @@ public interface LinkResolver {
    * The type is expressed as a {@link TypeToken}, which allows types like
    * {@code Trade<Swap>} to be expressed:
    * <p>
-   * <pre>{@code
-   *  new TypeToken<Trade<Swap>>() {};
-   * }</pre>
+   * <pre>
+   *  new TypeToken&lt;Trade&lt;Swap&gt;&gt;() {};
+   * </pre>
    *
    * @param <T>  the type of the target of the link
    * @param identifier  the identifier to be resolved
