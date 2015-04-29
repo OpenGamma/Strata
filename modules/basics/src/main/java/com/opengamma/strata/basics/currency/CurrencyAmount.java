@@ -314,7 +314,7 @@ public final class CurrencyAmount
    * @return the converted instance, which should be expressed in the specified currency
    * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
    */
-  public CurrencyAmount convert(Currency resultCurrency, double fxRate) {
+  public CurrencyAmount convertedTo(Currency resultCurrency, double fxRate) {
     if (currency.equals(resultCurrency)) {
       if (DoubleMath.fuzzyEquals(fxRate, 1d, 1e-8)) {
         return this;
@@ -336,7 +336,7 @@ public final class CurrencyAmount
    * @throws RuntimeException if no FX rate could be found
    */
   @Override
-  public CurrencyAmount convert(Currency resultCurrency, FxRateProvider rateProvider) {
+  public CurrencyAmount convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     if (currency.equals(resultCurrency)) {
       return this;
     }

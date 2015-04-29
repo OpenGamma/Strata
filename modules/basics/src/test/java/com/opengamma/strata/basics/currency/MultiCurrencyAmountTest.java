@@ -363,15 +363,15 @@ public class MultiCurrencyAmountTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_convert_rateProvider_noConversionSize1() {
+  public void test_convertedTo_rateProvider_noConversionSize1() {
     FxRateProvider provider = (ccy1, ccy2) -> {
       throw new IllegalArgumentException();
     };
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA2);
-    assertEquals(test.convert(CCY2, provider), CA2);
+    assertEquals(test.convertedTo(CCY2, provider), CA2);
   }
 
-  public void test_convert_rateProvider_conversionSize1() {
+  public void test_convertedTo_rateProvider_conversionSize1() {
     FxRateProvider provider = (ccy1, ccy2) -> {
       if (ccy1.equals(CCY1) && ccy2.equals(CCY2)) {
         return 2.5d;
@@ -379,10 +379,10 @@ public class MultiCurrencyAmountTest {
       throw new IllegalArgumentException();
     };
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1);
-    assertEquals(test.convert(CCY2, provider), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+    assertEquals(test.convertedTo(CCY2, provider), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
   }
 
-  public void test_convert_rateProvider_conversionSize2() {
+  public void test_convertedTo_rateProvider_conversionSize2() {
     FxRateProvider provider = (ccy1, ccy2) -> {
       if (ccy1.equals(ccy2)) {
         return 1d;
@@ -393,7 +393,7 @@ public class MultiCurrencyAmountTest {
       throw new IllegalArgumentException();
     };
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertEquals(test.convert(CCY2, provider), CA2.plus(CurrencyAmount.of(CCY2, AMT1 * 2.5d)));
+    assertEquals(test.convertedTo(CCY2, provider), CA2.plus(CurrencyAmount.of(CCY2, AMT1 * 2.5d)));
   }
 
   //-----------------------------------------------------------------------

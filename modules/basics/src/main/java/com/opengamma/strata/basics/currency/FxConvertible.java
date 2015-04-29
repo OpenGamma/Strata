@@ -33,6 +33,6 @@ public interface FxConvertible<R> {
    * @return the converted instance, which should be expressed in the specified currency
    * @throws RuntimeException if no FX rate could be found
    */
-  public abstract R convert(Currency resultCurrency, FxRateProvider rateProvider);
+  public abstract R convertedTo(Currency resultCurrency, FxRateProvider rateProvider);
 
 }

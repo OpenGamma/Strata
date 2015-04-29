@@ -444,9 +444,9 @@ public final class MultiCurrencyAmount
    * @throws RuntimeException if no FX rate could be found
    */
   @Override
-  public CurrencyAmount convert(Currency resultCurrency, FxRateProvider rateProvider) {
+  public CurrencyAmount convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     if (amounts.size() == 1) {
-      return amounts.first().convert(resultCurrency, rateProvider);
+      return amounts.first().convertedTo(resultCurrency, rateProvider);
     }
     double total = 0d;
     for (CurrencyAmount amount : amounts) {
