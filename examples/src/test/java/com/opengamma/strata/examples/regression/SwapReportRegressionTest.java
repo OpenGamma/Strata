@@ -10,7 +10,6 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -58,7 +57,7 @@ public class SwapReportRegressionTest {
    */
   public void testResults() {
     List<Trade> trades = ImmutableList.of(createTrade1());
-  
+
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.ID),
         Column.of(Measure.COUNTERPARTY),
@@ -69,22 +68,22 @@ public class SwapReportRegressionTest {
         Column.of(Measure.PRESENT_VALUE_PAY_LEG),
         Column.of(Measure.PRESENT_VALUE_RECEIVE_LEG),
         Column.of(Measure.ACCRUED_INTEREST));
-  
+
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(ExampleMarketData.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
-  
+
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
     BaseMarketData baseMarketData = BaseMarketData.empty(valuationDate);
-  
+
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
     Results expectedResults = ExampleData.loadExpectedResults("swap-report");
     assertEquals(results, expectedResults);
   }
-  
+
   private static Trade createTrade1() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 12_000_000);
 
@@ -127,5 +126,5 @@ public class SwapReportRegressionTest {
             .build())
         .build();
   }
-  
+
 }

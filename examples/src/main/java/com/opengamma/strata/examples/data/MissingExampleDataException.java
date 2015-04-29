@@ -21,5 +21,5 @@ public class MissingExampleDataException extends RuntimeException {
   public MissingExampleDataException(String resourceName) {
     super("Missing resource: " + resourceName);
   }
-  
+
 }

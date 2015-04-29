@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.examples.data;
 
 import java.io.InputStream;
@@ -19,7 +24,7 @@ public final class ExampleData {
    */
   private ExampleData() {
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Loads a golden copy of expected results from a JSON resource.
@@ -30,7 +35,7 @@ public final class ExampleData {
   public static Results loadExpectedResults(String name) {
     return loadFromJson(String.format("/goldencopy/%s.json", name), Results.class);
   }
-  
+
   // loads a resource from JSON
   public static <T> T loadFromJson(String resourceName, Class<T> clazz) {
     InputStream tsResource = SwapPricingExample.class.getResourceAsStream(resourceName);
@@ -40,5 +45,5 @@ public final class ExampleData {
     Reader tsReader = new InputStreamReader(tsResource);
     return JodaBeanSer.COMPACT.jsonReader().read(tsReader, clazz);
   }
-    
+
 }

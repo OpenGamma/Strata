@@ -141,7 +141,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -167,7 +167,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // create a libor 3m vs libor 6m basis swap with spread
   private static Trade createBasisLibor3mVsLibor6mWithSpreadSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
@@ -187,7 +187,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_6M))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -213,11 +213,11 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create an overnight averaged vs libor 3m swap with spread
   private static Trade createOvernightAveragedWithSpreadVsLibor3mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-    
+
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -267,7 +267,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a vanilla fixed vs libor 3m swap with fixing
   private static Trade createFixedVsLibor3mWithFixingSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
@@ -287,7 +287,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -313,11 +313,11 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a fixed vs overnight swap with fixing
   private static Trade createFixedVsOvernightWithFixingSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-    
+
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -366,11 +366,11 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a fixed vs libor 3m swap
   private static Trade createStub3mFixedVsLibor3mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-    
+
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -389,7 +389,7 @@ public class SwapPricingExample {
             .index(IborIndices.USD_LIBOR_3M)
             .build())
         .build();
-    
+
     RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -409,7 +409,7 @@ public class SwapPricingExample {
             .rate(ValueSchedule.of(0.01))
             .build())
         .build();
-    
+
     return SwapTrade.builder()
         .standardId(StandardId.of("swap", "Fixed vs Libor 3m (3m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
@@ -419,11 +419,11 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a fixed vs libor 3m swap
   private static Trade createStub1mFixedVsLibor3mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-    
+
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -443,7 +443,7 @@ public class SwapPricingExample {
             .index(IborIndices.USD_LIBOR_3M)
             .build())
         .build();
-    
+
     RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -463,7 +463,7 @@ public class SwapPricingExample {
             .rate(ValueSchedule.of(0.01))
             .build())
         .build();
-    
+
     return SwapTrade.builder()
         .standardId(StandardId.of("swap", "Fixed vs Libor 3m (1m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
@@ -473,11 +473,11 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a fixed vs libor 6m swap
   private static Trade createInterpolatedStub3mFixedVsLibor6mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-    
+
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -498,7 +498,7 @@ public class SwapPricingExample {
             .initialStub(StubCalculation.ofIborInterpolatedRate(IborIndices.USD_LIBOR_3M, IborIndices.USD_LIBOR_6M))
             .build())
         .build();
-    
+
     RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -518,7 +518,7 @@ public class SwapPricingExample {
             .rate(ValueSchedule.of(0.01))
             .build())
         .build();
-    
+
     return SwapTrade.builder()
         .standardId(StandardId.of("swap", "Fixed vs Libor 6m (interpolated 3m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
@@ -528,11 +528,11 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a fixed vs libor 6m swap
   private static Trade createInterpolatedStub4mFixedVsLibor6mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-    
+
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -553,7 +553,7 @@ public class SwapPricingExample {
             .initialStub(StubCalculation.ofIborInterpolatedRate(IborIndices.USD_LIBOR_3M, IborIndices.USD_LIBOR_6M))
             .build())
         .build();
-    
+
     RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -573,7 +573,7 @@ public class SwapPricingExample {
             .rate(ValueSchedule.of(0.01))
             .build())
         .build();
-    
+
     return SwapTrade.builder()
         .standardId(StandardId.of("swap", "Fixed vs Libor 6m (interpolated 4m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
@@ -583,7 +583,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a zero-coupon fixed vs libor 3m swap
   private static Trade createZeroCouponFixedVsLibor3mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
@@ -604,7 +604,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -631,7 +631,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a compounding fixed vs fed funds swap
   private static Trade createCompoundingFixedVsFedFundsSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
@@ -651,7 +651,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(FixedRateCalculation.of(0.00123, DayCounts.ACT_360))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -678,7 +678,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a compounding fed funds vs libor 3m swap
   private static Trade createCompoundingFedFundsVsLibor3mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
@@ -698,7 +698,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -727,7 +727,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // Create a compounding libor 6m vs libor 3m swap
   private static Trade createCompoundingLibor6mVsLibor3mSwap() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
@@ -747,7 +747,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_6M))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -774,7 +774,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // create a cross-currency GBP libor 3m vs USD libor 3m swap with spread
   private static Trade createXCcyGbpLibor3mVsUsdLibor3mSwap() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
@@ -792,7 +792,7 @@ public class SwapPricingExample {
         .notionalSchedule(NotionalSchedule.of(Currency.GBP, 61_600_000))
         .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_3M))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -818,7 +818,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // create a cross-currency USD fixed vs GBP libor 3m swap
   private static SwapTrade createXCcyUsdFixedVsGbpLibor3mSwap() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
@@ -836,7 +836,7 @@ public class SwapPricingExample {
         .notionalSchedule(NotionalSchedule.of(Currency.USD, 100_000_000))
         .calculation(FixedRateCalculation.of(0.03, DayCounts.THIRTY_U_360))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -862,7 +862,7 @@ public class SwapPricingExample {
             .build())
         .build();
   }
-  
+
   // create a cross-currency USD fixed vs GBP libor 3m swap with initial and final notional exchange
   private static SwapTrade createNotionalExchangeSwap() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
@@ -885,7 +885,7 @@ public class SwapPricingExample {
             .build())
         .calculation(FixedRateCalculation.of(0.03, DayCounts.THIRTY_U_360))
         .build();
-    
+
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
