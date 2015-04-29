@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
@@ -17,7 +20,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
  * Returns the notional amount of a {@code SwapTrade}.
  */
 public class SwapTradeNotionalFunction
-    implements EngineSingleFunction<SwapTrade, CurrencyAmount> {
+    implements EngineSingleFunction<SwapTrade, List<List<CurrencyAmount>>> {
   // TODO: what is correct result?
   // which leg as they can differ?
   // what notional - current period, initial, final or max?
@@ -28,18 +31,21 @@ public class SwapTradeNotionalFunction
   }
 
   @Override
-  public CurrencyAmount execute(SwapTrade input, CalculationMarketData marketData) {
-    NotionalSchedule notionalSchedule = getNotionalSchedule(input);
-    return CurrencyAmount.of(notionalSchedule.getCurrency(), notionalSchedule.getAmount().getInitialValue());
+  public List<List<CurrencyAmount>> execute(SwapTrade input, CalculationMarketData marketData) {
+    List<CurrencyAmount> notional = getNotional(input);
+    return IntStream.range(0, marketData.getScenarioCount())
+        .mapToObj(i -> notional)
+        .collect(Collectors.toList());
   }
-  
-  private NotionalSchedule getNotionalSchedule(SwapTrade input) {
+
+  // Not a MultiCurrencyAmount as legs should be kept separate
+  private List<CurrencyAmount> getNotional(SwapTrade input) {
     return input.getProduct().getLegs().stream()
         .filter(RateCalculationSwapLeg.class::isInstance)
         .map(RateCalculationSwapLeg.class::cast)
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unsupported swap"))
-        .getNotionalSchedule();
+        .map(l -> CurrencyAmount.of(l.getNotionalSchedule().getCurrency(), l.getNotionalSchedule().getAmount().getInitialValue()))
+        .distinct() // if legs have the same notional then represent these as a single item
+        .collect(Collectors.toList());
   }
 
 }
