@@ -31,6 +31,8 @@ public final class ConfiguredFunctionGroup {
   /**
    * Returns a configured function group containing the specified function group and arguments.
    *
+   * @param functionGroup  the group definition
+   * @param arguments  the map of arguments to pass in
    * @return a configured function group containing the specified function group and arguments
    */
   public static ConfiguredFunctionGroup of(FunctionGroup<?> functionGroup, Map<String, Object> arguments) {
@@ -40,6 +42,7 @@ public final class ConfiguredFunctionGroup {
   /**
    * Returns a configured function group containing the specified function group and no arguments.
    *
+   * @param functionGroup  the group definition
    * @return a configured function group containing the specified function group and no arguments
    */
   public static ConfiguredFunctionGroup of(FunctionGroup<?> functionGroup) {

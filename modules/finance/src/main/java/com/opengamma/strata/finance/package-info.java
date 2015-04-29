@@ -27,29 +27,30 @@
  * of financial instrument.
  * <p>
  * Trades are typically classified as Over-The-Counter (OTC) and listed.
- * OTC trades are represented by {@link com.opengamma.strata.finance.OtcTrade OtcTrade}.
- * An OTC trade directly embeds the product it refers to.
  * <p>
- * Listed trades are represented by {@link com.opengamma.strata.finance.QuantityTrade QuantityTrade}.
- * A listed trade contains a {@link com.opengamma.strata.finance.SecurityLink SecurityLink}, which
- * loosely connects the trade to the security. The security contains details of the actual product.
+ * An OTC trade directly embeds the product it refers to.
+ * As such, OTC trades implement {@link com.opengamma.strata.finance.ProductTrade ProductTrade}.
  * <p>
  * For example, consider an OTC instrument such as an interest rate swap.
- * The object model will consist of an {@code OtcTrade} that contains a
- * {@link com.opengamma.strata.finance.rate.swap.Swap Swap}, creating an object of type
- * {@code OtcTrade<Swap>}.
+ * The object model consists of a {@link com.opengamma.strata.finance.rate.swap.SwapTrade SwapTrade}
+ * that directly contains a {@link com.opengamma.strata.finance.rate.swap.Swap Swap},
+ * where {@code SwapTrade} implements {@code ProductTrade}.
  * <p>
- * An another example, consider a trade in a listed equity.
- * The object model will consist of a {@code QuantityTrade} that contains a
- * {@code SecurityLink} where the identifier refers to the equity security.
- * The security will typically exist in a database, but may be embedded within the link.
- * The product of the security will be an {@link com.opengamma.strata.finance.equity.Equity Equity}.
- * As such the security will be of type {@code Security<Equity>} and the trade will be of type
- * {@code QuantityTrade<Equity>}.
+ * A listed trade contains a reference to the underlying security that is the basis of the trade.
+ * Rather than holding the security directly, a {@link com.opengamma.strata.finance.SecurityLink SecurityLink}
+ * is used to loosely connect the trade to the security. The link permits the security to either
+ * be located externally, such as in a database, or to be embedded within the link.
+ * The security contains details of the actual product.
+ * <p>
+ * For example, consider a trade in a listed equity.
+ * The object model consists of a {@link com.opengamma.strata.finance.equity.EquityTrade EquityTrade}
+ * that contains a link to a {@link com.opengamma.strata.finance.Security Security}.
+ * The security will directly contain the underlying {@link com.opengamma.strata.finance.equity.Equity Equity}.
  * <p>
  * The key to understanding the model is appreciating the separation of products from trades and securities.
- * The advantage of this approach is that it allows a product to be both OTC and listed, such as future options.
- * It also allows a product to be an underlying of another product, such as a swap within a swaption.
+ * In many cases, it is possible to price the product without knowing any trade details.
+ * This allows a product to be an underlying of another product, such as a swap within a swaption.
+ * <p>
  * Note that on the listed side, it is often possible to price either against the market or against a model.
  * Details for pricing against the market are primarily held in the security.
  * Details for pricing against the model are primarily held in the product.

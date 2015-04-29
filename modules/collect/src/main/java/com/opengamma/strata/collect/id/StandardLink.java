@@ -201,7 +201,7 @@ public final class StandardLink<T extends IdentifiableBean>
    * The result is wrapped using {@link StandardLink#resolved(IdentifiableBean)}.
    * The returned target should not contain any unresolved links.
    *
-   * @param linkResolver  the resolver to use for the resolution
+   * @param resolver  the resolver to use for the resolution
    * @return the fully resolved link
    * @throws LinkResolutionException if a link cannot be resolved
    */

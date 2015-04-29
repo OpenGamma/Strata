@@ -82,7 +82,6 @@ public final class OvernightRateSensitivity
    * 
    * @param index  the index of the curve
    * @param fixingDate  the fixing date
-   * @param endDate  the end date of the period, if period curve lookup
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */

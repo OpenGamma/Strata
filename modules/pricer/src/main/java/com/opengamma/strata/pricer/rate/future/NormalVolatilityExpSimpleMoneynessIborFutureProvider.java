@@ -80,9 +80,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
    * @param isMoneynessOnPrice  flag indicating if the moneyness is on the price (true) or on the rate (false)
    * @param index  the Ibor index of the underlying future
    * @param dayCount  the day count applicable to the model
-   * @param valuationDate  the valuation date
-   * @param valuationTime  the valuation time
-   * @param valuationZone  the zone related to the valuation time
+   * @param valuationTime  the valuation date-time
    * @return the provider
    */
   public static NormalVolatilityExpSimpleMoneynessIborFutureProvider of(

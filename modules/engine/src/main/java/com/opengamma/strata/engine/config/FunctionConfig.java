@@ -46,6 +46,8 @@ import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
  * Constructor arguments passed to {@code createFunction} are not permitted to override
  * arguments in the configuration. An exception will be thrown if any argument passed to {@code createFunction}
  * has the same name as an argument in the configuration.
+ * 
+ * @param <T>  the type of the calculation target
  */
 @BeanDefinition(builderScope = "private")
 public final class FunctionConfig<T extends CalculationTarget> implements ImmutableBean {
@@ -73,6 +75,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * <p>
    * To create configuration that includes constructor arguments, use a {@linkplain #builder(Class) builder}.
    *
+   * @param functionType  the type of the function
    * @return configuration for a function that doesn't contain any constructor arguments
    */
   public static <T extends CalculationTarget> FunctionConfig<T> of(

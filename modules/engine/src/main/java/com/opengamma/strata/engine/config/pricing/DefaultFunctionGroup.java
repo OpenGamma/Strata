@@ -32,6 +32,8 @@ import com.opengamma.strata.engine.config.Measure;
 
 /**
  * The default implementation of {@link FunctionGroup}.
+ * 
+ * @param <T>  the type of the calculation target
  */
 @BeanDefinition(builderScope = "private")
 public final class DefaultFunctionGroup<T extends CalculationTarget>

@@ -18,6 +18,8 @@ import com.opengamma.strata.engine.config.Measure;
  * <p>
  * Typically the functions in a group will be related in some way, for example they might all use the
  * same model to calculate their result.
+ * 
+ * @param <T>  the type of the calculation target
  */
 public interface FunctionGroup<T extends CalculationTarget> {
 

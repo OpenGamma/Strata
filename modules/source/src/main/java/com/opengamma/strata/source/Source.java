@@ -45,9 +45,9 @@ public interface Source {
    * <p>
    * A {@code TypeToken} is used to express generic parameterized types, such as {@code Trade<Swap>}:
    * <p>
-   * <pre>{@code
-   *  new TypeToken<Trade<Swap>>() {};
-   * }</pre>
+   * <pre>
+   *  new TypeToken&lt;Trade&lt;Swap&gt;&gt;() {};
+   * </pre>
    *
    * @param <T>  the expected type of the item
    * @param identifier  the identifier for the item

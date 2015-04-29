@@ -40,7 +40,7 @@ import com.opengamma.strata.collect.id.StandardId;
  * A product can typically be priced against a model as well as against the market.
  * The security itself holds the primary market identifier and user-defined attributes.
  * <p>
- * A {@code Security} will typically be referenced by a trade, such as {@link QuantityTrade}.
+ * A {@code Security} will typically be referenced by a trade, such as implementations of {@link SecurityTrade}.
  * <p>
  * Implementations of this interface must be immutable beans.
  * 

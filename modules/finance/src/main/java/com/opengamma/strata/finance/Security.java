@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.id.StandardId;
  * A security is one of the building blocks of finance, representing a fungible instrument that can be traded.
  * This is intended to cover instruments such as listed equities and futures.
  * It is intended that Over-The-Counter (OTC) instruments, such as an interest rate swap,
- * are embedded directly within an {@link OtcTrade}, rather than handled as one-off securities.
+ * are embedded directly within the trade, rather than handled as one-off securities.
  * <p>
  * When referring to a security from another object, such as an underlying on a
  * more complex trade, consideration should be given to using {@link SecurityLink}.
