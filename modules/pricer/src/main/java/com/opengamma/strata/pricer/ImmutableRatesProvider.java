@@ -132,7 +132,7 @@ public final class ImmutableRatesProvider
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
-    return fxMatrix.rate(baseCurrency, counterCurrency);
+    return fxMatrix.fxRate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
