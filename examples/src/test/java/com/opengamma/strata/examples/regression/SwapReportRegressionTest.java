@@ -81,7 +81,6 @@ public class SwapReportRegressionTest {
   
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(results));
     Results expectedResults = ExampleData.loadExpectedResults("swap-report");
     assertEquals(results, expectedResults);
   }
