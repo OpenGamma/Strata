@@ -37,7 +37,7 @@ public class ZeroRateSensitivityTest {
   public void test_withCurrency() {
     ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
     assertSame(base.withCurrency(GBP), base);
-    assertSame(base.withCurrency(USD), base);  // currency change ignored
+    assertEquals(base.withCurrency(USD), ZeroRateSensitivity.of(GBP, date(2015, 8, 27), USD, 32d));
   }
 
   //-------------------------------------------------------------------------
