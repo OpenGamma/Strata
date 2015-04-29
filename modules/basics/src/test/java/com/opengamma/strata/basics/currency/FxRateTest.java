@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -139,6 +140,28 @@ public class FxRateTest {
   public void test_inverse_same() {
     FxRate test = FxRate.of(GBP, GBP, 1d);
     assertEquals(test.inverse(), FxRate.of(GBP, GBP, 1d));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_fxRate_forBase() {
+    FxRate test = FxRate.of(GBP, USD, 1.25d);
+    assertEquals(test.fxRate(GBP), 1.25d);
+    assertEquals(test.fxRate(USD), 1d / 1.25d);
+    assertThrowsIllegalArg(() -> test.fxRate(AUD));
+  }
+
+  public void test_fxRate_forPair() {
+    FxRate test = FxRate.of(GBP, USD, 1.25d);
+    assertEquals(test.fxRate(GBP, USD), 1.25d);
+    assertEquals(test.fxRate(USD, GBP), 1d / 1.25d);
+    assertEquals(test.fxRate(GBP, GBP), 1d);
+    assertEquals(test.fxRate(USD, USD), 1d);
+    assertEquals(test.fxRate(AUD, AUD), 1d);
+    assertThrowsIllegalArg(() -> test.fxRate(AUD, GBP));
+    assertThrowsIllegalArg(() -> test.fxRate(GBP, AUD));
+    assertThrowsIllegalArg(() -> test.fxRate(AUD, USD));
+    assertThrowsIllegalArg(() -> test.fxRate(USD, AUD));
+    assertThrowsIllegalArg(() -> test.fxRate(EUR, AUD));
   }
 
   //-------------------------------------------------------------------------

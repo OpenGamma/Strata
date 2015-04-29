@@ -43,7 +43,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class FxRate
-    implements ImmutableBean, Serializable {
+    implements FxRateProvider, ImmutableBean, Serializable {
 
   /**
    * Regular expression to parse the textual format.
@@ -141,6 +141,58 @@ public final class FxRate
    */
   public FxRate inverse() {
     return new FxRate(pair.inverse(), 1d / rate);
+  }
+
+  /**
+   * Gets the FX rate for the specified base currency.
+   * <p>
+   * This returns either the stored rate of the inverse rate.
+   * The stored rate is returned if the required base currency matches the stored
+   * base currency. The inverse or the stored rate is returned if the required
+   * base currency matches the stored counter currency.
+   * <p>
+   * The rate returned is the rate from the required base currency to the other currency
+   * as defined by this formula: {@code (1 * requiredBaseCurrency = fxRate * otherCurrency)}.
+   * 
+   * @param requiredBaseCurrency  the base currency of the returned rate
+   * @return the FX rate from the specified base currency to the other currency
+   * @throws IllegalArgumentException if the base currency is not one of those in this object
+   */
+  public double fxRate(Currency requiredBaseCurrency) {
+    if (requiredBaseCurrency.equals(pair.getBase())) {
+      return rate;
+    }
+    if (requiredBaseCurrency.equals(pair.getCounter())) {
+      return 1d / rate;
+    }
+    throw new IllegalArgumentException("Required currency is not contained in " + pair + ": " + requiredBaseCurrency);
+  }
+
+  /**
+   * Gets the FX rate for the specified currency pair.
+   * <p>
+   * The rate returned is the rate from the base currency to the counter currency
+   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
+   * <p>
+   * This will return the rate or inverse rate, or 1 if the two input currencies are the same.
+   * 
+   * @param baseCurrency  the base currency, to convert from
+   * @param counterCurrency  the counter currency, to convert to
+   * @return the FX rate for the currency pair
+   * @throws IllegalArgumentException if no FX rate could be found
+   */
+  @Override
+  public double fxRate(Currency baseCurrency, Currency counterCurrency) {
+    if (baseCurrency.equals(counterCurrency)) {
+      return 1d;
+    }
+    if (baseCurrency.equals(pair.getBase()) && counterCurrency.equals(pair.getCounter())) {
+      return rate;
+    }
+    if (counterCurrency.equals(pair.getBase()) && baseCurrency.equals(pair.getCounter())) {
+      return 1d / rate;
+    }
+    throw new IllegalArgumentException("Unknown rate: " + baseCurrency + "/" + counterCurrency);
   }
 
   //-------------------------------------------------------------------------
