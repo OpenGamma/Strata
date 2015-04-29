@@ -67,8 +67,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
       double futurePrice,
       double lastClosingPrice) {
 
-    double optionPrice = getProductPricer().price(
-        trade.getSecurity().getProduct(), ratesProvider, volatilityProvider, futurePrice);
+    double optionPrice = getProductPricer().price(trade.getProduct(), ratesProvider, volatilityProvider, futurePrice);
     return presentValue(trade, ratesProvider.getValuationDate(), optionPrice, lastClosingPrice);
   }
 
@@ -91,7 +90,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
       RatesProvider ratesProvider,
       NormalVolatilityIborFutureProvider volatilityProvider) {
 
-    IborFuture future = futureOptionTrade.getSecurity().getProduct().getUnderlying().getProduct();
+    IborFuture future = futureOptionTrade.getProduct().getUnderlying();
     double futurePrice = futureOptionPricer.getFuturePricer().price(future, ratesProvider);
     return presentValueSensitivityNormalVolatility(futureOptionTrade, ratesProvider, volatilityProvider, futurePrice);
   }
@@ -115,7 +114,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
       NormalVolatilityIborFutureProvider volatilityProvider,
       double futurePrice) {
 
-    IborFutureOption product = futureOptionTrade.getSecurity().getProduct();
+    IborFutureOption product = futureOptionTrade.getProduct();
     IborFutureOptionSensitivity priceSensitivity =
         futureOptionPricer.priceSensitivityNormalVolatility(product, ratesProvider, volatilityProvider, futurePrice);
     double factor = futureOptionPricer.marginIndex(product, 1) * futureOptionTrade.getQuantity();

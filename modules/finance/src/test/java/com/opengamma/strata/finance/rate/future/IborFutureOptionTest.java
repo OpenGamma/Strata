@@ -83,6 +83,7 @@ public class IborFutureOptionTest {
     assertEquals(test.getExpirationDateTime(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
     assertEquals(test.getRounding(), ROUNDING);
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolvable(ID_1, IborFuture.class));
+    assertThrows(() -> test.getUnderlyingSecurity(), IllegalStateException.class);
     assertThrows(() -> test.getUnderlying(), IllegalStateException.class);
   }
 
@@ -104,7 +105,8 @@ public class IborFutureOptionTest {
     assertEquals(test.getExpirationDateTime(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
     assertEquals(test.getRounding(), Rounding.none());
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolved(IBOR_FUTURE_SECURITY_1));
-    assertEquals(test.getUnderlying(), IBOR_FUTURE_SECURITY_1);
+    assertEquals(test.getUnderlyingSecurity(), IBOR_FUTURE_SECURITY_1);
+    assertEquals(test.getUnderlying(), IBOR_FUTURE_1);
   }
 
   public void test_builder_expiryNotAfterTradeDate() {

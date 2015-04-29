@@ -65,8 +65,8 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
   private static final double RATE = 0.015;
   private static final RatesProvider ENV_MOCK = mock(RatesProvider.class);
   static {
-    when(ENV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getIndex(),
-        FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getLastTradeDate())).thenReturn(RATE);
+    when(ENV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getIndex(),
+        FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
   }
 
   private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
@@ -127,7 +127,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
   public void priceSensitivityStickyStrike_from_future_price() {
     double futurePrice = 0.9875;
     PointSensitivities futurePriceSensitivity =
-        FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct(), ENV_MOCK);
+        FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlying(), ENV_MOCK);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, ENV_MOCK, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed =
@@ -137,7 +137,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
 
   public void priceSensitivityStickyStrike_from_env() {
     PointSensitivities futurePriceSensitivity = OPTION_PRICER.getFuturePricer()
-        .priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlying().getProduct(), ENV_MOCK);
+        .priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlying(), ENV_MOCK);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, ENV_MOCK, VOL_SIMPLE_MONEY_PRICE);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed =
@@ -163,7 +163,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
         FUTURE_OPTION_PRODUCT, ENV_MOCK, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertEquals(optionVegaComputed.getSensitivity(), optionVegaExpected, TOLERANCE_PRICE);
     assertEquals(optionVegaComputed.getExpiryDate(), FUTURE_OPTION_PRODUCT.getExpirationDate());
-    assertEquals(optionVegaComputed.getFixingDate(), FUTURE_OPTION_PRODUCT.getUnderlying().getProduct().getFixingDate());
+    assertEquals(optionVegaComputed.getFixingDate(), FUTURE_OPTION_PRODUCT.getUnderlying().getFixingDate());
     assertEquals(optionVegaComputed.getStrikePrice(), FUTURE_OPTION_PRODUCT.getStrikePrice());
     assertEquals(optionVegaComputed.getFuturePrice(), futurePrice);
   }
