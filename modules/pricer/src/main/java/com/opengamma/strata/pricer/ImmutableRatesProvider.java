@@ -337,21 +337,22 @@ public final class ImmutableRatesProvider
   // handle zero rate sensitivities
   private void paramSensitivityZeroRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
     // group by currency
-    ListMultimap<Currency, DoublesPair> grouped = ArrayListMultimap.create();
+    ListMultimap<CurrencyPair, DoublesPair> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : sensitivities.getSensitivities()) {
       if (point instanceof ZeroRateSensitivity) {
         ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
-        grouped.put(point.getCurrency(), DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
+        CurrencyPair pair = CurrencyPair.of(pt.getCurveCurrency(), pt.getCurrency());
+        grouped.put(pair, DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
       }
     }
     // calculate per currency
-    for (Currency ccy : grouped.keySet()) {
-      YieldAndDiscountCurve curve = discountCurve(ccy);
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), ccy);
-      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(ccy));
+    for (CurrencyPair key : grouped.keySet()) {
+      YieldAndDiscountCurve curve = discountCurves.get(key.getBase());
+      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(key));
+      NameCurrencySensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCounter());
       mutableMap.put(keyParam, sensiParam);
+      }
     }
-  }
 
   // sensitivity, copied from MulticurveProviderDiscount
   private double[] parameterSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {

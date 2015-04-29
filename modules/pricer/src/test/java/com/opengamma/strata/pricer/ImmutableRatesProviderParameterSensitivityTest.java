@@ -59,6 +59,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
       PointSensitivities.of(ZeroRateSensitivity.of(USD, DATE_2, AMOUNT_1));
   private static final PointSensitivities POINT_ZERO_3 =
       PointSensitivities.of(ZeroRateSensitivity.of(EUR, DATE_1, AMOUNT_1));
+  private static final PointSensitivities POINT_ZERO_4 =
+      PointSensitivities.of(ZeroRateSensitivity.of(EUR, USD, DATE_1, AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_1 =
       PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_2 =
@@ -76,10 +78,11 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final PointSensitivities POINT_ON_4 =
       PointSensitivities.of(OvernightRateSensitivity.of(EUR_EONIA, DATE_1, AMOUNT_1));
   private static final PointSensitivities[] POINTS = new PointSensitivities[] {
-      POINT_ZERO_1, POINT_ZERO_2, POINT_ZERO_3,
+    POINT_ZERO_1, POINT_ZERO_2, POINT_ZERO_3, POINT_ZERO_4,
       POINT_IBOR_1, POINT_IBOR_2, POINT_IBOR_3, POINT_IBOR_4,
       POINT_ON_1, POINT_ON_2, POINT_ON_3, POINT_ON_4};
-  private static final PointSensitivities POINT = POINT_ZERO_1.combinedWith(POINT_ZERO_2).combinedWith(POINT_ZERO_3)
+  private static final PointSensitivities POINT =
+      POINT_ZERO_1.combinedWith(POINT_ZERO_2).combinedWith(POINT_ZERO_3).combinedWith(POINT_ZERO_4)
       .combinedWith(POINT_IBOR_1).combinedWith(POINT_IBOR_2).combinedWith(POINT_IBOR_3).combinedWith(POINT_IBOR_4)
       .combinedWith(POINT_ON_1).combinedWith(POINT_ON_2).combinedWith(POINT_ON_3).combinedWith(POINT_ON_4);
 
@@ -125,6 +128,18 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(USD), list);
     NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(MULTICURVE.getName(USD), USD);
+    CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
+    assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
+  }
+
+  @Test
+  public void pointToParameterOnePointZeroTwoCurrency() {
+    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_ZERO_4);
+    DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
+    List<DoublesPair> list = new ArrayList<>();
+    list.add(pair);
+    double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(EUR), list);
+    NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(MULTICURVE.getName(EUR), USD);
     CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
@@ -185,7 +200,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   @Test
   public void pointToParameterMultiple() {
     CurveParameterSensitivity psComputed = PROVIDER.parameterSensitivity(POINT);
-    assertEquals(psComputed.getSensitivities().size(), 5);
+    assertEquals(psComputed.getSensitivities().size(), 6);
     CurveParameterSensitivity psExpected = CurveParameterSensitivity.empty();
     for (int i = 0; i < POINTS.length; i++) {
       psExpected = psExpected.combinedWith(PROVIDER.parameterSensitivity(POINTS[i]));
