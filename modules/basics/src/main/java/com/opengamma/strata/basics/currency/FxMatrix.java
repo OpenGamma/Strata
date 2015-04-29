@@ -191,21 +191,6 @@ public final class FxMatrix
    */
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
-    return rate(baseCurrency, counterCurrency);
-  }
-
-  /**
-   * Gets the FX rate for the specified currency pair.
-   * <p>
-   * The rate returned is the rate from the base currency to the counter currency
-   * as defined by this formula: {@code (1 * baseCurrency = fxRate * counterCurrency)}.
-   *
-   * @param baseCurrency  the first currency
-   * @param counterCurrency  the second currency
-   * @return the exchange rate
-   * @throws IllegalArgumentException if no FX rate could be found
-   */
-  public double rate(Currency baseCurrency, Currency counterCurrency) {
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
@@ -236,7 +221,7 @@ public final class FxMatrix
     if (originalCurrency.equals(targetCurrency)) {
       return amount;
     }
-    return CurrencyAmount.of(targetCurrency, amount.getAmount() * rate(originalCurrency, targetCurrency));
+    return CurrencyAmount.of(targetCurrency, amount.getAmount() * fxRate(originalCurrency, targetCurrency));
   }
 
   /**
@@ -255,7 +240,7 @@ public final class FxMatrix
     // avoid creating extra objects we'll use doubles
     double total = amount.getAmounts()
         .stream()
-        .mapToDouble(ca -> ca.getAmount() * rate(ca.getCurrency(), targetCurrency))
+        .mapToDouble(ca -> ca.getAmount() * fxRate(ca.getCurrency(), targetCurrency))
         .sum();
     return CurrencyAmount.of(targetCurrency, total);
   }
