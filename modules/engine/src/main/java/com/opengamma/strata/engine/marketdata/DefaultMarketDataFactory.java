@@ -121,9 +121,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:
-    //   * Market data that is already available</li>
-    //   * Observable data whose value can be obtained from a market data provider</li>
-    //   * Market data that can be built from data that is already available</li>
+    //   * Market data that is already available
+    //   * Observable data whose value can be obtained from a market data provider
+    //   * Market data that can be built from data that is already available
     //
     // Therefore the market data represented by the leaf nodes can be built immediately.
     //

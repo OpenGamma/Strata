@@ -27,10 +27,12 @@ import com.opengamma.strata.marketdata.id.ObservableId;
  * nodes are the market data they depend on, and so on.
  * <p>
  * This tree is used to determine the order in which market data is built. The leaves of the tree
- * represent market data with no dependencies. This can be observable data whose value can be provided
- * by a market data system or a value that is supplied by the user or has already be built by
- * the engine.
- * <p>
+ * represent market data with no dependencies. This includes:
+ * <ul>
+ *   <li>Market data that is already available</li>
+ *   <li>Observable data whose value can be obtained from a market data provider</li>
+ *   <li>Market data that can be built from data that is already available</li>
+ * </ul>
  * For example, if a function requests a curve, there will be a node below the root representing the curve.
  * The curve's node will have a child node representing the curve group containing the curve. The curve group node
  * has child nodes representing the market data values at each of the curve points. It might also have a child node
