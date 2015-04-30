@@ -30,8 +30,8 @@ public class ExampleForwardCurveBuilder
   }
 
   @Override
-  public Result<YieldCurve> build(IndexCurveId requirement, BaseMarketData builtData) {
-    YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), requirement.getIndex().getName());
+  public Result<YieldCurve> build(IndexCurveId id, BaseMarketData builtData) {
+    YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), id.getIndex().getName());
     return Result.success(curve);
   }
 

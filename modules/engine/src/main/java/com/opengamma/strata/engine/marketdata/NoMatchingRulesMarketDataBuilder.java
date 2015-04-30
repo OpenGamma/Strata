@@ -34,11 +34,11 @@ public final class NoMatchingRulesMarketDataBuilder implements MarketDataBuilder
 
   @SuppressWarnings("unchecked")
   @Override
-  public Result build(MarketDataId requirement, BaseMarketData builtData) {
+  public Result build(MarketDataId id, BaseMarketData builtData) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data rules were available to build the market data for key {}",
-        ((NoMatchingRuleId) requirement).getKey());
+        ((NoMatchingRuleId) id).getKey());
   }
 
   @Override

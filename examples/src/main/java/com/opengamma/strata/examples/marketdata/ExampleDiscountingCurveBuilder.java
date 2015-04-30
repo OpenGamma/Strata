@@ -32,9 +32,9 @@ public class ExampleDiscountingCurveBuilder
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountingCurveId requirement, BaseMarketData builtData) {
+  public Result<YieldCurve> build(DiscountingCurveId id, BaseMarketData builtData) {
     LocalDate valuationDate = builtData.getValuationDate();
-    YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, requirement.getCurrency() + "-discounting");
+    YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, id.getCurrency() + "-discounting");
     return Result.success(curve);
   }
 

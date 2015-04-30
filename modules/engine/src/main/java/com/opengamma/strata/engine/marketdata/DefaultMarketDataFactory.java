@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.MissingDataAwareObservableBuilder;
 import com.opengamma.strata.engine.marketdata.builders.MissingDataAwareTimeSeriesProvider;
@@ -44,12 +45,14 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private final ObservableMarketDataBuilder observablesBuilder;
 
   /** Market data builders, keyed by the type of the market data ID they can handle. */
-  private final Map<Class<?>, MarketDataBuilder<?, ?>> builders;
+  private final Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders;
 
   /** For looking up IDs that are suitable for a particular market data feed. */
   private final FeedIdMapping feedIdMapping;
 
   /**
+   * Creates a new factory.
+   *
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
    * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
@@ -65,11 +68,14 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
+   * Creates a new factory.
+   *
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
    * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
    * @param builders  builders that create the market data
    */
+  @SuppressWarnings("unchecked")
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
       ObservableMarketDataBuilder observablesBuilder,
@@ -83,59 +89,100 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
     // If the builders argument includes a missing mapping builder it can overwrite the one inserted below
-    Map<Class<?>, MarketDataBuilder<?, ?>> builderMap = new HashMap<>();
+    Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builderMap = new HashMap<>();
+
     // Add a builder that adds failures with helpful error messages when there is no mapping configured for a key type
     builderMap.put(
         MissingMappingMarketDataBuilder.INSTANCE.getMarketDataIdType(),
         MissingMappingMarketDataBuilder.INSTANCE);
+
     // Add a builder that adds failures with helpful error messages when there is no market data rule for a calculation
     builderMap.put(
         NoMatchingRulesMarketDataBuilder.INSTANCE.getMarketDataIdType(),
         NoMatchingRulesMarketDataBuilder.INSTANCE);
+
     builders.stream().forEach(builder -> builderMap.put(builder.getMarketDataIdType(), builder));
     this.builders = ImmutableMap.copyOf(builderMap);
   }
 
   @Override
-  public MarketDataResult buildBaseMarketData(MarketDataRequirements requirements, BaseMarketData suppliedData) {
-    BaseMarketDataBuilder baseDataBuilder = suppliedData.toBuilder();
+  public MarketDataResult buildBaseMarketData(
+      MarketDataRequirements requirements,
+      BaseMarketData suppliedData) {
+
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> timeSeriesFailureBuilder = ImmutableMap.builder();
+    BaseMarketData builtData = suppliedData;
 
-    requirements.getTimeSeries().stream()
-        .filter(not(suppliedData::containsTimeSeries))
-        .forEach(id -> addTimeSeries(baseDataBuilder, timeSeriesFailureBuilder, id));
+    // Build a tree of the market data dependencies. The root of the tree represents the calculations.
+    // The children of the root represent the market data directly used in the calculations. The children
+    // of those nodes represent the market data required to build that data, and so on
+    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, builders);
 
-    // TODO This method only works for a single level of dependencies.
-    // i.e. A requirement can depend on other market data but that data must be in the supplied data.
-    // This is adequate for the current use case where the requirements for individual curves depend
-    // on the curve bundle, and the curve bundle is supplied.
-    // Eventually we will need to recursively gather requirements from all the market data builders
-    // into a tree and build the data from the leaves inwards.
-    // This is only necessary for non-observable IDs as observable market data has no dependencies.
+    // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
+    // This includes:
+    //   * Market data that is already available</li>
+    //   * Observable data whose value can be obtained from a market data provider</li>
+    //   * Market data that can be built from data that is already available</li>
+    //
+    // Therefore the market data represented by the leaf nodes can be built immediately.
+    //
+    // Market data building proceeds in multiple steps. The operations in each step are:
+    //   1) Build the market data represented by the leaf nodes of the dependency tree
+    //   2) Create a copy of the dependency tree without the leaf nodes
+    //   3) If the root of new dependency tree has children, go to step 1 with the new tree
+    //
+    // When the tree has no children it indicates all dependencies have been built and the market data
+    // needed for the calculations is available.
+    //
+    // The result of this method also contains details of the problems for market data can't be built or found.
+    while (!root.isLeaf()) {
+      // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
+      Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
 
-    // Filter out IDs for the data that is already present in suppliedData
-    Set<ObservableId> observableIds =
-        requirements.getObservables().stream()
-            .filter(not(suppliedData::containsValue))
-            .collect(toImmutableSet());
+      // A copy of the dependency tree not including the leaf nodes
+      root = pair.getFirst();
 
-    buildObservableData(observableIds, baseDataBuilder, failureBuilder);
+      // The requirements contained in the leaf nodes
+      MarketDataRequirements leafRequirements = pair.getSecond();
 
-    // Filter out IDs for the data that is already present in suppliedData and build the rest
-    requirements.getNonObservables().stream()
-        .filter(not(suppliedData::containsValue))
-        .forEach(id -> buildNonObservableData(id, suppliedData, baseDataBuilder, failureBuilder));
+      BaseMarketDataBuilder dataBuilder = builtData.toBuilder();
 
+      // Build any time series that are required but not available in the built data
+      leafRequirements.getTimeSeries().stream()
+          .filter(not(builtData::containsTimeSeries))
+          .forEach(id -> addTimeSeries(dataBuilder, timeSeriesFailureBuilder, id));
+
+      // Filter out IDs for the data that is already present in the built data
+      Set<ObservableId> observableIds =
+          leafRequirements.getObservables().stream()
+              .filter(not(builtData::containsValue))
+              .collect(toImmutableSet());
+
+      buildObservableData(observableIds, dataBuilder, failureBuilder);
+
+      // Need to copy to an effectively final var to satisfy the compiler
+      BaseMarketData tmpData = builtData;
+
+      // Filter out IDs for the data that is already present in builtData and build the rest
+      leafRequirements.getNonObservables().stream()
+          .filter(not(builtData::containsValue))
+          .forEach(id -> buildNonObservableData(id, tmpData, dataBuilder, failureBuilder));
+
+      builtData = dataBuilder.build();
+    }
     return MarketDataResult.builder()
-        .marketData(baseDataBuilder.build())
+        .marketData(builtData)
         .singleValueFailures(failureBuilder.build())
         .timeSeriesFailures(timeSeriesFailureBuilder.build())
         .build();
   }
 
   @Override
-  public ScenarioMarketData buildScenarioMarketData(BaseMarketData baseData, ScenarioDefinition scenarioDefinition) {
+  public ScenarioMarketData buildScenarioMarketData(
+      BaseMarketData baseData,
+      ScenarioDefinition scenarioDefinition) {
+
     throw new UnsupportedOperationException("buildScenarioMarketData not implemented");
   }
 
@@ -196,8 +243,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
   /**
    * Builds items of non-observable market data using a market data builder and adds them to the results.
-   *
-   * @param id  ID of the market data that should be built
+   *  @param id  ID of the market data that should be built
    * @param suppliedData  existing set of market data that contains any data required to build the values
    * @param baseDataBuilder  a builder to receive the built data
    * @param failureBuilder  a builder to receive details of data that couldn't be built
@@ -215,7 +261,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // parameter information. When the builders are extracted from the map and used it's impossible to
     // convince the compiler the operations are safe, although the logic guarantees it.
 
-    MarketDataBuilder marketDataBuilder = builders.get(id.getClass());
+    // This cast removes a spurious warning
+    MarketDataBuilder marketDataBuilder = builders.get((Class<? extends MarketDataId<?>>) id.getClass());
 
     if (marketDataBuilder == null) {
       addFailureForMissingBuilder(failureBuilder, id);
@@ -243,8 +290,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     Result<Object> failure =
         Result.failure(
             FailureReason.INVALID_INPUT,
-            "No builder found for ID type {}",
-            id.getClass().getName());
+            "No market data builder available to handle {}",
+            id);
 
     failureBuilder.put(id, failure);
   }

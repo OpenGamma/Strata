@@ -116,12 +116,12 @@ public final class BaseMarketData implements ImmutableBean {
     }
     if (id instanceof MissingMappingId) {
       MarketDataKey<?> key = ((MissingMappingId) id).getKey();
-      throw new IllegalArgumentException("No market data mapping found for market data " + key);
+      throw new IllegalArgumentException("No market data mapping found for " + key);
     }
     Object value = values.get(id);
 
     if (value == null) {
-      throw new IllegalArgumentException("No market data value available for ID " + id);
+      throw new IllegalArgumentException("No market data value available for " + id);
     }
     if (!id.getMarketDataType().isInstance(value)) {
       throw new IllegalArgumentException(

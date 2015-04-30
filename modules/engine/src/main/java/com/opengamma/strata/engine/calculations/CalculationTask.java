@@ -85,10 +85,10 @@ public class CalculationTask {
 
     calculationRequirements.getTimeSeriesRequirements().stream()
         .map(marketDataMappings::getIdForObservableKey)
-        .forEach(requirementsBuilder::timeSeries);
+        .forEach(requirementsBuilder::addTimeSeries);
 
     for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
-      requirementsBuilder.values(marketDataMappings.getIdForKey(key));
+      requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
     return requirementsBuilder.build();
   }

@@ -30,11 +30,11 @@ public final class MissingMappingMarketDataBuilder implements MarketDataBuilder<
   }
 
   @Override
-  public Result<Void> build(MissingMappingId requirement, BaseMarketData builtData) {
+  public Result<Void> build(MissingMappingId id, BaseMarketData builtData) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data mapping found for market data key {}",
-        requirement.getKey());
+        id.getKey());
   }
 
   @Override

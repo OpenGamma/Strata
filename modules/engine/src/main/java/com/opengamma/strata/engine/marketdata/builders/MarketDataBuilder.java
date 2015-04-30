@@ -33,13 +33,15 @@ public interface MarketDataBuilder<T, I extends MarketDataId<? extends T>> {
    * <p>
    * If the data cannot be built the result contains details of the problem.
    *
-   * @param requirement  ID of the market data that should be built
+   * @param id  ID of the market data that should be built
    * @param builtData  a set of market data including any data required to build the requested data
    * @return built market data, or details of the problems that prevented building
    */
-  public abstract Result<T> build(I requirement, BaseMarketData builtData);
+  public abstract Result<T> build(I id, BaseMarketData builtData);
 
   /**
+   * Returns the type of market data ID this builder can handle.
+   *
    * @return the type of market data ID this builder can handle
    */
   public abstract Class<I> getMarketDataIdType();
