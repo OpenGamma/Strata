@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
@@ -55,6 +56,20 @@ public class DispatchingPaymentPeriodPricerTest {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
     assertThrowsIllegalArg(() -> test.futureValue(mockPaymentPeriod, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueSensitivity_unknownType() {
+    PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
+    DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.presentValueSensitivity(mockPaymentPeriod, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_futureValueSensitivity_unknownType() {
+    PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
+    DispatchingPaymentPeriodPricer test = DispatchingPaymentPeriodPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.futureValueSensitivity(mockPaymentPeriod, MOCK_PROV));
   }
 
 }

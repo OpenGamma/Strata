@@ -255,8 +255,6 @@ public final class SwapDummyData {
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD)
       .paymentEvents(NOTIONAL_EXCHANGE_PAY_USD)
       .build();
-  
-//  FIXED_RATE_PAYMENT_PERIOD_CMP_REC_USD
   /**
    * ExpandedSwapLeg  (USD - fixed - receiver - FX reset).
    */

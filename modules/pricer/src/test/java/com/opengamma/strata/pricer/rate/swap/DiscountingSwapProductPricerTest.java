@@ -59,13 +59,12 @@ public class DiscountingSwapProductPricerTest {
 
   private static final RatesProvider MOCK_PROV = new MockRatesProvider(date(2014, 1, 22));
 
-
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
-  
+
   private static final ImmutableRatesProvider RATES_GBP = RatesProviderDataSets.MULTI_GBP;
   private static final ImmutableRatesProvider RATES_GBP_USD = RatesProviderDataSets.MULTI_GBP_USD;
   private static final double FD_SHIFT = 1.0E-7;
-  private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR = 
+  private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR =
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
 
   private static final double TOLERANCE_RATE = 1.0e-12;
@@ -259,21 +258,21 @@ public class DiscountingSwapProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_parRateSensitivity_singleCurrency() {
-    ExpandedSwap expanded = SWAP.expand();    
+    ExpandedSwap expanded = SWAP.expand();
     PointSensitivities point = PRICER_SWAP.parRateSensitivity(expanded, RATES_GBP).build();
     CurveParameterSensitivity prAd = RATES_GBP.parameterSensitivity(point);
-    CurveParameterSensitivity prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP, 
-        (p) -> CurrencyAmount.of(GBP, PRICER_SWAP.parRate(expanded, p)));
-    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));    
+    CurveParameterSensitivity prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
+        RATES_GBP, p -> CurrencyAmount.of(GBP, PRICER_SWAP.parRate(expanded, p)));
+    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
-  
+
   public void test_parRateSensitivity_crossCurrency() {
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();    
+    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
     PointSensitivities point = PRICER_SWAP.parRateSensitivity(expanded, RATES_GBP_USD).build();
     CurveParameterSensitivity prAd = RATES_GBP_USD.parameterSensitivity(point);
-    CurveParameterSensitivity prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP_USD, 
-        (p) -> CurrencyAmount.of(USD, PRICER_SWAP.parRate(expanded, p)));
-    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));    
+    CurveParameterSensitivity prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
+        RATES_GBP_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parRate(expanded, p)));
+    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
   //-------------------------------------------------------------------------

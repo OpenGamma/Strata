@@ -48,11 +48,13 @@ public class DiscountingSwapProductPricer {
   public DiscountingSwapProductPricer(
       DiscountingSwapLegPricer legPricer) {
     this.legPricer = ArgChecker.notNull(legPricer, "legPricer");
-  }  
-  
+  }
+
+  //-------------------------------------------------------------------------
   /**
-   * Returns the leg pricer underlying the swap pricer. 
-   * @return the lag pricer.
+   * Returns the pricer used to price the legs.
+   * 
+   * @return the pricer
    */
   public DiscountingSwapLegPricer getLegPricer() {
     return legPricer;
@@ -135,7 +137,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
-   * At least one leg should be a fixed leg. The par rate will be computed with respect to the first fixed leg.
+   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
    * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
    * 
    * @param product  the swap product for which the par rate should be computed
@@ -160,15 +162,6 @@ public class DiscountingSwapProductPricer {
     double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
     // Par rate
     return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
-  }
-  
-  // checking that at least one leg is a fixed leg and returning the first one
-  private ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
-    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
-    if (fixedLegs.isEmpty()) {
-      throw new IllegalArgumentException("Swap must contain a fixed leg");
-    }
-    return fixedLegs.get(0);
   }
 
   //-------------------------------------------------------------------------
@@ -219,6 +212,18 @@ public class DiscountingSwapProductPricer {
     return builder;
   }
 
+  /**
+   * Calculates the par rate curve sensitivity for a fixed swap leg. 
+   * <p>
+   * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
+   * <p>
+   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
+   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the par rate curve sensitivity of the swap product
+   */
   public PointSensitivityBuilder parRateSensitivity(SwapProduct product, RatesProvider provider) {
     ExpandedSwap swap = product.expand();
     ExpandedSwapLeg fixedLeg = fixedLeg(swap);
@@ -234,7 +239,7 @@ public class DiscountingSwapProductPricer {
     double fixedLegEventsPv = legPricer.presentValueEventsInternal(fixedLeg, provider);
     double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
     // Backward sweep
-    double otherLegsConvertedPvBar = - 1.0d / pvbpFixedLeg;
+    double otherLegsConvertedPvBar = -1.0d / pvbpFixedLeg;
     double fixedLegEventsPvBar = -1.0d / pvbpFixedLeg;
     double pvbpFixedLegBar = (otherLegsConvertedPv + fixedLegEventsPv) / (pvbpFixedLeg * pvbpFixedLeg);
     PointSensitivityBuilder pvbpFixedLegDr = legPricer.pvbpSensitivity(fixedLeg, provider);
@@ -251,6 +256,16 @@ public class DiscountingSwapProductPricer {
     return pvbpFixedLegDr.multipliedBy(pvbpFixedLegBar)
         .combinedWith(fixedLegEventsPvDr.multipliedBy(fixedLegEventsPvBar))
         .combinedWith(otherLegsConvertedPvDr.multipliedBy(otherLegsConvertedPvBar));
+  }
+
+  //-------------------------------------------------------------------------
+  // checking that at least one leg is a fixed leg and returning the first one
+  private ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
+    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+    if (fixedLegs.isEmpty()) {
+      throw new IllegalArgumentException("Swap must contain a fixed leg");
+    }
+    return fixedLegs.get(0);
   }
 
 }

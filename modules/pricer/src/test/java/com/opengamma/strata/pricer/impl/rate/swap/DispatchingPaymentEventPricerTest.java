@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
@@ -86,6 +87,20 @@ public class DispatchingPaymentEventPricerTest {
     PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
     DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
     assertThrowsIllegalArg(() -> test.futureValue(mockPaymentEvent, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueSensitivity_unknownType() {
+    PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
+    DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.presentValueSensitivity(mockPaymentEvent, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_futureValueSensitivity_unknownType() {
+    PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
+    DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.futureValueSensitivity(mockPaymentEvent, MOCK_PROV));
   }
 
 }

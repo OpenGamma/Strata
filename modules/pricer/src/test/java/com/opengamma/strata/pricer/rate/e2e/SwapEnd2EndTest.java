@@ -156,11 +156,14 @@ public class SwapEnd2EndTest {
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
+    // test pv
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
     assertEquals(pv.getAmount(), 7170391.798257509, TOLERANCE_PV);
+    // test par rate
     double parRate = PRICER_PRODUCT.parRate(trade.getProduct(), provider());
-    assertEquals(parRate, 0.02589471566819517, TOLERANCE_RATE);    
+    assertEquals(parRate, 0.02589471566819517, TOLERANCE_RATE);
+    // test par rate vs pv
     Swap swapPV0 = Swap.of(
         fixedLeg(LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, parRate, null), receiveLeg);
     CurrencyAmount pv0 = PRICER_PRODUCT.presentValue(swapPV0, provider()).getAmount(USD);
@@ -738,8 +741,13 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   // fixed rate leg
   private static RateCalculationSwapLeg fixedLeg(
-      LocalDate start, LocalDate end, Frequency frequency,
-      PayReceive payReceive, NotionalSchedule notional, double fixedRate, StubConvention stubConvention) {
+      LocalDate start,
+      LocalDate end,
+      Frequency frequency,
+      PayReceive payReceive,
+      NotionalSchedule notional,
+      double fixedRate,
+      StubConvention stubConvention) {
 
     return RateCalculationSwapLeg.builder()
         .payReceive(payReceive)
@@ -761,11 +769,16 @@ public class SwapEnd2EndTest {
             .build())
         .build();
   }
-  
-  // fixed rate leg
+
+  // ibor rate leg
   private static RateCalculationSwapLeg iborLeg(
-      LocalDate start, LocalDate end, IborIndex index,
-      PayReceive payReceive, NotionalSchedule notional, StubConvention stubConvention) {
+      LocalDate start,
+      LocalDate end,
+      IborIndex index,
+      PayReceive payReceive,
+      NotionalSchedule notional,
+      StubConvention stubConvention) {
+
     Frequency freq = Frequency.of(index.getTenor().getPeriod());
     return RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
