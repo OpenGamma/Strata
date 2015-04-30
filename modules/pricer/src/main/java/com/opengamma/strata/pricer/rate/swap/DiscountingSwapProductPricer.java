@@ -48,6 +48,14 @@ public class DiscountingSwapProductPricer {
   public DiscountingSwapProductPricer(
       DiscountingSwapLegPricer legPricer) {
     this.legPricer = ArgChecker.notNull(legPricer, "legPricer");
+  }  
+  
+  /**
+   * Returns the leg pricer underlying the swap pricer. 
+   * @return the lag pricer.
+   */
+  public DiscountingSwapLegPricer getLegPricer() {
+    return legPricer;
   }
 
   //-------------------------------------------------------------------------

@@ -72,6 +72,15 @@ public class DiscountingSwapProductPricerTest {
   private static final double TOLERANCE_RATE_DELTA = 1.0E-6;
 
   //-------------------------------------------------------------------------
+  public void test_legPricer() {
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    assertEquals(pricerSwap.getLegPricer(), pricerLeg);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_parRate_singleCurrency() {
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.discountFactor(GBP, FIXED_RATE_PAYMENT_PERIOD_PAY_GBP.getPaymentDate()))
