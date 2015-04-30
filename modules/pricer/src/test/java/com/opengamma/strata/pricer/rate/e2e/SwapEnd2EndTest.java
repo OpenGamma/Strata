@@ -781,7 +781,7 @@ public class SwapEnd2EndTest {
 
     Frequency freq = Frequency.of(index.getTenor().getPeriod());
     return RateCalculationSwapLeg.builder()
-        .payReceive(RECEIVE)
+        .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(start)
             .endDate(end)
@@ -793,7 +793,7 @@ public class SwapEnd2EndTest {
             .paymentFrequency(freq)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
-        .notionalSchedule(NOTIONAL)
+        .notionalSchedule(notional)
         .calculation(IborRateCalculation.builder()
             .dayCount(index.getDayCount())
             .index(index)

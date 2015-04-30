@@ -70,6 +70,12 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-pricer</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-finance</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
