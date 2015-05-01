@@ -143,7 +143,7 @@ class MarketDataNode {
     // Observable data has special handling and is guaranteed to have a builder.
     // Supplied data definitely has no dependencies because it already exists and doesn't need to be built.
     if (id instanceof ObservableId || isSupplied(id, dataType, suppliedData)) {
-      return MarketDataNode.child(id, dataType);
+      return MarketDataNode.leaf(id, dataType);
     }
     // Find the builder that can build the data identified by the ID
     MarketDataBuilder builder = builders.get(id.getClass());
@@ -153,8 +153,8 @@ class MarketDataNode {
       MarketDataRequirements requirements = builder.requirements(id);
       return MarketDataNode.child(id, dataType, children(requirements, suppliedData, builders));
     } else {
-      // If there is no builder insert a node with no children. It will be flagged as an error when the data is built
-      return MarketDataNode.child(id, dataType);
+      // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
+      return MarketDataNode.leaf(id, dataType);
     }
   }
 
@@ -207,13 +207,13 @@ class MarketDataNode {
   }
 
   /**
-   * Returns a child node representing an item of market data.
+   * Returns a leaf node representing an item of market data with no dependencies on other market data.
    *
    * @param id  an ID identifying the market data represented by the node
    * @param dataType  the type of market data represented by the node, either a single value or a time series of values
-   * @return a child node representing an item of market data
+   * @return a leaf node representing an item of market data with no dependencies on other market data
    */
-  static MarketDataNode child(MarketDataId<?> id, DataType dataType) {
+  static MarketDataNode leaf(MarketDataId<?> id, DataType dataType) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(dataType, "dataType");
     return new MarketDataNode(id, dataType, ImmutableList.of());

@@ -254,11 +254,11 @@ public class MarketDataNodeTest {
   }
 
   private static MarketDataNode observableNode(ObservableId id) {
-    return MarketDataNode.child(id, MarketDataNode.DataType.SINGLE_VALUE);
+    return MarketDataNode.leaf(id, MarketDataNode.DataType.SINGLE_VALUE);
   }
 
   private static MarketDataNode timeSeriesNode(ObservableId id) {
-    return MarketDataNode.child(id, MarketDataNode.DataType.TIME_SERIES);
+    return MarketDataNode.leaf(id, MarketDataNode.DataType.TIME_SERIES);
   }
 
   class TestIdA implements ObservableId {

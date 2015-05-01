@@ -140,9 +140,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
 
-      // A copy of the dependency tree not including the leaf nodes
-      root = pair.getFirst();
-
       // The requirements contained in the leaf nodes
       MarketDataRequirements leafRequirements = pair.getSecond();
 
@@ -159,6 +156,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
               .filter(not(builtData::containsValue))
               .collect(toImmutableSet());
 
+      // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
       buildObservableData(observableIds, dataBuilder, failureBuilder);
 
       // Need to copy to an effectively final var to satisfy the compiler
@@ -170,6 +168,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .forEach(id -> buildNonObservableData(id, tmpData, dataBuilder, failureBuilder));
 
       builtData = dataBuilder.build();
+
+      // A copy of the dependency tree not including the leaf nodes
+      root = pair.getFirst();
     }
     return MarketDataResult.builder()
         .marketData(builtData)
@@ -243,7 +244,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
   /**
    * Builds items of non-observable market data using a market data builder and adds them to the results.
-   *  @param id  ID of the market data that should be built
+   *
+   * @param id  ID of the market data that should be built
    * @param suppliedData  existing set of market data that contains any data required to build the values
    * @param baseDataBuilder  a builder to receive the built data
    * @param failureBuilder  a builder to receive details of data that couldn't be built
