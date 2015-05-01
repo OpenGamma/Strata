@@ -40,11 +40,15 @@ public interface ScenarioMarketData {
   }
 
   /**
+   * Returns the valuation dates of the scenarios, one for each scenario.
+   *
    * @return the valuation dates of the scenarios, one for each scenario
    */
   public abstract List<LocalDate> getValuationDates();
 
   /**
+   * Returns the number of scenarios.
+   *
    * @return the number of scenarios
    */
   public abstract int getScenarioCount();

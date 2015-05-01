@@ -34,7 +34,7 @@ public class DefaultScenarioMarketDataTest {
   public void handleMissingMappingsId() {
     ScenarioMarketData marketData = ScenarioMarketData.builder(1, date(2011, 3, 8)).build();
     MissingMappingId id = MissingMappingId.of(IndexCurveKey.of(IborIndices.USD_LIBOR_1M));
-    String msgRegex = "No market data mapping found for market data.*";
+    String msgRegex = "No market data mapping found for.*";
     assertThrows(() -> marketData.getValues(id), IllegalArgumentException.class, msgRegex);
   }
 }

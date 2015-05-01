@@ -6,6 +6,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.marketdata.id.FieldName;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
 import com.opengamma.strata.marketdata.id.IndexRateId;
 import com.opengamma.strata.marketdata.id.MarketDataFeed;
@@ -49,7 +51,7 @@ public class DefaultMarketDataFactoryTest {
   private static final IndexRateId LIBOR_3M_ID = IndexRateId.of(IborIndices.USD_LIBOR_3M, VENDOR);
 
   /**
-   * Tests building time series from requirements
+   * Tests building time series from requirements.
    */
   public void buildTimeSeries() {
     IborIndex chfIndex = IborIndices.CHF_LIBOR_1M;
@@ -77,7 +79,7 @@ public class DefaultMarketDataFactoryTest {
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
-            .timeSeries(chfId, eurId)
+            .addTimeSeries(chfId, eurId)
             .build();
     BaseMarketData marketData =
         marketDataFactory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2015, 3, 25))).getMarketData();
@@ -107,7 +109,7 @@ public class DefaultMarketDataFactoryTest {
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
-            .values(discountingCurveId, iborCurveId)
+            .addValues(discountingCurveId, iborCurveId)
             .build();
     MarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData);
     BaseMarketData marketData = result.getMarketData();
@@ -128,7 +130,7 @@ public class DefaultMarketDataFactoryTest {
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
     QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
     QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().values(id1, id2).build();
+    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
     BaseMarketData marketData = factory.buildBaseMarketData(requirements, suppliedData).getMarketData();
 
     assertThat(marketData.getValue(id1)).isEqualTo(1d);
@@ -136,7 +138,7 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
-   * Tests that failures are included in the results for keys with no mapping
+   * Tests that failures are included in the results for keys with no mapping.
    */
   public void missingMapping() {
     DefaultMarketDataFactory factory =
@@ -147,7 +149,7 @@ public class DefaultMarketDataFactoryTest {
 
     DiscountingCurveKey key = DiscountingCurveKey.of(Currency.GBP);
     MissingMappingId missingId = MissingMappingId.of(key);
-    MarketDataRequirements requirements = MarketDataRequirements.builder().values(missingId).build();
+    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(missingId).build();
     MarketDataResult result = factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)));
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
     Result<?> missingResult = failures.get(missingId);
@@ -173,7 +175,7 @@ public class DefaultMarketDataFactoryTest {
             new DelegateBuilder(),
             Optional::of);
 
-    MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().values(requirements).build();
+    MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addValues(requirements).build();
     MarketDataResult result =
         factory.buildBaseMarketData(marketDataRequirements, BaseMarketData.empty(date(2011, 3, 8)));
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
@@ -201,7 +203,7 @@ public class DefaultMarketDataFactoryTest {
             Optional::of,
             new CurveBuilder());
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder().values(eurCurveId, gbpCurveId).build();
+    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(eurCurveId, gbpCurveId).build();
     MarketDataResult result = factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)));
     Map<MarketDataId<?>, Result<?>> singleValueFailures = result.getSingleValueFailures();
     BaseMarketData marketData = result.getMarketData();
@@ -244,7 +246,7 @@ public class DefaultMarketDataFactoryTest {
             new DelegateBuilder(),
             Optional::of);
 
-    MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().timeSeries(requirements).build();
+    MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addTimeSeries(requirements).build();
     MarketDataResult result =
         factory.buildBaseMarketData(marketDataRequirements, BaseMarketData.empty(date(2011, 3, 8)));
     Map<MarketDataId<?>, Result<?>> failures = result.getTimeSeriesFailures();
@@ -256,6 +258,104 @@ public class DefaultMarketDataFactoryTest {
     assertThat(failures.get(libor12mId)).hasFailureMessageMatching("No market data rule.*");
   }
 
+  /**
+   * Tests building market data that depends on other market data.
+   */
+  public void buildDataFromOtherData() {
+    TestMarketDataBuilderB builderB = new TestMarketDataBuilderB();
+    TestMarketDataBuilderC builderC = new TestMarketDataBuilderC();
+
+    MarketDataRequirements requirements =
+        MarketDataRequirements.builder()
+            .addValues(new TestIdB("1"), new TestIdB("2"))
+            .build();
+
+    LocalDateDoubleTimeSeries timeSeries1 =
+        LocalDateDoubleTimeSeries.builder()
+            .put(date(2011, 3, 8), 1)
+            .put(date(2011, 3, 9), 2)
+            .put(date(2011, 3, 10), 3)
+            .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 =
+        LocalDateDoubleTimeSeries.builder()
+            .put(date(2011, 3, 8), 10)
+            .put(date(2011, 3, 9), 20)
+            .put(date(2011, 3, 10), 30)
+            .build();
+
+    Map<TestIdA, LocalDateDoubleTimeSeries> timeSeriesMap =
+        ImmutableMap.of(
+            new TestIdA("1"), timeSeries1,
+            new TestIdA("2"), timeSeries2);
+
+    TimeSeriesProvider timeSeriesProvider = new TestTimeSeriesProvider(timeSeriesMap);
+
+    DefaultMarketDataFactory marketDataFactory =
+        new DefaultMarketDataFactory(
+            timeSeriesProvider,
+            new TestObservableMarketDataBuilder(),
+            FeedIdMapping.identity(),
+            builderB,
+            builderC);
+
+    MarketDataResult result = marketDataFactory.buildBaseMarketData(
+        requirements,
+        BaseMarketData.empty(date(2011, 3, 8)));
+
+    assertThat(result.getSingleValueFailures()).isEmpty();
+    assertThat(result.getTimeSeriesFailures()).isEmpty();
+
+    BaseMarketData marketData = result.getMarketData();
+    TestMarketDataB marketDataB1 = marketData.getValue(new TestIdB("1"));
+    TestMarketDataB marketDataB2 = marketData.getValue(new TestIdB("2"));
+
+    TestMarketDataB expectedB1 = new TestMarketDataB(1, new TestMarketDataC(timeSeries1));
+    TestMarketDataB expectedB2 = new TestMarketDataB(2, new TestMarketDataC(timeSeries2));
+
+    assertThat(marketDataB1).isEqualTo(expectedB1);
+    assertThat(marketDataB2).isEqualTo(expectedB2);
+  }
+
+  /**
+   * Tests failures when there is no builder for an ID type.
+   */
+  public void noMarketDataBuilderAvailable() {
+    TestIdB idB1 = new TestIdB("1");
+    TestIdB idB2 = new TestIdB("2");
+    TestIdC idC1 = new TestIdC("1");
+    TestIdC idC2 = new TestIdC("2");
+    TestMarketDataBuilderB builder = new TestMarketDataBuilderB();
+
+    MarketDataRequirements requirements =
+        MarketDataRequirements.builder()
+            .addValues(idB1, idB2)
+            .build();
+
+    DefaultMarketDataFactory marketDataFactory =
+        new DefaultMarketDataFactory(
+            new TestTimeSeriesProvider(ImmutableMap.of()),
+            new TestObservableMarketDataBuilder(),
+            FeedIdMapping.identity(),
+            builder);
+
+    MarketDataResult result = marketDataFactory.buildBaseMarketData(
+        requirements,
+        BaseMarketData.empty(date(2011, 3, 8)));
+    Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
+
+    Result<?> failureB1 = failures.get(idB1);
+    Result<?> failureB2 = failures.get(idB2);
+    Result<?> failureC1 = failures.get(idC1);
+    Result<?> failureC2 = failures.get(idC2);
+
+    assertThat(failureB1).hasFailureMessageMatching("No value for.*");
+    assertThat(failureB2).hasFailureMessageMatching("No value for.*");
+    assertThat(failureC1).hasFailureMessageMatching("No market data builder available to handle.*");
+    assertThat(failureC2).hasFailureMessageMatching("No market data builder available to handle.*");
+  }
+
+  //-----------------------------------------------------------------------------------------------------------
 
   private static final class DelegateBuilder implements ObservableMarketDataBuilder {
 
@@ -279,7 +379,7 @@ public class DefaultMarketDataFactoryTest {
 
     private final Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
-    private TestTimeSeriesProvider(Map<IndexRateId, LocalDateDoubleTimeSeries> timeSeries) {
+    private TestTimeSeriesProvider(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
       this.timeSeries = timeSeries;
     }
 
@@ -329,20 +429,256 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Result<YieldCurve> build(DiscountingCurveId requirement, BaseMarketData builtData) {
+    public Result<YieldCurve> build(
+        DiscountingCurveId id,
+        BaseMarketData builtData) {
+
       DiscountingCurveId curveId = DiscountingCurveId.of(Currency.EUR, "curve group");
 
-      if (requirement.equals(curveId)) {
+      if (id.equals(curveId)) {
         YieldCurve yieldCurve = mock(YieldCurve.class);
         return Result.success(yieldCurve);
       } else {
-        throw new IllegalArgumentException("Unexpected requirement " + requirement);
+        throw new IllegalArgumentException("Unexpected requirement " + id);
       }
     }
 
     @Override
     public Class<DiscountingCurveId> getMarketDataIdType() {
       return DiscountingCurveId.class;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------------------
+
+  private static final class TestIdA implements ObservableId {
+
+    private final StandardId id;
+
+    TestIdA(String id) {
+      this.id = StandardId.of("test", id);
+    }
+
+    @Override
+    public StandardId getStandardId() {
+      return id;
+    }
+
+    @Override
+    public FieldName getFieldName() {
+      return FieldName.MARKET_VALUE;
+    }
+
+    @Override
+    public MarketDataFeed getMarketDataFeed() {
+      return MarketDataFeed.NONE;
+    }
+
+    @Override
+    public Class<Double> getMarketDataType() {
+      return Double.class;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      TestIdA id = (TestIdA) o;
+      return Objects.equals(this.id, id.id);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+      return "TestIdA [id=" + id + "]";
+    }
+  }
+
+  private static final class TestIdB implements MarketDataId<TestMarketDataB> {
+
+    private final String str;
+
+    TestIdB(String str) {
+      this.str = str;
+    }
+
+    @Override
+    public Class<TestMarketDataB> getMarketDataType() {
+      return TestMarketDataB.class;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      TestIdB id = (TestIdB) o;
+      return Objects.equals(str, id.str);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(str);
+    }
+
+    @Override
+    public String toString() {
+      return "TestIdB [str='" + str + "']";
+    }
+  }
+
+  private static final class TestIdC implements MarketDataId<TestMarketDataC> {
+
+    private final String str;
+
+    TestIdC(String str) {
+      this.str = str;
+    }
+
+    @Override
+    public Class<TestMarketDataC> getMarketDataType() {
+      return TestMarketDataC.class;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      TestIdC id = (TestIdC) o;
+      return Objects.equals(str, id.str);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(str);
+    }
+
+    @Override
+    public String toString() {
+      return "TestIdC [str='" + str + "']";
+    }
+  }
+
+  private static final class TestMarketDataB {
+
+    private final double value;
+
+    private final TestMarketDataC marketData;
+
+    TestMarketDataB(double value, TestMarketDataC marketData) {
+      this.value = value;
+      this.marketData = marketData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      TestMarketDataB that = (TestMarketDataB) o;
+      return Objects.equals(value, that.value) &&
+          Objects.equals(marketData, that.marketData);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(value, marketData);
+    }
+  }
+
+  private final class TestMarketDataBuilderB implements MarketDataBuilder<TestMarketDataB, TestIdB> {
+
+    @Override
+    public MarketDataRequirements requirements(TestIdB id) {
+      return MarketDataRequirements.builder()
+          .addValues(new TestIdA(id.str), new TestIdC(id.str))
+          .build();
+    }
+
+    @Override
+    public Result<TestMarketDataB> build(TestIdB id, BaseMarketData builtData) {
+      TestIdA idA = new TestIdA(id.str);
+      TestIdC idC = new TestIdC(id.str);
+
+      if (!builtData.containsValue(idA)) {
+        return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idA);
+      }
+      if (!builtData.containsValue(idC)) {
+        return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idC);
+      }
+      Double value = builtData.getValue(idA);
+      TestMarketDataC marketDataC = builtData.getValue(idC);
+      return Result.success(new TestMarketDataB(value, marketDataC));
+    }
+
+    @Override
+    public Class<TestIdB> getMarketDataIdType() {
+      return TestIdB.class;
+    }
+  }
+
+  private static final class TestMarketDataC {
+
+    private final LocalDateDoubleTimeSeries timeSeries;
+
+    TestMarketDataC(LocalDateDoubleTimeSeries timeSeries) {
+      this.timeSeries = timeSeries;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      TestMarketDataC that = (TestMarketDataC) o;
+      return Objects.equals(timeSeries, that.timeSeries);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(timeSeries);
+    }
+  }
+
+  private static final class TestMarketDataBuilderC implements MarketDataBuilder<TestMarketDataC, TestIdC> {
+
+    @Override
+    public MarketDataRequirements requirements(TestIdC id) {
+      return MarketDataRequirements.builder()
+          .addTimeSeries(new TestIdA(id.str))
+          .build();
+    }
+
+    @Override
+    public Result<TestMarketDataC> build(TestIdC id, BaseMarketData builtData) {
+      LocalDateDoubleTimeSeries timeSeries = builtData.getTimeSeries(new TestIdA(id.str));
+      return Result.success(new TestMarketDataC(timeSeries));
+    }
+
+    @Override
+    public Class<TestIdC> getMarketDataIdType() {
+      return TestIdC.class;
     }
   }
 }

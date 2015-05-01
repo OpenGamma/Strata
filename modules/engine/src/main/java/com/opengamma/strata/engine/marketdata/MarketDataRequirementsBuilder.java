@@ -38,7 +38,7 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder timeSeries(Collection<? extends ObservableId> ids) {
+  public MarketDataRequirementsBuilder addTimeSeries(Collection<? extends ObservableId> ids) {
     ArgChecker.notNull(ids, "ids");
     timeSeries.addAll(ids);
     return this;
@@ -50,8 +50,8 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder timeSeries(ObservableId... ids) {
-    return timeSeries(Arrays.asList(ids));
+  public MarketDataRequirementsBuilder addTimeSeries(ObservableId... ids) {
+    return addTimeSeries(Arrays.asList(ids));
   }
 
   /**
@@ -60,7 +60,7 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder values(Collection<? extends MarketDataId<?>> ids) {
+  public MarketDataRequirementsBuilder addValues(Collection<? extends MarketDataId<?>> ids) {
     ArgChecker.notNull(ids, "ids");
 
     for (MarketDataId<?> id : ids) {
@@ -79,8 +79,23 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder values(MarketDataId<?>... ids) {
-    return values(Arrays.asList(ids));
+  public MarketDataRequirementsBuilder addValues(MarketDataId<?>... ids) {
+    return addValues(Arrays.asList(ids));
+  }
+
+  /**
+   * Adds all requirements from an instance of {@code MarketDataRequirements} to this builder.
+   *
+   * @param requirements  a set of requirements
+   * @return this builder
+   */
+  public MarketDataRequirementsBuilder addRequirements(MarketDataRequirements requirements) {
+    ArgChecker.notNull(requirements, "requirements");
+    observables.addAll(requirements.getObservables());
+    nonObservables.addAll(requirements.getNonObservables());
+    timeSeries.addAll(requirements.getTimeSeries());
+    outputCurrencies.addAll(requirements.getOutputCurrencies());
+    return this;
   }
 
   /**

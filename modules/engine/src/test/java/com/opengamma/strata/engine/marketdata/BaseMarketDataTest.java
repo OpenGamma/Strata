@@ -34,7 +34,7 @@ public class BaseMarketDataTest {
   public void handleMissingMappingsId() {
     BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).build();
     MissingMappingId id = MissingMappingId.of(IndexCurveKey.of(IborIndices.USD_LIBOR_1M));
-    String msgRegex = "No market data mapping found for market data.*";
+    String msgRegex = "No market data mapping found for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
   }
 }

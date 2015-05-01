@@ -80,12 +80,12 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
     }
     if (id instanceof MissingMappingId) {
       MarketDataKey<?> key = ((MissingMappingId) id).getKey();
-      throw new IllegalArgumentException("No market data mapping found for market data " + key);
+      throw new IllegalArgumentException("No market data mapping found for " + key);
     }
     List<?> values = this.values.get(id);
 
     if (values == null) {
-      throw new RuntimeException("No values available for market data ID " + id);
+      throw new RuntimeException("No time series available for " + id);
     }
     return (List<T>) values;
   }

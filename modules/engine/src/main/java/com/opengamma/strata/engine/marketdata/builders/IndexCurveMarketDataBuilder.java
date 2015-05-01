@@ -37,21 +37,21 @@ public final class IndexCurveMarketDataBuilder implements MarketDataBuilder<Yiel
   public MarketDataRequirements requirements(IndexCurveId id) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName());
     return MarketDataRequirements.builder()
-        .values(curveGroupId)
+        .addValues(curveGroupId)
         .build();
   }
 
   @Override
-  public Result<YieldCurve> build(IndexCurveId requirement, BaseMarketData builtData) {
-    String curveGroupName = requirement.getCurveGroupName();
+  public Result<YieldCurve> build(IndexCurveId id, BaseMarketData builtData) {
+    String curveGroupName = id.getCurveGroupName();
     CurveGroupId curveGroupId = CurveGroupId.of(curveGroupName);
 
     if (!builtData.containsValue(curveGroupId)) {
       return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", curveGroupId.getName());
     }
     CurveGroup curveGroup = builtData.getValue(curveGroupId);
-    Result<YieldAndDiscountCurve> result = getCurve(curveGroup, curveGroupName, requirement.getIndex());
-    return result.flatMap(curve -> castCurve(curve, requirement));
+    Result<YieldAndDiscountCurve> result = getCurve(curveGroup, curveGroupName, id.getIndex());
+    return result.flatMap(curve -> castCurve(curve, id));
   }
 
   @Override
