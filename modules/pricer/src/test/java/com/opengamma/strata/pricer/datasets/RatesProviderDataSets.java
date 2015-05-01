@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.pricer.datasets;
 
-import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
-import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -148,12 +148,12 @@ public class RatesProviderDataSets {
   public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder().fxMatrix(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP).indexCurves(GBP_MULTI_IND_MAP).valuationDate(LocalDate.of(2013, 1, 2))
       .dayCount(ACT_360).build();
-  
+
   //     =====     GBP + USD      =====        
 
   private static final FxMatrix FX_MATRIX_GBP_USD =
       FxMatrix.builder().addRate(GBP, USD, 1.50).build();
-  
+
   private static final Map<Currency, YieldAndDiscountCurve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
   static {
     GBP_USD_MULTI_CCY_MAP.put(GBP, GBP_DSC);
