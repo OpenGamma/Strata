@@ -1,0 +1,35 @@
+ext {
+	guavaVersion = "18.0"
+	jodaConvertVersion = "1.7"
+	jodaBeansVersion = "1.5.1"
+	slf4jVersion = "1.7.5"
+	ogAnalyticsVersion = "3.0.0-SNAPSHOT"
+}
+
+subprojects {
+    apply plugin: "java"
+    apply from: "../../gradle/testConfig.gradle"
+
+	dependencies {
+		compile "com.google.guava:guava:${guavaVersion}"
+		compile "org.joda:joda-convert:${jodaConvertVersion}"
+		compile "org.joda:joda-beans:${jodaBeansVersion}"
+		compile "org.slf4j:slf4j-api:${slf4jVersion}"
+	}
+}
+
+allprojects {
+	repositories {
+		mavenLocal()
+		maven {
+			url "http://maven.opengamma.com/nexus/content/groups/public"
+		}
+		maven {
+			url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+			credentials {
+				username ogNexusUsername
+				password ogNexusPassword
+			}
+		}
+	}
+}

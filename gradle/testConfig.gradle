@@ -1,0 +1,20 @@
+test {
+    if(System.properties['test.forkEvery'])
+        forkEvery = System.properties['test.forkEvery'] as Long
+
+    if(System.properties['test.maxForks'])
+        maxParallelForks = System.properties['test.maxForks'] as Integer
+
+    if(System.properties['test.maxHeap'])
+        maxHeapSize = System.properties['test.maxHeap']
+
+    useTestNG() {
+        excludeGroups = ["integration", "unitdb", "unitslow"]
+    }
+}
+
+dependencies {
+    testCompile "org.testng:testng:6.8.21"
+    testCompile "org.assertj:assertj-core:3.0.0"
+}
+

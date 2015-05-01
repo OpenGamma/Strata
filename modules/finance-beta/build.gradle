@@ -1,0 +1,5 @@
+dependencies {
+	compile project(":collect")
+	compile project(":basics")
+	compile project(":finance")
+}

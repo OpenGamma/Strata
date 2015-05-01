@@ -1,0 +1,19 @@
+rootProject.name = 'Strata'
+
+List<String> modules = [
+        "basics",
+        "collect",
+        "curve",
+        "engine",
+        "finance",
+        "function",
+        "market-data",
+        "pricer",
+        "source"
+]
+
+modules.each { m ->
+        include m
+        project(":${m}").projectDir = file("modules/${m}")
+}
+

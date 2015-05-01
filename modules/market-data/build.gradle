@@ -1,0 +1,5 @@
+dependencies {
+	compile project(":basics")
+	compile project(":collect")
+	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+}
