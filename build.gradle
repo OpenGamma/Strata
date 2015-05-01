@@ -4,11 +4,19 @@ ext {
 	jodaBeansVersion = "1.5.1"
 	slf4jVersion = "1.7.5"
 	ogAnalyticsVersion = "3.0.0-SNAPSHOT"
+
+	testNGVersion = "6.8.21"
+	assertJVersion = "2.0.0"
+	mockitoVersion = "1.10.19"
 }
 
 subprojects {
     apply plugin: "java"
     apply from: "../../gradle/testConfig.gradle"
+
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << "-parameters"
+	}
 
 	dependencies {
 		compile "com.google.guava:guava:${guavaVersion}"

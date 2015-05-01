@@ -3,6 +3,7 @@ rootProject.name = 'Strata'
 List<String> modules = [
         "basics",
         "collect",
+		"collect-testutils",
         "curve",
         "engine",
         "finance",

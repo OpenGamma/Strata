@@ -14,7 +14,9 @@ test {
 }
 
 dependencies {
-    testCompile "org.testng:testng:6.8.21"
-    testCompile "org.assertj:assertj-core:3.0.0"
+    testCompile "org.testng:testng:${testNGVersion}"
+    testCompile "org.assertj:assertj-core:${assertJVersion}"
+    testCompile "org.mockito:mockito-all:${mockitoVersion}"
+
 }
 

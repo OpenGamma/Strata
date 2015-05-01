@@ -1,0 +1,9 @@
+dependencies {
+	compile project(":collect")
+
+	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+	compile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'
+
+	compile "org.testng:testng:${testNGVersion}"
+	compile "org.assertj:assertj-core:${assertJVersion}"
+}

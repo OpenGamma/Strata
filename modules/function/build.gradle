@@ -6,4 +6,5 @@ dependencies {
 
 	testCompile project(":pricer")
 	testCompile project(":collect")
+	testCompile project(":collect-testutils")
 }
