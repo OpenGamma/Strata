@@ -51,7 +51,7 @@ public class DiscountingFxProductPricerBeta {
   }
 
   // from PaymentFixedDiscountingMethod
-  private CurrencyAmount presentValue(FxPayment payment, RatesProvider provider) {
+  public CurrencyAmount presentValue(FxPayment payment, RatesProvider provider) {
     return payment.getValue().multipliedBy(provider.discountFactor(payment.getCurrency(), payment.getDate()));
   }
 
@@ -118,7 +118,7 @@ public class DiscountingFxProductPricerBeta {
   }
 
   // from PaymentFixedDiscountingMethod
-  private PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
+  public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
     return provider.discountFactorZeroRateSensitivity(payment.getCurrency(), payment.getDate())
         .multipliedBy(payment.getAmount());
   }
