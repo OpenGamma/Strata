@@ -15,8 +15,8 @@ import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**

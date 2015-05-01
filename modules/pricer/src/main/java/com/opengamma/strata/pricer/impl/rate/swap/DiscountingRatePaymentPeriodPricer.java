@@ -13,8 +13,8 @@ import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

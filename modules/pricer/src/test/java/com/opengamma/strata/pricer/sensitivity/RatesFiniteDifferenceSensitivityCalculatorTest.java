@@ -20,8 +20,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.pricer.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
@@ -52,7 +52,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_multi_curve() {
-    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_MULTI, this::fn);
+    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.MULTI_USD, this::fn);
     double[] times1 = RatesProviderDataSets.TIMES_1;
     double[] times2 = RatesProviderDataSets.TIMES_2;
     double[] times3 = RatesProviderDataSets.TIMES_3;

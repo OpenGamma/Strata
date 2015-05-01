@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**

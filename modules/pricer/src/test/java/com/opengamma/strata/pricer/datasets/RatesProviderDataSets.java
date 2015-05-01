@@ -28,7 +28,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.pricer.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
  * RatesProvider data sets for testing.
@@ -50,6 +50,18 @@ public class RatesProviderDataSets {
   {0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200};
   public static final double[] RATES_3 = new double[]
   {0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200, 0.0210};
+  public static final double[] RATES_1_1 = new double[]
+  {0.0100, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190};
+  public static final double[] RATES_2_1 = new double[]
+  {0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200};
+  public static final double[] RATES_3_1 = new double[]
+  {0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190, 0.0200, 0.0210};
+  public static final double[] RATES_1_2 = new double[]
+  {0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290};
+  public static final double[] RATES_2_2 = new double[]
+  {0.0220, 0.0230, 0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300};
+  public static final double[] RATES_3_2 = new double[]
+  {0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310};
 
   //     =====     USD     =====     
 
@@ -63,7 +75,7 @@ public class RatesProviderDataSets {
 
   private static final YieldAndDiscountCurve USD_SINGLE_CURVE =
       new YieldCurve(USD_SINGLE_NAME,
-          new InterpolatedDoublesCurve(TIMES_1, RATES_1, LINEAR_FLAT, true, USD_SINGLE_NAME));
+          new InterpolatedDoublesCurve(TIMES_1, RATES_1_1, LINEAR_FLAT, true, USD_SINGLE_NAME));
   private static final Map<Currency, YieldAndDiscountCurve> USD_SINGLE_CCY_MAP = new HashMap<>();
   static {
     USD_SINGLE_CCY_MAP.put(USD, USD_SINGLE_CURVE);
@@ -80,15 +92,15 @@ public class RatesProviderDataSets {
 
   private static final YieldAndDiscountCurve USD_DSC =
       new YieldCurve(USD_DSC_NAME,
-          new InterpolatedDoublesCurve(TIMES_1, RATES_1, LINEAR_FLAT, true, USD_DSC_NAME));
+          new InterpolatedDoublesCurve(TIMES_1, RATES_1_1, LINEAR_FLAT, true, USD_DSC_NAME));
 
   private static final YieldAndDiscountCurve USD_L3 =
       new YieldCurve(USD_L3_NAME,
-          new InterpolatedDoublesCurve(TIMES_2, RATES_2, LINEAR_FLAT, true, USD_L3_NAME));
+          new InterpolatedDoublesCurve(TIMES_2, RATES_2_1, LINEAR_FLAT, true, USD_L3_NAME));
 
   private static final YieldAndDiscountCurve USD_L6 =
       new YieldCurve(USD_L6_NAME,
-          new InterpolatedDoublesCurve(TIMES_3, RATES_3, LINEAR_FLAT, true, USD_L6_NAME));
+          new InterpolatedDoublesCurve(TIMES_3, RATES_3_1, LINEAR_FLAT, true, USD_L6_NAME));
   private static final Map<Currency, YieldAndDiscountCurve> USD_MULTI_CCY_MAP = new HashMap<>();
   static {
     USD_MULTI_CCY_MAP.put(USD, USD_DSC);
@@ -99,7 +111,7 @@ public class RatesProviderDataSets {
     USD_MULTI_IND_MAP.put(USD_LIBOR_3M, USD_L3);
     USD_MULTI_IND_MAP.put(USD_LIBOR_6M, USD_L6);
   }
-  public static final ImmutableRatesProvider USD_MULTI = ImmutableRatesProvider.builder().fxMatrix(FX_MATRIX_USD)
+  public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder().fxMatrix(FX_MATRIX_USD)
       .discountCurves(USD_MULTI_CCY_MAP).indexCurves(USD_MULTI_IND_MAP).valuationDate(LocalDate.of(2015, 4, 27))
       .dayCount(ACT_360).build();
 
@@ -114,15 +126,15 @@ public class RatesProviderDataSets {
 
   private static final YieldAndDiscountCurve GBP_DSC =
       new YieldCurve(GBP_DSC_NAME,
-          new InterpolatedDoublesCurve(TIMES_1, RATES_1, LINEAR_FLAT, true, GBP_DSC_NAME));
+          new InterpolatedDoublesCurve(TIMES_1, RATES_1_2, LINEAR_FLAT, true, GBP_DSC_NAME));
 
   private static final YieldAndDiscountCurve GBP_L3 =
       new YieldCurve(GBP_L3_NAME,
-          new InterpolatedDoublesCurve(TIMES_2, RATES_2, LINEAR_FLAT, true, GBP_L3_NAME));
+          new InterpolatedDoublesCurve(TIMES_2, RATES_2_2, LINEAR_FLAT, true, GBP_L3_NAME));
 
   private static final YieldAndDiscountCurve GBP_L6 =
       new YieldCurve(GBP_L6_NAME,
-          new InterpolatedDoublesCurve(TIMES_3, RATES_3, LINEAR_FLAT, true, GBP_L6_NAME));
+          new InterpolatedDoublesCurve(TIMES_3, RATES_3_2, LINEAR_FLAT, true, GBP_L6_NAME));
   private static final Map<Currency, YieldAndDiscountCurve> GBP_MULTI_CCY_MAP = new HashMap<>();
   static {
     GBP_MULTI_CCY_MAP.put(GBP, GBP_DSC);
@@ -133,8 +145,31 @@ public class RatesProviderDataSets {
     GBP_MULTI_IND_MAP.put(GBP_LIBOR_3M, GBP_L3);
     GBP_MULTI_IND_MAP.put(GBP_LIBOR_6M, GBP_L6);
   }
-  public static final ImmutableRatesProvider GBP_MULTI = ImmutableRatesProvider.builder().fxMatrix(FX_MATRIX_GBP)
+  public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder().fxMatrix(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP).indexCurves(GBP_MULTI_IND_MAP).valuationDate(LocalDate.of(2013, 1, 2))
+      .dayCount(ACT_360).build();
+  
+  //     =====     GBP + USD      =====        
+
+  private static final FxMatrix FX_MATRIX_GBP_USD =
+      FxMatrix.builder().addRate(GBP, USD, 1.50).build();
+  
+  private static final Map<Currency, YieldAndDiscountCurve> GBP_USD_MULTI_CCY_MAP = new HashMap<>();
+  static {
+    GBP_USD_MULTI_CCY_MAP.put(GBP, GBP_DSC);
+    GBP_USD_MULTI_CCY_MAP.put(USD, USD_DSC);
+  }
+  private static final Map<Index, YieldAndDiscountCurve> GBP_USD_MULTI_IND_MAP = new HashMap<>();
+  static {
+    GBP_USD_MULTI_IND_MAP.put(GBP_SONIA, GBP_DSC);
+    GBP_USD_MULTI_IND_MAP.put(GBP_LIBOR_3M, GBP_L3);
+    GBP_USD_MULTI_IND_MAP.put(GBP_LIBOR_6M, GBP_L6);
+    GBP_USD_MULTI_IND_MAP.put(USD_FED_FUND, USD_DSC);
+    GBP_USD_MULTI_IND_MAP.put(USD_LIBOR_3M, USD_L3);
+    GBP_USD_MULTI_IND_MAP.put(USD_LIBOR_6M, USD_L6);
+  }
+  public static final ImmutableRatesProvider MULTI_GBP_USD = ImmutableRatesProvider.builder().fxMatrix(FX_MATRIX_GBP_USD)
+      .discountCurves(GBP_USD_MULTI_CCY_MAP).indexCurves(GBP_USD_MULTI_IND_MAP).valuationDate(LocalDate.of(2013, 1, 2))
       .dayCount(ACT_360).build();
 
 }

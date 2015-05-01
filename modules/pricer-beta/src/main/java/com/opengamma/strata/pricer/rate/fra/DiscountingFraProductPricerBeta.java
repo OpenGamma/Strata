@@ -9,8 +9,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

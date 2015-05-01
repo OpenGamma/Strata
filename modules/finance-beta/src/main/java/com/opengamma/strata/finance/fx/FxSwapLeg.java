@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -30,7 +29,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -71,22 +69,6 @@ public final class FxSwapLeg
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate valueDate;
-  /**
-   * The adjustment to apply to the value date to calculate the base currency payment date.
-   * <p>
-   * If this is specified, the payment date of the base currency amount will be adjusted.
-   * If this is not specified, no adjustment occurs, and the value date is used.
-   */
-  @PropertyDefinition(get = "optional")
-  private final DaysAdjustment baseCurrencyDateAdjustment;
-  /**
-   * The adjustment to apply to the value date to calculate the counter currency payment date.
-   * <p>
-   * If this is specified, the payment date of the counter currency amount will be adjusted.
-   * If this is not specified, no adjustment occurs, and the value date is used.
-   */
-  @PropertyDefinition(get = "optional")
-  private final DaysAdjustment counterCurrencyDateAdjustment;
 
   //-------------------------------------------------------------------------
   /**
@@ -109,9 +91,9 @@ public final class FxSwapLeg
   public static FxSwapLeg of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
     CurrencyPair pair = CurrencyPair.of(amount1.getCurrency(), amount2.getCurrency());
     if (pair.isConventional()) {
-      return new FxSwapLeg(amount2, amount1, valueDate, null, null);
+      return new FxSwapLeg(amount2, amount1, valueDate);
     } else {
-      return new FxSwapLeg(amount1, amount2, valueDate, null, null);
+      return new FxSwapLeg(amount1, amount2, valueDate);
     }
   }
 
@@ -173,13 +155,9 @@ public final class FxSwapLeg
    * @return the expanded form
    */
   ExpandedFx expand() {
-    LocalDate basePaymentDate =
-        (baseCurrencyDateAdjustment != null ? baseCurrencyDateAdjustment.adjust(valueDate) : valueDate);
-    LocalDate counterPaymentDate =
-        (counterCurrencyDateAdjustment != null ? counterCurrencyDateAdjustment.adjust(valueDate) : valueDate);
     return ExpandedFx.of(
-        FxPayment.of(basePaymentDate, baseCurrencyAmount),
-        FxPayment.of(counterPaymentDate, counterCurrencyAmount),
+        FxPayment.of(valueDate, baseCurrencyAmount),
+        FxPayment.of(valueDate, counterCurrencyAmount),
         valueDate);
   }
 
@@ -205,17 +183,13 @@ public final class FxSwapLeg
   private FxSwapLeg(
       CurrencyAmount baseCurrencyAmount,
       CurrencyAmount counterCurrencyAmount,
-      LocalDate valueDate,
-      DaysAdjustment baseCurrencyDateAdjustment,
-      DaysAdjustment counterCurrencyDateAdjustment) {
+      LocalDate valueDate) {
     JodaBeanUtils.notNull(baseCurrencyAmount, "baseCurrencyAmount");
     JodaBeanUtils.notNull(counterCurrencyAmount, "counterCurrencyAmount");
     JodaBeanUtils.notNull(valueDate, "valueDate");
     this.baseCurrencyAmount = baseCurrencyAmount;
     this.counterCurrencyAmount = counterCurrencyAmount;
     this.valueDate = valueDate;
-    this.baseCurrencyDateAdjustment = baseCurrencyDateAdjustment;
-    this.counterCurrencyDateAdjustment = counterCurrencyDateAdjustment;
     validate();
   }
 
@@ -273,30 +247,6 @@ public final class FxSwapLeg
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the adjustment to apply to the value date to calculate the base currency payment date.
-   * <p>
-   * If this is specified, the payment date of the base currency amount will be adjusted.
-   * If this is not specified, no adjustment occurs, and the value date is used.
-   * @return the optional value of the property, not null
-   */
-  public Optional<DaysAdjustment> getBaseCurrencyDateAdjustment() {
-    return Optional.ofNullable(baseCurrencyDateAdjustment);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the adjustment to apply to the value date to calculate the counter currency payment date.
-   * <p>
-   * If this is specified, the payment date of the counter currency amount will be adjusted.
-   * If this is not specified, no adjustment occurs, and the value date is used.
-   * @return the optional value of the property, not null
-   */
-  public Optional<DaysAdjustment> getCounterCurrencyDateAdjustment() {
-    return Optional.ofNullable(counterCurrencyDateAdjustment);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -306,9 +256,7 @@ public final class FxSwapLeg
       FxSwapLeg other = (FxSwapLeg) obj;
       return JodaBeanUtils.equal(getBaseCurrencyAmount(), other.getBaseCurrencyAmount()) &&
           JodaBeanUtils.equal(getCounterCurrencyAmount(), other.getCounterCurrencyAmount()) &&
-          JodaBeanUtils.equal(getValueDate(), other.getValueDate()) &&
-          JodaBeanUtils.equal(baseCurrencyDateAdjustment, other.baseCurrencyDateAdjustment) &&
-          JodaBeanUtils.equal(counterCurrencyDateAdjustment, other.counterCurrencyDateAdjustment);
+          JodaBeanUtils.equal(getValueDate(), other.getValueDate());
     }
     return false;
   }
@@ -319,20 +267,16 @@ public final class FxSwapLeg
     hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyAmount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyAmount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getValueDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(baseCurrencyDateAdjustment);
-    hash = hash * 31 + JodaBeanUtils.hashCode(counterCurrencyDateAdjustment);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("FxSwapLeg{");
     buf.append("baseCurrencyAmount").append('=').append(getBaseCurrencyAmount()).append(',').append(' ');
     buf.append("counterCurrencyAmount").append('=').append(getCounterCurrencyAmount()).append(',').append(' ');
-    buf.append("valueDate").append('=').append(getValueDate()).append(',').append(' ');
-    buf.append("baseCurrencyDateAdjustment").append('=').append(baseCurrencyDateAdjustment).append(',').append(' ');
-    buf.append("counterCurrencyDateAdjustment").append('=').append(JodaBeanUtils.toString(counterCurrencyDateAdjustment));
+    buf.append("valueDate").append('=').append(JodaBeanUtils.toString(getValueDate()));
     buf.append('}');
     return buf.toString();
   }
@@ -363,25 +307,13 @@ public final class FxSwapLeg
     private final MetaProperty<LocalDate> valueDate = DirectMetaProperty.ofImmutable(
         this, "valueDate", FxSwapLeg.class, LocalDate.class);
     /**
-     * The meta-property for the {@code baseCurrencyDateAdjustment} property.
-     */
-    private final MetaProperty<DaysAdjustment> baseCurrencyDateAdjustment = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyDateAdjustment", FxSwapLeg.class, DaysAdjustment.class);
-    /**
-     * The meta-property for the {@code counterCurrencyDateAdjustment} property.
-     */
-    private final MetaProperty<DaysAdjustment> counterCurrencyDateAdjustment = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyDateAdjustment", FxSwapLeg.class, DaysAdjustment.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "baseCurrencyAmount",
         "counterCurrencyAmount",
-        "valueDate",
-        "baseCurrencyDateAdjustment",
-        "counterCurrencyDateAdjustment");
+        "valueDate");
 
     /**
      * Restricted constructor.
@@ -398,10 +330,6 @@ public final class FxSwapLeg
           return counterCurrencyAmount;
         case -766192449:  // valueDate
           return valueDate;
-        case 1765315165:  // baseCurrencyDateAdjustment
-          return baseCurrencyDateAdjustment;
-        case -503226552:  // counterCurrencyDateAdjustment
-          return counterCurrencyDateAdjustment;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -446,22 +374,6 @@ public final class FxSwapLeg
       return valueDate;
     }
 
-    /**
-     * The meta-property for the {@code baseCurrencyDateAdjustment} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DaysAdjustment> baseCurrencyDateAdjustment() {
-      return baseCurrencyDateAdjustment;
-    }
-
-    /**
-     * The meta-property for the {@code counterCurrencyDateAdjustment} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DaysAdjustment> counterCurrencyDateAdjustment() {
-      return counterCurrencyDateAdjustment;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -472,10 +384,6 @@ public final class FxSwapLeg
           return ((FxSwapLeg) bean).getCounterCurrencyAmount();
         case -766192449:  // valueDate
           return ((FxSwapLeg) bean).getValueDate();
-        case 1765315165:  // baseCurrencyDateAdjustment
-          return ((FxSwapLeg) bean).baseCurrencyDateAdjustment;
-        case -503226552:  // counterCurrencyDateAdjustment
-          return ((FxSwapLeg) bean).counterCurrencyDateAdjustment;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -500,8 +408,6 @@ public final class FxSwapLeg
     private CurrencyAmount baseCurrencyAmount;
     private CurrencyAmount counterCurrencyAmount;
     private LocalDate valueDate;
-    private DaysAdjustment baseCurrencyDateAdjustment;
-    private DaysAdjustment counterCurrencyDateAdjustment;
 
     /**
      * Restricted constructor.
@@ -519,10 +425,6 @@ public final class FxSwapLeg
           return counterCurrencyAmount;
         case -766192449:  // valueDate
           return valueDate;
-        case 1765315165:  // baseCurrencyDateAdjustment
-          return baseCurrencyDateAdjustment;
-        case -503226552:  // counterCurrencyDateAdjustment
-          return counterCurrencyDateAdjustment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -539,12 +441,6 @@ public final class FxSwapLeg
           break;
         case -766192449:  // valueDate
           this.valueDate = (LocalDate) newValue;
-          break;
-        case 1765315165:  // baseCurrencyDateAdjustment
-          this.baseCurrencyDateAdjustment = (DaysAdjustment) newValue;
-          break;
-        case -503226552:  // counterCurrencyDateAdjustment
-          this.counterCurrencyDateAdjustment = (DaysAdjustment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -582,21 +478,17 @@ public final class FxSwapLeg
       return new FxSwapLeg(
           baseCurrencyAmount,
           counterCurrencyAmount,
-          valueDate,
-          baseCurrencyDateAdjustment,
-          counterCurrencyDateAdjustment);
+          valueDate);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("FxSwapLeg.Builder{");
       buf.append("baseCurrencyAmount").append('=').append(JodaBeanUtils.toString(baseCurrencyAmount)).append(',').append(' ');
       buf.append("counterCurrencyAmount").append('=').append(JodaBeanUtils.toString(counterCurrencyAmount)).append(',').append(' ');
-      buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate)).append(',').append(' ');
-      buf.append("baseCurrencyDateAdjustment").append('=').append(JodaBeanUtils.toString(baseCurrencyDateAdjustment)).append(',').append(' ');
-      buf.append("counterCurrencyDateAdjustment").append('=').append(JodaBeanUtils.toString(counterCurrencyDateAdjustment));
+      buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate));
       buf.append('}');
       return buf.toString();
     }

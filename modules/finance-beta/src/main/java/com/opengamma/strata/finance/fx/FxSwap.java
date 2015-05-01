@@ -93,7 +93,7 @@ public final class FxSwap
    * @param farDate  the far value date
    * @return the FX swap
    */
-  public FxSwap ofForwardPoints(
+  public static FxSwap ofForwardPoints(
       CurrencyAmount amountCurrency1,
       Currency currency2,
       double nearFxRate,
@@ -101,7 +101,7 @@ public final class FxSwap
       LocalDate nearDate,
       LocalDate farDate) {
 
-    ArgChecker.isTrue(amountCurrency1.getCurrency().equals(currency2), "Currencies must not be equal");
+    ArgChecker.isFalse(amountCurrency1.getCurrency().equals(currency2), "Currencies must not be equal");
     ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
     double farFxRate = nearFxRate + forwardPoints;
     FxSwapLeg nearLeg = FxSwapLeg.of(amountCurrency1, currency2, nearFxRate, nearDate);

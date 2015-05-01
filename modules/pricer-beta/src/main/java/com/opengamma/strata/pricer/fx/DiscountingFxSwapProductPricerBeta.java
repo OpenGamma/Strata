@@ -11,7 +11,7 @@ import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.FxProduct;
 import com.opengamma.strata.finance.fx.FxSwapProduct;
-import com.opengamma.strata.pricer.RatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
@@ -46,7 +46,9 @@ public class DiscountingFxSwapProductPricerBeta {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the present value by discounting each payment on each leg in its own currency.
+   * Calculates the present value.
+   * <p>
+   * This discounts each payment on each leg in its own currency.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -66,7 +68,9 @@ public class DiscountingFxSwapProductPricerBeta {
   }
 
   /**
-   * Computes the currency exposure by discounting each payment on each leg in its own currency.
+   * Calculates the currency exposure.
+   * <p>
+   * This discounts each payment on each leg in its own currency.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -77,7 +81,7 @@ public class DiscountingFxSwapProductPricerBeta {
   }
 
   /**
-   * The par spread is the spread that should be added to the forex forward points to have a zero value.
+   * Calculates the par spread is the spread that should be added to the forex forward points to have a zero value.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -100,7 +104,7 @@ public class DiscountingFxSwapProductPricerBeta {
 
   //-------------------------------------------------------------------------
   /**
-   * Compute the present value sensitivity to rates of a forex transaction.
+   * Calculates the present value sensitivity.
    * 
    * @param product  the product to price
    * @param provider  the rates provider

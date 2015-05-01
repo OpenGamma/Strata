@@ -33,8 +33,8 @@ import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.Legacy;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Calculates the par rate of a {@code FraTrade} for each of a set of scenarios.

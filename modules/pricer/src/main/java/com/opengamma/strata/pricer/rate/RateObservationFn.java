@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.RateObservation;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 

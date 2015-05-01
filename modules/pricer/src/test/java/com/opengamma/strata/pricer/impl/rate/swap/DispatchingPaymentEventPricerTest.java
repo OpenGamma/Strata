@@ -15,8 +15,8 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
-import com.opengamma.strata.pricer.RatesProvider;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
 
@@ -87,6 +87,20 @@ public class DispatchingPaymentEventPricerTest {
     PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
     DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
     assertThrowsIllegalArg(() -> test.futureValue(mockPaymentEvent, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueSensitivity_unknownType() {
+    PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
+    DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.presentValueSensitivity(mockPaymentEvent, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_futureValueSensitivity_unknownType() {
+    PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
+    DispatchingPaymentEventPricer test = DispatchingPaymentEventPricer.DEFAULT;
+    assertThrowsIllegalArg(() -> test.futureValueSensitivity(mockPaymentEvent, MOCK_PROV));
   }
 
 }
