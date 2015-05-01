@@ -115,7 +115,7 @@ public class IborRateCalculationTest {
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
     assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
     assertEquals(test.getInitialStub(), Optional.empty());
@@ -132,7 +132,7 @@ public class IborRateCalculationTest {
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
     assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
     assertEquals(test.getInitialStub(), Optional.empty());
@@ -145,14 +145,14 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .firstRegularRate(0.028d)
         .build();
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingOffset(), MINUS_TWO_DAYS);
+    assertEquals(test.getFixingDateOffset(), MINUS_TWO_DAYS);
     assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
     assertEquals(test.getFirstRegularRate(), OptionalDouble.of(0.028d));
     assertEquals(test.getInitialStub(), Optional.empty());
@@ -170,7 +170,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
@@ -181,7 +181,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .initialStub(StubCalculation.ofIborRate(GBP_LIBOR_1W))
         .finalStub(StubCalculation.ofIborRate(GBP_LIBOR_3M))
         .build();
@@ -194,7 +194,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .initialStub(StubCalculation.ofIborInterpolatedRate(GBP_LIBOR_1W, GBP_LIBOR_1M))
         .finalStub(StubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, GBP_LIBOR_1M))
         .build();
@@ -208,7 +208,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
@@ -230,7 +230,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_FINAL_STUB))
@@ -252,7 +252,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
@@ -274,7 +274,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
@@ -297,7 +297,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .initialStub(StubCalculation.ofIborRate(GBP_LIBOR_1W))
         .finalStub(StubCalculation.ofIborRate(GBP_LIBOR_3M))
         .build();
@@ -321,7 +321,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .initialStub(StubCalculation.ofIborInterpolatedRate(GBP_LIBOR_1W, GBP_LIBOR_1M))
         .finalStub(StubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, GBP_LIBOR_1M))
         .build();
@@ -346,7 +346,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .firstRegularRate(0.028d)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
@@ -369,7 +369,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .firstRegularRate(0.028d)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
@@ -392,7 +392,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_1M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .firstRegularRate(0.028d)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
@@ -416,7 +416,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
@@ -456,7 +456,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
@@ -497,7 +497,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
@@ -537,7 +537,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_360)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
@@ -576,7 +576,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_360)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_THREE_DAYS)
+        .fixingDateOffset(MINUS_THREE_DAYS)
         .fixingRelativeTo(PERIOD_END)
         .negativeRateMethod(NOT_NEGATIVE)
         .gearing(ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofAbsoluteAmount(2d))))
@@ -608,7 +608,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     Schedule schedule = Schedule.ofTerm(SchedulePeriod.of(DATE_01_05, DATE_02_05));
     assertThrowsIllegalArg(() -> test.expand(schedule, null));
@@ -621,7 +621,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     coverImmutableBean(test);
     IborRateCalculation test2 = IborRateCalculation.builder()
@@ -632,7 +632,7 @@ public class IborRateCalculationTest {
             .averagingMethod(IborRateAveragingMethod.UNWEIGHTED)
             .businessDayAdjustment(BusinessDayAdjustment.NONE)
             .build())
-        .fixingOffset(MINUS_THREE_DAYS)
+        .fixingDateOffset(MINUS_THREE_DAYS)
         .fixingRelativeTo(PERIOD_END)
         .negativeRateMethod(NOT_NEGATIVE)
         .firstRegularRate(0.028d)
@@ -648,7 +648,7 @@ public class IborRateCalculationTest {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
+        .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     assertSerialization(test);
   }

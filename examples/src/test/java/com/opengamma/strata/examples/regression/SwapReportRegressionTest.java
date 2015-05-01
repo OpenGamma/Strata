@@ -96,7 +96,7 @@ public class SwapReportRegressionTest {
 
     PaymentSchedule payment = PaymentSchedule.builder()
         .paymentFrequency(Frequency.P3M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
         .build();
 
     SwapLeg payLeg = RateCalculationSwapLeg.builder()

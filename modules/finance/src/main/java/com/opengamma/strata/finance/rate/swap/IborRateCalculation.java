@@ -122,7 +122,7 @@ public final class IborRateCalculation
    * When building, this will default to the fixing offset of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment fixingOffset;
+  private final DaysAdjustment fixingDateOffset;
   /**
    * The negative rate method, defaulted to 'AllowNegative'.
    * <p>
@@ -240,8 +240,8 @@ public final class IborRateCalculation
       if (builder.dayCount == null) {
         builder.dayCount = builder.index.getDayCount();
       }
-      if (builder.fixingOffset == null) {
-        builder.fixingOffset = builder.index.getFixingDateOffset();
+      if (builder.fixingDateOffset == null) {
+        builder.fixingDateOffset = builder.index.getFixingDateOffset();
       }
     }
   }
@@ -308,7 +308,7 @@ public final class IborRateCalculation
       Optional<SchedulePeriod> scheduleInitialStub,
       Optional<SchedulePeriod> scheduleFinalStub) {
 
-    LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(period));
+    LocalDate fixingDate = fixingDateOffset.adjust(fixingRelativeTo.selectBaseDate(period));
     // handle stubs
     if (scheduleInitialStub.isPresent() && scheduleInitialStub.get() == period) {
       return initialStub.createRateObservation(fixingDate, index);
@@ -340,7 +340,7 @@ public final class IborRateCalculation
     for (int i = 0; i < resetSchedule.size(); i++) {
       SchedulePeriod resetPeriod = resetSchedule.getPeriod(i);
       fixings.add(IborAveragedFixing.builder()
-          .fixingDate(fixingOffset.adjust(fixingRelativeTo.selectBaseDate(resetPeriod)))
+          .fixingDate(fixingDateOffset.adjust(fixingRelativeTo.selectBaseDate(resetPeriod)))
           .fixedRate(firstRegular && i == 0 ? firstRegularRate : null)
           .weight(resetPeriods.getAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
@@ -389,7 +389,7 @@ public final class IborRateCalculation
       IborIndex index,
       ResetSchedule resetPeriods,
       FixingRelativeTo fixingRelativeTo,
-      DaysAdjustment fixingOffset,
+      DaysAdjustment fixingDateOffset,
       NegativeRateMethod negativeRateMethod,
       Double firstRegularRate,
       StubCalculation initialStub,
@@ -399,13 +399,13 @@ public final class IborRateCalculation
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(fixingRelativeTo, "fixingRelativeTo");
-    JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
+    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
     JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
     this.dayCount = dayCount;
     this.index = index;
     this.resetPeriods = resetPeriods;
     this.fixingRelativeTo = fixingRelativeTo;
-    this.fixingOffset = fixingOffset;
+    this.fixingDateOffset = fixingDateOffset;
     this.negativeRateMethod = negativeRateMethod;
     this.firstRegularRate = firstRegularRate;
     this.initialStub = initialStub;
@@ -497,8 +497,8 @@ public final class IborRateCalculation
    * When building, this will default to the fixing offset of the index if not specified.
    * @return the value of the property, not null
    */
-  public DaysAdjustment getFixingOffset() {
-    return fixingOffset;
+  public DaysAdjustment getFixingDateOffset() {
+    return fixingDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -631,7 +631,7 @@ public final class IborRateCalculation
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(resetPeriods, other.resetPeriods) &&
           JodaBeanUtils.equal(getFixingRelativeTo(), other.getFixingRelativeTo()) &&
-          JodaBeanUtils.equal(getFixingOffset(), other.getFixingOffset()) &&
+          JodaBeanUtils.equal(getFixingDateOffset(), other.getFixingDateOffset()) &&
           JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
           JodaBeanUtils.equal(firstRegularRate, other.firstRegularRate) &&
           JodaBeanUtils.equal(initialStub, other.initialStub) &&
@@ -649,7 +649,7 @@ public final class IborRateCalculation
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(resetPeriods);
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixingRelativeTo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
     hash = hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
     hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(initialStub);
@@ -667,7 +667,7 @@ public final class IborRateCalculation
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("resetPeriods").append('=').append(resetPeriods).append(',').append(' ');
     buf.append("fixingRelativeTo").append('=').append(getFixingRelativeTo()).append(',').append(' ');
-    buf.append("fixingOffset").append('=').append(getFixingOffset()).append(',').append(' ');
+    buf.append("fixingDateOffset").append('=').append(getFixingDateOffset()).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
     buf.append("firstRegularRate").append('=').append(firstRegularRate).append(',').append(' ');
     buf.append("initialStub").append('=').append(initialStub).append(',').append(' ');
@@ -709,10 +709,10 @@ public final class IborRateCalculation
     private final MetaProperty<FixingRelativeTo> fixingRelativeTo = DirectMetaProperty.ofImmutable(
         this, "fixingRelativeTo", IborRateCalculation.class, FixingRelativeTo.class);
     /**
-     * The meta-property for the {@code fixingOffset} property.
+     * The meta-property for the {@code fixingDateOffset} property.
      */
-    private final MetaProperty<DaysAdjustment> fixingOffset = DirectMetaProperty.ofImmutable(
-        this, "fixingOffset", IborRateCalculation.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
+        this, "fixingDateOffset", IborRateCalculation.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code negativeRateMethod} property.
      */
@@ -752,7 +752,7 @@ public final class IborRateCalculation
         "index",
         "resetPeriods",
         "fixingRelativeTo",
-        "fixingOffset",
+        "fixingDateOffset",
         "negativeRateMethod",
         "firstRegularRate",
         "initialStub",
@@ -777,8 +777,8 @@ public final class IborRateCalculation
           return resetPeriods;
         case 232554996:  // fixingRelativeTo
           return fixingRelativeTo;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         case 1969081334:  // negativeRateMethod
           return negativeRateMethod;
         case 570227148:  // firstRegularRate
@@ -844,11 +844,11 @@ public final class IborRateCalculation
     }
 
     /**
-     * The meta-property for the {@code fixingOffset} property.
+     * The meta-property for the {@code fixingDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> fixingOffset() {
-      return fixingOffset;
+    public MetaProperty<DaysAdjustment> fixingDateOffset() {
+      return fixingDateOffset;
     }
 
     /**
@@ -911,8 +911,8 @@ public final class IborRateCalculation
           return ((IborRateCalculation) bean).resetPeriods;
         case 232554996:  // fixingRelativeTo
           return ((IborRateCalculation) bean).getFixingRelativeTo();
-        case -317508960:  // fixingOffset
-          return ((IborRateCalculation) bean).getFixingOffset();
+        case 873743726:  // fixingDateOffset
+          return ((IborRateCalculation) bean).getFixingDateOffset();
         case 1969081334:  // negativeRateMethod
           return ((IborRateCalculation) bean).getNegativeRateMethod();
         case 570227148:  // firstRegularRate
@@ -950,7 +950,7 @@ public final class IborRateCalculation
     private IborIndex index;
     private ResetSchedule resetPeriods;
     private FixingRelativeTo fixingRelativeTo;
-    private DaysAdjustment fixingOffset;
+    private DaysAdjustment fixingDateOffset;
     private NegativeRateMethod negativeRateMethod;
     private Double firstRegularRate;
     private StubCalculation initialStub;
@@ -974,7 +974,7 @@ public final class IborRateCalculation
       this.index = beanToCopy.getIndex();
       this.resetPeriods = beanToCopy.resetPeriods;
       this.fixingRelativeTo = beanToCopy.getFixingRelativeTo();
-      this.fixingOffset = beanToCopy.getFixingOffset();
+      this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
       this.firstRegularRate = beanToCopy.firstRegularRate;
       this.initialStub = beanToCopy.initialStub;
@@ -995,8 +995,8 @@ public final class IborRateCalculation
           return resetPeriods;
         case 232554996:  // fixingRelativeTo
           return fixingRelativeTo;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         case 1969081334:  // negativeRateMethod
           return negativeRateMethod;
         case 570227148:  // firstRegularRate
@@ -1029,8 +1029,8 @@ public final class IborRateCalculation
         case 232554996:  // fixingRelativeTo
           this.fixingRelativeTo = (FixingRelativeTo) newValue;
           break;
-        case -317508960:  // fixingOffset
-          this.fixingOffset = (DaysAdjustment) newValue;
+        case 873743726:  // fixingDateOffset
+          this.fixingDateOffset = (DaysAdjustment) newValue;
           break;
         case 1969081334:  // negativeRateMethod
           this.negativeRateMethod = (NegativeRateMethod) newValue;
@@ -1088,7 +1088,7 @@ public final class IborRateCalculation
           index,
           resetPeriods,
           fixingRelativeTo,
-          fixingOffset,
+          fixingDateOffset,
           negativeRateMethod,
           firstRegularRate,
           initialStub,
@@ -1142,13 +1142,13 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code fixingOffset} property in the builder.
-     * @param fixingOffset  the new value, not null
+     * Sets the {@code fixingDateOffset} property in the builder.
+     * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingOffset(DaysAdjustment fixingOffset) {
-      JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
-      this.fixingOffset = fixingOffset;
+    public Builder fixingDateOffset(DaysAdjustment fixingDateOffset) {
+      JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
+      this.fixingDateOffset = fixingDateOffset;
       return this;
     }
 
@@ -1222,7 +1222,7 @@ public final class IborRateCalculation
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("resetPeriods").append('=').append(JodaBeanUtils.toString(resetPeriods)).append(',').append(' ');
       buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
-      buf.append("fixingOffset").append('=').append(JodaBeanUtils.toString(fixingOffset)).append(',').append(' ');
+      buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
       buf.append("firstRegularRate").append('=').append(JodaBeanUtils.toString(firstRegularRate)).append(',').append(' ');
       buf.append("initialStub").append('=').append(JodaBeanUtils.toString(initialStub)).append(',').append(' ');

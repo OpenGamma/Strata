@@ -87,7 +87,7 @@ public final class FxResetCalculation
    * The offset is typically a negative number of business days.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment fixingOffset;
+  private final DaysAdjustment fixingDateOffset;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -114,7 +114,7 @@ public final class FxResetCalculation
    * @return the expanded reset
    */
   public FxReset applyToPeriod(SchedulePeriod period) {
-    LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(period));
+    LocalDate fixingDate = fixingDateOffset.adjust(fixingRelativeTo.selectBaseDate(period));
     return FxReset.of(index, referenceCurrency, fixingDate);
   }
 
@@ -149,15 +149,15 @@ public final class FxResetCalculation
       FxIndex index,
       Currency referenceCurrency,
       FxResetFixingRelativeTo fixingRelativeTo,
-      DaysAdjustment fixingOffset) {
+      DaysAdjustment fixingDateOffset) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(referenceCurrency, "referenceCurrency");
     JodaBeanUtils.notNull(fixingRelativeTo, "fixingRelativeTo");
-    JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
+    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
     this.index = index;
     this.referenceCurrency = referenceCurrency;
     this.fixingRelativeTo = fixingRelativeTo;
-    this.fixingOffset = fixingOffset;
+    this.fixingDateOffset = fixingDateOffset;
     validate();
   }
 
@@ -226,8 +226,8 @@ public final class FxResetCalculation
    * The offset is typically a negative number of business days.
    * @return the value of the property, not null
    */
-  public DaysAdjustment getFixingOffset() {
-    return fixingOffset;
+  public DaysAdjustment getFixingDateOffset() {
+    return fixingDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -249,7 +249,7 @@ public final class FxResetCalculation
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getReferenceCurrency(), other.getReferenceCurrency()) &&
           JodaBeanUtils.equal(getFixingRelativeTo(), other.getFixingRelativeTo()) &&
-          JodaBeanUtils.equal(getFixingOffset(), other.getFixingOffset());
+          JodaBeanUtils.equal(getFixingDateOffset(), other.getFixingDateOffset());
     }
     return false;
   }
@@ -260,7 +260,7 @@ public final class FxResetCalculation
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixingRelativeTo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
     return hash;
   }
 
@@ -271,7 +271,7 @@ public final class FxResetCalculation
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("referenceCurrency").append('=').append(getReferenceCurrency()).append(',').append(' ');
     buf.append("fixingRelativeTo").append('=').append(getFixingRelativeTo()).append(',').append(' ');
-    buf.append("fixingOffset").append('=').append(JodaBeanUtils.toString(getFixingOffset()));
+    buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(getFixingDateOffset()));
     buf.append('}');
     return buf.toString();
   }
@@ -302,10 +302,10 @@ public final class FxResetCalculation
     private final MetaProperty<FxResetFixingRelativeTo> fixingRelativeTo = DirectMetaProperty.ofImmutable(
         this, "fixingRelativeTo", FxResetCalculation.class, FxResetFixingRelativeTo.class);
     /**
-     * The meta-property for the {@code fixingOffset} property.
+     * The meta-property for the {@code fixingDateOffset} property.
      */
-    private final MetaProperty<DaysAdjustment> fixingOffset = DirectMetaProperty.ofImmutable(
-        this, "fixingOffset", FxResetCalculation.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
+        this, "fixingDateOffset", FxResetCalculation.class, DaysAdjustment.class);
     /**
      * The meta-properties.
      */
@@ -314,7 +314,7 @@ public final class FxResetCalculation
         "index",
         "referenceCurrency",
         "fixingRelativeTo",
-        "fixingOffset");
+        "fixingDateOffset");
 
     /**
      * Restricted constructor.
@@ -331,8 +331,8 @@ public final class FxResetCalculation
           return referenceCurrency;
         case 232554996:  // fixingRelativeTo
           return fixingRelativeTo;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -378,11 +378,11 @@ public final class FxResetCalculation
     }
 
     /**
-     * The meta-property for the {@code fixingOffset} property.
+     * The meta-property for the {@code fixingDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> fixingOffset() {
-      return fixingOffset;
+    public MetaProperty<DaysAdjustment> fixingDateOffset() {
+      return fixingDateOffset;
     }
 
     //-----------------------------------------------------------------------
@@ -395,8 +395,8 @@ public final class FxResetCalculation
           return ((FxResetCalculation) bean).getReferenceCurrency();
         case 232554996:  // fixingRelativeTo
           return ((FxResetCalculation) bean).getFixingRelativeTo();
-        case -317508960:  // fixingOffset
-          return ((FxResetCalculation) bean).getFixingOffset();
+        case 873743726:  // fixingDateOffset
+          return ((FxResetCalculation) bean).getFixingDateOffset();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -421,7 +421,7 @@ public final class FxResetCalculation
     private FxIndex index;
     private Currency referenceCurrency;
     private FxResetFixingRelativeTo fixingRelativeTo;
-    private DaysAdjustment fixingOffset;
+    private DaysAdjustment fixingDateOffset;
 
     /**
      * Restricted constructor.
@@ -438,7 +438,7 @@ public final class FxResetCalculation
       this.index = beanToCopy.getIndex();
       this.referenceCurrency = beanToCopy.getReferenceCurrency();
       this.fixingRelativeTo = beanToCopy.getFixingRelativeTo();
-      this.fixingOffset = beanToCopy.getFixingOffset();
+      this.fixingDateOffset = beanToCopy.getFixingDateOffset();
     }
 
     //-----------------------------------------------------------------------
@@ -451,8 +451,8 @@ public final class FxResetCalculation
           return referenceCurrency;
         case 232554996:  // fixingRelativeTo
           return fixingRelativeTo;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -470,8 +470,8 @@ public final class FxResetCalculation
         case 232554996:  // fixingRelativeTo
           this.fixingRelativeTo = (FxResetFixingRelativeTo) newValue;
           break;
-        case -317508960:  // fixingOffset
-          this.fixingOffset = (DaysAdjustment) newValue;
+        case 873743726:  // fixingDateOffset
+          this.fixingDateOffset = (DaysAdjustment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -509,7 +509,7 @@ public final class FxResetCalculation
           index,
           referenceCurrency,
           fixingRelativeTo,
-          fixingOffset);
+          fixingDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -547,13 +547,13 @@ public final class FxResetCalculation
     }
 
     /**
-     * Sets the {@code fixingOffset} property in the builder.
-     * @param fixingOffset  the new value, not null
+     * Sets the {@code fixingDateOffset} property in the builder.
+     * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingOffset(DaysAdjustment fixingOffset) {
-      JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
-      this.fixingOffset = fixingOffset;
+    public Builder fixingDateOffset(DaysAdjustment fixingDateOffset) {
+      JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
+      this.fixingDateOffset = fixingDateOffset;
       return this;
     }
 
@@ -565,7 +565,7 @@ public final class FxResetCalculation
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency)).append(',').append(' ');
       buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
-      buf.append("fixingOffset").append('=').append(JodaBeanUtils.toString(fixingOffset));
+      buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset));
       buf.append('}');
       return buf.toString();
     }
