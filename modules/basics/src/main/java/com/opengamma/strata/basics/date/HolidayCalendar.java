@@ -117,6 +117,7 @@ public interface HolidayCalendar
   /**
    * Shifts the date by the specified number of business days.
    * <p>
+   * If the amount is zero, the input date is returned.
    * If the amount is positive, later business days are chosen.
    * If the amount is negative, earlier business days are chosen.
    * 
