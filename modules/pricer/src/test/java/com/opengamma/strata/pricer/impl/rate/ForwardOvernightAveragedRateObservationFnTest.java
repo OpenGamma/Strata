@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
@@ -12,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,12 +22,24 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
 /**
  * Test {@link ForwardOvernightAveragedRateObservationFn}.
@@ -259,6 +273,79 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
     for (int i = 0; i < sensitivityExpected.length; ++i) {
       assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+    }
+  }
+
+  private static final YieldCurve ON_INDEX_CURVE;
+  static {
+    CombinedInterpolatorExtrapolator interp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    double[] time = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+    double[] rate = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135 };
+    InterpolatedDoublesCurve curve_usd = InterpolatedDoublesCurve.from(time, rate, interp);
+    ON_INDEX_CURVE = new YieldCurve("ON", curve_usd);
+  }
+  private static LocalDateDoubleTimeSeriesBuilder TIME_SERIES_BUILDER = LocalDateDoubleTimeSeries.builder();
+  static {
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      TIME_SERIES_BUILDER.put(FIXING_DATES[i], FIXING_RATES[i]);
+    }
+  }
+  private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
+      new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
+
+  /** Test parameter sensitivity with finite difference sensitivity calculator. Two days cutoff period. */
+  @Test
+  public void rateFedFundTwoDaysCutoffParameterSensitivity() {
+    LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8) };
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+          .valuationDate(valuationDate[loopvaldate])
+          .indexCurves(ImmutableMap.of(USD_FED_FUND, ON_INDEX_CURVE))
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
+
+      PointSensitivityBuilder sensitivityBuilderComputed =
+          obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
+    CurveParameterSensitivity parameterSensitivityComputed =
+        prov.parameterSensitivity(sensitivityBuilderComputed.build());
+
+    CurveParameterSensitivity parameterSensitivityExpected =
+        CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
+            obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
+    assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
+    }
+  }
+
+  /** Test parameter sensitivity with finite difference sensitivity calculator. No cutoff period. */
+  @Test
+  public void rateChfNoCutOffParameterSensitivity() {
+    LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8) };
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+          .valuationDate(valuationDate[loopvaldate])
+          .indexCurves(ImmutableMap.of(CHF_TOIS, ON_INDEX_CURVE))
+          .timeSeries(ImmutableMap.of(CHF_TOIS, TIME_SERIES_BUILDER.build()))
+          .dayCount(ACT_ACT_ISDA)
+          .build();
+      OvernightAveragedRateObservation ro =
+          OvernightAveragedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
+      ForwardOvernightAveragedRateObservationFn obsFn = ForwardOvernightAveragedRateObservationFn.DEFAULT;
+
+      PointSensitivityBuilder sensitivityBuilderComputed =
+          obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
+      CurveParameterSensitivity parameterSensitivityComputed =
+          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+
+      CurveParameterSensitivity parameterSensitivityExpected =
+          CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(CHF_TOIS.getCurrency(),
+              obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
+      assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
     }
   }
 
