@@ -5,13 +5,10 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
@@ -73,111 +70,8 @@ class MarketDataNode {
       BaseMarketData suppliedData,
       Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
 
-    return MarketDataNode.root(children(requirements, suppliedData, builders));
-  }
-
-  /**
-   * Returns child nodes representing the dependencies of an item of market data.
-   *
-   * @param requirements  the market data requirements for which nodes will be built
-   * @param suppliedData  the market data supplied by the user
-   * @param builders  builders for market data, keyed by the type of market data ID they can handle
-   * @return child nodes representing the dependencies of an item of market data
-   */
-  private static List<MarketDataNode> children(
-      MarketDataRequirements requirements,
-      BaseMarketData suppliedData,
-      Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
-
-    List<MarketDataNode> observableNodes =
-        buildNodes(requirements.getObservables(), DataType.SINGLE_VALUE, suppliedData, builders);
-
-    List<MarketDataNode> nonObservableNodes =
-        buildNodes(requirements.getNonObservables(), DataType.SINGLE_VALUE, suppliedData, builders);
-
-    List<MarketDataNode> timeSeriesNodes =
-        buildNodes(requirements.getTimeSeries(), DataType.TIME_SERIES, suppliedData, builders);
-
-      return ImmutableList.<MarketDataNode>builder()
-              .addAll(observableNodes)
-              .addAll(nonObservableNodes)
-              .addAll(timeSeriesNodes)
-              .build();
-  }
-
-  /**
-   * Builds nodes for a set of market data IDs.
-   *
-   * @param ids  the IDs
-   * @param dataType  the type of data represented by the IDs, either single values or time series of values
-   * @param suppliedData  the set of market data supplied by the user
-   * @param builders  builders for building market data
-   * @return market data nodes for the IDs
-   */
-  private static List<MarketDataNode> buildNodes(
-      Set<? extends MarketDataId<?>> ids,
-      DataType dataType,
-      BaseMarketData suppliedData,
-      Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
-
-    return ids.stream()
-        .map(id -> buildNode(id, dataType, suppliedData, builders))
-        .collect(toImmutableList());
-  }
-
-  /**
-   * Builds a node for a market data ID.
-   *
-   * @param id  the ID
-   * @param dataType  the type of data represented by the ID, either a single value or a time series of values
-   * @param suppliedData  the set of market data supplied by the user
-   * @param builders  builders for building market data
-   * @return a market data node for the ID
-   */
-  private static MarketDataNode buildNode(
-      MarketDataId<?> id,
-      DataType dataType,
-      BaseMarketData suppliedData,
-      Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
-
-    // Observable data has special handling and is guaranteed to have a builder.
-    // Supplied data definitely has no dependencies because it already exists and doesn't need to be built.
-    if (id instanceof ObservableId || isSupplied(id, dataType, suppliedData)) {
-      return MarketDataNode.leaf(id, dataType);
-    }
-    // Find the builder that can build the data identified by the ID
-    MarketDataBuilder builder = builders.get(id.getClass());
-
-    if (builder != null) {
-      @SuppressWarnings("unchecked")
-      MarketDataRequirements requirements = builder.requirements(id);
-      return MarketDataNode.child(id, dataType, children(requirements, suppliedData, builders));
-    } else {
-      // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
-      return MarketDataNode.leaf(id, dataType);
-    }
-  }
-
-  /**
-   * Returns true if the market data identified by the ID and data type is present in the supplied data.
-   *
-   * @param id  an ID identifying market data
-   * @param dataType  the data type of the market data, either a single value or a time series of values
-   * @return true if the market data identified by the ID and data type is present in the supplied data
-   */
-  private static boolean isSupplied(
-      MarketDataId<?> id,
-      DataType dataType,
-      BaseMarketData suppliedData) {
-
-    switch (dataType) {
-      case TIME_SERIES:
-        return (id instanceof ObservableId) && suppliedData.containsTimeSeries((ObservableId) id);
-      case SINGLE_VALUE:
-        return suppliedData.containsValue(id);
-      default:
-        throw new IllegalArgumentException("Unexpected data type " + dataType);
-    }
+    DependencyTreeBuilder treeBuilder = DependencyTreeBuilder.of(suppliedData, requirements, builders);
+    return MarketDataNode.root(treeBuilder.childNodes());
   }
 
   /**
