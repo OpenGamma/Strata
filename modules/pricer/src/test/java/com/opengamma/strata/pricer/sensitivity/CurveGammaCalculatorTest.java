@@ -2,16 +2,17 @@
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
- */package com.opengamma.strata.pricer.sensitivity;
+ */
+package com.opengamma.strata.pricer.sensitivity;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -46,31 +47,36 @@ import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
+/**
+ * Test {@link CurveGammaCalculator}.
+ */
+@Test
 public class CurveGammaCalculatorTest {
 
-  /* Data */
+  // Data
   private static final ImmutableRatesProvider SINGLE = RatesProviderDataSets.USD_SINGLE;
-  /* Conventions */
+  // Conventions
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, USNY);
-  /* Instrument */
+  // Instrument
   private static final Swap SWAP = swapUsd(LocalDate.of(2016, 6, 30), LocalDate.of(2022, 6, 30), RECEIVE,
       NotionalSchedule.of(USD, 10_000_000), 0.01);
-  /* Calculators and pricers */
+  // Calculators and pricers
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
   private static final double FD_SHIFT = 1.0E-5;
-  private static final CurveGammaCalculator GAMMA_CAL = 
+  private static final CurveGammaCalculator GAMMA_CAL =
       new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, FD_SHIFT);
-  /* Constants */
+  // Constants
   private static final double TOLERANCE_GAMMA = 1.0E+1;
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void semiParallelGamma() {
+  public void semiParallelGammaValue() {
     ImmutableMap<Currency, YieldAndDiscountCurve> dsc = SINGLE.getDiscountCurves();
     ImmutableMap<Index, YieldAndDiscountCurve> fwd = SINGLE.getIndexCurves();
     // Check all curves are the same
     YieldAndDiscountCurve single = dsc.entrySet().iterator().next().getValue();
-    InterpolatedDoublesCurve curve = GAMMA_CAL.checkInterpolated(single);
+    InterpolatedDoublesCurve curve = CurveGammaCalculator.checkInterpolated(single);
     double[] y = curve.getYDataAsPrimitive();
     double[] x = curve.getXDataAsPrimitive();
     int nbNode = y.length;
@@ -107,21 +113,44 @@ public class CurveGammaCalculatorTest {
       assertEquals(gammaComputed[i], gammaExpected[i], TOLERANCE_GAMMA);
     }
   }
-  
 
-  
+  // Checks that difference finite difference types and shifts gives similar results.
+  public void semiParallelGammaCoherency() {
+    double toleranceCoherency = 1.0E+3;
+    CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
+    CurveGammaCalculator calculatorBackward5 = new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, FD_SHIFT);
+    CurveGammaCalculator calculatorCentral4 = new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-4);
+    double[] gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
+        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+    int nbNode = gammaCentral5.length;
+    double[] gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
+        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+    for (int i = 0; i < nbNode; i++) {
+      assertEquals(gammaForward5[i], gammaCentral5[i], toleranceCoherency);
+    }
+    double[] gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
+        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+    for (int i = 0; i < nbNode; i++) {
+      assertEquals(gammaForward5[i], gammaBackward5[i], toleranceCoherency);
+    }
+    double[] gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
+        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+    for (int i = 0; i < nbNode; i++) {
+      assertEquals(gammaForward5[i], gammaCentral4[i], toleranceCoherency);
+    }
+  }
+
   //-------------------------------------------------------------------------
   // swap USD standard conventions- TODO: replace by a template when available
-  private static Swap swapUsd(LocalDate start, LocalDate end, PayReceive payReceive, 
+  private static Swap swapUsd(LocalDate start, LocalDate end, PayReceive payReceive,
       NotionalSchedule notional, double fixedRate) {
-    RateCalculationSwapLeg fixedLeg = 
+    RateCalculationSwapLeg fixedLeg =
         fixedLeg(start, end, Frequency.P6M, payReceive, notional, fixedRate, StubConvention.SHORT_INITIAL);
-    RateCalculationSwapLeg iborLeg = 
-        iborLeg(start, end, USD_LIBOR_3M, (payReceive==PAY)?RECEIVE:PAY, notional, StubConvention.SHORT_INITIAL);
+    RateCalculationSwapLeg iborLeg =
+        iborLeg(start, end, USD_LIBOR_3M, (payReceive == PAY) ? RECEIVE : PAY, notional, StubConvention.SHORT_INITIAL);
     return Swap.of(fixedLeg, iborLeg);
   }
-  
-  
+
   // fixed rate leg
   private static RateCalculationSwapLeg fixedLeg(
       LocalDate start, LocalDate end, Frequency frequency,
@@ -147,7 +176,7 @@ public class CurveGammaCalculatorTest {
             .build())
         .build();
   }
-  
+
   // fixed rate leg
   private static RateCalculationSwapLeg iborLeg(
       LocalDate start, LocalDate end, IborIndex index,
@@ -174,5 +203,5 @@ public class CurveGammaCalculatorTest {
             .build())
         .build();
   }
-  
+
 }
