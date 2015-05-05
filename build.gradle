@@ -13,6 +13,7 @@ ext {
 subprojects {
     apply plugin: "java"
     apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
+    apply plugin: "checkstyle"
 
     compileJava {
         sourceCompatibility = "1.8"
@@ -38,6 +39,15 @@ subprojects {
 	artifacts {
 		archives sourcesJar
 	}
+
+    checkstyle {
+        String checkstyleConfiguration = this.class.getResource("/checkstyle/checkstyle.xml").text
+        config = resources.text.fromString(checkstyleConfiguration)
+        ignoreFailures = true
+        showViolations = false
+    }
+    checkstyleMain.exclude('**/org/fpml/**')
+    checkstyleMain.exclude('**/org/w3/**')
 }
 
 allprojects {
@@ -54,4 +64,23 @@ allprojects {
 			}
 		}
 	}
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/public"
+        }
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+    }
+    dependencies {
+        classpath "com.opengamma.tools:build-tools:1.2.2"
+    }
 }
