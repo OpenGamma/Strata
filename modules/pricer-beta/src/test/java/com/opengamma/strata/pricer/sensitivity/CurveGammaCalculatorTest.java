@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -57,13 +58,14 @@ public class CurveGammaCalculatorTest {
       NotionalSchedule.of(USD, 10_000_000), 0.01);
   /* Calculators and pricers */
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
-  private static final CurveGammaCalculator GAMMA_CAL = CurveGammaCalculator.DEFAULT;
+  private static final double FD_SHIFT = 1.0E-5;
+  private static final CurveGammaCalculator GAMMA_CAL = 
+      new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, FD_SHIFT);
   /* Constants */
-  private static final double TOLERANCE_GAMMA = 1.0E+3;
+  private static final double TOLERANCE_GAMMA = 1.0E+1;
   
   @Test
   public void semiParallelGamma() {
-    double shift = 1.0E-5;
     ImmutableMap<Currency, YieldAndDiscountCurve> dsc = SINGLE.getDiscountCurves();
     ImmutableMap<Index, YieldAndDiscountCurve> fwd = SINGLE.getIndexCurves();
     // Check all curves are the same
@@ -76,12 +78,12 @@ public class CurveGammaCalculatorTest {
     for (int i = 0; i < nbNode; i++) {
       double[][][] yBumped = new double[2][2][nbNode];
       double[][] pv = new double[2][2];
-      for(int pmi = 0; pmi<2; pmi++ ) {
-        for(int pmP = 0; pmP<2; pmP++ ) {
+      for (int pmi = 0; pmi < 2; pmi++) {
+        for (int pmP = 0; pmP < 2; pmP++) {
           yBumped[pmi][pmP] = y.clone();
-          yBumped[pmi][pmP][i] += (pmi == 0?1.0:-1.0)*shift;
-          for(int j=0; j<nbNode; j++) {
-            yBumped[pmi][pmP][j] += (pmP == 0?1.0:-1.0)*shift;
+          yBumped[pmi][pmP][i] += (pmi == 0 ? 1.0 : -1.0) * FD_SHIFT;
+          for (int j = 0; j < nbNode; j++) {
+            yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
           YieldAndDiscountCurve curveBumped = new YieldCurve(curve.getName(),
               new InterpolatedDoublesCurve(x, yBumped[pmi][pmP], curve.getInterpolator(), true));
@@ -97,7 +99,7 @@ public class CurveGammaCalculatorTest {
           pv[pmi][pmP] = PRICER_SWAP.presentValue(SWAP, providerBumped).getAmount(USD).getAmount();
         }
       }
-      gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * shift * shift);
+      gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
     }
     double[] gammaComputed = GAMMA_CAL.calculateSemiParallelGamma(SINGLE,
         (p) -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());

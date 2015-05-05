@@ -25,13 +25,12 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
- * Computes the cross-gamma to the rate curves parameters for rates provider.
+ * Computes the cross-gamma and related figures to the rate curves parameters for rates provider.
  * <p>
- * All the curves in the provider with all the curves in the same currency.
+ * All the curves in the provider should be in the same currency.
  * The curves should be represented by a YieldCurve with an InterpolatedDoublesCurve on the zero-coupon rates.
- * By default the gamma is computed using a one basis-point shift. This default can be change in a constructor.
+ * By default the gamma is computed using a one basis-point shift and a forward finite difference.
  * The results themselves are not scaled (they represent the second order derivative).
- * Note that currently, the calculator will work only if the same curve is not used for two indexes.
  * <p> Reference: Interest Rate Cross-gamma for Single and Multiple Curves. OpenGamma quantitative research 15, July 14
  */
 public class CurveGammaCalculator {
@@ -39,16 +38,23 @@ public class CurveGammaCalculator {
   /** Default size of bump: 1 basis point. */
   private static final double BP1 = 1.0E-4;
 
-  public static final CurveGammaCalculator DEFAULT = new CurveGammaCalculator(BP1);
+  /** The default instance. Finite difference is forward and the shift is 1 basis point). **/
+  public static final CurveGammaCalculator DEFAULT = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, BP1);
   
+  /** The first order finite difference calculator. **/
   private final VectorFieldFirstOrderDifferentiator fd;
 
-  public CurveGammaCalculator(double shift) {
-    this.fd = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, shift);
+  /**
+   * Constructor.
+   * @param fdType The finite difference type.
+   * @param shift The shift to be applied to the curves.
+   */
+  public CurveGammaCalculator(FiniteDifferenceType fdType, double shift) {
+    this.fd = new VectorFieldFirstOrderDifferentiator(fdType, shift);
   }
   
   /**
-   * Computes the gamma "sum-of-column" or "semi-parallel gamma" for a given instrument. 
+   * Computes the "sum-of-column gamma" or "semi-parallel gamma" for a sensitivity function.
    * <p>
    * See the documentation for the definition.
    * The curve provider should contain only one curve which should be of the 
@@ -56,7 +62,7 @@ public class CurveGammaCalculator {
    * 
    * @param provider  the rate provider
    * @param sensitivitiesFn  the function from a rate provider to the point sensitivities
-   * @return The gamma "sum-of-columns" vector.
+   * @return The "sum-of-columns" or "semi-parallel" gamma vector.
    */
   public double[] calculateSemiParallelGamma(
       ImmutableRatesProvider provider,
@@ -132,7 +138,7 @@ public class CurveGammaCalculator {
     }
   }
 
-  // check that the curve is yield curve and the underlying is an InterpolatedDoublesCurve and returns the last
+  // check that the curve is yield curve and the underlying is an InterpolatedDoublesCurve and returns the latter
   InterpolatedDoublesCurve checkInterpolated(YieldAndDiscountCurve curve) {
     ArgChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
     YieldCurve curveYield = (YieldCurve) curve;
