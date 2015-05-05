@@ -6,8 +6,6 @@
 package com.opengamma.strata.finance.rate.fra;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -17,9 +15,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 
@@ -31,17 +26,13 @@ public class FraTradeTest {
 
   private static final double NOTIONAL_1M = 1_000_000d;
   private static final double NOTIONAL_2M = 2_000_000d;
-  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
-  private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
   private static final Fra FRA1 = Fra.builder()
       .buySell(BUY)
-      .paymentDate(AdjustableDate.of(date(2015, 6, 16), BDA_MOD_FOLLOW))
+      .notional(NOTIONAL_1M)
       .startDate(date(2015, 6, 15))
       .endDate(date(2015, 9, 15))
       .fixedRate(0.25d)
       .index(GBP_LIBOR_3M)
-      .fixingOffset(MINUS_TWO_DAYS)
-      .notional(NOTIONAL_1M)
       .build();
   private static final Fra FRA2 = FRA1.toBuilder().notional(NOTIONAL_2M).build();
 

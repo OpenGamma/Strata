@@ -80,7 +80,7 @@ public class SwapTradeModelDemo {
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.P6M)
         .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
@@ -136,7 +136,7 @@ public class SwapTradeModelDemo {
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.P6M)
         .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
         .build();
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
     // - in this simple case the notional is 1 million GBP and does not change
@@ -155,7 +155,7 @@ public class SwapTradeModelDemo {
             .dayCount(DayCounts.ACT_ACT_ISDA)
             .index(IborIndices.GBP_LIBOR_6M)
             .fixingRelativeTo(FixingRelativeTo.PERIOD_START)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.GBLO))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.GBLO))
             .build())
         .build();
     // an ExpandedSwapLeg has all the dates of the cash flows
@@ -184,7 +184,7 @@ public class SwapTradeModelDemo {
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P3M)
-            .paymentOffset(DaysAdjustment.NONE)
+            .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.builder()
             .currency(Currency.USD)
@@ -207,7 +207,7 @@ public class SwapTradeModelDemo {
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P3M)
-            .paymentOffset(DaysAdjustment.NONE)
+            .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.builder()
             .currency(Currency.USD)
@@ -216,7 +216,7 @@ public class SwapTradeModelDemo {
         .calculation(IborRateCalculation.builder()
             .dayCount(DayCounts.ACT_360)
             .index(IborIndices.USD_LIBOR_3M)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY))
             .build())
         .build();
     // a SwapTrade combines the two legs

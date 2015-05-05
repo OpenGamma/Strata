@@ -5,11 +5,8 @@
  */
 package com.opengamma.strata.finance.rate.fra;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -23,9 +20,6 @@ import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 
 /**
@@ -36,8 +30,6 @@ public class ExpandedFraTest {
 
   private static final double NOTIONAL_1M = 1_000_000d;
   private static final double NOTIONAL_2M = 2_000_000d;
-  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
-  private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -64,15 +56,13 @@ public class ExpandedFraTest {
   }
 
   public void test_builder_datesInOrder() {
-    assertThrowsIllegalArg(() -> Fra.builder()
-        .buySell(BUY)
-        .paymentDate(AdjustableDate.of(date(2015, 6, 16), BDA_MOD_FOLLOW))
+    assertThrowsIllegalArg(() -> ExpandedFra.builder()
+        .notional(NOTIONAL_1M)
+        .paymentDate(date(2015, 6, 15))
         .startDate(date(2015, 6, 15))
         .endDate(date(2015, 6, 14))
         .fixedRate(0.25d)
-        .index(GBP_LIBOR_3M)
-        .fixingOffset(MINUS_TWO_DAYS)
-        .notional(NOTIONAL_1M)
+        .floatingRate(IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 12)))
         .build());
   }
 

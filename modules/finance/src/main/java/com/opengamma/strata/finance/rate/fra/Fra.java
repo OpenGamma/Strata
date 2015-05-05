@@ -33,7 +33,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -51,6 +50,14 @@ import com.opengamma.strata.finance.rate.RateObservation;
  * <p>
  * For example, a FRA might involve an agreement to exchange the difference between
  * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate in 2 months time.
+ * <p>
+ * The FRA is defined by four dates.
+ * <ul>
+ * <li>Start date, the date on which the implied deposit starts
+ * <li>End date, the date on which the implied deposit ends
+ * <li>Fixing date, the date on which the index is to be observed,  typically 2 business days before the start date
+ * <li>Payment date, the date on which payment is made, typically the same as the start date
+ * </ul>
  */
 @BeanDefinition
 public final class Fra
@@ -66,20 +73,30 @@ public final class Fra
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
   /**
-   * The date that payment occurs.
+   * The primary currency, defaulted to the currency of the index.
    * <p>
-   * The date that payment is made when settling the FRA with support for business day adjustments.
+   * This is the currency of the FRA and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
    * <p>
-   * When building, this will default to the start date if not specified.
+   * When building, this will default to the currency of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
-  private final AdjustableDate paymentDate;
+  private final Currency currency;
+  /**
+   * The notional amount.
+   * <p>
+   * The notional expressed here must be positive.
+   * The currency of the notional is specified by {@code currency}.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double notional;
   /**
    * The start date, which is the effective date of the FRA.
    * <p>
    * This is the first date that interest accrues.
    * <p>
-   * This date is typically set to be a valid business day
+   * This date is typically set to be a valid business day.
    * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    */
   @PropertyDefinition(validate = "notNull")
@@ -90,7 +107,7 @@ public final class Fra
    * This is the last day that interest accrues.
    * This date must be after the start date.
    * <p>
-   * This date is typically set to be a valid business day
+   * This date is typically set to be a valid business day.
    * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    */
   @PropertyDefinition(validate = "notNull")
@@ -105,16 +122,14 @@ public final class Fra
   @PropertyDefinition(get = "optional")
   private final BusinessDayAdjustment businessDayAdjustment;
   /**
-   * The day count convention applicable, defaulted to the day count of the index.
+   * The offset of the payment date from the start date, optional.
    * <p>
-   * This is used to convert dates to a numerical value.
-   * The data model permits the day count to differ from that of the index,
-   * however the two are typically the same.
-   * <p>
-   * When building, this will default to the day count of the index if not specified.
+   * Defines the offset from the start date to the payment date.
+   * If this optional property is present, then the offset will be applied to the start to obtain the payment date.
+   * In most cases, the payment date is the same as the start date, so this property is empty.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final DayCount dayCount;
+  @PropertyDefinition(get = "optional")
+  private final DaysAdjustment paymentDateOffset;
   /**
    * The fixed rate of interest.
    * A 5% rate will be expressed as 0.05.
@@ -146,34 +161,25 @@ public final class Fra
   /**
    * The offset of the fixing date from the start date.
    * <p>
-   * The offset is applied to the start date of the FRA.
-   * The offset is typically a negative number of business days.
-   * The data model permits the fixing offset to differ from that of the index,
+   * The offset is applied to the start date and is typically minus 2 business days.
+   * The data model permits the offset to differ from that of the index,
    * however the two are typically the same.
    * <p>
-   * When building, this will default to the fixing offset of the index if not specified.
+   * When building, this will default to the fixing date offset of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment fixingOffset;
+  private final DaysAdjustment fixingDateOffset;
   /**
-   * The primary currency, defaulted to the currency of the index.
+   * The day count convention applicable, defaulted to the day count of the index.
    * <p>
-   * This is the currency of the FRA and the currency that payment is made in.
-   * The data model permits this currency to differ from that of the index,
+   * This is used to convert dates to a numerical value.
+   * The data model permits the day count to differ from that of the index,
    * however the two are typically the same.
    * <p>
-   * When building, this will default to the currency of the index if not specified.
+   * When building, this will default to the day count of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Currency currency;
-  /**
-   * The notional amount.
-   * <p>
-   * The notional expressed here must be positive.
-   * The currency of the notional is specified by {@code currency}.
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double notional;
+  private final DayCount dayCount;
   /**
    * The method to use for discounting, defaulted to 'ISDA' or 'AFMA'.
    * <p>
@@ -193,8 +199,8 @@ public final class Fra
       if (builder.dayCount == null) {
         builder.dayCount = builder.index.getDayCount();
       }
-      if (builder.fixingOffset == null) {
-        builder.fixingOffset = builder.index.getFixingDateOffset();
+      if (builder.fixingDateOffset == null) {
+        builder.fixingDateOffset = builder.index.getFixingDateOffset();
       }
       if (builder.currency == null) {
         builder.currency = builder.index.getCurrency();
@@ -203,9 +209,6 @@ public final class Fra
         Currency curr = builder.index.getCurrency();
         builder.discounting = (curr.equals(AUD) || curr.equals(NZD) ? AFMA : ISDA);
       }
-    }
-    if (builder.paymentDate == null && builder.startDate != null) {
-      builder.paymentDate = AdjustableDate.of(builder.startDate);
     }
   }
 
@@ -231,8 +234,9 @@ public final class Fra
   public ExpandedFra expand() {
     LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
     LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
+    LocalDate payment = getPaymentDateOffset().orElse(DaysAdjustment.NONE).adjust(start);
     return ExpandedFra.builder()
-        .paymentDate(paymentDate.adjusted())
+        .paymentDate(payment)
         .startDate(start)
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))
@@ -246,7 +250,7 @@ public final class Fra
 
   // creates an Ibor or IborInterpolated observation
   private RateObservation createRateObservation() {
-    LocalDate fixingDate = fixingOffset.adjust(startDate);
+    LocalDate fixingDate = fixingDateOffset.adjust(startDate);
     if (indexInterpolated != null) {
       return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);
     } else {
@@ -283,40 +287,39 @@ public final class Fra
 
   private Fra(
       BuySell buySell,
-      AdjustableDate paymentDate,
+      Currency currency,
+      double notional,
       LocalDate startDate,
       LocalDate endDate,
       BusinessDayAdjustment businessDayAdjustment,
-      DayCount dayCount,
+      DaysAdjustment paymentDateOffset,
       double fixedRate,
       IborIndex index,
       IborIndex indexInterpolated,
-      DaysAdjustment fixingOffset,
-      Currency currency,
-      double notional,
+      DaysAdjustment fixingDateOffset,
+      DayCount dayCount,
       FraDiscountingMethod discounting) {
     JodaBeanUtils.notNull(buySell, "buySell");
-    JodaBeanUtils.notNull(paymentDate, "paymentDate");
-    JodaBeanUtils.notNull(startDate, "startDate");
-    JodaBeanUtils.notNull(endDate, "endDate");
-    JodaBeanUtils.notNull(dayCount, "dayCount");
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegative(notional, "notional");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(discounting, "discounting");
     this.buySell = buySell;
-    this.paymentDate = paymentDate;
+    this.currency = currency;
+    this.notional = notional;
     this.startDate = startDate;
     this.endDate = endDate;
     this.businessDayAdjustment = businessDayAdjustment;
-    this.dayCount = dayCount;
+    this.paymentDateOffset = paymentDateOffset;
     this.fixedRate = fixedRate;
     this.index = index;
     this.indexInterpolated = indexInterpolated;
-    this.fixingOffset = fixingOffset;
-    this.currency = currency;
-    this.notional = notional;
+    this.fixingDateOffset = fixingDateOffset;
+    this.dayCount = dayCount;
     this.discounting = discounting;
     validate();
   }
@@ -351,15 +354,29 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date that payment occurs.
+   * Gets the primary currency, defaulted to the currency of the index.
    * <p>
-   * The date that payment is made when settling the FRA with support for business day adjustments.
+   * This is the currency of the FRA and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
    * <p>
-   * When building, this will default to the start date if not specified.
+   * When building, this will default to the currency of the index if not specified.
    * @return the value of the property, not null
    */
-  public AdjustableDate getPaymentDate() {
-    return paymentDate;
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount.
+   * <p>
+   * The notional expressed here must be positive.
+   * The currency of the notional is specified by {@code currency}.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return notional;
   }
 
   //-----------------------------------------------------------------------
@@ -368,7 +385,7 @@ public final class Fra
    * <p>
    * This is the first date that interest accrues.
    * <p>
-   * This date is typically set to be a valid business day
+   * This date is typically set to be a valid business day.
    * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    * @return the value of the property, not null
    */
@@ -383,7 +400,7 @@ public final class Fra
    * This is the last day that interest accrues.
    * This date must be after the start date.
    * <p>
-   * This date is typically set to be a valid business day
+   * This date is typically set to be a valid business day.
    * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    * @return the value of the property, not null
    */
@@ -406,17 +423,15 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention applicable, defaulted to the day count of the index.
+   * Gets the offset of the payment date from the start date, optional.
    * <p>
-   * This is used to convert dates to a numerical value.
-   * The data model permits the day count to differ from that of the index,
-   * however the two are typically the same.
-   * <p>
-   * When building, this will default to the day count of the index if not specified.
-   * @return the value of the property, not null
+   * Defines the offset from the start date to the payment date.
+   * If this optional property is present, then the offset will be applied to the start to obtain the payment date.
+   * In most cases, the payment date is the same as the start date, so this property is empty.
+   * @return the optional value of the property, not null
    */
-  public DayCount getDayCount() {
-    return dayCount;
+  public Optional<DaysAdjustment> getPaymentDateOffset() {
+    return Optional.ofNullable(paymentDateOffset);
   }
 
   //-----------------------------------------------------------------------
@@ -463,43 +478,30 @@ public final class Fra
   /**
    * Gets the offset of the fixing date from the start date.
    * <p>
-   * The offset is applied to the start date of the FRA.
-   * The offset is typically a negative number of business days.
-   * The data model permits the fixing offset to differ from that of the index,
+   * The offset is applied to the start date and is typically minus 2 business days.
+   * The data model permits the offset to differ from that of the index,
    * however the two are typically the same.
    * <p>
-   * When building, this will default to the fixing offset of the index if not specified.
+   * When building, this will default to the fixing date offset of the index if not specified.
    * @return the value of the property, not null
    */
-  public DaysAdjustment getFixingOffset() {
-    return fixingOffset;
+  public DaysAdjustment getFixingDateOffset() {
+    return fixingDateOffset;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary currency, defaulted to the currency of the index.
+   * Gets the day count convention applicable, defaulted to the day count of the index.
    * <p>
-   * This is the currency of the FRA and the currency that payment is made in.
-   * The data model permits this currency to differ from that of the index,
+   * This is used to convert dates to a numerical value.
+   * The data model permits the day count to differ from that of the index,
    * however the two are typically the same.
    * <p>
-   * When building, this will default to the currency of the index if not specified.
+   * When building, this will default to the day count of the index if not specified.
    * @return the value of the property, not null
    */
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the notional amount.
-   * <p>
-   * The notional expressed here must be positive.
-   * The currency of the notional is specified by {@code currency}.
-   * @return the value of the property
-   */
-  public double getNotional() {
-    return notional;
+  public DayCount getDayCount() {
+    return dayCount;
   }
 
   //-----------------------------------------------------------------------
@@ -534,17 +536,17 @@ public final class Fra
     if (obj != null && obj.getClass() == this.getClass()) {
       Fra other = (Fra) obj;
       return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(indexInterpolated, other.indexInterpolated) &&
-          JodaBeanUtils.equal(getFixingOffset(), other.getFixingOffset()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getFixingDateOffset(), other.getFixingDateOffset()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getDiscounting(), other.getDiscounting());
     }
     return false;
@@ -554,17 +556,17 @@ public final class Fra
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(indexInterpolated);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingOffset());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDiscounting());
     return hash;
   }
@@ -574,17 +576,17 @@ public final class Fra
     StringBuilder buf = new StringBuilder(448);
     buf.append("Fra{");
     buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("indexInterpolated").append('=').append(indexInterpolated).append(',').append(' ');
-    buf.append("fixingOffset").append('=').append(getFixingOffset()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
+    buf.append("fixingDateOffset").append('=').append(getFixingDateOffset()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("discounting").append('=').append(JodaBeanUtils.toString(getDiscounting()));
     buf.append('}');
     return buf.toString();
@@ -606,10 +608,15 @@ public final class Fra
     private final MetaProperty<BuySell> buySell = DirectMetaProperty.ofImmutable(
         this, "buySell", Fra.class, BuySell.class);
     /**
-     * The meta-property for the {@code paymentDate} property.
+     * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<AdjustableDate> paymentDate = DirectMetaProperty.ofImmutable(
-        this, "paymentDate", Fra.class, AdjustableDate.class);
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", Fra.class, Currency.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", Fra.class, Double.TYPE);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -626,10 +633,10 @@ public final class Fra
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "businessDayAdjustment", Fra.class, BusinessDayAdjustment.class);
     /**
-     * The meta-property for the {@code dayCount} property.
+     * The meta-property for the {@code paymentDateOffset} property.
      */
-    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", Fra.class, DayCount.class);
+    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
+        this, "paymentDateOffset", Fra.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -646,20 +653,15 @@ public final class Fra
     private final MetaProperty<IborIndex> indexInterpolated = DirectMetaProperty.ofImmutable(
         this, "indexInterpolated", Fra.class, IborIndex.class);
     /**
-     * The meta-property for the {@code fixingOffset} property.
+     * The meta-property for the {@code fixingDateOffset} property.
      */
-    private final MetaProperty<DaysAdjustment> fixingOffset = DirectMetaProperty.ofImmutable(
-        this, "fixingOffset", Fra.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
+        this, "fixingDateOffset", Fra.class, DaysAdjustment.class);
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code dayCount} property.
      */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", Fra.class, Currency.class);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", Fra.class, Double.TYPE);
+    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
+        this, "dayCount", Fra.class, DayCount.class);
     /**
      * The meta-property for the {@code discounting} property.
      */
@@ -671,17 +673,17 @@ public final class Fra
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "buySell",
-        "paymentDate",
+        "currency",
+        "notional",
         "startDate",
         "endDate",
         "businessDayAdjustment",
-        "dayCount",
+        "paymentDateOffset",
         "fixedRate",
         "index",
         "indexInterpolated",
-        "fixingOffset",
-        "currency",
-        "notional",
+        "fixingDateOffset",
+        "dayCount",
         "discounting");
 
     /**
@@ -695,28 +697,28 @@ public final class Fra
       switch (propertyName.hashCode()) {
         case 244977400:  // buySell
           return buySell;
-        case -1540873516:  // paymentDate
-          return paymentDate;
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
-        case 1905311443:  // dayCount
-          return dayCount;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
         case 747425396:  // fixedRate
           return fixedRate;
         case 100346066:  // index
           return index;
         case -1934091915:  // indexInterpolated
           return indexInterpolated;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
-        case 575402001:  // currency
-          return currency;
-        case 1585636160:  // notional
-          return notional;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
+        case 1905311443:  // dayCount
+          return dayCount;
         case -536441087:  // discounting
           return discounting;
       }
@@ -748,11 +750,19 @@ public final class Fra
     }
 
     /**
-     * The meta-property for the {@code paymentDate} property.
+     * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<AdjustableDate> paymentDate() {
-      return paymentDate;
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> notional() {
+      return notional;
     }
 
     /**
@@ -780,11 +790,11 @@ public final class Fra
     }
 
     /**
-     * The meta-property for the {@code dayCount} property.
+     * The meta-property for the {@code paymentDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DayCount> dayCount() {
-      return dayCount;
+    public MetaProperty<DaysAdjustment> paymentDateOffset() {
+      return paymentDateOffset;
     }
 
     /**
@@ -812,27 +822,19 @@ public final class Fra
     }
 
     /**
-     * The meta-property for the {@code fixingOffset} property.
+     * The meta-property for the {@code fixingDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> fixingOffset() {
-      return fixingOffset;
+    public MetaProperty<DaysAdjustment> fixingDateOffset() {
+      return fixingDateOffset;
     }
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> notional() {
-      return notional;
+    public MetaProperty<DayCount> dayCount() {
+      return dayCount;
     }
 
     /**
@@ -849,28 +851,28 @@ public final class Fra
       switch (propertyName.hashCode()) {
         case 244977400:  // buySell
           return ((Fra) bean).getBuySell();
-        case -1540873516:  // paymentDate
-          return ((Fra) bean).getPaymentDate();
+        case 575402001:  // currency
+          return ((Fra) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((Fra) bean).getNotional();
         case -2129778896:  // startDate
           return ((Fra) bean).getStartDate();
         case -1607727319:  // endDate
           return ((Fra) bean).getEndDate();
         case -1065319863:  // businessDayAdjustment
           return ((Fra) bean).businessDayAdjustment;
-        case 1905311443:  // dayCount
-          return ((Fra) bean).getDayCount();
+        case -716438393:  // paymentDateOffset
+          return ((Fra) bean).paymentDateOffset;
         case 747425396:  // fixedRate
           return ((Fra) bean).getFixedRate();
         case 100346066:  // index
           return ((Fra) bean).getIndex();
         case -1934091915:  // indexInterpolated
           return ((Fra) bean).indexInterpolated;
-        case -317508960:  // fixingOffset
-          return ((Fra) bean).getFixingOffset();
-        case 575402001:  // currency
-          return ((Fra) bean).getCurrency();
-        case 1585636160:  // notional
-          return ((Fra) bean).getNotional();
+        case 873743726:  // fixingDateOffset
+          return ((Fra) bean).getFixingDateOffset();
+        case 1905311443:  // dayCount
+          return ((Fra) bean).getDayCount();
         case -536441087:  // discounting
           return ((Fra) bean).getDiscounting();
       }
@@ -895,17 +897,17 @@ public final class Fra
   public static final class Builder extends DirectFieldsBeanBuilder<Fra> {
 
     private BuySell buySell;
-    private AdjustableDate paymentDate;
+    private Currency currency;
+    private double notional;
     private LocalDate startDate;
     private LocalDate endDate;
     private BusinessDayAdjustment businessDayAdjustment;
-    private DayCount dayCount;
+    private DaysAdjustment paymentDateOffset;
     private double fixedRate;
     private IborIndex index;
     private IborIndex indexInterpolated;
-    private DaysAdjustment fixingOffset;
-    private Currency currency;
-    private double notional;
+    private DaysAdjustment fixingDateOffset;
+    private DayCount dayCount;
     private FraDiscountingMethod discounting;
 
     /**
@@ -920,17 +922,17 @@ public final class Fra
      */
     private Builder(Fra beanToCopy) {
       this.buySell = beanToCopy.getBuySell();
-      this.paymentDate = beanToCopy.getPaymentDate();
+      this.currency = beanToCopy.getCurrency();
+      this.notional = beanToCopy.getNotional();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
-      this.dayCount = beanToCopy.getDayCount();
+      this.paymentDateOffset = beanToCopy.paymentDateOffset;
       this.fixedRate = beanToCopy.getFixedRate();
       this.index = beanToCopy.getIndex();
       this.indexInterpolated = beanToCopy.indexInterpolated;
-      this.fixingOffset = beanToCopy.getFixingOffset();
-      this.currency = beanToCopy.getCurrency();
-      this.notional = beanToCopy.getNotional();
+      this.fixingDateOffset = beanToCopy.getFixingDateOffset();
+      this.dayCount = beanToCopy.getDayCount();
       this.discounting = beanToCopy.getDiscounting();
     }
 
@@ -940,28 +942,28 @@ public final class Fra
       switch (propertyName.hashCode()) {
         case 244977400:  // buySell
           return buySell;
-        case -1540873516:  // paymentDate
-          return paymentDate;
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
-        case 1905311443:  // dayCount
-          return dayCount;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
         case 747425396:  // fixedRate
           return fixedRate;
         case 100346066:  // index
           return index;
         case -1934091915:  // indexInterpolated
           return indexInterpolated;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
-        case 575402001:  // currency
-          return currency;
-        case 1585636160:  // notional
-          return notional;
+        case 873743726:  // fixingDateOffset
+          return fixingDateOffset;
+        case 1905311443:  // dayCount
+          return dayCount;
         case -536441087:  // discounting
           return discounting;
         default:
@@ -975,8 +977,11 @@ public final class Fra
         case 244977400:  // buySell
           this.buySell = (BuySell) newValue;
           break;
-        case -1540873516:  // paymentDate
-          this.paymentDate = (AdjustableDate) newValue;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
           break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
@@ -987,8 +992,8 @@ public final class Fra
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
-        case 1905311443:  // dayCount
-          this.dayCount = (DayCount) newValue;
+        case -716438393:  // paymentDateOffset
+          this.paymentDateOffset = (DaysAdjustment) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -999,14 +1004,11 @@ public final class Fra
         case -1934091915:  // indexInterpolated
           this.indexInterpolated = (IborIndex) newValue;
           break;
-        case -317508960:  // fixingOffset
-          this.fixingOffset = (DaysAdjustment) newValue;
+        case 873743726:  // fixingDateOffset
+          this.fixingDateOffset = (DaysAdjustment) newValue;
           break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
-        case 1585636160:  // notional
-          this.notional = (Double) newValue;
+        case 1905311443:  // dayCount
+          this.dayCount = (DayCount) newValue;
           break;
         case -536441087:  // discounting
           this.discounting = (FraDiscountingMethod) newValue;
@@ -1046,17 +1048,17 @@ public final class Fra
       preBuild(this);
       return new Fra(
           buySell,
-          paymentDate,
+          currency,
+          notional,
           startDate,
           endDate,
           businessDayAdjustment,
-          dayCount,
+          paymentDateOffset,
           fixedRate,
           index,
           indexInterpolated,
-          fixingOffset,
-          currency,
-          notional,
+          fixingDateOffset,
+          dayCount,
           discounting);
     }
 
@@ -1073,13 +1075,24 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code paymentDate} property in the builder.
-     * @param paymentDate  the new value, not null
+     * Sets the {@code currency} property in the builder.
+     * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentDate(AdjustableDate paymentDate) {
-      JodaBeanUtils.notNull(paymentDate, "paymentDate");
-      this.paymentDate = paymentDate;
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      ArgChecker.notNegative(notional, "notional");
+      this.notional = notional;
       return this;
     }
 
@@ -1116,13 +1129,12 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
-     * @param dayCount  the new value, not null
+     * Sets the {@code paymentDateOffset} property in the builder.
+     * @param paymentDateOffset  the new value
      * @return this, for chaining, not null
      */
-    public Builder dayCount(DayCount dayCount) {
-      JodaBeanUtils.notNull(dayCount, "dayCount");
-      this.dayCount = dayCount;
+    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
+      this.paymentDateOffset = paymentDateOffset;
       return this;
     }
 
@@ -1158,35 +1170,24 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code fixingOffset} property in the builder.
-     * @param fixingOffset  the new value, not null
+     * Sets the {@code fixingDateOffset} property in the builder.
+     * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingOffset(DaysAdjustment fixingOffset) {
-      JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
-      this.fixingOffset = fixingOffset;
+    public Builder fixingDateOffset(DaysAdjustment fixingDateOffset) {
+      JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
+      this.fixingDateOffset = fixingDateOffset;
       return this;
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value, not null
+     * Sets the {@code dayCount} property in the builder.
+     * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code notional} property in the builder.
-     * @param notional  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
-      this.notional = notional;
+    public Builder dayCount(DayCount dayCount) {
+      JodaBeanUtils.notNull(dayCount, "dayCount");
+      this.dayCount = dayCount;
       return this;
     }
 
@@ -1207,17 +1208,17 @@ public final class Fra
       StringBuilder buf = new StringBuilder(448);
       buf.append("Fra.Builder{");
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
-      buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated)).append(',').append(' ');
-      buf.append("fixingOffset").append('=').append(JodaBeanUtils.toString(fixingOffset)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("discounting").append('=').append(JodaBeanUtils.toString(discounting));
       buf.append('}');
       return buf.toString();

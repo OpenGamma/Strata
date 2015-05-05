@@ -70,7 +70,7 @@ public class NotionalScheduleTest {
     FxResetCalculation fxReset = FxResetCalculation.builder()
         .referenceCurrency(GBP)
         .index(WM_GBP_USD)
-        .fixingOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+        .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
         .build();
     NotionalSchedule test = NotionalSchedule.builder()
         .currency(USD)
@@ -92,7 +92,7 @@ public class NotionalScheduleTest {
         .fxReset(FxResetCalculation.builder()
             .referenceCurrency(USD)
             .index(WM_GBP_USD)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build());
     assertThrowsIllegalArg(() -> NotionalSchedule.builder()
@@ -101,7 +101,7 @@ public class NotionalScheduleTest {
         .fxReset(FxResetCalculation.builder()
             .referenceCurrency(USD)
             .index(WM_GBP_USD)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build());
   }
@@ -124,7 +124,7 @@ public class NotionalScheduleTest {
         .fxReset(FxResetCalculation.builder()
             .referenceCurrency(GBP)
             .index(WM_GBP_USD)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .initialExchange(true)
         .intermediateExchange(true)

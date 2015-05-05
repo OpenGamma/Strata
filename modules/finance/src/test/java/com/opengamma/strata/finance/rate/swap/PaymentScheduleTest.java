@@ -88,10 +88,10 @@ public class PaymentScheduleTest {
   public void test_builder_ensureDefaults() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     assertEquals(test.getPaymentFrequency(), P1M);
-    assertEquals(test.getPaymentOffset(), DaysAdjustment.ofBusinessDays(2, GBLO));
+    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.ofBusinessDays(2, GBLO));
     assertEquals(test.getPaymentRelativeTo(), PERIOD_END);
     assertEquals(test.getCompoundingMethod(), NONE);
   }
@@ -100,7 +100,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_sameFrequency() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
     assertEquals(schedule, ACCRUAL_SCHEDULE);
@@ -109,7 +109,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_singleAccrualPeriod() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_SINGLE);
     assertEquals(schedule, ACCRUAL_SCHEDULE_SINGLE);
@@ -118,7 +118,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_term() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(TERM)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
     assertEquals(schedule, ACCRUAL_SCHEDULE_TERM);
@@ -127,7 +127,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_fullMerge() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
     Schedule expected = Schedule.builder()
@@ -141,7 +141,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_partMergeForwards() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
     Schedule expected = Schedule.builder()
@@ -157,7 +157,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_initialStubPartMergeBackwards() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_INITIAL_STUB);
     Schedule expected = Schedule.builder()
@@ -174,7 +174,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_finalStubFullMerge() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_FINAL_STUB);
     Schedule expected = Schedule.builder()
@@ -190,7 +190,7 @@ public class PaymentScheduleTest {
   public void test_createSchedule_dualStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_STUBS);
     assertEquals(schedule, ACCRUAL_SCHEDULE_STUBS.toBuilder().frequency(P2M).build());
@@ -200,12 +200,12 @@ public class PaymentScheduleTest {
   public void coverage() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     coverImmutableBean(test);
     PaymentSchedule test2 = PaymentSchedule.builder()
         .paymentFrequency(P3M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
         .paymentRelativeTo(PERIOD_START)
         .compoundingMethod(STRAIGHT)
         .build();
@@ -215,7 +215,7 @@ public class PaymentScheduleTest {
   public void test_serialization() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)
-        .paymentOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     assertSerialization(test);
   }

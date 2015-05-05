@@ -78,7 +78,7 @@ public final class PaymentSchedule
    * Offset can be based on calendar days or business days.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment paymentOffset;
+  private final DaysAdjustment paymentDateOffset;
   /**
    * The compounding method to use when there is more than one accrual period, defaulted to 'None'.
    * <p>
@@ -182,7 +182,7 @@ public final class PaymentSchedule
       NotionalSchedule notionalAmount,
       double notional) {
     return RatePaymentPeriod.builder()
-        .paymentDate(paymentOffset.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod)))
+        .paymentDate(paymentDateOffset.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod)))
         .accrualPeriods(periods)
         .currency(notionalAmount.getCurrency())
         .fxReset(createFxReset(notionalAmount, paymentPeriod))
@@ -228,15 +228,15 @@ public final class PaymentSchedule
   private PaymentSchedule(
       Frequency paymentFrequency,
       PaymentRelativeTo paymentRelativeTo,
-      DaysAdjustment paymentOffset,
+      DaysAdjustment paymentDateOffset,
       CompoundingMethod compoundingMethod) {
     JodaBeanUtils.notNull(paymentFrequency, "paymentFrequency");
     JodaBeanUtils.notNull(paymentRelativeTo, "paymentRelativeTo");
-    JodaBeanUtils.notNull(paymentOffset, "paymentOffset");
+    JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
     JodaBeanUtils.notNull(compoundingMethod, "compoundingMethod");
     this.paymentFrequency = paymentFrequency;
     this.paymentRelativeTo = paymentRelativeTo;
-    this.paymentOffset = paymentOffset;
+    this.paymentDateOffset = paymentDateOffset;
     this.compoundingMethod = compoundingMethod;
   }
 
@@ -288,8 +288,8 @@ public final class PaymentSchedule
    * Offset can be based on calendar days or business days.
    * @return the value of the property, not null
    */
-  public DaysAdjustment getPaymentOffset() {
-    return paymentOffset;
+  public DaysAdjustment getPaymentDateOffset() {
+    return paymentDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -321,7 +321,7 @@ public final class PaymentSchedule
       PaymentSchedule other = (PaymentSchedule) obj;
       return JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
           JodaBeanUtils.equal(getPaymentRelativeTo(), other.getPaymentRelativeTo()) &&
-          JodaBeanUtils.equal(getPaymentOffset(), other.getPaymentOffset()) &&
+          JodaBeanUtils.equal(getPaymentDateOffset(), other.getPaymentDateOffset()) &&
           JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
     }
     return false;
@@ -332,7 +332,7 @@ public final class PaymentSchedule
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentRelativeTo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateOffset());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     return hash;
   }
@@ -343,7 +343,7 @@ public final class PaymentSchedule
     buf.append("PaymentSchedule{");
     buf.append("paymentFrequency").append('=').append(getPaymentFrequency()).append(',').append(' ');
     buf.append("paymentRelativeTo").append('=').append(getPaymentRelativeTo()).append(',').append(' ');
-    buf.append("paymentOffset").append('=').append(getPaymentOffset()).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(getPaymentDateOffset()).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod()));
     buf.append('}');
     return buf.toString();
@@ -370,10 +370,10 @@ public final class PaymentSchedule
     private final MetaProperty<PaymentRelativeTo> paymentRelativeTo = DirectMetaProperty.ofImmutable(
         this, "paymentRelativeTo", PaymentSchedule.class, PaymentRelativeTo.class);
     /**
-     * The meta-property for the {@code paymentOffset} property.
+     * The meta-property for the {@code paymentDateOffset} property.
      */
-    private final MetaProperty<DaysAdjustment> paymentOffset = DirectMetaProperty.ofImmutable(
-        this, "paymentOffset", PaymentSchedule.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
+        this, "paymentDateOffset", PaymentSchedule.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code compoundingMethod} property.
      */
@@ -386,7 +386,7 @@ public final class PaymentSchedule
         this, null,
         "paymentFrequency",
         "paymentRelativeTo",
-        "paymentOffset",
+        "paymentDateOffset",
         "compoundingMethod");
 
     /**
@@ -402,8 +402,8 @@ public final class PaymentSchedule
           return paymentFrequency;
         case -1357627123:  // paymentRelativeTo
           return paymentRelativeTo;
-        case 1303406137:  // paymentOffset
-          return paymentOffset;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
       }
@@ -443,11 +443,11 @@ public final class PaymentSchedule
     }
 
     /**
-     * The meta-property for the {@code paymentOffset} property.
+     * The meta-property for the {@code paymentDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> paymentOffset() {
-      return paymentOffset;
+    public MetaProperty<DaysAdjustment> paymentDateOffset() {
+      return paymentDateOffset;
     }
 
     /**
@@ -466,8 +466,8 @@ public final class PaymentSchedule
           return ((PaymentSchedule) bean).getPaymentFrequency();
         case -1357627123:  // paymentRelativeTo
           return ((PaymentSchedule) bean).getPaymentRelativeTo();
-        case 1303406137:  // paymentOffset
-          return ((PaymentSchedule) bean).getPaymentOffset();
+        case -716438393:  // paymentDateOffset
+          return ((PaymentSchedule) bean).getPaymentDateOffset();
         case -1376171496:  // compoundingMethod
           return ((PaymentSchedule) bean).getCompoundingMethod();
       }
@@ -493,7 +493,7 @@ public final class PaymentSchedule
 
     private Frequency paymentFrequency;
     private PaymentRelativeTo paymentRelativeTo;
-    private DaysAdjustment paymentOffset;
+    private DaysAdjustment paymentDateOffset;
     private CompoundingMethod compoundingMethod;
 
     /**
@@ -510,7 +510,7 @@ public final class PaymentSchedule
     private Builder(PaymentSchedule beanToCopy) {
       this.paymentFrequency = beanToCopy.getPaymentFrequency();
       this.paymentRelativeTo = beanToCopy.getPaymentRelativeTo();
-      this.paymentOffset = beanToCopy.getPaymentOffset();
+      this.paymentDateOffset = beanToCopy.getPaymentDateOffset();
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
     }
 
@@ -522,8 +522,8 @@ public final class PaymentSchedule
           return paymentFrequency;
         case -1357627123:  // paymentRelativeTo
           return paymentRelativeTo;
-        case 1303406137:  // paymentOffset
-          return paymentOffset;
+        case -716438393:  // paymentDateOffset
+          return paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
         default:
@@ -540,8 +540,8 @@ public final class PaymentSchedule
         case -1357627123:  // paymentRelativeTo
           this.paymentRelativeTo = (PaymentRelativeTo) newValue;
           break;
-        case 1303406137:  // paymentOffset
-          this.paymentOffset = (DaysAdjustment) newValue;
+        case -716438393:  // paymentDateOffset
+          this.paymentDateOffset = (DaysAdjustment) newValue;
           break;
         case -1376171496:  // compoundingMethod
           this.compoundingMethod = (CompoundingMethod) newValue;
@@ -581,7 +581,7 @@ public final class PaymentSchedule
       return new PaymentSchedule(
           paymentFrequency,
           paymentRelativeTo,
-          paymentOffset,
+          paymentDateOffset,
           compoundingMethod);
     }
 
@@ -609,13 +609,13 @@ public final class PaymentSchedule
     }
 
     /**
-     * Sets the {@code paymentOffset} property in the builder.
-     * @param paymentOffset  the new value, not null
+     * Sets the {@code paymentDateOffset} property in the builder.
+     * @param paymentDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentOffset(DaysAdjustment paymentOffset) {
-      JodaBeanUtils.notNull(paymentOffset, "paymentOffset");
-      this.paymentOffset = paymentOffset;
+    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
+      JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
+      this.paymentDateOffset = paymentDateOffset;
       return this;
     }
 
@@ -637,7 +637,7 @@ public final class PaymentSchedule
       buf.append("PaymentSchedule.Builder{");
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
       buf.append("paymentRelativeTo").append('=').append(JodaBeanUtils.toString(paymentRelativeTo)).append(',').append(' ');
-      buf.append("paymentOffset").append('=').append(JodaBeanUtils.toString(paymentOffset)).append(',').append(' ');
+      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
       buf.append('}');
       return buf.toString();

@@ -112,14 +112,14 @@ public class SwapPricingTest {
             .paymentSchedule(
                 PaymentSchedule.builder()
                     .paymentFrequency(Frequency.P1M)
-                    .paymentOffset(DaysAdjustment.NONE)
+                    .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
             .notionalSchedule(NOTIONAL)
             .calculation(
                 IborRateCalculation.builder()
                     .dayCount(DayCounts.ACT_360)
                     .index(USD_LIBOR_1M)
-                    .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
+                    .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
                     .build())
             .build();
 
@@ -211,7 +211,7 @@ public class SwapPricingTest {
         .paymentSchedule(
             PaymentSchedule.builder()
                 .paymentFrequency(frequency)
-                .paymentOffset(DaysAdjustment.NONE)
+                .paymentDateOffset(DaysAdjustment.NONE)
                 .build())
         .notionalSchedule(notional)
         .calculation(

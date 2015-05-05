@@ -44,6 +44,25 @@ public final class ExpandedFra
     implements FraProduct, ImmutableBean, Serializable {
 
   /**
+   * The primary currency.
+   * <p>
+   * This is the currency of the FRA and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Currency currency;
+  /**
+   * The notional amount.
+   * <p>
+   * The notional, which is a positive signed amount if the FRA is 'buy',
+   * and a negative signed amount if the FRA is 'sell'.
+   * <p>
+   * The currency of the notional is specified by {@code currency}.
+   */
+  @PropertyDefinition
+  private final double notional;
+  /**
    * The date that payment occurs.
    * <p>
    * This is an adjusted date, which should be a valid business day
@@ -92,25 +111,6 @@ public final class ExpandedFra
    */
   @PropertyDefinition(validate = "notNull")
   private final RateObservation floatingRate;
-  /**
-   * The primary currency.
-   * <p>
-   * This is the currency of the FRA and the currency that payment is made in.
-   * The data model permits this currency to differ from that of the index,
-   * however the two are typically the same.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Currency currency;
-  /**
-   * The notional amount.
-   * <p>
-   * The notional, which is a positive signed amount if the FRA is 'buy',
-   * and a negative signed amount if the FRA is 'sell'.
-   * <p>
-   * The currency of the notional is specified by {@code currency}.
-   */
-  @PropertyDefinition
-  private final double notional;
   /**
    * The method to use for discounting.
    * <p>
@@ -165,30 +165,30 @@ public final class ExpandedFra
   }
 
   private ExpandedFra(
+      Currency currency,
+      double notional,
       LocalDate paymentDate,
       LocalDate startDate,
       LocalDate endDate,
       double yearFraction,
       double fixedRate,
       RateObservation floatingRate,
-      Currency currency,
-      double notional,
       FraDiscountingMethod discounting) {
+    JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     ArgChecker.notNegative(yearFraction, "yearFraction");
     JodaBeanUtils.notNull(floatingRate, "floatingRate");
-    JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(discounting, "discounting");
+    this.currency = currency;
+    this.notional = notional;
     this.paymentDate = paymentDate;
     this.startDate = startDate;
     this.endDate = endDate;
     this.yearFraction = yearFraction;
     this.fixedRate = fixedRate;
     this.floatingRate = floatingRate;
-    this.currency = currency;
-    this.notional = notional;
     this.discounting = discounting;
     validate();
   }
@@ -206,6 +206,33 @@ public final class ExpandedFra
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the primary currency.
+   * <p>
+   * This is the currency of the FRA and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount.
+   * <p>
+   * The notional, which is a positive signed amount if the FRA is 'buy',
+   * and a negative signed amount if the FRA is 'sell'.
+   * <p>
+   * The currency of the notional is specified by {@code currency}.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return notional;
   }
 
   //-----------------------------------------------------------------------
@@ -283,33 +310,6 @@ public final class ExpandedFra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary currency.
-   * <p>
-   * This is the currency of the FRA and the currency that payment is made in.
-   * The data model permits this currency to differ from that of the index,
-   * however the two are typically the same.
-   * @return the value of the property, not null
-   */
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the notional amount.
-   * <p>
-   * The notional, which is a positive signed amount if the FRA is 'buy',
-   * and a negative signed amount if the FRA is 'sell'.
-   * <p>
-   * The currency of the notional is specified by {@code currency}.
-   * @return the value of the property
-   */
-  public double getNotional() {
-    return notional;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the method to use for discounting.
    * <p>
    * There are different approaches to FRA pricing in the area of discounting.
@@ -336,14 +336,14 @@ public final class ExpandedFra
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedFra other = (ExpandedFra) obj;
-      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
           JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
           JodaBeanUtils.equal(getFloatingRate(), other.getFloatingRate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getDiscounting(), other.getDiscounting());
     }
     return false;
@@ -352,14 +352,14 @@ public final class ExpandedFra
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingRate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDiscounting());
     return hash;
   }
@@ -368,14 +368,14 @@ public final class ExpandedFra
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("ExpandedFra{");
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
     buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
     buf.append("floatingRate").append('=').append(getFloatingRate()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("discounting").append('=').append(JodaBeanUtils.toString(getDiscounting()));
     buf.append('}');
     return buf.toString();
@@ -391,6 +391,16 @@ public final class ExpandedFra
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", ExpandedFra.class, Currency.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", ExpandedFra.class, Double.TYPE);
     /**
      * The meta-property for the {@code paymentDate} property.
      */
@@ -422,16 +432,6 @@ public final class ExpandedFra
     private final MetaProperty<RateObservation> floatingRate = DirectMetaProperty.ofImmutable(
         this, "floatingRate", ExpandedFra.class, RateObservation.class);
     /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", ExpandedFra.class, Currency.class);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", ExpandedFra.class, Double.TYPE);
-    /**
      * The meta-property for the {@code discounting} property.
      */
     private final MetaProperty<FraDiscountingMethod> discounting = DirectMetaProperty.ofImmutable(
@@ -441,14 +441,14 @@ public final class ExpandedFra
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "currency",
+        "notional",
         "paymentDate",
         "startDate",
         "endDate",
         "yearFraction",
         "fixedRate",
         "floatingRate",
-        "currency",
-        "notional",
         "discounting");
 
     /**
@@ -460,6 +460,10 @@ public final class ExpandedFra
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case -1540873516:  // paymentDate
           return paymentDate;
         case -2129778896:  // startDate
@@ -472,10 +476,6 @@ public final class ExpandedFra
           return fixedRate;
         case -2130225658:  // floatingRate
           return floatingRate;
-        case 575402001:  // currency
-          return currency;
-        case 1585636160:  // notional
-          return notional;
         case -536441087:  // discounting
           return discounting;
       }
@@ -498,6 +498,22 @@ public final class ExpandedFra
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> notional() {
+      return notional;
+    }
+
     /**
      * The meta-property for the {@code paymentDate} property.
      * @return the meta-property, not null
@@ -547,22 +563,6 @@ public final class ExpandedFra
     }
 
     /**
-     * The meta-property for the {@code currency} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> notional() {
-      return notional;
-    }
-
-    /**
      * The meta-property for the {@code discounting} property.
      * @return the meta-property, not null
      */
@@ -574,6 +574,10 @@ public final class ExpandedFra
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((ExpandedFra) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((ExpandedFra) bean).getNotional();
         case -1540873516:  // paymentDate
           return ((ExpandedFra) bean).getPaymentDate();
         case -2129778896:  // startDate
@@ -586,10 +590,6 @@ public final class ExpandedFra
           return ((ExpandedFra) bean).getFixedRate();
         case -2130225658:  // floatingRate
           return ((ExpandedFra) bean).getFloatingRate();
-        case 575402001:  // currency
-          return ((ExpandedFra) bean).getCurrency();
-        case 1585636160:  // notional
-          return ((ExpandedFra) bean).getNotional();
         case -536441087:  // discounting
           return ((ExpandedFra) bean).getDiscounting();
       }
@@ -613,14 +613,14 @@ public final class ExpandedFra
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedFra> {
 
+    private Currency currency;
+    private double notional;
     private LocalDate paymentDate;
     private LocalDate startDate;
     private LocalDate endDate;
     private double yearFraction;
     private double fixedRate;
     private RateObservation floatingRate;
-    private Currency currency;
-    private double notional;
     private FraDiscountingMethod discounting;
 
     /**
@@ -634,14 +634,14 @@ public final class ExpandedFra
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ExpandedFra beanToCopy) {
+      this.currency = beanToCopy.getCurrency();
+      this.notional = beanToCopy.getNotional();
       this.paymentDate = beanToCopy.getPaymentDate();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
       this.fixedRate = beanToCopy.getFixedRate();
       this.floatingRate = beanToCopy.getFloatingRate();
-      this.currency = beanToCopy.getCurrency();
-      this.notional = beanToCopy.getNotional();
       this.discounting = beanToCopy.getDiscounting();
     }
 
@@ -649,6 +649,10 @@ public final class ExpandedFra
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case -1540873516:  // paymentDate
           return paymentDate;
         case -2129778896:  // startDate
@@ -661,10 +665,6 @@ public final class ExpandedFra
           return fixedRate;
         case -2130225658:  // floatingRate
           return floatingRate;
-        case 575402001:  // currency
-          return currency;
-        case 1585636160:  // notional
-          return notional;
         case -536441087:  // discounting
           return discounting;
         default:
@@ -675,6 +675,12 @@ public final class ExpandedFra
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
+          break;
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
           break;
@@ -692,12 +698,6 @@ public final class ExpandedFra
           break;
         case -2130225658:  // floatingRate
           this.floatingRate = (RateObservation) newValue;
-          break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
-        case 1585636160:  // notional
-          this.notional = (Double) newValue;
           break;
         case -536441087:  // discounting
           this.discounting = (FraDiscountingMethod) newValue;
@@ -735,18 +735,39 @@ public final class ExpandedFra
     @Override
     public ExpandedFra build() {
       return new ExpandedFra(
+          currency,
+          notional,
           paymentDate,
           startDate,
           endDate,
           yearFraction,
           fixedRate,
           floatingRate,
-          currency,
-          notional,
           discounting);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code currency} property in the builder.
+     * @param currency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      this.notional = notional;
+      return this;
+    }
+
     /**
      * Sets the {@code paymentDate} property in the builder.
      * @param paymentDate  the new value, not null
@@ -813,27 +834,6 @@ public final class ExpandedFra
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code notional} property in the builder.
-     * @param notional  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder notional(double notional) {
-      this.notional = notional;
-      return this;
-    }
-
-    /**
      * Sets the {@code discounting} property in the builder.
      * @param discounting  the new value, not null
      * @return this, for chaining, not null
@@ -849,14 +849,14 @@ public final class ExpandedFra
     public String toString() {
       StringBuilder buf = new StringBuilder(320);
       buf.append("ExpandedFra.Builder{");
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("floatingRate").append('=').append(JodaBeanUtils.toString(floatingRate)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("discounting").append('=').append(JodaBeanUtils.toString(discounting));
       buf.append('}');
       return buf.toString();
