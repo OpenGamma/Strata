@@ -63,7 +63,26 @@ subprojects {
     }
 }
 
+task fullJavadoc(type: Javadoc) {
+    group = "Documentation"
+    description = "Produce combined Javadoc from all projects"
+
+    failOnError = false
+    verbose = false
+    destinationDir = file("${buildDir}/docs/javadoc")
+}
+
 allprojects {
+    afterEvaluate {
+        rootProject.getTasksByName("javadoc", true).each { Task t ->
+            if( ! t.enabled) return
+            rootProject.tasks.fullJavadoc {
+                source += files(t.project.sourceSets.collect { srcSet -> srcSet.allJava })
+                classpath += files(t.project.sourceSets*.compileClasspath)
+            }
+        }
+    }
+
 	repositories {
 		mavenLocal()
 		maven {
