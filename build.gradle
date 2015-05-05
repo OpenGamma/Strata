@@ -14,6 +14,11 @@ subprojects {
     apply plugin: "java"
     apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
 
+    compileJava {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+
 	tasks.withType(JavaCompile) {
 		options.compilerArgs << "-parameters"
 	}
@@ -23,6 +28,15 @@ subprojects {
 		compile "org.joda:joda-convert:${jodaConvertVersion}"
 		compile "org.joda:joda-beans:${jodaBeansVersion}"
 		compile "org.slf4j:slf4j-api:${slf4jVersion}"
+	}
+
+	task sourcesJar(type: Jar, dependsOn: jar) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
+
+	artifacts {
+		archives sourcesJar
 	}
 }
 
