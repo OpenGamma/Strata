@@ -8,12 +8,15 @@ ext {
 	testNGVersion = "6.8.21"
 	assertJVersion = "2.0.0"
 	mockitoVersion = "1.10.19"
+	jacocoVersion = "0.7.4.201502262128"
 }
 
 subprojects {
     apply plugin: "java"
     apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
     apply plugin: "checkstyle"
+    apply plugin: "jacoco"
+    apply plugin: org.joda.beans.gradle.JodaBeansPlugin
 
     compileJava {
         sourceCompatibility = "1.8"
@@ -48,6 +51,16 @@ subprojects {
     }
     checkstyleMain.exclude('**/org/fpml/**')
     checkstyleMain.exclude('**/org/w3/**')
+
+    jacoco {
+        toolVersion = jacocoVersion
+    }
+
+    jodabeans {
+        sourceDir = file('src/main/java').getAbsolutePath()
+        indent = 2
+        prefix = "_"
+    }
 }
 
 allprojects {
@@ -79,8 +92,18 @@ buildscript {
                 password ogNexusPassword
             }
         }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/ext-releases-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
     }
     dependencies {
         classpath "com.opengamma.tools:build-tools:1.2.2"
+        classpath 'com.google.guava:guava:18.0'
+        classpath group: 'org.joda', name: 'joda-beans', version: '1.4'
+        classpath group: 'org.joda', name: 'joda-beans-plugin', version: '1.0.0'
     }
 }
