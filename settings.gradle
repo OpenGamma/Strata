@@ -7,9 +7,14 @@ List<String> modules = [
         "curve",
         "engine",
         "finance",
+        "finance-beta",
+        "finance-testutils",
         "function",
+        "function-beta",
         "market-data",
         "pricer",
+        "pricer-beta",
+        "pricer-testutils",
         "source"
 ]
 
@@ -18,3 +23,9 @@ modules.each { m ->
         project(":${m}").projectDir = file("modules/${m}")
 }
 
+include "examples"
+
+//if(System.properties['bootstrap']) {
+//        include "analytics"
+//        project(":analytics").projectDir = file "../Analytics"
+//}

@@ -1,5 +1,6 @@
 dependencies {
 	compile project(":collect")
+	compile project(":pricer")
 
 	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
 	compile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'

@@ -12,7 +12,7 @@ ext {
 
 subprojects {
     apply plugin: "java"
-    apply from: "../../gradle/testConfig.gradle"
+    apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
 
 	tasks.withType(JavaCompile) {
 		options.compilerArgs << "-parameters"

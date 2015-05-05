@@ -1,0 +1,10 @@
+dependencies {
+    compile project(":finance-beta")
+    compile project(":engine")
+    compile project(":function-beta")
+
+    compile "com.chaschev:chutils:1.4"
+    compile "org.slf4j:slf4j-simple:${slf4jVersion}"
+
+    testCompile project(":collect-testutils")
+}
