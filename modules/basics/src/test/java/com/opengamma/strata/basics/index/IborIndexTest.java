@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
@@ -52,8 +53,10 @@ public class IborIndexTest {
     assertEquals(test.getName(), "GBP-LIBOR-3M");
     assertEquals(test.getTenor(), TENOR_3M);
     assertEquals(test.getFixingCalendar(), GBLO);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getFixingDateOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
+    assertEquals(test.getEffectiveDateOffset(),
+        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)));
     assertEquals(test.getDayCount(), ACT_365F);
