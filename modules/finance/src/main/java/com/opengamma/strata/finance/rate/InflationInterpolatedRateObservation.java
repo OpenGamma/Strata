@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.finance.rate;
 
 import java.io.Serializable;
@@ -35,12 +40,12 @@ import com.opengamma.strata.collect.ArgChecker;
 public class InflationInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
-    /**
-   * The index of prices.
-   * <p>
-   * The pay-off is computed based on this index
-   * The most common implementations are provided in {@link PriceIndices}.
-   */
+  /**
+  * The index of prices.
+  * <p>
+  * The pay-off is computed based on this index
+  * The most common implementations are provided in {@link PriceIndices}.
+  */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
@@ -51,7 +56,6 @@ public class InflationInterpolatedRateObservation
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceStartMonthFirst;
-
   /**
    * The second reference month for the index at the coupon start. 
    * <p>
@@ -60,7 +64,6 @@ public class InflationInterpolatedRateObservation
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceStartMonthSecond;
-
   /**
    * The first reference month for the index at the coupon end. 
    * <p>
@@ -69,7 +72,6 @@ public class InflationInterpolatedRateObservation
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceEndMonthFirst;
-
   /**
    * The second reference month for the index at the coupon end. 
    * <p>
