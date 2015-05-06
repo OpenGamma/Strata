@@ -26,6 +26,9 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 public class MarketQuoteSensitivityCalculator {
   
+  /** Default instance. **/
+  public static final MarketQuoteSensitivityCalculator DEFAULT = new MarketQuoteSensitivityCalculator();
+  
   /** The matrix algebra used for matrix inversion. */
   private static final MatrixAlgebra MATRIX_ALGEBRA = new OGMatrixAlgebra();
   //TODO: The method internally uses DoubleMatrix1D and DoubleMatrix2D. This should be reviewed.
@@ -65,7 +68,7 @@ public class MarketQuoteSensitivityCalculator {
         } else if(key instanceof NameSensitivityKey){
           key2 = NameSensitivityKey.of(name2);        
         }
-        result.combinedWith(key2, sensiName2);        
+        result = result.combinedWith(key2, sensiName2);        
       }
     }
     return result;
