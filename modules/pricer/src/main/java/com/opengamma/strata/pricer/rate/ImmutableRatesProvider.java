@@ -10,10 +10,12 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -121,15 +123,26 @@ public final class ImmutableRatesProvider
     builder.additionalData = ImmutableMap.of();
   }
 
+  @ImmutableValidator
+  private void validate() {
+    for (Entry<Class<?>, Object> entry : additionalData.entrySet()) {
+      if (!entry.getKey().isInstance(entry.getValue())) {
+        throw new IllegalArgumentException("Invalid additional data entry: " + entry.getKey().getName());
+      }
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public <T> T data(Class<T> type) {
     ArgChecker.notNull(type, "type");
-    Object result = additionalData.get(type);
+    // type safety checked in validate()
+    @SuppressWarnings("unchecked")
+    T result = (T) additionalData.get(type);
     if (result == null) {
       throw new IllegalArgumentException("Unknown type: " + type.getName());
     }
-    return type.cast(result);
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -524,6 +537,7 @@ public final class ImmutableRatesProvider
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
     this.additionalData = ImmutableMap.copyOf(additionalData);
     this.dayCount = dayCount;
+    validate();
   }
 
   @Override

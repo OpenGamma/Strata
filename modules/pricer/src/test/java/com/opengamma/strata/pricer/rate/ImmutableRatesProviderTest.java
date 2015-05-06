@@ -26,7 +26,6 @@ import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -85,12 +84,20 @@ public class ImmutableRatesProviderTest {
     assertEquals(ImmutableRatesProvider.meta().dayCount().get(test), ACT_ACT_ISDA);
   }
 
+  public void test_builder_invalidAdditionalData() {
+    assertThrowsIllegalArg(() -> ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .additionalData(ImmutableMap.of(String.class, YearMonth.now()))
+        .dayCount(ACT_ACT_ISDA)
+        .build());
+  }
+
   //-------------------------------------------------------------------------
   public void test_data() {
     YearMonth sample = YearMonth.now();
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableClassToInstanceMap.builder().put(YearMonth.class, sample).build())
+        .additionalData(ImmutableMap.of(YearMonth.class, sample))
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.data(YearMonth.class), sample);
