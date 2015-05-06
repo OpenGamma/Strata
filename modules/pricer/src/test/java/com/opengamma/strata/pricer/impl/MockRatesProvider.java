@@ -53,6 +53,12 @@ public class MockRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
+  public <T> T data(Class<T> type) {
+    throw new UnsupportedOperationException();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
     throw new UnsupportedOperationException();
   }
