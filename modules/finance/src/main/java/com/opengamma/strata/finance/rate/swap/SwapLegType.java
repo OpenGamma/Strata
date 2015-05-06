@@ -46,7 +46,7 @@ public enum SwapLegType {
    */
   INFLATION,
   /**
-   * A swap leg that is not based on a Fixed, Ibor or Overnight rate.
+   * A swap leg that is not based on a Fixed, Ibor, Overnight or Inflation rate.
    */
   OTHER;
 
@@ -75,7 +75,7 @@ public enum SwapLegType {
   }
 
   /**
-   * Checks if the type is floating, defined as 'Ibor', 'Overnight' or "Inflation".
+   * Checks if the type is floating, defined as 'Ibor', 'Overnight' or 'Inflation'.
    * 
    * @return true if floating, false otherwise
    */

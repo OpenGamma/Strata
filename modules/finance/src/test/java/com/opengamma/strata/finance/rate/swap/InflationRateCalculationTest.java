@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
@@ -124,17 +125,26 @@ public class InflationRateCalculationTest {
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(1.0)
         .rateObservation(
-            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE14_01_05, -3), dateAdjuster(DATE15_01_06, -3)))
+            InflationMonthlyRateObservation.of(
+                GB_HICP,
+                YearMonth.from(dateAdjuster(DATE14_01_05, -3)),
+                YearMonth.from(dateAdjuster(DATE15_01_06, -3))))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(1.0)
         .rateObservation(
-            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE15_01_06, -3), dateAdjuster(DATE16_01_07, -3)))
+            InflationMonthlyRateObservation.of(
+                GB_HICP,
+                YearMonth.from(dateAdjuster(DATE15_01_06, -3)),
+                YearMonth.from(dateAdjuster(DATE16_01_07, -3))))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(1.0)
         .rateObservation(
-            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE16_01_07, -3), dateAdjuster(DATE17_01_05, -3)))
+            InflationMonthlyRateObservation.of(
+                GB_HICP,
+                YearMonth.from(dateAdjuster(DATE16_01_07, -3)),
+                YearMonth.from(dateAdjuster(DATE17_01_05, -3))))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -154,28 +164,34 @@ public class InflationRateCalculationTest {
         .builder(ACCRUAL1)
         .yearFraction(1.0)
         .rateObservation(InflationInterpolatedRateObservation.of(
-                CH_CPI, new LocalDate[] {dateAdjuster(DATE14_01_05, -3),
-                  dateAdjuster(dateAdjuster(DATE14_01_05, -3), 1) },
-                new LocalDate[] {dateAdjuster(DATE15_01_06, -3), dateAdjuster(dateAdjuster(DATE15_01_06, -3), 1) },
-                    weight1))
+            CH_CPI,
+            YearMonth.from(dateAdjuster(DATE14_01_05, -3)),
+            YearMonth.from(dateAdjuster(dateAdjuster(DATE14_01_05, -3), 1)),
+            YearMonth.from(dateAdjuster(DATE15_01_06, -3)),
+            YearMonth.from(dateAdjuster(dateAdjuster(DATE15_01_06, -3), 1)),
+            weight1))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod
         .builder(ACCRUAL2)
         .yearFraction(1.0)
         .rateObservation(InflationInterpolatedRateObservation.of(
-                CH_CPI, new LocalDate[] {dateAdjuster(DATE15_01_06, -3),
-                  dateAdjuster(dateAdjuster(DATE15_01_06, -3), 1) },
-                new LocalDate[] {dateAdjuster(DATE16_01_07, -3), dateAdjuster(dateAdjuster(DATE16_01_07, -3), 1) },
-                    weight2))
+            CH_CPI,
+            YearMonth.from(dateAdjuster(DATE15_01_06, -3)),
+            YearMonth.from(dateAdjuster(dateAdjuster(DATE15_01_06, -3), 1)),
+            YearMonth.from(dateAdjuster(DATE16_01_07, -3)),
+            YearMonth.from(dateAdjuster(dateAdjuster(DATE16_01_07, -3), 1)),
+            weight2))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod
         .builder(ACCRUAL3)
         .yearFraction(1.0)
         .rateObservation(InflationInterpolatedRateObservation.of(
-                CH_CPI, new LocalDate[] {dateAdjuster(DATE16_01_07, -3),
-                  dateAdjuster(dateAdjuster(DATE16_01_07, -3), 1) },
-                new LocalDate[] {dateAdjuster(DATE17_01_05, -3), dateAdjuster(dateAdjuster(DATE17_01_05, -3), 1) },
-                    weight3))
+            CH_CPI,
+            YearMonth.from(dateAdjuster(DATE16_01_07, -3)),
+            YearMonth.from(dateAdjuster(dateAdjuster(DATE16_01_07, -3), 1)),
+            YearMonth.from(dateAdjuster(DATE17_01_05, -3)),
+            YearMonth.from(dateAdjuster(dateAdjuster(DATE17_01_05, -3), 1)),
+            weight3))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));

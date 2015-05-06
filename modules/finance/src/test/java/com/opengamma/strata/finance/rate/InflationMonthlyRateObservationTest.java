@@ -6,10 +6,9 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -21,58 +20,40 @@ import com.opengamma.strata.basics.index.Index;
  */
 @Test
 public class InflationMonthlyRateObservationTest {
-  private static final LocalDate[] START_DATES = new LocalDate[] {date(2014, 1, 6), date(2014, 2, 5) };
-  private static final LocalDate[] END_DATES = new LocalDate[] {date(2015, 1, 5), date(2015, 2, 5) };
-  private static final double WEIGHT = 1.0 - 6.0 / 31.0;
+
+  private static final YearMonth START_MONTH = YearMonth.of(2014, 1);
+  private static final YearMonth END_MONTH = YearMonth.of(2015, 1);
 
   public void test_of() {
-    InflationInterpolatedRateObservation test =
-        InflationInterpolatedRateObservation.of(GB_HICP, START_DATES, END_DATES, WEIGHT);
+    InflationMonthlyRateObservation test =
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     assertEquals(test.getIndex(), GB_HICP);
-    assertEquals(test.getReferenceStartDates(), START_DATES);
-    assertEquals(test.getReferenceEndDates(), END_DATES);
-    assertEquals(test.getWeight(), WEIGHT, 1.0e-14);
+    assertEquals(test.getReferenceStartMonth(), START_MONTH);
+    assertEquals(test.getReferenceEndMonth(), END_MONTH);
+
   }
 
   public void test_builder() {
-    InflationInterpolatedRateObservation test = InflationInterpolatedRateObservation.builder()
+    InflationMonthlyRateObservation test = InflationMonthlyRateObservation.builder()
         .index(CH_CPI)
-        .referenceStartDates(START_DATES)
-        .referenceEndDates(END_DATES)
-        .weight(WEIGHT)
+        .referenceStartMonth(START_MONTH)
+        .referenceEndMonth(END_MONTH)
         .build();
     assertEquals(test.getIndex(), CH_CPI);
-    assertEquals(test.getReferenceStartDates(), START_DATES);
-    assertEquals(test.getReferenceEndDates(), END_DATES);
-    assertEquals(test.getWeight(), WEIGHT, 1.0e-14);
+    assertEquals(test.getReferenceStartMonth(), START_MONTH);
+    assertEquals(test.getReferenceEndMonth(), END_MONTH);
+
   }
 
-  public void test_wrong_datesLength1() {
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.of(GB_HICP, START_DATES,
-        new LocalDate[] {date(2015, 1, 5), date(2015, 2, 5), date(2016, 2, 5) }, WEIGHT));
-  }
-
-  public void test_wrong_datesLength2() {
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.builder()
-        .index(CH_CPI)
-        .referenceStartDates(new LocalDate[] {date(2014, 1, 6), date(2014, 2, 5), date(2014, 3, 5) })
-        .referenceEndDates(END_DATES)
-        .weight(WEIGHT)
-        .build());
-  }
-
-  public void test_wrong_datesOrder() {
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.of(
-        GB_HICP, new LocalDate[] {date(2014, 1, 6), date(2014, 2, 5) },
-        new LocalDate[] {date(2013, 1, 5), date(2013, 2, 5) }, WEIGHT));
+  public void test_wrongDates() {
+    assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(GB_HICP, END_MONTH, START_MONTH));
   }
 
   public void test_collectIndices() {
-    InflationInterpolatedRateObservation test = InflationInterpolatedRateObservation.builder()
+    InflationMonthlyRateObservation test = InflationMonthlyRateObservation.builder()
         .index(CH_CPI)
-        .referenceStartDates(START_DATES)
-        .referenceEndDates(END_DATES)
-        .weight(WEIGHT)
+        .referenceStartMonth(START_MONTH)
+        .referenceEndMonth(END_MONTH)
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
@@ -80,17 +61,18 @@ public class InflationMonthlyRateObservationTest {
   }
 
   public void coverage() {
-    InflationInterpolatedRateObservation test1 =
-        InflationInterpolatedRateObservation.of(GB_HICP, START_DATES, END_DATES, WEIGHT);
+    InflationMonthlyRateObservation test1 =
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     coverImmutableBean(test1);
-    InflationInterpolatedRateObservation test2 =
-        InflationInterpolatedRateObservation.of(CH_CPI, START_DATES, END_DATES, WEIGHT);
+    InflationMonthlyRateObservation test2 =
+        InflationMonthlyRateObservation.of(CH_CPI, YearMonth.of(2014, 4), YearMonth.of(2015, 4));
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    InflationInterpolatedRateObservation test =
-        InflationInterpolatedRateObservation.of(GB_HICP, START_DATES, END_DATES, WEIGHT);
+    InflationMonthlyRateObservation test =
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     assertSerialization(test);
   }
+
 }

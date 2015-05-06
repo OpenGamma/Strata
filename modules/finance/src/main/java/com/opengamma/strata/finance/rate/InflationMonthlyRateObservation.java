@@ -1,7 +1,7 @@
 package com.opengamma.strata.finance.rate;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -35,51 +35,47 @@ public final class InflationMonthlyRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-   * The day count convention applicable.
+   * The index of prices.
    * <p>
-   * This is used to convert dates to a numerical value.
-   * <p>
-   * When building, this will default to the day count of the index if not specified.
+   * The pay-off is computed based on this index
+   * The most common implementations are provided in {@link PriceIndices}.
    */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The reference date for the index at the coupon start. 
-   * <p>
-   * This is not relevant if the index value is known.
+   * The reference month for the index at the coupon start. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate referenceStartDate;
+  private final YearMonth referenceStartMonth;
   /**
-   * The reference date for the index at the coupon end. 
+   * The reference month for the index at the coupon end. 
    * <p>
-   * This is the first of the month. 
-   * There is usually a difference of two or three month between the reference date and the payment date.
+   * There is usually a difference of two or three month between the reference month and the payment month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate referenceEndDate;
+  private final YearMonth referenceEndMonth;
 
   /**
-   * Creates an {@code InflationMonthlyRateObservation} from an index, reference start date and reference end date.
+   * Creates an {@code InflationMonthlyRateObservation} from an index, reference start month and reference end month.
    * @param index The index
-   * @param referenceStartDate The reference start date. 
-   * @param referenceEndDate The reference end date. 
+   * @param referenceStartMonth The reference start month. 
+   * @param referenceEndMonth The reference end month. 
    * @return The inflation rate observation
    */
   public static InflationMonthlyRateObservation of(
       PriceIndex index,
-      LocalDate referenceStartDate,
-      LocalDate referenceEndDate) {
+      YearMonth referenceStartMonth,
+      YearMonth referenceEndMonth) {
     return InflationMonthlyRateObservation.builder()
         .index(index)
-        .referenceStartDate(referenceStartDate)
-        .referenceEndDate(referenceEndDate)
+        .referenceStartMonth(referenceStartMonth)
+        .referenceEndMonth(referenceEndMonth)
         .build();
   }
 
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderNotEqual(referenceStartDate, referenceEndDate, "referenceStartDate", "referenceEndDate");
+    ArgChecker.inOrderNotEqual(referenceStartMonth, referenceEndMonth, "referenceStartMonth", "referenceEndMonth");
   }
 
   @Override
@@ -116,14 +112,14 @@ public final class InflationMonthlyRateObservation
 
   private InflationMonthlyRateObservation(
       PriceIndex index,
-      LocalDate referenceStartDate,
-      LocalDate referenceEndDate) {
+      YearMonth referenceStartMonth,
+      YearMonth referenceEndMonth) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(referenceStartDate, "referenceStartDate");
-    JodaBeanUtils.notNull(referenceEndDate, "referenceEndDate");
+    JodaBeanUtils.notNull(referenceStartMonth, "referenceStartMonth");
+    JodaBeanUtils.notNull(referenceEndMonth, "referenceEndMonth");
     this.index = index;
-    this.referenceStartDate = referenceStartDate;
-    this.referenceEndDate = referenceEndDate;
+    this.referenceStartMonth = referenceStartMonth;
+    this.referenceEndMonth = referenceEndMonth;
     validate();
   }
 
@@ -144,11 +140,10 @@ public final class InflationMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention applicable.
+   * Gets the index of prices.
    * <p>
-   * This is used to convert dates to a numerical value.
-   * <p>
-   * When building, this will default to the day count of the index if not specified.
+   * The pay-off is computed based on this index
+   * The most common implementations are provided in {@link PriceIndices}.
    * @return the value of the property, not null
    */
   public PriceIndex getIndex() {
@@ -157,25 +152,22 @@ public final class InflationMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference date for the index at the coupon start.
-   * <p>
-   * This is not relevant if the index value is known.
+   * Gets the reference month for the index at the coupon start.
    * @return the value of the property, not null
    */
-  public LocalDate getReferenceStartDate() {
-    return referenceStartDate;
+  public YearMonth getReferenceStartMonth() {
+    return referenceStartMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference date for the index at the coupon end.
+   * Gets the reference month for the index at the coupon end.
    * <p>
-   * This is the first of the month.
-   * There is usually a difference of two or three month between the reference date and the payment date.
+   * There is usually a difference of two or three month between the reference month and the payment month.
    * @return the value of the property, not null
    */
-  public LocalDate getReferenceEndDate() {
-    return referenceEndDate;
+  public YearMonth getReferenceEndMonth() {
+    return referenceEndMonth;
   }
 
   //-----------------------------------------------------------------------
@@ -195,8 +187,8 @@ public final class InflationMonthlyRateObservation
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationMonthlyRateObservation other = (InflationMonthlyRateObservation) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getReferenceStartDate(), other.getReferenceStartDate()) &&
-          JodaBeanUtils.equal(getReferenceEndDate(), other.getReferenceEndDate());
+          JodaBeanUtils.equal(getReferenceStartMonth(), other.getReferenceStartMonth()) &&
+          JodaBeanUtils.equal(getReferenceEndMonth(), other.getReferenceEndMonth());
     }
     return false;
   }
@@ -205,8 +197,8 @@ public final class InflationMonthlyRateObservation
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndMonth());
     return hash;
   }
 
@@ -215,8 +207,8 @@ public final class InflationMonthlyRateObservation
     StringBuilder buf = new StringBuilder(128);
     buf.append("InflationMonthlyRateObservation{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("referenceStartDate").append('=').append(getReferenceStartDate()).append(',').append(' ');
-    buf.append("referenceEndDate").append('=').append(JodaBeanUtils.toString(getReferenceEndDate()));
+    buf.append("referenceStartMonth").append('=').append(getReferenceStartMonth()).append(',').append(' ');
+    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(getReferenceEndMonth()));
     buf.append('}');
     return buf.toString();
   }
@@ -237,23 +229,23 @@ public final class InflationMonthlyRateObservation
     private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", InflationMonthlyRateObservation.class, PriceIndex.class);
     /**
-     * The meta-property for the {@code referenceStartDate} property.
+     * The meta-property for the {@code referenceStartMonth} property.
      */
-    private final MetaProperty<LocalDate> referenceStartDate = DirectMetaProperty.ofImmutable(
-        this, "referenceStartDate", InflationMonthlyRateObservation.class, LocalDate.class);
+    private final MetaProperty<YearMonth> referenceStartMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceStartMonth", InflationMonthlyRateObservation.class, YearMonth.class);
     /**
-     * The meta-property for the {@code referenceEndDate} property.
+     * The meta-property for the {@code referenceEndMonth} property.
      */
-    private final MetaProperty<LocalDate> referenceEndDate = DirectMetaProperty.ofImmutable(
-        this, "referenceEndDate", InflationMonthlyRateObservation.class, LocalDate.class);
+    private final MetaProperty<YearMonth> referenceEndMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceEndMonth", InflationMonthlyRateObservation.class, YearMonth.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "referenceStartDate",
-        "referenceEndDate");
+        "referenceStartMonth",
+        "referenceEndMonth");
 
     /**
      * Restricted constructor.
@@ -266,10 +258,10 @@ public final class InflationMonthlyRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -1704981467:  // referenceStartDate
-          return referenceStartDate;
-        case 1999414622:  // referenceEndDate
-          return referenceEndDate;
+        case -1306094359:  // referenceStartMonth
+          return referenceStartMonth;
+        case 1861034704:  // referenceEndMonth
+          return referenceEndMonth;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -299,19 +291,19 @@ public final class InflationMonthlyRateObservation
     }
 
     /**
-     * The meta-property for the {@code referenceStartDate} property.
+     * The meta-property for the {@code referenceStartMonth} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> referenceStartDate() {
-      return referenceStartDate;
+    public MetaProperty<YearMonth> referenceStartMonth() {
+      return referenceStartMonth;
     }
 
     /**
-     * The meta-property for the {@code referenceEndDate} property.
+     * The meta-property for the {@code referenceEndMonth} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> referenceEndDate() {
-      return referenceEndDate;
+    public MetaProperty<YearMonth> referenceEndMonth() {
+      return referenceEndMonth;
     }
 
     //-----------------------------------------------------------------------
@@ -320,10 +312,10 @@ public final class InflationMonthlyRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((InflationMonthlyRateObservation) bean).getIndex();
-        case -1704981467:  // referenceStartDate
-          return ((InflationMonthlyRateObservation) bean).getReferenceStartDate();
-        case 1999414622:  // referenceEndDate
-          return ((InflationMonthlyRateObservation) bean).getReferenceEndDate();
+        case -1306094359:  // referenceStartMonth
+          return ((InflationMonthlyRateObservation) bean).getReferenceStartMonth();
+        case 1861034704:  // referenceEndMonth
+          return ((InflationMonthlyRateObservation) bean).getReferenceEndMonth();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -346,8 +338,8 @@ public final class InflationMonthlyRateObservation
   public static final class Builder extends DirectFieldsBeanBuilder<InflationMonthlyRateObservation> {
 
     private PriceIndex index;
-    private LocalDate referenceStartDate;
-    private LocalDate referenceEndDate;
+    private YearMonth referenceStartMonth;
+    private YearMonth referenceEndMonth;
 
     /**
      * Restricted constructor.
@@ -361,8 +353,8 @@ public final class InflationMonthlyRateObservation
      */
     private Builder(InflationMonthlyRateObservation beanToCopy) {
       this.index = beanToCopy.getIndex();
-      this.referenceStartDate = beanToCopy.getReferenceStartDate();
-      this.referenceEndDate = beanToCopy.getReferenceEndDate();
+      this.referenceStartMonth = beanToCopy.getReferenceStartMonth();
+      this.referenceEndMonth = beanToCopy.getReferenceEndMonth();
     }
 
     //-----------------------------------------------------------------------
@@ -371,10 +363,10 @@ public final class InflationMonthlyRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -1704981467:  // referenceStartDate
-          return referenceStartDate;
-        case 1999414622:  // referenceEndDate
-          return referenceEndDate;
+        case -1306094359:  // referenceStartMonth
+          return referenceStartMonth;
+        case 1861034704:  // referenceEndMonth
+          return referenceEndMonth;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -386,11 +378,11 @@ public final class InflationMonthlyRateObservation
         case 100346066:  // index
           this.index = (PriceIndex) newValue;
           break;
-        case -1704981467:  // referenceStartDate
-          this.referenceStartDate = (LocalDate) newValue;
+        case -1306094359:  // referenceStartMonth
+          this.referenceStartMonth = (YearMonth) newValue;
           break;
-        case 1999414622:  // referenceEndDate
-          this.referenceEndDate = (LocalDate) newValue;
+        case 1861034704:  // referenceEndMonth
+          this.referenceEndMonth = (YearMonth) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -426,8 +418,8 @@ public final class InflationMonthlyRateObservation
     public InflationMonthlyRateObservation build() {
       return new InflationMonthlyRateObservation(
           index,
-          referenceStartDate,
-          referenceEndDate);
+          referenceStartMonth,
+          referenceEndMonth);
     }
 
     //-----------------------------------------------------------------------
@@ -443,24 +435,24 @@ public final class InflationMonthlyRateObservation
     }
 
     /**
-     * Sets the {@code referenceStartDate} property in the builder.
-     * @param referenceStartDate  the new value, not null
+     * Sets the {@code referenceStartMonth} property in the builder.
+     * @param referenceStartMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceStartDate(LocalDate referenceStartDate) {
-      JodaBeanUtils.notNull(referenceStartDate, "referenceStartDate");
-      this.referenceStartDate = referenceStartDate;
+    public Builder referenceStartMonth(YearMonth referenceStartMonth) {
+      JodaBeanUtils.notNull(referenceStartMonth, "referenceStartMonth");
+      this.referenceStartMonth = referenceStartMonth;
       return this;
     }
 
     /**
-     * Sets the {@code referenceEndDate} property in the builder.
-     * @param referenceEndDate  the new value, not null
+     * Sets the {@code referenceEndMonth} property in the builder.
+     * @param referenceEndMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEndDate(LocalDate referenceEndDate) {
-      JodaBeanUtils.notNull(referenceEndDate, "referenceEndDate");
-      this.referenceEndDate = referenceEndDate;
+    public Builder referenceEndMonth(YearMonth referenceEndMonth) {
+      JodaBeanUtils.notNull(referenceEndMonth, "referenceEndMonth");
+      this.referenceEndMonth = referenceEndMonth;
       return this;
     }
 
@@ -470,8 +462,8 @@ public final class InflationMonthlyRateObservation
       StringBuilder buf = new StringBuilder(128);
       buf.append("InflationMonthlyRateObservation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("referenceStartDate").append('=').append(JodaBeanUtils.toString(referenceStartDate)).append(',').append(' ');
-      buf.append("referenceEndDate").append('=').append(JodaBeanUtils.toString(referenceEndDate));
+      buf.append("referenceStartMonth").append('=').append(JodaBeanUtils.toString(referenceStartMonth)).append(',').append(' ');
+      buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth));
       buf.append('}');
       return buf.toString();
     }
