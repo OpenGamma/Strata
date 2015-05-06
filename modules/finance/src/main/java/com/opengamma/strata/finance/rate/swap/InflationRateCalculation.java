@@ -156,7 +156,7 @@ public final class InflationRateCalculation
 
   // creates the rate observation
   private RateObservation createRateObservation(SchedulePeriod period) {
-    // TODO  need adjuster like DaysAdjustment for Ibor?
+    // TODO  need adjuster (c.f., DaysAdjustment for Ibor)?
     if (isInterpolated) {
       LocalDate[] referenceStartDates = new LocalDate[2];
       LocalDate[] referenceEndDates = new LocalDate[2];

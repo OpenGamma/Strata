@@ -33,23 +33,26 @@ import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
  */
 @Test
 public class InflationRateCalculationTest {
-  private static final LocalDate DATE_01_05 = date(2014, 1, 5);
-  private static final LocalDate DATE_01_06 = date(2014, 1, 6);
-  private static final LocalDate DATE_02_05 = date(2014, 2, 5);
-  private static final LocalDate DATE_03_05 = date(2014, 3, 5);
-  private static final LocalDate DATE_04_05 = date(2014, 4, 5);
-  private static final LocalDate DATE_04_07 = date(2014, 4, 7);
+  private static final LocalDate DATE14_01_05 = date(2014, 1, 5);
+  private static final LocalDate DATE15_01_06 = date(2015, 1, 6);
+  private static final LocalDate DATE15_01_05 = date(2015, 1, 5);
+  private static final LocalDate DATE16_01_05 = date(2016, 1, 5);
+  private static final LocalDate DATE16_01_07 = date(2016, 1, 7);
+  private static final LocalDate DATE17_01_05 = date(2017, 1, 5);
 
-  private static final SchedulePeriod ACCRUAL1 = SchedulePeriod.of(DATE_01_06, DATE_02_05, DATE_01_05, DATE_02_05);
-  private static final SchedulePeriod ACCRUAL2 = SchedulePeriod.of(DATE_02_05, DATE_03_05, DATE_02_05, DATE_03_05);
-  private static final SchedulePeriod ACCRUAL3 = SchedulePeriod.of(DATE_03_05, DATE_04_07, DATE_03_05, DATE_04_05);
+  private static final SchedulePeriod ACCRUAL1 =
+      SchedulePeriod.of(DATE14_01_05, DATE15_01_06, DATE14_01_05, DATE15_01_05);
+  private static final SchedulePeriod ACCRUAL2 =
+      SchedulePeriod.of(DATE15_01_06, DATE16_01_07, DATE15_01_05, DATE16_01_05);
+  private static final SchedulePeriod ACCRUAL3 =
+      SchedulePeriod.of(DATE16_01_07, DATE17_01_05, DATE16_01_05, DATE17_01_05);
   private static final Schedule ACCRUAL_SCHEDULE = Schedule.builder()
       .periods(ACCRUAL1, ACCRUAL2, ACCRUAL3)
       .frequency(Frequency.P1M)
       .rollConvention(RollConventions.DAY_5)
       .build();
   private static final Schedule PAYMENT_SCHEDULE = Schedule.builder()
-      .periods(SchedulePeriod.of(DATE_01_06, DATE_04_07, DATE_01_05, DATE_04_05))
+      .periods(SchedulePeriod.of(DATE14_01_05, DATE17_01_05, DATE14_01_05, DATE17_01_05))
       .frequency(Frequency.P3M)
       .rollConvention(RollConventions.DAY_5)
       .build();
@@ -121,61 +124,57 @@ public class InflationRateCalculationTest {
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(1.0)
         .rateObservation(
-            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE_01_06, -3), dateAdjuster(DATE_02_05, -3)))
+            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE14_01_05, -3), dateAdjuster(DATE15_01_06, -3)))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(1.0)
         .rateObservation(
-            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE_02_05, -3), dateAdjuster(DATE_03_05, -3)))
+            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE15_01_06, -3), dateAdjuster(DATE16_01_07, -3)))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(1.0)
         .rateObservation(
-            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE_03_05, -3), dateAdjuster(DATE_04_07, -3)))
+            InflationMonthlyRateObservation.of(GB_HICP, dateAdjuster(DATE16_01_07, -3), dateAdjuster(DATE17_01_05, -3)))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
-  @Test(enabled = false)
-  // fix this 
+  @Test
   public void test_expand_Interpolated() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
         .monthLag(3)
         .isInterpolated(true)
         .build();
-    double weight1 = 24.0 / 28.0;
-    double weight2 = 27.0 / 31.0;
-    double weight3 = 24.0 / 30.0;
+    double weight1 = 1.0 - 5.0 / 31.0;
+    double weight2 = 1.0 - 6.0 / 31.0;
+    double weight3 = 1.0 - 4.0 / 31.0;
     RateAccrualPeriod rap1 = RateAccrualPeriod
         .builder(ACCRUAL1)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationInterpolatedRateObservation
-                .of(CH_CPI, new LocalDate[] {dateAdjuster(DATE_01_06, -3),
-              dateAdjuster(dateAdjuster(DATE_01_06, -3), 1) },
-                    new LocalDate[] {dateAdjuster(DATE_02_05, -3), dateAdjuster(dateAdjuster(DATE_02_05, -3), 1) },
+        .rateObservation(InflationInterpolatedRateObservation.of(
+                CH_CPI, new LocalDate[] {dateAdjuster(DATE14_01_05, -3),
+                  dateAdjuster(dateAdjuster(DATE14_01_05, -3), 1) },
+                new LocalDate[] {dateAdjuster(DATE15_01_06, -3), dateAdjuster(dateAdjuster(DATE15_01_06, -3), 1) },
                     weight1))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod
         .builder(ACCRUAL2)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationInterpolatedRateObservation
-                .of(CH_CPI, new LocalDate[] {dateAdjuster(DATE_02_05, -3),
-              dateAdjuster(dateAdjuster(DATE_02_05, -3), 1) },
-                    new LocalDate[] {dateAdjuster(DATE_03_05, -3), dateAdjuster(dateAdjuster(DATE_03_05, -3), 1) },
+        .rateObservation(InflationInterpolatedRateObservation.of(
+                CH_CPI, new LocalDate[] {dateAdjuster(DATE15_01_06, -3),
+                  dateAdjuster(dateAdjuster(DATE15_01_06, -3), 1) },
+                new LocalDate[] {dateAdjuster(DATE16_01_07, -3), dateAdjuster(dateAdjuster(DATE16_01_07, -3), 1) },
                     weight2))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod
         .builder(ACCRUAL3)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationInterpolatedRateObservation
-                .of(CH_CPI, new LocalDate[] {dateAdjuster(DATE_03_05, -3),
-              dateAdjuster(dateAdjuster(DATE_03_05, -3), 1) },
-                    new LocalDate[] {dateAdjuster(DATE_04_07, -3), dateAdjuster(dateAdjuster(DATE_04_07, -3), 1) },
+        .rateObservation(InflationInterpolatedRateObservation.of(
+                CH_CPI, new LocalDate[] {dateAdjuster(DATE16_01_07, -3),
+                  dateAdjuster(dateAdjuster(DATE16_01_07, -3), 1) },
+                new LocalDate[] {dateAdjuster(DATE17_01_05, -3), dateAdjuster(dateAdjuster(DATE17_01_05, -3), 1) },
                     weight3))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
@@ -195,11 +194,6 @@ public class InflationRateCalculationTest {
         .isInterpolated(true)
         .gearing(GEARING)
         .build();
-    assertEquals(test2.getIndex(), GB_HICP);
-    assertEquals(test2.getMonthLag(), 4);
-    assertEquals(test2.isIsInterpolated(), true);
-    assertEquals(test2.getGearing().get(), GEARING);
-    assertEquals(test2.getType(), SwapLegType.INFLATION);
     coverBeanEquals(test1, test2);
   }
 

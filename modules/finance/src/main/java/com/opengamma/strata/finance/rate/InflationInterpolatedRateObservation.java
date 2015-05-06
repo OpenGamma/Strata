@@ -64,6 +64,7 @@ public class InflationInterpolatedRateObservation
    * The weight for the index value in the interpolation.
    * <p>
    * This must be non-negative. 
+   * The reference index is then given by weight * price_index_0 + (1-weight) * price_index_1. 
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double weight;
@@ -205,6 +206,7 @@ public class InflationInterpolatedRateObservation
    * Gets the weight for the index value in the interpolation.
    * <p>
    * This must be non-negative.
+   * The reference index is then given by weight * price_index_0 + (1-weight) * price_index_1.
    * @return the value of the property
    */
   public double getWeight() {
