@@ -40,6 +40,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
   /**
    * Create an instance of the finite difference calculator.
+   * 
    * @param shift  the shift used in the finite difference computation
    */
   public RatesFiniteDifferenceSensitivityCalculator(double shift) {
