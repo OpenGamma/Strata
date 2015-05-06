@@ -173,6 +173,6 @@ public interface IborIndex
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
 }

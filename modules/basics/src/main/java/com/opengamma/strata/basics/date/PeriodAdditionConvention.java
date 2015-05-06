@@ -68,7 +68,7 @@ public interface PeriodAdditionConvention
    * @param calendar  the holiday calendar to use
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate baseDate, Period period, HolidayCalendar calendar);
+  public abstract LocalDate adjust(LocalDate baseDate, Period period, HolidayCalendar calendar);
 
   /**
    * Checks whether the convention requires a month-based period.
@@ -77,7 +77,7 @@ public interface PeriodAdditionConvention
    * 
    * @return true if the convention requires a month-based period
    */
-  public boolean isMonthBased();
+  public abstract boolean isMonthBased();
 
   /**
    * Gets the name that uniquely identifies this convention.
@@ -88,6 +88,6 @@ public interface PeriodAdditionConvention
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
 }

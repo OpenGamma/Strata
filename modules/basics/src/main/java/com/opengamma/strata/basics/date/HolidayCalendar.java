@@ -324,6 +324,6 @@ public interface HolidayCalendar
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
 }

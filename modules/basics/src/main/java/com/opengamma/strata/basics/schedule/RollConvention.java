@@ -116,7 +116,7 @@ public interface RollConvention
    * @param date  the date to adjust
    * @return the adjusted temporal
    */
-  public LocalDate adjust(LocalDate date);
+  public abstract LocalDate adjust(LocalDate date);
 
   /**
    * Checks if the date matches the rules of the roll convention.
@@ -189,6 +189,6 @@ public interface RollConvention
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
 }

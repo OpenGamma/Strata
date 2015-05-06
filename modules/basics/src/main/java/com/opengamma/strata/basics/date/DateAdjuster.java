@@ -32,7 +32,7 @@ public interface DateAdjuster
    * @throws DateTimeException if unable to make the adjustment
    * @throws ArithmeticException if numeric overflow occurs
    */
-  public LocalDate adjust(LocalDate date);
+  public abstract LocalDate adjust(LocalDate date);
 
   /**
    * Adjusts the temporal according to the rules of the implementation.

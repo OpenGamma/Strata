@@ -176,6 +176,6 @@ public interface OvernightIndex
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
 }
