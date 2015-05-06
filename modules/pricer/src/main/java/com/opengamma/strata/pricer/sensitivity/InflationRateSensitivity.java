@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
 
 /**
- * Point sensitivity to a rate from an price index curve.
+ * Point sensitivity to a rate from a price index curve.
  * <p>
  * Holds the sensitivity to the {@link PriceIndex} curve at a reference month.
  */
@@ -53,7 +53,7 @@ public final class InflationRateSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The reference month for the index at the coupon start. 
+   * The reference month for the index. 
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceMonth;
@@ -207,7 +207,7 @@ public final class InflationRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index at the coupon start.
+   * Gets the reference month for the index.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceMonth() {
