@@ -10,10 +10,12 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -100,6 +102,12 @@ public final class ImmutableRatesProvider
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<Index, LocalDateDoubleTimeSeries> timeSeries;
   /**
+   * The additional data, defaulted to an empty map.
+   * This allows application code to access additional market data.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<Class<?>, Object> additionalData;
+  /**
    * The day count applicable to the models.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
@@ -112,6 +120,29 @@ public final class ImmutableRatesProvider
     builder.discountCurves = ImmutableMap.of();
     builder.indexCurves = ImmutableMap.of();
     builder.timeSeries = ImmutableMap.of();
+    builder.additionalData = ImmutableMap.of();
+  }
+
+  @ImmutableValidator
+  private void validate() {
+    for (Entry<Class<?>, Object> entry : additionalData.entrySet()) {
+      if (!entry.getKey().isInstance(entry.getValue())) {
+        throw new IllegalArgumentException("Invalid additional data entry: " + entry.getKey().getName());
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> T data(Class<T> type) {
+    ArgChecker.notNull(type, "type");
+    // type safety checked in validate()
+    @SuppressWarnings("unchecked")
+    T result = (T) additionalData.get(type);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown type: " + type.getName());
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -490,19 +521,23 @@ public final class ImmutableRatesProvider
       Map<Currency, YieldAndDiscountCurve> discountCurves,
       Map<Index, YieldAndDiscountCurve> indexCurves,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries,
+      Map<Class<?>, Object> additionalData,
       DayCount dayCount) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(fxMatrix, "fxMatrix");
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(indexCurves, "indexCurves");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
+    JodaBeanUtils.notNull(additionalData, "additionalData");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this.valuationDate = valuationDate;
     this.fxMatrix = fxMatrix;
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
     this.indexCurves = ImmutableMap.copyOf(indexCurves);
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
+    this.additionalData = ImmutableMap.copyOf(additionalData);
     this.dayCount = dayCount;
+    validate();
   }
 
   @Override
@@ -572,6 +607,16 @@ public final class ImmutableRatesProvider
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the additional data, defaulted to an empty map.
+   * This allows application code to access additional market data.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<Class<?>, Object> getAdditionalData() {
+    return additionalData;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the day count applicable to the models.
    * @return the value of the property, not null
    */
@@ -600,6 +645,7 @@ public final class ImmutableRatesProvider
           JodaBeanUtils.equal(getDiscountCurves(), other.getDiscountCurves()) &&
           JodaBeanUtils.equal(getIndexCurves(), other.getIndexCurves()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
+          JodaBeanUtils.equal(getAdditionalData(), other.getAdditionalData()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount());
     }
     return false;
@@ -613,19 +659,21 @@ public final class ImmutableRatesProvider
     hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurves());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndexCurves());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionalData());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("ImmutableRatesProvider{");
     buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
     buf.append("fxMatrix").append('=').append(getFxMatrix()).append(',').append(' ');
     buf.append("discountCurves").append('=').append(getDiscountCurves()).append(',').append(' ');
     buf.append("indexCurves").append('=').append(getIndexCurves()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("additionalData").append('=').append(getAdditionalData()).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount()));
     buf.append('}');
     return buf.toString();
@@ -670,6 +718,12 @@ public final class ImmutableRatesProvider
     private final MetaProperty<ImmutableMap<Index, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
         this, "timeSeries", ImmutableRatesProvider.class, (Class) ImmutableMap.class);
     /**
+     * The meta-property for the {@code additionalData} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<Class<?>, Object>> additionalData = DirectMetaProperty.ofImmutable(
+        this, "additionalData", ImmutableRatesProvider.class, (Class) ImmutableMap.class);
+    /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
@@ -684,6 +738,7 @@ public final class ImmutableRatesProvider
         "discountCurves",
         "indexCurves",
         "timeSeries",
+        "additionalData",
         "dayCount");
 
     /**
@@ -705,6 +760,8 @@ public final class ImmutableRatesProvider
           return indexCurves;
         case 779431844:  // timeSeries
           return timeSeries;
+        case -974458767:  // additionalData
+          return additionalData;
         case 1905311443:  // dayCount
           return dayCount;
       }
@@ -768,6 +825,14 @@ public final class ImmutableRatesProvider
     }
 
     /**
+     * The meta-property for the {@code additionalData} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<Class<?>, Object>> additionalData() {
+      return additionalData;
+    }
+
+    /**
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
@@ -789,6 +854,8 @@ public final class ImmutableRatesProvider
           return ((ImmutableRatesProvider) bean).getIndexCurves();
         case 779431844:  // timeSeries
           return ((ImmutableRatesProvider) bean).getTimeSeries();
+        case -974458767:  // additionalData
+          return ((ImmutableRatesProvider) bean).getAdditionalData();
         case 1905311443:  // dayCount
           return ((ImmutableRatesProvider) bean).getDayCount();
       }
@@ -817,6 +884,7 @@ public final class ImmutableRatesProvider
     private Map<Currency, YieldAndDiscountCurve> discountCurves = ImmutableMap.of();
     private Map<Index, YieldAndDiscountCurve> indexCurves = ImmutableMap.of();
     private Map<Index, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
+    private Map<Class<?>, Object> additionalData = ImmutableMap.of();
     private DayCount dayCount;
 
     /**
@@ -836,6 +904,7 @@ public final class ImmutableRatesProvider
       this.discountCurves = beanToCopy.getDiscountCurves();
       this.indexCurves = beanToCopy.getIndexCurves();
       this.timeSeries = beanToCopy.getTimeSeries();
+      this.additionalData = beanToCopy.getAdditionalData();
       this.dayCount = beanToCopy.getDayCount();
     }
 
@@ -853,6 +922,8 @@ public final class ImmutableRatesProvider
           return indexCurves;
         case 779431844:  // timeSeries
           return timeSeries;
+        case -974458767:  // additionalData
+          return additionalData;
         case 1905311443:  // dayCount
           return dayCount;
         default:
@@ -878,6 +949,9 @@ public final class ImmutableRatesProvider
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (Map<Index, LocalDateDoubleTimeSeries>) newValue;
+          break;
+        case -974458767:  // additionalData
+          this.additionalData = (Map<Class<?>, Object>) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -920,6 +994,7 @@ public final class ImmutableRatesProvider
           discountCurves,
           indexCurves,
           timeSeries,
+          additionalData,
           dayCount);
     }
 
@@ -980,6 +1055,17 @@ public final class ImmutableRatesProvider
     }
 
     /**
+     * Sets the {@code additionalData} property in the builder.
+     * @param additionalData  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder additionalData(Map<Class<?>, Object> additionalData) {
+      JodaBeanUtils.notNull(additionalData, "additionalData");
+      this.additionalData = additionalData;
+      return this;
+    }
+
+    /**
      * Sets the {@code dayCount} property in the builder.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
@@ -993,13 +1079,14 @@ public final class ImmutableRatesProvider
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("ImmutableRatesProvider.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("fxMatrix").append('=').append(JodaBeanUtils.toString(fxMatrix)).append(',').append(' ');
       buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
       buf.append("indexCurves").append('=').append(JodaBeanUtils.toString(indexCurves)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
+      buf.append("additionalData").append('=').append(JodaBeanUtils.toString(additionalData)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
       buf.append('}');
       return buf.toString();

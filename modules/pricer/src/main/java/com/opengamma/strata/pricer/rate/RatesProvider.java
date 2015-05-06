@@ -30,12 +30,33 @@ public interface RatesProvider
     extends BaseProvider {
 
   /**
+   * Gets additional market data of a specific type.
+   * <p>
+   * In general, it is desirable to pass the specific market data needed for pricing into
+   * the pricing method. However, in some cases, notably swaps, this is not feasible.
+   * This method can be used to access additional data of a specific type.
+   * <pre>
+   *   MarketVolatilityData vol = provider.data(MarketVolatilityData.class);
+   * </pre>
+   * It is strongly recommended to clearly state on pricing methods what additional data is required.
+   * <p>
+   * The specific methods on this interface for Ibor and Overnight indices exist because
+   * they are common cases. The data could also be made available via this method.
+   * 
+   * @param type  the type of additional data to obtain
+   * @return the additional data
+   * @throws IllegalArgumentException if the additional data is not available
+   */
+  public abstract <T> T data(Class<T> type);
+
+  /**
    * Gets the time series of an index.
    * <p>
    * Each index has a history of previously observed values, which can be obtained by this method.
    * 
    * @param index  the index to find a time series for
    * @return the time series of an index
+   * @throws IllegalArgumentException if the time-series is not available
    */
   public abstract LocalDateDoubleTimeSeries timeSeries(Index index);
 
@@ -66,6 +87,7 @@ public interface RatesProvider
    * @param baseCurrency  the base currency that the rate should be expressed against
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
+   * @throws IllegalArgumentException if the index data is not available
    */
   public abstract double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate);
 
@@ -83,6 +105,7 @@ public interface RatesProvider
    * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
+   * @throws IllegalArgumentException if the index data is not available
    */
   public abstract double iborIndexRate(IborIndex index, LocalDate fixingDate);
 
@@ -97,6 +120,7 @@ public interface RatesProvider
    * @param index  the index to find the sensitivity for
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
+   * @throws IllegalArgumentException if the index data is not available
    */
   public abstract PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate);
 
@@ -115,6 +139,7 @@ public interface RatesProvider
    * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
+   * @throws IllegalArgumentException if the index data is not available
    */
   public abstract double overnightIndexRate(OvernightIndex index, LocalDate fixingDate);
 
@@ -129,6 +154,7 @@ public interface RatesProvider
    * @param index  the index to find the sensitivity for
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
+   * @throws IllegalArgumentException if the index data is not available
    */
   public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate);
 
@@ -147,8 +173,8 @@ public interface RatesProvider
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the simply compounded rate associated to the period for the index
-   * @throws IllegalArgumentException when data stored based on the fixing date and not
-   *  the start and end date of the period
+   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
+   *   on the fixing date and not the start and end date of the period
    */
   public abstract double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate);
 
@@ -163,8 +189,8 @@ public interface RatesProvider
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException when data stored based on the fixing date and not
-   *  the start and end date of the period
+   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
+   *   on the fixing date and not the start and end date of the period
    */
   public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
       OvernightIndex index,

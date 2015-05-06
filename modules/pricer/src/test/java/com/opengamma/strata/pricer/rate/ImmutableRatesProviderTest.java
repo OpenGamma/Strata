@@ -22,6 +22,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -81,6 +82,26 @@ public class ImmutableRatesProviderTest {
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(WM_GBP_USD, ts));
     assertEquals(ImmutableRatesProvider.meta().dayCount().get(test), ACT_ACT_ISDA);
+  }
+
+  public void test_builder_invalidAdditionalData() {
+    assertThrowsIllegalArg(() -> ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .additionalData(ImmutableMap.of(String.class, YearMonth.now()))
+        .dayCount(ACT_ACT_ISDA)
+        .build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_data() {
+    YearMonth sample = YearMonth.now();
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .additionalData(ImmutableMap.of(YearMonth.class, sample))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.data(YearMonth.class), sample);
+    assertThrowsIllegalArg(() -> test.data(String.class));
   }
 
   //-------------------------------------------------------------------------
