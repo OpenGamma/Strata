@@ -65,8 +65,8 @@ final class StandardIborIndices {
         .name("GBP-LIBOR-" + tenor)
         .currency(GBP)
         .fixingCalendar(GBLO)
-        .fixingDateOffset(DaysAdjustment.NONE)
-        .effectiveDateOffset(DaysAdjustment.NONE)
+        .fixingDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)))
+        .effectiveDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)))
         .maturityDateOffset(maturity(tenor, GBLO))
         .dayCount(ACT_365F)
         .build();

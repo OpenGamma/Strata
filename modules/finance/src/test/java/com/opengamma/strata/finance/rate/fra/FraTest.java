@@ -73,7 +73,7 @@ public class FraTest {
     assertEquals(test.getFixedRate(), 0.25d, 0d);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getIndexInterpolated(), Optional.empty());
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.NONE);  // defaulted
+    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());  // defaulted
     assertEquals(test.getDayCount(), ACT_365F);  // defaulted
     assertEquals(test.getDiscounting(), ISDA);  // defaulted
   }

@@ -115,7 +115,7 @@ public class IborRateCalculationTest {
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
     assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
     assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
     assertEquals(test.getInitialStub(), Optional.empty());
@@ -132,7 +132,7 @@ public class IborRateCalculationTest {
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getResetPeriods(), Optional.empty());
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.NONE);
+    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
     assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
     assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
     assertEquals(test.getInitialStub(), Optional.empty());
