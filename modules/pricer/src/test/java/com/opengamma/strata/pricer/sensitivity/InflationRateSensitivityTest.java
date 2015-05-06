@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Test. 
+ * Test {@link InflationRateSensitivity}.
  */
 @Test
 public class InflationRateSensitivityTest {
@@ -46,6 +46,7 @@ public class InflationRateSensitivityTest {
     assertEquals(test.getSensitivity(), 3.5);
   }
 
+  //-------------------------------------------------------------------------
   public void test_withCurrency() {
     InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 3.5);
     assertEquals(base.withCurrency(CHF), base);
@@ -54,6 +55,7 @@ public class InflationRateSensitivityTest {
     assertEquals(test, expected);
   }
 
+  //-------------------------------------------------------------------------
   public void test_withSensitivity() {
     InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 3.5);
     InflationRateSensitivity expected = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 23.4);
@@ -61,21 +63,7 @@ public class InflationRateSensitivityTest {
     assertEquals(test, expected);
   }
 
-  public void test_mapSensitivity() {
-    InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 5.0);
-    InflationRateSensitivity expected = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 1.0 / 5.0);
-    InflationRateSensitivity test = base.mapSensitivity(s -> 1 / s);
-    assertEquals(test, expected);
-  }
-
-  public void test_buildInto() {
-    InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 3.5);
-    MutablePointSensitivities combo = new MutablePointSensitivities();
-    MutablePointSensitivities test = base.buildInto(combo);
-    assertEquals(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
-  }
-
+  //-------------------------------------------------------------------------
   public void test_compareExcludingSensitivity() {
     InflationRateSensitivity a1 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 32d);
     InflationRateSensitivity a2 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 32d);
@@ -94,6 +82,7 @@ public class InflationRateSensitivityTest {
     assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
   }
 
+  //-------------------------------------------------------------------------
   public void test_multipliedBy() {
     InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 5.0);
     InflationRateSensitivity expected = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 2.6 * 5.0);
@@ -101,12 +90,49 @@ public class InflationRateSensitivityTest {
     assertEquals(test, expected);
   }
 
+  //-------------------------------------------------------------------------
+  public void test_mapSensitivity() {
+    InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 5.0);
+    InflationRateSensitivity expected = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 1.0 / 5.0);
+    InflationRateSensitivity test = base.mapSensitivity(s -> 1 / s);
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_combinedWith() {
+    InflationRateSensitivity base1 = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 5.0);
+    InflationRateSensitivity base2 = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 7.0);
+    MutablePointSensitivities expected = new MutablePointSensitivities();
+    expected.add(base1).add(base2);
+    PointSensitivityBuilder test = base1.combinedWith(base2);
+    assertEquals(test, expected);
+  }
+
+  public void test_combinedWith_mutable() {
+    InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 5.0);
+    MutablePointSensitivities expected = new MutablePointSensitivities();
+    expected.add(base);
+    PointSensitivityBuilder test = base.combinedWith(new MutablePointSensitivities());
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_buildInto() {
+    InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 3.5);
+    MutablePointSensitivities combo = new MutablePointSensitivities();
+    MutablePointSensitivities test = base.buildInto(combo);
+    assertEquals(test, combo);
+    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_build() {
     InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 3.5);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     InflationRateSensitivity test1 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 1.0);
     coverImmutableBean(test1);
@@ -118,4 +144,5 @@ public class InflationRateSensitivityTest {
     InflationRateSensitivity test = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 1.0);
     assertSerialization(test);
   }
+
 }
