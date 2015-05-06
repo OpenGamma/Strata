@@ -55,7 +55,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
  * <ul>
  * <li>Start date, the date on which the implied deposit starts
  * <li>End date, the date on which the implied deposit ends
- * <li>Fixing date, the date on which the index is to be observed,  typically 2 business days before the start date
+ * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * <li>Payment date, the date on which payment is made, typically the same as the start date
  * </ul>
  */
