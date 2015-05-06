@@ -24,16 +24,17 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Defines the observation of inflation figures from a price index.
  * <p>
- * The reference index is the price index of a month linked to the payment date.   
- * The most common implementations of price indexes are provided in {@link PriceIndices}.
+ * A price index is typically published monthly and has a delay before publication.
+ * The rate observed by this instance will be based on two observations of the index,
+ * one relative to the accrual start date and one relative to the accrual end date.
  */
 @BeanDefinition
 public final class InflationMonthlyRateObservation
@@ -43,34 +44,40 @@ public final class InflationMonthlyRateObservation
    * The index of prices.
    * <p>
    * The pay-off is computed based on this index
-   * The most common implementations are provided in {@link PriceIndices}.
    */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The reference month for the index at the coupon start. 
+   * The reference month for the index relative to the accrual start date.
+   * <p>
+   * The reference month is typically three months before the accrual start date.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceStartMonth;
   /**
-   * The reference month for the index at the coupon end. 
+   * The reference month for the index relative to the accrual end date.
    * <p>
-   * There is usually a difference of two or three month between the reference month and the payment month.
+   * The reference month is typically three months before the accrual end date.
+   * Must be after the reference start month.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceEndMonth;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an {@code InflationMonthlyRateObservation} from an index, reference start month and reference end month.
-   * @param index The index
-   * @param referenceStartMonth The reference start month. 
-   * @param referenceEndMonth The reference end month. 
-   * @return The inflation rate observation
+   * Creates an {@code InflationMonthlyRateObservation} from an index, reference
+   * start month and reference end month.
+   * 
+   * @param index  the index
+   * @param referenceStartMonth  the reference start month
+   * @param referenceEndMonth  the reference end month
+   * @return the inflation rate observation
    */
   public static InflationMonthlyRateObservation of(
       PriceIndex index,
       YearMonth referenceStartMonth,
       YearMonth referenceEndMonth) {
+
     return InflationMonthlyRateObservation.builder()
         .index(index)
         .referenceStartMonth(referenceStartMonth)
@@ -83,8 +90,9 @@ public final class InflationMonthlyRateObservation
     ArgChecker.inOrderNotEqual(referenceStartMonth, referenceEndMonth, "referenceStartMonth", "referenceEndMonth");
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void collectIndices(com.google.common.collect.ImmutableSet.Builder<Index> builder) {
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
     builder.add(index);
   }
 
@@ -148,7 +156,6 @@ public final class InflationMonthlyRateObservation
    * Gets the index of prices.
    * <p>
    * The pay-off is computed based on this index
-   * The most common implementations are provided in {@link PriceIndices}.
    * @return the value of the property, not null
    */
   public PriceIndex getIndex() {
@@ -157,7 +164,9 @@ public final class InflationMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index at the coupon start.
+   * Gets the reference month for the index relative to the accrual start date.
+   * <p>
+   * The reference month is typically three months before the accrual start date.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceStartMonth() {
@@ -166,9 +175,10 @@ public final class InflationMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index at the coupon end.
+   * Gets the reference month for the index relative to the accrual end date.
    * <p>
-   * There is usually a difference of two or three month between the reference month and the payment month.
+   * The reference month is typically three months before the accrual end date.
+   * Must be after the reference start month.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceEndMonth() {

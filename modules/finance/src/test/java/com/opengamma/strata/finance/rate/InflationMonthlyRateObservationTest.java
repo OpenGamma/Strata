@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
 
 /**
- * Test. 
+ * Test {@link InflationMonthlyRateObservation}.
  */
 @Test
 public class InflationMonthlyRateObservationTest {
@@ -29,13 +29,13 @@ public class InflationMonthlyRateObservationTest {
   private static final YearMonth START_MONTH = YearMonth.of(2014, 1);
   private static final YearMonth END_MONTH = YearMonth.of(2015, 1);
 
+  //-------------------------------------------------------------------------
   public void test_of() {
     InflationMonthlyRateObservation test =
         InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     assertEquals(test.getIndex(), GB_HICP);
     assertEquals(test.getReferenceStartMonth(), START_MONTH);
     assertEquals(test.getReferenceEndMonth(), END_MONTH);
-
   }
 
   public void test_builder() {
@@ -50,21 +50,21 @@ public class InflationMonthlyRateObservationTest {
 
   }
 
-  public void test_wrongDates() {
+  public void test_wrongMonthOrder() {
     assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(GB_HICP, END_MONTH, START_MONTH));
+    assertThrowsIllegalArg(() -> InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, START_MONTH));
   }
 
+  //-------------------------------------------------------------------------
   public void test_collectIndices() {
-    InflationMonthlyRateObservation test = InflationMonthlyRateObservation.builder()
-        .index(CH_CPI)
-        .referenceStartMonth(START_MONTH)
-        .referenceEndMonth(END_MONTH)
-        .build();
+    InflationMonthlyRateObservation test =
+        InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(CH_CPI));
+    assertEquals(builder.build(), ImmutableSet.of(GB_HICP));
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     InflationMonthlyRateObservation test1 =
         InflationMonthlyRateObservation.of(GB_HICP, START_MONTH, END_MONTH);

@@ -24,17 +24,19 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Defines the observation of inflation figures from a price index.
+ * Defines the observation of inflation figures from a price index with interpolation.
  * <p>
- * the reference index is linearly interpolated between two months. 
- * The interpolation is done with the number of days of the payment month.   
- * The most common implementations of price indexes are provided in {@link PriceIndices}.
+ * A price index is typically published monthly and has a delay before publication.
+ * The rate observed by this instance will be based on four observations of the index,
+ * two relative to the accrual start date and two relative to the accrual end date.
+ * Linear interpolation based on the number of days of the payment month is used
+ * to find the appropriate value for each pair of observations.
  */
 @BeanDefinition
 public class InflationInterpolatedRateObservation
@@ -44,89 +46,93 @@ public class InflationInterpolatedRateObservation
   * The index of prices.
   * <p>
   * The pay-off is computed based on this index
-  * The most common implementations are provided in {@link PriceIndices}.
   */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The first reference month for the index at the coupon start. 
+   * The reference month for the index relative to the accrual start date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of three months between the first reference month and the accrual start month.
+   * The reference month is typically three months before the accrual start date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth referenceStartMonthFirst;
+  private final YearMonth referenceStartMonth;
   /**
-   * The second reference month for the index at the coupon start. 
+   * The reference month used for interpolation for the index relative to the accrual start date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of two months between the second reference month and the accrual start month.
+   * The reference month for interpolation is typically one month after the reference start month.
+   * As such it is typically two months before the accrual start date.
+   * Must be after the reference start month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth referenceStartMonthSecond;
+  private final YearMonth referenceStartInterpolationMonth;
   /**
-   * The first reference month for the index at the coupon end. 
+   * The reference month for the index relative to the accrual end date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of three months between the first reference month and the payment month.
+   * The reference month is typically three months before the accrual end date.
+   * Must be after the reference start month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth referenceEndMonthFirst;
+  private final YearMonth referenceEndMonth;
   /**
-   * The second reference month for the index at the coupon end. 
+   * The reference month used for interpolation for the index relative to the accrual end date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of two months between the second reference month and the payment month.
+   * The reference month for interpolation is typically one month after the reference end month.
+   * As such it is typically two months before the accrual end date.
+   * Must be after the reference end month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YearMonth referenceEndMonthSecond;
+  private final YearMonth referenceEndInterpolationMonth;
   /**
-   * The weight for the index value in the interpolation.
+   * The positive weight used when interpolating.
    * <p>
-   * This must be non-negative. 
-   * The reference index is then given by weight * price_index_1 + (1-weight) * price_index_2. 
+   * Given two price index observations, typically in adjacent months, the weight is used
+   * to determine the adjusted index value. The value is given by the formula
+   * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double weight;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an {@code InflationInterpolatedRateObservation} from an index, reference start months 
-   * and reference end months.
-   * @param index The index
-   * @param referenceStartMonthFirst The first reference start month. 
-   * @param referenceStartMonthSecond The second reference start month. 
-   * @param referenceEndMonthFirst The first reference end month. 
-   * @param referenceEndMonthSecond The second reference end month. 
-   * @param weight The weight. 
-   * @return The inflation rate observation
+   * Creates an {@code InflationInterpolatedRateObservation} from an index,
+   * reference start month and reference end month.
+   * <p>
+   * The interpolated start and end month will be one month later.
+   * 
+   * @param index  the index
+   * @param referenceStartMonth  the reference start month
+   * @param referenceEndMonth  the reference end month
+   * @param weight  the weight
+   * @return the inflation rate observation
    */
   public static InflationInterpolatedRateObservation of(
       PriceIndex index,
-      YearMonth referenceStartMonthFirst,
-      YearMonth referenceStartMonthSecond,
-      YearMonth referenceEndMonthFirst,
-      YearMonth referenceEndMonthSecond,
+      YearMonth referenceStartMonth,
+      YearMonth referenceEndMonth,
       double weight) {
+
     return InflationInterpolatedRateObservation.builder()
         .index(index)
-        .referenceStartMonthFirst(referenceStartMonthFirst)
-        .referenceStartMonthSecond(referenceStartMonthSecond)
-        .referenceEndMonthFirst(referenceEndMonthFirst)
-        .referenceEndMonthSecond(referenceEndMonthSecond)
+        .referenceStartMonth(referenceStartMonth)
+        .referenceStartInterpolationMonth(referenceStartMonth.plusMonths(1))
+        .referenceEndMonth(referenceEndMonth)
+        .referenceEndInterpolationMonth(referenceEndMonth.plusMonths(1))
         .weight(weight)
         .build();
   }
 
   @ImmutableValidator
   private void validate() {
+    ArgChecker.inOrderNotEqual(referenceStartMonth, referenceEndMonth, "referenceStartMonth", "referenceEndMonth");
     ArgChecker.inOrderNotEqual(
-        referenceStartMonthFirst, referenceEndMonthFirst, "referenceStartMonthFirst", "referenceEndMonthFirst");
+        referenceStartMonth, referenceStartInterpolationMonth, "referenceStartMonth", "referenceStartInterpolationMonth");
     ArgChecker.inOrderNotEqual(
-        referenceStartMonthSecond, referenceEndMonthSecond, "referenceStartMonthSecond", "referenceEndMonthSecond");
+        referenceEndMonth, referenceEndInterpolationMonth, "referenceEndMonth", "referenceEndInterpolationMonth");
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void collectIndices(com.google.common.collect.ImmutableSet.Builder<Index> builder) {
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
     builder.add(index);
   }
 
@@ -163,16 +169,16 @@ public class InflationInterpolatedRateObservation
    */
   protected InflationInterpolatedRateObservation(InflationInterpolatedRateObservation.Builder builder) {
     JodaBeanUtils.notNull(builder.index, "index");
-    JodaBeanUtils.notNull(builder.referenceStartMonthFirst, "referenceStartMonthFirst");
-    JodaBeanUtils.notNull(builder.referenceStartMonthSecond, "referenceStartMonthSecond");
-    JodaBeanUtils.notNull(builder.referenceEndMonthFirst, "referenceEndMonthFirst");
-    JodaBeanUtils.notNull(builder.referenceEndMonthSecond, "referenceEndMonthSecond");
+    JodaBeanUtils.notNull(builder.referenceStartMonth, "referenceStartMonth");
+    JodaBeanUtils.notNull(builder.referenceStartInterpolationMonth, "referenceStartInterpolationMonth");
+    JodaBeanUtils.notNull(builder.referenceEndMonth, "referenceEndMonth");
+    JodaBeanUtils.notNull(builder.referenceEndInterpolationMonth, "referenceEndInterpolationMonth");
     ArgChecker.notNegative(builder.weight, "weight");
     this.index = builder.index;
-    this.referenceStartMonthFirst = builder.referenceStartMonthFirst;
-    this.referenceStartMonthSecond = builder.referenceStartMonthSecond;
-    this.referenceEndMonthFirst = builder.referenceEndMonthFirst;
-    this.referenceEndMonthSecond = builder.referenceEndMonthSecond;
+    this.referenceStartMonth = builder.referenceStartMonth;
+    this.referenceStartInterpolationMonth = builder.referenceStartInterpolationMonth;
+    this.referenceEndMonth = builder.referenceEndMonth;
+    this.referenceEndInterpolationMonth = builder.referenceEndInterpolationMonth;
     this.weight = builder.weight;
     validate();
   }
@@ -197,7 +203,6 @@ public class InflationInterpolatedRateObservation
    * Gets the index of prices.
    * <p>
    * The pay-off is computed based on this index
-   * The most common implementations are provided in {@link PriceIndices}.
    * @return the value of the property, not null
    */
   public PriceIndex getIndex() {
@@ -206,58 +211,60 @@ public class InflationInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first reference month for the index at the coupon start.
+   * Gets the reference month for the index relative to the accrual start date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of three months between the first reference month and the accrual start month.
+   * The reference month is typically three months before the accrual start date.
    * @return the value of the property, not null
    */
-  public YearMonth getReferenceStartMonthFirst() {
-    return referenceStartMonthFirst;
+  public YearMonth getReferenceStartMonth() {
+    return referenceStartMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the second reference month for the index at the coupon start.
+   * Gets the reference month used for interpolation for the index relative to the accrual start date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of two months between the second reference month and the accrual start month.
+   * The reference month for interpolation is typically one month after the reference start month.
+   * As such it is typically two months before the accrual start date.
+   * Must be after the reference start month.
    * @return the value of the property, not null
    */
-  public YearMonth getReferenceStartMonthSecond() {
-    return referenceStartMonthSecond;
+  public YearMonth getReferenceStartInterpolationMonth() {
+    return referenceStartInterpolationMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first reference month for the index at the coupon end.
+   * Gets the reference month for the index relative to the accrual end date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of three months between the first reference month and the payment month.
+   * The reference month is typically three months before the accrual end date.
+   * Must be after the reference start month.
    * @return the value of the property, not null
    */
-  public YearMonth getReferenceEndMonthFirst() {
-    return referenceEndMonthFirst;
+  public YearMonth getReferenceEndMonth() {
+    return referenceEndMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the second reference month for the index at the coupon end.
+   * Gets the reference month used for interpolation for the index relative to the accrual end date.
    * <p>
-   * Two reference months are required for the interpolation.
-   * There is usually a difference of two months between the second reference month and the payment month.
+   * The reference month for interpolation is typically one month after the reference end month.
+   * As such it is typically two months before the accrual end date.
+   * Must be after the reference end month.
    * @return the value of the property, not null
    */
-  public YearMonth getReferenceEndMonthSecond() {
-    return referenceEndMonthSecond;
+  public YearMonth getReferenceEndInterpolationMonth() {
+    return referenceEndInterpolationMonth;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the weight for the index value in the interpolation.
+   * Gets the positive weight used when interpolating.
    * <p>
-   * This must be non-negative.
-   * The reference index is then given by weight * price_index_1 + (1-weight) * price_index_2.
+   * Given two price index observations, typically in adjacent months, the weight is used
+   * to determine the adjusted index value. The value is given by the formula
+   * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
    * @return the value of the property
    */
   public double getWeight() {
@@ -281,10 +288,10 @@ public class InflationInterpolatedRateObservation
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationInterpolatedRateObservation other = (InflationInterpolatedRateObservation) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getReferenceStartMonthFirst(), other.getReferenceStartMonthFirst()) &&
-          JodaBeanUtils.equal(getReferenceStartMonthSecond(), other.getReferenceStartMonthSecond()) &&
-          JodaBeanUtils.equal(getReferenceEndMonthFirst(), other.getReferenceEndMonthFirst()) &&
-          JodaBeanUtils.equal(getReferenceEndMonthSecond(), other.getReferenceEndMonthSecond()) &&
+          JodaBeanUtils.equal(getReferenceStartMonth(), other.getReferenceStartMonth()) &&
+          JodaBeanUtils.equal(getReferenceStartInterpolationMonth(), other.getReferenceStartInterpolationMonth()) &&
+          JodaBeanUtils.equal(getReferenceEndMonth(), other.getReferenceEndMonth()) &&
+          JodaBeanUtils.equal(getReferenceEndInterpolationMonth(), other.getReferenceEndInterpolationMonth()) &&
           JodaBeanUtils.equal(getWeight(), other.getWeight());
     }
     return false;
@@ -294,10 +301,10 @@ public class InflationInterpolatedRateObservation
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartMonthFirst());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartMonthSecond());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndMonthFirst());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndMonthSecond());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceStartInterpolationMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEndInterpolationMonth());
     hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
     return hash;
   }
@@ -317,10 +324,10 @@ public class InflationInterpolatedRateObservation
 
   protected void toString(StringBuilder buf) {
     buf.append("index").append('=').append(JodaBeanUtils.toString(getIndex())).append(',').append(' ');
-    buf.append("referenceStartMonthFirst").append('=').append(JodaBeanUtils.toString(getReferenceStartMonthFirst())).append(',').append(' ');
-    buf.append("referenceStartMonthSecond").append('=').append(JodaBeanUtils.toString(getReferenceStartMonthSecond())).append(',').append(' ');
-    buf.append("referenceEndMonthFirst").append('=').append(JodaBeanUtils.toString(getReferenceEndMonthFirst())).append(',').append(' ');
-    buf.append("referenceEndMonthSecond").append('=').append(JodaBeanUtils.toString(getReferenceEndMonthSecond())).append(',').append(' ');
+    buf.append("referenceStartMonth").append('=').append(JodaBeanUtils.toString(getReferenceStartMonth())).append(',').append(' ');
+    buf.append("referenceStartInterpolationMonth").append('=').append(JodaBeanUtils.toString(getReferenceStartInterpolationMonth())).append(',').append(' ');
+    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(getReferenceEndMonth())).append(',').append(' ');
+    buf.append("referenceEndInterpolationMonth").append('=').append(JodaBeanUtils.toString(getReferenceEndInterpolationMonth())).append(',').append(' ');
     buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight())).append(',').append(' ');
   }
 
@@ -340,25 +347,25 @@ public class InflationInterpolatedRateObservation
     private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", InflationInterpolatedRateObservation.class, PriceIndex.class);
     /**
-     * The meta-property for the {@code referenceStartMonthFirst} property.
+     * The meta-property for the {@code referenceStartMonth} property.
      */
-    private final MetaProperty<YearMonth> referenceStartMonthFirst = DirectMetaProperty.ofImmutable(
-        this, "referenceStartMonthFirst", InflationInterpolatedRateObservation.class, YearMonth.class);
+    private final MetaProperty<YearMonth> referenceStartMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceStartMonth", InflationInterpolatedRateObservation.class, YearMonth.class);
     /**
-     * The meta-property for the {@code referenceStartMonthSecond} property.
+     * The meta-property for the {@code referenceStartInterpolationMonth} property.
      */
-    private final MetaProperty<YearMonth> referenceStartMonthSecond = DirectMetaProperty.ofImmutable(
-        this, "referenceStartMonthSecond", InflationInterpolatedRateObservation.class, YearMonth.class);
+    private final MetaProperty<YearMonth> referenceStartInterpolationMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceStartInterpolationMonth", InflationInterpolatedRateObservation.class, YearMonth.class);
     /**
-     * The meta-property for the {@code referenceEndMonthFirst} property.
+     * The meta-property for the {@code referenceEndMonth} property.
      */
-    private final MetaProperty<YearMonth> referenceEndMonthFirst = DirectMetaProperty.ofImmutable(
-        this, "referenceEndMonthFirst", InflationInterpolatedRateObservation.class, YearMonth.class);
+    private final MetaProperty<YearMonth> referenceEndMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceEndMonth", InflationInterpolatedRateObservation.class, YearMonth.class);
     /**
-     * The meta-property for the {@code referenceEndMonthSecond} property.
+     * The meta-property for the {@code referenceEndInterpolationMonth} property.
      */
-    private final MetaProperty<YearMonth> referenceEndMonthSecond = DirectMetaProperty.ofImmutable(
-        this, "referenceEndMonthSecond", InflationInterpolatedRateObservation.class, YearMonth.class);
+    private final MetaProperty<YearMonth> referenceEndInterpolationMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceEndInterpolationMonth", InflationInterpolatedRateObservation.class, YearMonth.class);
     /**
      * The meta-property for the {@code weight} property.
      */
@@ -370,10 +377,10 @@ public class InflationInterpolatedRateObservation
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "referenceStartMonthFirst",
-        "referenceStartMonthSecond",
-        "referenceEndMonthFirst",
-        "referenceEndMonthSecond",
+        "referenceStartMonth",
+        "referenceStartInterpolationMonth",
+        "referenceEndMonth",
+        "referenceEndInterpolationMonth",
         "weight");
 
     /**
@@ -387,14 +394,14 @@ public class InflationInterpolatedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -730138809:  // referenceStartMonthFirst
-          return referenceStartMonthFirst;
-        case -791432515:  // referenceStartMonthSecond
-          return referenceStartMonthSecond;
-        case 1223950784:  // referenceEndMonthFirst
-          return referenceEndMonthFirst;
-        case -344197276:  // referenceEndMonthSecond
-          return referenceEndMonthSecond;
+        case -1306094359:  // referenceStartMonth
+          return referenceStartMonth;
+        case 1179606899:  // referenceStartInterpolationMonth
+          return referenceStartInterpolationMonth;
+        case 1861034704:  // referenceEndMonth
+          return referenceEndMonth;
+        case -227090196:  // referenceEndInterpolationMonth
+          return referenceEndInterpolationMonth;
         case -791592328:  // weight
           return weight;
       }
@@ -426,35 +433,35 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * The meta-property for the {@code referenceStartMonthFirst} property.
+     * The meta-property for the {@code referenceStartMonth} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<YearMonth> referenceStartMonthFirst() {
-      return referenceStartMonthFirst;
+    public final MetaProperty<YearMonth> referenceStartMonth() {
+      return referenceStartMonth;
     }
 
     /**
-     * The meta-property for the {@code referenceStartMonthSecond} property.
+     * The meta-property for the {@code referenceStartInterpolationMonth} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<YearMonth> referenceStartMonthSecond() {
-      return referenceStartMonthSecond;
+    public final MetaProperty<YearMonth> referenceStartInterpolationMonth() {
+      return referenceStartInterpolationMonth;
     }
 
     /**
-     * The meta-property for the {@code referenceEndMonthFirst} property.
+     * The meta-property for the {@code referenceEndMonth} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<YearMonth> referenceEndMonthFirst() {
-      return referenceEndMonthFirst;
+    public final MetaProperty<YearMonth> referenceEndMonth() {
+      return referenceEndMonth;
     }
 
     /**
-     * The meta-property for the {@code referenceEndMonthSecond} property.
+     * The meta-property for the {@code referenceEndInterpolationMonth} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<YearMonth> referenceEndMonthSecond() {
-      return referenceEndMonthSecond;
+    public final MetaProperty<YearMonth> referenceEndInterpolationMonth() {
+      return referenceEndInterpolationMonth;
     }
 
     /**
@@ -471,14 +478,14 @@ public class InflationInterpolatedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((InflationInterpolatedRateObservation) bean).getIndex();
-        case -730138809:  // referenceStartMonthFirst
-          return ((InflationInterpolatedRateObservation) bean).getReferenceStartMonthFirst();
-        case -791432515:  // referenceStartMonthSecond
-          return ((InflationInterpolatedRateObservation) bean).getReferenceStartMonthSecond();
-        case 1223950784:  // referenceEndMonthFirst
-          return ((InflationInterpolatedRateObservation) bean).getReferenceEndMonthFirst();
-        case -344197276:  // referenceEndMonthSecond
-          return ((InflationInterpolatedRateObservation) bean).getReferenceEndMonthSecond();
+        case -1306094359:  // referenceStartMonth
+          return ((InflationInterpolatedRateObservation) bean).getReferenceStartMonth();
+        case 1179606899:  // referenceStartInterpolationMonth
+          return ((InflationInterpolatedRateObservation) bean).getReferenceStartInterpolationMonth();
+        case 1861034704:  // referenceEndMonth
+          return ((InflationInterpolatedRateObservation) bean).getReferenceEndMonth();
+        case -227090196:  // referenceEndInterpolationMonth
+          return ((InflationInterpolatedRateObservation) bean).getReferenceEndInterpolationMonth();
         case -791592328:  // weight
           return ((InflationInterpolatedRateObservation) bean).getWeight();
       }
@@ -503,10 +510,10 @@ public class InflationInterpolatedRateObservation
   public static class Builder extends DirectFieldsBeanBuilder<InflationInterpolatedRateObservation> {
 
     private PriceIndex index;
-    private YearMonth referenceStartMonthFirst;
-    private YearMonth referenceStartMonthSecond;
-    private YearMonth referenceEndMonthFirst;
-    private YearMonth referenceEndMonthSecond;
+    private YearMonth referenceStartMonth;
+    private YearMonth referenceStartInterpolationMonth;
+    private YearMonth referenceEndMonth;
+    private YearMonth referenceEndInterpolationMonth;
     private double weight;
 
     /**
@@ -521,10 +528,10 @@ public class InflationInterpolatedRateObservation
      */
     protected Builder(InflationInterpolatedRateObservation beanToCopy) {
       this.index = beanToCopy.getIndex();
-      this.referenceStartMonthFirst = beanToCopy.getReferenceStartMonthFirst();
-      this.referenceStartMonthSecond = beanToCopy.getReferenceStartMonthSecond();
-      this.referenceEndMonthFirst = beanToCopy.getReferenceEndMonthFirst();
-      this.referenceEndMonthSecond = beanToCopy.getReferenceEndMonthSecond();
+      this.referenceStartMonth = beanToCopy.getReferenceStartMonth();
+      this.referenceStartInterpolationMonth = beanToCopy.getReferenceStartInterpolationMonth();
+      this.referenceEndMonth = beanToCopy.getReferenceEndMonth();
+      this.referenceEndInterpolationMonth = beanToCopy.getReferenceEndInterpolationMonth();
       this.weight = beanToCopy.getWeight();
     }
 
@@ -534,14 +541,14 @@ public class InflationInterpolatedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -730138809:  // referenceStartMonthFirst
-          return referenceStartMonthFirst;
-        case -791432515:  // referenceStartMonthSecond
-          return referenceStartMonthSecond;
-        case 1223950784:  // referenceEndMonthFirst
-          return referenceEndMonthFirst;
-        case -344197276:  // referenceEndMonthSecond
-          return referenceEndMonthSecond;
+        case -1306094359:  // referenceStartMonth
+          return referenceStartMonth;
+        case 1179606899:  // referenceStartInterpolationMonth
+          return referenceStartInterpolationMonth;
+        case 1861034704:  // referenceEndMonth
+          return referenceEndMonth;
+        case -227090196:  // referenceEndInterpolationMonth
+          return referenceEndInterpolationMonth;
         case -791592328:  // weight
           return weight;
         default:
@@ -555,17 +562,17 @@ public class InflationInterpolatedRateObservation
         case 100346066:  // index
           this.index = (PriceIndex) newValue;
           break;
-        case -730138809:  // referenceStartMonthFirst
-          this.referenceStartMonthFirst = (YearMonth) newValue;
+        case -1306094359:  // referenceStartMonth
+          this.referenceStartMonth = (YearMonth) newValue;
           break;
-        case -791432515:  // referenceStartMonthSecond
-          this.referenceStartMonthSecond = (YearMonth) newValue;
+        case 1179606899:  // referenceStartInterpolationMonth
+          this.referenceStartInterpolationMonth = (YearMonth) newValue;
           break;
-        case 1223950784:  // referenceEndMonthFirst
-          this.referenceEndMonthFirst = (YearMonth) newValue;
+        case 1861034704:  // referenceEndMonth
+          this.referenceEndMonth = (YearMonth) newValue;
           break;
-        case -344197276:  // referenceEndMonthSecond
-          this.referenceEndMonthSecond = (YearMonth) newValue;
+        case -227090196:  // referenceEndInterpolationMonth
+          this.referenceEndInterpolationMonth = (YearMonth) newValue;
           break;
         case -791592328:  // weight
           this.weight = (Double) newValue;
@@ -618,46 +625,46 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the {@code referenceStartMonthFirst} property in the builder.
-     * @param referenceStartMonthFirst  the new value, not null
+     * Sets the {@code referenceStartMonth} property in the builder.
+     * @param referenceStartMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceStartMonthFirst(YearMonth referenceStartMonthFirst) {
-      JodaBeanUtils.notNull(referenceStartMonthFirst, "referenceStartMonthFirst");
-      this.referenceStartMonthFirst = referenceStartMonthFirst;
+    public Builder referenceStartMonth(YearMonth referenceStartMonth) {
+      JodaBeanUtils.notNull(referenceStartMonth, "referenceStartMonth");
+      this.referenceStartMonth = referenceStartMonth;
       return this;
     }
 
     /**
-     * Sets the {@code referenceStartMonthSecond} property in the builder.
-     * @param referenceStartMonthSecond  the new value, not null
+     * Sets the {@code referenceStartInterpolationMonth} property in the builder.
+     * @param referenceStartInterpolationMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceStartMonthSecond(YearMonth referenceStartMonthSecond) {
-      JodaBeanUtils.notNull(referenceStartMonthSecond, "referenceStartMonthSecond");
-      this.referenceStartMonthSecond = referenceStartMonthSecond;
+    public Builder referenceStartInterpolationMonth(YearMonth referenceStartInterpolationMonth) {
+      JodaBeanUtils.notNull(referenceStartInterpolationMonth, "referenceStartInterpolationMonth");
+      this.referenceStartInterpolationMonth = referenceStartInterpolationMonth;
       return this;
     }
 
     /**
-     * Sets the {@code referenceEndMonthFirst} property in the builder.
-     * @param referenceEndMonthFirst  the new value, not null
+     * Sets the {@code referenceEndMonth} property in the builder.
+     * @param referenceEndMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEndMonthFirst(YearMonth referenceEndMonthFirst) {
-      JodaBeanUtils.notNull(referenceEndMonthFirst, "referenceEndMonthFirst");
-      this.referenceEndMonthFirst = referenceEndMonthFirst;
+    public Builder referenceEndMonth(YearMonth referenceEndMonth) {
+      JodaBeanUtils.notNull(referenceEndMonth, "referenceEndMonth");
+      this.referenceEndMonth = referenceEndMonth;
       return this;
     }
 
     /**
-     * Sets the {@code referenceEndMonthSecond} property in the builder.
-     * @param referenceEndMonthSecond  the new value, not null
+     * Sets the {@code referenceEndInterpolationMonth} property in the builder.
+     * @param referenceEndInterpolationMonth  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder referenceEndMonthSecond(YearMonth referenceEndMonthSecond) {
-      JodaBeanUtils.notNull(referenceEndMonthSecond, "referenceEndMonthSecond");
-      this.referenceEndMonthSecond = referenceEndMonthSecond;
+    public Builder referenceEndInterpolationMonth(YearMonth referenceEndInterpolationMonth) {
+      JodaBeanUtils.notNull(referenceEndInterpolationMonth, "referenceEndInterpolationMonth");
+      this.referenceEndInterpolationMonth = referenceEndInterpolationMonth;
       return this;
     }
 
@@ -688,10 +695,10 @@ public class InflationInterpolatedRateObservation
 
     protected void toString(StringBuilder buf) {
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("referenceStartMonthFirst").append('=').append(JodaBeanUtils.toString(referenceStartMonthFirst)).append(',').append(' ');
-      buf.append("referenceStartMonthSecond").append('=').append(JodaBeanUtils.toString(referenceStartMonthSecond)).append(',').append(' ');
-      buf.append("referenceEndMonthFirst").append('=').append(JodaBeanUtils.toString(referenceEndMonthFirst)).append(',').append(' ');
-      buf.append("referenceEndMonthSecond").append('=').append(JodaBeanUtils.toString(referenceEndMonthSecond)).append(',').append(' ');
+      buf.append("referenceStartMonth").append('=').append(JodaBeanUtils.toString(referenceStartMonth)).append(',').append(' ');
+      buf.append("referenceStartInterpolationMonth").append('=').append(JodaBeanUtils.toString(referenceStartInterpolationMonth)).append(',').append(' ');
+      buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth)).append(',').append(' ');
+      buf.append("referenceEndInterpolationMonth").append('=').append(JodaBeanUtils.toString(referenceEndInterpolationMonth)).append(',').append(' ');
       buf.append("weight").append('=').append(JodaBeanUtils.toString(weight)).append(',').append(' ');
     }
 

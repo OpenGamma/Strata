@@ -9,14 +9,15 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Period;
 import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+
+import org.joda.beans.ImmutableValidator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -50,7 +51,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
  * The amount is based on the observed value of a price index.
  * <p>
  * The index for a given month is given in the yield curve or in the time series on the first of the month.
- * The pay-off for a unit notional is (Index_End / Index_Start - 1).
+ * The pay-off for a unit notional is {@code (Index_End / Index_Start - 1)}.
  */
 @BeanDefinition
 public final class InflationRateCalculation
@@ -65,29 +66,37 @@ public final class InflationRateCalculation
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The lag in month between the index validity and the coupon dates for the actual product. 
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final int monthLag;
-  /**
-   * Defines the calculation of the reference index. 
+   * The positive period between the price index and the accrual date,
+   * typically a number of months.
    * <p>
-   * If true, the reference index is linearly interpolated between two months. 
-   * The interpolation is done with the number of days of the payment month. 
+   * A price index is typically published monthly and has a delay before publication.
+   * The lag is subtracted from the accrual start and end date to locate the
+   * month of the data to be observed.
    * <p>
-   * If false, the reference index is the price index of a month.  
-   * The reference month is linked to the payment date. 
-   * 
+   * For example, the September data may be published in October or November.
+   * A 3 month lag will cause an accrual date in December to be based on the
+   * observed data for September, which should be available by then.
    */
   @PropertyDefinition(validate = "notNull")
-  private final boolean isInterpolated;
+  private final Period lag;
+  /**
+   * How the reference index calculation occurs, defaulted to false.
+   * <p>
+   * If true, the reference index is linearly interpolated between two months.
+   * The interpolation is done with the number of days of the payment month.
+   * <p>
+   * If false, the reference index is the price index of a month.
+   * The reference month is linked to the payment date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final boolean interpolated;
   /**
    * The gearing multiplier, optional.
    * <p>
    * This defines the gearing as an initial value and a list of adjustments.
    * <p>
-   * When calculating the index, the gearing act as a overall factor of pay-off, 
-   * i.e., the pay-off is Gearing_Factor * (Index_End / Index_Start - 1).
+   * When calculating the index, the gearing acts as a overall factor of pay-off.
+   * The pay-off is {@code Gearing_Factor * (Index_End / Index_Start - 1)}.
    * A gearing of 1 has no effect.
    * <p>
    * If this property is not present, then no gearing applies.
@@ -97,38 +106,34 @@ public final class InflationRateCalculation
   @PropertyDefinition(get = "optional")
   private final ValueSchedule gearing;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates {@link InflationRateCalculation} from price index, month lag and isInterpolated. 
-   * @param index The price index. 
-   * @param monthLag The month lag. 
-   * @param isInterpolated If true, the reference index is interpolated. 
-   * @return The inflation rate calculation
+   * Obtains a rate calculation for the specified price index.
+   * <p>
+   * The calculation will use the specified month lag.
+   * All optional fields will be set to their default values.
+   * Thus, fixing will be in advance, with no gearing.
+   * If this method provides insufficient control, use the {@linkplain #builder() builder}.
+   * 
+   * @param index  the price index
+   * @param monthLag  the month lag
+   * @param isInterpolated  true if the reference index is interpolated
+   * @return the inflation rate calculation
    */
   public static InflationRateCalculation of(PriceIndex index, int monthLag, boolean isInterpolated) {
-    return InflationRateCalculation.builder().index(index).monthLag(monthLag).isInterpolated(isInterpolated).build();
-  }
-
-  /**
-   * Creates {@link InflationRateCalculation} from price index, month lag, isInterpolated and ValueSchedule. 
-   * @param index The price index.  
-   * @param monthLag The month lag. 
-   * @param isInterpolated If true, the reference index is interpolated. 
-   * @param gearing The gearing multiplier. 
-   * @return The inflation rate calculation
-   */
-  public static InflationRateCalculation of(
-      PriceIndex index,
-      int monthLag,
-      boolean isInterpolated,
-      ValueSchedule gearing) {
     return InflationRateCalculation.builder()
         .index(index)
-        .monthLag(monthLag)
-        .isInterpolated(isInterpolated)
-        .gearing(gearing)
+        .lag(Period.ofMonths(monthLag))
+        .interpolated(isInterpolated)
         .build();
   }
 
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.isFalse(lag.isZero() || lag.isNegative(), "Lag must be positive");
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public SwapLegType getType() {
     return SwapLegType.INFLATION;
@@ -150,7 +155,7 @@ public final class InflationRateCalculation
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(1.0)
+          .yearFraction(1.0)  // no applicable year fraction
           .rateObservation(createRateObservation(period))
           .gearing(resolvedGearings.get(i))
           .build());
@@ -160,21 +165,18 @@ public final class InflationRateCalculation
 
   // creates the rate observation
   private RateObservation createRateObservation(SchedulePeriod period) {
-    // TODO  need adjuster (c.f., DaysAdjustment for Ibor)?
-    if (isInterpolated) {
-      YearMonth referenceStartMonths1 = YearMonth.from(period.getStartDate().minusMonths(monthLag));
-      YearMonth referenceStartMonths2 = YearMonth.from(referenceStartMonths1.plusMonths(1));
-      YearMonth referenceEndMonths1 = YearMonth.from(period.getEndDate().minusMonths(monthLag));
-      YearMonth referenceEndMonths2 = YearMonth.from(referenceEndMonths1.plusMonths(1));
+    YearMonth referenceStartMonth = YearMonth.from(period.getStartDate().minus(lag));
+    YearMonth referenceEndMonth = YearMonth.from(period.getEndDate().minus(lag));
+    if (interpolated) {
+      // interpolate between data from two different months
       double weight = 1.0 - (period.getEndDate().getDayOfMonth() - 1.0) / period.getEndDate().lengthOfMonth();
-      return InflationInterpolatedRateObservation.of(
-          index, referenceStartMonths1, referenceStartMonths2, referenceEndMonths1, referenceEndMonths2, weight);
+      return InflationInterpolatedRateObservation.of(index, referenceStartMonth, referenceEndMonth, weight);
+    } else {
+      // no interpolation
+      return InflationMonthlyRateObservation.of(index, referenceStartMonth, referenceEndMonth);
     }
-    LocalDate referenceStartDate = period.getStartDate().minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
-    LocalDate referenceEndDate = period.getEndDate().minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
-    return InflationMonthlyRateObservation.of(
-        index, YearMonth.from(referenceStartDate), YearMonth.from(referenceEndDate));
   }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -204,16 +206,17 @@ public final class InflationRateCalculation
 
   private InflationRateCalculation(
       PriceIndex index,
-      int monthLag,
-      boolean isInterpolated,
+      Period lag,
+      boolean interpolated,
       ValueSchedule gearing) {
     JodaBeanUtils.notNull(index, "index");
-    ArgChecker.notNegative(monthLag, "monthLag");
-    JodaBeanUtils.notNull(isInterpolated, "isInterpolated");
+    JodaBeanUtils.notNull(lag, "lag");
+    JodaBeanUtils.notNull(interpolated, "interpolated");
     this.index = index;
-    this.monthLag = monthLag;
-    this.isInterpolated = isInterpolated;
+    this.lag = lag;
+    this.interpolated = interpolated;
     this.gearing = gearing;
+    validate();
   }
 
   @Override
@@ -245,27 +248,35 @@ public final class InflationRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the lag in month between the index validity and the coupon dates for the actual product.
-   * @return the value of the property
+   * Gets the positive period between the price index and the accrual date,
+   * typically a number of months.
+   * <p>
+   * A price index is typically published monthly and has a delay before publication.
+   * The lag is subtracted from the accrual start and end date to locate the
+   * month of the data to be observed.
+   * <p>
+   * For example, the September data may be published in October or November.
+   * A 3 month lag will cause an accrual date in December to be based on the
+   * observed data for September, which should be available by then.
+   * @return the value of the property, not null
    */
-  public int getMonthLag() {
-    return monthLag;
+  public Period getLag() {
+    return lag;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets defines the calculation of the reference index.
+   * Gets how the reference index calculation occurs, defaulted to false.
    * <p>
    * If true, the reference index is linearly interpolated between two months.
    * The interpolation is done with the number of days of the payment month.
    * <p>
    * If false, the reference index is the price index of a month.
    * The reference month is linked to the payment date.
-   * 
    * @return the value of the property, not null
    */
-  public boolean isIsInterpolated() {
-    return isInterpolated;
+  public boolean isInterpolated() {
+    return interpolated;
   }
 
   //-----------------------------------------------------------------------
@@ -274,8 +285,8 @@ public final class InflationRateCalculation
    * <p>
    * This defines the gearing as an initial value and a list of adjustments.
    * <p>
-   * When calculating the index, the gearing act as a overall factor of pay-off,
-   * i.e., the pay-off is Gearing_Factor * (Index_End / Index_Start - 1).
+   * When calculating the index, the gearing acts as a overall factor of pay-off.
+   * The pay-off is {@code Gearing_Factor * (Index_End / Index_Start - 1)}.
    * A gearing of 1 has no effect.
    * <p>
    * If this property is not present, then no gearing applies.
@@ -304,8 +315,8 @@ public final class InflationRateCalculation
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationRateCalculation other = (InflationRateCalculation) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          (getMonthLag() == other.getMonthLag()) &&
-          (isIsInterpolated() == other.isIsInterpolated()) &&
+          JodaBeanUtils.equal(getLag(), other.getLag()) &&
+          (isInterpolated() == other.isInterpolated()) &&
           JodaBeanUtils.equal(gearing, other.gearing);
     }
     return false;
@@ -315,8 +326,8 @@ public final class InflationRateCalculation
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMonthLag());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isIsInterpolated());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isInterpolated());
     hash = hash * 31 + JodaBeanUtils.hashCode(gearing);
     return hash;
   }
@@ -326,8 +337,8 @@ public final class InflationRateCalculation
     StringBuilder buf = new StringBuilder(160);
     buf.append("InflationRateCalculation{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("monthLag").append('=').append(getMonthLag()).append(',').append(' ');
-    buf.append("isInterpolated").append('=').append(isIsInterpolated()).append(',').append(' ');
+    buf.append("lag").append('=').append(getLag()).append(',').append(' ');
+    buf.append("interpolated").append('=').append(isInterpolated()).append(',').append(' ');
     buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing));
     buf.append('}');
     return buf.toString();
@@ -349,15 +360,15 @@ public final class InflationRateCalculation
     private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", InflationRateCalculation.class, PriceIndex.class);
     /**
-     * The meta-property for the {@code monthLag} property.
+     * The meta-property for the {@code lag} property.
      */
-    private final MetaProperty<Integer> monthLag = DirectMetaProperty.ofImmutable(
-        this, "monthLag", InflationRateCalculation.class, Integer.TYPE);
+    private final MetaProperty<Period> lag = DirectMetaProperty.ofImmutable(
+        this, "lag", InflationRateCalculation.class, Period.class);
     /**
-     * The meta-property for the {@code isInterpolated} property.
+     * The meta-property for the {@code interpolated} property.
      */
-    private final MetaProperty<Boolean> isInterpolated = DirectMetaProperty.ofImmutable(
-        this, "isInterpolated", InflationRateCalculation.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> interpolated = DirectMetaProperty.ofImmutable(
+        this, "interpolated", InflationRateCalculation.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code gearing} property.
      */
@@ -369,8 +380,8 @@ public final class InflationRateCalculation
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "monthLag",
-        "isInterpolated",
+        "lag",
+        "interpolated",
         "gearing");
 
     /**
@@ -384,10 +395,10 @@ public final class InflationRateCalculation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -319031566:  // monthLag
-          return monthLag;
-        case 1334917581:  // isInterpolated
-          return isInterpolated;
+        case 106898:  // lag
+          return lag;
+        case 2096252803:  // interpolated
+          return interpolated;
         case -91774989:  // gearing
           return gearing;
       }
@@ -419,19 +430,19 @@ public final class InflationRateCalculation
     }
 
     /**
-     * The meta-property for the {@code monthLag} property.
+     * The meta-property for the {@code lag} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> monthLag() {
-      return monthLag;
+    public MetaProperty<Period> lag() {
+      return lag;
     }
 
     /**
-     * The meta-property for the {@code isInterpolated} property.
+     * The meta-property for the {@code interpolated} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> isInterpolated() {
-      return isInterpolated;
+    public MetaProperty<Boolean> interpolated() {
+      return interpolated;
     }
 
     /**
@@ -448,10 +459,10 @@ public final class InflationRateCalculation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((InflationRateCalculation) bean).getIndex();
-        case -319031566:  // monthLag
-          return ((InflationRateCalculation) bean).getMonthLag();
-        case 1334917581:  // isInterpolated
-          return ((InflationRateCalculation) bean).isIsInterpolated();
+        case 106898:  // lag
+          return ((InflationRateCalculation) bean).getLag();
+        case 2096252803:  // interpolated
+          return ((InflationRateCalculation) bean).isInterpolated();
         case -91774989:  // gearing
           return ((InflationRateCalculation) bean).gearing;
       }
@@ -476,8 +487,8 @@ public final class InflationRateCalculation
   public static final class Builder extends DirectFieldsBeanBuilder<InflationRateCalculation> {
 
     private PriceIndex index;
-    private int monthLag;
-    private boolean isInterpolated;
+    private Period lag;
+    private boolean interpolated;
     private ValueSchedule gearing;
 
     /**
@@ -492,8 +503,8 @@ public final class InflationRateCalculation
      */
     private Builder(InflationRateCalculation beanToCopy) {
       this.index = beanToCopy.getIndex();
-      this.monthLag = beanToCopy.getMonthLag();
-      this.isInterpolated = beanToCopy.isIsInterpolated();
+      this.lag = beanToCopy.getLag();
+      this.interpolated = beanToCopy.isInterpolated();
       this.gearing = beanToCopy.gearing;
     }
 
@@ -503,10 +514,10 @@ public final class InflationRateCalculation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -319031566:  // monthLag
-          return monthLag;
-        case 1334917581:  // isInterpolated
-          return isInterpolated;
+        case 106898:  // lag
+          return lag;
+        case 2096252803:  // interpolated
+          return interpolated;
         case -91774989:  // gearing
           return gearing;
         default:
@@ -520,11 +531,11 @@ public final class InflationRateCalculation
         case 100346066:  // index
           this.index = (PriceIndex) newValue;
           break;
-        case -319031566:  // monthLag
-          this.monthLag = (Integer) newValue;
+        case 106898:  // lag
+          this.lag = (Period) newValue;
           break;
-        case 1334917581:  // isInterpolated
-          this.isInterpolated = (Boolean) newValue;
+        case 2096252803:  // interpolated
+          this.interpolated = (Boolean) newValue;
           break;
         case -91774989:  // gearing
           this.gearing = (ValueSchedule) newValue;
@@ -563,8 +574,8 @@ public final class InflationRateCalculation
     public InflationRateCalculation build() {
       return new InflationRateCalculation(
           index,
-          monthLag,
-          isInterpolated,
+          lag,
+          interpolated,
           gearing);
     }
 
@@ -581,24 +592,24 @@ public final class InflationRateCalculation
     }
 
     /**
-     * Sets the {@code monthLag} property in the builder.
-     * @param monthLag  the new value
+     * Sets the {@code lag} property in the builder.
+     * @param lag  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder monthLag(int monthLag) {
-      ArgChecker.notNegative(monthLag, "monthLag");
-      this.monthLag = monthLag;
+    public Builder lag(Period lag) {
+      JodaBeanUtils.notNull(lag, "lag");
+      this.lag = lag;
       return this;
     }
 
     /**
-     * Sets the {@code isInterpolated} property in the builder.
-     * @param isInterpolated  the new value, not null
+     * Sets the {@code interpolated} property in the builder.
+     * @param interpolated  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder isInterpolated(boolean isInterpolated) {
-      JodaBeanUtils.notNull(isInterpolated, "isInterpolated");
-      this.isInterpolated = isInterpolated;
+    public Builder interpolated(boolean interpolated) {
+      JodaBeanUtils.notNull(interpolated, "interpolated");
+      this.interpolated = interpolated;
       return this;
     }
 
@@ -618,8 +629,8 @@ public final class InflationRateCalculation
       StringBuilder buf = new StringBuilder(160);
       buf.append("InflationRateCalculation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("monthLag").append('=').append(JodaBeanUtils.toString(monthLag)).append(',').append(' ');
-      buf.append("isInterpolated").append('=').append(JodaBeanUtils.toString(isInterpolated)).append(',').append(' ');
+      buf.append("lag").append('=').append(JodaBeanUtils.toString(lag)).append(',').append(' ');
+      buf.append("interpolated").append('=').append(JodaBeanUtils.toString(interpolated)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing));
       buf.append('}');
       return buf.toString();
