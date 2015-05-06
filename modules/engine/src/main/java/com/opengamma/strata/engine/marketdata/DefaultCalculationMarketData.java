@@ -28,6 +28,8 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   private final MarketDataMappings marketDataMappings;
 
   /**
+   * Creates a new set of market data.
+   *
    * @param marketData  the market data
    * @param marketDataMappings  mappings to convert from the market data keys passed to the methods to IDs used
    *   for looking up the market data
@@ -54,7 +56,7 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   }
 
   @Override
-  public List<LocalDateDoubleTimeSeries> getTimeSeries(ObservableKey key) {
+  public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
     ObservableId id = marketDataMappings.getIdForObservableKey(key);
     return marketData.getTimeSeries(id);
   }

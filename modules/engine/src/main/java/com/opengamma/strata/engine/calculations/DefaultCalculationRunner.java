@@ -33,7 +33,6 @@ import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
-import com.opengamma.strata.engine.marketdata.SingleScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**

@@ -41,7 +41,7 @@ public final class DefaultSingleCalculationMarketData implements SingleCalculati
 
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    return scenarioMarketData.getTimeSeries(key).get(scenarioIndex);
+    return scenarioMarketData.getTimeSeries(key);
   }
 
   @Override

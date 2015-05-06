@@ -76,7 +76,7 @@ public final class BaseMarketDataBuilder {
    * @param values  the items of market data, keyed by ID
    * @return this builder
    */
-  public BaseMarketDataBuilder addAllValues(Map<? extends MarketDataId<?>, Object> values) {
+  public BaseMarketDataBuilder addAllValues(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     this.values.putAll(values);
     return this;

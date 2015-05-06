@@ -61,6 +61,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jool</artifactId>
+      <version>0.9.4</version>
+    </dependency>
 
     <!-- Testing -->
     <dependency>

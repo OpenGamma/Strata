@@ -7,9 +7,10 @@ package com.opengamma.strata.examples.marketdata;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
 
 /**
@@ -30,7 +31,7 @@ public class ExampleForwardCurveBuilder
   }
 
   @Override
-  public Result<YieldCurve> build(IndexCurveId id, BaseMarketData builtData) {
+  public Result<YieldCurve> build(IndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), id.getIndex().getName());
     return Result.success(curve);
   }

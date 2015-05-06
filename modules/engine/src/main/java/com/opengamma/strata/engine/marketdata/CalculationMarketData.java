@@ -47,12 +47,12 @@ public interface CalculationMarketData {
   public abstract <T, K extends MarketDataKey<T>> List<T> getValues(K key);
 
   /**
-   * Returns a list of market data time series, one from each scenario.
+   * Returns a time series of market data values.
    *
    * @param key  a key identifying the market data
    * @return a list of market data time series, one from each scenario
    */
-  public abstract List<LocalDateDoubleTimeSeries> getTimeSeries(ObservableKey key);
+  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
 
   /**
    * Returns a single value that is valid for all scenarios.

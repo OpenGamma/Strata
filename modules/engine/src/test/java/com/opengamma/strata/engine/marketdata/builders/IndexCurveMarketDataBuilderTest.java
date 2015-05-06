@@ -7,6 +7,7 @@ package com.opengamma.strata.engine.marketdata.builders;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.mockito.Mockito.mock;
 
 import org.testng.annotations.Test;
 
@@ -16,12 +17,15 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataTestUtils;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
 
 @Test
 public class IndexCurveMarketDataBuilderTest {
+
+  private static final MarketDataConfig MARKET_DATA_CONFIG = mock(MarketDataConfig.class);
 
   /**
    * Tests building a single curve
@@ -34,7 +38,7 @@ public class IndexCurveMarketDataBuilderTest {
     BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     IndexCurveMarketDataBuilder builder = new IndexCurveMarketDataBuilder();
 
-    Result<YieldCurve> result = builder.build(curveId, marketData);
+    Result<YieldCurve> result = builder.build(curveId, marketData, MARKET_DATA_CONFIG);
     assertThat(result).hasValue(curve);
   }
 
@@ -51,10 +55,10 @@ public class IndexCurveMarketDataBuilderTest {
     BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     IndexCurveMarketDataBuilder builder = new IndexCurveMarketDataBuilder();
 
-    Result<YieldCurve> result1 = builder.build(curveId1, marketData);
+    Result<YieldCurve> result1 = builder.build(curveId1, marketData, MARKET_DATA_CONFIG);
     assertThat(result1).hasValue(curve1);
 
-    Result<YieldCurve> result2 = builder.build(curveId2, marketData);
+    Result<YieldCurve> result2 = builder.build(curveId2, marketData, MARKET_DATA_CONFIG);
     assertThat(result2).hasValue(curve2);
   }
 
@@ -86,16 +90,16 @@ public class IndexCurveMarketDataBuilderTest {
 
     IndexCurveMarketDataBuilder builder = new IndexCurveMarketDataBuilder();
 
-    Result<YieldCurve> result1 = builder.build(curveId1, marketData);
+    Result<YieldCurve> result1 = builder.build(curveId1, marketData, MARKET_DATA_CONFIG);
     assertThat(result1).hasValue(curve1);
 
-    Result<YieldCurve> result2 = builder.build(curveId2, marketData);
+    Result<YieldCurve> result2 = builder.build(curveId2, marketData, MARKET_DATA_CONFIG);
     assertThat(result2).hasValue(curve2);
 
-    Result<YieldCurve> result3 = builder.build(curveId3, marketData);
+    Result<YieldCurve> result3 = builder.build(curveId3, marketData, MARKET_DATA_CONFIG);
     assertThat(result3).hasValue(curve3);
 
-    Result<YieldCurve> result4 = builder.build(curveId4, marketData);
+    Result<YieldCurve> result4 = builder.build(curveId4, marketData, MARKET_DATA_CONFIG);
     assertThat(result4).hasValue(curve4);
   }
 }

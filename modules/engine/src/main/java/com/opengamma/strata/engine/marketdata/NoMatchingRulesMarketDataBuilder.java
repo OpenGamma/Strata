@@ -9,6 +9,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 
 /**
@@ -34,7 +35,7 @@ public final class NoMatchingRulesMarketDataBuilder implements MarketDataBuilder
 
   @SuppressWarnings("unchecked")
   @Override
-  public Result build(MarketDataId id, BaseMarketData builtData) {
+  public Result build(MarketDataId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data rules were available to build the market data for key {}",

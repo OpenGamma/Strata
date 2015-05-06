@@ -12,8 +12,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -40,7 +42,7 @@ import com.opengamma.strata.marketdata.key.MarketDataKey;
  * Basic definition of {@link ScenarioMarketData} that is a Joda bean.
  */
 @SuppressWarnings("unchecked")
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class DefaultScenarioMarketData implements ScenarioMarketData, ImmutableBean {
 
   /** The number of scenarios. */
@@ -57,11 +59,40 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
 
   /** Time series of observable market data values, keyed by ID, one for each scenario. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableListMultimap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
+  private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   /** Market dat values that are potentially applicable across all scenarios, keyed by ID. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<? extends MarketDataId<?>, Object> globalValues;
+
+  /**
+   * Package-private constructor used by the builder.
+   *
+   * @param scenarioCount  the number of scenarios
+   * @param valuationDates  the valuation date of each scenario
+   * @param values  the market data values
+   * @param timeSeries  the time series of market data values
+   * @param globalValues  the single values that apply across all scenarios
+   */
+  @ImmutableConstructor
+  DefaultScenarioMarketData(
+      int scenarioCount,
+      List<LocalDate> valuationDates,
+      ListMultimap<MarketDataId<?>, ?> values,
+      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries,
+      Map<? extends MarketDataId<?>, Object> globalValues) {
+    ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    JodaBeanUtils.notNull(valuationDates, "valuationDates");
+    JodaBeanUtils.notNull(values, "values");
+    JodaBeanUtils.notNull(timeSeries, "timeSeries");
+    JodaBeanUtils.notNull(globalValues, "globalValues");
+    this.scenarioCount = scenarioCount;
+    this.valuationDates = ImmutableList.copyOf(valuationDates);
+    this.values = ImmutableListMultimap.copyOf(values);
+    this.timeSeries = ImmutableMap.copyOf(timeSeries);
+    this.globalValues = ImmutableMap.copyOf(globalValues);
+    validate();
+  }
 
   @ImmutableValidator
   private void validate() {
@@ -84,20 +115,20 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
     }
     List<?> values = this.values.get(id);
 
-    if (values == null) {
-      throw new RuntimeException("No time series available for " + id);
+    if (values.isEmpty()) {
+      throw new IllegalArgumentException("No values available for market data ID " + id);
     }
     return (List<T>) values;
   }
 
   @Override
-  public List<LocalDateDoubleTimeSeries> getTimeSeries(ObservableId id) {
-    List<LocalDateDoubleTimeSeries> timeSeriesList = timeSeries.get(id);
+  public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
+    LocalDateDoubleTimeSeries series = timeSeries.get(id);
 
-    if (timeSeriesList == null) {
-      throw new RuntimeException("No time series available for market data ID " + id);
+    if (series == null) {
+      throw new IllegalArgumentException("No time series available for market data ID " + id);
     }
-    return timeSeriesList;
+    return series;
   }
 
   @Override
@@ -105,9 +136,24 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
     Object value = globalValues.get(id);
 
     if (value == null) {
-      throw new RuntimeException("No values available for market data ID " + id);
+      throw new IllegalArgumentException("No values available for market data ID " + id);
     }
     return (T) value;
+  }
+
+  @Override
+  public boolean containsValues(MarketDataId<?> id) {
+    return values.containsKey(id);
+  }
+
+  @Override
+  public boolean containsTimeSeries(ObservableId id) {
+    return timeSeries.containsKey(id);
+  }
+
+  @Override
+  public ScenarioMarketDataBuilder toBuilder() {
+    return new ScenarioMarketDataBuilder(scenarioCount, valuationDates, values, timeSeries, globalValues);
   }
 
   @Override
@@ -140,33 +186,6 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
 
   static {
     JodaBeanUtils.registerMetaBean(DefaultScenarioMarketData.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static DefaultScenarioMarketData.Builder builder() {
-    return new DefaultScenarioMarketData.Builder();
-  }
-
-  private DefaultScenarioMarketData(
-      int scenarioCount,
-      List<LocalDate> valuationDates,
-      ListMultimap<MarketDataId<?>, ?> values,
-      ListMultimap<ObservableId, LocalDateDoubleTimeSeries> timeSeries,
-      Map<? extends MarketDataId<?>, Object> globalValues) {
-    ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
-    JodaBeanUtils.notNull(valuationDates, "valuationDates");
-    JodaBeanUtils.notNull(values, "values");
-    JodaBeanUtils.notNull(timeSeries, "timeSeries");
-    JodaBeanUtils.notNull(globalValues, "globalValues");
-    this.scenarioCount = scenarioCount;
-    this.valuationDates = ImmutableList.copyOf(valuationDates);
-    this.values = ImmutableListMultimap.copyOf(values);
-    this.timeSeries = ImmutableListMultimap.copyOf(timeSeries);
-    this.globalValues = ImmutableMap.copyOf(globalValues);
-    validate();
   }
 
   @Override
@@ -218,7 +237,7 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
    * Gets time series of observable market data values, keyed by ID, one for each scenario.
    * @return the value of the property, not null
    */
-  public ImmutableListMultimap<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
+  public ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -232,14 +251,6 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -311,8 +322,8 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableListMultimap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", DefaultScenarioMarketData.class, (Class) ImmutableListMultimap.class);
+    private final MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
+        this, "timeSeries", DefaultScenarioMarketData.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code globalValues} property.
      */
@@ -354,7 +365,7 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
     }
 
     @Override
-    public DefaultScenarioMarketData.Builder builder() {
+    public BeanBuilder<? extends DefaultScenarioMarketData> builder() {
       return new DefaultScenarioMarketData.Builder();
     }
 
@@ -397,7 +408,7 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableListMultimap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
+    public MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
       return timeSeries;
     }
 
@@ -442,30 +453,18 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
   /**
    * The bean-builder for {@code DefaultScenarioMarketData}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<DefaultScenarioMarketData> {
+  private static final class Builder extends DirectFieldsBeanBuilder<DefaultScenarioMarketData> {
 
     private int scenarioCount;
     private List<LocalDate> valuationDates = ImmutableList.of();
     private ListMultimap<MarketDataId<?>, ?> values = ImmutableListMultimap.of();
-    private ListMultimap<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableListMultimap.of();
+    private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
     private Map<? extends MarketDataId<?>, Object> globalValues = ImmutableMap.of();
 
     /**
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(DefaultScenarioMarketData beanToCopy) {
-      this.scenarioCount = beanToCopy.getScenarioCount();
-      this.valuationDates = beanToCopy.getValuationDates();
-      this.values = beanToCopy.getValues();
-      this.timeSeries = beanToCopy.getTimeSeries();
-      this.globalValues = beanToCopy.getGlobalValues();
     }
 
     //-----------------------------------------------------------------------
@@ -501,7 +500,7 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
           this.values = (ListMultimap<MarketDataId<?>, ?>) newValue;
           break;
         case 779431844:  // timeSeries
-          this.timeSeries = (ListMultimap<ObservableId, LocalDateDoubleTimeSeries>) newValue;
+          this.timeSeries = (Map<ObservableId, LocalDateDoubleTimeSeries>) newValue;
           break;
         case -591591771:  // globalValues
           this.globalValues = (Map<? extends MarketDataId<?>, Object>) newValue;
@@ -544,72 +543,6 @@ public final class DefaultScenarioMarketData implements ScenarioMarketData, Immu
           values,
           timeSeries,
           globalValues);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code scenarioCount} property in the builder.
-     * @param scenarioCount  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder scenarioCount(int scenarioCount) {
-      ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
-      this.scenarioCount = scenarioCount;
-      return this;
-    }
-
-    /**
-     * Sets the {@code valuationDates} property in the builder.
-     * @param valuationDates  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valuationDates(List<LocalDate> valuationDates) {
-      JodaBeanUtils.notNull(valuationDates, "valuationDates");
-      this.valuationDates = valuationDates;
-      return this;
-    }
-
-    /**
-     * Sets the {@code valuationDates} property in the builder
-     * from an array of objects.
-     * @param valuationDates  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valuationDates(LocalDate... valuationDates) {
-      return valuationDates(ImmutableList.copyOf(valuationDates));
-    }
-
-    /**
-     * Sets the {@code values} property in the builder.
-     * @param values  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder values(ListMultimap<MarketDataId<?>, ?> values) {
-      JodaBeanUtils.notNull(values, "values");
-      this.values = values;
-      return this;
-    }
-
-    /**
-     * Sets the {@code timeSeries} property in the builder.
-     * @param timeSeries  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder timeSeries(ListMultimap<ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
-      JodaBeanUtils.notNull(timeSeries, "timeSeries");
-      this.timeSeries = timeSeries;
-      return this;
-    }
-
-    /**
-     * Sets the {@code globalValues} property in the builder.
-     * @param globalValues  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder globalValues(Map<? extends MarketDataId<?>, Object> globalValues) {
-      JodaBeanUtils.notNull(globalValues, "globalValues");
-      this.globalValues = globalValues;
-      return this;
     }
 
     //-----------------------------------------------------------------------
