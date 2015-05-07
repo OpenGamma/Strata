@@ -26,6 +26,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public final class DefaultMarketDataConfig implements MarketDataConfig, ImmutableBean {
 
+  /** An empty set of market data configuration. */
+  static final DefaultMarketDataConfig EMPTY = new DefaultMarketDataConfig();
+
   /**
    * Returns a set of configuration for building market data.
    *

@@ -84,7 +84,7 @@ public class PricingRulesTest {
   }
 
   public void composedWithEmpty() {
-    PricingRules rules = PricingRules.EMPTY.composedWith(PRICING_RULES1);
+    PricingRules rules = PricingRules.empty().composedWith(PRICING_RULES1);
     Optional<ConfiguredFunctionGroup> functionConfig = rules.functionGroup(TRADE1, FOO_MEASURE);
 
     assertThat(rules).isInstanceOf(DefaultPricingRules.class);

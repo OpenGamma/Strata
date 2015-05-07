@@ -11,6 +11,12 @@ package com.opengamma.strata.engine.marketdata.config;
  */
 public interface MarketDataConfig {
 
-  /** An empty set of market data configuration. */
-  public static final MarketDataConfig EMPTY = DefaultMarketDataConfig.of();
+  /**
+   * Returns an empty set of market data configuration.
+   *
+   * @return an empty set of market data configuration
+   */
+  public static MarketDataConfig empty() {
+    return DefaultMarketDataConfig.EMPTY;
+  }
 }
