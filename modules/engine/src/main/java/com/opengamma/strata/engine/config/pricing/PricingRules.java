@@ -20,9 +20,6 @@ import com.opengamma.strata.engine.config.Measure;
  */
 public interface PricingRules {
 
-  /** An empty set of pricing rules. */
-  public static final PricingRules EMPTY = EmptyPricingRules.builder().build();
-
   /**
    * Returns a set of pricing rules that delegates to multiple underlying sets of rules, returning the first
    * valid configuration it finds.
@@ -34,12 +31,21 @@ public interface PricingRules {
   public static PricingRules of(PricingRules... rules) {
     switch (rules.length) {
       case 0:
-        return PricingRules.EMPTY;
+        return PricingRules.empty();
       case 1:
         return rules[0];
       default:
         return CompositePricingRules.builder().rules(ImmutableList.copyOf(rules)).build();
     }
+  }
+
+  /**
+   * Returns an empty set of rules.
+   *
+   * @return an empty set of rules
+   */
+  public static PricingRules empty() {
+    return EmptyPricingRules.INSTANCE;
   }
 
   /**

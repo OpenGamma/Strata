@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -26,8 +27,11 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * A reporting currency rule that always returns an empty optional from {@link #reportingCurrency}.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 final class EmptyReportingRules implements ReportingRules, ImmutableBean {
+
+  /** The single, shared instance of this class. */
+  static final EmptyReportingRules INSTANCE = new EmptyReportingRules();
 
   @Override
   public Optional<Currency> reportingCurrency(CalculationTarget target) {
@@ -52,14 +56,6 @@ final class EmptyReportingRules implements ReportingRules, ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(EmptyReportingRules.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static EmptyReportingRules.Builder builder() {
-    return new EmptyReportingRules.Builder();
   }
 
   private EmptyReportingRules() {
@@ -129,7 +125,7 @@ final class EmptyReportingRules implements ReportingRules, ImmutableBean {
     }
 
     @Override
-    public EmptyReportingRules.Builder builder() {
+    public BeanBuilder<? extends EmptyReportingRules> builder() {
       return new EmptyReportingRules.Builder();
     }
 
@@ -150,7 +146,7 @@ final class EmptyReportingRules implements ReportingRules, ImmutableBean {
   /**
    * The bean-builder for {@code EmptyReportingRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<EmptyReportingRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<EmptyReportingRules> {
 
     /**
      * Restricted constructor.

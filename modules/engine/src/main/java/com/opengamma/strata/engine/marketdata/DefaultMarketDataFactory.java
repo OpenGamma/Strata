@@ -422,7 +422,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
   /**
    * Builds items of non-observable market data using a market data builder and adds them to the results.
-   *  @param id  ID of the market data that should be built
+   *
+   * @param id  ID of the market data that should be built
    * @param suppliedData  existing set of market data that contains any data required to build the values
    * @param marketDataConfig  configuration specifying how the market data should be built
    */
@@ -454,7 +455,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * <p>
    * After a value is built the perturbations in the scenario definition are examined and any applicable
    * perturbation is applied to the value.
-   *  @param ids  IDs of the market data values
+   *
+   * @param ids  IDs of the market data values
    * @param marketData  market data containing any dependencies of the values being built
    * @param marketDataConfig  configuration specifying how market data should be built
    * @param scenarioDefinition  definition of the scenarios

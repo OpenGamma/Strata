@@ -81,7 +81,7 @@ public class MarketDataRulesTest {
   }
 
   public void composedWithEmpty() {
-    MarketDataRules rules = MarketDataRules.EMPTY.composedWith(RULES1);
+    MarketDataRules rules = MarketDataRules.empty().composedWith(RULES1);
     Optional<MarketDataMappings> mappings = rules.mappings(TRADE1);
 
     assertThat(rules).isInstanceOf(SimpleMarketDataRules.class);
