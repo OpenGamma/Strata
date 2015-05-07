@@ -36,6 +36,7 @@ import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MissingDataAwareFeedIdMapping;
+import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
 import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.strata.marketdata.id.MarketDataId;
@@ -364,10 +365,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
               .findFirst();
 
       if (mapping.isPresent()) {
-        List<Double> values =
-            mapping.get().getPerturbations().stream()
-                .map(perturbation -> (Double) perturbation.apply(value))
-                .collect(toImmutableList());
+        List<Double> values = mapping.get().applyPerturbations(value);
         return Result.success(values);
       } else {
         List<Double> values = Collections.nCopies(scenarioDefinition.getScenarioCount(), value);
@@ -502,6 +500,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param scenarioIndex  the index of the scenario from which the perturbation should be taken
    * @return the item of data with any applicable perturbation applied
    */
+  @SuppressWarnings("unchecked")
   private Object perturbNonObservableValue(
       MarketDataId<?> id,
       Object marketDataValue,
@@ -513,9 +512,12 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
             .filter(m -> m.matches(id, marketDataValue))
             .findFirst();
 
-    return mapping.isPresent() ?
-        mapping.get().getPerturbations().get(scenarioIndex).apply(marketDataValue) :
-        marketDataValue;
+    if (!mapping.isPresent()) {
+      return marketDataValue;
+    }
+    // The perturbation is definitely compatible with the market data because the filter matched above
+    Perturbation<Object> perturbation = (Perturbation<Object>) mapping.get().getPerturbations().get(scenarioIndex);
+    return perturbation.apply(marketDataValue);
   }
 
   /**

@@ -12,8 +12,10 @@ package com.opengamma.strata.engine.marketdata.scenarios;
  * <p>
  * Perturbation implementations should generally implement the Joda Beans {@code ImmutableBean} interface
  * which allows them to be serialized and used from remote clients.
+ *
+ * @param <T>  the type of the market data handled by the perturbation
  */
-public interface Perturbation {
+public interface Perturbation<T> {
 
   /**
    * Applies the perturbation to some market data, returning a new, modified instance of the data.
@@ -21,5 +23,5 @@ public interface Perturbation {
    * @param marketData  a piece of market data
    * @return a new item of market data derived by applying the perturbation to the input data
    */
-  public abstract Object apply(Object marketData);
+  public abstract T apply(T marketData);
 }

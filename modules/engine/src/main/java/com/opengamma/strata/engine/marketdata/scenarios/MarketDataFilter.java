@@ -15,8 +15,10 @@ import com.opengamma.strata.marketdata.id.MarketDataId;
  * <p>
  * Market data filter implementations should generally implement the Joda Beans {@code ImmutableBean} interface
  * which allows them to be serialized and used with a remote implementation of the engine API.
+ *
+ * @param <T>  the type of the market data handled by the filter
  */
-public interface MarketDataFilter {
+public interface MarketDataFilter<T> {
 
   /**
    * Applies the filter to a market data ID and the corresponding market data value and returns true
@@ -26,5 +28,5 @@ public interface MarketDataFilter {
    * @param marketData  the market data value
    * @return true if the filter matches
    */
-  public abstract boolean apply(MarketDataId<?> marketDataId, Object marketData);
+  public abstract boolean apply(MarketDataId<T> marketDataId, T marketData);
 }
