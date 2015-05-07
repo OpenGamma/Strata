@@ -98,7 +98,7 @@ public final class ScenarioDefinition implements ImmutableBean {
     int numScenarios = countScenarios(mappings, false);
 
     for (int i = 1; i < mappings.size(); i++) {
-      if (mappings.get(i).getPerturbations().size() != numScenarios) {
+      if (mappings.get(i).getPerturbationCount() != numScenarios) {
         throw new IllegalArgumentException(
             "All mappings must have the same number of perturbations. First mapping" +
                 " has " + numScenarios + " perturbations, mapping " + i + " has " +
@@ -156,7 +156,7 @@ public final class ScenarioDefinition implements ImmutableBean {
     int numScenarios = scenarioNames.size();
 
     for (int i = 0; i < mappings.size(); i++) {
-      if (mappings.get(i).getPerturbations().size() != numScenarios) {
+      if (mappings.get(i).getPerturbationCount() != numScenarios) {
         throw new IllegalArgumentException(
             "Each mapping must contain the same number of perturbations as there are scenarios. There are " +
                 numScenarios + " scenarios, mapping " + i + " has " + mappings.get(i).getPerturbations().size() +
@@ -298,10 +298,10 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     if (allCombinations) {
       return mappings.stream()
-          .mapToInt(mapping -> mapping.getPerturbations().size())
+          .mapToInt(PerturbationMapping::getPerturbationCount)
           .reduce(1, (s1, s2) -> s1 * s2);
     } else {
-      return mappings.get(0).getPerturbations().size();
+      return mappings.get(0).getPerturbationCount();
     }
   }
 
@@ -351,7 +351,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    * @return a new perturbation mapping with the same filter as the input mapping and the input perturbations
    *   repeated so there is one for each scenario
    */
-  private static <T extends Perturbation> PerturbationMapping<T> multiplyPerturbations(
+  private static <T> PerturbationMapping<T> multiplyPerturbations(
       PerturbationMapping<T> mapping,
       int scenarioCount,
       int index) {
@@ -375,7 +375,11 @@ public final class ScenarioDefinition implements ImmutableBean {
     // pattern 1, 1, 2, 2 and has a group size of 2. Mapping index 3 has the pattern 1, 1, 1, 1, 2, 2, 2, 2
     // and a group size of 4. From this it is obvious the group size is 2^index.
     int groupSize = 1 << index;
-    return PerturbationMapping.of(mapping.getFilter(), repeatItems(mapping.getPerturbations(), scenarioCount, groupSize));
+
+    return PerturbationMapping.of(
+        mapping.getMarketDataType(),
+        mapping.getFilter(),
+        repeatItems(mapping.getPerturbations(), scenarioCount, groupSize));
   }
 
   /**

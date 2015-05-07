@@ -6,6 +6,8 @@
 package com.opengamma.strata.engine.marketdata.scenarios;
 
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -24,54 +26,76 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 
 /**
  * Contains one or more market data perturbations and a filter that decides what market data they apply to.
+ *
+ * @param <T>  the type of the market data handled by the mapping
  */
 @BeanDefinition
-public final class PerturbationMapping<T extends Perturbation> implements ImmutableBean {
+public final class PerturbationMapping<T> implements ImmutableBean {
+
+  /** The type of market data handled by this mapping. */
+  @PropertyDefinition(validate = "notNull")
+  private final Class<T> marketDataType;
 
   /** The filter that decides whether the perturbations should be applied to a piece of market data. */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataFilter filter;
+  private final MarketDataFilter<T, ?> filter;
 
   /** Perturbations that should be applied to market data over multiple calculation cycles as part of a scenario. */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<T> perturbations;
+  private final ImmutableList<Perturbation<T>> perturbations;
 
   /**
    * Returns a mapping containing a single perturbation.
    *
+   * @param marketDataType the type of market data handled by the mapping
    * @param filter  the filter used to choose the market data
    * @param perturbation  the perturbation applied to any market data matching the filter
    * @return a mapping containing a single perturbation
    */
-  public static <T extends Perturbation> PerturbationMapping<T> of(MarketDataFilter filter, T perturbation) {
-    return new PerturbationMapping<>(filter, ImmutableList.of(perturbation));
+  public static <T> PerturbationMapping<T> of(
+      Class<T> marketDataType,
+      MarketDataFilter<T, ?> filter,
+      Perturbation<T> perturbation) {
+
+    return new PerturbationMapping<>(marketDataType, filter, ImmutableList.of(perturbation));
   }
 
   /**
    * Returns a mapping containing multiple perturbations.
    *
+   * @param marketDataType the type of market data handled by the mapping
    * @param filter  the filter used to choose the market data
    * @param perturbations  the perturbations applied to any market data matching the filter
    * @return a mapping containing multiple perturbations
    */
   @SafeVarargs
-  public static <T extends Perturbation> PerturbationMapping<T> of(MarketDataFilter filter, T... perturbations) {
-    return new PerturbationMapping<>(filter, ImmutableList.copyOf(perturbations));
+  public static <T> PerturbationMapping<T> of(
+      Class<T> marketDataType,
+      MarketDataFilter<T, ?> filter,
+      Perturbation<T>... perturbations) {
+
+    return new PerturbationMapping<>(marketDataType, filter, ImmutableList.copyOf(perturbations));
   }
 
   /**
    * Returns a mapping containing multiple perturbations.
    *
+   * @param marketDataType the type of market data handled by the mapping
    * @param filter  the filter used to choose the market data
    * @param perturbations  the perturbations applied to any market data matching the filter
    * @return a mapping containing multiple perturbations
    */
-  public static <T extends Perturbation> PerturbationMapping<T> of(MarketDataFilter filter, List<T> perturbations) {
-    return new PerturbationMapping<>(filter, ImmutableList.copyOf(perturbations));
+  public static <T> PerturbationMapping<T> of(
+      Class<T> marketDataType,
+      MarketDataFilter<T, ?> filter,
+      List<Perturbation<T>> perturbations) {
+
+    return new PerturbationMapping<>(marketDataType, filter, ImmutableList.copyOf(perturbations));
   }
 
   /**
@@ -81,8 +105,48 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
    * @param marketData  the market data value
    * @return true if the filter matches
    */
+  @SuppressWarnings("unchecked")
   public boolean matches(MarketDataId<?> marketDataId, Object marketData) {
-    return filter.apply(marketDataId, marketData);
+    // The raw type is necessary to keep the compiler happy, the call is definitely safe because the
+    // type of the ID is checked against the ID type handled by the filter
+    MarketDataFilter rawFilter = filter;
+
+    return marketDataType.isInstance(marketData) &&
+        filter.getMarketDataIdType().isInstance(marketDataId) &&
+        rawFilter.apply(marketDataId, marketData);
+  }
+
+  /**
+   * Applies the perturbations in this mapping to an item of market data and returns the results.
+   * <p>
+   * This method should only be called after calling {@code #matches} and receiving a result of {@code true}.
+   *
+   * @param marketData  the market data value
+   * @return a list of market data values derived from the input value by applying the perturbations
+   */
+  @SuppressWarnings("unchecked")
+  public <U> List<U> applyPerturbations(U marketData) {
+    // Check that T and U are the same type
+    if (!marketDataType.equals(marketData.getClass())) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Market data {} is not an instance of the required type {}",
+              marketData,
+              marketDataType.getName()));
+    }
+    // T and U are the same type so the casts are safe
+    return perturbations.stream()
+        .map(perturbation -> (U) perturbation.apply((T) marketData))
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Returns the number of perturbations in this mapping.
+   *
+   * @return the number of perturbations in this mapping
+   */
+  public int getPerturbationCount() {
+    return perturbations.size();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -103,7 +167,7 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R extends Perturbation> PerturbationMapping.Meta<R> metaPerturbationMapping(Class<R> cls) {
+  public static <R> PerturbationMapping.Meta<R> metaPerturbationMapping(Class<R> cls) {
     return PerturbationMapping.Meta.INSTANCE;
   }
 
@@ -116,15 +180,18 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
    * @param <T>  the type
    * @return the builder, not null
    */
-  public static <T extends Perturbation> PerturbationMapping.Builder<T> builder() {
+  public static <T> PerturbationMapping.Builder<T> builder() {
     return new PerturbationMapping.Builder<T>();
   }
 
   private PerturbationMapping(
-      MarketDataFilter filter,
-      List<T> perturbations) {
+      Class<T> marketDataType,
+      MarketDataFilter<T, ?> filter,
+      List<Perturbation<T>> perturbations) {
+    JodaBeanUtils.notNull(marketDataType, "marketDataType");
     JodaBeanUtils.notNull(filter, "filter");
     JodaBeanUtils.notEmpty(perturbations, "perturbations");
+    this.marketDataType = marketDataType;
     this.filter = filter;
     this.perturbations = ImmutableList.copyOf(perturbations);
   }
@@ -147,10 +214,19 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the type of market data handled by this mapping.
+   * @return the value of the property, not null
+   */
+  public Class<T> getMarketDataType() {
+    return marketDataType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the filter that decides whether the perturbations should be applied to a piece of market data.
    * @return the value of the property, not null
    */
-  public MarketDataFilter getFilter() {
+  public MarketDataFilter<T, ?> getFilter() {
     return filter;
   }
 
@@ -159,7 +235,7 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
    * Gets perturbations that should be applied to market data over multiple calculation cycles as part of a scenario.
    * @return the value of the property, not empty
    */
-  public ImmutableList<T> getPerturbations() {
+  public ImmutableList<Perturbation<T>> getPerturbations() {
     return perturbations;
   }
 
@@ -179,7 +255,8 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PerturbationMapping<?> other = (PerturbationMapping<?>) obj;
-      return JodaBeanUtils.equal(getFilter(), other.getFilter()) &&
+      return JodaBeanUtils.equal(getMarketDataType(), other.getMarketDataType()) &&
+          JodaBeanUtils.equal(getFilter(), other.getFilter()) &&
           JodaBeanUtils.equal(getPerturbations(), other.getPerturbations());
     }
     return false;
@@ -188,6 +265,7 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFilter());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPerturbations());
     return hash;
@@ -195,8 +273,9 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("PerturbationMapping{");
+    buf.append("marketDataType").append('=').append(getMarketDataType()).append(',').append(' ');
     buf.append("filter").append('=').append(getFilter()).append(',').append(' ');
     buf.append("perturbations").append('=').append(JodaBeanUtils.toString(getPerturbations()));
     buf.append('}');
@@ -208,7 +287,7 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
    * The meta-bean for {@code PerturbationMapping}.
    * @param <T>  the type
    */
-  public static final class Meta<T extends Perturbation> extends DirectMetaBean {
+  public static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -216,21 +295,29 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code marketDataType} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Class<T>> marketDataType = DirectMetaProperty.ofImmutable(
+        this, "marketDataType", PerturbationMapping.class, (Class) Class.class);
+    /**
      * The meta-property for the {@code filter} property.
      */
-    private final MetaProperty<MarketDataFilter> filter = DirectMetaProperty.ofImmutable(
-        this, "filter", PerturbationMapping.class, MarketDataFilter.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<MarketDataFilter<T, ?>> filter = DirectMetaProperty.ofImmutable(
+        this, "filter", PerturbationMapping.class, (Class) MarketDataFilter.class);
     /**
      * The meta-property for the {@code perturbations} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<T>> perturbations = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<Perturbation<T>>> perturbations = DirectMetaProperty.ofImmutable(
         this, "perturbations", PerturbationMapping.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "marketDataType",
         "filter",
         "perturbations");
 
@@ -243,6 +330,8 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 843057760:  // marketDataType
+          return marketDataType;
         case -1274492040:  // filter
           return filter;
         case 1397849260:  // perturbations
@@ -269,10 +358,18 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code marketDataType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Class<T>> marketDataType() {
+      return marketDataType;
+    }
+
+    /**
      * The meta-property for the {@code filter} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataFilter> filter() {
+    public MetaProperty<MarketDataFilter<T, ?>> filter() {
       return filter;
     }
 
@@ -280,7 +377,7 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
      * The meta-property for the {@code perturbations} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<T>> perturbations() {
+    public MetaProperty<ImmutableList<Perturbation<T>>> perturbations() {
       return perturbations;
     }
 
@@ -288,6 +385,8 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 843057760:  // marketDataType
+          return ((PerturbationMapping<?>) bean).getMarketDataType();
         case -1274492040:  // filter
           return ((PerturbationMapping<?>) bean).getFilter();
         case 1397849260:  // perturbations
@@ -312,10 +411,11 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
    * The bean-builder for {@code PerturbationMapping}.
    * @param <T>  the type
    */
-  public static final class Builder<T extends Perturbation> extends DirectFieldsBeanBuilder<PerturbationMapping<T>> {
+  public static final class Builder<T> extends DirectFieldsBeanBuilder<PerturbationMapping<T>> {
 
-    private MarketDataFilter filter;
-    private List<T> perturbations = ImmutableList.of();
+    private Class<T> marketDataType;
+    private MarketDataFilter<T, ?> filter;
+    private List<Perturbation<T>> perturbations = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -328,6 +428,7 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(PerturbationMapping<T> beanToCopy) {
+      this.marketDataType = beanToCopy.getMarketDataType();
       this.filter = beanToCopy.getFilter();
       this.perturbations = beanToCopy.getPerturbations();
     }
@@ -336,6 +437,8 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 843057760:  // marketDataType
+          return marketDataType;
         case -1274492040:  // filter
           return filter;
         case 1397849260:  // perturbations
@@ -349,11 +452,14 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     @Override
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 843057760:  // marketDataType
+          this.marketDataType = (Class<T>) newValue;
+          break;
         case -1274492040:  // filter
-          this.filter = (MarketDataFilter) newValue;
+          this.filter = (MarketDataFilter<T, ?>) newValue;
           break;
         case 1397849260:  // perturbations
-          this.perturbations = (List<T>) newValue;
+          this.perturbations = (List<Perturbation<T>>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -388,17 +494,29 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
     @Override
     public PerturbationMapping<T> build() {
       return new PerturbationMapping<T>(
+          marketDataType,
           filter,
           perturbations);
     }
 
     //-----------------------------------------------------------------------
     /**
+     * Sets the {@code marketDataType} property in the builder.
+     * @param marketDataType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<T> marketDataType(Class<T> marketDataType) {
+      JodaBeanUtils.notNull(marketDataType, "marketDataType");
+      this.marketDataType = marketDataType;
+      return this;
+    }
+
+    /**
      * Sets the {@code filter} property in the builder.
      * @param filter  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> filter(MarketDataFilter filter) {
+    public Builder<T> filter(MarketDataFilter<T, ?> filter) {
       JodaBeanUtils.notNull(filter, "filter");
       this.filter = filter;
       return this;
@@ -409,27 +527,18 @@ public final class PerturbationMapping<T extends Perturbation> implements Immuta
      * @param perturbations  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder<T> perturbations(List<T> perturbations) {
+    public Builder<T> perturbations(List<Perturbation<T>> perturbations) {
       JodaBeanUtils.notEmpty(perturbations, "perturbations");
       this.perturbations = perturbations;
       return this;
     }
 
-    /**
-     * Sets the {@code perturbations} property in the builder
-     * from an array of objects.
-     * @param perturbations  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder<T> perturbations(T... perturbations) {
-      return perturbations(ImmutableList.copyOf(perturbations));
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("PerturbationMapping.Builder{");
+      buf.append("marketDataType").append('=').append(JodaBeanUtils.toString(marketDataType)).append(',').append(' ');
       buf.append("filter").append('=').append(JodaBeanUtils.toString(filter)).append(',').append(' ');
       buf.append("perturbations").append('=').append(JodaBeanUtils.toString(perturbations));
       buf.append('}');

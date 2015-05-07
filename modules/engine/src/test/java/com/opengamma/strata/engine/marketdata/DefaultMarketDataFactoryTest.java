@@ -390,9 +390,10 @@ public class DefaultMarketDataFactoryTest {
     QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<DoubleShift> mapping =
+    PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
-            new FalseFilter(),
+            Double.class,
+            new FalseFilter<>(QuoteId.class),
             new DoubleShift(ShiftType.ABSOLUTE, 1),
             new DoubleShift(ShiftType.ABSOLUTE, 2),
             new DoubleShift(ShiftType.ABSOLUTE, 3));
@@ -420,9 +421,10 @@ public class DefaultMarketDataFactoryTest {
     QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
     QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
-    PerturbationMapping<DoubleShift> mapping =
+    PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
-            new ExactIdFilter(id1),
+            Double.class,
+            new ExactIdFilter<>(id1),
             new DoubleShift(ShiftType.ABSOLUTE, 1),
             new DoubleShift(ShiftType.ABSOLUTE, 2),
             new DoubleShift(ShiftType.ABSOLUTE, 3));
@@ -453,15 +455,17 @@ public class DefaultMarketDataFactoryTest {
     QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
     QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
-    PerturbationMapping<DoubleShift> mapping1 =
+    PerturbationMapping<Double> mapping1 =
         PerturbationMapping.of(
-            new ExactIdFilter(id2),
+            Double.class,
+            new ExactIdFilter<>(id2),
             new DoubleShift(ShiftType.RELATIVE, 0.1),
             new DoubleShift(ShiftType.RELATIVE, 0.2),
             new DoubleShift(ShiftType.RELATIVE, 0.3));
-    PerturbationMapping<DoubleShift> mapping2 =
+    PerturbationMapping<Double> mapping2 =
         PerturbationMapping.of(
-            new ExactIdFilter(id2),
+            Double.class,
+            new ExactIdFilter<>(id2),
             new DoubleShift(ShiftType.ABSOLUTE, 1),
             new DoubleShift(ShiftType.ABSOLUTE, 2),
             new DoubleShift(ShiftType.ABSOLUTE, 3));
@@ -490,17 +494,18 @@ public class DefaultMarketDataFactoryTest {
             new NonObservableMarketDataBuilder());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
-    MarketDataId<?> id1 = new NonObservableId("a");
-    MarketDataId<?> id2 = new NonObservableId("b");
+    NonObservableId id1 = new NonObservableId("a");
+    NonObservableId id2 = new NonObservableId("b");
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<DoubleShift> mapping =
+    PerturbationMapping<String> mapping =
         PerturbationMapping.of(
-            new FalseFilter(),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            String.class,
+            new FalseFilter<>(NonObservableId.class),
+            new StringAppender(""),
+            new StringAppender(""),
+            new StringAppender(""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -526,13 +531,14 @@ public class DefaultMarketDataFactoryTest {
             new NonObservableMarketDataBuilder());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
-    MarketDataId<?> id1 = new NonObservableId("a");
-    MarketDataId<?> id2 = new NonObservableId("b");
+    NonObservableId id1 = new NonObservableId("a");
+    NonObservableId id2 = new NonObservableId("b");
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
-    PerturbationMapping<StringAppender> mapping =
+    PerturbationMapping<String> mapping =
         PerturbationMapping.of(
-            new ExactIdFilter(id1),
+            String.class,
+            new ExactIdFilter<>(id1),
             new StringAppender("foo"),
             new StringAppender("bar"),
             new StringAppender("baz"));
@@ -561,19 +567,21 @@ public class DefaultMarketDataFactoryTest {
             new NonObservableMarketDataBuilder());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
-    MarketDataId<?> id1 = new NonObservableId("a");
-    MarketDataId<?> id2 = new NonObservableId("b");
+    NonObservableId id1 = new NonObservableId("a");
+    NonObservableId id2 = new NonObservableId("b");
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
-    PerturbationMapping<StringAppender> mapping1 =
+    PerturbationMapping<String> mapping1 =
         PerturbationMapping.of(
-            new ExactIdFilter(id1),
+            String.class,
+            new ExactIdFilter<>(id1),
             new StringAppender("FOO"),
             new StringAppender("BAR"),
             new StringAppender("BAZ"));
-    PerturbationMapping<StringAppender> mapping2 =
+    PerturbationMapping<String> mapping2 =
         PerturbationMapping.of(
-            new ExactIdFilter(id1),
+            String.class,
+            new ExactIdFilter<>(id1),
             new StringAppender("foo"),
             new StringAppender("bar"),
             new StringAppender("baz"));
@@ -607,9 +615,10 @@ public class DefaultMarketDataFactoryTest {
     QuoteId quoteId = QuoteId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
-    PerturbationMapping<DoubleShift> mapping =
+    PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
-            new ExactIdFilter(quoteId),
+            Double.class,
+            new ExactIdFilter<>(quoteId),
             new DoubleShift(ShiftType.RELATIVE, 0.1),
             new DoubleShift(ShiftType.RELATIVE, 0.2),
             new DoubleShift(ShiftType.RELATIVE, 0.3));
@@ -638,17 +647,18 @@ public class DefaultMarketDataFactoryTest {
             new TestFeedIdMapping());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
-    MarketDataId<?> id1 = new NonObservableId("a");
-    MarketDataId<?> id2 = new NonObservableId("b");
+    NonObservableId id1 = new NonObservableId("a");
+    NonObservableId id2 = new NonObservableId("b");
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<DoubleShift> mapping =
+    PerturbationMapping<String> mapping =
         PerturbationMapping.of(
-            new FalseFilter(),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            String.class,
+            new FalseFilter<>(NonObservableId.class),
+            new StringAppender(""),
+            new StringAppender(""),
+            new StringAppender(""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -998,18 +1008,29 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Market data filter that doesn't match any market data.
    */
-  private static final class FalseFilter implements MarketDataFilter {
+  private static final class FalseFilter<T, I extends MarketDataId<T>> implements MarketDataFilter<T, I> {
+
+    private final Class<?> idType;
+
+    private FalseFilter(Class<?> idType) {
+      this.idType = idType;
+    }
 
     @Override
-    public boolean apply(MarketDataId<?> marketDataId, Object marketData) {
+    public boolean apply(I marketDataId, T marketData) {
       return false;
+    }
+
+    @Override
+    public Class<?> getMarketDataIdType() {
+      return idType;
     }
   }
 
   /**
    * Perturbation that applies a shift to a double value.
    */
-  private static final class DoubleShift implements Perturbation {
+  private static final class DoubleShift implements Perturbation<Double> {
 
     private final ShiftType shiftType;
 
@@ -1021,25 +1042,30 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Object apply(Object marketData) {
-      return shiftType.applyShift((Double) marketData, shiftAmount);
+    public Double apply(Double marketData) {
+      return shiftType.applyShift(marketData, shiftAmount);
     }
   }
 
   /**
    * Market data filter that matches an ID exactly.
    */
-  private static final class ExactIdFilter implements MarketDataFilter {
+  private static final class ExactIdFilter<T, I extends MarketDataId<T>> implements MarketDataFilter<T, I> {
 
-    private final MarketDataId<?> id;
+    private final I id;
 
-    private ExactIdFilter(MarketDataId<?> id) {
+    private ExactIdFilter(I id) {
       this.id = id;
     }
 
     @Override
-    public boolean apply(MarketDataId<?> marketDataId, Object marketData) {
+    public boolean apply(I marketDataId, T marketData) {
       return id.equals(marketDataId);
+    }
+
+    @Override
+    public Class<?> getMarketDataIdType() {
+      return id.getClass();
     }
   }
 
@@ -1081,7 +1107,7 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
-  private static final class StringAppender implements Perturbation {
+  private static final class StringAppender implements Perturbation<String> {
 
     private final String str;
 
@@ -1090,7 +1116,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Object apply(Object marketData) {
+    public String apply(String marketData) {
       return marketData + str;
     }
   }
