@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +16,11 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -32,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
@@ -43,6 +45,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -51,6 +54,7 @@ import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IndexCurrencySensitivityKey;
+import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
@@ -354,6 +358,48 @@ public final class ImmutableRatesProvider
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
     return OvernightRateSensitivity.of(index, index.getCurrency(), startDate, endDate, 1d);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double inflationIndexRate(PriceIndex index, YearMonth referenceMonth) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(referenceMonth, "referenceMonth");
+    if (referenceMonth.isBefore(YearMonth.from(valuationDate))) {
+      return inflationIndexHistoricRate(index, referenceMonth);
+    }
+    return inflationIndexForwardRate(index, referenceMonth);
+  }
+
+  // historic rate
+  private double inflationIndexHistoricRate(PriceIndex index, YearMonth referenceMonth) {
+    OptionalDouble fixedRate = timeSeries(index).get(referenceMonth.atEndOfMonth());
+    if (fixedRate.isPresent()) {
+      return fixedRate.getAsDouble();
+      // TODO can we assume the publication lag is always less than a month?
+    } else if (referenceMonth.isBefore(YearMonth.from(valuationDate).minusMonths(1))) { // the fixing is required
+      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, referenceMonth));
+    } else {
+      return inflationIndexForwardRate(index, referenceMonth);
+    }
+  }
+
+  // forward rate
+  private double inflationIndexForwardRate(PriceIndex index, YearMonth referenceMonth) {
+    PriceIndexCurve indexCurve = (PriceIndexCurve) getAdditionalData().get(index);
+    double relativeTime = relativeTime(referenceMonth.atEndOfMonth());
+    return indexCurve.getPriceIndex(relativeTime);
+  }
+
+  @Override
+  public PointSensitivityBuilder inflationIndexRateSensitivity(PriceIndex index, YearMonth referenceMonth) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(referenceMonth, "referenceMonth");
+    if (referenceMonth.isBefore(YearMonth.from(valuationDate)) &&
+        timeSeries(index).get(referenceMonth.atEndOfMonth()).isPresent()) {
+      return PointSensitivityBuilder.none();
+    }
+    return InflationRateSensitivity.of(index, referenceMonth, 1.0d);
   }
 
   //-------------------------------------------------------------------------

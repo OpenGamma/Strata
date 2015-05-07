@@ -6,12 +6,14 @@
 package com.opengamma.strata.pricer.rate;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.BaseProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
@@ -196,6 +198,37 @@ public interface RatesProvider
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the historic or forward rate of price index.
+   * <p>
+   * The value of the price index, such as 'GB-HICP', varies over time.
+   * This retrieves the actual rate if the reference month is before the month of the valuation date and 
+   * the index is already published, or the estimated rate if the index is not yet fixed.
+   * 
+   * @param index the index of prices 
+   * @param referenceMonth the reference month for the index 
+   * @return the price index value 
+   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
+   *   on the beginning of the month and not the end of the month
+   */
+  public abstract double inflationIndexRate(PriceIndex index, YearMonth referenceMonth);
+
+  /**
+   * Gets the basic curve sensitivity for forward rate of price index.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * The sensitivity will have the value 1.
+   * The sensitivity refers to the result of {@link #inflationIndexRate(PriceIndex, YearMonth)}.
+   *  
+   * @param index the index of prices 
+   * @param referenceMonth the reference month for the index 
+   * @return the point sensitivity of the rate
+   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
+   *   on the beginning of the month and not the end of the month
+   */
+  public abstract PointSensitivityBuilder inflationIndexRateSensitivity(PriceIndex index, YearMonth referenceMonth);
 
   //-------------------------------------------------------------------------
   /**

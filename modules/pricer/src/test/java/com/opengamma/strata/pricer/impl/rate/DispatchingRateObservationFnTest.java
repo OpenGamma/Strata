@@ -27,6 +27,8 @@ import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
+import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
@@ -55,6 +57,11 @@ public class DispatchingRateObservationFnTest {
       mock(RateObservationFn.class);
   private static final RateObservationFn<OvernightAveragedRateObservation> MOCK_ON_AVE_EMPTY =
       mock(RateObservationFn.class);
+  private static final RateObservationFn<InflationMonthlyRateObservation> MOCK_INF_MON_EMPTY =
+      mock(RateObservationFn.class);
+  private static final RateObservationFn<InflationInterpolatedRateObservation> MOCK_INF_INT_EMPTY =
+      mock(RateObservationFn.class);
+  //TODO add tests for inflation cases
 
   private static final double TOLERANCE_RATE = 1.0E-10;
 
@@ -70,7 +77,13 @@ public class DispatchingRateObservationFnTest {
     when(mockIbor.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(0.0123d);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
-        mockIbor, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
+        mockIbor,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), 0.0123d, 0d);
   }
 
@@ -81,7 +94,13 @@ public class DispatchingRateObservationFnTest {
     when(mockIborInt.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
-        MOCK_IBOR_EMPTY, mockIborInt, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
+        MOCK_IBOR_EMPTY,
+        mockIborInt,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, 0d);
   }
 
@@ -101,7 +120,9 @@ public class DispatchingRateObservationFnTest {
     when(mockIborAve.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
-        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, mockIborAve, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
+        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, mockIborAve, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, 0d);
   }
 
@@ -113,7 +134,13 @@ public class DispatchingRateObservationFnTest {
     when(mockOnCpd.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
-        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, mockOnCpd, MOCK_ON_AVE_EMPTY);
+        MOCK_IBOR_EMPTY,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        mockOnCpd,
+        MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
   }
 
@@ -125,7 +152,13 @@ public class DispatchingRateObservationFnTest {
     when(mockOnAve.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
-        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, mockOnAve);
+        MOCK_IBOR_EMPTY,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        mockOnAve,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
   }
 
@@ -138,7 +171,13 @@ public class DispatchingRateObservationFnTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
-        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
+        MOCK_IBOR_EMPTY,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY);
     FixedRateObservation fixed = FixedRateObservation.of(0.0123d);
     IborRateObservation ibor = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     IborInterpolatedRateObservation iborInt =

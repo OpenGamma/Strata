@@ -6,12 +6,14 @@
 package com.opengamma.strata.pricer.impl;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
@@ -116,6 +118,17 @@ public class MockRatesProvider
 
   @Override
   public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+    throw new UnsupportedOperationException();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double inflationIndexRate(PriceIndex index, YearMonth referenceDate) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PointSensitivityBuilder inflationIndexRateSensitivity(PriceIndex index, YearMonth referenceDate) {
     throw new UnsupportedOperationException();
   }
 
