@@ -9,9 +9,10 @@ import java.time.LocalDate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
 
 /**
@@ -32,7 +33,7 @@ public class ExampleDiscountingCurveBuilder
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountingCurveId id, BaseMarketData builtData) {
+  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     LocalDate valuationDate = builtData.getValuationDate();
     YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, id.getCurrency() + "-discounting");
     return Result.success(curve);

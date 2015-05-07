@@ -54,12 +54,13 @@ import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.engine.marketdata.MarketDataResult;
 import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.finance.TradeInfo;
@@ -177,10 +178,11 @@ public class SwapPricingTest {
         calculationRunner.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
     CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
-    MarketDataResult marketDataResult =
+    BaseMarketDataResult marketDataResult =
         marketDataFactory.buildBaseMarketData(
             calculationTasks.getMarketDataRequirements(),
-            suppliedData);
+            suppliedData,
+            MarketDataConfig.EMPTY);
 
     BaseMarketData marketData = marketDataResult.getMarketData();
     Results results = calculationRunner.calculate(calculationTasks, marketData);

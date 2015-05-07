@@ -295,6 +295,11 @@
         <optional>true</optional><!-- needed only for annotations -->
       </dependency>
       <dependency>
+        <groupId>org.jooq</groupId>
+        <artifactId>jool</artifactId>
+        <version>${jool.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
@@ -480,6 +485,7 @@
     <slf4j.version>1.7.5</slf4j.version>
     <assertj.version>2.0.0</assertj.version>
     <og-analytics.version>3.0.0-SNAPSHOT</og-analytics.version>
+    <jool.version>0.9.4</jool.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>

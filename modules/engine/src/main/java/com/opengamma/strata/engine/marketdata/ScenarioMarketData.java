@@ -62,16 +62,21 @@ public interface ScenarioMarketData {
    * @param <T>  type of the market data
    * @param <I>  type of the market data ID
    * @return a list of market data values, one from each scenario
+   * @throws IllegalArgumentException if there are no values for the specified ID
    */
   public abstract <T, I extends MarketDataId<T>> List<T> getValues(I id);
 
   /**
-   * Returns a list of market data time series, one from each scenario.
+   * Returns a time series of market data values.
+   * <p>
+   * Time series are not affected by scenarios, therefore there is a single time series for each key
+   * which is shared between all scenarios.
    *
    * @param id  ID of the market data
-   * @return a list of market data time series, one from each scenario
+   * @return a time series of market data values
+   * @throws IllegalArgumentException if there is no time series for the specified ID
    */
-  public abstract List<LocalDateDoubleTimeSeries> getTimeSeries(ObservableId id);
+  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
   /**
    * Returns a single value that is valid for all scenarios.
@@ -83,8 +88,25 @@ public interface ScenarioMarketData {
    * @param <T>  type of the market data
    * @param <I>  type of the market data ID
    * @return the market data value
+   * @throws IllegalArgumentException if there is no value for the specified ID
    */
   public abstract <T, I extends MarketDataId<T>> T getGlobalValue(I id);
+
+  /**
+   * Returns true if this set of data contains value for the specified ID.
+   *
+   * @param id  an ID identifying an item of market data
+   * @return true if this set of data contains values for the specified ID
+   */
+  public abstract boolean containsValues(MarketDataId<?> id);
+
+  /**
+   * Returns true if this set of data contains a time series for the specified market data ID.
+   *
+   * @param id  an ID identifying an item of market data
+   * @return true if this set of data contains a time series for the specified market data ID
+   */
+  public abstract boolean containsTimeSeries(ObservableId id);
 
   /**
    * Returns the observable market data in this set of data.
@@ -99,4 +121,11 @@ public interface ScenarioMarketData {
    * @return a market data environment containing the calibrated market data in this data set
    */
   public abstract List<MarketDataEnvironment> getMarketDataEnvironment();
+
+  /**
+   * Returns a mutable builder containing the data from this object.
+   *
+   * @return a mutable builder containing the data from this object
+   */
+  ScenarioMarketDataBuilder toBuilder();
 }

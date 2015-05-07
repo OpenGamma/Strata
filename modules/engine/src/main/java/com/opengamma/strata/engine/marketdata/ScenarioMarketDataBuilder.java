@@ -42,13 +42,15 @@ public final class ScenarioMarketDataBuilder {
    * The time series of market data for the scenarios, keyed by the ID of the market data.
    * The number of values for each key is the same as the number of scenarios.
    */
-  private final ListMultimap<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ArrayListMultimap.create();
+  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
   /** The global market data values that are applicable to all scenarios. */
   private final Map<MarketDataId<?>, Object> globalValues = new HashMap<>();
 
   /**
-   * @param scenarioCount  the number of scenarios
+   * Creates a new builder with the specified number of scenarios.
+   *
+   * @param scenarioCount the number of scenarios
    */
   ScenarioMarketDataBuilder(int scenarioCount) {
     this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
@@ -57,8 +59,8 @@ public final class ScenarioMarketDataBuilder {
   /**
    * Returns a new builder where every scenario has the same valuation date.
    *
-   * @param scenarioCount  the number of scenarios
-   * @param valuationDate  the valuation date for all scenarios
+   * @param scenarioCount the number of scenarios
+   * @param valuationDate the valuation date for all scenarios
    */
   ScenarioMarketDataBuilder(int scenarioCount, LocalDate valuationDate) {
     this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
@@ -66,9 +68,40 @@ public final class ScenarioMarketDataBuilder {
   }
 
   /**
+   * Returns a new builder where every scenario has the same valuation date.
+   * <p>
+   * This is package-private because it is intended to be used by {@code ScenarioMarketData.builder()}.
+   *
+   * @param scenarioCount  the number of scenarios
+   * @param valuationDates  the valuation dates for the scenarios
+   * @param values  the single market data values
+   * @param timeSeries  the time series of market data values
+   * @param globalValues  the single market data values applicable to all scenarios
+   */
+  ScenarioMarketDataBuilder(
+      int scenarioCount,
+      List<LocalDate> valuationDates,
+      ListMultimap<MarketDataId<?>, ?> values,
+      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries,
+      Map<? extends MarketDataId<?>, Object> globalValues) {
+
+    ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    ArgChecker.notNull(valuationDates, "valuationDates");
+    ArgChecker.notNull(values, "values");
+    ArgChecker.notNull(timeSeries, "timeSeries");
+    ArgChecker.notNull(globalValues, "globalValues");
+
+    this.scenarioCount = scenarioCount;
+    this.values.putAll(values);
+    this.timeSeries.putAll(timeSeries);
+    this.globalValues.putAll(globalValues);
+    valuationDates(valuationDates);
+  }
+
+  /**
    * Sets the valuation date for all scenarios.
    *
-   * @param valuationDate  the valuation date for all scenarios
+   * @param valuationDate the valuation date for all scenarios
    * @return this builder
    */
   public ScenarioMarketDataBuilder valuationDate(LocalDate valuationDate) {
@@ -81,7 +114,7 @@ public final class ScenarioMarketDataBuilder {
    * Sets the valuation date for all scenarios. The number of date arguments must be the same as
    * the number of scenarios.
    *
-   * @param valuationDates  the valuation dates for the scenarios, one for each scenario
+   * @param valuationDates the valuation dates for the scenarios, one for each scenario
    * @return this builder
    */
   public ScenarioMarketDataBuilder valuationDates(LocalDate... valuationDates) {
@@ -96,7 +129,7 @@ public final class ScenarioMarketDataBuilder {
    * Sets the valuation date for all scenarios. The number of date arguments must be the same as
    * the number of scenarios.
    *
-   * @param valuationDates  the valuation dates for the scenarios, one for each scenario
+   * @param valuationDates the valuation dates for the scenarios, one for each scenario
    * @return this builder
    */
   public ScenarioMarketDataBuilder valuationDates(List<LocalDate> valuationDates) {
@@ -111,9 +144,9 @@ public final class ScenarioMarketDataBuilder {
    * Adds market data values for all scenarios. The number of values must be the same as the number
    * of scenarios.
    *
-   * @param id  the ID of the market data values
-   * @param values  the market data values, one for each scenario
-   * @param <T>  the type of the market data values
+   * @param id the ID of the market data values
+   * @param values the market data values, one for each scenario
+   * @param <T> the type of the market data values
    * @return this builder
    */
   @SafeVarargs
@@ -129,9 +162,9 @@ public final class ScenarioMarketDataBuilder {
    * Adds market data values for all scenarios. The number of values must be the same as the number
    * of scenarios.
    *
-   * @param id  the ID of the market data values
-   * @param values  the market data values, one for each scenario
-   * @param <T>  the type of the market data values
+   * @param id the ID of the market data values
+   * @param values the market data values, one for each scenario
+   * @param <T> the type of the market data values
    * @return this builder
    */
   public <T> ScenarioMarketDataBuilder addValues(MarketDataId<T> id, List<T> values) {
@@ -143,42 +176,44 @@ public final class ScenarioMarketDataBuilder {
   }
 
   /**
-   * Adds time series of market data values for all scenarios. The number of time series must be the same as
-   * the number of scenarios.
+   * Adds market data values for all scenarios. The number of values in each list must be the same as the number
+   * of scenarios.
    *
-   * @param id  the ID of the market data values
-   * @param timeSeries  the time series of market data values, one for each scenario
+   * @param values the market data values, each list containing one value for each scenario
+   * @param <T> the type of the market data values
    * @return this builder
    */
-  public ScenarioMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries... timeSeries) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    checkLength(timeSeries.length, "time series");
-    this.timeSeries.putAll(id, Arrays.asList(timeSeries));
+  public <T> ScenarioMarketDataBuilder addValues(Map<? extends MarketDataId<T>, List<T>> values) {
+    ArgChecker.notNull(values, "values");
+
+    for (Map.Entry<? extends MarketDataId<T>, List<T>> entry : values.entrySet()) {
+      MarketDataId<T> id = entry.getKey();
+      List<T> scenarioValues = entry.getValue();
+      checkLength(scenarioValues.size(), id.toString());
+      this.values.putAll(id, scenarioValues);
+    }
     return this;
   }
 
   /**
-   * Adds time series of market data values for all scenarios. The number of time series must be the same as
-   * the number of scenarios.
+   * Adds a  time series of market data values..
    *
-   * @param id  the ID of the market data values
-   * @param timeSeries  the time series of market data values, one for each scenario
+   * @param id the ID of the market data values
+   * @param timeSeries the time series of market data values, one for each scenario
    * @return this builder
    */
-  public ScenarioMarketDataBuilder addTimeSeries(ObservableId id, List<LocalDateDoubleTimeSeries> timeSeries) {
+  public ScenarioMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
-    checkLength(timeSeries.size(), "time series");
-    this.timeSeries.putAll(id, timeSeries);
+    this.timeSeries.put(id, timeSeries);
     return this;
   }
 
   /**
    * Adds a global value that is applicable to all scenarios.
    *
-   * @param id  the identifier to associate the value with
-   * @param value  the value to add
+   * @param id the identifier to associate the value with
+   * @param value the value to add
    * @return this builder
    */
   public <T> ScenarioMarketDataBuilder addGlobalValue(MarketDataId<T> id, T value) {
@@ -194,13 +229,7 @@ public final class ScenarioMarketDataBuilder {
    * @return a set of scenario market data built from the data in this builder
    */
   public ScenarioMarketData build() {
-    return DefaultScenarioMarketData.builder()
-        .scenarioCount(scenarioCount)
-        .valuationDates(valuationDates)
-        .values(values)
-        .timeSeries(timeSeries)
-        .globalValues(globalValues)
-        .build();
+    return new DefaultScenarioMarketData(scenarioCount, valuationDates, values, timeSeries, globalValues);
   }
 
   private void checkLength(int length, String itemName) {

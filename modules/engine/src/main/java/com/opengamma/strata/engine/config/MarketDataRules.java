@@ -25,7 +25,7 @@ public interface MarketDataRules {
 
   /**
    * Returns a set of market data rules that delegates to multiple underlying sets of rules, returning the first
-   * valid mapping it finds
+   * valid mapping it finds.
    *
    * @param rules  the delegate market data rules
    * @return a set of market data rules that delegates to multiple underlying sets of rules, returning the first

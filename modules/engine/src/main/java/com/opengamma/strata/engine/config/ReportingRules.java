@@ -39,7 +39,7 @@ public interface ReportingRules {
   }
 
   /**
-   * Returns the currency which should be used when reporting calculation results for the target
+   * Returns the currency which should be used when reporting calculation results for the target.
    *
    * @param target  a target
    * @return the currency which should be used when reporting calculation results for the target

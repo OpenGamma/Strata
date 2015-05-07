@@ -34,15 +34,14 @@ import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 
-// TODO This needs to store values in MarketDataItem with a timestamp and attributes (to store entitlements, ticker)
 /**
  * A source of market data for a single set of calculations.
  */
 @BeanDefinition(builderScope = "private")
-public final class BaseMarketData implements ImmutableBean {
+public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
 
   /** The valuation date associated with the data. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
 
   // TODO Do the values need to include the timestamp as well as the market data item?
@@ -56,6 +55,16 @@ public final class BaseMarketData implements ImmutableBean {
   private final ImmutableMap<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   /**
+   * Returns an empty mutable builder for building a new instance of {@code BaseMarketData}.
+   *
+   * @param valuationDate  the valuation date
+   * @return an empty mutable builder for building a new instance of {@code BaseMarketData}
+   */
+  public static BaseMarketDataBuilder builder(LocalDate valuationDate) {
+    return new BaseMarketDataBuilder(valuationDate);
+  }
+
+  /**
    * Returns an empty set of market data with the specified valuation date.
    *
    * @param valuationDate  the valuation date used for the calculations
@@ -65,6 +74,13 @@ public final class BaseMarketData implements ImmutableBean {
     return BaseMarketData.builder(valuationDate).build();
   }
 
+  /**
+   * Package-private constructor used by the builder.
+   *
+   * @param valuationDate  the valuation date of the market data
+   * @param values  the single market data values
+   * @param timeSeries  the time series of market data values
+   */
   @ImmutableConstructor
   BaseMarketData(
       LocalDate valuationDate,
@@ -76,37 +92,13 @@ public final class BaseMarketData implements ImmutableBean {
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
   }
 
-  /**
-   * Returns an empty mutable builder for building a new instance of {@code BaseMarketData}.
-   *
-   * @param valuationDate  the valuation date
-   * @return an empty mutable builder for building a new instance of {@code BaseMarketData}
-   */
-  public static BaseMarketDataBuilder builder(LocalDate valuationDate) {
-    return new BaseMarketDataBuilder(valuationDate);
-  }
-
-  /**
-   * Returns true if this set of data contains an object for the specified ID and it is of the expected type.
-   *
-   * @param id  an ID identifying an item of market data
-   * @return true if this set of data contains an object for the specified ID and it is of the expected type
-   */
+  @Override
   public boolean containsValue(MarketDataId<?> id) {
     Object value = values.get(id);
     return value != null && id.getMarketDataType().isInstance(value);
   }
 
-  /**
-   * Returns a market data value.
-   * <p>
-   * The date of the market data is the same as the valuation date of the calculations.
-   *
-   * @param id  ID of the market data
-   * @param <T>  type of the market data
-   * @param <I>  type of the market data ID
-   * @return a market data value
-   */
+  @Override
   @SuppressWarnings("unchecked")
   public <T, I extends MarketDataId<T>> T getValue(I id) {
     // Special handling of these special ID types to provide more helpful error messages
@@ -135,22 +127,13 @@ public final class BaseMarketData implements ImmutableBean {
     return (T) value;
   }
 
-  /**
-   * Returns true if this set of data contains a time series for the specified market data ID.
-   *
-   * @param id  an ID identifying an item of market data
-   * @return true if this set of data contains a time series for the specified market data ID
-   */
+  @Override
   public boolean containsTimeSeries(ObservableId id) {
     return timeSeries.containsKey(id);
   }
 
-  /**
-   * Returns a time series of market data values.
-   *
-   * @param id  ID of the market data
-   * @return a time series of market data values
-   */
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = this.timeSeries.get(id);
 
@@ -179,40 +162,12 @@ public final class BaseMarketData implements ImmutableBean {
   }
 
   /**
-   * Returns a set of market data containing the combined data from this set and another set.
-   * <p>
-   * The valuation time is taken from this set. If there are values for the same ID in both sets,
-   * the values in this set take precedence.
-   *
-   * @param other  another set of market data
-   * @return a set of market data containing the combined data from this set and the other set
-   */
-  public BaseMarketData combinedWith(BaseMarketData other) {
-    if (isEmpty()) {
-      return other;
-    }
-    if (other.isEmpty()) {
-      return this;
-    }
-    // Build from the other data so values from this set take precedence
-    return other.toBuilder()
-        .valuationDate(valuationDate)
-        .addAllValues(values)
-        .addAllTimeSeries(timeSeries)
-        .build();
-  }
-
-  /**
    * Returns a mutable builder containing the data from this object.
    *
    * @return a mutable builder containing the data from this object
    */
   public BaseMarketDataBuilder toBuilder() {
     return new BaseMarketDataBuilder(valuationDate, values, timeSeries);
-  }
-
-  private boolean isEmpty() {
-    return values.isEmpty() && timeSeries.isEmpty();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -249,6 +204,7 @@ public final class BaseMarketData implements ImmutableBean {
    * Gets the valuation date associated with the data.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getValuationDate() {
     return valuationDate;
   }
