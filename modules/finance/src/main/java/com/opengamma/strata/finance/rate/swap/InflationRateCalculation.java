@@ -50,7 +50,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
  * This defines the data necessary to calculate the amount payable on the leg.
  * The amount is based on the observed value of a price index.
  * <p>
- * The index for a given month is given in the yield curve or in the time series on the first of the month.
+ * The index for a given month is given in the yield curve or in the time series.
  * The pay-off for a unit notional is {@code (Index_End / Index_Start - 1)}.
  */
 @BeanDefinition
