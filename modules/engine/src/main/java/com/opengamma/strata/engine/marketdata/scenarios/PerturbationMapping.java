@@ -43,7 +43,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
 
   /** The filter that decides whether the perturbations should be applied to a piece of market data. */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataFilter<T> filter;
+  private final MarketDataFilter<T, ?> filter;
 
   /** Perturbations that should be applied to market data over multiple calculation cycles as part of a scenario. */
   @PropertyDefinition(validate = "notEmpty")
@@ -59,7 +59,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    */
   public static <T> PerturbationMapping<T> of(
       Class<T> marketDataType,
-      MarketDataFilter<T> filter,
+      MarketDataFilter<T, ?> filter,
       Perturbation<T> perturbation) {
 
     return new PerturbationMapping<>(marketDataType, filter, ImmutableList.of(perturbation));
@@ -76,7 +76,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   @SafeVarargs
   public static <T> PerturbationMapping<T> of(
       Class<T> marketDataType,
-      MarketDataFilter<T> filter,
+      MarketDataFilter<T, ?> filter,
       Perturbation<T>... perturbations) {
 
     return new PerturbationMapping<>(marketDataType, filter, ImmutableList.copyOf(perturbations));
@@ -92,7 +92,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    */
   public static <T> PerturbationMapping<T> of(
       Class<T> marketDataType,
-      MarketDataFilter<T> filter,
+      MarketDataFilter<T, ?> filter,
       List<Perturbation<T>> perturbations) {
 
     return new PerturbationMapping<>(marketDataType, filter, ImmutableList.copyOf(perturbations));
@@ -107,7 +107,13 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    */
   @SuppressWarnings("unchecked")
   public boolean matches(MarketDataId<?> marketDataId, Object marketData) {
-    return (marketDataType.isInstance(marketData)) && filter.apply((MarketDataId<T>) marketDataId, (T) marketData);
+    // The raw type is necessary to keep the compiler happy, the call is definitely safe because the
+    // type of the ID is checked against the ID type handled by the filter
+    MarketDataFilter rawFilter = filter;
+
+    return marketDataType.isInstance(marketData) &&
+        filter.getMarketDataIdType().isInstance(marketDataId) &&
+        rawFilter.apply(marketDataId, marketData);
   }
 
   /**
@@ -180,7 +186,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
 
   private PerturbationMapping(
       Class<T> marketDataType,
-      MarketDataFilter<T> filter,
+      MarketDataFilter<T, ?> filter,
       List<Perturbation<T>> perturbations) {
     JodaBeanUtils.notNull(marketDataType, "marketDataType");
     JodaBeanUtils.notNull(filter, "filter");
@@ -220,7 +226,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    * Gets the filter that decides whether the perturbations should be applied to a piece of market data.
    * @return the value of the property, not null
    */
-  public MarketDataFilter<T> getFilter() {
+  public MarketDataFilter<T, ?> getFilter() {
     return filter;
   }
 
@@ -298,7 +304,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
      * The meta-property for the {@code filter} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<MarketDataFilter<T>> filter = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<MarketDataFilter<T, ?>> filter = DirectMetaProperty.ofImmutable(
         this, "filter", PerturbationMapping.class, (Class) MarketDataFilter.class);
     /**
      * The meta-property for the {@code perturbations} property.
@@ -363,7 +369,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
      * The meta-property for the {@code filter} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataFilter<T>> filter() {
+    public MetaProperty<MarketDataFilter<T, ?>> filter() {
       return filter;
     }
 
@@ -408,7 +414,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   public static final class Builder<T> extends DirectFieldsBeanBuilder<PerturbationMapping<T>> {
 
     private Class<T> marketDataType;
-    private MarketDataFilter<T> filter;
+    private MarketDataFilter<T, ?> filter;
     private List<Perturbation<T>> perturbations = ImmutableList.of();
 
     /**
@@ -450,7 +456,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
           this.marketDataType = (Class<T>) newValue;
           break;
         case -1274492040:  // filter
-          this.filter = (MarketDataFilter<T>) newValue;
+          this.filter = (MarketDataFilter<T, ?>) newValue;
           break;
         case 1397849260:  // perturbations
           this.perturbations = (List<Perturbation<T>>) newValue;
@@ -510,7 +516,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
      * @param filter  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> filter(MarketDataFilter<T> filter) {
+    public Builder<T> filter(MarketDataFilter<T, ?> filter) {
       JodaBeanUtils.notNull(filter, "filter");
       this.filter = filter;
       return this;

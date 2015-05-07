@@ -262,7 +262,7 @@ public class ScenarioDefinitionTest {
     }
   }
 
-  private static final class TestFilter implements MarketDataFilter<Object> {
+  private static final class TestFilter implements MarketDataFilter<Object, MarketDataId<Object>> {
 
     private final String name;
 
@@ -273,6 +273,11 @@ public class ScenarioDefinitionTest {
     @Override
     public boolean apply(MarketDataId<Object> marketDataId, Object marketData) {
       return false;
+    }
+
+    @Override
+    public Class<?> getMarketDataIdType() {
+      return MarketDataId.class;
     }
 
     @Override

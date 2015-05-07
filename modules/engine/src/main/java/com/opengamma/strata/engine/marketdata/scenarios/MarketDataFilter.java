@@ -17,8 +17,9 @@ import com.opengamma.strata.marketdata.id.MarketDataId;
  * which allows them to be serialized and used with a remote implementation of the engine API.
  *
  * @param <T>  the type of the market data handled by the filter
+ * @param <I>  the type of the market data ID handled by the filter
  */
-public interface MarketDataFilter<T> {
+public interface MarketDataFilter<T, I extends MarketDataId<T>> {
 
   /**
    * Applies the filter to a market data ID and the corresponding market data value and returns true
@@ -28,5 +29,14 @@ public interface MarketDataFilter<T> {
    * @param marketData  the market data value
    * @return true if the filter matches
    */
-  public abstract boolean apply(MarketDataId<T> marketDataId, T marketData);
+  public abstract boolean apply(I marketDataId, T marketData);
+
+  /**
+   * Returns the type of market data ID handled by this filter.
+   * <p>
+   * This should correspond to the type parameter {@code I}.
+   *
+   * @return the type of market data ID handled by this filter
+   */
+  public abstract Class<?> getMarketDataIdType();
 }

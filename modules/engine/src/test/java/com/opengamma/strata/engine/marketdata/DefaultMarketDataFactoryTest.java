@@ -393,7 +393,7 @@ public class DefaultMarketDataFactoryTest {
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
             Double.class,
-            new FalseFilter<>(),
+            new FalseFilter<>(QuoteId.class),
             new DoubleShift(ShiftType.ABSOLUTE, 1),
             new DoubleShift(ShiftType.ABSOLUTE, 2),
             new DoubleShift(ShiftType.ABSOLUTE, 3));
@@ -494,18 +494,18 @@ public class DefaultMarketDataFactoryTest {
             new NonObservableMarketDataBuilder());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
-    MarketDataId<?> id1 = new NonObservableId("a");
-    MarketDataId<?> id2 = new NonObservableId("b");
+    NonObservableId id1 = new NonObservableId("a");
+    NonObservableId id2 = new NonObservableId("b");
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<Double> mapping =
+    PerturbationMapping<String> mapping =
         PerturbationMapping.of(
-            Double.class,
-            new FalseFilter<>(),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            String.class,
+            new FalseFilter<>(NonObservableId.class),
+            new StringAppender(""),
+            new StringAppender(""),
+            new StringAppender(""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -647,18 +647,18 @@ public class DefaultMarketDataFactoryTest {
             new TestFeedIdMapping());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
-    MarketDataId<?> id1 = new NonObservableId("a");
-    MarketDataId<?> id2 = new NonObservableId("b");
+    NonObservableId id1 = new NonObservableId("a");
+    NonObservableId id2 = new NonObservableId("b");
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<Double> mapping =
+    PerturbationMapping<String> mapping =
         PerturbationMapping.of(
-            Double.class,
-            new FalseFilter<>(),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            String.class,
+            new FalseFilter<>(NonObservableId.class),
+            new StringAppender(""),
+            new StringAppender(""),
+            new StringAppender(""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -1008,11 +1008,22 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Market data filter that doesn't match any market data.
    */
-  private static final class FalseFilter<T> implements MarketDataFilter<T> {
+  private static final class FalseFilter<T, I extends MarketDataId<T>> implements MarketDataFilter<T, I> {
+
+    private final Class<?> idType;
+
+    private FalseFilter(Class<?> idType) {
+      this.idType = idType;
+    }
 
     @Override
-    public boolean apply(MarketDataId<T> marketDataId, T marketData) {
+    public boolean apply(I marketDataId, T marketData) {
       return false;
+    }
+
+    @Override
+    public Class<?> getMarketDataIdType() {
+      return idType;
     }
   }
 
@@ -1039,17 +1050,22 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Market data filter that matches an ID exactly.
    */
-  private static final class ExactIdFilter<T> implements MarketDataFilter<T> {
+  private static final class ExactIdFilter<T, I extends MarketDataId<T>> implements MarketDataFilter<T, I> {
 
-    private final MarketDataId<T> id;
+    private final I id;
 
-    private ExactIdFilter(MarketDataId<T> id) {
+    private ExactIdFilter(I id) {
       this.id = id;
     }
 
     @Override
-    public boolean apply(MarketDataId<T> marketDataId, T marketData) {
+    public boolean apply(I marketDataId, T marketData) {
       return id.equals(marketDataId);
+    }
+
+    @Override
+    public Class<?> getMarketDataIdType() {
+      return id.getClass();
     }
   }
 
