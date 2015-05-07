@@ -54,6 +54,7 @@ public class SwapLegTypeTest {
     assertEquals(SwapLegType.FIXED.isFixed(), true);
     assertEquals(SwapLegType.IBOR.isFixed(), false);
     assertEquals(SwapLegType.OVERNIGHT.isFixed(), false);
+    assertEquals(SwapLegType.INFLATION.isFixed(), false);
     assertEquals(SwapLegType.OTHER.isFixed(), false);
   }
 
@@ -61,6 +62,7 @@ public class SwapLegTypeTest {
     assertEquals(SwapLegType.FIXED.isFloat(), false);
     assertEquals(SwapLegType.IBOR.isFloat(), true);
     assertEquals(SwapLegType.OVERNIGHT.isFloat(), true);
+    assertEquals(SwapLegType.INFLATION.isFloat(), true);
     assertEquals(SwapLegType.OTHER.isFloat(), false);
   }
 
