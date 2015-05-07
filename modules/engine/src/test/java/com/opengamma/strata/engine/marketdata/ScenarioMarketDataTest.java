@@ -16,7 +16,7 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 import com.opengamma.strata.marketdata.key.IndexCurveKey;
 
 @Test
-public class DefaultScenarioMarketDataTest {
+public class ScenarioMarketDataTest {
 
   /**
    * Tests the special handling of {@link NoMatchingRuleId}

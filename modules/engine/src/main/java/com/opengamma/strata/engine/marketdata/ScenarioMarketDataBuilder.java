@@ -176,36 +176,28 @@ public final class ScenarioMarketDataBuilder {
   }
 
   /**
-   * Adds market data values for all scenarios. The number of values in each list must be the same as the number
-   * of scenarios.
-   *
-   * @param values the market data values, each list containing one value for each scenario
-   * @param <T> the type of the market data values
-   * @return this builder
-   */
-  public <T> ScenarioMarketDataBuilder addValues(Map<? extends MarketDataId<T>, List<T>> values) {
-    ArgChecker.notNull(values, "values");
-
-    for (Map.Entry<? extends MarketDataId<T>, List<T>> entry : values.entrySet()) {
-      MarketDataId<T> id = entry.getKey();
-      List<T> scenarioValues = entry.getValue();
-      checkLength(scenarioValues.size(), id.toString());
-      this.values.putAll(id, scenarioValues);
-    }
-    return this;
-  }
-
-  /**
    * Adds a time series of market data values.
    *
-   * @param id the ID of the market data values
-   * @param timeSeries the time series of market data values, one for each scenario
+   * @param id  the ID of the market data values
+   * @param timeSeries  the time series of market data values
    * @return this builder
    */
   public ScenarioMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.put(id, timeSeries);
+    return this;
+  }
+
+  /**
+   * Adds multiple time series of market data values.
+   *
+   * @param timeSeries  a map of time series of market data values, keyed by the ID of the market data
+   * @return this builder
+   */
+  public ScenarioMarketDataBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+    ArgChecker.notNull(timeSeries, "timeSeries");
+    this.timeSeries.putAll(timeSeries);
     return this;
   }
 
@@ -229,7 +221,7 @@ public final class ScenarioMarketDataBuilder {
    * @return a set of scenario market data built from the data in this builder
    */
   public ScenarioMarketData build() {
-    return new DefaultScenarioMarketData(scenarioCount, valuationDates, values, timeSeries, globalValues);
+    return new ScenarioMarketData(scenarioCount, valuationDates, values, timeSeries, globalValues);
   }
 
   private void checkLength(int length, String itemName) {

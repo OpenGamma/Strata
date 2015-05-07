@@ -92,7 +92,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
 
   @Override
   public Results calculate(CalculationTasks tasks, BaseMarketData marketData) {
-    return calculate(tasks, new SingleScenarioMarketData(marketData));
+    return calculate(tasks, ScenarioMarketData.of(marketData));
   }
 
   @Override
@@ -104,7 +104,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
 
   @Override
   public void calculateAsync(CalculationTasks tasks, BaseMarketData marketData, CalculationListener listener) {
-    calculateAsync(tasks, new SingleScenarioMarketData(marketData), listener);
+    calculateAsync(tasks, ScenarioMarketData.of(marketData), listener);
   }
 
   @Override
