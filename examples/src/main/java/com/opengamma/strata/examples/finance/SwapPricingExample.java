@@ -31,7 +31,6 @@ import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.engine.ResultsFormatter;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -101,7 +100,6 @@ public class SwapPricingExample {
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(ExampleMarketData.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
-        .marketDataConfig(MarketDataConfig.empty())
         .build();
 
     // Use an empty snapshot of market data, indicating only the valuation date.

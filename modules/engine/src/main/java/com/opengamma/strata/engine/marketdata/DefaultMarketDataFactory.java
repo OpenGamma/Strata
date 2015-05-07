@@ -199,7 +199,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       Map<MarketDataId<?>, Result<?>> nonObservableResults =
           leafRequirements.getNonObservables().stream()
               .filter(not(builtData::containsValue))
-              .collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, marketDataConfig, tmpData)));
+              .collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, tmpData, marketDataConfig)));
 
       for (Map.Entry<MarketDataId<?>, Result<?>> entry : nonObservableResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
@@ -299,8 +299,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       for (Map.Entry<ObservableId, Result<Double>> entry : observableResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
-          List<Double> perturbedValues = applyScenarios(entry.getKey(), entry.getValue().getValue(), scenarioDefinition);
-          dataBuilder.addValues(entry.getKey(), perturbedValues);
+          Result<List<Double>> result = applyScenarios(entry.getKey(), entry.getValue().getValue(), scenarioDefinition);
+
+          if (result.isSuccess()) {
+            dataBuilder.addValues(entry.getKey(), result.getValue());
+          } else {
+            failureBuilder.put(entry.getKey(), result);
+          }
         } else {
           failureBuilder.put(entry.getKey(), entry.getValue());
         }
@@ -315,10 +320,11 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
               .collect(toImmutableList());
 
       Map<MarketDataId<?>, Result<List<?>>> nonObservableScenarioResults =
-          buildNonObservableScenarioData(nonObservableIds, marketDataConfig, builtData, scenarioDefinition);
+          buildNonObservableScenarioData(nonObservableIds, builtData, marketDataConfig, scenarioDefinition);
 
       for (Map.Entry<MarketDataId<?>, Result<List<?>>> entry : nonObservableScenarioResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
+          // This local variable with a raw type is needed to keep the compiler happy
           MarketDataId id = entry.getKey();
           dataBuilder.addValues(id, entry.getValue().getValue());
         } else {
@@ -349,18 +355,26 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param scenarioDefinition  definition of a set of scenarios
    * @return perturbed values derived from the market data value, one for each scenario
    */
-  private List<Double> applyScenarios(ObservableId id, double value, ScenarioDefinition scenarioDefinition) {
-    Optional<PerturbationMapping<?>> mapping =
-        scenarioDefinition.getMappings().stream()
-            .filter(m -> m.getFilter().apply(id, value))
-            .findFirst();
+  private Result<List<Double>> applyScenarios(ObservableId id, double value, ScenarioDefinition scenarioDefinition) {
+    // Filters and perturbations can be user-supplied and we can't guarantee they won't throw exceptions
+    try {
+      Optional<PerturbationMapping<?>> mapping =
+          scenarioDefinition.getMappings().stream()
+              .filter(m -> m.matches(id, value))
+              .findFirst();
 
-    if (mapping.isPresent()) {
-      return mapping.get().getPerturbations().stream()
-          .map(perturbation -> (Double) perturbation.apply(value))
-          .collect(toImmutableList());
-    } else {
-      return Collections.nCopies(scenarioDefinition.getScenarioCount(), value);
+      if (mapping.isPresent()) {
+        List<Double> values =
+            mapping.get().getPerturbations().stream()
+                .map(perturbation -> (Double) perturbation.apply(value))
+                .collect(toImmutableList());
+        return Result.success(values);
+      } else {
+        List<Double> values = Collections.nCopies(scenarioDefinition.getScenarioCount(), value);
+        return Result.success(values);
+      }
+    } catch (RuntimeException e) {
+      return Result.failure(e);
     }
   }
 
@@ -408,16 +422,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
   /**
    * Builds items of non-observable market data using a market data builder and adds them to the results.
-   *
-   * @param id  ID of the market data that should be built
-   * @param marketDataConfig  configuration specifying how the market data should be built
+   *  @param id  ID of the market data that should be built
    * @param suppliedData  existing set of market data that contains any data required to build the values
+   * @param marketDataConfig  configuration specifying how the market data should be built
    */
   @SuppressWarnings("unchecked")
   private Result<?> buildNonObservableData(
       MarketDataId id,
-      MarketDataConfig marketDataConfig,
-      MarketDataLookup suppliedData) {
+      MarketDataLookup suppliedData,
+      MarketDataConfig marketDataConfig) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
     // are mainly a useful guide for implementors as they constrain the method type signatures.
@@ -441,16 +454,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * <p>
    * After a value is built the perturbations in the scenario definition are examined and any applicable
    * perturbation is applied to the value.
-   *
-   * @param ids  IDs of the market data values
-   * @param marketDataConfig  configuration specifying how market data should be built
+   *  @param ids  IDs of the market data values
    * @param marketData  market data containing any dependencies of the values being built
+   * @param marketDataConfig  configuration specifying how market data should be built
    * @param scenarioDefinition  definition of the scenarios
    */
   private Map<MarketDataId<?>, Result<List<?>>> buildNonObservableScenarioData(
       List<MarketDataId<?>> ids,
-      MarketDataConfig marketDataConfig,
       ScenarioMarketData marketData,
+      MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
     ImmutableMap.Builder<MarketDataId<?>, Result<List<?>>> resultMap = ImmutableMap.builder();
@@ -459,7 +471,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       List<Result<?>> results =
           IntStream.range(0, scenarioDefinition.getScenarioCount()).boxed()
               .map(scenarioIndex -> new ScenarioMarketDataLookup(marketData, scenarioIndex))
-              .map(data -> buildNonObservableData(id, marketDataConfig, data))
+              .map(data -> buildNonObservableData(id, data, marketDataConfig))
               .collect(toImmutableList());
 
       if (Result.anyFailures(results)) {
@@ -469,7 +481,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
             Seq.seq(results.stream())
                 .map(Result::getValue)
                 .zipWithIndex()
-                .map(tpl -> perturbNonObservableValue(id, tpl.v1, scenarioDefinition, tpl.v2.intValue()))
+                .map(tp -> perturbNonObservableValue(id, tp.v1, scenarioDefinition, tp.v2.intValue()))
                 .collect(toImmutableList());
         resultMap.put(id, Result.success(perturbedValues));
       }
@@ -496,7 +508,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     Optional<PerturbationMapping<?>> mapping =
         scenarioDefinition.getMappings().stream()
-            .filter(m -> m.getFilter().apply(id, marketDataValue))
+            .filter(m -> m.matches(id, marketDataValue))
             .findFirst();
 
     return mapping.isPresent() ?

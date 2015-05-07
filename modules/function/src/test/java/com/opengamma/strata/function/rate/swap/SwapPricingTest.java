@@ -182,7 +182,7 @@ public class SwapPricingTest {
         marketDataFactory.buildBaseMarketData(
             calculationTasks.getMarketDataRequirements(),
             suppliedData,
-            MarketDataConfig.empty());
+            MarketDataConfig.EMPTY);
 
     BaseMarketData marketData = marketDataResult.getMarketData();
     Results results = calculationRunner.calculate(calculationTasks, marketData);

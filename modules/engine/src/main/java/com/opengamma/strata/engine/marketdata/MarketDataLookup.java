@@ -12,12 +12,14 @@ import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
- * A simple interface for looking up items of market data.
+ * A interface for looking up items of market data by ID, used when building market data.
+ * <p>
+ * This is implemented by the main market data container {@link BaseMarketData}.
  */
 public interface MarketDataLookup {
 
   /**
-   * Returns true if this set of data contains a value for the specified ID and it is of the expected type.
+   * Checks if this set of data contains a value for the specified ID and it is of the expected type.
    *
    * @param id  an ID identifying an item of market data
    * @return true if this set of data contains a value for the specified ID and it is of the expected type
@@ -39,7 +41,7 @@ public interface MarketDataLookup {
   public abstract <T, I extends MarketDataId<T>> T getValue(I id);
 
   /**
-   * Returns true if this set of data contains a time series for the specified market data ID.
+   * Checks if this set of data contains a time series for the specified market data ID.
    *
    * @param id  an ID identifying an item of market data
    * @return true if this set of data contains a time series for the specified market data ID

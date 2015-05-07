@@ -743,7 +743,8 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public Result<YieldCurve> build(
         DiscountingCurveId id,
-        MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+        MarketDataLookup builtData,
+        MarketDataConfig marketDataConfig) {
 
       DiscountingCurveId curveId = DiscountingCurveId.of(Currency.EUR, "curve group");
 

@@ -21,7 +21,8 @@ import com.opengamma.strata.marketdata.id.DiscountingCurveId;
  * Market data builder that builds a {@link YieldCurve} representing the discounting curve for a currency.
  * <p>
  * The curve is not actually built in this class, it is extracted from an existing {@link CurveGroup}
- * The curve group must be available in the {@code BaseMarketData} passed to the {@link MarketDataBuilder#build} method.
+ * The curve group must be available in the {@code MarketDataLookup} passed to the
+ * {@link MarketDataBuilder#build} method.
  * <p>
  * This builder assumes all discounting curves are of type {@link YieldCurve}, although the signature of
  * {@code CurveGroup} allows them to be {@link YieldAndDiscountCurve}. This assumption is safe. In future

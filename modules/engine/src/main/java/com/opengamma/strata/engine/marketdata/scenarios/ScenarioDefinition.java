@@ -7,7 +7,8 @@ package com.opengamma.strata.engine.marketdata.scenarios;
 
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,9 +29,9 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.jooq.lambda.Seq;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -54,7 +55,7 @@ public final class ScenarioDefinition implements ImmutableBean {
 
   /** The names of the scenarios. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<String> scenarioNames;
+  private final ImmutableList<String> scenarioNames;
 
   /**
    * Returns a scenario definition containing the perturbations in {@code mappings}.
@@ -93,6 +94,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    */
   public static ScenarioDefinition ofMappings(List<? extends PerturbationMapping<?>> mappings) {
     ArgChecker.notEmpty(mappings, "mappings");
+
     int numScenarios = countScenarios(mappings, false);
 
     for (int i = 1; i < mappings.size(); i++) {
@@ -103,8 +105,7 @@ public final class ScenarioDefinition implements ImmutableBean {
                 mappings.get(i).getPerturbations().size());
       }
     }
-    ImmutableSet<String> scenarioNames = generateNames(numScenarios);
-    return new ScenarioDefinition(createMappings(mappings, false), scenarioNames);
+    return new ScenarioDefinition(createMappings(mappings, false), generateNames(numScenarios));
   }
 
   /**
@@ -142,14 +143,16 @@ public final class ScenarioDefinition implements ImmutableBean {
    * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
    *   number of perturbations
    * @param scenarioNames  the names of the scenarios. This must be the same size as the list of perturbations
-   *   in each mapping
+   *   in each mapping and the names must be unique
    * @return a scenario definition containing the perturbations in the mappings
+   * @throws IllegalArgumentException if there are any duplicate scenario names
    */
   public static ScenarioDefinition ofMappings(
-      ImmutableSet<String> scenarioNames,
-      List<? extends PerturbationMapping<?>> mappings) {
+      List<? extends PerturbationMapping<?>> mappings,
+      List<String> scenarioNames) {
 
     ArgChecker.notNull(scenarioNames, "scenarioNames");
+
     int numScenarios = scenarioNames.size();
 
     for (int i = 0; i < mappings.size(); i++) {
@@ -212,8 +215,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    */
   public static ScenarioDefinition ofAllCombinations(List<? extends PerturbationMapping<?>> mappings) {
     int numScenarios = countScenarios(mappings, true);
-    ImmutableSet<String> scenarioNames = generateNames(numScenarios);
-    return new ScenarioDefinition(createMappings(mappings, true), scenarioNames);
+    return new ScenarioDefinition(createMappings(mappings, true), generateNames(numScenarios));
   }
 
   /**
@@ -259,17 +261,20 @@ public final class ScenarioDefinition implements ImmutableBean {
    * | Scenario 8 |     +10bp  |      0       |
    * | Scenario 9 |     +10bp  |     -5%      |
    *
-   * @param scenarioNames  the names of the scenarios
    * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
    *   of perturbations, and they do not need to have the same number of perturbations
+   * @param scenarioNames  the names of the scenarios. The number of names must be the product of the number
+   *   of perturbations in all the mappings. The names must be unique
    * @return a scenario definition containing the perturbations in the mappings
+   * @throws IllegalArgumentException if there are any duplicate scenario names
    */
   public static ScenarioDefinition ofAllCombinations(
-      ImmutableSet<String> scenarioNames,
-      List<? extends PerturbationMapping<?>> mappings) {
+      List<? extends PerturbationMapping<?>> mappings,
+      List<String> scenarioNames) {
 
     ArgChecker.notEmpty(scenarioNames, "scenarioNames");
     ArgChecker.notEmpty(mappings, "mappings");
+
     int numScenarios = countScenarios(mappings, true);
 
     if (numScenarios != scenarioNames.size()) {
@@ -329,8 +334,9 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     int count = countScenarios(mappings, true);
 
-    return IntStream.range(0, mappings.size()).boxed()
-        .map(i -> multiplyPerturbations(mappings.get(i), count, i))
+    return Seq.seq(mappings)
+        .zipWithIndex()
+        .map(tp -> multiplyPerturbations(tp.v1, count, tp.v2.intValue()))
         .collect(toImmutableList());
   }
 
@@ -401,18 +407,41 @@ public final class ScenarioDefinition implements ImmutableBean {
   /**
    * Generates simple names for the scenarios of the form 'Scenario 1' etc.
    */
-  private static ImmutableSet<String> generateNames(int numScenarios) {
+  private static ImmutableList<String> generateNames(int numScenarios) {
     return IntStream.range(1, numScenarios + 1)
         .mapToObj(i -> "Scenario " + i)
-        .collect(toImmutableSet());
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Checks that a set of scenario names contains no duplicates and converts them to an {@code ImmutableList}.
+   *
+   * @param names  a list of scenario names
+   * @return an immutable list of scenario names that is confirmed to have no duplicates
+   * @throws IllegalArgumentException if there are duplicate names in the input list
+   */
+  private static ImmutableList<String> validateNames(List<String> names) {
+    Map<String, List<String>> nameMap = names.stream().collect(groupingBy(name -> name));
+    List<String> duplicateNames =
+        Seq.seq(nameMap)
+            .filter(tp -> tp.v2.size() > 1)
+            .map(tp -> tp.v1)
+            .collect(toImmutableList());
+
+    if (duplicateNames.isEmpty()) {
+      return ImmutableList.copyOf(names);
+    } else {
+      String duplicates = duplicateNames.stream().collect(joining(", "));
+      throw new IllegalArgumentException("Scenario names must be unique but duplicates were found: " + duplicates);
+    }
   }
 
   // This constructor is hand-written to allow a wildcard in the constructor signature without having one
   // in the corresponding field
   @ImmutableConstructor
-  private ScenarioDefinition(List<? extends PerturbationMapping<?>> mappings, Set<String> scenarioNames) {
+  private ScenarioDefinition(List<? extends PerturbationMapping<?>> mappings, List<String> scenarioNames) {
     this.mappings = ImmutableList.copyOf(mappings);
-    this.scenarioNames = ImmutableSet.copyOf(scenarioNames);
+    this.scenarioNames = validateNames(scenarioNames);
   }
 
   /**
@@ -475,7 +504,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    * Gets the names of the scenarios.
    * @return the value of the property, not null
    */
-  public ImmutableSet<String> getScenarioNames() {
+  public ImmutableList<String> getScenarioNames() {
     return scenarioNames;
   }
 
@@ -539,8 +568,8 @@ public final class ScenarioDefinition implements ImmutableBean {
      * The meta-property for the {@code scenarioNames} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<String>> scenarioNames = DirectMetaProperty.ofImmutable(
-        this, "scenarioNames", ScenarioDefinition.class, (Class) ImmutableSet.class);
+    private final MetaProperty<ImmutableList<String>> scenarioNames = DirectMetaProperty.ofImmutable(
+        this, "scenarioNames", ScenarioDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -594,7 +623,7 @@ public final class ScenarioDefinition implements ImmutableBean {
      * The meta-property for the {@code scenarioNames} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<String>> scenarioNames() {
+    public MetaProperty<ImmutableList<String>> scenarioNames() {
       return scenarioNames;
     }
 
@@ -628,7 +657,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   public static final class Builder extends DirectFieldsBeanBuilder<ScenarioDefinition> {
 
     private List<PerturbationMapping<?>> mappings = ImmutableList.of();
-    private Set<String> scenarioNames = ImmutableSet.of();
+    private List<String> scenarioNames = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -666,7 +695,7 @@ public final class ScenarioDefinition implements ImmutableBean {
           this.mappings = (List<PerturbationMapping<?>>) newValue;
           break;
         case -1193464424:  // scenarioNames
-          this.scenarioNames = (Set<String>) newValue;
+          this.scenarioNames = (List<String>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -722,7 +751,7 @@ public final class ScenarioDefinition implements ImmutableBean {
      * @param scenarioNames  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder scenarioNames(Set<String> scenarioNames) {
+    public Builder scenarioNames(List<String> scenarioNames) {
       JodaBeanUtils.notNull(scenarioNames, "scenarioNames");
       this.scenarioNames = scenarioNames;
       return this;
@@ -735,7 +764,7 @@ public final class ScenarioDefinition implements ImmutableBean {
      * @return this, for chaining, not null
      */
     public Builder scenarioNames(String... scenarioNames) {
-      return scenarioNames(ImmutableSet.copyOf(scenarioNames));
+      return scenarioNames(ImmutableList.copyOf(scenarioNames));
     }
 
     //-----------------------------------------------------------------------

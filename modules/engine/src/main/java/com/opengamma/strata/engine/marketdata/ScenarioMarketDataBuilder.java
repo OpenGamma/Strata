@@ -196,8 +196,7 @@ public final class ScenarioMarketDataBuilder {
   }
 
   /**
-   * Adds time series of market data values for all scenarios. The number of time series must be the same as
-   * the number of scenarios.
+   * Adds a  time series of market data values..
    *
    * @param id the ID of the market data values
    * @param timeSeries the time series of market data values, one for each scenario

@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.marketdata.scenarios;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,7 +14,6 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 
 @Test
@@ -41,15 +41,15 @@ public class ScenarioDefinitionTest {
   public void ofMappings() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mappings);
-    ImmutableSet<String> scenarioNames = ImmutableSet.of("Scenario 1", "Scenario 2");
+    List<String> scenarioNames = ImmutableList.of("Scenario 1", "Scenario 2");
     assertThat(scenarioDefinition.getMappings()).isEqualTo(mappings);
     assertThat(scenarioDefinition.getScenarioNames()).isEqualTo(scenarioNames);
   }
 
   public void ofMappingsWithNames() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
-    ImmutableSet<String> scenarioNames = ImmutableSet.of("foo", "bar");
-    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(scenarioNames, mappings);
+    List<String> scenarioNames = ImmutableList.of("foo", "bar");
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mappings, scenarioNames);
     assertThat(scenarioDefinition.getMappings()).isEqualTo(mappings);
     assertThat(scenarioDefinition.getScenarioNames()).isEqualTo(scenarioNames);
   }
@@ -57,8 +57,8 @@ public class ScenarioDefinitionTest {
   public void allCombinationsOf() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofAllCombinations(mappings);
-    ImmutableSet<String> scenarioNames =
-        ImmutableSet.of(
+    List<String> scenarioNames =
+        ImmutableList.of(
             "Scenario 1",
             "Scenario 2",
             "Scenario 3",
@@ -105,8 +105,8 @@ public class ScenarioDefinitionTest {
 
   public void allCombinationsOfWithNames() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
-    ImmutableSet<String> scenarioNames = ImmutableSet.of("foo1", "foo2", "foo3", "foo4", "foo5", "foo6", "foo7", "foo8");
-    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofAllCombinations(scenarioNames, mappings);
+    List<String> scenarioNames = ImmutableList.of("foo1", "foo2", "foo3", "foo4", "foo5", "foo6", "foo7", "foo8");
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofAllCombinations(mappings, scenarioNames);
     List<PerturbationMapping<?>> expectedMappings =
         ImmutableList.of(
             PerturbationMapping.of(
@@ -151,8 +151,8 @@ public class ScenarioDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void ofMappingsWrongNumberOfScenarioNames() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
-    ImmutableSet<String> scenarioNames = ImmutableSet.of("foo", "bar", "baz");
-    ScenarioDefinition.ofMappings(scenarioNames, mappings);
+    List<String> scenarioNames = ImmutableList.of("foo", "bar", "baz");
+    ScenarioDefinition.ofMappings(mappings, scenarioNames);
   }
 
   /**
@@ -172,8 +172,8 @@ public class ScenarioDefinitionTest {
   public void ofMappingsWithNamesDifferentNumberOfPerturbations() {
     PerturbationMapping<TestPerturbation> mappingC = PerturbationMapping.of(FILTER_C, PERTURBATION_C1);
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
-    ImmutableSet<String> scenarioNames = ImmutableSet.of("foo", "bar");
-    ScenarioDefinition.ofMappings(scenarioNames, mappings);
+    List<String> scenarioNames = ImmutableList.of("foo", "bar");
+    ScenarioDefinition.ofMappings(mappings, scenarioNames);
   }
 
   /**
@@ -182,8 +182,8 @@ public class ScenarioDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void allCombinationsOfWrongNumberOfScenarioNames() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
-    ImmutableSet<String> scenarioNames = ImmutableSet.of("foo1", "foo2", "foo3", "foo4", "foo5", "foo6", "foo7");
-    ScenarioDefinition.ofAllCombinations(scenarioNames, mappings);
+    List<String> scenarioNames = ImmutableList.of("foo1", "foo2", "foo3", "foo4", "foo5", "foo6", "foo7");
+    ScenarioDefinition.ofAllCombinations(mappings, scenarioNames);
   }
 
   public void repeatItems() {
@@ -201,6 +201,24 @@ public class ScenarioDefinitionTest {
     List<Integer> expected4 = ImmutableList.of(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4);
     assertThat(ScenarioDefinition.repeatItems(inputs, 24, 3)).isEqualTo(expected4);
   }
+
+  /**
+   * Tests that exceptions are thrown when the scenario names contain duplicate values.
+   */
+  public void nonUniqueNames() {
+    List<PerturbationMapping<TestPerturbation>> mappings1 = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
+    List<String> names1 = ImmutableList.of("foo1", "foo1", "foo3", "foo4", "foo5", "foo6", "foo5", "foo8");
+    String msg1 = "Scenario names must be unique but duplicates were found: foo1, foo5";
+    assertThrows(() -> ScenarioDefinition.ofAllCombinations(mappings1, names1), IllegalArgumentException.class, msg1);
+
+
+    List<PerturbationMapping<TestPerturbation>> mappings2 = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
+    List<String> names2 = ImmutableList.of("foo", "foo");
+    String msg2 = "Scenario names must be unique but duplicates were found: foo";
+    assertThrows(() -> ScenarioDefinition.ofMappings(mappings2, names2), IllegalArgumentException.class, msg2);
+  }
+
+  //-----------------------------------------------------------------------------------------
 
   private static final class TestPerturbation implements Perturbation {
 

@@ -68,6 +68,9 @@ public interface ScenarioMarketData {
 
   /**
    * Returns a time series of market data values.
+   * <p>
+   * Time series are not affected by scenarios, therefore there is a single time series for each key
+   * which is shared between all scenarios.
    *
    * @param id  ID of the market data
    * @return a time series of market data values
