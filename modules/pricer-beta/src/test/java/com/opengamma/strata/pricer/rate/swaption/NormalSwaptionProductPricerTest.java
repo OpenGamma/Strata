@@ -56,7 +56,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
- * Tests {@link NormalSwaptionProductPricer}.
+ * Tests {@link NormalSwaptionProductPricerBeta}.
  */
 public class NormalSwaptionProductPricerTest {
   
@@ -89,7 +89,7 @@ public class NormalSwaptionProductPricerTest {
 
   public static final NormalPriceFunction NORMAL = new NormalPriceFunction();
 
-  private static final NormalSwaptionProductPricer PRICER_SWAPTION_NORMAL = NormalSwaptionProductPricer.DEFAULT;
+  private static final NormalSwaptionProductPricerBeta PRICER_SWAPTION_NORMAL = NormalSwaptionProductPricerBeta.DEFAULT;
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
   private static final double FD_SHIFT = 0.5E-8;
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR = 

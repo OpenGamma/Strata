@@ -37,12 +37,12 @@ import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
  * The volatility parameters are not adjusted for the underlying swap conventions. The volatilities from the provider
  * are taken as such.
  */
-public class NormalSwaptionProductPricer {
+public class NormalSwaptionProductPricerBeta {
 
   /**
    * Default implementation.
    */
-  public static final NormalSwaptionProductPricer DEFAULT = new NormalSwaptionProductPricer(
+  public static final NormalSwaptionProductPricerBeta DEFAULT = new NormalSwaptionProductPricerBeta(
       DiscountingSwapProductPricer.DEFAULT);
 
   /** Pricer for {@link SwapProduct}. */
@@ -56,14 +56,14 @@ public class NormalSwaptionProductPricer {
    * 
    * @param swapPricer  the pricer for {@link Swap}
    */
-  public NormalSwaptionProductPricer(DiscountingSwapProductPricer swapPricer) {
+  public NormalSwaptionProductPricerBeta(DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "swap pricer");
   }
   
   /**
    * Calculates the present value of the swaption product.
    * <p>
-   * The result is expressed using the payment currency of the swap.
+   * The result is expressed using the currency of the swapion.
    * 
    * @param swaption  the product to price
    * @param rates  the rates provider
