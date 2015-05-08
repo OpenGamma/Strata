@@ -236,10 +236,36 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> timeSeriesFailureBuilder = ImmutableMap.builder();
-    ScenarioMarketData builtData =
-        ScenarioMarketData.builder(scenarioDefinition.getScenarioCount(), suppliedData.getValuationDate())
-            .build();
+    ScenarioMarketDataBuilder dataBuilder =
+        ScenarioMarketData.builder(scenarioDefinition.getScenarioCount(), suppliedData.getValuationDate());
+    ScenarioMarketData builtData = dataBuilder.build();
 
+    // Apply perturbations to the supplied observable values and add to the builder
+    for (ObservableId id : requirements.getObservables()) {
+      if (suppliedData.containsValue(id)) {
+        Double value = suppliedData.getValue(id);
+        Result<List<Double>> result = applyScenarios(id, value, scenarioDefinition);
+
+        if (result.isSuccess()) {
+          dataBuilder.addValues(id, result.getValue());
+        } else {
+          failureBuilder.put(id, result);
+        }
+      }
+    }
+    // Apply perturbations to the supplied non-observable values and add to the builder
+    for (MarketDataId<?> id : requirements.getNonObservables()) {
+      if (suppliedData.containsValue(id)) {
+        Object value = suppliedData.getValue(id);
+        Result<List<Object>> result = perturbNonObservableValue(id, value, scenarioDefinition);
+
+        if (result.isSuccess()) {
+          dataBuilder.addValues((MarketDataId) id, result.getValue());
+        } else {
+          failureBuilder.put(id, result);
+        }
+      }
+    }
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
     // of those nodes represent the market data required to build that data, and so on
@@ -268,8 +294,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // The requirements contained in the leaf nodes
       MarketDataRequirements leafRequirements = pair.getSecond();
-
-      ScenarioMarketDataBuilder dataBuilder = builtData.toBuilder();
 
       // Time series of observable data ------------------------------------------------------------
 
@@ -477,13 +501,19 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       if (Result.anyFailures(results)) {
         resultMap.put(id, Result.failure(results));
       } else {
-        List<?> perturbedValues =
+        List<Result<?>> perturbedValues =
             Seq.seq(results.stream())
                 .map(Result::getValue)
                 .zipWithIndex()
                 .map(tp -> perturbNonObservableValue(id, tp.v1, scenarioDefinition, tp.v2.intValue()))
                 .collect(toImmutableList());
-        resultMap.put(id, Result.success(perturbedValues));
+
+        if (Result.anyFailures(perturbedValues)) {
+          resultMap.put(id, Result.failure(perturbedValues));
+        } else {
+          List<Object> values = perturbedValues.stream().map(Result::getValue).collect(toImmutableList());
+          resultMap.put(id, Result.success(values));
+        }
       }
     }
     return resultMap.build();
@@ -501,7 +531,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @return the item of data with any applicable perturbation applied
    */
   @SuppressWarnings("unchecked")
-  private Object perturbNonObservableValue(
+  private Result<Object> perturbNonObservableValue(
       MarketDataId<?> id,
       Object marketDataValue,
       ScenarioDefinition scenarioDefinition,
@@ -513,17 +543,48 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
             .findFirst();
 
     if (!mapping.isPresent()) {
-      return marketDataValue;
+      return Result.success(marketDataValue);
     }
     // The perturbation is definitely compatible with the market data because the filter matched above
     Perturbation<Object> perturbation = (Perturbation<Object>) mapping.get().getPerturbations().get(scenarioIndex);
-    return perturbation.apply(marketDataValue);
+    try {
+      return Result.success(perturbation.apply(marketDataValue));
+    } catch (Exception e) {
+      return Result.failure(e);
+    }
+  }
+
+  /**
+   * Applies perturbations from a scenario definition to an item of non-observable market data if there is
+   * one that applied.
+   *
+   * @param id  ID of the market data value
+   * @param marketDataValue  the market data value
+   * @param scenarioDefinition  the definition of the scenarios
+   * @return the item of data with any applicable perturbations applied
+   */
+  private Result<List<Object>> perturbNonObservableValue(
+      MarketDataId<?> id,
+      Object marketDataValue,
+      ScenarioDefinition scenarioDefinition) {
+
+    List<Result<Object>> results =
+        IntStream.range(0, scenarioDefinition.getScenarioCount())
+            .mapToObj(idx -> perturbNonObservableValue(id, marketDataValue, scenarioDefinition, idx))
+            .collect(toImmutableList());
+
+    if (Result.anyFailures(results)) {
+      return Result.failure(results);
+    } else {
+      List<Object> values = results.stream().map(Result::getValue).collect(toImmutableList());
+      return Result.success(values);
+    }
   }
 
   /**
    * Returns a failure for the ID indicating there is no builder available to handle it.
    *
-   * @param id  the market data ID
+   * @param id the market data ID
    * @return a failure for the ID indicating there is no builder available to handle it
    */
   private Result<?> failureForMissingBuilder(MarketDataId<?> id) {
