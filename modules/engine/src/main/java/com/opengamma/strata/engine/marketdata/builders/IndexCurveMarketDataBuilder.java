@@ -13,8 +13,9 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.IndexCurveId;
@@ -24,7 +25,7 @@ import com.opengamma.strata.pricer.impl.Legacy;
  * Market data builder that builds a {@link YieldCurve} representing the forward curve of an index.
  * <p>
  * The curve is not actually built in this class, it is extracted from an existing {@link CurveGroup}
- * The curve group must be available in the {@code BaseMarketData} passed to the {@link #build} method.
+ * The curve group must be available in the {@code BaseMarketData} passed to the {@link MarketDataBuilder#build} method.
  * <p>
  * This builder assumes all discounting curves are of type {@link YieldCurve}, although the signature of
  * {@code CurveGroup} allows them to be {@link YieldAndDiscountCurve}. This assumption is safe. In future
@@ -42,7 +43,7 @@ public final class IndexCurveMarketDataBuilder implements MarketDataBuilder<Yiel
   }
 
   @Override
-  public Result<YieldCurve> build(IndexCurveId id, BaseMarketData builtData) {
+  public Result<YieldCurve> build(IndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     String curveGroupName = id.getCurveGroupName();
     CurveGroupId curveGroupId = CurveGroupId.of(curveGroupName);
 

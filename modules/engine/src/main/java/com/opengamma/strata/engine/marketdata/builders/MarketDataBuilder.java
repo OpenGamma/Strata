@@ -6,8 +6,9 @@
 package com.opengamma.strata.engine.marketdata.builders;
 
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 
 /**
@@ -35,9 +36,10 @@ public interface MarketDataBuilder<T, I extends MarketDataId<? extends T>> {
    *
    * @param id  ID of the market data that should be built
    * @param builtData  a set of market data including any data required to build the requested data
+   * @param marketDataConfig  configuration specifying how the market data should be built
    * @return built market data, or details of the problems that prevented building
    */
-  public abstract Result<T> build(I id, BaseMarketData builtData);
+  public abstract Result<T> build(I id, MarketDataLookup builtData, MarketDataConfig marketDataConfig);
 
   /**
    * Returns the type of market data ID this builder can handle.

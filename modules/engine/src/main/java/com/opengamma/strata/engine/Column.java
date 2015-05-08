@@ -53,9 +53,9 @@ public final class Column implements ImmutableBean {
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.pricingRules(PricingRules.EMPTY);
-    builder.marketDataRules(MarketDataRules.EMPTY);
-    builder.reportingRules(ReportingRules.EMPTY);
+    builder.pricingRules(PricingRules.empty());
+    builder.marketDataRules(MarketDataRules.empty());
+    builder.reportingRules(ReportingRules.empty());
   }
 
   /**

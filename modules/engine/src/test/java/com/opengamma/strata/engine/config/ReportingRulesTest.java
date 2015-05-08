@@ -67,7 +67,7 @@ public class ReportingRulesTest {
   }
 
   public void composedWithEmpty() {
-    ReportingRules rule = ReportingRules.EMPTY.composedWith(RULE1);
+    ReportingRules rule = ReportingRules.empty().composedWith(RULE1);
     Optional<Currency> currency = rule.reportingCurrency(TRADE1);
 
     assertThat(rule).isInstanceOf(TestRule.class);

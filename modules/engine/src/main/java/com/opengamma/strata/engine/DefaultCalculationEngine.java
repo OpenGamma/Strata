@@ -17,9 +17,9 @@ import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.MarketDataResult;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.ScenarioMarketDataResult;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 
 /**
@@ -95,10 +95,11 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
-    MarketDataResult marketDataResult =
+    BaseMarketDataResult marketDataResult =
         marketDataFactory.buildBaseMarketData(
             tasks.getMarketDataRequirements(),
-            marketData);
+            marketData,
+            calculationRules.getMarketDataConfig());
 
     // perform the calculations
     return calculationRunner.calculate(tasks, marketDataResult.getMarketData());
@@ -123,19 +124,22 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
-    MarketDataResult marketDataResult =
+    BaseMarketDataResult baseMarketDataResult =
         marketDataFactory.buildBaseMarketData(
             tasks.getMarketDataRequirements(),
-            baseMarketData);
+            baseMarketData,
+            calculationRules.getMarketDataConfig());
 
     // build any required scenarios from the base market data
-    ScenarioMarketData scenarioMarketData =
+    ScenarioMarketDataResult scenarioMarketDataResult =
         marketDataFactory.buildScenarioMarketData(
-            marketDataResult.getMarketData(),
-            scenarioDefinition);
+            tasks.getMarketDataRequirements(),
+            baseMarketDataResult.getMarketData(),
+            scenarioDefinition,
+            calculationRules.getMarketDataConfig());
 
     // perform the calculations
-    return calculationRunner.calculate(tasks, scenarioMarketData);
+    return calculationRunner.calculate(tasks, scenarioMarketDataResult.getMarketData());
   }
 
   /**
@@ -150,5 +154,4 @@ public final class DefaultCalculationEngine implements CalculationEngine {
         .map(linkResolver::resolveLinksIn)
         .collect(toImmutableList());
   }
-
 }

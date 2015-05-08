@@ -40,7 +40,7 @@ public class CalculationTaskTest {
             .marketDataFeed(marketDataFeed)
             .build();
     CalculationTask task =
-        new CalculationTask(new TestTarget(), 0, 0, new TestFunction(), marketDataMappings, ReportingRules.EMPTY);
+        new CalculationTask(new TestTarget(), 0, 0, new TestFunction(), marketDataMappings, ReportingRules.empty());
     MarketDataRequirements requirements = task.requirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();

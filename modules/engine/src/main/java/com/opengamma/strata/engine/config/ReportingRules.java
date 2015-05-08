@@ -17,11 +17,6 @@ import com.opengamma.strata.basics.currency.Currency;
 public interface ReportingRules {
 
   /**
-   * A set of reporting rules that always return empty results.
-   */
-  public static final ReportingRules EMPTY = EmptyReportingRules.builder().build();
-
-  /**
    * Returns a rule that tries each of the delegate rules in turn and returns the first currency it finds.
    *
    * @param rules  the delegate rules
@@ -30,7 +25,7 @@ public interface ReportingRules {
   public static ReportingRules of(ReportingRules... rules) {
     switch (rules.length) {
       case 0:
-        return ReportingRules.EMPTY;
+        return ReportingRules.empty();
       case 1:
         return rules[0];
       default:
@@ -39,7 +34,16 @@ public interface ReportingRules {
   }
 
   /**
-   * Returns the currency which should be used when reporting calculation results for the target
+   * Returns an empty set of rules.
+   *
+   * @return an empty set of rules
+   */
+  public static ReportingRules empty() {
+    return EmptyReportingRules.INSTANCE;
+  }
+
+  /**
+   * Returns the currency which should be used when reporting calculation results for the target.
    *
    * @param target  a target
    * @return the currency which should be used when reporting calculation results for the target

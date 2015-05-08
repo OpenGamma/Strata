@@ -25,11 +25,15 @@ import com.opengamma.strata.marketdata.key.ObservableKey;
 public interface CalculationMarketData {
 
   /**
+   * Returns the valuation dates of the scenarios, one for each scenario.
+   *
    * @return the valuation dates of the scenarios, one for each scenario
    */
   public abstract List<LocalDate> getValuationDates();
 
   /**
+   * Returns the number of scenarios.
+   *
    * @return the number of scenarios
    */
   public abstract int getScenarioCount();
@@ -47,12 +51,15 @@ public interface CalculationMarketData {
   public abstract <T, K extends MarketDataKey<T>> List<T> getValues(K key);
 
   /**
-   * Returns a list of market data time series, one from each scenario.
+   * Returns a time series of market data values.
+   * <p>
+   * Time series are not affected by scenarios, therefore there is a single time series for each key
+   * which is shared between all scenarios.
    *
    * @param key  a key identifying the market data
    * @return a list of market data time series, one from each scenario
    */
-  public abstract List<LocalDateDoubleTimeSeries> getTimeSeries(ObservableKey key);
+  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
 
   /**
    * Returns a single value that is valid for all scenarios.

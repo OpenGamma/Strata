@@ -8,8 +8,9 @@ package com.opengamma.strata.engine.marketdata.builders;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 
 /**
  * Market data builder that creates failures with helpful error messages when there is no
@@ -30,7 +31,7 @@ public final class MissingMappingMarketDataBuilder implements MarketDataBuilder<
   }
 
   @Override
-  public Result<Void> build(MissingMappingId id, BaseMarketData builtData) {
+  public Result<Void> build(MissingMappingId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data mapping found for market data key {}",

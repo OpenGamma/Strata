@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -26,8 +27,11 @@ import com.opengamma.strata.engine.config.Measure;
 /**
  * A set of pricing rules that always returns an empty optional from {@link #functionGroup}.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 final class EmptyPricingRules implements PricingRules, ImmutableBean {
+
+  /** The single, shared instance of this class. */
+  static final EmptyPricingRules INSTANCE = new EmptyPricingRules();
 
   @Override
   public PricingRules composedWith(PricingRules rules) {
@@ -52,14 +56,6 @@ final class EmptyPricingRules implements PricingRules, ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(EmptyPricingRules.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static EmptyPricingRules.Builder builder() {
-    return new EmptyPricingRules.Builder();
   }
 
   private EmptyPricingRules() {
@@ -129,7 +125,7 @@ final class EmptyPricingRules implements PricingRules, ImmutableBean {
     }
 
     @Override
-    public EmptyPricingRules.Builder builder() {
+    public BeanBuilder<? extends EmptyPricingRules> builder() {
       return new EmptyPricingRules.Builder();
     }
 
@@ -150,7 +146,7 @@ final class EmptyPricingRules implements PricingRules, ImmutableBean {
   /**
    * The bean-builder for {@code EmptyPricingRules}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<EmptyPricingRules> {
+  private static final class Builder extends DirectFieldsBeanBuilder<EmptyPricingRules> {
 
     /**
      * Restricted constructor.

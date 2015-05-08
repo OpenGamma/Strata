@@ -20,12 +20,9 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
  */
 public interface MarketDataRules {
 
-  /** An empty set of rules. */
-  public static final MarketDataRules EMPTY = EmptyMarketDataRules.builder().build();
-
   /**
    * Returns a set of market data rules that delegates to multiple underlying sets of rules, returning the first
-   * valid mapping it finds
+   * valid mapping it finds.
    *
    * @param rules  the delegate market data rules
    * @return a set of market data rules that delegates to multiple underlying sets of rules, returning the first
@@ -34,12 +31,21 @@ public interface MarketDataRules {
   public static MarketDataRules of(MarketDataRules... rules) {
     switch (rules.length) {
       case 0:
-        return MarketDataRules.EMPTY;
+        return MarketDataRules.empty();
       case 1:
         return rules[0];
       default:
         return CompositeMarketDataRules.builder().rules(ImmutableList.copyOf(rules)).build();
     }
+  }
+
+  /**
+   * Returns an empty set of rules.
+   *
+   * @return an empty set of rules
+   */
+  public static MarketDataRules empty() {
+    return EmptyMarketDataRules.INSTANCE;
   }
 
   /**
