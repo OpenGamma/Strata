@@ -93,6 +93,18 @@ task fullJavadoc(type: Javadoc) {
 
 }
 
+task testReport(type: TestReport) { testReport ->
+    description = "Merges test result reports from all projects into a single report"
+
+    project.allprojects*.tasks*.withType(Test) { test ->
+        testReport.dependsOn test
+        test.finalizedBy testReport
+    }
+
+    destinationDir = file("${buildDir}/reports/tests")
+    reportOn subprojects*.test.binResultsDir
+}
+
 allprojects {
     afterEvaluate {
         rootProject.getTasksByName("javadoc", true).each { Task t ->
