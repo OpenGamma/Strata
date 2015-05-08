@@ -57,8 +57,14 @@ subprojects {
 		from sourceSets.main.allSource
 	}
 
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
 	artifacts {
 		archives sourcesJar
+		archives javadocJar
 	}
 
     checkstyle {
@@ -106,8 +112,9 @@ task testReport(type: TestReport) { testReport ->
 
 allprojects {
     afterEvaluate {
-        rootProject.getTasksByName("javadoc", true).each { Task t ->
+        rootProject.getTasksByName("javadoc", true).each { Javadoc t ->
             if( ! t.enabled) return
+            t.failOnError = false
             rootProject.tasks.fullJavadoc {
                 source += files(t.project.sourceSets.collect { srcSet -> srcSet.allJava })
                 classpath += files(t.project.sourceSets*.compileClasspath)
