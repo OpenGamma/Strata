@@ -6,22 +6,14 @@
 package com.opengamma.strata.marketdata.id;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * Market data ID identifying a rates curve.
+ * Market data ID identifying a curve.
  */
-public interface RateCurveId extends CurveId {
+public interface CurveId extends MarketDataId<YieldCurve> {
 
   @Override
   public default Class<YieldCurve> getMarketDataType() {
     return YieldCurve.class;
   }
-
-  /**
-   * Returns the currency of the curve.
-   *
-   * @return the currency of the curve
-   */
-  public Currency getCurrency();
 }
