@@ -11,7 +11,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 /**
  * Rate observation implementation for a price index. 
  * <p>
- * Then the pay-off for a unit notional is {@code (Index_End / Index_Start - 1)}, where
+ * The pay-off for a unit notional is {@code (Index_End / Index_Start - 1)}, where
  * start index value and end index value are simply returned by {@code RatesProvider}.
  */
 public class ForwardInflationMonthlyRateObservationFn

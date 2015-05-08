@@ -15,7 +15,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  * <p>
  * The rate computed by this instance is based on four observations of the index,
  * two relative to the accrual start date and two relative to the accrual end date. 
- * The start index is the weighted average of the indexe values associated with the first two reference dates, 
+ * The start index is the weighted average of the index values associated with the first two reference dates, 
  * and the end index is derived from the index values on the last two reference dates. 
  * Then the pay-off for a unit notional is {@code (Index_End / Index_Start - 1)}. 
  */
@@ -45,19 +45,13 @@ public class ForwardInflationInterpolatedRateObservationFn
     double w1 = observation.getWeight();
     double w2 = 1.0d - w1;
     double indexStart = interpolatedIndex(
-        index,
-        observation.getReferenceStartMonth(),
+        index, observation.getReferenceStartMonth(),
         observation.getReferenceStartInterpolationMonth(),
-        w1,
-        w2,
-        provider);
+        w1, w2, provider);
     double indexEnd = interpolatedIndex(
-        index,
-        observation.getReferenceEndMonth(),
+        index, observation.getReferenceEndMonth(),
         observation.getReferenceEndInterpolationMonth(),
-        w1,
-        w2,
-        provider);
+        w1, w2, provider);
     return indexEnd / indexStart - 1.0d;
   }
 
@@ -71,33 +65,21 @@ public class ForwardInflationInterpolatedRateObservationFn
     double w1 = observation.getWeight();
     double w2 = 1.0d - w1;
     double indexStartInv = 1.0d / interpolatedIndex(
-        index,
-        observation.getReferenceStartMonth(),
+        index, observation.getReferenceStartMonth(),
         observation.getReferenceStartInterpolationMonth(),
-        w1,
-        w2,
-        provider);
+        w1, w2, provider);
     double indexEnd = interpolatedIndex(
-        index,
-        observation.getReferenceEndMonth(),
+        index, observation.getReferenceEndMonth(),
         observation.getReferenceEndInterpolationMonth(),
-        w1,
-        w2,
-        provider);
+        w1, w2, provider);
     PointSensitivityBuilder indexStartSensitivity = interpolatedIndexSensitivity(
-        index,
-        observation.getReferenceStartMonth(),
+        index, observation.getReferenceStartMonth(),
         observation.getReferenceStartInterpolationMonth(),
-        w1,
-        w2,
-        provider);
+        w1, w2, provider);
     PointSensitivityBuilder indexEndSensitivity = interpolatedIndexSensitivity(
-        index,
-        observation.getReferenceEndMonth(),
+        index, observation.getReferenceEndMonth(),
         observation.getReferenceEndInterpolationMonth(),
-        w1,
-        w2,
-        provider);
+        w1, w2, provider);
     indexEndSensitivity = indexEndSensitivity.multipliedBy(indexStartInv);
     indexStartSensitivity = indexStartSensitivity.multipliedBy(-indexEnd * indexStartInv * indexStartInv);
     return indexStartSensitivity.combinedWith(indexEndSensitivity);
