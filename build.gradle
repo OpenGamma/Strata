@@ -1,4 +1,6 @@
 import com.opengamma.tools.gradle.sphinx.SphinxPlugin
+import com.opengamma.tools.gradle.release.AutoVersionPlugin
+import com.opengamma.tools.gradle.release.ReleasePlugin
 import org.joda.beans.gradle.JodaBeansPlugin
 
 ext {
@@ -14,8 +16,15 @@ ext {
 	jacocoVersion = "0.7.4.201502262128"
 }
 
+allprojects {
+    version "0.9.0-SNAPSHOT"
+    group "com.opengamma.strata"
+}
+
 apply plugin: "base"
 apply plugin: SphinxPlugin
+apply plugin: AutoVersionPlugin
+apply plugin: ReleasePlugin
 
 sphinx {
     userGuideArchiveName = "strata-@project.version@-guide.zip"
@@ -80,6 +89,8 @@ task fullJavadoc(type: Javadoc) {
     failOnError = false
     verbose = false
     destinationDir = file("${buildDir}/docs/javadoc")
+    options.windowTitle = "OpenGamma Strata API Documentation" // TODO
+
 }
 
 allprojects {
@@ -132,7 +143,10 @@ buildscript {
     dependencies {
         classpath "com.opengamma.tools:build-tools:1.2.2"
         classpath 'com.google.guava:guava:18.0'
+	    classpath "com.opengamma.tools:gradle-simpleexec-plugin:${gradleSimpleExecPluginVersion}"
+	    classpath "com.opengamma.tools:gradle-git-plugin:${gradleGitPluginVersion}"
 	    classpath "com.opengamma.tools:gradle-sphinx-plugin:${gradleSphinxPluginVersion}"
+	    classpath "com.opengamma.tools:gradle-og-release-plugin:${gradleOGReleasePluginVersion}"
         classpath group: 'org.joda', name: 'joda-beans', version: '1.4'
         classpath group: 'org.joda', name: 'joda-beans-plugin', version: '1.0.0'
     }
