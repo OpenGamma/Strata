@@ -66,20 +66,17 @@ public final class FraTemplate
    * The period between the spot value date and the start date.
    * <p>
    * In a FRA described as '2 x 5', the period to the end date is 5 months.
-   * The difference between the start date and the end date typically matches the tenor of the index.
+   * The difference between the start date and the end date typically matches the tenor of the index,
+   * however this is not validated.
    * <p>
    * When building, this will default to the period to start plus the tenor of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final Period periodToEnd;
   /**
-   * The business day adjustment to apply to the start and end date, defaulted to modified following.
+   * The underlying FRA convention.
    * <p>
-   * The start and end date are typically defined as valid business days and thus
-   * do not need to be adjusted. If this optional property is present, then the
-   * start and end date will be adjusted as defined here.
-   * <p>
-   * When building, this will default to modified following using the index fixing calendar if not specified.
+   * This specifies the market convention of the FRA to be created.
    */
   @PropertyDefinition(validate = "notNull")
   private final FraConvention convention;
@@ -233,7 +230,8 @@ public final class FraTemplate
    * Gets the period between the spot value date and the start date.
    * <p>
    * In a FRA described as '2 x 5', the period to the end date is 5 months.
-   * The difference between the start date and the end date typically matches the tenor of the index.
+   * The difference between the start date and the end date typically matches the tenor of the index,
+   * however this is not validated.
    * <p>
    * When building, this will default to the period to start plus the tenor of the index if not specified.
    * @return the value of the property, not null
@@ -244,13 +242,9 @@ public final class FraTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjustment to apply to the start and end date, defaulted to modified following.
+   * Gets the underlying FRA convention.
    * <p>
-   * The start and end date are typically defined as valid business days and thus
-   * do not need to be adjusted. If this optional property is present, then the
-   * start and end date will be adjusted as defined here.
-   * <p>
-   * When building, this will default to modified following using the index fixing calendar if not specified.
+   * This specifies the market convention of the FRA to be created.
    * @return the value of the property, not null
    */
   public FraConvention getConvention() {
