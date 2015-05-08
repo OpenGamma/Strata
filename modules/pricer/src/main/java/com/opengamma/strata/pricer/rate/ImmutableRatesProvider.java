@@ -365,7 +365,7 @@ public final class ImmutableRatesProvider
   public double inflationIndexRate(PriceIndex index, YearMonth referenceMonth) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(referenceMonth, "referenceMonth");
-    if (referenceMonth.isBefore(YearMonth.from(valuationDate))) {
+    if (!referenceMonth.isAfter(YearMonth.from(valuationDate))) { //TODO isBefore rather than !isAfter ?
       return inflationIndexHistoricRate(index, referenceMonth);
     }
     return inflationIndexForwardRate(index, referenceMonth);
@@ -376,9 +376,6 @@ public final class ImmutableRatesProvider
     OptionalDouble fixedRate = timeSeries(index).get(referenceMonth.atEndOfMonth());
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
-      // TODO can we assume the publication lag is always less than a month?
-    } else if (referenceMonth.isBefore(YearMonth.from(valuationDate).minusMonths(1))) { // the fixing is required
-      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, referenceMonth));
     } else {
       return inflationIndexForwardRate(index, referenceMonth);
     }
@@ -386,7 +383,9 @@ public final class ImmutableRatesProvider
 
   // forward rate
   private double inflationIndexForwardRate(PriceIndex index, YearMonth referenceMonth) {
-    PriceIndexCurve indexCurve = (PriceIndexCurve) getAdditionalData().get(index);
+    // TODO use new index curve
+    PriceIndexCurveMap indexCurveMap = (PriceIndexCurveMap) getAdditionalData().get(PriceIndexCurveMap.class);
+    PriceIndexCurve indexCurve = indexCurveMap.getPriceIndexCurves().get(index);
     double relativeTime = relativeTime(referenceMonth.atEndOfMonth());
     return indexCurve.getPriceIndex(relativeTime);
   }
