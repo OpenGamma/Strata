@@ -139,6 +139,27 @@ buildscript {
                 password ogNexusPassword
             }
         }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/ext-snapshots-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-releases-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-snapshots-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
     }
     dependencies {
         classpath "com.opengamma.tools:build-tools:1.2.2"
