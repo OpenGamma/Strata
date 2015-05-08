@@ -34,7 +34,6 @@ subprojects {
     apply plugin: "java"
     apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
     apply plugin: "checkstyle"
-    apply plugin: "jacoco"
     apply plugin: JodaBeansPlugin
 
     compileJava {
