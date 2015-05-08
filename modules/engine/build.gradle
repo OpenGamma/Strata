@@ -7,3 +7,8 @@ dependencies {
 
 	testCompile project(":collect-testutils")
 }
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Engine"
+	title = "OpenGamma Strata Engine API Documentation"
+}

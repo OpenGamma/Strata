@@ -4,3 +4,8 @@ dependencies {
 
 	testCompile project(":collect-testutils")
 }
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Finance"
+	title = "OpenGamma Strata Finance API Documentation"
+}

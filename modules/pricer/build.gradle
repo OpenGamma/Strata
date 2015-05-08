@@ -8,3 +8,8 @@ dependencies {
 	testCompile project(":pricer-testutils")
 	testCompile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'
 }
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Pricer"
+	title = "OpenGamma Strata Pricer API Documentation"
+}

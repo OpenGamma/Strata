@@ -14,6 +14,8 @@ ext {
 	assertJVersion = "2.0.0"
 	mockitoVersion = "1.10.19"
 	jacocoVersion = "0.7.4.201502262128"
+
+    javadocFooterLicense = ""
 }
 
 allprojects {
@@ -94,8 +96,13 @@ task fullJavadoc(type: Javadoc) {
     failOnError = false
     verbose = false
     destinationDir = file("${buildDir}/docs/javadoc")
-    options.windowTitle = "OpenGamma Strata API Documentation" // TODO
+    options.windowTitle = "OpenGamma Strata"
+    title = "OpenGamma Strata API Documentation"
 
+    // TODO - This doesn't work. Don't know what it's supposed to do when it does work. Find out & fix.
+    //options.header = """<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ["\$","\$"], ["\\\\\\\\(","\\\\\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>"""
+
+    options.footer = """<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadocFooterLicense}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-12092825-5"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true; ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s); })(); </script>"""
 }
 
 task testReport(type: TestReport) { testReport ->

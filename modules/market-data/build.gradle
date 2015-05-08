@@ -3,3 +3,8 @@ dependencies {
 	compile project(":collect")
 	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
 }
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Market Data"
+	title = "OpenGamma Strata Market Data API Documentation"
+}
