@@ -54,15 +54,15 @@ public class ScenarioMarketData implements ImmutableBean {
   private final ImmutableList<LocalDate> valuationDates;
 
   /** Individual items of market data, keyed by ID, one for each scenario. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableListMultimap<MarketDataId<?>, ?> values;
 
   /** Time series of observable market data values, keyed by ID, one for each scenario. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   /** Market dat values that are potentially applicable across all scenarios, keyed by ID. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<? extends MarketDataId<?>, Object> globalValues;
 
   /**
@@ -320,7 +320,7 @@ public class ScenarioMarketData implements ImmutableBean {
    * Gets individual items of market data, keyed by ID, one for each scenario.
    * @return the value of the property, not null
    */
-  public ImmutableListMultimap<MarketDataId<?>, ?> getValues() {
+  private ImmutableListMultimap<MarketDataId<?>, ?> getValues() {
     return values;
   }
 
@@ -329,7 +329,7 @@ public class ScenarioMarketData implements ImmutableBean {
    * Gets time series of observable market data values, keyed by ID, one for each scenario.
    * @return the value of the property, not null
    */
-  public ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
+  private ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -338,7 +338,7 @@ public class ScenarioMarketData implements ImmutableBean {
    * Gets market dat values that are potentially applicable across all scenarios, keyed by ID.
    * @return the value of the property, not null
    */
-  public ImmutableMap<? extends MarketDataId<?>, Object> getGlobalValues() {
+  private ImmutableMap<? extends MarketDataId<?>, Object> getGlobalValues() {
     return globalValues;
   }
 

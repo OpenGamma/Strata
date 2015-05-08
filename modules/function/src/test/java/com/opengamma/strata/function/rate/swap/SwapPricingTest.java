@@ -57,8 +57,8 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.builders.RateIndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
@@ -167,7 +167,7 @@ public class SwapPricingTest {
             ObservableMarketDataBuilder.none(),
             FeedIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
-            new IndexCurveMarketDataBuilder());
+            new RateIndexCurveMarketDataBuilder());
 
     List<SwapTrade> trades = ImmutableList.of(trade);
     Column pvColumn = Column.of(Measure.PRESENT_VALUE);

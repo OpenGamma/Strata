@@ -32,7 +32,7 @@ import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.IndexCurveKey;
+import com.opengamma.strata.marketdata.key.RateIndexCurveKey;
 import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -72,7 +72,7 @@ public class FraParRateAnalyticsFunction
     IborRateObservation observation = (IborRateObservation) product.getFloatingRate();
     IborIndex index = observation.getIndex();
     Map<com.opengamma.analytics.financial.instrument.index.IborIndex, YieldAndDiscountCurve> iborCurves =
-        ImmutableMap.of(Legacy.iborIndex(index), marketData.getValue(IndexCurveKey.of(index)));
+        ImmutableMap.of(Legacy.iborIndex(index), marketData.getValue(RateIndexCurveKey.of(index)));
 
     MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount(
         discountCurves, iborCurves, ImmutableMap.of(), FxMatrix.empty());
