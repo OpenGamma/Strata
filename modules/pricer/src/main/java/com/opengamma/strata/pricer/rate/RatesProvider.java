@@ -210,8 +210,6 @@ public interface RatesProvider
    * @param index the index of prices 
    * @param referenceMonth the reference month for the index 
    * @return the price index value 
-   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
-   *   on the beginning of the month and not the end of the month
    */
   public abstract double inflationIndexRate(PriceIndex index, YearMonth referenceMonth);
 
@@ -225,8 +223,6 @@ public interface RatesProvider
    * @param index the index of prices 
    * @param referenceMonth the reference month for the index 
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
-   *   on the beginning of the month and not the end of the month
    */
   public abstract PointSensitivityBuilder inflationIndexRateSensitivity(PriceIndex index, YearMonth referenceMonth);
 

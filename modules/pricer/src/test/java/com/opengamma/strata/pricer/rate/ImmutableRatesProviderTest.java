@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -28,14 +29,18 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
@@ -70,6 +75,9 @@ public class ImmutableRatesProviderTest {
           return 0.0123d;
         }
       };
+
+  private static final PriceIndexCurve USCPIU_PRICE_INDEX_CURVE =
+      new PriceIndexCurveSimple(new ConstantDoublesCurve(252.0d));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -409,6 +417,51 @@ public class ImmutableRatesProviderTest {
     assertEquals(test.overnightIndexRatePeriod(USD_FED_FUND, startDate, endDate), 0.0123d, 0d);
     PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, USD, startDate, endDate, 1d);
     assertEquals(test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, startDate, endDate), sens);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_inflationIndexRate_historic() {
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(US_CPI_U, USCPIU_PRICE_INDEX_CURVE);
+    PriceIndexCurveMap priceIndexMap = PriceIndexCurveMap.builder().priceIndexCurves(map).build();
+    LocalDate prevMonthEnd = LocalDate.of(2014, 5, 31);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(prevMonthEnd, 248.0d);
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(US_CPI_U, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    double rate = test.inflationIndexRate(US_CPI_U, YearMonth.of(2014, 5));
+    assertEquals(rate, 248.0d);
+  }
+
+  public void test_inflationIndexRate_forward() {
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(US_CPI_U, USCPIU_PRICE_INDEX_CURVE);
+    PriceIndexCurveMap priceIndexMap = PriceIndexCurveMap.builder().priceIndexCurves(map).build();
+    LocalDate prevMonthEnd = LocalDate.of(2014, 5, 31);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(prevMonthEnd, 0.06);
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(US_CPI_U, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    double rate = test.inflationIndexRate(US_CPI_U, YearMonth.of(2015, 6));
+    assertEquals(rate, 252.0d);
+  }
+
+  public void inflationIndexRateSensitivity() {
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(US_CPI_U, USCPIU_PRICE_INDEX_CURVE);
+    PriceIndexCurveMap priceIndexMap = PriceIndexCurveMap.builder().priceIndexCurves(map).build();
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE) // LocalDate.of(2014, 6, 30)
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    YearMonth referenceMonth = YearMonth.of(2016, 6);
+    PointSensitivityBuilder sensiComputed = test.inflationIndexRateSensitivity(US_CPI_U, referenceMonth);
+    InflationRateSensitivity sensiExpected = InflationRateSensitivity.of(US_CPI_U, referenceMonth, 1.0d);
+    assertEquals(sensiComputed, sensiExpected);
   }
 
   //-------------------------------------------------------------------------

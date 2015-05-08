@@ -408,6 +408,8 @@ public final class ImmutableRatesProvider
     paramSensitivityZeroRate(sensitivities, map);
     parameterSensitivityIbor(sensitivities, map);
     parameterSensitivityOvernight(sensitivities, map);
+    // TODO handle Inflation case
+    //    parameterSensitivityInflation(sensitivities, map);
     return CurveParameterSensitivity.of(map);
   }
 
@@ -520,6 +522,38 @@ public final class ImmutableRatesProvider
     }
     return result;
   }
+
+  //  // handle inflation rate sensitivities
+  //  private void parameterSensitivityInflation(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
+  //    // group by currency
+  //    ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
+  //    for (PointSensitivity point : sensitivities.getSensitivities()) {
+  //      if (point instanceof InflationRateSensitivity) {
+  //        InflationRateSensitivity pt = (InflationRateSensitivity) point;
+  //        PriceIndex index = pt.getIndex();
+  //        //        LocalDate fixingDate = pt.getFixingDate();
+  //        //        LocalDate endDate = pt.getEndDate();
+  //        //        LocalDate startDate = index.calculateEffectiveFromFixing(fixingDate);
+  //        YearMonth referenceMonth = pt.getReferenceMonth();
+  //        double referenceTime = relativeTime(referenceMonth.atEndOfMonth());
+  //        //        double startTime = relativeTime(startDate);
+  //        //        double endTime = relativeTime(endDate);
+  //        //        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
+  //        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, pt.getCurrency());
+  //        grouped
+  //            .put(key, new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, pt.getSensitivity()));
+  //      }
+  //    }
+  //    // calculate per currency
+  //    for (IndexCurrencySensitivityKey key : grouped.keySet()) {
+  //      YieldAndDiscountCurve curve = indexCurve(key.getIndex());
+  //      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
+  //      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
+  //      mutableMap.merge(keyParam, sensiParam, ImmutableRatesProvider::combineArrays);
+  //    }
+  //  }
+  //  
+  //  private double [] parameterSensitivityPriceIndex(PriceIndexCurve curve, .....)
 
   // add two arrays
   private static double[] combineArrays(double[] a, double[] b) {
