@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
-import com.opengamma.strata.marketdata.key.IndexCurveKey;
+import com.opengamma.strata.marketdata.key.RateIndexCurveKey;
 
 @Test
 public class ScenarioMarketDataTest {
@@ -23,7 +23,7 @@ public class ScenarioMarketDataTest {
    */
   public void handleNoMatchingRulesId() {
     ScenarioMarketData marketData = ScenarioMarketData.builder(1, date(2011, 3, 8)).build();
-    NoMatchingRuleId id = NoMatchingRuleId.of(IndexCurveKey.of(IborIndices.USD_LIBOR_1M));
+    NoMatchingRuleId id = NoMatchingRuleId.of(RateIndexCurveKey.of(IborIndices.USD_LIBOR_1M));
     String msgRegex = "No market data rules were available to build the market data for.*";
     assertThrows(() -> marketData.getValues(id), IllegalArgumentException.class, msgRegex);
   }
@@ -33,7 +33,7 @@ public class ScenarioMarketDataTest {
    */
   public void handleMissingMappingsId() {
     ScenarioMarketData marketData = ScenarioMarketData.builder(1, date(2011, 3, 8)).build();
-    MissingMappingId id = MissingMappingId.of(IndexCurveKey.of(IborIndices.USD_LIBOR_1M));
+    MissingMappingId id = MissingMappingId.of(RateIndexCurveKey.of(IborIndices.USD_LIBOR_1M));
     String msgRegex = "No market data mapping found for.*";
     assertThrows(() -> marketData.getValues(id), IllegalArgumentException.class, msgRegex);
   }

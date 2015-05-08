@@ -28,8 +28,9 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
+import com.opengamma.strata.marketdata.key.MarketDataKey;
+import com.opengamma.strata.marketdata.key.MarketDataKeys;
 import com.opengamma.strata.marketdata.key.ObservableKey;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 
@@ -67,9 +68,9 @@ public class SwapLegPvFunction implements EngineSingleFunction<SwapTrade, List<C
         indices.stream()
             .map(IndexRateKey::of)
             .collect(toImmutableSet());
-    Set<IndexCurveKey> forwardCurveKeys =
+    Set<MarketDataKey<?>> forwardCurveKeys =
         indices.stream()
-            .map(IndexCurveKey::of)
+            .map(MarketDataKeys::indexCurveKey)
             .collect(toImmutableSet());
     Set<DiscountingCurveKey> discountingCurveKeys =
         ImmutableSet.of(DiscountingCurveKey.of(leg.getCurrency()));

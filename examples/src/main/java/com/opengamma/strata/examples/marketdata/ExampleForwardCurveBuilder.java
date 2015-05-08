@@ -11,7 +11,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.marketdata.id.IndexCurveId;
+import com.opengamma.strata.marketdata.id.RateIndexCurveId;
 
 /**
  * Market data builder that satisfies requests for forward curves by loading the
@@ -23,22 +23,22 @@ import com.opengamma.strata.marketdata.id.IndexCurveId;
  * the valuation date.
  */
 public class ExampleForwardCurveBuilder
-    implements MarketDataBuilder<YieldCurve, IndexCurveId> {
+    implements MarketDataBuilder<YieldCurve, RateIndexCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(IndexCurveId id) {
+  public MarketDataRequirements requirements(RateIndexCurveId id) {
     return MarketDataRequirements.EMPTY;
   }
 
   @Override
-  public Result<YieldCurve> build(IndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), id.getIndex().getName());
     return Result.success(curve);
   }
 
   @Override
-  public Class<IndexCurveId> getMarketDataIdType() {
-    return IndexCurveId.class;
+  public Class<RateIndexCurveId> getMarketDataIdType() {
+    return RateIndexCurveId.class;
   }
 
 }

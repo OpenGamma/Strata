@@ -28,10 +28,10 @@ import com.opengamma.strata.basics.currency.Currency;
  * Market data ID identifying the discounting curve for a currency.
  */
 @BeanDefinition(builderScope = "private")
-public final class DiscountingCurveId implements CurveId, ImmutableBean {
+public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
 
   /** The currency of the discounting curve. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
 
   /** The name of the curve group containing the curve. */
@@ -39,6 +39,8 @@ public final class DiscountingCurveId implements CurveId, ImmutableBean {
   private final String curveGroupName;
 
   /**
+   * Returns an ID that identifies the discounting curve for the specified currency.
+   *
    * @param currency  the currency of the discounting curve
    * @param curveGroupName  the name of the curve group containing the curve
    * @return an ID that identifies the discounting curve for the specified currency
@@ -90,6 +92,7 @@ public final class DiscountingCurveId implements CurveId, ImmutableBean {
    * Gets the currency of the discounting curve.
    * @return the value of the property, not null
    */
+  @Override
   public Currency getCurrency() {
     return currency;
   }

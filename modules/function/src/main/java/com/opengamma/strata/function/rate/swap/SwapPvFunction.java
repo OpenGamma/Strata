@@ -25,8 +25,9 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
+import com.opengamma.strata.marketdata.key.MarketDataKey;
+import com.opengamma.strata.marketdata.key.MarketDataKeys;
 import com.opengamma.strata.marketdata.key.ObservableKey;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
@@ -45,9 +46,9 @@ public class SwapPvFunction implements EngineSingleFunction<SwapTrade, List<Mult
             .map(IndexRateKey::of)
             .collect(toImmutableSet());
 
-    Set<IndexCurveKey> indexCurveKeys =
+    Set<MarketDataKey<?>> indexCurveKeys =
         indices.stream()
-            .map(IndexCurveKey::of)
+            .map(MarketDataKeys::indexCurveKey)
             .collect(toImmutableSet());
 
     Set<DiscountingCurveKey> discountingCurveKeys =

@@ -30,9 +30,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.IndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.builders.RateIndexCurveMarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
@@ -44,12 +44,12 @@ import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
 import com.opengamma.strata.marketdata.id.FieldName;
-import com.opengamma.strata.marketdata.id.IndexCurveId;
 import com.opengamma.strata.marketdata.id.IndexRateId;
 import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.id.QuoteId;
+import com.opengamma.strata.marketdata.id.RateIndexCurveId;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 
 @Test
@@ -110,7 +110,7 @@ public class DefaultMarketDataFactoryTest {
     YieldCurve discountingCurve = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup);
     YieldCurve iborCurve = MarketDataTestUtils.iborIndexCurve(1, IborIndices.EUR_EURIBOR_12M, curveGroup);
     DiscountingCurveId discountingCurveId = DiscountingCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
-    IndexCurveId iborCurveId = IndexCurveId.of(IborIndices.EUR_EURIBOR_12M, MarketDataTestUtils.CURVE_GROUP_NAME);
+    RateIndexCurveId iborCurveId = RateIndexCurveId.of(IborIndices.EUR_EURIBOR_12M, MarketDataTestUtils.CURVE_GROUP_NAME);
     CurveGroupId groupId = CurveGroupId.of(MarketDataTestUtils.CURVE_GROUP_NAME);
     BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DefaultMarketDataFactory marketDataFactory =
@@ -119,7 +119,7 @@ public class DefaultMarketDataFactoryTest {
             ObservableMarketDataBuilder.none(),
             FeedIdMapping.identity(),
             new DiscountingCurveMarketDataBuilder(),
-            new IndexCurveMarketDataBuilder());
+            new RateIndexCurveMarketDataBuilder());
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
@@ -139,7 +139,7 @@ public class DefaultMarketDataFactoryTest {
     YieldCurve discountingCurve = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup);
     YieldCurve iborCurve = MarketDataTestUtils.iborIndexCurve(1, IborIndices.EUR_EURIBOR_12M, curveGroup);
     DiscountingCurveId discountingCurveId = DiscountingCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
-    IndexCurveId iborCurveId = IndexCurveId.of(IborIndices.EUR_EURIBOR_12M, MarketDataTestUtils.CURVE_GROUP_NAME);
+    RateIndexCurveId iborCurveId = RateIndexCurveId.of(IborIndices.EUR_EURIBOR_12M, MarketDataTestUtils.CURVE_GROUP_NAME);
     BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
         .addValue(discountingCurveId, discountingCurve)
         .addValue(iborCurveId, iborCurve)

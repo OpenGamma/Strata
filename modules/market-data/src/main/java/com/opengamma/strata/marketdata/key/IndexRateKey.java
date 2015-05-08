@@ -31,7 +31,7 @@ import com.opengamma.strata.marketdata.id.MarketDataFeed;
 /**
  * A market data key identifying the current and historical values for an {@link Index}.
  * <p>
- * The forward curve of the index is identified with an {@link IndexCurveKey}.
+ * The forward curve of the index is identified with an {@link RateIndexCurveKey}.
  */
 @BeanDefinition(builderScope = "private")
 public final class IndexRateKey implements ObservableKey, ImmutableBean {

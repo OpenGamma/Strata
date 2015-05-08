@@ -38,7 +38,7 @@ public class MarketDataMappingsBuilder {
   public MarketDataMappingsBuilder curveGroup(String curveGroupName) {
     ArgChecker.notEmpty(curveGroupName, "curveGroupName");
     mappings.add(DiscountingCurveMapping.of(curveGroupName));
-    mappings.add(IndexCurveMapping.of(curveGroupName));
+    mappings.add(RateIndexCurveMapping.of(curveGroupName));
     return this;
   }
 

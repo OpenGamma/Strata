@@ -28,7 +28,7 @@ import com.opengamma.strata.collect.id.StandardId;
 /**
  * A market data ID identifying the current and historical values for an {@link Index}.
  * <p>
- * The forward curve of the index is identified with an {@link IndexCurveId}.
+ * The forward curve of the index is identified with an {@link RateIndexCurveId}.
  */
 @BeanDefinition(builderScope = "private")
 public final class IndexRateId implements ObservableId, ImmutableBean {

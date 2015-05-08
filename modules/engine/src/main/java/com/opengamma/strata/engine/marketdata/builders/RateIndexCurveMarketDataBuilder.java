@@ -18,7 +18,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
-import com.opengamma.strata.marketdata.id.IndexCurveId;
+import com.opengamma.strata.marketdata.id.RateIndexCurveId;
 import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
@@ -32,10 +32,10 @@ import com.opengamma.strata.pricer.impl.Legacy;
  * it is possible that it will change, but there are many other changes needed before other curve types
  * can be used.
  */
-public final class IndexCurveMarketDataBuilder implements MarketDataBuilder<YieldCurve, IndexCurveId> {
+public final class RateIndexCurveMarketDataBuilder implements MarketDataBuilder<YieldCurve, RateIndexCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(IndexCurveId id) {
+  public MarketDataRequirements requirements(RateIndexCurveId id) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
@@ -43,7 +43,7 @@ public final class IndexCurveMarketDataBuilder implements MarketDataBuilder<Yiel
   }
 
   @Override
-  public Result<YieldCurve> build(IndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
     String curveGroupName = id.getCurveGroupName();
     CurveGroupId curveGroupId = CurveGroupId.of(curveGroupName);
 
@@ -56,8 +56,8 @@ public final class IndexCurveMarketDataBuilder implements MarketDataBuilder<Yiel
   }
 
   @Override
-  public Class<IndexCurveId> getMarketDataIdType() {
-    return IndexCurveId.class;
+  public Class<RateIndexCurveId> getMarketDataIdType() {
+    return RateIndexCurveId.class;
   }
 
   /**
@@ -99,7 +99,7 @@ public final class IndexCurveMarketDataBuilder implements MarketDataBuilder<Yiel
    * @param id  the curve ID
    * @return a success result containing the curve if it is a {@link YieldCurve}, else a failure
    */
-  private Result<YieldCurve> castCurve(YieldAndDiscountCurve curve, IndexCurveId id) {
+  private Result<YieldCurve> castCurve(YieldAndDiscountCurve curve, RateIndexCurveId id) {
     return (curve instanceof YieldCurve) ?
         Result.success(((YieldCurve) curve)) :
         Result.failure(

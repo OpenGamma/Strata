@@ -27,8 +27,8 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.FxRateKey;
-import com.opengamma.strata.marketdata.key.IndexCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
+import com.opengamma.strata.marketdata.key.RateIndexCurveKey;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
@@ -162,7 +162,7 @@ public final class MarketDataRatesProvider
     // forward rate
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    YieldCurve curve = marketData.getValue(IndexCurveKey.of(index));
+    YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
     double startTime = relativeTime(fixingStartDate);
     double endTime = relativeTime(fixingEndDate);
@@ -192,7 +192,7 @@ public final class MarketDataRatesProvider
     // forward rate
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    YieldCurve curve = marketData.getValue(IndexCurveKey.of(index));
+    YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
     double startTime = relativeTime(fixingStartDate);
     double endTime = relativeTime(fixingEndDate);
@@ -213,7 +213,7 @@ public final class MarketDataRatesProvider
     ArgChecker.notNull(endDate, "endDate");
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(marketData.getValuationDate(), startDate, "valuationDate", "startDate");
-    YieldCurve curve = marketData.getValue(IndexCurveKey.of(index));
+    YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
     double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
     double startTime = relativeTime(startDate);
     double endTime = relativeTime(endDate);
