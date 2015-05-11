@@ -7,12 +7,17 @@ package com.opengamma.strata.pricer.curve;
 
 import java.time.YearMonth;
 
+import org.joda.beans.ImmutableBean;
+
 import com.opengamma.strata.basics.index.PriceIndex;
 
 /**
- * Curve providing forward {@link PriceIndex} estimates for inflation related products.
+ * Curve providing forward {@link PriceIndex} estimates.
+ * <p>
+ * Mainly used to price inflation related products.
  */
-public interface PriceIndexCurve {
+public interface PriceIndexCurve 
+    extends ImmutableBean {
   
   /**
    * Returns the curve's name.
@@ -49,7 +54,5 @@ public interface PriceIndexCurve {
    * @return the new curve
    */
   PriceIndexCurve shiftCurve(double[] shifts);
-  
-  
   
 }
