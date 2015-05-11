@@ -36,6 +36,7 @@ subprojects {
     apply plugin: "java"
     apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
     apply plugin: "checkstyle"
+    apply plugin: "findbugs"
     apply plugin: JodaBeansPlugin
 
     compileJava {
@@ -80,6 +81,10 @@ subprojects {
 
     jacoco {
         toolVersion = jacocoVersion
+    }
+
+    findbugs {
+        ignoreFailures = true
     }
 
     jodabeans {
