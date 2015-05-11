@@ -17,7 +17,10 @@ import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -31,6 +34,8 @@ public class ForwardInflationMonthlyRateObservationFnTest {
   private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2016, 1, 5); // Accrual dates irrelevant for the rate
   private static final YearMonth REFERENCE_START_MONTH = YearMonth.of(2014, 10);
   private static final YearMonth REFERENCE_END_MONTH = YearMonth.of(2015, 10);
+  private static final Double RELATIVE_START_TIME = 0.2; // used to pick up relevant index rate
+  private static final Double RELATIVE_END_TIME = 1.2; // used to pick up relevant index rate
   private static final double RATE_START = 317.0;
   private static final double RATE_END = 344.0;
 
@@ -40,8 +45,13 @@ public class ForwardInflationMonthlyRateObservationFnTest {
 
   public void test_rate() {
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.inflationIndexRate(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(RATE_START);
-    when(mockProv.inflationIndexRate(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(RATE_END);
+    PriceIndexCurve mockCurve = mock(PriceIndexCurve.class);
+    when(mockProv.data(PriceIndexProvider.class)).thenReturn(PriceIndexProvider.of(GB_RPIX, mockCurve));
+    when(mockProv.timeSeries(GB_RPIX)).thenReturn(LocalDateDoubleTimeSeries.empty());
+    when(mockProv.relativeTime(REFERENCE_START_MONTH.atEndOfMonth())).thenReturn(RELATIVE_START_TIME);
+    when(mockProv.relativeTime(REFERENCE_END_MONTH.atEndOfMonth())).thenReturn(RELATIVE_END_TIME);
+    when(mockCurve.getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START);
+    when(mockCurve.getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END);
     InflationMonthlyRateObservation ro =
         InflationMonthlyRateObservation.of(GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
@@ -50,41 +60,34 @@ public class ForwardInflationMonthlyRateObservationFnTest {
   }
 
   public void test_rateSensitivity() {
-    InflationMonthlyRateObservation ro = InflationMonthlyRateObservation.of(
-        GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    PriceIndexCurve mockCurve = mock(PriceIndexCurve.class);
+    when(mockProv.data(PriceIndexProvider.class)).thenReturn(PriceIndexProvider.of(GB_RPIX, mockCurve));
+    when(mockProv.timeSeries(GB_RPIX)).thenReturn(LocalDateDoubleTimeSeries.empty());
+    when(mockProv.relativeTime(REFERENCE_START_MONTH.atEndOfMonth())).thenReturn(RELATIVE_START_TIME);
+    when(mockProv.relativeTime(REFERENCE_END_MONTH.atEndOfMonth())).thenReturn(RELATIVE_END_TIME);
+    when(mockCurve.getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START + EPS_FD);
+    when(mockCurve.getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END);
+    InflationMonthlyRateObservation ro =
+        InflationMonthlyRateObservation.of(GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH);
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
-    RatesProvider mockProvStartUp = mock(RatesProvider.class);
-    when(mockProvStartUp.inflationIndexRate(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(RATE_START + EPS_FD);
-    when(mockProvStartUp.inflationIndexRate(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(RATE_END);
-    double rateStartUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvStartUp);
-    RatesProvider mockProvStartDw = mock(RatesProvider.class);
-    when(mockProvStartDw.inflationIndexRate(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(RATE_START - EPS_FD);
-    when(mockProvStartDw.inflationIndexRate(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(RATE_END);
-    double rateStartDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvStartDw);
+
+    double rateStartUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
+    when(mockCurve.getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START - EPS_FD);
+    double rateStartDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
+    when(mockCurve.getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START);
+    when(mockCurve.getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END + EPS_FD);
+    double rateEndUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
+    when(mockCurve.getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END - EPS_FD);
+    double rateEndDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
+    when(mockCurve.getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END);
     double sensiValStart = 0.5 * (rateStartUp - rateStartDw) / EPS_FD;
     PointSensitivityBuilder sensiExpected = InflationRateSensitivity.of(GB_RPIX, REFERENCE_START_MONTH, sensiValStart);
-    RatesProvider mockProvEndUp = mock(RatesProvider.class);
-    when(mockProvEndUp.inflationIndexRate(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(RATE_START);
-    when(mockProvEndUp.inflationIndexRate(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(RATE_END + EPS_FD);
-    double rateEndUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvEndUp);
-    RatesProvider mockProvEndDw = mock(RatesProvider.class);
-    when(mockProvEndDw.inflationIndexRate(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(RATE_START);
-    when(mockProvEndDw.inflationIndexRate(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(RATE_END - EPS_FD);
-    double rateEndDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvEndDw);
     double sensiValEnd = 0.5 * (rateEndUp - rateEndDw) / EPS_FD;
     PointSensitivityBuilder sensiEnd = InflationRateSensitivity.of(GB_RPIX, REFERENCE_END_MONTH, sensiValEnd);
     sensiExpected = sensiExpected.combinedWith(sensiEnd);
-
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.inflationIndexRate(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(RATE_START);
-    when(mockProv.inflationIndexRate(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(RATE_END);
-    when(mockProv.inflationIndexRateSensitivity(GB_RPIX, REFERENCE_START_MONTH)).thenReturn(
-        InflationRateSensitivity.of(GB_RPIX, REFERENCE_START_MONTH, 1.0d));
-    when(mockProv.inflationIndexRateSensitivity(GB_RPIX, REFERENCE_END_MONTH)).thenReturn(
-        InflationRateSensitivity.of(GB_RPIX, REFERENCE_END_MONTH, 1.0d));
-    PointSensitivityBuilder sensiComputed = obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE,
-        mockProv);
-    
+    PointSensitivityBuilder sensiComputed =
+        obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertTrue(sensiComputed.build().normalized().equalWithTolerance(sensiExpected.build().normalized(), EPS_FD));
   }
 }

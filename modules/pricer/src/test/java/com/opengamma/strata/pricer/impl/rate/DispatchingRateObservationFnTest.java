@@ -66,7 +66,6 @@ public class DispatchingRateObservationFnTest {
       mock(RateObservationFn.class);
   private static final RateObservationFn<InflationInterpolatedRateObservation> MOCK_INF_INT_EMPTY =
       mock(RateObservationFn.class);
-  //TODO add tests for inflation cases
 
   private static final double TOLERANCE_RATE = 1.0E-10;
 

@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.OptionalDouble;
 
 import org.joda.beans.JodaBeanUtils;
@@ -22,7 +21,6 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -227,19 +225,6 @@ public final class MarketDataRatesProvider
       OvernightIndex index, LocalDate startDate, LocalDate endDate) {
     // TODO implement MarketDataRatesProvider.overnightIndexRatePeriodSensitivity
     throw new UnsupportedOperationException("overnightIndexRatePeriodSensitivity not implemented");
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double inflationIndexRate(PriceIndex index, YearMonth referenceMonth) {
-    // TODO implement MarketDataRatesProvider.inflationIndexRate, this requires a new curveKey?  
-    throw new UnsupportedOperationException("inflationIndexRate not implemented");
-  }
-
-  @Override
-  public PointSensitivityBuilder inflationIndexRateSensitivity(PriceIndex index, YearMonth referenceMonth) {
-    // TODO implement MarketDataRatesProvider.inflationIndexRateSensitivity
-    throw new UnsupportedOperationException("inflationIndexRateSensitivity not implemented");
   }
 
   //-------------------------------------------------------------------------

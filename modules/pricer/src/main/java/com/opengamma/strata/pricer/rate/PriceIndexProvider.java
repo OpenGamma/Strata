@@ -6,10 +6,12 @@
 package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
+import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -28,20 +30,26 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
- * Wrapper of an immutable map of price indexes and price index curves. 
+ * A provider of price indexes. 
+ * <p>
+ * This wraps an immutable map of price indexes and price index curves, 
+ * retrieves the historic or forward rate of price index and computes the basic curve sensitivity for the forward rate. 
  * <p>
  * This is intended to be used as an element of additionalData in {@link ImmutableRatesProvider}.
  */
 @BeanDefinition
-public final class PriceIndexCurveMap
+public final class PriceIndexProvider
     implements ImmutableBean, Serializable {
 
   /**
    * An empty instance.
    */
-  private static final PriceIndexCurveMap EMPTY = new PriceIndexCurveMap(ImmutableMap.of());
+  private static final PriceIndexProvider EMPTY = new PriceIndexProvider(ImmutableMap.of());
 
   /**
    * The map containing the price index curves. 
@@ -58,60 +66,60 @@ public final class PriceIndexCurveMap
    * 
    * @return the empty instance
    */
-  public static PriceIndexCurveMap empty() {
+  public static PriceIndexProvider empty() {
     return EMPTY;
   }
 
   /**
-   * Obtains the index-curve map from an index and its price index curve.
+   * Obtains the price index provider from an index and its price index curve.
    * 
    * @param index the price index
    * @param curve the 
-   * @return the PriceIndexCurveMap instance
+   * @return the PriceIndexProvider instance
    */
-  public static PriceIndexCurveMap of(PriceIndex index, PriceIndexCurve curve) {
-    return new PriceIndexCurveMap(ImmutableMap.of(index, curve));
+  public static PriceIndexProvider of(PriceIndex index, PriceIndexCurve curve) {
+    return new PriceIndexProvider(ImmutableMap.of(index, curve));
   }
 
   /**
-   * Obtains the index-curve map from a map.
+   * Obtains the price index provider from a map.
    * 
    * @param map  the map of PriceIndex and PriceIndexCurve
-   * @return the PriceIndexCurveMap instance
+   * @return the PriceIndexProvider instance
    */
-  public static PriceIndexCurveMap of(Map<PriceIndex, PriceIndexCurve> map) {
-    return new PriceIndexCurveMap(map);
+  public static PriceIndexProvider of(Map<PriceIndex, PriceIndexCurve> map) {
+    return new PriceIndexProvider(map);
   }
 
   /**
-   * Combines this index-curve map with an additional price index curve.
+   * Combines this price index provider with an additional price index curve.
    * <p>
-   * This returns a new index-curve map instance with the additional curve. 
+   * This returns a new price index provider instance with the additional curve. 
    * The result contains all of the price indexes plus the specified price index. 
    * If the additional price index is present in this instance, an exception is thrown. 
    * 
    * @param index the price index
    * @param curve the price index curve
-   * @return an index-curve map instance with this and the additional curve
+   * @return a price index provider instance with this and the additional curve
    */
-  public PriceIndexCurveMap combinedWith(PriceIndex index, PriceIndexCurve curve) {
+  public PriceIndexProvider combinedWith(PriceIndex index, PriceIndexCurve curve) {
     Map<PriceIndex, PriceIndexCurve> combined = new LinkedHashMap<>(priceIndexCurves);
     ArgChecker.isFalse(combined.containsKey(index), "Index curve for {} is present", index);
     combined.put(index, curve);
-    return new PriceIndexCurveMap(combined);
+    return new PriceIndexProvider(combined);
   }
 
   /**
-   * Combines this index-curve map with another index-curve map instance.
+   * Combines this price index provider with another price index provider instance.
    * <p>
-   * This returns a new index-curve map instance with the other index-curve map. 
-   * The result contains all of the price indexes in this instance plus the price indexes in the other map. 
-   * If a price index in the additional map is present in this instance, an exception is thrown. 
+   * This returns a new price index provider instance with the other price index provider. The result contains 
+   * all of the price indexes in this instance plus the price indexes in the other price index provider. 
+   * If a price index in the additional price index provider is present in this instance, an exception is thrown. 
    * 
-   * @param other the other index-curve map
-   * @return an index-curve map instance with this and the other index-curve map
+   * @param other the other price index provider
+   * @return a price index provider instance with this and the other price index provider
    */
-  public PriceIndexCurveMap combinedWith(PriceIndexCurveMap other) {
+  public PriceIndexProvider combinedWith(PriceIndexProvider other) {
     if (other.priceIndexCurves.isEmpty()) {
       return this;
     }
@@ -124,21 +132,80 @@ public final class PriceIndexCurveMap
           combined.containsKey(entry.getKey()), "Index curve for {} is present", entry.getKey());
       combined.put(entry.getKey(), entry.getValue());
     }
-    return new PriceIndexCurveMap(combined);
+    return new PriceIndexProvider(combined);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the historic or forward rate of price index.
+   * <p>
+   * The value of the price index, such as 'GB-HICP', varies over time.
+   * This retrieves the actual rate if the reference month is before the month of the valuation date and 
+   * the index is already published, or the estimated rate if the index is not yet fixed.
+   * 
+   * @param index the index of prices 
+   * @param referenceMonth the reference month for the index 
+   * @param ratesProvider the rate provider
+   * @return the price index value 
+   */
+  public double inflationIndexRate(PriceIndex index, YearMonth referenceMonth, RatesProvider ratesProvider) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(referenceMonth, "referenceMonth");
+    ArgChecker.notNull(ratesProvider, "ratesProvider");
+    LocalDateDoubleTimeSeries timeSeries = ratesProvider.timeSeries(index);
+    OptionalDouble fixedRate = timeSeries.get(referenceMonth.atEndOfMonth());
+    if (fixedRate.isPresent()) {
+      return fixedRate.getAsDouble();
+    } else {
+      return inflationIndexForwardRate(index, referenceMonth, ratesProvider);
+    }
+  }
+
+  // forward rate
+  private double inflationIndexForwardRate(PriceIndex index, YearMonth referenceMonth, RatesProvider ratesProvider) {
+    PriceIndexCurve indexCurve = priceIndexCurves.get(index);
+    double relativeTime = ratesProvider.relativeTime(referenceMonth.atEndOfMonth());
+    return indexCurve.getPriceIndex(relativeTime);
+  }
+
+  /**
+   * Gets the basic curve sensitivity for forward rate of price index.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * The sensitivity will have the value 1.
+   * The sensitivity refers to the result of {@link #inflationIndexRate(PriceIndex, YearMonth, RatesProvider)}.
+   *  
+   * @param index the index of prices 
+   * @param referenceMonth the reference month for the index 
+   * @param ratesProvider the rate provider
+   * @return the point sensitivity of the rate
+   */
+  public PointSensitivityBuilder inflationIndexRateSensitivity(
+      PriceIndex index,
+      YearMonth referenceMonth,
+      RatesProvider ratesProvider) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(referenceMonth, "referenceMonth");
+    ArgChecker.notNull(ratesProvider, "ratesProvider");
+    LocalDateDoubleTimeSeries timeSeries = ratesProvider.timeSeries(index);
+    if (timeSeries.get(referenceMonth.atEndOfMonth()).isPresent()) {
+      return PointSensitivityBuilder.none();
+    }
+    return InflationRateSensitivity.of(index, referenceMonth, 1.0d);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code PriceIndexCurveMap}.
+   * The meta-bean for {@code PriceIndexProvider}.
    * @return the meta-bean, not null
    */
-  public static PriceIndexCurveMap.Meta meta() {
-    return PriceIndexCurveMap.Meta.INSTANCE;
+  public static PriceIndexProvider.Meta meta() {
+    return PriceIndexProvider.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(PriceIndexCurveMap.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(PriceIndexProvider.Meta.INSTANCE);
   }
 
   /**
@@ -150,19 +217,19 @@ public final class PriceIndexCurveMap
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static PriceIndexCurveMap.Builder builder() {
-    return new PriceIndexCurveMap.Builder();
+  public static PriceIndexProvider.Builder builder() {
+    return new PriceIndexProvider.Builder();
   }
 
-  private PriceIndexCurveMap(
+  private PriceIndexProvider(
       Map<PriceIndex, PriceIndexCurve> priceIndexCurves) {
     JodaBeanUtils.notNull(priceIndexCurves, "priceIndexCurves");
     this.priceIndexCurves = ImmutableMap.copyOf(priceIndexCurves);
   }
 
   @Override
-  public PriceIndexCurveMap.Meta metaBean() {
-    return PriceIndexCurveMap.Meta.INSTANCE;
+  public PriceIndexProvider.Meta metaBean() {
+    return PriceIndexProvider.Meta.INSTANCE;
   }
 
   @Override
@@ -200,7 +267,7 @@ public final class PriceIndexCurveMap
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      PriceIndexCurveMap other = (PriceIndexCurveMap) obj;
+      PriceIndexProvider other = (PriceIndexProvider) obj;
       return JodaBeanUtils.equal(getPriceIndexCurves(), other.getPriceIndexCurves());
     }
     return false;
@@ -216,7 +283,7 @@ public final class PriceIndexCurveMap
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("PriceIndexCurveMap{");
+    buf.append("PriceIndexProvider{");
     buf.append("priceIndexCurves").append('=').append(JodaBeanUtils.toString(getPriceIndexCurves()));
     buf.append('}');
     return buf.toString();
@@ -224,7 +291,7 @@ public final class PriceIndexCurveMap
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code PriceIndexCurveMap}.
+   * The meta-bean for {@code PriceIndexProvider}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -237,7 +304,7 @@ public final class PriceIndexCurveMap
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<PriceIndex, PriceIndexCurve>> priceIndexCurves = DirectMetaProperty.ofImmutable(
-        this, "priceIndexCurves", PriceIndexCurveMap.class, (Class) ImmutableMap.class);
+        this, "priceIndexCurves", PriceIndexProvider.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -261,13 +328,13 @@ public final class PriceIndexCurveMap
     }
 
     @Override
-    public PriceIndexCurveMap.Builder builder() {
-      return new PriceIndexCurveMap.Builder();
+    public PriceIndexProvider.Builder builder() {
+      return new PriceIndexProvider.Builder();
     }
 
     @Override
-    public Class<? extends PriceIndexCurveMap> beanType() {
-      return PriceIndexCurveMap.class;
+    public Class<? extends PriceIndexProvider> beanType() {
+      return PriceIndexProvider.class;
     }
 
     @Override
@@ -289,7 +356,7 @@ public final class PriceIndexCurveMap
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 897469389:  // priceIndexCurves
-          return ((PriceIndexCurveMap) bean).getPriceIndexCurves();
+          return ((PriceIndexProvider) bean).getPriceIndexCurves();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -307,9 +374,9 @@ public final class PriceIndexCurveMap
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code PriceIndexCurveMap}.
+   * The bean-builder for {@code PriceIndexProvider}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<PriceIndexCurveMap> {
+  public static final class Builder extends DirectFieldsBeanBuilder<PriceIndexProvider> {
 
     private Map<PriceIndex, PriceIndexCurve> priceIndexCurves = ImmutableMap.of();
 
@@ -323,7 +390,7 @@ public final class PriceIndexCurveMap
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(PriceIndexCurveMap beanToCopy) {
+    private Builder(PriceIndexProvider beanToCopy) {
       this.priceIndexCurves = beanToCopy.getPriceIndexCurves();
     }
 
@@ -376,8 +443,8 @@ public final class PriceIndexCurveMap
     }
 
     @Override
-    public PriceIndexCurveMap build() {
-      return new PriceIndexCurveMap(
+    public PriceIndexProvider build() {
+      return new PriceIndexProvider(
           priceIndexCurves);
     }
 
@@ -397,7 +464,7 @@ public final class PriceIndexCurveMap
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("PriceIndexCurveMap.Builder{");
+      buf.append("PriceIndexProvider.Builder{");
       buf.append("priceIndexCurves").append('=').append(JodaBeanUtils.toString(priceIndexCurves));
       buf.append('}');
       return buf.toString();

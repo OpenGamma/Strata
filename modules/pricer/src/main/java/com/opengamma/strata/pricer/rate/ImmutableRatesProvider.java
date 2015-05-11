@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
@@ -45,7 +43,6 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -54,7 +51,6 @@ import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IndexCurrencySensitivityKey;
-import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
@@ -362,54 +358,11 @@ public final class ImmutableRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double inflationIndexRate(PriceIndex index, YearMonth referenceMonth) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(referenceMonth, "referenceMonth");
-    if (!referenceMonth.isAfter(YearMonth.from(valuationDate))) { //TODO isBefore rather than !isAfter ?
-      return inflationIndexHistoricRate(index, referenceMonth);
-    }
-    return inflationIndexForwardRate(index, referenceMonth);
-  }
-
-  // historic rate
-  private double inflationIndexHistoricRate(PriceIndex index, YearMonth referenceMonth) {
-    OptionalDouble fixedRate = timeSeries(index).get(referenceMonth.atEndOfMonth());
-    if (fixedRate.isPresent()) {
-      return fixedRate.getAsDouble();
-    } else {
-      return inflationIndexForwardRate(index, referenceMonth);
-    }
-  }
-
-  // forward rate
-  private double inflationIndexForwardRate(PriceIndex index, YearMonth referenceMonth) {
-    // TODO use new index curve
-    PriceIndexCurveMap indexCurveMap = (PriceIndexCurveMap) getAdditionalData().get(PriceIndexCurveMap.class);
-    PriceIndexCurve indexCurve = indexCurveMap.getPriceIndexCurves().get(index);
-    double relativeTime = relativeTime(referenceMonth.atEndOfMonth());
-    return indexCurve.getPriceIndex(relativeTime);
-  }
-
-  @Override
-  public PointSensitivityBuilder inflationIndexRateSensitivity(PriceIndex index, YearMonth referenceMonth) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(referenceMonth, "referenceMonth");
-    if (referenceMonth.isBefore(YearMonth.from(valuationDate)) &&
-        timeSeries(index).get(referenceMonth.atEndOfMonth()).isPresent()) {
-      return PointSensitivityBuilder.none();
-    }
-    return InflationRateSensitivity.of(index, referenceMonth, 1.0d);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
     Map<SensitivityKey, double[]> map = new HashMap<>();
     paramSensitivityZeroRate(sensitivities, map);
     parameterSensitivityIbor(sensitivities, map);
     parameterSensitivityOvernight(sensitivities, map);
-    // TODO handle Inflation case
-    //    parameterSensitivityInflation(sensitivities, map);
     return CurveParameterSensitivity.of(map);
   }
 

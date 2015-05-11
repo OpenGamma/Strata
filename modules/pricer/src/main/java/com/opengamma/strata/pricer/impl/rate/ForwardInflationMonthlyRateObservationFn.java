@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
@@ -39,8 +40,10 @@ public class ForwardInflationMonthlyRateObservationFn
   public double rate(InflationMonthlyRateObservation observation, LocalDate startDate, LocalDate endDate,
       RatesProvider provider) {
     PriceIndex index = observation.getIndex();
-    double indexStart = provider.inflationIndexRate(index, observation.getReferenceStartMonth());
-    double indexEnd = provider.inflationIndexRate(index, observation.getReferenceEndMonth());
+    double indexStart = provider.data(PriceIndexProvider.class).inflationIndexRate(
+        index, observation.getReferenceStartMonth(), provider);
+    double indexEnd = provider.data(PriceIndexProvider.class).inflationIndexRate(
+        index, observation.getReferenceEndMonth(), provider);
     return indexEnd / indexStart - 1.0d;
   }
 
@@ -48,12 +51,14 @@ public class ForwardInflationMonthlyRateObservationFn
   public PointSensitivityBuilder rateSensitivity(InflationMonthlyRateObservation observation, LocalDate startDate,
       LocalDate endDate, RatesProvider provider) {
     PriceIndex index = observation.getIndex();
-    double indexStartInv = 1.0 / provider.inflationIndexRate(index, observation.getReferenceStartMonth());
-    double indexEnd = provider.inflationIndexRate(index, observation.getReferenceEndMonth());
-    PointSensitivityBuilder indexStartSensitivity =
-        provider.inflationIndexRateSensitivity(index, observation.getReferenceStartMonth());
-    PointSensitivityBuilder indexEndSensitivity =
-        provider.inflationIndexRateSensitivity(index, observation.getReferenceEndMonth());
+    double indexStartInv = 1.0 / provider.data(PriceIndexProvider.class).inflationIndexRate(
+        index, observation.getReferenceStartMonth(), provider);
+    double indexEnd = provider.data(PriceIndexProvider.class).inflationIndexRate(
+        index, observation.getReferenceEndMonth(), provider);
+    PointSensitivityBuilder indexStartSensitivity = provider.data(PriceIndexProvider.class)
+        .inflationIndexRateSensitivity(index, observation.getReferenceStartMonth(), provider);
+    PointSensitivityBuilder indexEndSensitivity = provider.data(PriceIndexProvider.class)
+        .inflationIndexRateSensitivity(index, observation.getReferenceEndMonth(), provider);
     indexEndSensitivity = indexEndSensitivity.multipliedBy(indexStartInv);
     indexStartSensitivity = indexStartSensitivity.multipliedBy(-indexEnd * indexStartInv * indexStartInv);
     return indexStartSensitivity.combinedWith(indexEndSensitivity);
