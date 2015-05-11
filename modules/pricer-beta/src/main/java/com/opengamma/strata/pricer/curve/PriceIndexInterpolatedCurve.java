@@ -89,7 +89,7 @@ public class PriceIndexInterpolatedCurve
   }
 
   @Override
-  public PriceIndexCurve shiftCurve(double[] shifts) {
+  public PriceIndexCurve shiftedBy(double[] shifts) {
     double[] x = curve.getXDataAsPrimitive();
     ArgChecker.isTrue(shifts.length == x.length, "shifts should and the same length as curve nodes");
     double[] y = curve.getYDataAsPrimitive();

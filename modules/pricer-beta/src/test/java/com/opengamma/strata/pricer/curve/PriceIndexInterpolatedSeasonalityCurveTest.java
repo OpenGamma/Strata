@@ -11,6 +11,8 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -24,7 +26,7 @@ import com.opengamma.strata.pricer.dataset.PriceIndexDataSets;
 /**
  * Tests {@link PriceIndexInterpolatedCurve}.
  */
-public class PriceIndexInterpolatedCurveTest {
+public class PriceIndexInterpolatedSeasonalityCurveTest {
 
   private static final Interpolator1D INTERPOLATOR_EXPONENTIAL =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(
@@ -41,13 +43,34 @@ public class PriceIndexInterpolatedCurveTest {
   private static final String NAME = "USD-HICP";
   private static final InterpolatedDoublesCurve INTERPOLATED_CURVE =
       InterpolatedDoublesCurve.from(MONTHS_CURVE, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
-  private static final PriceIndexInterpolatedCurve PRICE_CURVE =
-      PriceIndexInterpolatedCurve.of(INTERPOLATED_CURVE, VALUATION_MONTH);
+  private static final List<Double> SEASONALITY = new ArrayList<>();
+  static {
+    SEASONALITY.add(0.98);
+    SEASONALITY.add(0.99);
+    SEASONALITY.add(1.01);
+    SEASONALITY.add(1.00);
+    SEASONALITY.add(1.00);
+    SEASONALITY.add(1.01);
+    SEASONALITY.add(1.01);
+    SEASONALITY.add(0.99);
+    SEASONALITY.add(1.00);
+    SEASONALITY.add(1.00);
+    SEASONALITY.add(1.00);
+    SEASONALITY.add(1.01);
+  }
+  private static final PriceIndexInterpolatedSeasonalityCurve PRICE_CURVE =
+      PriceIndexInterpolatedSeasonalityCurve.of(INTERPOLATED_CURVE, SEASONALITY, VALUATION_MONTH);
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {YearMonth.of(2015, 1), YearMonth.of(2015, 5),
     YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12) };
   private static final double TOLERANCE_VALUE = 1.0E-10;
   private static final double TOLERANCE_DELTA = 1.0E-5;
+
+  @Test
+  public void test_of_wrong_seasonality_length() {
+    assertThrowsIllegalArg(
+        () -> PriceIndexInterpolatedSeasonalityCurve.of(INTERPOLATED_CURVE, new ArrayList<>(), VALUATION_MONTH));
+  }
   
   @Test
   public void test_number_of_parameters() {
@@ -63,7 +86,9 @@ public class PriceIndexInterpolatedCurveTest {
   public void test_price_index() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       double nbMonth = VALUATION_MONTH.until(TEST_MONTHS[i], MONTHS);
-      double valueExpected = INTERPOLATED_CURVE.getYValue(nbMonth);
+      double valueInt = INTERPOLATED_CURVE.getYValue(nbMonth);
+      double adj = SEASONALITY.get(TEST_MONTHS[i].getMonthValue() - 1);
+      double valueExpected = valueInt * adj;
       double valueComputed = PRICE_CURVE.getPriceIndex(TEST_MONTHS[i]);
       assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
     }
@@ -80,8 +105,8 @@ public class PriceIndexInterpolatedCurveTest {
     }
     InterpolatedDoublesCurve interpolatedShifted =
         InterpolatedDoublesCurve.from(MONTHS_CURVE, shiftedValues, INTERPOLATOR_EXPONENTIAL, NAME);
-    PriceIndexInterpolatedCurve curveShiftedExpected =
-        PriceIndexInterpolatedCurve.of(interpolatedShifted, VALUATION_MONTH);
+    PriceIndexInterpolatedSeasonalityCurve curveShiftedExpected =
+        PriceIndexInterpolatedSeasonalityCurve.of(interpolatedShifted, SEASONALITY, VALUATION_MONTH);
     PriceIndexCurve curveShiftedComputed =
         PRICE_CURVE.shiftedBy(shifts);
     for (int i = 0; i < TEST_MONTHS.length; i++) {

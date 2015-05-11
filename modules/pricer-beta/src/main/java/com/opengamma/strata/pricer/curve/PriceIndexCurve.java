@@ -53,6 +53,6 @@ public interface PriceIndexCurve
    * @param shifts  the parameters shifts
    * @return the new curve
    */
-  PriceIndexCurve shiftCurve(double[] shifts);
+  PriceIndexCurve shiftedBy(double[] shifts);
   
 }

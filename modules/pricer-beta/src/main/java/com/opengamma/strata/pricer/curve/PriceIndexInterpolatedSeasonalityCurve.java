@@ -88,7 +88,7 @@ public class PriceIndexInterpolatedSeasonalityCurve
   public double getPriceIndex(YearMonth month) {
     double nbMonth = valuationMonth.until(month, MONTHS);
     double indexInterpolated = curve.getYValue(nbMonth);
-    int monthInt = month.getMonthValue();
+    int monthInt = month.getMonthValue() - 1; // List start at 0 and months start at 1.
     double adjustment = seasonality.get(monthInt);
     return indexInterpolated * adjustment;
   }
@@ -96,7 +96,7 @@ public class PriceIndexInterpolatedSeasonalityCurve
   @Override
   public Double[] getPriceIndexParameterSensitivity(YearMonth month) {
     double nbMonth = valuationMonth.until(month, MONTHS); // TODO: review - multiply by seasonality
-    int monthInt = month.getMonthValue();
+    int monthInt = month.getMonthValue() - 1;
     double adjustment = seasonality.get(monthInt);
     Double[] unadjustedSensitivity = curve.getYValueParameterSensitivity(nbMonth);
     Double[] adjustedSensitivity = new Double[unadjustedSensitivity.length];
@@ -112,8 +112,9 @@ public class PriceIndexInterpolatedSeasonalityCurve
   }
 
   @Override
-  public PriceIndexCurve shiftCurve(double[] shifts) {
+  public PriceIndexCurve shiftedBy(double[] shifts) {
     double[] x = curve.getXDataAsPrimitive();
+    ArgChecker.isTrue(shifts.length == x.length, "shifts should and the same length as curve nodes");
     double[] y = curve.getYDataAsPrimitive();
     double[] yShifted = new double[y.length];
     for(int i=0; i<y.length; i++) {
