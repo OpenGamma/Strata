@@ -45,10 +45,11 @@ import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
+import com.opengamma.strata.engine.config.DefaultMarketDataRule;
+import com.opengamma.strata.engine.config.DefaultMarketDataRules;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
-import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
@@ -157,9 +158,8 @@ public class SwapPricingTest {
             .build();
 
     MarketDataRules marketDataRules =
-        SimpleMarketDataRules.builder()
-            .addMappings(SwapTrade.class, marketDataMappings)
-            .build();
+        DefaultMarketDataRules.of(
+            DefaultMarketDataRule.of(marketDataMappings, SwapTrade.class));
 
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(

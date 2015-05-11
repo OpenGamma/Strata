@@ -23,10 +23,12 @@ import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
+import com.opengamma.strata.engine.config.DefaultMarketDataRule;
+import com.opengamma.strata.engine.config.DefaultMarketDataRules;
 import com.opengamma.strata.engine.config.FunctionConfig;
+import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
-import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
@@ -51,10 +53,9 @@ public class DefaultCalculationRunnerTest {
             .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
             .build();
 
-    SimpleMarketDataRules marketDataRules =
-        SimpleMarketDataRules.builder()
-            .addMappings(TestTarget.class, marketDataMappings)
-            .build();
+    MarketDataRules marketDataRules =
+        DefaultMarketDataRules.of(
+            DefaultMarketDataRule.of(marketDataMappings, TestTarget.class));
 
     DefaultFunctionGroup<TestTarget> functionGroup =
         DefaultFunctionGroup.builder(TestTarget.class)
@@ -101,7 +102,7 @@ public class DefaultCalculationRunnerTest {
   }
 
   public void noMatchingMarketDataRules() {
-    SimpleMarketDataRules marketDataRules = SimpleMarketDataRules.builder().build();
+    MarketDataRules marketDataRules = MarketDataRules.empty();
     Measure measure = Measure.of("foo");
 
     DefaultFunctionGroup<TestTarget> functionGroup =
