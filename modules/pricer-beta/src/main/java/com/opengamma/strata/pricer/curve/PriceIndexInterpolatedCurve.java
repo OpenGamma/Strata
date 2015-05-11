@@ -18,6 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.strata.collect.ArgChecker;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -90,6 +91,7 @@ public class PriceIndexInterpolatedCurve
   @Override
   public PriceIndexCurve shiftCurve(double[] shifts) {
     double[] x = curve.getXDataAsPrimitive();
+    ArgChecker.isTrue(shifts.length == x.length, "shifts should and the same length as curve nodes");
     double[] y = curve.getYDataAsPrimitive();
     double[] yShifted = new double[y.length];
     for(int i=0; i<y.length; i++) {
