@@ -15,11 +15,11 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
