@@ -19,6 +19,28 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 public interface MarketDataRule {
 
   /**
+   * Returns a market data rule that matches any target which is an instance of any of the target types.
+   *
+   * @param mappings  the market data mappings used for a target matching this rule
+   * @param targetTypes  types that targets must implement to in order to match this rule
+   * @return a market data rule that matches any target that is an instance of any of the target types
+   */
+  @SafeVarargs
+  public static MarketDataRule of(MarketDataMappings mappings, Class<? extends CalculationTarget>... targetTypes) {
+    return DefaultMarketDataRule.of(mappings, targetTypes);
+  }
+
+  /**
+   * Returns a market data rule that matches any target.
+   *
+   * @param mappings  the mappings used for any target passed to this rule
+   * @return a market data rule that matches any target
+   */
+  public static MarketDataRule anyTarget(MarketDataMappings mappings) {
+    return AllTargetsMarketDataRule.of(mappings);
+  }
+
+  /**
    * Returns a set of market data mappings for the target if it matches this rule, otherwise an empty {@code Optional}.
    *
    * @param target  a calculation target

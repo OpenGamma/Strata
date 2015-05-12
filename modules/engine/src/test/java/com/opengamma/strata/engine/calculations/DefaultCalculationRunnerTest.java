@@ -23,9 +23,8 @@ import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
-import com.opengamma.strata.engine.config.DefaultMarketDataRule;
-import com.opengamma.strata.engine.config.DefaultMarketDataRules;
 import com.opengamma.strata.engine.config.FunctionConfig;
+import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
@@ -53,9 +52,7 @@ public class DefaultCalculationRunnerTest {
             .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
             .build();
 
-    MarketDataRules marketDataRules =
-        DefaultMarketDataRules.of(
-            DefaultMarketDataRule.of(marketDataMappings, TestTarget.class));
+    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, TestTarget.class));
 
     DefaultFunctionGroup<TestTarget> functionGroup =
         DefaultFunctionGroup.builder(TestTarget.class)

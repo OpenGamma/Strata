@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.marketdata.id.MarketDataFeed;
 
@@ -19,17 +18,17 @@ import com.opengamma.strata.marketdata.id.MarketDataFeed;
 public class DefaultMarketDataRulesTest {
 
   private static final MarketDataMappings MAPPINGS1 =
-      DefaultMarketDataMappings.of(MarketDataFeed.of("feed1"), ImmutableList.of());
+      MarketDataMappings.of(MarketDataFeed.of("feed1"), ImmutableList.of());
 
   private static final MarketDataMappings MAPPINGS2 =
-      DefaultMarketDataMappings.of(MarketDataFeed.of("feed2"), ImmutableList.of());
+      MarketDataMappings.of(MarketDataFeed.of("feed2"), ImmutableList.of());
 
   private static final MarketDataMappings MAPPINGS3 =
-      DefaultMarketDataMappings.of(MarketDataFeed.of("feed3"), ImmutableList.of());
+      MarketDataMappings.of(MarketDataFeed.of("feed3"), ImmutableList.of());
 
-  private static final MarketDataRule RULE1 = DefaultMarketDataRule.of(MAPPINGS1, TargetClass1.class);
-  private static final MarketDataRule RULE2 = DefaultMarketDataRule.of(MAPPINGS2, TargetClass2.class);
-  private static final MarketDataRule RULE3 = AllTargetsMarketDataRule.of(MAPPINGS3);
+  private static final MarketDataRule RULE1 = MarketDataRule.of(MAPPINGS1, TargetClass1.class);
+  private static final MarketDataRule RULE2 = MarketDataRule.of(MAPPINGS2, TargetClass2.class);
+  private static final MarketDataRule RULE3 = MarketDataRule.anyTarget(MAPPINGS3);
 
   /**
    * Tests that the expected mappings are returned from matching rules.

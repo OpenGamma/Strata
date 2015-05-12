@@ -72,6 +72,6 @@ public class MarketDataMappingsBuilder {
    * @return a set of market data mappings built from the data in this builder
    */
   public MarketDataMappings build() {
-    return DefaultMarketDataMappings.of(marketDataFeed, mappings);
+    return MarketDataMappings.of(marketDataFeed, mappings);
   }
 }

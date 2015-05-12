@@ -19,9 +19,7 @@ public class DefaultMarketDataRuleTest {
    * Tests matching a target whose exact type is included in the list of target types.
    */
   public void matchExactTargetType() {
-    DefaultMarketDataRule rule =
-        DefaultMarketDataRule.of(MarketDataMappings.empty(), TargetClass1.class, TargetClass2.class);
-
+    MarketDataRule rule = MarketDataRule.of(MarketDataMappings.empty(), TargetClass1.class, TargetClass2.class);
     assertThat(rule.mappings(new TargetClass1())).hasValue(MarketDataMappings.empty());
     assertThat(rule.mappings(new TargetClass2())).hasValue(MarketDataMappings.empty());
   }
@@ -30,9 +28,7 @@ public class DefaultMarketDataRuleTest {
    * Tests matching a target which implements an interface included in the list of target types.
    */
   public void matchSubtypeOfTargetType() {
-    DefaultMarketDataRule rule =
-        DefaultMarketDataRule.of(MarketDataMappings.empty(), TargetInterface1.class, TargetInterface2.class);
-
+    MarketDataRule rule = MarketDataRule.of(MarketDataMappings.empty(), TargetInterface1.class, TargetInterface2.class);
     assertThat(rule.mappings(new TargetClass1())).hasValue(MarketDataMappings.empty());
     assertThat(rule.mappings(new TargetClass2())).hasValue(MarketDataMappings.empty());
   }
@@ -41,9 +37,7 @@ public class DefaultMarketDataRuleTest {
    * Tests that the rule doesn't match a target which has no supertype in the set of target types.
    */
   public void noMatch() {
-    DefaultMarketDataRule rule =
-        DefaultMarketDataRule.of(MarketDataMappings.empty(), TargetClass1.class);
-
+    MarketDataRule rule = MarketDataRule.of(MarketDataMappings.empty(), TargetClass1.class);
     assertThat(rule.mappings(new TargetClass2())).isEmpty();
   }
 

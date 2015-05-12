@@ -25,43 +25,9 @@ public class MarketDataRulesTest {
   private static final MarketDataMappings MAPPINGS2 = mappings("2");
   private static final MarketDataMappings MAPPINGS3 = mappings("3");
 
-  private static final DefaultMarketDataRules RULES1 =
-      DefaultMarketDataRules.of(
-          DefaultMarketDataRule.of(MAPPINGS1, TestTrade1.class));
-
-  private static final DefaultMarketDataRules RULES2 =
-      DefaultMarketDataRules.of(
-          DefaultMarketDataRule.of(MAPPINGS2, TestTrade2.class));
-
-  private static final DefaultMarketDataRules RULES3 =
-      DefaultMarketDataRules.of(
-          DefaultMarketDataRule.of(MAPPINGS3, TestTrade3.class));
-
-  public void ofEmpty() {
-    MarketDataRules rules = MarketDataRules.of();
-    Optional<MarketDataMappings> mappings = rules.mappings(TRADE1);
-
-    assertThat(rules).isInstanceOf(EmptyMarketDataRules.class);
-    assertThat(mappings).isEmpty();
-  }
-
-  public void ofSingle() {
-    MarketDataRules rules = MarketDataRules.of(RULES1);
-    assertThat(rules).isInstanceOf(DefaultMarketDataRules.class);
-    Optional<MarketDataMappings> mappings = rules.mappings(TRADE1);
-    assertThat(mappings).hasValue(MAPPINGS1);
-  }
-
-  public void ofMultiple() {
-    MarketDataRules rules = MarketDataRules.of(RULES1, RULES2);
-    Optional<MarketDataMappings> mappings1 = rules.mappings(TRADE1);
-    Optional<MarketDataMappings> mappings2 = rules.mappings(TRADE2);
-    Optional<MarketDataMappings> mappings3 = rules.mappings(TRADE3);
-
-    assertThat(mappings1).hasValue(MAPPINGS1);
-    assertThat(mappings2).hasValue(MAPPINGS2);
-    assertThat(mappings3).isEmpty();
-  }
+  private static final MarketDataRules RULES1 = MarketDataRules.of(MarketDataRule.of(MAPPINGS1, TestTrade1.class));
+  private static final MarketDataRules RULES2 = MarketDataRules.of(MarketDataRule.of(MAPPINGS2, TestTrade2.class));
+  private static final MarketDataRules RULES3 = MarketDataRules.of(MarketDataRule.of(MAPPINGS3, TestTrade3.class));
 
   public void composedWithComposite() {
     CompositeMarketDataRules compositeRules = CompositeMarketDataRules.builder().rules(RULES1, RULES2).build();

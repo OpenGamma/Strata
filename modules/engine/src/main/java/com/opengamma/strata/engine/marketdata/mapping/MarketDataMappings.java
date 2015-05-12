@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.engine.marketdata.mapping;
 
+import java.util.List;
+
+import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
@@ -22,6 +25,22 @@ import com.opengamma.strata.marketdata.key.ObservableKey;
  * curve) to a specific piece of data (the USD discounting curve from the curve group named 'XYZ').
  */
 public interface MarketDataMappings {
+
+  /**
+   * Returns a set of market data mappings with the specified source of observable data and made up
+   * of the specified individual mappings.
+   *
+   * @param marketDataFeed  the feed that is the source of the market data, for example Bloomberg or Reuters
+   * @param mappings  mappings for converting market data requests from calculations into requests that
+   *   can be used to query the global set of market data
+   * @return a set of mappings containing the specified feed and mapping instances
+   */
+  public static MarketDataMappings of(
+      MarketDataFeed marketDataFeed,
+      List<? extends MarketDataMapping<?, ?>> mappings) {
+
+    return DefaultMarketDataMappings.of(marketDataFeed, mappings);
+  }
 
   /**
    * Returns a mutable builder for building instances of {@link MarketDataMappings}.
