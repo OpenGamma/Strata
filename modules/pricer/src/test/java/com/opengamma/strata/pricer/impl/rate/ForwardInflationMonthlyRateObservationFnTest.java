@@ -41,7 +41,6 @@ public class ForwardInflationMonthlyRateObservationFnTest {
 
   private static final double EPS = 1.0e-12;
   private static final double EPS_FD = 1.0e-4;
-  //TODO add test curve parameter sensitivity with RatesFiniteDifferenceSensitivityCalculator
 
   public void test_rate() {
     RatesProvider mockProv = mock(RatesProvider.class);
