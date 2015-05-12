@@ -7,7 +7,6 @@ package com.opengamma.strata.engine.config;
 
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
@@ -21,22 +20,15 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 public interface MarketDataRules {
 
   /**
-   * Returns a set of market data rules that delegates to multiple underlying sets of rules, returning the first
+   * Returns a set of market data rules that delegates to multiple individual rules, returning the first
    * valid mapping it finds.
    *
    * @param rules  the delegate market data rules
-   * @return a set of market data rules that delegates to multiple underlying sets of rules, returning the first
+   * @return a set of market data rules that delegates to multiple underlying rules, returning the first
    *   valid mapping it finds
    */
-  public static MarketDataRules of(MarketDataRules... rules) {
-    switch (rules.length) {
-      case 0:
-        return MarketDataRules.empty();
-      case 1:
-        return rules[0];
-      default:
-        return CompositeMarketDataRules.builder().rules(ImmutableList.copyOf(rules)).build();
-    }
+  public static MarketDataRules of(MarketDataRule... rules) {
+    return DefaultMarketDataRules.of(rules);
   }
 
   /**
@@ -57,7 +49,7 @@ public interface MarketDataRules {
    *   from the other rule
    */
   public default MarketDataRules composedWith(MarketDataRules rules) {
-    return of(this, rules);
+    return CompositeMarketDataRules.builder().rules(this, rules).build();
   }
 
   /**

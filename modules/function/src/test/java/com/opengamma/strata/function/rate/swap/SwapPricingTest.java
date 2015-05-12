@@ -45,10 +45,10 @@ import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
+import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
-import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
@@ -156,10 +156,7 @@ public class SwapPricingTest {
             .curveGroup(curveGroupName)
             .build();
 
-    MarketDataRules marketDataRules =
-        SimpleMarketDataRules.builder()
-            .addMappings(SwapTrade.class, marketDataMappings)
-            .build();
+    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, SwapTrade.class));
 
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
