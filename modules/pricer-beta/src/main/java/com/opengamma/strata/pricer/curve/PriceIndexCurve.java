@@ -7,52 +7,56 @@ package com.opengamma.strata.pricer.curve;
 
 import java.time.YearMonth;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.index.PriceIndex;
 
 /**
- * Curve providing forward {@link PriceIndex} estimates.
+ * A curve providing forward estimates for a price index.
  * <p>
+ * This provides a forward curve for a single {@link PriceIndex}.
  * Mainly used to price inflation related products.
  */
-public interface PriceIndexCurve 
-    extends ImmutableBean {
-  
-  /**
-   * Returns the curve's name.
-   * @return the name.
-   */
-  String getName();
+public interface PriceIndexCurve {
 
   /**
-   * Returns the estimated price index value for the given month.
-   * @param month  the month
+   * Gets the name of the curve.
+   * 
+   * @return the curve name
+   */
+  public abstract String getName();
+
+  /**
+   * Gets the price index value for the given month.
+   * <p>
+   * Values of the price index in the future are estimates.
+   * 
+   * @param month  the month to query the index for
    * @return the price index value
    */
-  double getPriceIndex(YearMonth month);
+  public abstract double getPriceIndex(YearMonth month);
 
   /**
    * Returns the sensitivities of the price index to the curve parameters at a given month.
    * 
-   * @param time The time
-   * @return The sensitivities. If the time is less than 1e<sup>-6</sup>, the rate is
-   * ill-defined and zero is returned.
+   * @param month  the month to query the sensitivity for
+   * @return the sensitivity array, if the time is less than 1e<sup>-6</sup>, the rate is
+   *   ill-defined and zero is returned.
    */
-  Double[] getPriceIndexParameterSensitivity(YearMonth month);
+  public abstract Double[] getPriceIndexParameterSensitivity(YearMonth month);
   // TODO: should this be a double[], Double[] or something else.
-  
+
   /**
-   * Returns the number of parameters defining the curve.
-   * @return The number of parameters
+   * Gets the number of parameters defining the curve.
+   * 
+   * @return the number of parameters
    */
-  int getNumberOfParameters();  
-  
+  public abstract int getNumberOfParameters();
+
   /**
-   * Returns a new curve for which each of the parameters has been shift according to a vector of shifts.
+   * Returns a new curve for which each of the parameters has been shifted according to a vector of shifts.
+   * 
    * @param shifts  the parameters shifts
    * @return the new curve
    */
-  PriceIndexCurve shiftedBy(double[] shifts);
-  
+  public abstract PriceIndexCurve shiftedBy(double[] shifts);
+
 }
