@@ -36,19 +36,16 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
  * A template for creating Ibor-Ibor swap trades.
  * <p>
  * This defines almost all the data necessary to create a Ibor-Ibor single currency {@link SwapTrade}.
- * The trade date, notional and fixed rate are required to complete the template and create the trade.
+ * The trade date, notional and spread are required to complete the template and create the trade.
  * As such, it is often possible to get a market price for a trade based on the template.
  * The market price is typically quoted as a bid/ask on the fixed rate.
  * <p>
- * The template is defined by six dates.
+ * The template references four dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
  * <li>Spot date, the base for date calculations, typically 2 business days after the trade date
  * <li>Start date, the date on which accrual starts
  * <li>End date, the date on which accrual ends
- * <li>Fixing date, the date on which the index is to be observed,
- *   typically 2 business days before the end of each accrual period
- * <li>Payment date, the date on which payment is made
  * </ul>
  * Some of these dates are specified by the convention embedded within this template.
  */
