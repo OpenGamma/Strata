@@ -6,7 +6,7 @@
 package com.opengamma.strata.engine.calculations.function;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 
 /**
  * Supertype of all functions that calculate values of measures for a target.

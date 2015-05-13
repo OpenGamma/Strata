@@ -15,6 +15,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**

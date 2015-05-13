@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.marketdata.MarketDataLookup;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 
 /**

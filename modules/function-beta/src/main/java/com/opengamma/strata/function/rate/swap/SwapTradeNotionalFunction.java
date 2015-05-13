@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 
 /**
  * Returns the notional amount of a {@code SwapTrade}.
@@ -27,7 +27,7 @@ public class SwapTradeNotionalFunction
 
   @Override
   public CalculationRequirements requirements(SwapTrade target) {
-    return CalculationRequirements.EMPTY;
+    return CalculationRequirements.empty();
   }
 
   @Override

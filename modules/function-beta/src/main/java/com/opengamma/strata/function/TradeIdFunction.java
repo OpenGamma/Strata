@@ -6,10 +6,10 @@
 package com.opengamma.strata.function;
 
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 
 /**
  * Returns the identifer of a trade.
@@ -19,7 +19,7 @@ public class TradeIdFunction
 
   @Override
   public CalculationRequirements requirements(Trade target) {
-    return CalculationRequirements.EMPTY;
+    return CalculationRequirements.empty();
   }
 
   @Override

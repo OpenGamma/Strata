@@ -13,14 +13,14 @@ import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.finance.fx.FxForward;
 import com.opengamma.strata.finance.fx.FxForwardTrade;
-import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxProductPricerBeta;
 import com.opengamma.strata.pricer.rate.RatesProvider;
