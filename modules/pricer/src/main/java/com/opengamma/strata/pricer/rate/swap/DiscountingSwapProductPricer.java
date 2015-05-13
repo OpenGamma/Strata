@@ -157,10 +157,11 @@ public class DiscountingSwapProductPricer {
     for (ExpandedSwapLeg leg : swap.getLegs()) {
       if (leg != fixedLeg) {
         if (leg.getType().equals(SwapLegType.INFLATION)) { // handle inflation swap
-          double pvInfLocal = legPricer.presentValuePeriodsInternal(leg.expand(), provider);
-          double notional = ((RatePaymentPeriod) leg.getPaymentPeriods().get(0)).getNotional();
-          double years = fixedLeg.getPaymentPeriods().size();
-          return Math.pow(pvInfLocal / notional + 1.0d, 1.0d / years) - 1.0d;
+          double fvInf = legPricer.futureValuePeriodsInternal(leg.expand(), provider);
+          RatePaymentPeriod payment = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
+          double notional = payment.getNotional();
+          double years = payment.getAccrualPeriods().size();
+          return Math.pow(-fvInf / notional + 1.0d, 1.0d / years) - 1.0d;
         }
         double pvLocal = legPricer.presentValueInternal(leg, provider);
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));

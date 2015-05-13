@@ -475,7 +475,7 @@ public class DiscountingSwapLegPricerTest {
         .calculation(rateCalc)
         .build();
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
     Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
     PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
