@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
@@ -138,7 +139,9 @@ public class DiscountingSwapProductPricer {
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
    * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
-   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * Except the case of inflation swaps, all the payments in that leg should be fixed payments 
+   * with a unique accrual period (no compounding) and no FX reset. For the inflation swaps, the fixed leg is 
+   * annually compounding and the par rate is computed in terms of this fixed annual rate. 
    * 
    * @param product  the swap product for which the par rate should be computed
    * @param provider  the rates provider
@@ -153,6 +156,12 @@ public class DiscountingSwapProductPricer {
     double otherLegsConvertedPv = 0.0;
     for (ExpandedSwapLeg leg : swap.getLegs()) {
       if (leg != fixedLeg) {
+        if (leg.getType().equals(SwapLegType.INFLATION)) { // handle inflation swap
+          double pvInfLocal = legPricer.presentValuePeriodsInternal(leg.expand(), provider);
+          double notional = ((RatePaymentPeriod) leg.getPaymentPeriods().get(0)).getNotional();
+          double years = fixedLeg.getPaymentPeriods().size();
+          return Math.pow(pvInfLocal / notional + 1.0d, 1.0d / years) - 1.0d;
+        }
         double pvLocal = legPricer.presentValueInternal(leg, provider);
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
       }
