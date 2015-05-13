@@ -7,10 +7,10 @@ package com.opengamma.strata.function;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 
 /**
  * Returns the trade date of a trade.

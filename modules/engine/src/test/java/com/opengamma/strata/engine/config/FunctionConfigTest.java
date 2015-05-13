@@ -14,9 +14,9 @@ import org.testng.annotations.Test;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 
 @Test
 public class FunctionConfigTest {

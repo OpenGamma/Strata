@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.marketdata;
+package com.opengamma.strata.marketdata;
 
 import java.time.LocalDate;
 
@@ -13,8 +13,6 @@ import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
  * A interface for looking up items of market data by ID, used when building market data.
- * <p>
- * This is implemented by the main market data container {@link BaseMarketData}.
  */
 public interface MarketDataLookup {
 
