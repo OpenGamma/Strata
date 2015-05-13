@@ -5,12 +5,14 @@
  */
 package com.opengamma.strata.marketdata.curve;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -30,7 +32,7 @@ import com.google.common.collect.ImmutableList;
  * <p>
  * This class contains a list of {@link CurveNode} instances specifying the instruments which make up the curve.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CurveConfig implements ImmutableBean {
 
   /** The nodes in the curve. */
@@ -45,6 +47,16 @@ public final class CurveConfig implements ImmutableBean {
    */
   public static CurveConfig of(List<? extends CurveNode> nodes) {
     return new CurveConfig(nodes);
+  }
+
+  /**
+   * Returns configuration for a curve containing the specified nodes.
+   *
+   * @param nodes  the nodes making up the curve
+   * @return configuration for a curve containing the specified nodes
+   */
+  public static CurveConfig of(CurveNode... nodes) {
+    return new CurveConfig(Arrays.asList(nodes));
   }
 
   // Hand-written constructor allows wildcard parameter without a wildcard in the field type
@@ -65,14 +77,6 @@ public final class CurveConfig implements ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(CurveConfig.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurveConfig.Builder builder() {
-    return new CurveConfig.Builder();
   }
 
   @Override
@@ -100,14 +104,6 @@ public final class CurveConfig implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -175,7 +171,7 @@ public final class CurveConfig implements ImmutableBean {
     }
 
     @Override
-    public CurveConfig.Builder builder() {
+    public BeanBuilder<? extends CurveConfig> builder() {
       return new CurveConfig.Builder();
     }
 
@@ -223,7 +219,7 @@ public final class CurveConfig implements ImmutableBean {
   /**
    * The bean-builder for {@code CurveConfig}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveConfig> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveConfig> {
 
     private List<CurveNode> nodes = ImmutableList.of();
 
@@ -231,14 +227,6 @@ public final class CurveConfig implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveConfig beanToCopy) {
-      this.nodes = beanToCopy.getNodes();
     }
 
     //-----------------------------------------------------------------------
@@ -293,28 +281,6 @@ public final class CurveConfig implements ImmutableBean {
     public CurveConfig build() {
       return new CurveConfig(
           nodes);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code nodes} property in the builder.
-     * @param nodes  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder nodes(List<CurveNode> nodes) {
-      JodaBeanUtils.notNull(nodes, "nodes");
-      this.nodes = nodes;
-      return this;
-    }
-
-    /**
-     * Sets the {@code nodes} property in the builder
-     * from an array of objects.
-     * @param nodes  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder nodes(CurveNode... nodes) {
-      return nodes(ImmutableList.copyOf(nodes));
     }
 
     //-----------------------------------------------------------------------

@@ -19,7 +19,7 @@ public class MissingConfigEngineFunction implements EngineSingleFunction<Calcula
 
   @Override
   public CalculationRequirements requirements(CalculationTarget target) {
-    return CalculationRequirements.EMPTY;
+    return CalculationRequirements.empty();
   }
 
   @Override

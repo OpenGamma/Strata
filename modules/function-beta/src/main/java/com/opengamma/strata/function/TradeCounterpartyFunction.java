@@ -19,7 +19,7 @@ public class TradeCounterpartyFunction
 
   @Override
   public CalculationRequirements requirements(Trade target) {
-    return CalculationRequirements.EMPTY;
+    return CalculationRequirements.empty();
   }
 
   @Override

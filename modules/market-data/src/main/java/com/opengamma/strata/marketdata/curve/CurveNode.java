@@ -11,7 +11,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.marketdata.CalculationRequirements;
 
 /**
- * A node in a curve.
+ * A node in the configuration specifying how to calibrate a curve.
  * <p>
  * A curve node is associated with an instrument and provides a method to create a trade representing the instrument.
  */

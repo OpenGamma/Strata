@@ -27,7 +27,7 @@ public class SwapTradeNotionalFunction
 
   @Override
   public CalculationRequirements requirements(SwapTrade target) {
-    return CalculationRequirements.EMPTY;
+    return CalculationRequirements.empty();
   }
 
   @Override

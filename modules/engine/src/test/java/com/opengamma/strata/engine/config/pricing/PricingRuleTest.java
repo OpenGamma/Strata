@@ -93,7 +93,7 @@ public class PricingRuleTest {
 
     @Override
     public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class PricingRuleTest {
 
     @Override
     public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class PricingRuleTest {
 
     @Override
     public CalculationRequirements requirements(TestTrade2 target) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override

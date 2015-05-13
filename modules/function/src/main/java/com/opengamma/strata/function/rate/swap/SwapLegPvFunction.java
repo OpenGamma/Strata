@@ -60,7 +60,7 @@ public class SwapLegPvFunction implements EngineSingleFunction<SwapTrade, List<C
   public CalculationRequirements requirements(SwapTrade trade) {
     Optional<SwapLeg> optionalLeg = trade.getProduct().getLeg(payReceive);
     if (!optionalLeg.isPresent()) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
     SwapLeg leg = optionalLeg.get();
     Set<Index> indices = leg.allIndices();

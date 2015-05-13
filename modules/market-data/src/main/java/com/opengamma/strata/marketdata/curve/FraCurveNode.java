@@ -50,7 +50,7 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
    * @param rateProvider  provides the rate used when building the instrument for the node
    * @return a node whose instrument is built from the template and whose rate is provided by the rate provider
    */
-  public static FraCurveNode of(FraTemplate template, CurveNodeFixedRateProvider rateProvider) {
+  public static FraCurveNode of(FraTemplate template, CurveNodeRateProvider rateProvider) {
     return FraCurveNode.builder().template(template).rateProvider(rateProvider).build();
   }
 
@@ -61,7 +61,7 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
    * @param rateKey  the key identifying the market rate used when building the instrument for the node.
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode marketRate(FraTemplate template, ObservableKey rateKey) {
+  public static FraCurveNode ofMarketRate(FraTemplate template, ObservableKey rateKey) {
     CurveNodeMarketRateProvider rateProvider = CurveNodeMarketRateProvider.of(rateKey);
     return FraCurveNode.builder()
         .template(template)
@@ -76,7 +76,7 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
    * @param fixedRate  the rate used when building the instrument
    * @return a node whose instrument is built from the template using a fixed rate
    */
-  public static FraCurveNode fixedRate(FraTemplate template, double fixedRate) {
+  public static FraCurveNode ofFixedRate(FraTemplate template, double fixedRate) {
     CurveNodeFixedRateProvider rateProvider = CurveNodeFixedRateProvider.of(fixedRate);
     return FraCurveNode.builder()
         .template(template)

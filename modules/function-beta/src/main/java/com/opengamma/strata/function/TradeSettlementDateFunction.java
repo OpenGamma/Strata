@@ -20,7 +20,7 @@ public class TradeSettlementDateFunction
 
   @Override
   public CalculationRequirements requirements(Trade target) {
-    return CalculationRequirements.EMPTY;
+    return CalculationRequirements.empty();
   }
 
   @Override

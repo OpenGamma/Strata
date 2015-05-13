@@ -98,7 +98,7 @@ public class FunctionConfigTest {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -120,7 +120,7 @@ public class FunctionConfigTest {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -137,7 +137,7 @@ public class FunctionConfigTest {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class FunctionConfigTest {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
