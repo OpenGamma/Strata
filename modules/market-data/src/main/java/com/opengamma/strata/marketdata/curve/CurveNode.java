@@ -5,10 +5,14 @@
  */
 package com.opengamma.strata.marketdata.curve;
 
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Set;
+
 import org.joda.beans.ImmutableBean;
 
+import com.opengamma.strata.basics.marketdata.key.ObservableKey;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.marketdata.CalculationRequirements;
 
 /**
  * A node in the configuration specifying how to calibrate a curve.
@@ -22,13 +26,14 @@ public interface CurveNode extends ImmutableBean {
    *
    * @return requirements for the market data needed to build a trade representing the instrument at the node
    */
-  public abstract CalculationRequirements requirements();
+  public abstract Set<ObservableKey> requirements();
 
   /**
    * Builds a trade representing the instrument at the node.
    *
+   * @param valuationDate  the valuation date used when calibrating the curve
    * @param marketData  the market data required to build a trade for the instrument
    * @return a trade representing the instrument at the node
    */
-  public abstract Trade buildTrade(CurveNodeMarketData marketData);
+  public abstract Trade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData);
 }

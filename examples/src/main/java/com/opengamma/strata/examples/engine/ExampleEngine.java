@@ -15,10 +15,10 @@ import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.examples.marketdata.ExampleDiscountingCurveBuilder;
-import com.opengamma.strata.examples.marketdata.ExampleForwardCurveBuilder;
+import com.opengamma.strata.examples.marketdata.ExampleDiscountingCurveFunction;
+import com.opengamma.strata.examples.marketdata.ExampleForwardCurveFunction;
 import com.opengamma.strata.examples.marketdata.ExampleTimeSeriesProvider;
 
 /**
@@ -38,7 +38,7 @@ public final class ExampleEngine {
    * Creates a calculation engine instance configured for use in the examples environment.
    * <p>
    * The engine is configured to source market data from JSON resources using the
-   * example builders and example time-series provider. It has no ability to perform
+   * example functions and example time-series provider. It has no ability to perform
    * link resolution and operates with a single calculation thread.
    * 
    * @return a new calculation engine instance
@@ -50,11 +50,11 @@ public final class ExampleEngine {
 
     // create the market data factory, that builds market data
     ExampleTimeSeriesProvider timeSeriesProvider = new ExampleTimeSeriesProvider();
-    ExampleDiscountingCurveBuilder discountingCurveBuilder = new ExampleDiscountingCurveBuilder();
-    ExampleForwardCurveBuilder forwardCurveBuilder = new ExampleForwardCurveBuilder();
+    ExampleDiscountingCurveFunction discountingCurveBuilder = new ExampleDiscountingCurveFunction();
+    ExampleForwardCurveFunction forwardCurveBuilder = new ExampleForwardCurveFunction();
     MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
         timeSeriesProvider,
-        ObservableMarketDataBuilder.none(),
+        ObservableMarketDataFunction.none(),
         FeedIdMapping.identity(),
         discountingCurveBuilder,
         forwardCurveBuilder);

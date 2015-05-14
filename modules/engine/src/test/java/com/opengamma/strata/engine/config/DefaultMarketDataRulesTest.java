@@ -11,8 +11,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
 
 @Test
 public class DefaultMarketDataRulesTest {

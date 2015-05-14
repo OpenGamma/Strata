@@ -49,7 +49,12 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <!-- TODO This is a temporary dependency on legacy code -->
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-engine</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>

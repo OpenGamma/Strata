@@ -6,17 +6,17 @@
 package com.opengamma.strata.engine.calculations;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.CalculationRequirements;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**
  * Wraps an input and a function that calculates a value for the input.
@@ -36,7 +36,7 @@ public class CalculationTask {
   private final int columnIndex;
 
   /** The function that performs the calculations. */
-  private final EngineSingleFunction<CalculationTarget, ?> function;
+  private final CalculationSingleFunction<CalculationTarget, ?> function;
 
   /** The mappings to select market data. */
   private final MarketDataMappings marketDataMappings;
@@ -62,7 +62,7 @@ public class CalculationTask {
       CalculationTarget target,
       int rowIndex,
       int columnIndex,
-      EngineSingleFunction<? extends CalculationTarget, ?> function,
+      CalculationSingleFunction<? extends CalculationTarget, ?> function,
       MarketDataMappings marketDataMappings,
       ReportingRules reportingRules) {
 
@@ -72,7 +72,7 @@ public class CalculationTask {
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
     this.reportingRules = ArgChecker.notNull(reportingRules, "reportingRules");
     // TODO check the target types are compatible
-    this.function = (EngineSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
+    this.function = (CalculationSingleFunction<CalculationTarget, ?>) ArgChecker.notNull(function, "function");
   }
 
   /**

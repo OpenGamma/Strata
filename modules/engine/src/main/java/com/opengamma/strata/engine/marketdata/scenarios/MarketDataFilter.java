@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata.scenarios;
 
-import com.opengamma.strata.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
 
 /**
  * Encapsulates a rule or set of rules to decide whether a {@link Perturbation} applies to a piece of market data.

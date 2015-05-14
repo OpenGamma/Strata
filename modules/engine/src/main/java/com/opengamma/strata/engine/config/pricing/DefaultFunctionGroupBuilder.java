@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
 
@@ -77,7 +77,7 @@ public final class DefaultFunctionGroupBuilder<T extends CalculationTarget> {
    */
   public DefaultFunctionGroupBuilder<T> addFunction(
       Measure measure,
-      Class<? extends EngineSingleFunction<T, ?>> functionType) {
+      Class<? extends CalculationSingleFunction<T, ?>> functionType) {
 
     ArgChecker.notNull(measure, "measure");
     ArgChecker.notNull(functionType, "functionType");

@@ -16,19 +16,19 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.marketdata.key.ObservableKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
 import com.opengamma.strata.marketdata.key.MarketDataKeys;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
@@ -38,7 +38,7 @@ import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
  * @param <T>  the return type
  */
 public abstract class AbstractFraFunction<T>
-    implements EngineSingleFunction<FraTrade, List<T>> {
+    implements CalculationSingleFunction<FraTrade, List<T>> {
 
   /**
    * Returns the Fra pricer.

@@ -22,7 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.marketdata.CalculationRequirements;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.marketdata.key.ObservableKey;
 
 /**
  * A rate provider for curve nodes that returns a fixed rate.
@@ -45,12 +46,12 @@ public final class CurveNodeFixedRateProvider implements CurveNodeRateProvider, 
   }
 
   @Override
-  public CalculationRequirements requirements() {
-    return CalculationRequirements.empty();
+  public Set<ObservableKey> requirements() {
+    return ImmutableSet.of();
   }
 
   @Override
-  public double rate(CurveNodeMarketData marketData) {
+  public double rate(Map<ObservableKey, Double> marketData) {
     return rate;
   }
 

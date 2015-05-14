@@ -11,33 +11,32 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.index.OvernightIndices;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.TestId;
+import com.opengamma.strata.engine.marketdata.TestKey;
+import com.opengamma.strata.engine.marketdata.TestMapping;
+import com.opengamma.strata.engine.marketdata.TestObservableKey;
+import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.CalculationRequirements;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.IndexRateKey;
 
 @Test
 public class CalculationTaskTest {
 
   public void requirements() {
-    String curveGroupName = "curve group";
     MarketDataFeed marketDataFeed = MarketDataFeed.of("MarketDataVendor");
     MarketDataMappings marketDataMappings =
-        MarketDataMappings.builder()
-            .curveGroup(curveGroupName)
+        DefaultMarketDataMappings.builder()
+            .mappings(ImmutableMap.of(TestKey.class, new TestMapping("foo")))
             .marketDataFeed(marketDataFeed)
             .build();
     CalculationTask task =
@@ -47,31 +46,31 @@ public class CalculationTaskTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> toisId = IndexRateKey.of(OvernightIndices.CHF_TOIS).toObservableId(marketDataFeed);
+    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toObservableId(marketDataFeed);
     assertThat(timeSeries).hasSize(1);
-    assertThat(timeSeries.iterator().next()).isEqualTo(toisId);
+    assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
-    MarketDataId<?> curveId = DiscountingCurveId.of(Currency.GBP, curveGroupName);
+    MarketDataId<?> nonObservableId = TestId.of("1");
     assertThat(nonObservables).hasSize(1);
-    assertThat(nonObservables.iterator().next()).isEqualTo(curveId);
+    assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> liborId = IndexRateKey.of(IborIndices.CHF_LIBOR_12M).toObservableId(marketDataFeed);
+    MarketDataId<?> observableId = TestObservableKey.of("2").toObservableId(marketDataFeed);
     assertThat(observables).hasSize(1);
-    assertThat(observables.iterator().next()).isEqualTo(liborId);
+    assertThat(observables.iterator().next()).isEqualTo(observableId);
   }
 
   private static class TestTarget implements CalculationTarget { }
 
-  public static final class TestFunction implements EngineSingleFunction<TestTarget, Object> {
+  public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
       return CalculationRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
-                  DiscountingCurveKey.of(Currency.GBP),
-                  IndexRateKey.of(IborIndices.CHF_LIBOR_12M)))
-          .timeSeriesRequirements(IndexRateKey.of(OvernightIndices.CHF_TOIS))
+                  TestKey.of("1"),
+                  TestObservableKey.of("2")))
+          .timeSeriesRequirements(TestObservableKey.of("3"))
           .build();
     }
 

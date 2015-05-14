@@ -7,10 +7,9 @@ package com.opengamma.strata.engine.marketdata;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.marketdata.MarketDataLookup;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
  * For looking up market data from one scenario in a set of scenario data.

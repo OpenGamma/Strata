@@ -7,11 +7,11 @@ package com.opengamma.strata.engine.marketdata.mapping;
 
 import java.util.List;
 
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
-import com.opengamma.strata.marketdata.key.ObservableKey;
+import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.marketdata.key.ObservableKey;
 
 /**
  * Market data mappings specify which market data from the global set of data should be used for a particular
@@ -40,15 +40,6 @@ public interface MarketDataMappings {
       List<? extends MarketDataMapping<?, ?>> mappings) {
 
     return DefaultMarketDataMappings.of(marketDataFeed, mappings);
-  }
-
-  /**
-   * Returns a mutable builder for building instances of {@link MarketDataMappings}.
-   *
-   * @return a mutable builder for building instances of {@link MarketDataMappings}
-   */
-  public static MarketDataMappingsBuilder builder() {
-    return new MarketDataMappingsBuilder();
   }
 
   /**

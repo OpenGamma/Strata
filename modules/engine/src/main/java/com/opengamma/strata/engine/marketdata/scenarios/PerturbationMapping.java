@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.marketdata.id.MarketDataId;
 
 /**
  * Contains one or more market data perturbations and a filter that decides what market data they apply to.

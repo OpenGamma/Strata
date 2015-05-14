@@ -11,7 +11,12 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
+import com.opengamma.strata.engine.marketdata.TestKey;
+import com.opengamma.strata.engine.marketdata.TestMapping;
+import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 @Test
@@ -62,9 +67,10 @@ public class MarketDataRulesTest {
     assertThat(mappings3).isEmpty();
   }
 
-  private static MarketDataMappings mappings(String curveGroupName) {
-    return MarketDataMappings.builder()
-        .curveGroup(curveGroupName)
+  private static MarketDataMappings mappings(String str) {
+    return DefaultMarketDataMappings.builder()
+        .marketDataFeed(MarketDataFeed.NONE)
+        .mappings(ImmutableMap.of(TestKey.class, new TestMapping(str)))
         .build();
   }
 
@@ -72,4 +78,5 @@ public class MarketDataRulesTest {
   private static final class TestTrade2 implements CalculationTarget { }
   private static final class TestTrade3 implements CalculationTarget { }
   private static final class TestTrade4 implements CalculationTarget { }
+
 }

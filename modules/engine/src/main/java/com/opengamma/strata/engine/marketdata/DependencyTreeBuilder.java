@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 
 /**
  * Builds a dependency tree for the items of market used in a set of calculations.
@@ -35,8 +35,8 @@ class DependencyTreeBuilder {
   /** The market data supplied by the user. */
   private final BaseMarketData suppliedData;
 
-  /** The builders that create items of market data. */
-  private final Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders;
+  /** The functions that create items of market data. */
+  private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
   /** The requirements for market data used in a set of calculations. */
   private final MarketDataRequirements requirements;
@@ -46,25 +46,25 @@ class DependencyTreeBuilder {
    *
    * @param suppliedData  market data supplied by the user
    * @param requirements  specifies the market data required for the calculations
-   * @param builders  builders that create items of market data
+   * @param functions  functions that create items of market data
    * @return a tree builder that builds the dependency tree for the market data required by a set of calculations
    */
   static DependencyTreeBuilder of(
       BaseMarketData suppliedData,
       MarketDataRequirements requirements,
-      Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
+      Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
-    return new DependencyTreeBuilder(suppliedData, requirements, builders);
+    return new DependencyTreeBuilder(suppliedData, requirements, functions);
   }
 
   private DependencyTreeBuilder(
       BaseMarketData suppliedData,
       MarketDataRequirements requirements,
-      Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
+      Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
     this.suppliedData = suppliedData;
     this.requirements = requirements;
-    this.builders = builders;
+    this.functions = functions;
   }
 
   /**
@@ -128,7 +128,7 @@ class DependencyTreeBuilder {
       return MarketDataNode.leaf(id, dataType);
     }
     // Find the builder that can build the data identified by the ID
-    MarketDataBuilder builder = builders.get(id.getClass());
+    MarketDataFunction builder = functions.get(id.getClass());
 
     if (builder != null) {
       @SuppressWarnings("unchecked")

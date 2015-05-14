@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
 
 /**
  * An item in the configuration for a curve group, containing the configuration for a curve and the market data keys
