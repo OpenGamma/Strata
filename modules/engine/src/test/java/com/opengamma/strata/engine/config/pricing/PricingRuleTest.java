@@ -13,11 +13,11 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 
 @Test
 public class PricingRuleTest {
@@ -93,7 +93,7 @@ public class PricingRuleTest {
 
     @Override
     public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class PricingRuleTest {
 
     @Override
     public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class PricingRuleTest {
 
     @Override
     public CalculationRequirements requirements(TestTrade2 target) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
 
     @Override

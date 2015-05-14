@@ -30,6 +30,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  */
 @Test
 public class ForwardInflationMonthlyRateObservationFnTest {
+
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 4); // Accrual dates irrelevant for the rate
   private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2016, 1, 5); // Accrual dates irrelevant for the rate
   private static final YearMonth REFERENCE_START_MONTH = YearMonth.of(2014, 10);
@@ -89,4 +90,5 @@ public class ForwardInflationMonthlyRateObservationFnTest {
         obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv);
     assertTrue(sensiComputed.build().normalized().equalWithTolerance(sensiExpected.build().normalized(), EPS_FD));
   }
+
 }

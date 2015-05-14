@@ -37,8 +37,8 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 /**
  * A provider of price indexes. 
  * <p>
- * This wraps an immutable map of price indexes and price index curves, 
- * retrieves the historic or forward rate of price index and computes the basic curve sensitivity for the forward rate. 
+ * This wraps an immutable map of price index curves, retrieves the historic or forward rate
+ * of price index and computes the basic curve sensitivity for the forward rate. 
  * <p>
  * This is intended to be used as an element of additionalData in {@link ImmutableRatesProvider}.
  */
@@ -62,7 +62,7 @@ public final class PriceIndexProvider
 
   //-------------------------------------------------------------------------
   /**
-   * An empty map instance.
+   * An empty provider instance.
    * 
    * @return the empty instance
    */
@@ -73,8 +73,8 @@ public final class PriceIndexProvider
   /**
    * Obtains the price index provider from an index and its price index curve.
    * 
-   * @param index the price index
-   * @param curve the 
+   * @param index  the price index
+   * @param curve  the curve
    * @return the PriceIndexProvider instance
    */
   public static PriceIndexProvider of(PriceIndex index, PriceIndexCurve curve) {
@@ -91,6 +91,7 @@ public final class PriceIndexProvider
     return new PriceIndexProvider(map);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Combines this price index provider with an additional price index curve.
    * <p>
@@ -98,8 +99,8 @@ public final class PriceIndexProvider
    * The result contains all of the price indexes plus the specified price index. 
    * If the additional price index is present in this instance, an exception is thrown. 
    * 
-   * @param index the price index
-   * @param curve the price index curve
+   * @param index  the price index
+   * @param curve  the price index curve
    * @return a price index provider instance with this and the additional curve
    */
   public PriceIndexProvider combinedWith(PriceIndex index, PriceIndexCurve curve) {
@@ -116,7 +117,7 @@ public final class PriceIndexProvider
    * all of the price indexes in this instance plus the price indexes in the other price index provider. 
    * If a price index in the additional price index provider is present in this instance, an exception is thrown. 
    * 
-   * @param other the other price index provider
+   * @param other  the other price index provider
    * @return a price index provider instance with this and the other price index provider
    */
   public PriceIndexProvider combinedWith(PriceIndexProvider other) {
@@ -128,8 +129,7 @@ public final class PriceIndexProvider
     }
     Map<PriceIndex, PriceIndexCurve> combined = new LinkedHashMap<>(priceIndexCurves);
     for (Entry<PriceIndex, PriceIndexCurve> entry : other.priceIndexCurves.entrySet()) {
-      ArgChecker.isFalse(
-          combined.containsKey(entry.getKey()), "Index curve for {} is present", entry.getKey());
+      ArgChecker.isFalse(combined.containsKey(entry.getKey()), "Index curve for {} is present", entry.getKey());
       combined.put(entry.getKey(), entry.getValue());
     }
     return new PriceIndexProvider(combined);
@@ -143,9 +143,9 @@ public final class PriceIndexProvider
    * This retrieves the actual rate if the reference month is before the month of the valuation date and 
    * the index is already published, or the estimated rate if the index is not yet fixed.
    * 
-   * @param index the index of prices 
-   * @param referenceMonth the reference month for the index 
-   * @param ratesProvider the rate provider
+   * @param index  the index of prices 
+   * @param referenceMonth  the reference month for the index 
+   * @param ratesProvider  the rate provider
    * @return the price index value 
    */
   public double inflationIndexRate(PriceIndex index, YearMonth referenceMonth, RatesProvider ratesProvider) {
@@ -157,12 +157,12 @@ public final class PriceIndexProvider
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
     } else {
-      return inflationIndexForwardRate(index, referenceMonth, ratesProvider);
+      return forwardRate(index, referenceMonth, ratesProvider);
     }
   }
 
   // forward rate
-  private double inflationIndexForwardRate(PriceIndex index, YearMonth referenceMonth, RatesProvider ratesProvider) {
+  private double forwardRate(PriceIndex index, YearMonth referenceMonth, RatesProvider ratesProvider) {
     PriceIndexCurve indexCurve = priceIndexCurves.get(index);
     double relativeTime = ratesProvider.relativeTime(referenceMonth.atEndOfMonth());
     return indexCurve.getPriceIndex(relativeTime);
@@ -175,15 +175,16 @@ public final class PriceIndexProvider
    * The sensitivity will have the value 1.
    * The sensitivity refers to the result of {@link #inflationIndexRate(PriceIndex, YearMonth, RatesProvider)}.
    *  
-   * @param index the index of prices 
-   * @param referenceMonth the reference month for the index 
-   * @param ratesProvider the rate provider
+   * @param index  the index of prices 
+   * @param referenceMonth  the reference month for the index 
+   * @param ratesProvider  the rate provider
    * @return the point sensitivity of the rate
    */
   public PointSensitivityBuilder inflationIndexRateSensitivity(
       PriceIndex index,
       YearMonth referenceMonth,
       RatesProvider ratesProvider) {
+
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(referenceMonth, "referenceMonth");
     ArgChecker.notNull(ratesProvider, "ratesProvider");

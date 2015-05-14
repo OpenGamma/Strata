@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.calculations.CalculationRequirements;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
@@ -27,6 +26,7 @@ import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
@@ -60,7 +60,7 @@ public class SwapLegPvFunction implements EngineSingleFunction<SwapTrade, List<C
   public CalculationRequirements requirements(SwapTrade trade) {
     Optional<SwapLeg> optionalLeg = trade.getProduct().getLeg(payReceive);
     if (!optionalLeg.isPresent()) {
-      return CalculationRequirements.EMPTY;
+      return CalculationRequirements.empty();
     }
     SwapLeg leg = optionalLeg.get();
     Set<Index> indices = leg.allIndices();

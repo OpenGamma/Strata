@@ -78,8 +78,8 @@ public class DispatchingRateObservationFn
    * @param iborAveragedRateObservationFn  the rate observation for {@link IborAveragedRateObservation}
    * @param overnightCompoundedRateObservationFn  the rate observation for {@link OvernightCompoundedRateObservation}
    * @param overnightAveragedRateObservationFn  the rate observation for {@link OvernightAveragedRateObservation}
-   * @param inflationMonthlyRateObservationFn the rate observation for {@link InflationMonthlyRateObservation}
-   * @param inflationInterpolatedRateObservationFn the rate observation for {@link InflationInterpolatedRateObservation}
+   * @param inflationMonthlyRateObservationFn  the rate observation for {@link InflationMonthlyRateObservation}
+   * @param inflationInterpolatedRateObservationFn  the rate observation for {@link InflationInterpolatedRateObservation}
    */
   public DispatchingRateObservationFn(
       RateObservationFn<IborRateObservation> iborRateObservationFn,

@@ -17,7 +17,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 /**
  * Rate observation implementation for a price index. 
  * <p>
- * The pay-off for a unit notional is {@code (Index_End / Index_Start - 1)}, where
+ * The pay-off for a unit notional is {@code (IndexEnd / IndexStart - 1)}, where
  * start index value and end index value are simply returned by {@code RatesProvider}.
  */
 public class ForwardInflationMonthlyRateObservationFn
@@ -37,28 +37,35 @@ public class ForwardInflationMonthlyRateObservationFn
 
   //-------------------------------------------------------------------------
   @Override
-  public double rate(InflationMonthlyRateObservation observation, LocalDate startDate, LocalDate endDate,
+  public double rate(
+      InflationMonthlyRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
       RatesProvider provider) {
+
+    PriceIndexProvider priceProvider = provider.data(PriceIndexProvider.class);
     PriceIndex index = observation.getIndex();
-    double indexStart = provider.data(PriceIndexProvider.class).inflationIndexRate(
-        index, observation.getReferenceStartMonth(), provider);
-    double indexEnd = provider.data(PriceIndexProvider.class).inflationIndexRate(
-        index, observation.getReferenceEndMonth(), provider);
-    return indexEnd / indexStart - 1.0d;
+    double indexStart = priceProvider.inflationIndexRate(index, observation.getReferenceStartMonth(), provider);
+    double indexEnd = priceProvider.inflationIndexRate(index, observation.getReferenceEndMonth(), provider);
+    return indexEnd / indexStart - 1d;
   }
 
   @Override
-  public PointSensitivityBuilder rateSensitivity(InflationMonthlyRateObservation observation, LocalDate startDate,
-      LocalDate endDate, RatesProvider provider) {
+  public PointSensitivityBuilder rateSensitivity(
+      InflationMonthlyRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider) {
+
+    PriceIndexProvider priceProvider = provider.data(PriceIndexProvider.class);
     PriceIndex index = observation.getIndex();
-    double indexStartInv = 1.0 / provider.data(PriceIndexProvider.class).inflationIndexRate(
-        index, observation.getReferenceStartMonth(), provider);
-    double indexEnd = provider.data(PriceIndexProvider.class).inflationIndexRate(
-        index, observation.getReferenceEndMonth(), provider);
-    PointSensitivityBuilder indexStartSensitivity = provider.data(PriceIndexProvider.class)
-        .inflationIndexRateSensitivity(index, observation.getReferenceStartMonth(), provider);
-    PointSensitivityBuilder indexEndSensitivity = provider.data(PriceIndexProvider.class)
-        .inflationIndexRateSensitivity(index, observation.getReferenceEndMonth(), provider);
+    double indexStart = priceProvider.inflationIndexRate(index, observation.getReferenceStartMonth(), provider);
+    double indexEnd = priceProvider.inflationIndexRate(index, observation.getReferenceEndMonth(), provider);
+    double indexStartInv = 1d / indexStart;
+    PointSensitivityBuilder indexStartSensitivity =
+        priceProvider.inflationIndexRateSensitivity(index, observation.getReferenceStartMonth(), provider);
+    PointSensitivityBuilder indexEndSensitivity =
+        priceProvider.inflationIndexRateSensitivity(index, observation.getReferenceEndMonth(), provider);
     indexEndSensitivity = indexEndSensitivity.multipliedBy(indexStartInv);
     indexStartSensitivity = indexStartSensitivity.multipliedBy(-indexEnd * indexStartInv * indexStartInv);
     return indexStartSensitivity.combinedWith(indexEndSensitivity);

@@ -33,6 +33,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  */
 @Test
 public class PriceIndexProviderTest {
+
   private static final PriceIndexCurve USCPIU_CURVE = new PriceIndexCurveSimple(new ConstantDoublesCurve(252.0d));
   private static final PriceIndexCurve GBPRI_CURVE = new PriceIndexCurveSimple(new ConstantDoublesCurve(252.0d));
   private static final PriceIndexCurve JPCPIEXF_CURVE = new PriceIndexCurveSimple(new ConstantDoublesCurve(194.0d));
@@ -40,7 +41,7 @@ public class PriceIndexProviderTest {
       new PriceIndexCurveSimple(new ConstantDoublesCurve(252.0d));
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
 
-
+  //-------------------------------------------------------------------------
   public void test_builder() {
     ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(
         US_CPI_U, USCPIU_CURVE, GB_RPI, GBPRI_CURVE, JP_CPI_EXF, JPCPIEXF_CURVE);
@@ -60,6 +61,7 @@ public class PriceIndexProviderTest {
     assertEquals(test.getPriceIndexCurves(), map);
   }
 
+  //-------------------------------------------------------------------------
   public void test_combinedWith_index() {
     ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(US_CPI_U, USCPIU_CURVE, GB_RPI, GBPRI_CURVE);
     PriceIndexProvider test = PriceIndexProvider.of(map);
@@ -90,6 +92,15 @@ public class PriceIndexProviderTest {
     assertEquals(test.getPriceIndexCurves(), expected);
   }
 
+  public void test_combinedWith_other_same() {
+    ImmutableMap<PriceIndex, PriceIndexCurve> map1 = ImmutableMap.of(GB_RPI, GBPRI_CURVE, US_CPI_U, USCPIU_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexCurve> map2 = ImmutableMap.of(GB_RPI, GBPRI_CURVE, JP_CPI_EXF, JPCPIEXF_CURVE);
+    PriceIndexProvider test = PriceIndexProvider.of(map1);
+    PriceIndexProvider other = PriceIndexProvider.of(map2);
+    assertThrowsIllegalArg(() -> test.combinedWith(test.combinedWith(other)));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_inflationIndexRate_historic() {
     ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(US_CPI_U, USCPIU_PRICE_INDEX_CURVE);
     PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
@@ -137,6 +148,7 @@ public class PriceIndexProviderTest {
     assertEquals(sensiComputed, PointSensitivityBuilder.none());
   }
 
+  //-------------------------------------------------------------------------
   public void inflationIndexRateSensitivity() {
     ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(US_CPI_U, USCPIU_PRICE_INDEX_CURVE);
     PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
@@ -155,14 +167,7 @@ public class PriceIndexProviderTest {
     assertEquals(sensiComputed, sensiExpected);
   }
 
-  public void test_combinedWith_other_same() {
-    ImmutableMap<PriceIndex, PriceIndexCurve> map1 = ImmutableMap.of(GB_RPI, GBPRI_CURVE, US_CPI_U, USCPIU_CURVE);
-    ImmutableMap<PriceIndex, PriceIndexCurve> map2 = ImmutableMap.of(GB_RPI, GBPRI_CURVE, JP_CPI_EXF, JPCPIEXF_CURVE);
-    PriceIndexProvider test = PriceIndexProvider.of(map1);
-    PriceIndexProvider other = PriceIndexProvider.of(map2);
-    assertThrowsIllegalArg(() -> test.combinedWith(test.combinedWith(other)));
-  }
-
+  //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableMap<PriceIndex, PriceIndexCurve> map1 = ImmutableMap.of(US_CPI_U, USCPIU_CURVE);
     ImmutableMap<PriceIndex, PriceIndexCurve> map2 = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
@@ -171,4 +176,5 @@ public class PriceIndexProviderTest {
     PriceIndexProvider test2 = PriceIndexProvider.builder().priceIndexCurves(map2).build();
     coverBeanEquals(test1, test2);
   }
+
 }

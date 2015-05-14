@@ -154,7 +154,7 @@ public final class ImmutableRatesProvider
       throw new IllegalArgumentException("Unknown index: " + index.getName());
     }
     return series;
-  } 
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -383,8 +383,8 @@ public final class ImmutableRatesProvider
       double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(key));
       NameCurrencySensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCounter());
       mutableMap.put(keyParam, sensiParam);
-      }
     }
+  }
 
   // sensitivity, copied from MulticurveProviderDiscount
   private double[] parameterSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {

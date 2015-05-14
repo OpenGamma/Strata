@@ -24,15 +24,17 @@ import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.FunctionConfig;
+import com.opengamma.strata.engine.config.MarketDataRule;
+import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
-import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
 import com.opengamma.strata.marketdata.id.ObservableId;
@@ -51,10 +53,7 @@ public class DefaultCalculationRunnerTest {
             .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
             .build();
 
-    SimpleMarketDataRules marketDataRules =
-        SimpleMarketDataRules.builder()
-            .addMappings(TestTarget.class, marketDataMappings)
-            .build();
+    MarketDataRules marketDataRules = MarketDataRules.of(MarketDataRule.of(marketDataMappings, TestTarget.class));
 
     DefaultFunctionGroup<TestTarget> functionGroup =
         DefaultFunctionGroup.builder(TestTarget.class)
@@ -101,7 +100,7 @@ public class DefaultCalculationRunnerTest {
   }
 
   public void noMatchingMarketDataRules() {
-    SimpleMarketDataRules marketDataRules = SimpleMarketDataRules.builder().build();
+    MarketDataRules marketDataRules = MarketDataRules.empty();
     Measure measure = Measure.of("foo");
 
     DefaultFunctionGroup<TestTarget> functionGroup =

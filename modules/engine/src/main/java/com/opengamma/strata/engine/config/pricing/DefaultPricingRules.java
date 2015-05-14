@@ -36,7 +36,11 @@ import com.opengamma.strata.engine.config.Measure;
 @BeanDefinition
 public final class DefaultPricingRules implements PricingRules, ImmutableBean {
 
-  /** The individual rules that make up this set of pricing rules. */
+  /**
+   * The individual rules that make up this set of pricing rules.
+   * <p>
+   * The rules are checked in order and the first matching rule is used.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<PricingRule<?>> rules;
 
@@ -114,6 +118,8 @@ public final class DefaultPricingRules implements PricingRules, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the individual rules that make up this set of pricing rules.
+   * <p>
+   * The rules are checked in order and the first matching rule is used.
    * @return the value of the property, not null
    */
   public ImmutableList<PricingRule<?>> getRules() {

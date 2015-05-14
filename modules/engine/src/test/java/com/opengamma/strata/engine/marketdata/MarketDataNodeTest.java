@@ -20,6 +20,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.marketdata.MarketDataLookup;
 import com.opengamma.strata.marketdata.id.FieldName;
 import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;

@@ -30,6 +30,7 @@ import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
  */
 @Test
 public class ForwardInflationInterpolatedRateObservationFnTest {
+
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 4); // Accrual dates irrelevant for the rate
   private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2016, 1, 5); // Accrual dates irrelevant for the rate
   private static final YearMonth REFERENCE_START_MONTH = YearMonth.of(2014, 10);
@@ -88,7 +89,7 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     when(mockCurves[6].getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP + EPS_FD);
     when(mockCurves[7].getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP - EPS_FD);
     YearMonth[] months = new YearMonth[] {
-      REFERENCE_START_MONTH, refStartMonthInterp, REFERENCE_END_MONTH, refEndMonthInterp };
+        REFERENCE_START_MONTH, refStartMonthInterp, REFERENCE_END_MONTH, refEndMonthInterp};
     PointSensitivityBuilder sensiExpected = PointSensitivityBuilder.none();
     for (int i = 0; i < 4; ++i) {
       double rateUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvs[2 * i]);
@@ -126,4 +127,5 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
       when(curves[i].getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP);
     }
   }
+
 }

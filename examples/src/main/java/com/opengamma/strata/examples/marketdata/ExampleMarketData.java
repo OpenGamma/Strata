@@ -10,12 +10,10 @@ import java.time.LocalDate;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.id.StandardIdentifiable;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.engine.config.SimpleMarketDataRules;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.examples.data.ExampleData;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
 /**
  * Contains utilities for using example market data from JSON resources.
@@ -25,10 +23,9 @@ public final class ExampleMarketData {
   /**
    * Standard set of market data rules.
    */
-  private static final MarketDataRules RULES = SimpleMarketDataRules.builder()
-      .addMappings(SwapTrade.class, MarketDataMappings.builder().curveGroup("Default").build())
-      .addMappings(FraTrade.class, MarketDataMappings.builder().curveGroup("Default").build())
-      .build();
+  private static final MarketDataRules RULES =
+      MarketDataRules.of(
+          MarketDataRule.anyTarget(MarketDataMappings.builder().curveGroup("Default").build()));
 
   /**
    * Restricted constructor.
