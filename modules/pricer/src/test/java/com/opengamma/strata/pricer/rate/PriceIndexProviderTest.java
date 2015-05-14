@@ -23,9 +23,15 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -165,6 +171,55 @@ public class PriceIndexProviderTest {
         test.data(PriceIndexProvider.class).inflationIndexRateSensitivity(US_CPI_U, referenceMonth, test);
     InflationRateSensitivity sensiExpected = InflationRateSensitivity.of(US_CPI_U, referenceMonth, 1.0d);
     assertEquals(sensiComputed, sensiExpected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parameterSensitivity_empty() {
+    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
+    PointSensitivityBuilder pointSensi = PointSensitivityBuilder.none();
+    PriceIndexProvider priceIndexProvider = PriceIndexProvider.empty();
+    RatesProvider ratesProvider = ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    CurveParameterSensitivity computed = priceIndexProvider.parameterSensitivity(pointSensi.build(), ratesProvider);
+    assertEquals(computed, CurveParameterSensitivity.empty());
+  }
+
+  public void test_parameterSensitivity() {
+    double eps = 1.0e-13;
+    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
+    double[] x = new double[] {0.5, 1.0, 2.0};
+    double[] y = new double[] {224.2, 262.6, 277.5};
+    CombinedInterpolatorExtrapolator interp =
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+            Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
+            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    String curveName = "GB_RPI_CURVE";
+    InterpolatedDoublesCurve interpCurve = InterpolatedDoublesCurve.from(x, y, interp, curveName);
+    PriceIndexCurveSimple curve = new PriceIndexCurveSimple(interpCurve);
+    PriceIndexProvider priceIndexProvider = PriceIndexProvider.of(GB_RPI, curve);
+    RatesProvider ratesProvider = ImmutableRatesProvider.builder()
+        .valuationDate(valuationDate)
+        .timeSeries(ImmutableMap.of(US_CPI_U, LocalDateDoubleTimeSeries.empty()))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+
+    double pointSensiValue = 2.5;
+    YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
+    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
+    CurveParameterSensitivity computed = priceIndexProvider.parameterSensitivity(pointSensi.build(), ratesProvider);
+    double[] sensiComputed =
+        computed.getSensitivities().get(NameCurrencySensitivityKey.of(curveName, pointSensi.getCurrency()));
+
+    double time = ratesProvider.relativeTime(refMonth.atEndOfMonth());
+    double[] sensiExpectedUnit =
+        priceIndexProvider.getPriceIndexCurves().get(GB_RPI).getPriceIndexParameterSensitivity(time);
+    assertEquals(sensiComputed.length, sensiExpectedUnit.length);
+    for (int i = 0; i < sensiComputed.length; ++i) {
+      assertEquals(sensiComputed[i], sensiExpectedUnit[i] * pointSensiValue, eps);
+    }
   }
 
   //-------------------------------------------------------------------------
