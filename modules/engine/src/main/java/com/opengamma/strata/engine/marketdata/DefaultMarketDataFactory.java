@@ -23,25 +23,24 @@ import org.jooq.lambda.Seq;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.MissingDataAwareObservableBuilder;
-import com.opengamma.strata.engine.marketdata.builders.MissingDataAwareTimeSeriesProvider;
-import com.opengamma.strata.engine.marketdata.builders.MissingMappingMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.MissingDataAwareObservableFunction;
+import com.opengamma.strata.engine.marketdata.functions.MissingDataAwareTimeSeriesProvider;
+import com.opengamma.strata.engine.marketdata.functions.MissingMappingMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MissingDataAwareFeedIdMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
 import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
-import com.opengamma.strata.marketdata.MarketDataLookup;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
  * Co-ordinates building of market data.
@@ -52,10 +51,10 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private final TimeSeriesProvider timeSeriesProvider;
 
   /** Builds observable market data. */
-  private final ObservableMarketDataBuilder observablesBuilder;
+  private final ObservableMarketDataFunction observablesBuilder;
 
-  /** Market data builders, keyed by the type of the market data ID they can handle. */
-  private final Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders;
+  /** Market data functions, keyed by the type of the market data ID they can handle. */
+  private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
   /** For looking up IDs that are suitable for a particular market data feed. */
   private final FeedIdMapping feedIdMapping;
@@ -66,15 +65,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
    * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
-   * @param builders  builders that create the market data
+   * @param functions  functions that create the market data
    */
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
-      ObservableMarketDataBuilder observablesBuilder,
+      ObservableMarketDataFunction observablesBuilder,
       FeedIdMapping feedIdMapping,
-      MarketDataBuilder<?, ?>... builders) {
+      MarketDataFunction<?, ?>... functions) {
 
-    this(timeSeriesProvider, observablesBuilder, feedIdMapping, ImmutableList.copyOf(builders));
+    this(timeSeriesProvider, observablesBuilder, feedIdMapping, ImmutableList.copyOf(functions));
   }
 
   /**
@@ -83,36 +82,36 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
    * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
-   * @param builders  builders that create the market data
+   * @param functions  functions that create the market data
    */
   @SuppressWarnings("unchecked")
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
-      ObservableMarketDataBuilder observablesBuilder,
+      ObservableMarketDataFunction observablesBuilder,
       FeedIdMapping feedIdMapping,
-      List<MarketDataBuilder<?, ?>> builders) {
+      List<MarketDataFunction<?, ?>> functions) {
 
     // Wrap these 3 to handle market data where there is missing data for the calculation
     this.feedIdMapping = new MissingDataAwareFeedIdMapping(feedIdMapping);
-    this.observablesBuilder = new MissingDataAwareObservableBuilder(observablesBuilder);
+    this.observablesBuilder = new MissingDataAwareObservableFunction(observablesBuilder);
     this.timeSeriesProvider = new MissingDataAwareTimeSeriesProvider(timeSeriesProvider);
 
     // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
-    // If the builders argument includes a missing mapping builder it can overwrite the one inserted below
-    Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builderMap = new HashMap<>();
+    // If the functions argument includes a missing mapping builder it can overwrite the one inserted below
+    Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> builderMap = new HashMap<>();
 
     // Add a builder that adds failures with helpful error messages when there is no mapping configured for a key type
     builderMap.put(
-        MissingMappingMarketDataBuilder.INSTANCE.getMarketDataIdType(),
-        MissingMappingMarketDataBuilder.INSTANCE);
+        MissingMappingMarketDataFunction.INSTANCE.getMarketDataIdType(),
+        MissingMappingMarketDataFunction.INSTANCE);
 
     // Add a builder that adds failures with helpful error messages when there is no market data rule for a calculation
     builderMap.put(
-        NoMatchingRulesMarketDataBuilder.INSTANCE.getMarketDataIdType(),
-        NoMatchingRulesMarketDataBuilder.INSTANCE);
+        NoMatchingRulesMarketDataFunction.INSTANCE.getMarketDataIdType(),
+        NoMatchingRulesMarketDataFunction.INSTANCE);
 
-    builders.stream().forEach(builder -> builderMap.put(builder.getMarketDataIdType(), builder));
-    this.builders = ImmutableMap.copyOf(builderMap);
+    functions.stream().forEach(builder -> builderMap.put(builder.getMarketDataIdType(), builder));
+    this.functions = ImmutableMap.copyOf(builderMap);
   }
 
   @SuppressWarnings("unchecked")
@@ -129,7 +128,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
     // of those nodes represent the market data required to build that data, and so on
-    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, builders);
+    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, functions);
 
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:
@@ -270,7 +269,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
     // of those nodes represent the market data required to build that data, and so on
-    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, builders);
+    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, functions);
 
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:
@@ -444,7 +443,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
-   * Builds items of non-observable market data using a market data builder and adds them to the results.
+   * Builds items of non-observable market data using a market data function and adds them to the results.
    *
    * @param id  ID of the market data that should be built
    * @param suppliedData  existing set of market data that contains any data required to build the values
@@ -458,15 +457,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
     // are mainly a useful guide for implementors as they constrain the method type signatures.
-    // In this class a mixture of builders with different types are stored in a map. This loses the type
-    // parameter information. When the builders are extracted from the map and used it's impossible to
+    // In this class a mixture of functions with different types are stored in a map. This loses the type
+    // parameter information. When the functions are extracted from the map and used it's impossible to
     // convince the compiler the operations are safe, although the logic guarantees it.
 
     // This cast removes a spurious warning
-    MarketDataBuilder marketDataBuilder = builders.get((Class<? extends MarketDataId<?>>) id.getClass());
+    MarketDataFunction marketDataFunction = functions.get((Class<? extends MarketDataId<?>>) id.getClass());
 
-    return marketDataBuilder != null ?
-        marketDataBuilder.build(id, suppliedData, marketDataConfig) :
+    return marketDataFunction != null ?
+        marketDataFunction.build(id, suppliedData, marketDataConfig) :
         failureForMissingBuilder(id);
   }
 
@@ -591,7 +590,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Result<?> failureForMissingBuilder(MarketDataId<?> id) {
     return Result.failure(
         FailureReason.INVALID_INPUT,
-        "No market data builder available to handle {}",
+        "No market data function available to handle {}",
         id);
   }
 

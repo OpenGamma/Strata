@@ -18,20 +18,20 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.marketdata.key.ObservableKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
 import com.opengamma.strata.marketdata.key.MarketDataKeys;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 
 /**
@@ -39,7 +39,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
  * <p>
  * The result consists of a list of present values, one for each scenario.
  */
-public class SwapLegPvFunction implements EngineSingleFunction<SwapTrade, List<CurrencyAmount>> {
+public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, List<CurrencyAmount>> {
 
   /**
    * Whether to get calculate for the pay leg or the receive leg.

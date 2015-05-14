@@ -25,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-market-data</artifactId>
+      <artifactId>strata-basics</artifactId>
     </dependency>
 
     <!-- TODO temporary dependencies -->

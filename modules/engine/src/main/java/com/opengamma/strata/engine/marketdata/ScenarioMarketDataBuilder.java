@@ -15,11 +15,11 @@ import java.util.Map;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
  * A mutable builder for building an instance of {@link ScenarioMarketData}.

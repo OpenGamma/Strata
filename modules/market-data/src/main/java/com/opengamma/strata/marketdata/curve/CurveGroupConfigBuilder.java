@@ -10,12 +10,13 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**
  * A mutable builder for creating instances of {@link CurveGroupConfig}.
  */
+@SuppressWarnings("unchecked")
 public final class CurveGroupConfigBuilder {
 
   /** The entries in the curve group. */

@@ -16,8 +16,9 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.range.LocalDateRange;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
@@ -25,14 +26,13 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 
 /**
  * Calculates the accrued interest for a {@code SwapTrade} for each of a set of scenarios.
  */
 public class SwapTradeAccruedInterestFunction
-    implements EngineSingleFunction<SwapTrade, List<MultiCurrencyAmount>> {
+    implements CalculationSingleFunction<SwapTrade, List<MultiCurrencyAmount>> {
   // TODO: implementation needs more work to handle edge cases
 
   @Override

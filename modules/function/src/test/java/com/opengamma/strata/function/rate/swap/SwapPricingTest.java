@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
+import com.opengamma.strata.basics.marketdata.id.ObservableId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -56,11 +57,9 @@ import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.RateIndexCurveMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.finance.TradeInfo;
@@ -71,9 +70,11 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.marketdata.curve.CurveGroup;
 import com.opengamma.strata.marketdata.id.CurveGroupId;
-import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
 
 @Test
@@ -152,7 +153,7 @@ public class SwapPricingTest {
     DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
 
     MarketDataMappings marketDataMappings =
-        MarketDataMappings.builder()
+        MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
             .build();
 
@@ -161,10 +162,10 @@ public class SwapPricingTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new EmptyTimeSeriesProvider(),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             FeedIdMapping.identity(),
-            new DiscountingCurveMarketDataBuilder(),
-            new RateIndexCurveMarketDataBuilder());
+            new DiscountingCurveMarketDataFunction(),
+            new RateIndexCurveMarketDataFunction());
 
     List<SwapTrade> trades = ImmutableList.of(trade);
     Column pvColumn = Column.of(Measure.PRESENT_VALUE);

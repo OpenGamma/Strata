@@ -14,13 +14,13 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricerBeta;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -31,7 +31,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * @param <T>  the return type
  */
 public abstract class AbstractFxSwapFunction<T>
-    implements EngineSingleFunction<FxSwapTrade, List<T>> {
+    implements CalculationSingleFunction<FxSwapTrade, List<T>> {
 
   /**
    * Returns the pricer.

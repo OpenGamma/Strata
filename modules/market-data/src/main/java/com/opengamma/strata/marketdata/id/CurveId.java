@@ -6,6 +6,7 @@
 package com.opengamma.strata.marketdata.id;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.strata.basics.marketdata.id.MarketDataId;
 
 /**
  * Market data ID identifying a curve.
