@@ -98,6 +98,13 @@ public class IborRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    IborRateSensitivity base = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
+    IborRateSensitivity test = base.normalize();
+    assertSame(test, base);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combinedWith() {
     IborRateSensitivity base1 = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     IborRateSensitivity base2 = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 9, 27), 22d);
@@ -129,6 +136,13 @@ public class IborRateSensitivityTest {
     IborRateSensitivity base = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cloned() {
+    IborRateSensitivity base = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
+    IborRateSensitivity test = base.cloned();
+    assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------

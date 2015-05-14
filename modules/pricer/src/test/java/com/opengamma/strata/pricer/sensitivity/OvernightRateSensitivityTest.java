@@ -112,6 +112,13 @@ public class OvernightRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    OvernightRateSensitivity base = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), 32d);
+    OvernightRateSensitivity test = base.normalize();
+    assertSame(test, base);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combinedWith() {
     OvernightRateSensitivity base1 = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), 32d);
     OvernightRateSensitivity base2 = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 10, 27), 22d);
@@ -143,6 +150,13 @@ public class OvernightRateSensitivityTest {
     OvernightRateSensitivity base = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cloned() {
+    OvernightRateSensitivity base = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), 32d);
+    OvernightRateSensitivity test = base.cloned();
+    assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------

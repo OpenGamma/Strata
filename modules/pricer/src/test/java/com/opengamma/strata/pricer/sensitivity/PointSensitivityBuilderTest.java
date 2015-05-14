@@ -34,7 +34,17 @@ public class PointSensitivityBuilderTest {
     }
 
     @Override
+    public PointSensitivityBuilder normalize() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public MutablePointSensitivities buildInto(MutablePointSensitivities combination) {
+      return combination;
+    }
+
+    @Override
+    public PointSensitivityBuilder cloned() {
       throw new UnsupportedOperationException();
     }
   }
