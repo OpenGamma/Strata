@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer.sensitivity;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_12M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -34,7 +34,7 @@ public class IndexCurrencySensitivityKeyTest {
   public void coverage() {
     IndexCurrencySensitivityKey test = IndexCurrencySensitivityKey.of(INDEX, EUR);
     coverImmutableBean(test);
-    IndexCurrencySensitivityKey test2 = IndexCurrencySensitivityKey.of(EUR_EURIBOR_12M, GBP);
+    IndexCurrencySensitivityKey test2 = IndexCurrencySensitivityKey.of(US_CPI_U, GBP);
     coverBeanEquals(test, test2);
   }
 
