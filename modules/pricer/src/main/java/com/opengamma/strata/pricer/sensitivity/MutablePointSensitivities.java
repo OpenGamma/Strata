@@ -157,6 +157,11 @@ public final class MutablePointSensitivities
     return toImmutable();
   }
 
+  @Override
+  public MutablePointSensitivities cloned() {
+    return new MutablePointSensitivities(new ArrayList<>(sensitivities));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sorts the mutable list of point sensitivities.
@@ -182,6 +187,7 @@ public final class MutablePointSensitivities
    * 
    * @return {@code this}, for method chaining
    */
+  @Override
   public MutablePointSensitivities normalize() {
     sensitivities.sort(PointSensitivity::compareExcludingSensitivity);
     PointSensitivity previous = sensitivities.get(0);

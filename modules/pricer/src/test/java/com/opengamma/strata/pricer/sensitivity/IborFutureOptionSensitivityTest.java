@@ -129,6 +129,14 @@ public class IborFutureOptionSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+        date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
+    IborFutureOptionSensitivity test = base.normalize();
+    assertSame(test, base);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_buildInto() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
@@ -144,6 +152,14 @@ public class IborFutureOptionSensitivityTest {
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cloned() {
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+        date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
+    IborFutureOptionSensitivity test = base.cloned();
+    assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------

@@ -86,6 +86,22 @@ public interface PointSensitivityBuilder {
    */
   public abstract PointSensitivityBuilder mapSensitivity(DoubleUnaryOperator operator);
 
+  /**
+   * Normalizes the point sensitivities by sorting and merging.
+   * <p>
+   * The sensitivities in the builder are sorted and then merged.
+   * Any two entries that represent the same curve query are merged.
+   * For example, if there are two point sensitivities that were created based on the same curve,
+   * currency and fixing date, then the entries are combined, summing the sensitivity value.
+   * <p>
+   * Builders may be mutable.
+   * Once this method is called, this instance must not be used.
+   * Instead, the result of the method must be used.
+   * 
+   * @return the resulting builder, replacing this builder
+   */
+  public abstract PointSensitivityBuilder normalize();
+
   //-------------------------------------------------------------------------
   /**
    * Combines this sensitivity with another instance.
@@ -129,5 +145,18 @@ public interface PointSensitivityBuilder {
   public default PointSensitivities build() {
     return buildInto(new MutablePointSensitivities()).toImmutable();
   }
+
+  /**
+   * Clones the point sensitivity builder.
+   * <p>
+   * This returns a {@link PointSensitivityBuilder} instance that is independent
+   * from the original. Immutable implementations may return themselves.
+   * <p>
+   * Builders may be mutable. Using this method allows a copy of the original
+   * to be obtained, so both the original and the clone can be used.
+   *
+   * @return the built combined sensitivity
+   */
+  public abstract PointSensitivityBuilder cloned();
 
 }

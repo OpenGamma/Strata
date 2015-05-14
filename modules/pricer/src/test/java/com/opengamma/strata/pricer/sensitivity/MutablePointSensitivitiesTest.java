@@ -128,6 +128,23 @@ public class MutablePointSensitivitiesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_cloned() {
+    MutablePointSensitivities base = new MutablePointSensitivities();
+    base.add(CS3);
+    MutablePointSensitivities test = base.cloned();
+    base.add(CS2);
+    test.add(CS1);
+
+    MutablePointSensitivities baseExpected = new MutablePointSensitivities();
+    baseExpected.addAll(Lists.newArrayList(CS3, CS2));
+    assertEquals(base, baseExpected);
+
+    MutablePointSensitivities testExpected = new MutablePointSensitivities();
+    testExpected.addAll(Lists.newArrayList(CS3, CS1));
+    assertEquals(test, testExpected);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_sort() {
     MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
