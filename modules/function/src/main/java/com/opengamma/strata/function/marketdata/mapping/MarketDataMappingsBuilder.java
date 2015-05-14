@@ -8,7 +8,7 @@ package com.opengamma.strata.function.marketdata.mapping;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;

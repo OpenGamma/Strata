@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;

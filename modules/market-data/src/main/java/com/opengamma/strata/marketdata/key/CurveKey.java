@@ -6,7 +6,7 @@
 package com.opengamma.strata.marketdata.key;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * A market data key identifying a yield curve.

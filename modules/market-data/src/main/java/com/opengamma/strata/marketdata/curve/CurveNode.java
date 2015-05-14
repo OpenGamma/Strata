@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.strata.basics.marketdata.key.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
 
 /**

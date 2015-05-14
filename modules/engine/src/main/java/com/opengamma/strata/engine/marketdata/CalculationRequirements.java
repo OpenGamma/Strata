@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
-import com.opengamma.strata.basics.marketdata.key.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 
 /**
  * Specifies the market data required for a calculation.

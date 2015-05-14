@@ -8,7 +8,7 @@ package com.opengamma.strata.marketdata.curve;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.strata.basics.marketdata.key.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 
 /**
  * A provider which returns a rate used when building the instrument for a curve node.

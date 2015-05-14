@@ -7,7 +7,7 @@ package com.opengamma.strata.engine.marketdata;
 
 import java.util.Objects;
 
-import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * MarketDataKey implementation used in tests.

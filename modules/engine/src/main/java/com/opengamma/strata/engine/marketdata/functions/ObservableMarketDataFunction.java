@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.result.Result;
 
 // TODO Does this need to take some kind of data source? Or will they be given to it on construction?

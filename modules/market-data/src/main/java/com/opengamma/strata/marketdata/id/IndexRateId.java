@@ -23,9 +23,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.marketdata.id.FieldName;
-import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**

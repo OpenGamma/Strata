@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestMapping;
 import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;

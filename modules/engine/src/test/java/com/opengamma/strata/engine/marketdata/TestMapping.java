@@ -7,7 +7,7 @@ package com.opengamma.strata.engine.marketdata;
 
 import java.util.Objects;
 
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
 
 /**

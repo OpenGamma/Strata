@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata.functions;
 
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;

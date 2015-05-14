@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;

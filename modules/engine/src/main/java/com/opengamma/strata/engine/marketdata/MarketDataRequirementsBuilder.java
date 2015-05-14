@@ -11,8 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
