@@ -101,7 +101,7 @@ public class CurveGammaCalculatorTest {
           for (Entry<Index, YieldAndDiscountCurve> entry : fwd.entrySet()) {
             fwdBumped.put(entry.getKey(), curveBumped);
           }
-          ImmutableRatesProvider providerBumped = SINGLE.toBuilder().discountCurves(dsc).indexCurves(fwdBumped).build();
+          ImmutableRatesProvider providerBumped = SINGLE.toBuilder().discountCurves(dscBumped).indexCurves(fwdBumped).build();
           pv[pmi][pmP] = PRICER_SWAP.presentValue(SWAP, providerBumped).getAmount(USD).getAmount();
         }
       }
