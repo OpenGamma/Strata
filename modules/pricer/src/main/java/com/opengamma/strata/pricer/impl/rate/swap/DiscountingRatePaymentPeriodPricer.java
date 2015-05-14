@@ -16,6 +16,7 @@ import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
+import com.opengamma.strata.pricer.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -223,10 +224,9 @@ public class DiscountingRatePaymentPeriodPricer
       case STRAIGHT:
         return compoundedStraightSensitivity(paymentPeriod, provider);
       case FLAT:
-        return compoundedFlatSensitivity(paymentPeriod, notional, provider);
+        return compoundedFlatSensitivity(paymentPeriod, provider);
       case SPREAD_EXCLUSIVE:
         return compoundedSpreadExclusiveSensitivity(paymentPeriod, provider);
-      case NONE:
       default:
         return unitNotionalSensiNoCompounding(paymentPeriod, provider);
     }
@@ -248,17 +248,26 @@ public class DiscountingRatePaymentPeriodPricer
   }
 
   // flat compounding
-  private PointSensitivityBuilder compoundedFlatSensitivity(RatePaymentPeriod paymentPeriod, double notional,
-      RatesProvider provider) {
-    //TODO implementation
-    //    double cpaAccumulated = 0d;
-    //    for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
-    //      double rate = rawRate(accrualPeriod, provider);
-    //      cpaAccumulated += cpaAccumulated * unitNotionalAccrualRaw(accrualPeriod, rate, 0) +
-    //          unitNotionalAccrualRaw(accrualPeriod, rate, accrualPeriod.getSpread());
-    //    }
-    //    return cpaAccumulated * notional;
-    return null;
+  private PointSensitivityBuilder compoundedFlatSensitivity(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
+    double cpaAccumulated = 0d;
+    Currency ccy = paymentPeriod.getCurrency();
+    PointSensitivityBuilder sensiAccumulated = PointSensitivityBuilder.none();
+    for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
+      double rate = rawRate(accrualPeriod, provider);
+      double accrualZeroSpread = unitNotionalAccrualRaw(accrualPeriod, rate, 0);
+      PointSensitivityBuilder sensiCp = (sensiAccumulated instanceof MutablePointSensitivities) ?
+          new MutablePointSensitivities(((MutablePointSensitivities) sensiAccumulated).normalize().getSensitivities())
+          : sensiAccumulated;
+      PointSensitivityBuilder sensi1 = sensiCp.multipliedBy(accrualZeroSpread);
+      PointSensitivityBuilder sensi2 =
+          unitNotionalSensiAccrual(accrualPeriod, ccy, provider).multipliedBy(1.0 + cpaAccumulated);
+      cpaAccumulated += cpaAccumulated * accrualZeroSpread +
+          unitNotionalAccrualRaw(accrualPeriod, rate, accrualPeriod.getSpread());
+      sensi1 = sensi1.combinedWith(sensi2);
+      sensiAccumulated = sensiAccumulated.combinedWith(sensi1);
+    }
+    return (sensiAccumulated instanceof MutablePointSensitivities) ?
+        ((MutablePointSensitivities) sensiAccumulated).normalize() : sensiAccumulated;
   }
 
   // spread exclusive compounding

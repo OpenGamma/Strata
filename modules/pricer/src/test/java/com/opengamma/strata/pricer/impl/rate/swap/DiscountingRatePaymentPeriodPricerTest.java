@@ -284,6 +284,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
+  //-------------------------------------------------------------------------
   private static final RateAccrualPeriod ACCRUAL_PERIOD_1_FLOATING = RateAccrualPeriod.builder()
       .startDate(CPN_DATE_1)
       .endDate(CPN_DATE_2)
@@ -315,6 +316,31 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
+  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_STRAIGHT = RatePaymentPeriod
+      .builder()
+      .paymentDate(PAYMENT_DATE_3)
+      .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
+      .compoundingMethod(CompoundingMethod.STRAIGHT)
+      .currency(USD)
+      .notional(NOTIONAL_100)
+      .build();
+  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_FLAT = RatePaymentPeriod
+      .builder()
+      .paymentDate(PAYMENT_DATE_3)
+      .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
+      .compoundingMethod(CompoundingMethod.FLAT)
+      .currency(USD)
+      .notional(NOTIONAL_100)
+      .build();
+  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_EXCLUSIVE = RatePaymentPeriod
+      .builder()
+      .paymentDate(PAYMENT_DATE_3)
+      .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
+      .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE)
+      .currency(USD)
+      .notional(NOTIONAL_100)
+      .build();
+  private static final double EPS_FD = 1.0e-7;
 
   /**
   * Test present value sensitivity for ibor, no compounding.
@@ -380,6 +406,36 @@ public class DiscountingRatePaymentPeriodPricerTest {
         eps);
     PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
     assertTrue(senseComputed.equalWithTolerance(senseExpected, eps * PAYMENT_PERIOD_FLOATING.getNotional()));
+  }
+
+  /**
+   * test future value sensitivity for ibor, with straight, flat and exclusive compounding. 
+   */
+  public void test_futureValueSensitivity_ibor_compounding() {
+    RatePaymentPeriod[] paymentPeriods = new RatePaymentPeriod[] {
+      PAYMENT_PERIOD_COMPOUNDING_STRAIGHT,
+      PAYMENT_PERIOD_COMPOUNDING_FLAT,
+      PAYMENT_PERIOD_COMPOUNDING_EXCLUSIVE
+    };
+    for (int j = 0; j < 3; ++j) {
+      RatesProvider mockProv = mock(RatesProvider.class);
+      RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
+      when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+      DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
+      LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4 };
+      double[] rates = new double[] {RATE_1, RATE_2, RATE_3 };
+      for (int i = 0; i < 3; ++i) {
+        IborRateObservation observation =
+            (IborRateObservation) paymentPeriods[j].getAccrualPeriods().get(i).getRateObservation();
+        IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
+        when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
+        when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
+      }
+      PointSensitivities senseComputed = pricer.futureValueSensitivity(paymentPeriods[j], mockProv).build();
+      List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, paymentPeriods[j], obsFunc, EPS_FD);
+      PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
+      assertTrue(senseComputed.equalWithTolerance(senseExpected, EPS_FD * paymentPeriods[j].getNotional()));
+    }
   }
 
   @SuppressWarnings("null")
