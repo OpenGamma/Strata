@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.engine.marketdata.mapping;
 
-import com.opengamma.strata.engine.calculations.MissingMappingId;
-import com.opengamma.strata.engine.marketdata.builders.MissingMappingMarketDataBuilder;
+import com.opengamma.strata.marketdata.builders.MissingMappingMarketDataBuilder;
+import com.opengamma.strata.marketdata.id.MissingMappingId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 
 /**

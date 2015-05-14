@@ -13,13 +13,13 @@ import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.DefaultCalculationEngine;
 import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
-import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.examples.marketdata.ExampleDiscountingCurveBuilder;
 import com.opengamma.strata.examples.marketdata.ExampleForwardCurveBuilder;
 import com.opengamma.strata.examples.marketdata.ExampleTimeSeriesProvider;
+import com.opengamma.strata.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.marketdata.MarketDataFactory;
+import com.opengamma.strata.marketdata.builders.ObservableMarketDataBuilder;
+import com.opengamma.strata.marketdata.mapping.FeedIdMapping;
 
 /**
  * Contains utility methods for obtaining a calculation engine configured for use

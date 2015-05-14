@@ -7,10 +7,10 @@ package com.opengamma.strata.examples.marketdata;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
-import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.MarketDataLookup;
+import com.opengamma.strata.marketdata.MarketDataRequirements;
+import com.opengamma.strata.marketdata.builders.MarketDataBuilder;
+import com.opengamma.strata.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.marketdata.id.RateIndexCurveId;
 
 /**

@@ -36,6 +36,25 @@
       <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
     </dependency>
+    <!-- TODO Required for the Legacy class, should be removed -->
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-pricer</artifactId>
+    </dependency>
+
+    <!-- Third party -->
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jool</artifactId>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->

@@ -16,11 +16,11 @@ import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
-import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketDataResult;
-import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
+import com.opengamma.strata.marketdata.BaseMarketData;
+import com.opengamma.strata.marketdata.BaseMarketDataResult;
+import com.opengamma.strata.marketdata.MarketDataFactory;
+import com.opengamma.strata.marketdata.ScenarioMarketDataResult;
+import com.opengamma.strata.marketdata.scenarios.ScenarioDefinition;
 
 /**
  * Default implementation of a calculation engine.

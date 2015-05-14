@@ -13,8 +13,8 @@ import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.marketdata.BaseMarketData;
+import com.opengamma.strata.marketdata.ScenarioMarketData;
 
 /**
  * Runs a set of calculations over a portfolio and returns the results.
