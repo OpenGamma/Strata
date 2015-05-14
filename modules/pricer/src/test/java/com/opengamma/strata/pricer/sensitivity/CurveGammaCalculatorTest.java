@@ -108,7 +108,7 @@ public class CurveGammaCalculatorTest {
       gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
     }
     double[] gammaComputed = GAMMA_CAL.calculateSemiParallelGamma(SINGLE,
-        (p) -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+        (p) -> PRICER_SWAP.presentValueSensitivity(SWAP, p).build());
     for (int i = 0; i < nbNode; i++) {
       assertEquals(gammaComputed[i], gammaExpected[i], TOLERANCE_GAMMA);
     }
