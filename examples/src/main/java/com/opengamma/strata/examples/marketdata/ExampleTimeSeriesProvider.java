@@ -7,7 +7,7 @@ package com.opengamma.strata.examples.marketdata;
 
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
+import com.opengamma.strata.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**

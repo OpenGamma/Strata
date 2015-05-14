@@ -30,7 +30,6 @@ import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -45,6 +44,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.marketdata.BaseMarketData;
 
 /**
  * Regression test for an example swap report.

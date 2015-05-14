@@ -8,6 +8,7 @@ package com.opengamma.strata.engine.calculations;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.marketdata.id.MarketDataFeed;
 import com.opengamma.strata.marketdata.id.MarketDataId;
+import com.opengamma.strata.marketdata.id.NoMatchingRuleId;
 import com.opengamma.strata.marketdata.id.ObservableId;
 import com.opengamma.strata.marketdata.key.MarketDataKey;
 import com.opengamma.strata.marketdata.key.ObservableKey;
