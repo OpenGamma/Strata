@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -360,8 +361,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
         PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(builder);
 
     DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
-    LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4 };
-    double[] rates = new double[] {RATE_1, RATE_2, RATE_3 };
+    LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};
+    double[] rates = new double[] {RATE_1, RATE_2, RATE_3};
     for (int i = 0; i < 3; ++i) {
       IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
           .getRateObservation();
@@ -390,8 +391,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
     when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
-    LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4 };
-    double[] rates = new double[] {RATE_1, RATE_2, RATE_3 };
+    LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};
+    double[] rates = new double[] {RATE_1, RATE_2, RATE_3};
     for (int i = 0; i < 3; ++i) {
       IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
           .getRateObservation();
@@ -411,31 +412,34 @@ public class DiscountingRatePaymentPeriodPricerTest {
   /**
    * test future value sensitivity for ibor, with straight, flat and exclusive compounding. 
    */
-  public void test_futureValueSensitivity_ibor_compounding() {
-    RatePaymentPeriod[] paymentPeriods = new RatePaymentPeriod[] {
-      PAYMENT_PERIOD_COMPOUNDING_STRAIGHT,
-      PAYMENT_PERIOD_COMPOUNDING_FLAT,
-      PAYMENT_PERIOD_COMPOUNDING_EXCLUSIVE
+  @DataProvider(name = "compoundingRatePaymentPeriod")
+  Object[][] data_futureValueSensitivity_ibor_compounding() {
+    return new Object[][] {
+        {PAYMENT_PERIOD_COMPOUNDING_STRAIGHT},
+        {PAYMENT_PERIOD_COMPOUNDING_FLAT},
+        {PAYMENT_PERIOD_COMPOUNDING_EXCLUSIVE},
     };
-    for (int j = 0; j < 3; ++j) {
-      RatesProvider mockProv = mock(RatesProvider.class);
-      RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
-      when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
-      DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
-      LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4 };
-      double[] rates = new double[] {RATE_1, RATE_2, RATE_3 };
-      for (int i = 0; i < 3; ++i) {
-        IborRateObservation observation =
-            (IborRateObservation) paymentPeriods[j].getAccrualPeriods().get(i).getRateObservation();
-        IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
-        when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
-        when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
-      }
-      PointSensitivities senseComputed = pricer.futureValueSensitivity(paymentPeriods[j], mockProv).build();
-      List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, paymentPeriods[j], obsFunc, EPS_FD);
-      PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
-      assertTrue(senseComputed.equalWithTolerance(senseExpected, EPS_FD * paymentPeriods[j].getNotional()));
+  }
+
+  @Test(dataProvider = "compoundingRatePaymentPeriod")
+  public void test_futureValueSensitivity_ibor_compounding(RatePaymentPeriod period) {
+    RatesProvider mockProv = mock(RatesProvider.class);
+    RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
+    LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};
+    double[] rates = new double[] {RATE_1, RATE_2, RATE_3};
+    for (int i = 0; i < 3; ++i) {
+      IborRateObservation observation =
+          (IborRateObservation) period.getAccrualPeriods().get(i).getRateObservation();
+      IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
+      when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
+      when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
+    PointSensitivities senseComputed = pricer.futureValueSensitivity(period, mockProv).build();
+    List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, period, obsFunc, EPS_FD);
+    PointSensitivities senseExpected = PointSensitivities.of(senseExpectedList);
+    assertTrue(senseComputed.equalWithTolerance(senseExpected, EPS_FD * period.getNotional()));
   }
 
   @SuppressWarnings("null")
