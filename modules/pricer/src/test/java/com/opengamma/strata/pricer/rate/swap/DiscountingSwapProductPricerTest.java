@@ -226,6 +226,69 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
   }
 
+  public void test_parRate_inflation_periodic() {
+    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2014, 6, 9))
+            .endDate(date(2019, 6, 9))
+            .frequency(Frequency.P6M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P6M)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL))
+        .calculation(FixedRateCalculation.builder()
+            .rate(ValueSchedule.of(0.04))
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+    Swap swap = Swap.builder().legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLeg).build();
+    double startIndex = 218.0;
+    double constantIndex = 242.0;
+    LocalDate refDate = date(2014, 3, 31);
+    LocalDate valDate = LocalDate.of(2014, 7, 8);
+    PriceIndexCurve priceIndexCurve = new PriceIndexCurveSimple(new ConstantDoublesCurve(
+        constantIndex));
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, priceIndexCurve);
+    Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(refDate, startIndex);
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(valDate)
+        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .discountCurves(dscCurve)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    double parRateComputed = pricerSwap.parRate(swap, prov);
+    RateCalculationSwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2014, 6, 9))
+            .endDate(date(2019, 6, 9))
+            .frequency(Frequency.P6M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P6M)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL))
+        .calculation(FixedRateCalculation.builder()
+            .rate(ValueSchedule.of(parRateComputed))
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+    Swap swapWithParRate = Swap.builder().legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLegWithParRate).build();
+    double pvWithParRate = pricerSwap.presentValue(swapWithParRate, prov).getAmount(GBP).getAmount();
+    assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValue_singleCurrency() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
