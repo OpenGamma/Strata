@@ -3,11 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.marketdata.key;
+package com.opengamma.strata.basics.market;
 
-import com.opengamma.strata.basics.marketdata.id.FieldName;
-import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.id.StandardIdentifiable;
 
@@ -16,23 +13,26 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
  * <p>
  * Observable data can be requested from an external data provider, for example Bloomberg or Reuters.
  */
-public interface ObservableKey extends MarketDataKey<Double>, StandardIdentifiable {
+public interface ObservableKey
+    extends MarketDataKey<Double>, StandardIdentifiable {
 
   /**
-   * Returns a standard identifier identifying the data.
+   * Gets the standard identifier identifying the data.
    * <p>
-   * The identifier may be the identifier used to identify the item in an
-   * underlying data provider, for example a Bloomberg ticker. It also may be any arbitrary unique
-   * identifier that can be resolved to one or more data provider identifiers which are used to
-   * request the data from the provider.
+   * The identifier may be the identifier used to identify the item in an underlying data provider,
+   * for example a Bloomberg ticker. It also may be any arbitrary unique identifier that can be resolved
+   * to one or more data provider identifiers which are used to request the data from the provider.
    *
-   * @return a standard identifier identifying the data
+   * @return a standard identifier, such as a ticker, to identify the desired data
    */
   @Override
   public abstract StandardId getStandardId();
 
   /**
-   * Returns the field name in the market data record that contains the market data item.
+   * Gets the field name in the market data record that contains the market data item.
+   * <p>
+   * Each ticker typically exposes many different fields. The field name specifies the desired field.
+   * For example, the {@linkplain FieldName#MARKET_VALUE market value}.
    *
    * @return the field name in the market data record that contains the market data item
    */
@@ -44,10 +44,10 @@ public interface ObservableKey extends MarketDataKey<Double>, StandardIdentifiab
   }
 
   /**
-   * Returns the ID corresponding to this key.
+   * Converts this key to the matching identifier.
    * <p>
    * Market data keys identify a piece of market data in the context of a single calculation, whereas
-   * market data IDs are a globally unique identifier for an item of data.
+   * market data identifiers are a globally unique identifier for an item of data.
    * <p>
    * For example, a calculation has access to a single USD discounting curve, but the system
    * can contain multiple curve groups, each with a USD discounting curve. For cases such as curves there
@@ -58,7 +58,8 @@ public interface ObservableKey extends MarketDataKey<Double>, StandardIdentifiab
    * for observable data and the market data ID can be directly derived from the market data key.
    *
    * @param marketDataFeed  the market data feed that is the source of the observable market data
-   * @return the ID corresponding to this key
+   * @return the identifier corresponding to this key
    */
   ObservableId toObservableId(MarketDataFeed marketDataFeed);
+
 }

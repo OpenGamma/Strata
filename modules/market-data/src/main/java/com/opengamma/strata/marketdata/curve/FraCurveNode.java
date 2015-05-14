@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.marketdata.key.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;

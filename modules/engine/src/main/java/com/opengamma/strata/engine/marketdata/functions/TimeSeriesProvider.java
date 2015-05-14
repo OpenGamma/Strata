@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata.functions;
 
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 

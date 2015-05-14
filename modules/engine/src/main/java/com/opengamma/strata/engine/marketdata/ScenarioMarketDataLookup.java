@@ -7,8 +7,8 @@ package com.opengamma.strata.engine.marketdata;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**

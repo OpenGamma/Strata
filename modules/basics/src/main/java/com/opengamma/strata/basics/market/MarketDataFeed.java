@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.marketdata.id;
+package com.opengamma.strata.basics.market;
 
 import java.util.regex.Pattern;
 
@@ -31,10 +31,14 @@ public final class MarketDataFeed
   private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9-]+");
 
   //-------------------------------------------------------------------------
-  /** A market data feed used where a feed is required but no data is expected to be requested. */
+  /**
+   * A market data feed used where a feed is required but no data is expected to be requested.
+   */
   public static final MarketDataFeed NONE = of("None");
 
-  /** A market data feed used to indicate there are no market data rules for a calculation. */
+  /**
+   * A market data feed used to indicate there are no market data rules for a calculation.
+   */
   public static final MarketDataFeed NO_RULE = of("NoMatchingMarketDataRule");
 
   //-------------------------------------------------------------------------

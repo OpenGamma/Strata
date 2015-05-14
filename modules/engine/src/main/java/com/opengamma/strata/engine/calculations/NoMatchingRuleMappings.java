@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.engine.calculations;
 
-import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
-import com.opengamma.strata.basics.marketdata.id.ObservableId;
-import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
-import com.opengamma.strata.basics.marketdata.key.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**

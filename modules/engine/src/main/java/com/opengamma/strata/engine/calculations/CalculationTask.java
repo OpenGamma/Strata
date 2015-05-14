@@ -6,7 +6,7 @@
 package com.opengamma.strata.engine.calculations;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;

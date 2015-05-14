@@ -7,7 +7,7 @@ package com.opengamma.strata.marketdata.key;
 
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.RateIndex;
-import com.opengamma.strata.basics.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * Contains factory methods for creating {@link MarketDataKey} instances for common market data types.

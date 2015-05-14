@@ -6,14 +6,13 @@
 package com.opengamma.strata.function.marketdata.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.basics.marketdata.id.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.marketdata.id.DiscountingCurveId;
