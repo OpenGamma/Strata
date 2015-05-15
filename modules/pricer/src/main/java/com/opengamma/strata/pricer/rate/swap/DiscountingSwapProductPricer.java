@@ -185,9 +185,9 @@ public class DiscountingSwapProductPricer {
         ArgChecker.isTrue(p.getSpread() == 0.0, "no spread");
       }
       double nbAp = ap.size();
-      double notioanl = payment.getNotional();
+      double notional = payment.getNotional();
       double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
-      return Math.pow(-(otherLegsConvertedPv + fixedLegEventsPv) / notioanl / df + 1.0d, 1 / nbAp) - 1.0d;
+      return Math.pow(-(otherLegsConvertedPv + fixedLegEventsPv) / notional / df + 1.0d, 1 / nbAp) - 1.0d;
     }
   }
 
