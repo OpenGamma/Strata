@@ -185,7 +185,7 @@ public class DiscountingSwapProductPricerTest {
     double startIndex = 218.0;
     double constantIndex = 242.0;
     LocalDate refDate = date(2014, 3, 31);
-    LocalDate valDate = LocalDate.of(2014, 7, 8);
+    LocalDate valDate = date(2014, 7, 8);
     PriceIndexCurve priceIndexCurve = new PriceIndexCurveSimple(new ConstantDoublesCurve(
         constantIndex));
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
