@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
@@ -137,8 +141,10 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
-   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
-   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg 
+   * in which all the payments are fixed payments with a unique accrual period (no compounding) and no FX reset. 
+   * If the fixed leg is compounding, the par rate is computed only when the number of fixed coupon payments is 1 and 
+   * accrual factor of each sub-period is 1 
    * 
    * @param product  the swap product for which the par rate should be computed
    * @param provider  the rates provider
@@ -158,10 +164,31 @@ public class DiscountingSwapProductPricer {
       }
     }
     double fixedLegEventsPv = legPricer.presentValueEventsInternal(fixedLeg, provider);
-    // PVBP
-    double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
-    // Par rate
-    return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
+    if (fixedLeg.getPaymentPeriods().size() > 1) { // try multiperiod par-rate
+      // PVBP
+      double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
+      // Par rate
+      return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
+    } else {
+      RatePaymentPeriod payment = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
+      if (payment.getAccrualPeriods().size() == 1) { // no compounding
+        // PVBP
+        double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
+        // Par rate
+        return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
+      }
+      // try Compounding
+      ImmutableList<RateAccrualPeriod> ap = payment.getAccrualPeriods();
+      ArgChecker.isFalse(payment.getCompoundingMethod().equals(CompoundingMethod.NONE), "should be compounding");
+      for (RateAccrualPeriod p : ap) {
+        ArgChecker.isTrue(p.getYearFraction() == 1.0, "accrual factor should be 1");
+        ArgChecker.isTrue(p.getSpread() == 0.0, "no spread");
+      }
+      double nbAp = ap.size();
+      double notional = payment.getNotional();
+      double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
+      return Math.pow(-(otherLegsConvertedPv + fixedLegEventsPv) / notional / df + 1.0d, 1 / nbAp) - 1.0d;
+    }
   }
 
   //-------------------------------------------------------------------------

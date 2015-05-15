@@ -12,10 +12,13 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -29,6 +32,8 @@ import static com.opengamma.strata.finance.rate.swap.SwapLegType.IBOR;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
@@ -38,12 +43,15 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
+import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 
 /**
  * Test.
@@ -70,6 +78,8 @@ public class RateCalculationSwapLegTest {
   private static final LocalDate DATE_05_08 = date(2014, 5, 8);
   private static final LocalDate DATE_06_05 = date(2014, 6, 5);
   private static final LocalDate DATE_06_09 = date(2014, 6, 9);
+  private static final LocalDate DATE_14_06_09 = date(2014, 6, 9);
+  private static final LocalDate DATE_19_06_09 = date(2019, 6, 9);
   private static final DaysAdjustment PLUS_THREE_DAYS = DaysAdjustment.ofBusinessDays(3, GBLO);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
   private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
@@ -505,6 +515,219 @@ public class RateCalculationSwapLegTest {
         .paymentPeriods(rpp1, rpp2, rpp3)
         .paymentEvents(ne1a, ne1b, ne2a, ne2b, ne3a, ne3b)
         .build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_inflation_monthly() {
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(Frequency.ofYears(5))
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .build();
+    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
+        .index(GB_RPI)
+        .interpolated(false)
+        .lag(Period.ofMonths(3))
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
+    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getPayReceive(), PAY);
+    assertEquals(test.getAccrualSchedule(), accrualSchedule);
+    assertEquals(test.getPaymentSchedule(), paymentSchedule);
+    assertEquals(test.getNotionalSchedule(), notionalSchedule);
+    assertEquals(test.getCalculation(), rateCalc);
+
+    RatePaymentPeriod rpp = RatePaymentPeriod.builder()
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_14_06_09))
+            .endDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_19_06_09))
+            .unadjustedStartDate(DATE_14_06_09)
+            .unadjustedEndDate(DATE_19_06_09)
+            .yearFraction(1.0)
+            .rateObservation(
+                    InflationMonthlyRateObservation.of(
+                    GB_RPI,
+                    YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
+                    YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3)))
+            .build())
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .paymentPeriods(rpp)
+        .payReceive(PAY)
+        .type(SwapLegType.INFLATION)
+        .build();
+    ExpandedSwapLeg testExpand = test.expand();
+    assertEquals(testExpand, expected);
+
+  }
+
+  public void test_inflation_interpolated() {
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(Frequency.ofYears(5))
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .build();
+    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
+        .index(GB_RPI)
+        .interpolated(true)
+        .lag(Period.ofMonths(3))
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
+    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getPayReceive(), RECEIVE);
+    assertEquals(test.getAccrualSchedule(), accrualSchedule);
+    assertEquals(test.getPaymentSchedule(), paymentSchedule);
+    assertEquals(test.getNotionalSchedule(), notionalSchedule);
+    assertEquals(test.getCalculation(), rateCalc);
+
+    double weight = 1. - 9.0 / 30.0;
+    RatePaymentPeriod rpp0 = RatePaymentPeriod.builder()
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(adj.adjust(DATE_14_06_09))
+            .endDate(adj.adjust(DATE_19_06_09))
+            .unadjustedStartDate(DATE_14_06_09)
+            .unadjustedEndDate(DATE_19_06_09)
+            .yearFraction(1.0)
+            .rateObservation(
+                InflationInterpolatedRateObservation.of(
+                    GB_RPI,
+                    YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
+                    YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3),
+                    weight))
+            .build())
+        .currency(GBP)
+        .notional(1000d)
+        .build();
+    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .paymentPeriods(rpp0)
+        .payReceive(RECEIVE)
+        .type(SwapLegType.INFLATION)
+        .build();
+    ExpandedSwapLeg testExpand = test.expand();
+    assertEquals(testExpand, expected);
+  }
+
+  public void test_inflation_fixed() {
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(P12M)
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .compoundingMethod(STRAIGHT)
+        .build();
+    FixedRateCalculation rateCalc = FixedRateCalculation.builder()
+        .rate(ValueSchedule.of(0.05))
+        .dayCount(ONE_ONE) // year fraction is always 1.
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
+    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getPayReceive(), RECEIVE);
+    assertEquals(test.getAccrualSchedule(), accrualSchedule);
+    assertEquals(test.getPaymentSchedule(), paymentSchedule);
+    assertEquals(test.getNotionalSchedule(), notionalSchedule);
+    assertEquals(test.getCalculation(), rateCalc);
+    RateAccrualPeriod rap0 = RateAccrualPeriod.builder()
+        .startDate(adj.adjust(DATE_14_06_09))
+        .endDate(adj.adjust(DATE_14_06_09.plusYears(1)))
+        .unadjustedStartDate(DATE_14_06_09)
+        .unadjustedEndDate(DATE_14_06_09.plusYears(1))
+        .yearFraction(1.0)
+        .rateObservation(FixedRateObservation.of(0.05))
+        .build();
+    RateAccrualPeriod rap1 = RateAccrualPeriod.builder()
+        .startDate(adj.adjust(DATE_14_06_09.plusYears(1)))
+        .endDate(adj.adjust(DATE_14_06_09.plusYears(2)))
+        .unadjustedStartDate(DATE_14_06_09.plusYears(1))
+        .unadjustedEndDate(DATE_14_06_09.plusYears(2))
+        .yearFraction(1.0)
+        .rateObservation(FixedRateObservation.of(0.05))
+        .build();
+    RateAccrualPeriod rap2 = RateAccrualPeriod.builder()
+        .startDate(adj.adjust(DATE_14_06_09.plusYears(2)))
+        .endDate(adj.adjust(DATE_14_06_09.plusYears(3)))
+        .unadjustedStartDate(DATE_14_06_09.plusYears(2))
+        .unadjustedEndDate(DATE_14_06_09.plusYears(3))
+        .yearFraction(1.0)
+        .rateObservation(FixedRateObservation.of(0.05))
+        .build();
+    RateAccrualPeriod rap3 = RateAccrualPeriod.builder()
+        .startDate(adj.adjust(DATE_14_06_09.plusYears(3)))
+        .endDate(adj.adjust(DATE_14_06_09.plusYears(4)))
+        .unadjustedStartDate(DATE_14_06_09.plusYears(3))
+        .unadjustedEndDate(DATE_14_06_09.plusYears(4))
+        .yearFraction(1.0)
+        .rateObservation(FixedRateObservation.of(0.05))
+        .build();
+    RateAccrualPeriod rap4 = RateAccrualPeriod.builder()
+        .startDate(adj.adjust(DATE_14_06_09.plusYears(4)))
+        .endDate(adj.adjust(DATE_19_06_09))
+        .unadjustedStartDate(DATE_14_06_09.plusYears(4))
+        .unadjustedEndDate(DATE_19_06_09)
+        .yearFraction(1.0)
+        .rateObservation(FixedRateObservation.of(0.05))
+        .build();
+    RatePaymentPeriod rpp = RatePaymentPeriod.builder()
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .accrualPeriods(rap0, rap1, rap2, rap3, rap4)
+        .compoundingMethod(STRAIGHT)
+        .currency(GBP)
+        .notional(1000d)
+        .build();
+    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+        .paymentPeriods(rpp)
+        .payReceive(RECEIVE)
+        .type(SwapLegType.FIXED)
+        .build();
+    ExpandedSwapLeg testExpand = test.expand();
+    assertEquals(testExpand, expected);
   }
 
   //-------------------------------------------------------------------------

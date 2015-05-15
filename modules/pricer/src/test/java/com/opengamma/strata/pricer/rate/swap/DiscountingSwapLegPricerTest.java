@@ -6,11 +6,19 @@
 package com.opengamma.strata.pricer.rate.swap;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.finance.rate.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
@@ -27,19 +35,48 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
+import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
+import com.opengamma.strata.finance.rate.swap.InflationRateCalculation;
+import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
+import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
+import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObservationFn;
+import com.opengamma.strata.pricer.impl.rate.ForwardInflationMonthlyRateObservationFn;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
@@ -320,4 +357,218 @@ public class DiscountingSwapLegPricerTest {
     assertTrue(res.equalWithTolerance(expected, TOLERANCE));
   }
 
+  //-------------------------------------------------------------------------
+  private static final LocalDate DATE_14_06_09 = date(2014, 6, 9);
+  private static final LocalDate DATE_19_06_09 = date(2019, 6, 9);
+  private static final LocalDate DATE_14_03_31 = date(2014, 3, 31);
+  private static final double START_INDEX = 218.0;
+  private static final double CONSTANT_INDEX = 242.0;
+  private static final double NOTIONAL = 1000d;
+  private static final PriceIndexCurve GBPRI_CURVE_FLAT = new PriceIndexCurveSimple(new ConstantDoublesCurve(
+      CONSTANT_INDEX));
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 7, 8);
+  private static final PriceIndexCurve GBPRI_CURVE;
+  static {
+    double[] x = new double[] {0.5, 1.0, 2.0, 5.0, 10.0 };
+    double[] y = new double[] {227.2, 252.6, 289.5, 323.1, 351.1 };
+    CombinedInterpolatorExtrapolator interp =
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
+            Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    String curveName = "GB_RPI_CURVE";
+    InterpolatedDoublesCurve interpCurve = InterpolatedDoublesCurve.from(x, y, interp, curveName);
+    GBPRI_CURVE = new PriceIndexCurveSimple(interpCurve);
+  }
+  private static final double EPS = 1.0e-14;
+
+  public void test_inflation_monthly() {
+    // setup
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(Frequency.ofYears(5))
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .build();
+    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
+        .index(GB_RPI)
+        .interpolated(false)
+        .lag(Period.ofMonths(3))
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, NOTIONAL);
+    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
+    Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .discountCurves(dscCurve)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    // test futureValue and presentValue
+    CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
+    CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
+    LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
+    double dscFactor = prov.discountFactor(GBP, paymentDate);
+    double fvExpected = (CONSTANT_INDEX / START_INDEX - 1.0) * (-NOTIONAL);
+    assertEquals(fvComputed.getCurrency(), GBP);
+    assertEquals(fvComputed.getAmount(), fvExpected, NOTIONAL * EPS);
+    double pvExpected = dscFactor * fvExpected;
+    assertEquals(pvComputed.getCurrency(), GBP);
+    assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
+    // test futureValueSensitivity and presentValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
+    ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
+    InflationMonthlyRateObservation obs =
+        (InflationMonthlyRateObservation) ((RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0))
+        .getAccrualPeriods().get(0).getRateObservation();
+    PointSensitivityBuilder pvSensiExpected = obsFn.rateSensitivity(obs, DATE_14_06_09, DATE_19_06_09, prov);
+    pvSensiExpected = pvSensiExpected.multipliedBy(-NOTIONAL);
+    assertTrue(fvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+    pvSensiExpected = pvSensiExpected.multipliedBy(dscFactor);
+    PointSensitivityBuilder dscSensiExpected = prov.discountFactorZeroRateSensitivity(GBP, paymentDate);
+    dscSensiExpected = dscSensiExpected.multipliedBy(fvExpected);
+    pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
+    assertTrue(pvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+  }
+
+  public void test_inflation_interpolated() {
+    // setup
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(Frequency.ofYears(5))
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .build();
+    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
+        .index(GB_RPI)
+        .interpolated(true)
+        .lag(Period.ofMonths(3))
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
+    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
+    Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .discountCurves(dscCurve)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    // test futureValue and presentValue
+    CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
+    CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
+    LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
+    double dscFactor = prov.discountFactor(GBP, paymentDate);
+    ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
+    InflationInterpolatedRateObservation obs =
+        (InflationInterpolatedRateObservation) ((RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0))
+        .getAccrualPeriods().get(0).getRateObservation();
+    double indexRate = obsFn.rate(obs, DATE_14_06_09, DATE_19_06_09, prov);
+    double fvExpected = indexRate * (NOTIONAL);
+    assertEquals(fvComputed.getCurrency(), GBP);
+    assertEquals(fvComputed.getAmount(), fvExpected, NOTIONAL * EPS);
+    double pvExpected = dscFactor * fvExpected;
+    assertEquals(pvComputed.getCurrency(), GBP);
+    assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
+    // test futureValueSensitivity and presentValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
+    PointSensitivityBuilder pvSensiExpected = obsFn.rateSensitivity(obs, DATE_14_06_09, DATE_19_06_09, prov);
+    pvSensiExpected = pvSensiExpected.multipliedBy(NOTIONAL);
+    assertTrue(fvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+    pvSensiExpected = pvSensiExpected.multipliedBy(dscFactor);
+    PointSensitivityBuilder dscSensiExpected = prov.discountFactorZeroRateSensitivity(GBP, paymentDate);
+    dscSensiExpected = dscSensiExpected.multipliedBy(fvExpected);
+    pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
+    assertTrue(pvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+  }
+
+  public void test_inflation_fixed() {
+    // setup
+    double fixedRate = 0.05;
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(P12M)
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .compoundingMethod(STRAIGHT)
+        .build();
+    FixedRateCalculation rateCalc = FixedRateCalculation.builder()
+        .rate(ValueSchedule.of(fixedRate))
+        .dayCount(ONE_ONE) // year fraction is always 1.
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
+    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
+    Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .discountCurves(dscCurve)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    // test futureValue and presentValue
+    CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
+    CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
+    LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
+    double dscFactor = prov.discountFactor(GBP, paymentDate);
+    double fvExpected = (Math.pow(1.0 + fixedRate, 5) - 1.0) * NOTIONAL;
+    assertEquals(fvComputed.getCurrency(), GBP);
+    assertEquals(fvComputed.getAmount(), fvExpected, NOTIONAL * EPS);
+    double pvExpected = fvExpected * dscFactor;
+    assertEquals(pvComputed.getCurrency(), GBP);
+    assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
+    // test futureValueSensitivity and presentValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
+    assertEquals(fvSensiComputed, PointSensitivityBuilder.none());
+    PointSensitivityBuilder pvSensiExpected = prov.discountFactorZeroRateSensitivity(GBP, paymentDate);
+    pvSensiExpected = pvSensiExpected.multipliedBy(fvExpected);
+    assertTrue(pvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+  }
 }

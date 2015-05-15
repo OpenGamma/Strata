@@ -7,12 +7,16 @@ package com.opengamma.strata.pricer.rate.swap;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.IBOR;
+
+import java.time.Period;
 
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
@@ -23,6 +27,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
@@ -33,6 +38,7 @@ import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
+import com.opengamma.strata.finance.rate.swap.InflationRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
@@ -290,6 +296,50 @@ public final class SwapDummyData {
       .notionalSchedule(NotionalSchedule.of(Currency.GBP, NOTIONAL))
       .calculation(FixedRateCalculation.of(0.0123d, DayCounts.ACT_365F))
       .build();
+  /**
+   * RateCalculationSwapLeg (inflation)
+   */
+  public static final RateCalculationSwapLeg INFLATION_MONTHLY_SWAP_LEG_REC_GBP = RateCalculationSwapLeg.builder()
+      .payReceive(PAY)
+      .accrualSchedule(PeriodicSchedule.builder()
+          .startDate(date(2014, 6, 9))
+          .endDate(date(2019, 6, 9))
+          .frequency(Frequency.ofYears(5))
+          .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+          .build())
+      .paymentSchedule(PaymentSchedule.builder()
+          .paymentFrequency(Frequency.ofYears(5))
+          .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+          .build())
+      .calculation(InflationRateCalculation.builder()
+          .index(GB_RPI)
+          .interpolated(false)
+          .lag(Period.ofMonths(3))
+          .build())
+      .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL))
+      .build();
+  /**
+   * RateCalculationSwapLeg (fixed - to be used as a counterpart of INFLATION_MONTHLY_SWAP_LEG_REC_GBP)
+   */
+  public static final RateCalculationSwapLeg INFLATION_FIXED_SWAP_LEG_PAY_GBP = RateCalculationSwapLeg.builder()
+      .payReceive(RECEIVE)
+      .accrualSchedule(PeriodicSchedule.builder()
+          .startDate(date(2014, 6, 9))
+          .endDate(date(2019, 6, 9))
+          .frequency(Frequency.P12M)
+          .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+          .build())
+      .paymentSchedule(PaymentSchedule.builder()
+          .paymentFrequency(Frequency.ofYears(5))
+          .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+          .compoundingMethod(CompoundingMethod.STRAIGHT)
+          .build())
+      .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL))
+      .calculation(FixedRateCalculation.builder()
+          .rate(ValueSchedule.of(0.0358d))
+          .dayCount(DayCounts.ONE_ONE) // year fraction is always 1.
+          .build())
+      .build();
 
   /**
    * Swap.
@@ -302,6 +352,13 @@ public final class SwapDummyData {
    */
   public static final Swap SWAP_CROSS_CURRENCY = Swap.builder()
       .legs(IBOR_EXPANDED_SWAP_LEG_REC_GBP, FIXED_EXPANDED_SWAP_LEG_PAY_USD)
+      .build();
+
+  /**
+   * Inflation Swap.
+   */
+  public static final Swap SWAP_INFLATION = Swap.builder()
+      .legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, INFLATION_FIXED_SWAP_LEG_PAY_GBP)
       .build();
 
   /**
