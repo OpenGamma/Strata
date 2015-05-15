@@ -19,7 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 
-// TODO This will be implemented when the market data builders are ported over that perform calibration
+// TODO This will be implemented when the market data functions are ported over that perform calibration
 /**
  * The default implementation of {@link MarketDataConfig}.
  */

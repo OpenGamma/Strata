@@ -6,13 +6,12 @@
 package com.opengamma.strata.engine.config;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
 
 @Test
 public class DefaultMarketDataRulesTest {

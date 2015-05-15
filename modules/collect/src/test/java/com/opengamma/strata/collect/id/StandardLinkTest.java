@@ -24,6 +24,7 @@ import com.google.common.reflect.TypeToken;
 /**
  * Simple tests for a link.
  */
+@SuppressWarnings("unchecked")
 @Test
 public class StandardLinkTest {
 

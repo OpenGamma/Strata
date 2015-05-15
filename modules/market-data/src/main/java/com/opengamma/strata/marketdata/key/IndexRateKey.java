@@ -23,10 +23,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.marketdata.id.FieldName;
 import com.opengamma.strata.marketdata.id.IndexRateId;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
 
 /**
  * A market data key identifying the current and historical values for an {@link Index}.

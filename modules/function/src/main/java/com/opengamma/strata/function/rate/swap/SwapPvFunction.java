@@ -15,26 +15,26 @@ import java.util.stream.IntStream;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.CalculationRequirements;
 import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 import com.opengamma.strata.marketdata.key.IndexRateKey;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
 import com.opengamma.strata.marketdata.key.MarketDataKeys;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**
  * Calculates the present value of an interest rate swap for each of a set of scenarios.
  */
-public class SwapPvFunction implements EngineSingleFunction<SwapTrade, List<MultiCurrencyAmount>> {
+public class SwapPvFunction implements CalculationSingleFunction<SwapTrade, List<MultiCurrencyAmount>> {
 
   @Override
   public CalculationRequirements requirements(SwapTrade trade) {

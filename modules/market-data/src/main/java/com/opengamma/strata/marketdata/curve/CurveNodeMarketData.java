@@ -7,10 +7,11 @@ package com.opengamma.strata.marketdata.curve;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 
+// TODO Get rid of this
 /**
  * A set of market data used when building instruments for curve nodes.
  */

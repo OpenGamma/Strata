@@ -15,6 +15,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.time.YearMonth;
 
@@ -99,6 +100,13 @@ public class InflationRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 3.5);
+    InflationRateSensitivity test = base.normalize();
+    assertSame(test, base);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combinedWith() {
     InflationRateSensitivity base1 = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 5.0);
     InflationRateSensitivity base2 = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 7.0);
@@ -130,6 +138,13 @@ public class InflationRateSensitivityTest {
     InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 3.5);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cloned() {
+    InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 3.5);
+    InflationRateSensitivity test = base.cloned();
+    assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------

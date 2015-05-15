@@ -17,10 +17,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -32,14 +33,12 @@ import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.TestKey;
+import com.opengamma.strata.engine.marketdata.TestObservableKey;
+import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.CalculationRequirements;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.IndexRateKey;
 
 @Test
 public class DefaultCalculationRunnerTest {
@@ -48,8 +47,7 @@ public class DefaultCalculationRunnerTest {
     Measure measure = Measure.of("foo");
 
     MarketDataMappings marketDataMappings =
-        MarketDataMappings.builder()
-            .curveGroup("curve group")
+        DefaultMarketDataMappings.builder()
             .marketDataFeed(MarketDataFeed.of("MarketDataFeed"))
             .build();
 
@@ -132,33 +130,31 @@ public class DefaultCalculationRunnerTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    NoMatchingRuleId curveId = NoMatchingRuleId.of(DiscountingCurveKey.of(Currency.GBP));
+    NoMatchingRuleId nonObservableId = NoMatchingRuleId.of(TestKey.of("1"));
     assertThat(nonObservables).hasSize(1);
-    assertThat(nonObservables.iterator().next()).isEqualTo(curveId);
+    assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> indexId =
-        IndexRateKey.of(IborIndices.CHF_LIBOR_12M).toObservableId(MarketDataFeed.NO_RULE);
+    MarketDataId<?> observableId = TestObservableKey.of("2").toObservableId(MarketDataFeed.NO_RULE);
     assertThat(observables).hasSize(1);
-    assertThat(observables.iterator().next()).isEqualTo(indexId);
+    assertThat(observables.iterator().next()).isEqualTo(observableId);
 
-    MarketDataId<?> toisId =
-        IndexRateKey.of(OvernightIndices.CHF_TOIS).toObservableId(MarketDataFeed.NO_RULE);
+    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toObservableId(MarketDataFeed.NO_RULE);
     assertThat(timeSeries).hasSize(1);
-    assertThat(timeSeries.iterator().next()).isEqualTo(toisId);
+    assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }
 
   private static class TestTarget implements CalculationTarget { }
 
-  public static final class TestFunction implements EngineSingleFunction<TestTarget, Object> {
+  public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
 
     @Override
     public CalculationRequirements requirements(TestTarget target) {
       return CalculationRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
-                  DiscountingCurveKey.of(Currency.GBP),
-                  IndexRateKey.of(IborIndices.CHF_LIBOR_12M)))
-          .timeSeriesRequirements(IndexRateKey.of(OvernightIndices.CHF_TOIS))
+                  TestKey.of("1"),
+                  TestObservableKey.of("2")))
+          .timeSeriesRequirements(TestObservableKey.of("3"))
           .build();
     }
 

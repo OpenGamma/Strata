@@ -12,8 +12,8 @@ import com.opengamma.strata.collect.id.StandardIdentifiable;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.examples.data.ExampleData;
+import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 
 /**
  * Contains utilities for using example market data from JSON resources.
@@ -25,7 +25,7 @@ public final class ExampleMarketData {
    */
   private static final MarketDataRules RULES =
       MarketDataRules.of(
-          MarketDataRule.anyTarget(MarketDataMappings.builder().curveGroup("Default").build()));
+          MarketDataRule.anyTarget(MarketDataMappingsBuilder.create().curveGroup("Default").build()));
 
   /**
    * Restricted constructor.

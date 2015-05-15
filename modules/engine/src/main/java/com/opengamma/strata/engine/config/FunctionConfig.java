@@ -34,7 +34,7 @@ import com.google.common.primitives.Primitives;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 
 /**
  * Configuration of a function that performs a calculation.
@@ -54,14 +54,14 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
 
   private static final Logger log = LoggerFactory.getLogger(FunctionConfig.class);
 
-  /** Configuration used when there is none defined for a calculation. Creates {@link MissingConfigEngineFunction}. */
+  /** Configuration used when there is none defined for a calculation. Creates {@link MissingConfigCalculationFunction}. */
   private static final FunctionConfig<? extends CalculationTarget> MISSING =
-      FunctionConfig.of(MissingConfigEngineFunction.class);
+      FunctionConfig.of(MissingConfigCalculationFunction.class);
 
 // TODO FunctionMetadata instead of function type - includes type and set of calculated measures
   /** The type of the function. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final Class<? extends EngineSingleFunction<T, ?>> functionType;
+  private final Class<? extends CalculationSingleFunction<T, ?>> functionType;
 
   /** Constructor arguments used for building function instances, keyed by parameter name. */
   @PropertyDefinition(validate = "notNull", get = "private")
@@ -79,7 +79,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @return configuration for a function that doesn't contain any constructor arguments
    */
   public static <T extends CalculationTarget> FunctionConfig<T> of(
-      Class<? extends EngineSingleFunction<T, ?>> functionType) {
+      Class<? extends CalculationSingleFunction<T, ?>> functionType) {
 
     return new FunctionConfig<>(functionType, ImmutableMap.of());
   }
@@ -92,7 +92,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @return a mutable builder for building {@code FunctionConfig}
    */
   public static <T extends CalculationTarget> FunctionConfigBuilder<T> builder(
-      Class<? extends EngineSingleFunction<T, ?>> functionType) {
+      Class<? extends CalculationSingleFunction<T, ?>> functionType) {
 
     return new FunctionConfigBuilder<>(functionType);
   }
@@ -113,7 +113,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
   // package-private constructor used by FunctionConfigBuilder
   @ImmutableConstructor
   FunctionConfig(
-      Class<? extends EngineSingleFunction<T, ?>> functionType,
+      Class<? extends CalculationSingleFunction<T, ?>> functionType,
       Map<String, Object> arguments) {
 
     this.functionType = ArgChecker.notNull(functionType, "functionType");
@@ -134,16 +134,16 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    *   or if any of the supplied arguments have the same name as the arguments in the configuration
    */
   @SuppressWarnings("unchecked")
-  public EngineSingleFunction<T, ?> createFunction(Map<String, Object> arguments) {
+  public CalculationSingleFunction<T, ?> createFunction(Map<String, Object> arguments) {
     Map<String, Object> mergedArguments = mergedArguments(arguments);
     Constructor<?> constructor = constructor(functionType);
     Object[] argumentArray = constructorArguments(constructor, mergedArguments);
 
     try {
-      return (EngineSingleFunction<T, ?>) constructor.newInstance(argumentArray);
+      return (CalculationSingleFunction<T, ?>) constructor.newInstance(argumentArray);
     } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
       log.warn("Failed to create engine function", e);
-      return (EngineSingleFunction<T, ?>) new MissingConfigEngineFunction();
+      return (CalculationSingleFunction<T, ?>) new MissingConfigCalculationFunction();
     }
   }
 
@@ -156,7 +156,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * @throws IllegalArgumentException if the function requires constructor arguments that have not been provided
    */
   @SuppressWarnings("unchecked")
-  public EngineSingleFunction<T, ?> createFunction() {
+  public CalculationSingleFunction<T, ?> createFunction() {
     return createFunction(ImmutableMap.of());
   }
 
@@ -308,7 +308,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    * Gets the type of the function.
    * @return the value of the property, not null
    */
-  private Class<? extends EngineSingleFunction<T, ?>> getFunctionType() {
+  private Class<? extends CalculationSingleFunction<T, ?>> getFunctionType() {
     return functionType;
   }
 
@@ -369,7 +369,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
      * The meta-property for the {@code functionType} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<? extends EngineSingleFunction<T, ?>>> functionType = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Class<? extends CalculationSingleFunction<T, ?>>> functionType = DirectMetaProperty.ofImmutable(
         this, "functionType", FunctionConfig.class, (Class) Class.class);
     /**
      * The meta-property for the {@code arguments} property.
@@ -423,7 +423,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
      * The meta-property for the {@code functionType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Class<? extends EngineSingleFunction<T, ?>>> functionType() {
+    public MetaProperty<Class<? extends CalculationSingleFunction<T, ?>>> functionType() {
       return functionType;
     }
 
@@ -465,7 +465,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
    */
   private static final class Builder<T extends CalculationTarget> extends DirectFieldsBeanBuilder<FunctionConfig<T>> {
 
-    private Class<? extends EngineSingleFunction<T, ?>> functionType;
+    private Class<? extends CalculationSingleFunction<T, ?>> functionType;
     private Map<String, Object> arguments = ImmutableMap.of();
 
     /**
@@ -492,7 +492,7 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -211170510:  // functionType
-          this.functionType = (Class<? extends EngineSingleFunction<T, ?>>) newValue;
+          this.functionType = (Class<? extends CalculationSingleFunction<T, ?>>) newValue;
           break;
         case -2035517098:  // arguments
           this.arguments = (Map<String, Object>) newValue;

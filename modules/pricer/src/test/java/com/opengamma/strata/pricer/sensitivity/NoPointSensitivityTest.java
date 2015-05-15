@@ -41,6 +41,13 @@ public class NoPointSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    PointSensitivityBuilder base = PointSensitivityBuilder.none();
+    PointSensitivityBuilder test = base.normalize();
+    assertSame(test, base);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combinedWith() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
     PointSensitivityBuilder ibor = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 6, 30), 2.0d);
@@ -54,6 +61,13 @@ public class NoPointSensitivityTest {
     MutablePointSensitivities test = base.buildInto(combo);
     assertSame(test, combo);
     assertEquals(test.getSensitivities(), ImmutableList.of());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cloned() {
+    PointSensitivityBuilder base = PointSensitivityBuilder.none();
+    PointSensitivityBuilder test = base.cloned();
+    assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------

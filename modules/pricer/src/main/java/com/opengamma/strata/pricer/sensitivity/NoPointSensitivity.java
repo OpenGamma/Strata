@@ -44,8 +44,18 @@ final class NoPointSensitivity
   }
 
   @Override
+  public NoPointSensitivity normalize() {
+    return this;
+  }
+
+  @Override
   public MutablePointSensitivities buildInto(MutablePointSensitivities combination) {
     return combination;
+  }
+
+  @Override
+  public NoPointSensitivity cloned() {
+    return this;
   }
 
   @Override

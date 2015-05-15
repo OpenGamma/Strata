@@ -81,6 +81,13 @@ public class ZeroRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_normalize() {
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
+    ZeroRateSensitivity test = base.normalize();
+    assertSame(test, base);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combinedWith() {
     ZeroRateSensitivity base1 = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
     ZeroRateSensitivity base2 = ZeroRateSensitivity.of(GBP, date(2015, 10, 27), 22d);
@@ -112,6 +119,13 @@ public class ZeroRateSensitivityTest {
     ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cloned() {
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
+    ZeroRateSensitivity test = base.cloned();
+    assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------

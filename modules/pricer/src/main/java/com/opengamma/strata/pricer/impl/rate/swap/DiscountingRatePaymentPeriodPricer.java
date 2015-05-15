@@ -187,26 +187,25 @@ public class DiscountingRatePaymentPeriodPricer
     double notional = period.getNotional() * fxRate;
     PointSensitivityBuilder unitAccrual;
     if (period.isCompoundingApplicable()) {
-      // TODO handle compounding
-      throw new UnsupportedOperationException("compounding not yet implemented for futureValueSensitivity");
+      unitAccrual = accrueCompoundedSensitivity(period, notional, provider);
     } else {
-      unitAccrual = unitNotionalSensiNoCompounding(period, provider);
+      unitAccrual = unitNotionalSensitivityNoCompounding(period, provider);
     }
     return unitAccrual.multipliedBy(notional);
   }
 
   // computes the sensitivity of the payment period to the rate observations (not to the discount factors)
-  private PointSensitivityBuilder unitNotionalSensiNoCompounding(RatePaymentPeriod period, RatesProvider provider) {
+  private PointSensitivityBuilder unitNotionalSensitivityNoCompounding(RatePaymentPeriod period, RatesProvider provider) {
     Currency ccy = period.getCurrency();
     PointSensitivityBuilder sensi = PointSensitivityBuilder.none();
     for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
-      sensi = sensi.combinedWith(unitNotionalSensiAccrual(accrualPeriod, ccy, provider));
+      sensi = sensi.combinedWith(unitNotionalSensitivityAccrual(accrualPeriod, ccy, provider));
     }
     return sensi;
   }
 
   // computes the sensitivity of the accrual period to the rate observations (not to discount factors)
-  private PointSensitivityBuilder unitNotionalSensiAccrual(
+  private PointSensitivityBuilder unitNotionalSensitivityAccrual(
       RateAccrualPeriod period,
       Currency ccy,
       RatesProvider provider) {
@@ -214,6 +213,84 @@ public class DiscountingRatePaymentPeriodPricer
     PointSensitivityBuilder sensi = rateObservationFn.rateSensitivity(
         period.getRateObservation(), period.getStartDate(), period.getEndDate(), provider);
     return sensi.multipliedBy(period.getGearing() * period.getYearFraction());
+  }
+
+  //-------------------------------------------------------------------------
+  // apply compounding - sensitivity
+  private PointSensitivityBuilder accrueCompoundedSensitivity(
+      RatePaymentPeriod paymentPeriod,
+      double notional,
+      RatesProvider provider) {
+
+    switch (paymentPeriod.getCompoundingMethod()) {
+      case STRAIGHT:
+        return compoundedStraightSensitivity(paymentPeriod, provider);
+      case FLAT:
+        return compoundedFlatSensitivity(paymentPeriod, provider);
+      case SPREAD_EXCLUSIVE:
+        return compoundedSpreadExclusiveSensitivity(paymentPeriod, provider);
+      default:
+        return unitNotionalSensitivityNoCompounding(paymentPeriod, provider);
+    }
+  }
+
+  // straight compounding
+  private PointSensitivityBuilder compoundedStraightSensitivity(
+      RatePaymentPeriod paymentPeriod,
+      RatesProvider provider) {
+
+    double notionalAccrued = 1d;
+    Currency ccy = paymentPeriod.getCurrency();
+    PointSensitivityBuilder sensi = PointSensitivityBuilder.none();
+    for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
+      double investFactor = 1d + unitNotionalAccrual(accrualPeriod, accrualPeriod.getSpread(), provider);
+      notionalAccrued *= investFactor;
+      PointSensitivityBuilder investFactorSensi =
+          unitNotionalSensitivityAccrual(accrualPeriod, ccy, provider).multipliedBy(1d / investFactor);
+      sensi = sensi.combinedWith(investFactorSensi);
+    }
+    return sensi.multipliedBy(notionalAccrued);
+  }
+
+  // flat compounding
+  private PointSensitivityBuilder compoundedFlatSensitivity(
+      RatePaymentPeriod paymentPeriod,
+      RatesProvider provider) {
+
+    double cpaAccumulated = 0d;
+    Currency ccy = paymentPeriod.getCurrency();
+    PointSensitivityBuilder sensiAccumulated = PointSensitivityBuilder.none();
+    for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
+      double rate = rawRate(accrualPeriod, provider);
+      double accrualZeroSpread = unitNotionalAccrualRaw(accrualPeriod, rate, 0);
+      PointSensitivityBuilder sensiCp = sensiAccumulated.cloned();
+      sensiCp = sensiCp.multipliedBy(accrualZeroSpread);
+      PointSensitivityBuilder sensi2 =
+          unitNotionalSensitivityAccrual(accrualPeriod, ccy, provider).multipliedBy(1d + cpaAccumulated);
+      cpaAccumulated += cpaAccumulated * accrualZeroSpread +
+          unitNotionalAccrualRaw(accrualPeriod, rate, accrualPeriod.getSpread());
+      sensiCp = sensiCp.combinedWith(sensi2);
+      sensiAccumulated = sensiAccumulated.combinedWith(sensiCp).normalize();
+    }
+    return sensiAccumulated;
+  }
+
+  // spread exclusive compounding
+  private PointSensitivityBuilder compoundedSpreadExclusiveSensitivity(
+      RatePaymentPeriod paymentPeriod,
+      RatesProvider provider) {
+
+    double notionalAccrued = 1d;
+    Currency ccy = paymentPeriod.getCurrency();
+    PointSensitivityBuilder sensi = PointSensitivityBuilder.none();
+    for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
+      double investFactor = 1 + unitNotionalAccrual(accrualPeriod, 0, provider);
+      notionalAccrued *= investFactor;
+      PointSensitivityBuilder investFactorSensi =
+          unitNotionalSensitivityAccrual(accrualPeriod, ccy, provider).multipliedBy(1d / investFactor);
+      sensi = sensi.combinedWith(investFactorSensi);
+    }
+    return sensi.multipliedBy(notionalAccrued);
   }
 
 }

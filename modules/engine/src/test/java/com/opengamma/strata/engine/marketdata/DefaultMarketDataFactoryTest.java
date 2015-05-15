@@ -18,10 +18,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.ShiftType;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -29,68 +29,52 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
-import com.opengamma.strata.engine.marketdata.builders.DiscountingCurveMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.ObservableMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.RateIndexCurveMarketDataBuilder;
-import com.opengamma.strata.engine.marketdata.builders.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.MarketDataFilter;
 import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
 import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
-import com.opengamma.strata.marketdata.MarketDataLookup;
-import com.opengamma.strata.marketdata.curve.CurveGroup;
-import com.opengamma.strata.marketdata.id.CurveGroupId;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
-import com.opengamma.strata.marketdata.id.FieldName;
-import com.opengamma.strata.marketdata.id.IndexRateId;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
-import com.opengamma.strata.marketdata.id.QuoteId;
-import com.opengamma.strata.marketdata.id.RateIndexCurveId;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
 
 @Test
 public class DefaultMarketDataFactoryTest {
 
   private static final MarketDataFeed VENDOR = MarketDataFeed.of("RealFeed");
-  private static final IndexRateId LIBOR_1M_ID = IndexRateId.of(IborIndices.USD_LIBOR_1M, VENDOR);
-  private static final IndexRateId LIBOR_3M_ID = IndexRateId.of(IborIndices.USD_LIBOR_3M, VENDOR);
+  private static final TestObservableId ID1 = TestObservableId.of("1", VENDOR);
+  private static final TestObservableId ID2 = TestObservableId.of("2", VENDOR);
   private static final MarketDataConfig MARKET_DATA_CONFIG = mock(MarketDataConfig.class);
 
   /**
    * Tests building time series from requirements.
    */
   public void buildTimeSeries() {
-    IborIndex chfIndex = IborIndices.CHF_LIBOR_1M;
-    IborIndex eurIndex = IborIndices.EUR_LIBOR_1M;
-    IndexRateId chfId = IndexRateId.of(chfIndex);
-    IndexRateId eurId = IndexRateId.of(eurIndex);
-    LocalDateDoubleTimeSeries chfTimeSeries =
+    TestObservableId id1 = TestObservableId.of("1");
+    TestObservableId id2 = TestObservableId.of("2");
+    LocalDateDoubleTimeSeries timeSeries1 =
         LocalDateDoubleTimeSeries.builder()
             .put(date(2011, 3, 8), 1)
             .put(date(2011, 3, 9), 2)
             .put(date(2011, 3, 10), 3)
             .build();
-    LocalDateDoubleTimeSeries eurTimeSeries =
+    LocalDateDoubleTimeSeries timeSeries2 =
         LocalDateDoubleTimeSeries.builder()
             .put(date(2012, 4, 8), 10)
             .put(date(2012, 4, 9), 20)
             .put(date(2012, 4, 10), 30)
             .build();
-    Map<IndexRateId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of(chfId, chfTimeSeries, eurId, eurTimeSeries);
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of(id1, timeSeries1, id2, timeSeries2);
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(timeSeries),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
-            .addTimeSeries(chfId, eurId)
+            .addTimeSeries(id1, id2)
             .build();
     BaseMarketDataResult result =
         marketDataFactory.buildBaseMarketData(
@@ -99,65 +83,67 @@ public class DefaultMarketDataFactoryTest {
             MARKET_DATA_CONFIG);
     BaseMarketData marketData = result.getMarketData();
 
-    assertThat(marketData.getTimeSeries(chfId)).isEqualTo(chfTimeSeries);
-    assertThat(marketData.getTimeSeries(eurId)).isEqualTo(eurTimeSeries);
-  }
-
-  /**
-   * Tests building single values using market data builders.
-   */
-  public void buildNonObservableValues() {
-    CurveGroup curveGroup = MarketDataTestUtils.curveGroup();
-    YieldCurve discountingCurve = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup);
-    YieldCurve iborCurve = MarketDataTestUtils.iborIndexCurve(1, IborIndices.EUR_EURIBOR_12M, curveGroup);
-    DiscountingCurveId discountingCurveId = DiscountingCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
-    RateIndexCurveId iborCurveId = RateIndexCurveId.of(IborIndices.EUR_EURIBOR_12M, MarketDataTestUtils.CURVE_GROUP_NAME);
-    CurveGroupId groupId = CurveGroupId.of(MarketDataTestUtils.CURVE_GROUP_NAME);
-    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
-    DefaultMarketDataFactory marketDataFactory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
-            FeedIdMapping.identity(),
-            new DiscountingCurveMarketDataBuilder(),
-            new RateIndexCurveMarketDataBuilder());
-
-    MarketDataRequirements requirements =
-        MarketDataRequirements.builder()
-            .addValues(discountingCurveId, iborCurveId)
-            .build();
-    BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
-    BaseMarketData marketData = result.getMarketData();
-    assertThat(marketData.getValue(discountingCurveId)).isEqualTo(discountingCurve);
-    assertThat(marketData.getValue(iborCurveId)).isEqualTo(iborCurve);
+    assertThat(marketData.getTimeSeries(id1)).isEqualTo(timeSeries1);
+    assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
   }
 
   /**
    * Tests non-observable market data values supplied by the user are included in the results.
    */
   public void buildSuppliedNonObservableValues() {
-    CurveGroup curveGroup = MarketDataTestUtils.curveGroup();
-    YieldCurve discountingCurve = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup);
-    YieldCurve iborCurve = MarketDataTestUtils.iborIndexCurve(1, IborIndices.EUR_EURIBOR_12M, curveGroup);
-    DiscountingCurveId discountingCurveId = DiscountingCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
-    RateIndexCurveId iborCurveId = RateIndexCurveId.of(IborIndices.EUR_EURIBOR_12M, MarketDataTestUtils.CURVE_GROUP_NAME);
-    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
-        .addValue(discountingCurveId, discountingCurve)
-        .addValue(iborCurveId, iborCurve)
-        .build();
+    TestId id1 = TestId.of("1");
+    TestId id2 = TestId.of("2");
+    BaseMarketData suppliedData =
+        BaseMarketData.builder(date(2011, 3, 8))
+            .addValue(id1, "foo")
+            .addValue(id2, "bar")
+            .build();
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
-            .addValues(discountingCurveId, iborCurveId)
+            .addValues(id1, id2)
             .build();
     BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
     BaseMarketData marketData = result.getMarketData();
-    assertThat(marketData.getValue(discountingCurveId)).isEqualTo(discountingCurve);
-    assertThat(marketData.getValue(iborCurveId)).isEqualTo(iborCurve);
+    assertThat(marketData.getValue(id1)).isEqualTo("foo");
+    assertThat(marketData.getValue(id2)).isEqualTo("bar");
+  }
+
+  /**
+   * Tests building single values using market data functions.
+   */
+  public void buildNonObservableValues() {
+    ObservableId idA = new TestIdA("1");
+    MarketDataId<?> idC = new TestIdC("1");
+    LocalDateDoubleTimeSeries timeSeries =
+        LocalDateDoubleTimeSeries.builder()
+            .put(date(2012, 4, 8), 10)
+            .put(date(2012, 4, 9), 20)
+            .put(date(2012, 4, 10), 30)
+            .build();
+
+    BaseMarketData suppliedData =
+        BaseMarketData.builder(date(2011, 3, 8))
+            .addTimeSeries(idA, timeSeries)
+            .build();
+    DefaultMarketDataFactory marketDataFactory =
+        new DefaultMarketDataFactory(
+            new TestTimeSeriesProvider(ImmutableMap.of()),
+            ObservableMarketDataFunction.none(),
+            FeedIdMapping.identity(),
+            new TestMarketDataFunctionC());
+
+    MarketDataRequirements requirements =
+        MarketDataRequirements.builder()
+            .addValues(idC)
+            .build();
+    BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+    BaseMarketData marketData = result.getMarketData();
+    assertThat(marketData.getValue(idC)).isEqualTo(new TestMarketDataC(timeSeries));
   }
 
   /**
@@ -167,12 +153,12 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
-    QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
-    QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
     BaseMarketDataResult result = factory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
     BaseMarketData marketData = result.getMarketData();
@@ -188,11 +174,11 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             new TestFeedIdMapping());
 
-    QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
-    QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId id1 = TestObservableId.of("a");
+    TestObservableId id2 = TestObservableId.of("b");
 
     BaseMarketData suppliedData =
         BaseMarketData.builder(date(2011, 3, 8))
@@ -214,10 +200,10 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
-    DiscountingCurveKey key = DiscountingCurveKey.of(Currency.GBP);
+    TestObservableKey key = TestObservableKey.of("1");
     MissingMappingId missingId = MissingMappingId.of(key);
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(missingId).build();
     BaseMarketDataResult result =
@@ -235,15 +221,15 @@ public class DefaultMarketDataFactoryTest {
    * matching market data rule for a calculation.
    */
   public void noMatchingMarketDataRuleObservables() {
-    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataFeed.NO_RULE);
-    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataFeed.NO_RULE);
+    TestObservableId id3 = TestObservableId.of("3", MarketDataFeed.NO_RULE);
+    TestObservableId id4 = TestObservableId.of("4", MarketDataFeed.NO_RULE);
 
-    Set<IndexRateId> requirements = ImmutableSet.of(libor6mId, libor12mId, LIBOR_1M_ID, LIBOR_3M_ID);
+    Set<ObservableId> requirements = ImmutableSet.of(id3, id4, ID1, ID2);
 
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new DelegateBuilder(),
+            new TestObservableFunction(),
             Optional::of);
 
     MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addValues(requirements).build();
@@ -252,10 +238,10 @@ public class DefaultMarketDataFactoryTest {
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
     BaseMarketData marketData = result.getMarketData();
 
-    assertThat(marketData.getValue(LIBOR_1M_ID)).isEqualTo(1d);
-    assertThat(marketData.getValue(LIBOR_3M_ID)).isEqualTo(3d);
-    assertThat(failures.get(libor6mId)).hasFailureMessageMatching("No market data rule.*");
-    assertThat(failures.get(libor12mId)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(failures.get(id3)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(failures.get(id4)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(marketData.getValue(ID1)).isEqualTo(1d);
+    assertThat(marketData.getValue(ID2)).isEqualTo(3d);
   }
 
   /**
@@ -263,25 +249,22 @@ public class DefaultMarketDataFactoryTest {
    * market data rule for a calculation.
    */
   public void noMatchingMarketDataRuleNonObservables() {
-    DiscountingCurveKey gbpCurveKey = DiscountingCurveKey.of(Currency.GBP);
-    NoMatchingRuleId gbpCurveId = NoMatchingRuleId.of(gbpCurveKey);
-    DiscountingCurveId eurCurveId = DiscountingCurveId.of(Currency.EUR, "curve group");
+    TestKey key1 = TestKey.of("1");
+    NoMatchingRuleId id1 = NoMatchingRuleId.of(key1);
 
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
-            Optional::of,
-            new CurveBuilder());
+            new TestObservableMarketDataFunction(),
+            Optional::of);
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(eurCurveId, gbpCurveId).build();
+    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1).build();
     BaseMarketDataResult result =
         factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> singleValueFailures = result.getSingleValueFailures();
     BaseMarketData marketData = result.getMarketData();
 
-    assertThat(singleValueFailures.get(gbpCurveId)).hasFailureMessageMatching("No market data rule.*");
-    assertThat(marketData.getValue(eurCurveId)).isNotNull();
+    assertThat(singleValueFailures.get(id1)).hasFailureMessageMatching("No market data rule.*");
   }
 
   /**
@@ -289,9 +272,9 @@ public class DefaultMarketDataFactoryTest {
    * market data rule for a calculation.
    */
   public void noMatchingMarketDataRuleTimeSeries() {
-    IndexRateId libor6mId = IndexRateId.of(IborIndices.USD_LIBOR_6M, MarketDataFeed.NO_RULE);
-    IndexRateId libor12mId = IndexRateId.of(IborIndices.USD_LIBOR_12M, MarketDataFeed.NO_RULE);
-    Set<IndexRateId> requirements = ImmutableSet.of(libor6mId, libor12mId, LIBOR_1M_ID, LIBOR_3M_ID);
+    TestObservableId id3 = TestObservableId.of("3", MarketDataFeed.NO_RULE);
+    TestObservableId id4 = TestObservableId.of("4", MarketDataFeed.NO_RULE);
+    Set<ObservableId> requirements = ImmutableSet.of(id3, id4, ID1, ID2);
 
     LocalDateDoubleTimeSeries libor1mTimeSeries =
         LocalDateDoubleTimeSeries.builder()
@@ -307,15 +290,15 @@ public class DefaultMarketDataFactoryTest {
             .put(date(2012, 3, 10), 30d)
             .build();
 
-    Map<IndexRateId, LocalDateDoubleTimeSeries> timeSeriesMap =
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap =
         ImmutableMap.of(
-            LIBOR_1M_ID, libor1mTimeSeries,
-            LIBOR_3M_ID, libor3mTimeSeries);
+            ID1, libor1mTimeSeries,
+            ID2, libor3mTimeSeries);
 
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(timeSeriesMap),
-            new DelegateBuilder(),
+            new TestObservableFunction(),
             Optional::of);
 
     MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addTimeSeries(requirements).build();
@@ -324,18 +307,18 @@ public class DefaultMarketDataFactoryTest {
     Map<MarketDataId<?>, Result<?>> failures = result.getTimeSeriesFailures();
     BaseMarketData marketData = result.getMarketData();
 
-    assertThat(marketData.getTimeSeries(LIBOR_1M_ID)).isEqualTo(libor1mTimeSeries);
-    assertThat(marketData.getTimeSeries(LIBOR_3M_ID)).isEqualTo(libor3mTimeSeries);
-    assertThat(failures.get(libor6mId)).hasFailureMessageMatching("No market data rule.*");
-    assertThat(failures.get(libor12mId)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(marketData.getTimeSeries(ID1)).isEqualTo(libor1mTimeSeries);
+    assertThat(marketData.getTimeSeries(ID2)).isEqualTo(libor3mTimeSeries);
+    assertThat(failures.get(id3)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(failures.get(id4)).hasFailureMessageMatching("No market data rule.*");
   }
 
   /**
    * Tests building market data that depends on other market data.
    */
   public void buildDataFromOtherData() {
-    TestMarketDataBuilderB builderB = new TestMarketDataBuilderB();
-    TestMarketDataBuilderC builderC = new TestMarketDataBuilderC();
+    TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
+    TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
@@ -366,7 +349,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             timeSeriesProvider,
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             FeedIdMapping.identity(),
             builderB,
             builderC);
@@ -399,7 +382,7 @@ public class DefaultMarketDataFactoryTest {
     TestIdB idB2 = new TestIdB("2");
     TestIdC idC1 = new TestIdC("1");
     TestIdC idC2 = new TestIdC("2");
-    TestMarketDataBuilderB builder = new TestMarketDataBuilderB();
+    TestMarketDataFunctionB builder = new TestMarketDataFunctionB();
 
     MarketDataRequirements requirements =
         MarketDataRequirements.builder()
@@ -409,7 +392,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             FeedIdMapping.identity(),
             builder);
 
@@ -427,8 +410,8 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(failureB1).hasFailureMessageMatching("No value for.*");
     assertThat(failureB2).hasFailureMessageMatching("No value for.*");
-    assertThat(failureC1).hasFailureMessageMatching("No market data builder available to handle.*");
-    assertThat(failureC2).hasFailureMessageMatching("No market data builder available to handle.*");
+    assertThat(failureC1).hasFailureMessageMatching("No market data function available to handle.*");
+    assertThat(failureC2).hasFailureMessageMatching("No market data function available to handle.*");
   }
 
   /**
@@ -438,18 +421,18 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
-    QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
-    QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
             Double.class,
-            new FalseFilter<>(QuoteId.class),
+            new FalseFilter<>(TestObservableId.class),
             new DoubleShift(ShiftType.ABSOLUTE, 1),
             new DoubleShift(ShiftType.ABSOLUTE, 2),
             new DoubleShift(ShiftType.ABSOLUTE, 3));
@@ -473,10 +456,10 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             new TestFeedIdMapping());
-    QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
-    QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     BaseMarketData suppliedData =
         BaseMarketData.builder(date(2011, 3, 8))
             .addValue(id1, 1d)
@@ -487,7 +470,7 @@ public class DefaultMarketDataFactoryTest {
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
             Double.class,
-            new FalseFilter<>(QuoteId.class),
+            new FalseFilter<>(TestObservableId.class),
             new DoubleShift(ShiftType.ABSOLUTE, 1),
             new DoubleShift(ShiftType.ABSOLUTE, 2),
             new DoubleShift(ShiftType.ABSOLUTE, 3));
@@ -508,12 +491,12 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
-    QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
-    QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
@@ -542,12 +525,12 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
-    QuoteId id1 = QuoteId.of(StandardId.of("reqs", "a"));
-    QuoteId id2 = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
     PerturbationMapping<Double> mapping1 =
         PerturbationMapping.of(
@@ -583,9 +566,9 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
-            new NonObservableMarketDataBuilder());
+            new NonObservableMarketDataFunction());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
@@ -620,7 +603,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             new TestFeedIdMapping());
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
@@ -658,9 +641,9 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
-            new NonObservableMarketDataBuilder());
+            new NonObservableMarketDataFunction());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
@@ -694,9 +677,9 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
-            new NonObservableMarketDataBuilder());
+            new NonObservableMarketDataFunction());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
@@ -737,14 +720,14 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
-            new NonObservableMarketDataBuilder());
+            new NonObservableMarketDataFunction());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
     MarketDataId<?> id1 = new NonObservableId("a");
     MarketDataId<?> id2 = new NonObservableId("b");
-    QuoteId quoteId = QuoteId.of(StandardId.of("reqs", "b"));
+    TestObservableId quoteId = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
 
     PerturbationMapping<Double> mapping =
@@ -769,13 +752,13 @@ public class DefaultMarketDataFactoryTest {
 
   /**
    * Tests that a failure is returned when building observable market data for scenarios where there is no
-   * market data builder.
+   * market data function.
    */
   public void nonObservableScenarioDataWithMissingBuilder() {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataBuilder(),
+            new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
     BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
 
@@ -801,8 +784,8 @@ public class DefaultMarketDataFactoryTest {
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
 
     assertThat(failures.size()).isEqualTo(2);
-    assertThat(failures.get(id1)).hasFailureMessageMatching("No market data builder available.*");
-    assertThat(failures.get(id2)).hasFailureMessageMatching("No market data builder available.*");
+    assertThat(failures.get(id1)).hasFailureMessageMatching("No market data function available.*");
+    assertThat(failures.get(id2)).hasFailureMessageMatching("No market data function available.*");
 
     ScenarioMarketData marketData = result.getMarketData();
     assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No values available for.*");
@@ -816,7 +799,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
     NonObservableId id = new NonObservableId("a");
     PerturbationMapping<String> mapping =
@@ -851,9 +834,9 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory =
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
-            ObservableMarketDataBuilder.none(),
+            ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
-    QuoteId id = QuoteId.of(StandardId.of("reqs", "a"));
+    TestObservableId id = TestObservableId.of(StandardId.of("reqs", "a"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id).build();
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
@@ -881,12 +864,12 @@ public class DefaultMarketDataFactoryTest {
 
   //-----------------------------------------------------------------------------------------------------------
 
-  private static final class DelegateBuilder implements ObservableMarketDataBuilder {
+  private static final class TestObservableFunction implements ObservableMarketDataFunction {
 
     private final Map<ObservableId, Result<Double>> marketData =
         ImmutableMap.of(
-            LIBOR_1M_ID, Result.success(1d),
-            LIBOR_3M_ID, Result.success(3d));
+            ID1, Result.success(1d),
+            ID2, Result.success(3d));
 
     @Override
     public Map<ObservableId, Result<Double>> build(Set<? extends ObservableId> requirements) {
@@ -917,7 +900,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Builds observable data by parsing the value of the standard ID.
    */
-  private static final class TestObservableMarketDataBuilder implements ObservableMarketDataBuilder {
+  private static final class TestObservableMarketDataFunction implements ObservableMarketDataFunction {
 
     @Override
     public Map<ObservableId, Result<Double>> build(Set<? extends ObservableId> requirements) {
@@ -936,8 +919,8 @@ public class DefaultMarketDataFactoryTest {
 
     private final Map<ObservableId, ObservableId> idMap =
         ImmutableMap.of(
-            QuoteId.of(StandardId.of("reqs", "a")), QuoteId.of(StandardId.of("vendor", "1")),
-            QuoteId.of(StandardId.of("reqs", "b")), QuoteId.of(StandardId.of("vendor", "2")));
+            TestObservableId.of(StandardId.of("reqs", "a")), TestObservableId.of(StandardId.of("vendor", "1")),
+            TestObservableId.of(StandardId.of("reqs", "b")), TestObservableId.of(StandardId.of("vendor", "2")));
 
     @Override
     public Optional<ObservableId> idForFeed(ObservableId id) {
@@ -945,37 +928,11 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
-  private static final class CurveBuilder implements MarketDataBuilder<YieldCurve, DiscountingCurveId> {
-
-    @Override
-    public MarketDataRequirements requirements(DiscountingCurveId id) {
-      return MarketDataRequirements.EMPTY;
-    }
-
-    @Override
-    public Result<YieldCurve> build(
-        DiscountingCurveId id,
-        MarketDataLookup builtData,
-        MarketDataConfig marketDataConfig) {
-
-      DiscountingCurveId curveId = DiscountingCurveId.of(Currency.EUR, "curve group");
-
-      if (id.equals(curveId)) {
-        YieldCurve yieldCurve = mock(YieldCurve.class);
-        return Result.success(yieldCurve);
-      } else {
-        throw new IllegalArgumentException("Unexpected requirement " + id);
-      }
-    }
-
-    @Override
-    public Class<DiscountingCurveId> getMarketDataIdType() {
-      return DiscountingCurveId.class;
-    }
-  }
-
   //-----------------------------------------------------------------------------------------------------------
 
+  /**
+   * Test ID A.
+   */
   private static final class TestIdA implements ObservableId {
 
     private final StandardId id;
@@ -1027,6 +984,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * Test ID B.
+   */
   private static final class TestIdB implements MarketDataId<TestMarketDataB> {
 
     private final String str;
@@ -1099,6 +1059,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * Test market data B.
+   */
   private static final class TestMarketDataB {
 
     private final double value;
@@ -1129,7 +1092,10 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
-  private final class TestMarketDataBuilderB implements MarketDataBuilder<TestMarketDataB, TestIdB> {
+  /**
+   * Function for building TestMarketDataB.
+   */
+  private final class TestMarketDataFunctionB implements MarketDataFunction<TestMarketDataB, TestIdB> {
 
     @Override
     public MarketDataRequirements requirements(TestIdB id) {
@@ -1160,6 +1126,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * Test market data C.
+   */
   private static final class TestMarketDataC {
 
     private final LocalDateDoubleTimeSeries timeSeries;
@@ -1186,7 +1155,10 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
-  private static final class TestMarketDataBuilderC implements MarketDataBuilder<TestMarketDataC, TestIdC> {
+  /**
+   * Function for building TestMarketDataC.
+   */
+  private static final class TestMarketDataFunctionC implements MarketDataFunction<TestMarketDataC, TestIdC> {
 
     @Override
     public MarketDataRequirements requirements(TestIdC id) {
@@ -1288,18 +1260,18 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
-  private static final class NonObservableMarketDataBuilder implements MarketDataBuilder<String, NonObservableId> {
+  private static final class NonObservableMarketDataFunction implements MarketDataFunction<String, NonObservableId> {
 
     @Override
     public MarketDataRequirements requirements(NonObservableId id) {
       return MarketDataRequirements.builder()
-          .addValues(QuoteId.of(StandardId.of("reqs", id.str)))
+          .addValues(TestObservableId.of(StandardId.of("reqs", id.str)))
           .build();
     }
 
     @Override
     public Result<String> build(NonObservableId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-      Double value = builtData.getValue(QuoteId.of(StandardId.of("reqs", id.str)));
+      Double value = builtData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));
       return Result.success(Double.toString(value));
     }
 

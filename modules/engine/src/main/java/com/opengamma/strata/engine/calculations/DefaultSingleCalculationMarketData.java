@@ -7,11 +7,11 @@ package com.opengamma.strata.engine.calculations;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 
 /**
  * The default implementation of {@link SingleCalculationMarketData}.

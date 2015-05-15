@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 
 /**
  * Mutable builder for building instances of {@link FunctionConfig}.
@@ -21,13 +21,13 @@ public final class FunctionConfigBuilder<T extends CalculationTarget> {
 
   // TODO FunctionMetadata instead of function type - includes type and set of calculated measures
   /** The type of the function. */
-  private final Class<? extends EngineSingleFunction<T, ?>> functionType;
+  private final Class<? extends CalculationSingleFunction<T, ?>> functionType;
 
   /** The arguments to the function constructor. */
   private final Map<String, Object> arguments = new HashMap<>();
 
   // package-private constructor so it's visible from FunctionConfig.builder()
-  FunctionConfigBuilder(Class<? extends EngineSingleFunction<T, ?>> functionType) {
+  FunctionConfigBuilder(Class<? extends CalculationSingleFunction<T, ?>> functionType) {
     this.functionType = ArgChecker.notNull(functionType, "functionType");
   }
 

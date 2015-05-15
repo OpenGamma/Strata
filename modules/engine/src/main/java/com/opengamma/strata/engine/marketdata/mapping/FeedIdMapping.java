@@ -7,8 +7,8 @@ package com.opengamma.strata.engine.marketdata.mapping;
 
 import java.util.Optional;
 
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.ObservableId;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableId;
 
 /**
  * Provides mappings from {@link ObservableId} instances requested by calculations to ID instances that

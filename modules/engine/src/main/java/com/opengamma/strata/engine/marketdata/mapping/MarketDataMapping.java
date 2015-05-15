@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.engine.marketdata.mapping;
 
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * A market data mapping can be thought of as a configuration rule that tells the system where to

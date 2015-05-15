@@ -42,7 +42,7 @@ public class PriceIndexInterpolatedCurveTest {
   private static final InterpolatedDoublesCurve INTERPOLATED_CURVE =
       InterpolatedDoublesCurve.from(MONTHS_CURVE, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
   private static final PriceIndexInterpolatedCurve PRICE_CURVE =
-      PriceIndexInterpolatedCurve.of(INTERPOLATED_CURVE, VALUATION_MONTH);
+      PriceIndexInterpolatedCurve.of(VALUATION_MONTH, INTERPOLATED_CURVE);
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {YearMonth.of(2015, 1), YearMonth.of(2015, 5),
     YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12) };
@@ -81,7 +81,7 @@ public class PriceIndexInterpolatedCurveTest {
     InterpolatedDoublesCurve interpolatedShifted =
         InterpolatedDoublesCurve.from(MONTHS_CURVE, shiftedValues, INTERPOLATOR_EXPONENTIAL, NAME);
     PriceIndexInterpolatedCurve curveShiftedExpected =
-        PriceIndexInterpolatedCurve.of(interpolatedShifted, VALUATION_MONTH);
+        PriceIndexInterpolatedCurve.of(VALUATION_MONTH, interpolatedShifted);
     PriceIndexCurve curveShiftedComputed =
         PRICE_CURVE.shiftedBy(shifts);
     for (int i = 0; i < TEST_MONTHS.length; i++) {

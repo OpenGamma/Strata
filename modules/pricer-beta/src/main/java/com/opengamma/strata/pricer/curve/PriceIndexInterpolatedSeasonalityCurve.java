@@ -10,75 +10,81 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-
-import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.strata.collect.ArgChecker;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import org.joda.beans.Bean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.strata.collect.ArgChecker;
+
 /**
  * Implementation of a PriceIndexCurve where the curve is represented by an interpolated curve.
  */
 @BeanDefinition(builderScope = "private")
-public class PriceIndexInterpolatedSeasonalityCurve
-    implements  PriceIndexCurve, ImmutableBean, Serializable { 
-  
-  /** The doubles curve underlying the price index curve. 
-   * The X dimension on the curve represent the number of months between. **/
-  @PropertyDefinition(validate = "notNull", get = "private")
-  private final InterpolatedDoublesCurve curve;
-  /** The reference month to compute the number of months from. **/
+public final class PriceIndexInterpolatedSeasonalityCurve
+    implements PriceIndexCurve, ImmutableBean, Serializable {
+
+  /**
+   * The reference month to compute the number of months from.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final YearMonth valuationMonth;
-  /** Describes the seasonal adjustments. The array has a dimension of 12, one element for each month, 
-   * starting from January. The adjustments are multiplicative. For each month, the price index is the one obtained
-   * from the interpolated part of the curve multiplied by the seasonal adjustment. */
+  /**
+   * The doubles curve underlying the price index curve. 
+   * The X dimension on the curve represent the number of months between.
+   */
+  @PropertyDefinition(validate = "notNull", get = "private")
+  private final InterpolatedDoublesCurve curve;
+  /**
+   * Describes the seasonal adjustments.
+   * The array has a dimension of 12, one element for each month, starting from January.
+   * The adjustments are multiplicative. For each month, the price index is the one obtained
+   * from the interpolated part of the curve multiplied by the seasonal adjustment.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final List<Double> seasonality;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a new {@code PriceIndexInterpolatedSeasonalityCurve}.
    * <p>
    * The months are represented by the number of month between the reference month and estimation month. 
-   * 0 represent the reference month, 1 the next month and so on.
+   * Zero represents the reference month, 1 the next month and so on.
    * 
+   * @param valuationMonth  the valuation date for which the curve is valid
    * @param curve  the underlying curve
-   * @param seasonality  the seasonal adjustment for each month, starting with January. Should be of length 12.
-   * @param referenceMonth the reference or valuation month
+   * @param seasonality  the seasonal adjustment for each month, starting with January, must be of length 12
+   * @return the curve
    */
   public static PriceIndexInterpolatedSeasonalityCurve of(
-      InterpolatedDoublesCurve curve, 
-      List<Double> seasonality, 
-      YearMonth referenceMonth) {
-    return new PriceIndexInterpolatedSeasonalityCurve(curve, seasonality, referenceMonth);
+      YearMonth valuationMonth,
+      InterpolatedDoublesCurve curve,
+      List<Double> seasonality) {
+
+    return new PriceIndexInterpolatedSeasonalityCurve(valuationMonth, curve, seasonality);
   }
 
-  // private constructor
-  private PriceIndexInterpolatedSeasonalityCurve(InterpolatedDoublesCurve curve, List<Double> seasonality, 
-      YearMonth referenceMonth) {
-    this.curve = curve;
-    ArgChecker.isTrue(seasonality.size() == 12, "size of seasonality should be 12"); 
-    this.seasonality = seasonality;
-    this.valuationMonth = referenceMonth;
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.isTrue(seasonality.size() == 12, "Size of the seasonality list must be 12");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String getName() {
     return curve.getName();
@@ -88,19 +94,19 @@ public class PriceIndexInterpolatedSeasonalityCurve
   public double getPriceIndex(YearMonth month) {
     double nbMonth = valuationMonth.until(month, MONTHS);
     double indexInterpolated = curve.getYValue(nbMonth);
-    int monthInt = month.getMonthValue() - 1; // List start at 0 and months start at 1.
-    double adjustment = seasonality.get(monthInt);
+    int month0 = month.getMonthValue() - 1; // List start at 0 and months start at 1.
+    double adjustment = seasonality.get(month0);
     return indexInterpolated * adjustment;
   }
 
   @Override
   public Double[] getPriceIndexParameterSensitivity(YearMonth month) {
     double nbMonth = valuationMonth.until(month, MONTHS); // TODO: review - multiply by seasonality
-    int monthInt = month.getMonthValue() - 1;
-    double adjustment = seasonality.get(monthInt);
+    int month0 = month.getMonthValue() - 1;
+    double adjustment = seasonality.get(month0);
     Double[] unadjustedSensitivity = curve.getYValueParameterSensitivity(nbMonth);
     Double[] adjustedSensitivity = new Double[unadjustedSensitivity.length];
-    for(int i=0; i<unadjustedSensitivity.length; i++) {
+    for (int i = 0; i < unadjustedSensitivity.length; i++) {
       adjustedSensitivity[i] = unadjustedSensitivity[i] * adjustment;
     }
     return adjustedSensitivity;
@@ -117,11 +123,11 @@ public class PriceIndexInterpolatedSeasonalityCurve
     ArgChecker.isTrue(shifts.length == x.length, "shifts should and the same length as curve nodes");
     double[] y = curve.getYDataAsPrimitive();
     double[] yShifted = new double[y.length];
-    for(int i=0; i<y.length; i++) {
+    for (int i = 0; i < y.length; i++) {
       yShifted[i] = y[i] + shifts[i];
     }
     InterpolatedDoublesCurve curveShifted = new InterpolatedDoublesCurve(x, yShifted, curve.getInterpolator(), true);
-    return new PriceIndexInterpolatedSeasonalityCurve(curveShifted, seasonality, valuationMonth);
+    return new PriceIndexInterpolatedSeasonalityCurve(valuationMonth, curveShifted, seasonality);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -143,17 +149,17 @@ public class PriceIndexInterpolatedSeasonalityCurve
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected PriceIndexInterpolatedSeasonalityCurve(PriceIndexInterpolatedSeasonalityCurve.Builder builder) {
-    JodaBeanUtils.notNull(builder.curve, "curve");
-    JodaBeanUtils.notNull(builder.valuationMonth, "valuationMonth");
-    JodaBeanUtils.notNull(builder.seasonality, "seasonality");
-    this.curve = builder.curve;
-    this.valuationMonth = builder.valuationMonth;
-    this.seasonality = ImmutableList.copyOf(builder.seasonality);
+  private PriceIndexInterpolatedSeasonalityCurve(
+      YearMonth valuationMonth,
+      InterpolatedDoublesCurve curve,
+      List<Double> seasonality) {
+    JodaBeanUtils.notNull(valuationMonth, "valuationMonth");
+    JodaBeanUtils.notNull(curve, "curve");
+    JodaBeanUtils.notNull(seasonality, "seasonality");
+    this.valuationMonth = valuationMonth;
+    this.curve = curve;
+    this.seasonality = ImmutableList.copyOf(seasonality);
+    validate();
   }
 
   @Override
@@ -173,16 +179,7 @@ public class PriceIndexInterpolatedSeasonalityCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve.
-   * @return the value of the property, not null
-   */
-  private InterpolatedDoublesCurve getCurve() {
-    return curve;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the reference month to compute the number of months from. *
+   * Gets the reference month to compute the number of months from.
    * @return the value of the property, not null
    */
   private YearMonth getValuationMonth() {
@@ -191,7 +188,20 @@ public class PriceIndexInterpolatedSeasonalityCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the seasonality.
+   * Gets the doubles curve underlying the price index curve.
+   * The X dimension on the curve represent the number of months between.
+   * @return the value of the property, not null
+   */
+  private InterpolatedDoublesCurve getCurve() {
+    return curve;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets describes the seasonal adjustments.
+   * The array has a dimension of 12, one element for each month, starting from January.
+   * The adjustments are multiplicative. For each month, the price index is the one obtained
+   * from the interpolated part of the curve multiplied by the seasonal adjustment.
    * @return the value of the property, not null
    */
   private List<Double> getSeasonality() {
@@ -206,8 +216,8 @@ public class PriceIndexInterpolatedSeasonalityCurve
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PriceIndexInterpolatedSeasonalityCurve other = (PriceIndexInterpolatedSeasonalityCurve) obj;
-      return JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
-          JodaBeanUtils.equal(getValuationMonth(), other.getValuationMonth()) &&
+      return JodaBeanUtils.equal(getValuationMonth(), other.getValuationMonth()) &&
+          JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
           JodaBeanUtils.equal(getSeasonality(), other.getSeasonality());
     }
     return false;
@@ -216,8 +226,8 @@ public class PriceIndexInterpolatedSeasonalityCurve
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSeasonality());
     return hash;
   }
@@ -226,41 +236,33 @@ public class PriceIndexInterpolatedSeasonalityCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("PriceIndexInterpolatedSeasonalityCurve{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("valuationMonth").append('=').append(getValuationMonth()).append(',').append(' ');
+    buf.append("curve").append('=').append(getCurve()).append(',').append(' ');
+    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(getSeasonality()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("curve").append('=').append(JodaBeanUtils.toString(getCurve())).append(',').append(' ');
-    buf.append("valuationMonth").append('=').append(JodaBeanUtils.toString(getValuationMonth())).append(',').append(' ');
-    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(getSeasonality())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PriceIndexInterpolatedSeasonalityCurve}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curve} property.
-     */
-    private final MetaProperty<InterpolatedDoublesCurve> curve = DirectMetaProperty.ofImmutable(
-        this, "curve", PriceIndexInterpolatedSeasonalityCurve.class, InterpolatedDoublesCurve.class);
-    /**
      * The meta-property for the {@code valuationMonth} property.
      */
     private final MetaProperty<YearMonth> valuationMonth = DirectMetaProperty.ofImmutable(
         this, "valuationMonth", PriceIndexInterpolatedSeasonalityCurve.class, YearMonth.class);
+    /**
+     * The meta-property for the {@code curve} property.
+     */
+    private final MetaProperty<InterpolatedDoublesCurve> curve = DirectMetaProperty.ofImmutable(
+        this, "curve", PriceIndexInterpolatedSeasonalityCurve.class, InterpolatedDoublesCurve.class);
     /**
      * The meta-property for the {@code seasonality} property.
      */
@@ -272,23 +274,23 @@ public class PriceIndexInterpolatedSeasonalityCurve
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curve",
         "valuationMonth",
+        "curve",
         "seasonality");
 
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return curve;
         case -779918081:  // valuationMonth
           return valuationMonth;
+        case 95027439:  // curve
+          return curve;
         case -857898080:  // seasonality
           return seasonality;
       }
@@ -312,26 +314,26 @@ public class PriceIndexInterpolatedSeasonalityCurve
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curve} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<InterpolatedDoublesCurve> curve() {
-      return curve;
-    }
-
-    /**
      * The meta-property for the {@code valuationMonth} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<YearMonth> valuationMonth() {
+    public MetaProperty<YearMonth> valuationMonth() {
       return valuationMonth;
+    }
+
+    /**
+     * The meta-property for the {@code curve} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<InterpolatedDoublesCurve> curve() {
+      return curve;
     }
 
     /**
      * The meta-property for the {@code seasonality} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Double>> seasonality() {
+    public MetaProperty<List<Double>> seasonality() {
       return seasonality;
     }
 
@@ -339,10 +341,10 @@ public class PriceIndexInterpolatedSeasonalityCurve
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return ((PriceIndexInterpolatedSeasonalityCurve) bean).getCurve();
         case -779918081:  // valuationMonth
           return ((PriceIndexInterpolatedSeasonalityCurve) bean).getValuationMonth();
+        case 95027439:  // curve
+          return ((PriceIndexInterpolatedSeasonalityCurve) bean).getCurve();
         case -857898080:  // seasonality
           return ((PriceIndexInterpolatedSeasonalityCurve) bean).getSeasonality();
       }
@@ -364,26 +366,26 @@ public class PriceIndexInterpolatedSeasonalityCurve
   /**
    * The bean-builder for {@code PriceIndexInterpolatedSeasonalityCurve}.
    */
-  private static class Builder extends DirectFieldsBeanBuilder<PriceIndexInterpolatedSeasonalityCurve> {
+  private static final class Builder extends DirectFieldsBeanBuilder<PriceIndexInterpolatedSeasonalityCurve> {
 
-    private InterpolatedDoublesCurve curve;
     private YearMonth valuationMonth;
+    private InterpolatedDoublesCurve curve;
     private List<Double> seasonality = ImmutableList.of();
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return curve;
         case -779918081:  // valuationMonth
           return valuationMonth;
+        case 95027439:  // curve
+          return curve;
         case -857898080:  // seasonality
           return seasonality;
         default:
@@ -395,11 +397,11 @@ public class PriceIndexInterpolatedSeasonalityCurve
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          this.curve = (InterpolatedDoublesCurve) newValue;
-          break;
         case -779918081:  // valuationMonth
           this.valuationMonth = (YearMonth) newValue;
+          break;
+        case 95027439:  // curve
+          this.curve = (InterpolatedDoublesCurve) newValue;
           break;
         case -857898080:  // seasonality
           this.seasonality = (List<Double>) newValue;
@@ -436,7 +438,10 @@ public class PriceIndexInterpolatedSeasonalityCurve
 
     @Override
     public PriceIndexInterpolatedSeasonalityCurve build() {
-      return new PriceIndexInterpolatedSeasonalityCurve(this);
+      return new PriceIndexInterpolatedSeasonalityCurve(
+          valuationMonth,
+          curve,
+          seasonality);
     }
 
     //-----------------------------------------------------------------------
@@ -444,19 +449,11 @@ public class PriceIndexInterpolatedSeasonalityCurve
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("PriceIndexInterpolatedSeasonalityCurve.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("valuationMonth").append('=').append(JodaBeanUtils.toString(valuationMonth)).append(',').append(' ');
+      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
+      buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
-      buf.append("valuationMonth").append('=').append(JodaBeanUtils.toString(valuationMonth)).append(',').append(' ');
-      buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality)).append(',').append(' ');
     }
 
   }

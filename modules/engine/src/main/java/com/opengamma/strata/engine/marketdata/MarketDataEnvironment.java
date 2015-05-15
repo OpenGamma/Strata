@@ -23,9 +23,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.marketdata.id.MarketDataId;
 
 // TODO Is there a better name for this? StructuredMarketData? CalibratedMarketData?
 /**

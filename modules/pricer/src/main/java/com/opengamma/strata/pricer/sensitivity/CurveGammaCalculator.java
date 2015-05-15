@@ -152,7 +152,7 @@ public class CurveGammaCalculator {
         fwdBumped.put(entry.getKey(), curveBumped);
       }
       ImmutableRatesProvider providerBumped = provider.toBuilder()
-          .discountCurves(dsc)
+          .discountCurves(dscBumped)
           .indexCurves(fwdBumped)
           .build();
       PointSensitivities pts = sensitivitiesFn.apply(providerBumped);

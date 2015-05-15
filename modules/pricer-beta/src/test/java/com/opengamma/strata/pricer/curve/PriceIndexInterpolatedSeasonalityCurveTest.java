@@ -59,7 +59,7 @@ public class PriceIndexInterpolatedSeasonalityCurveTest {
     SEASONALITY.add(1.01);
   }
   private static final PriceIndexInterpolatedSeasonalityCurve PRICE_CURVE =
-      PriceIndexInterpolatedSeasonalityCurve.of(INTERPOLATED_CURVE, SEASONALITY, VALUATION_MONTH);
+      PriceIndexInterpolatedSeasonalityCurve.of(VALUATION_MONTH, INTERPOLATED_CURVE, SEASONALITY);
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {YearMonth.of(2015, 1), YearMonth.of(2015, 5),
     YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12) };
@@ -68,8 +68,8 @@ public class PriceIndexInterpolatedSeasonalityCurveTest {
 
   @Test
   public void test_of_wrong_seasonality_length() {
-    assertThrowsIllegalArg(
-        () -> PriceIndexInterpolatedSeasonalityCurve.of(INTERPOLATED_CURVE, new ArrayList<>(), VALUATION_MONTH));
+    assertThrowsIllegalArg(() -> PriceIndexInterpolatedSeasonalityCurve
+        .of(VALUATION_MONTH, INTERPOLATED_CURVE, new ArrayList<>()));
   }
   
   @Test
@@ -106,7 +106,7 @@ public class PriceIndexInterpolatedSeasonalityCurveTest {
     InterpolatedDoublesCurve interpolatedShifted =
         InterpolatedDoublesCurve.from(MONTHS_CURVE, shiftedValues, INTERPOLATOR_EXPONENTIAL, NAME);
     PriceIndexInterpolatedSeasonalityCurve curveShiftedExpected =
-        PriceIndexInterpolatedSeasonalityCurve.of(interpolatedShifted, SEASONALITY, VALUATION_MONTH);
+        PriceIndexInterpolatedSeasonalityCurve.of(VALUATION_MONTH, interpolatedShifted, SEASONALITY);
     PriceIndexCurve curveShiftedComputed =
         PRICE_CURVE.shiftedBy(shifts);
     for (int i = 0; i < TEST_MONTHS.length; i++) {

@@ -22,8 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.marketdata.id.MarketDataId;
 
 /**
  * The result of building a set of scenario market data, containing the successfully built data and details of

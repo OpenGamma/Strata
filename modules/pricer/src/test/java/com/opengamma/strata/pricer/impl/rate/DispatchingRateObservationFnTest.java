@@ -41,6 +41,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Test.
  */
+@SuppressWarnings("unchecked")
 @Test
 public class DispatchingRateObservationFnTest {
 

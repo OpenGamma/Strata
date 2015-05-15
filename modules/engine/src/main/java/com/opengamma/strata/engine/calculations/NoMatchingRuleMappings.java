@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.engine.calculations;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 
 /**
  * Market data mappings used when the market data rules don't match a calculation target.
@@ -21,6 +21,7 @@ import com.opengamma.strata.marketdata.key.ObservableKey;
  * <p>
  * This class uses raw types because there is no other way for it do implement its interface.
  */
+@SuppressWarnings("unchecked")
 class NoMatchingRuleMappings implements MarketDataMappings {
 
   /** Singleton instance. */
@@ -30,7 +31,6 @@ class NoMatchingRuleMappings implements MarketDataMappings {
   private NoMatchingRuleMappings() {
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public MarketDataId getIdForKey(MarketDataKey key) {
     if (key instanceof ObservableKey) {

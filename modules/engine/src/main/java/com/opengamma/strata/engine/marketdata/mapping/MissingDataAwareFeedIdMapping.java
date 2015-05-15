@@ -7,9 +7,9 @@ package com.opengamma.strata.engine.marketdata.mapping;
 
 import java.util.Optional;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
  * ID mapping that returns the input ID if it has the feed {@link MarketDataFeed#NO_RULE}

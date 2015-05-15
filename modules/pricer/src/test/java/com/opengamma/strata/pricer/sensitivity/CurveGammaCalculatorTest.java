@@ -101,14 +101,14 @@ public class CurveGammaCalculatorTest {
           for (Entry<Index, YieldAndDiscountCurve> entry : fwd.entrySet()) {
             fwdBumped.put(entry.getKey(), curveBumped);
           }
-          ImmutableRatesProvider providerBumped = SINGLE.toBuilder().discountCurves(dsc).indexCurves(fwdBumped).build();
+          ImmutableRatesProvider providerBumped = SINGLE.toBuilder().discountCurves(dscBumped).indexCurves(fwdBumped).build();
           pv[pmi][pmP] = PRICER_SWAP.presentValue(SWAP, providerBumped).getAmount(USD).getAmount();
         }
       }
       gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
     }
     double[] gammaComputed = GAMMA_CAL.calculateSemiParallelGamma(SINGLE,
-        (p) -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+        (p) -> PRICER_SWAP.presentValueSensitivity(SWAP, p).build());
     for (int i = 0; i < nbNode; i++) {
       assertEquals(gammaComputed[i], gammaExpected[i], TOLERANCE_GAMMA);
     }

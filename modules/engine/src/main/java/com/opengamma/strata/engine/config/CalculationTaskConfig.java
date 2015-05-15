@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculations.function.EngineSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**
@@ -99,7 +99,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
    *
    * @return the function instance that performs the calculation
    */
-  public EngineSingleFunction<?, ?> createFunction() {
+  public CalculationSingleFunction<?, ?> createFunction() {
     return functionConfig.createFunction(functionArguments);
   }
 

@@ -7,10 +7,10 @@ package com.opengamma.strata.engine.marketdata;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
-import com.opengamma.strata.marketdata.key.ObservableKey;
 
 /**
  * A source of market data provided to an engine function and used for a calculation across a single scenario.

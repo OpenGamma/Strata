@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.engine.marketdata.mapping;
 
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
-import com.opengamma.strata.engine.marketdata.builders.MissingMappingMarketDataBuilder;
-import com.opengamma.strata.marketdata.key.MarketDataKey;
+import com.opengamma.strata.engine.marketdata.functions.MissingMappingMarketDataFunction;
 
 /**
  * Market data mapping implementation used when there is no mapping for a key.
  * <p>
  * It returns an ID indicating there was no mapping available for the key. This ID is handled by
- * {@link MissingMappingMarketDataBuilder} which creates a failure result for the data with an
+ * {@link MissingMappingMarketDataFunction} which creates a failure result for the data with an
  * error message explaining the problem.
  * <p>
  * This approach always allows configuration to be built for a set of calculations - if the market data

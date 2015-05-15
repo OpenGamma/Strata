@@ -15,16 +15,15 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.marketdata.MarketDataLookup;
-import com.opengamma.strata.marketdata.id.FieldName;
-import com.opengamma.strata.marketdata.id.MarketDataFeed;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
+import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 
 @Test
 public class MarketDataNodeTest {
@@ -102,7 +101,7 @@ public class MarketDataNodeTest {
   }
 
   /**
-   * Tests building a tree of requirements using market data builders.
+   * Tests building a tree of requirements using market data functions.
    */
   public void buildDependencyTree() {
     MarketDataNode expected =
@@ -123,7 +122,7 @@ public class MarketDataNodeTest {
             .addTimeSeries(new TestIdA("6"))
             .build();
 
-    // Requirements for each item in the tree - used to initialize the builders
+    // Requirements for each item in the tree - used to initialize the functions
     MarketDataRequirements id2Reqs =
         MarketDataRequirements.builder()
             .addTimeSeries(new TestIdA("3"))
@@ -140,22 +139,22 @@ public class MarketDataNodeTest {
             new TestIdB("2"), id2Reqs,
             new TestIdB("4"), id4Reqs);
 
-    TestMarketDataBuilderA builderA = new TestMarketDataBuilderA();
-    TestMarketDataBuilderB builderB = new TestMarketDataBuilderB(reqsMap);
+    TestMarketDataFunctionA builderA = new TestMarketDataFunctionA();
+    TestMarketDataFunctionB builderB = new TestMarketDataFunctionB(reqsMap);
 
-    ImmutableMap<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders =
+    ImmutableMap<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions =
         ImmutableMap.of(
             TestIdA.class, builderA,
             TestIdB.class, builderB);
 
     MarketDataNode root =
-        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 3, 8)), builders);
+        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 3, 8)), functions);
 
     assertThat(root).isEqualTo(expected);
   }
 
   /**
-   * Tests that supplied data is in a leaf node and the builders aren't asked for dependencies for supplied data.
+   * Tests that supplied data is in a leaf node and the functions aren't asked for dependencies for supplied data.
    */
   public void noDependenciesForSuppliedData() {
     MarketDataNode expected1 =
@@ -187,14 +186,14 @@ public class MarketDataNodeTest {
             new TestIdB("1"), id1Reqs,
             new TestIdB("3"), id3Reqs);
 
-    TestMarketDataBuilderB builder = new TestMarketDataBuilderB(reqsMap);
+    TestMarketDataFunctionB builder = new TestMarketDataFunctionB(reqsMap);
 
-    ImmutableMap<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders =
+    ImmutableMap<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions =
         ImmutableMap.of(
             TestIdB.class, builder);
 
     MarketDataNode root1 =
-        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 3, 8)), builders);
+        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 3, 8)), functions);
 
     assertThat(root1).isEqualTo(expected1);
 
@@ -204,7 +203,7 @@ public class MarketDataNodeTest {
             .addValue(new TestIdB("3"), new TestMarketDataB())
             .build();
 
-    MarketDataNode root2 = MarketDataNode.buildDependencyTree(requirements, suppliedData, builders);
+    MarketDataNode root2 = MarketDataNode.buildDependencyTree(requirements, suppliedData, functions);
 
     MarketDataNode expected2 =
         rootNode(
@@ -215,7 +214,7 @@ public class MarketDataNodeTest {
   }
 
   /**
-   * Test a node with no children is added when there is no market data builder for an ID.
+   * Test a node with no children is added when there is no market data function for an ID.
    */
   public void noMarketDataBuilder() {
     MarketDataNode expected =
@@ -235,12 +234,12 @@ public class MarketDataNodeTest {
             .addValues(new TestIdC("3"))
             .build();
 
-    TestMarketDataBuilderB builder = new TestMarketDataBuilderB(ImmutableMap.of(new TestIdB("2"), id2Reqs));
-    ImmutableMap<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders =
+    TestMarketDataFunctionB builder = new TestMarketDataFunctionB(ImmutableMap.of(new TestIdB("2"), id2Reqs));
+    ImmutableMap<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions =
         ImmutableMap.of(TestIdB.class, builder);
-    // Build the tree without providing a market data builder to handle TestId3
+    // Build the tree without providing a market data function to handle TestId3
     MarketDataNode root =
-        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 8, 3)), builders);
+        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 8, 3)), functions);
 
     assertThat(root).isEqualTo(expected);
   }
@@ -386,7 +385,7 @@ public class MarketDataNodeTest {
     }
   }
 
-  private static final class TestMarketDataBuilderA implements MarketDataBuilder<Double, TestIdA> {
+  private static final class TestMarketDataFunctionA implements MarketDataFunction<Double, TestIdA> {
 
     @Override
     public MarketDataRequirements requirements(TestIdA id) {
@@ -407,11 +406,11 @@ public class MarketDataNodeTest {
 
   private static final class TestMarketDataB { }
 
-  private static final class TestMarketDataBuilderB implements MarketDataBuilder<TestMarketDataB, TestIdB> {
+  private static final class TestMarketDataFunctionB implements MarketDataFunction<TestMarketDataB, TestIdB> {
 
     private final Map<TestIdB, MarketDataRequirements> requirements;
 
-    private TestMarketDataBuilderB(Map<TestIdB, MarketDataRequirements> requirements) {
+    private TestMarketDataFunctionB(Map<TestIdB, MarketDataRequirements> requirements) {
       this.requirements = requirements;
     }
 

@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.engine.marketdata.builders.MarketDataBuilder;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
+import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 
 /**
  * A node in a tree of dependencies of market data required by a set of calculations.
@@ -62,15 +62,15 @@ class MarketDataNode {
    *
    * @param requirements  IDs of the market data that must be provided
    * @param suppliedData  data supplied by the user
-   * @param builders  builders for market data, keyed by the type of market data ID they handle
+   * @param functions  functions for market data, keyed by the type of market data ID they handle
    * @return the root node of the market data dependency tree
    */
   static MarketDataNode buildDependencyTree(
       MarketDataRequirements requirements,
       BaseMarketData suppliedData,
-      Map<Class<? extends MarketDataId<?>>, MarketDataBuilder<?, ?>> builders) {
+      Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
-    DependencyTreeBuilder treeBuilder = DependencyTreeBuilder.of(suppliedData, requirements, builders);
+    DependencyTreeBuilder treeBuilder = DependencyTreeBuilder.of(suppliedData, requirements, functions);
     return MarketDataNode.root(treeBuilder.childNodes());
   }
 

@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.marketdata.id.MarketDataId;
-import com.opengamma.strata.marketdata.id.ObservableId;
 
 /**
  * Mutable builder for creating instances of {@link MarketDataRequirements}.

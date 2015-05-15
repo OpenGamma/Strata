@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata.config;
 
-// TODO This will be implemented when the market data builders are ported over that perform calibration
+// TODO This will be implemented when the market data functions are ported over that perform calibration
 /**
  * Configuration required for building non-observable market data, for example curves or surfaces.
  */
