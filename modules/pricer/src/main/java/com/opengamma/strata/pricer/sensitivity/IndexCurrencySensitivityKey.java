@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.RateIndex;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * A key used for sensitivity to a curve in a specific currency, identified by the index.
@@ -39,7 +39,7 @@ public final class IndexCurrencySensitivityKey
    * The index that the sensitivity refers to.
    */
   @PropertyDefinition(validate = "notNull")
-  private final RateIndex index;
+  private final Index index;
   /**
    * The currency of the sensitivity.
    */
@@ -54,7 +54,7 @@ public final class IndexCurrencySensitivityKey
    * @param currency  the currency of the sensitivity
    * @return the key
    */
-  public static IndexCurrencySensitivityKey of(RateIndex index, Currency currency) {
+  public static IndexCurrencySensitivityKey of(Index index, Currency currency) {
     return new IndexCurrencySensitivityKey(index, currency);
   }
 
@@ -81,7 +81,7 @@ public final class IndexCurrencySensitivityKey
   }
 
   private IndexCurrencySensitivityKey(
-      RateIndex index,
+      Index index,
       Currency currency) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(currency, "currency");
@@ -109,7 +109,7 @@ public final class IndexCurrencySensitivityKey
    * Gets the index that the sensitivity refers to.
    * @return the value of the property, not null
    */
-  public RateIndex getIndex() {
+  public Index getIndex() {
     return index;
   }
 
@@ -157,8 +157,8 @@ public final class IndexCurrencySensitivityKey
     /**
      * The meta-property for the {@code index} property.
      */
-    private final MetaProperty<RateIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IndexCurrencySensitivityKey.class, RateIndex.class);
+    private final MetaProperty<Index> index = DirectMetaProperty.ofImmutable(
+        this, "index", IndexCurrencySensitivityKey.class, Index.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -209,7 +209,7 @@ public final class IndexCurrencySensitivityKey
      * The meta-property for the {@code index} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateIndex> index() {
+    public MetaProperty<Index> index() {
       return index;
     }
 
@@ -250,7 +250,7 @@ public final class IndexCurrencySensitivityKey
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IndexCurrencySensitivityKey> {
 
-    private RateIndex index;
+    private Index index;
     private Currency currency;
 
     /**
@@ -276,7 +276,7 @@ public final class IndexCurrencySensitivityKey
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          this.index = (RateIndex) newValue;
+          this.index = (Index) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
