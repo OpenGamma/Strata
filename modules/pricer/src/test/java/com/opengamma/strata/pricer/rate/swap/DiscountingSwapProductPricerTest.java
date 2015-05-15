@@ -381,7 +381,6 @@ public class DiscountingSwapProductPricerTest {
         * NOTIONAL * prov.discountFactor(GBP, paymentDate);
     assertTrue(pvComputed.getCurrencies().size() == 1);
     assertEquals(pvComputed.getAmount(GBP).getAmount(), pvExpected, NOTIONAL * TOLERANCE_RATE);
-
   }
 
   //-------------------------------------------------------------------------
@@ -514,6 +513,36 @@ public class DiscountingSwapProductPricerTest {
         pricerSwap.presentValueSensitivity(SWAP, MOCK_PROV).build());
   }
 
+  public void test_presentValueSensitivity_inflation() {
+    double startIndex = 218.0;
+    double constantIndex = 242.0;
+    LocalDate refDate = date(2014, 3, 31);
+    LocalDate valDate = LocalDate.of(2014, 7, 8);
+    PriceIndexCurve priceIndexCurve = new PriceIndexCurveSimple(new ConstantDoublesCurve(
+        constantIndex));
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, priceIndexCurve);
+    Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(refDate, startIndex);
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(valDate)
+        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .discountCurves(dscCurve)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    PointSensitivityBuilder pvSensiComputed = pricerSwap.presentValueSensitivity(SWAP_INFLATION, prov);
+    PointSensitivityBuilder pvSensiInflationLeg =
+        pricerLeg.presentValueSensitivity(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, prov);
+    PointSensitivityBuilder pvSensiFixedLeg = pricerLeg.presentValueSensitivity(INFLATION_FIXED_SWAP_LEG_PAY_GBP, prov);
+    PointSensitivityBuilder pvSensiExpected = pvSensiFixedLeg.combinedWith(pvSensiInflationLeg);
+    assertTrue(pvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_futureValueSensitivity() {
     // ibor leg
     PointSensitivityBuilder sensiFloating =
@@ -547,4 +576,32 @@ public class DiscountingSwapProductPricerTest {
         pricerSwap.futureValueSensitivity(SWAP, MOCK_PROV).build());
   }
 
+  public void test_futureValueSensitivity_inflation() {
+    double startIndex = 218.0;
+    double constantIndex = 242.0;
+    LocalDate refDate = date(2014, 3, 31);
+    LocalDate valDate = LocalDate.of(2014, 7, 8);
+    PriceIndexCurve priceIndexCurve = new PriceIndexCurveSimple(new ConstantDoublesCurve(
+        constantIndex));
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, priceIndexCurve);
+    Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(refDate, startIndex);
+    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
+        .valuationDate(valDate)
+        .timeSeries(ImmutableMap.of(GB_RPI, ts))
+        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .discountCurves(dscCurve)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    PointSensitivityBuilder fvSensiComputed = pricerSwap.futureValueSensitivity(SWAP_INFLATION, prov);
+    PointSensitivityBuilder fvSensiInflationLeg =
+        pricerLeg.futureValueSensitivity(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, prov);
+    PointSensitivityBuilder fvSensiFixedLeg = pricerLeg.futureValueSensitivity(INFLATION_FIXED_SWAP_LEG_PAY_GBP, prov);
+    PointSensitivityBuilder fvSensiExpected = fvSensiFixedLeg.combinedWith(fvSensiInflationLeg);
+    assertTrue(fvSensiComputed.build().normalized()
+        .equalWithTolerance(fvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
+  }
 }

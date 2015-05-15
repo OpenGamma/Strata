@@ -563,6 +563,12 @@ public class DiscountingSwapLegPricerTest {
     assertEquals(pvComputed.getCurrency(), GBP);
     assertEquals(pvComputed.getAmount(), pvExpected, NOTIONAL * EPS);
     // test futureValueSensitivity and presentValueSensitivity
-    // TODO compounding not yet implemented for futureValueSensitivity
+    PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
+    PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
+    assertEquals(fvSensiComputed, PointSensitivityBuilder.none());
+    PointSensitivityBuilder pvSensiExpected = prov.discountFactorZeroRateSensitivity(GBP, paymentDate);
+    pvSensiExpected = pvSensiExpected.multipliedBy(fvExpected);
+    assertTrue(pvSensiComputed.build().normalized()
+        .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
   }
 }
