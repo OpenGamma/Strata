@@ -19,7 +19,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -42,9 +42,9 @@ public class IborIndexTest {
 
   public void test_null() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
-    assertThrows(() -> test.calculateEffectiveFromFixing(null), IllegalArgumentException.class);
-    assertThrows(() -> test.calculateFixingFromEffective(null), IllegalArgumentException.class);
-    assertThrows(() -> test.calculateMaturityFromEffective(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.calculateEffectiveFromFixing(null));
+    assertThrowsIllegalArg(() -> test.calculateFixingFromEffective(null));
+    assertThrowsIllegalArg(() -> test.calculateMaturityFromEffective(null));
   }
 
   public void test_gbpLibor3m() {
@@ -193,11 +193,11 @@ public class IborIndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> IborIndex.of("Rubbish"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> IborIndex.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> IborIndex.of(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> IborIndex.of(null));
   }
 
   //-------------------------------------------------------------------------

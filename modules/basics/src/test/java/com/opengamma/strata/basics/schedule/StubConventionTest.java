@@ -22,7 +22,7 @@ import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.Month.AUGUST;
@@ -56,10 +56,9 @@ public class StubConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(StubConvention type) {
-    assertThrows(() -> type.toRollConvention(null, date(2014, JULY, 1), Frequency.P3M, true), IllegalArgumentException.class);
-    assertThrows(() -> type.toRollConvention(date(2014, JULY, 1), null, Frequency.P3M, true), IllegalArgumentException.class);
-    assertThrows(() -> type.toRollConvention(date(2014, JULY, 1), date(2014, OCTOBER, 1), null, true),
-        IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> type.toRollConvention(null, date(2014, JULY, 1), Frequency.P3M, true));
+    assertThrowsIllegalArg(() -> type.toRollConvention(date(2014, JULY, 1), null, Frequency.P3M, true));
+    assertThrowsIllegalArg(() -> type.toRollConvention(date(2014, JULY, 1), date(2014, OCTOBER, 1), null, true));
   }
 
   //-------------------------------------------------------------------------
@@ -165,7 +164,7 @@ public class StubConventionTest {
   public void test_toImplicit(
       StubConvention conv, boolean initialStub, boolean finalStub, StubConvention expected) {
     if (expected == null) {
-      assertThrows(() -> conv.toImplicit(null, initialStub, finalStub), IllegalArgumentException.class);
+      assertThrowsIllegalArg(() -> conv.toImplicit(null, initialStub, finalStub));
     } else {
       assertEquals(conv.toImplicit(null, initialStub, finalStub), expected);
     }
@@ -238,11 +237,11 @@ public class StubConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> StubConvention.of("Rubbish"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> StubConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> StubConvention.of(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> StubConvention.of(null));
   }
 
   //-------------------------------------------------------------------------

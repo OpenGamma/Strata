@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
@@ -31,7 +31,7 @@ public class PropertySetTest {
     assertEquals(test.isEmpty(), true);
     assertEquals(test.contains("unknown"), false);
     assertEquals(test.getValueList("unknown"), ImmutableList.of());
-    assertThrows(() -> test.getValue("unknown"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getValue("unknown"));
     assertEquals(test.toString(), "{}");
   }
 
@@ -51,7 +51,7 @@ public class PropertySetTest {
     assertEquals(test.asMap(), ImmutableListMultimap.of("a", "x", "b", "y"));
     assertEquals(test.getValueList("unknown"), ImmutableSet.of());
 
-    assertThrows(() -> test.getValue("unknown"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getValue("unknown"));
     assertEquals(test.toString(), "{a=[x], b=[y]}");
   }
 
@@ -61,7 +61,7 @@ public class PropertySetTest {
 
     assertEquals(test.isEmpty(), false);
     assertEquals(test.contains("a"), true);
-    assertThrows(() -> test.getValue("a"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getValue("a"));
     assertEquals(test.getValueList("a"), ImmutableList.of("x", "y"));
     assertEquals(test.contains("b"), true);
     assertEquals(test.getValue("b"), "z");
@@ -71,7 +71,7 @@ public class PropertySetTest {
     assertEquals(test.asMap(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
     assertEquals(test.getValueList("unknown"), ImmutableSet.of());
 
-    assertThrows(() -> test.getValue("unknown"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getValue("unknown"));
     assertEquals(test.toString(), "{a=[x, y], b=[z]}");
   }
 

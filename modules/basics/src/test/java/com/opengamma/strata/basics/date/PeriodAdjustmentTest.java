@@ -8,7 +8,7 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.PeriodAdditionConventions.LAST_BUSINESS_DAY;
 import static com.opengamma.strata.basics.date.PeriodAdditionConventions.LAST_DAY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
@@ -73,10 +73,10 @@ public class PeriodAdjustmentTest {
 
   public void test_of_invalid_conventionForPeriod() {
     Period period = Period.of(1, 2, 3);
-    assertThrows(() -> PeriodAdjustment.of(period, LAST_DAY, BDA_NONE), IllegalArgumentException.class);
-    assertThrows(() -> PeriodAdjustment.of(period, LAST_BUSINESS_DAY, BDA_NONE), IllegalArgumentException.class);
-    assertThrows(() -> PeriodAdjustment.ofLastDay(period, BDA_NONE), IllegalArgumentException.class);
-    assertThrows(() -> PeriodAdjustment.ofLastBusinessDay(period, BDA_NONE), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PeriodAdjustment.of(period, LAST_DAY, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjustment.of(period, LAST_BUSINESS_DAY, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjustment.ofLastDay(period, BDA_NONE));
+    assertThrowsIllegalArg(() -> PeriodAdjustment.ofLastBusinessDay(period, BDA_NONE));
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public class PeriodAdjustmentTest {
 
   public void test_adjust_null() {
     PeriodAdjustment test = PeriodAdjustment.of(Period.ofMonths(3), LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    assertThrows(() -> test.adjust(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.adjust(null));
   }
 
   //-------------------------------------------------------------------------

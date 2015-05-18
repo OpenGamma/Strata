@@ -7,7 +7,7 @@ package com.opengamma.strata.basics;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 
@@ -56,11 +56,11 @@ public class PutCallTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> PutCall.of("Rubbish"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PutCall.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> PutCall.of(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PutCall.of(null));
   }
 
   //-------------------------------------------------------------------------

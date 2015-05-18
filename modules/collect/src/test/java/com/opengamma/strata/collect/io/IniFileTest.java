@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
@@ -115,9 +116,9 @@ public class IniFileTest {
     assertEquals(test.getSection("name").asMap(), ImmutableListMultimap.of("a", "m", "b", "n"));
 
     assertEquals(test.contains("unknown"), false);
-    assertThrows(() -> test.getSection("unknown"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getSection("unknown"));
     assertEquals(test.getSection("section").getValueList("unknown"), ImmutableList.of());
-    assertThrows(() -> test.getSection("section").getValue("unknown"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getSection("section").getValue("unknown"));
     assertEquals(test.toString(), "{section={a=[x], b=[y]}, name={a=[m], b=[n]}}");
   }
 
@@ -130,7 +131,7 @@ public class IniFileTest {
 
     assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
     assertEquals(test.getSection("section").contains("a"), true);
-    assertThrows(() -> test.getSection("section").getValue("a"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.getSection("section").getValue("a"));
     assertEquals(test.getSection("section").getValueList("a"), ImmutableList.of("x", "y"));
     assertEquals(test.getSection("section").contains("b"), false);
     assertEquals(test.getSection("section").keys(), ImmutableSet.of("a"));

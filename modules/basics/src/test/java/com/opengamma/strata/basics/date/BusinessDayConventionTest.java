@@ -14,7 +14,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.NO_ADJUST;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static java.time.DayOfWeek.SATURDAY;
@@ -69,9 +69,9 @@ public class BusinessDayConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(BusinessDayConvention type) {
-    assertThrows(() -> type.adjust(null, HolidayCalendars.NO_HOLIDAYS), IllegalArgumentException.class);
-    assertThrows(() -> type.adjust(FRI_2014_11_14, null), IllegalArgumentException.class);
-    assertThrows(() -> type.adjust(null, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> type.adjust(null, HolidayCalendars.NO_HOLIDAYS));
+    assertThrowsIllegalArg(() -> type.adjust(FRI_2014_11_14, null));
+    assertThrowsIllegalArg(() -> type.adjust(null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -219,11 +219,11 @@ public class BusinessDayConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> BusinessDayConvention.of("Rubbish"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> BusinessDayConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> BusinessDayConvention.of(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> BusinessDayConvention.of(null));
   }
 
   //-------------------------------------------------------------------------

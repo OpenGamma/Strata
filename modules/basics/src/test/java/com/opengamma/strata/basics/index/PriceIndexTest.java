@@ -7,7 +7,7 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
@@ -64,11 +64,11 @@ public class PriceIndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> PriceIndex.of("Rubbish"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PriceIndex.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> PriceIndex.of((String) null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PriceIndex.of((String) null));
   }
 
   //-------------------------------------------------------------------------

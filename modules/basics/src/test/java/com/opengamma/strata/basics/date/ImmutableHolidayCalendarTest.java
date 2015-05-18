@@ -6,7 +6,6 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -677,7 +676,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_nextSameOrLastInMonth_null() {
-    assertThrows(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(null));
   }
 
   public void test_nextSameOrLastInMonth_range() {
@@ -728,8 +727,8 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_lastBusinessDayOfMonth_null() {
-    assertThrows(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(null), IllegalArgumentException.class);
-    assertThrows(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(null));
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(null));
   }
 
   public void test_lastBusinessDayOfMonth_range() {

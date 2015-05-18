@@ -18,6 +18,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.FxMatrix.entriesToFxMatrix;
 import static com.opengamma.strata.basics.currency.FxMatrix.pairsToFxMatrix;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -46,7 +47,7 @@ public class FxMatrixTest {
   public void emptyMatrixCannotDoConversion() {
     FxMatrix matrix = FxMatrix.builder().build();
     assertThat(matrix.getCurrencies()).isEmpty();
-    assertThrows(() -> matrix.fxRate(USD, EUR), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> matrix.fxRate(USD, EUR));
   }
 
   public void singleRateMatrixByOfCurrencyPairFactory() {
@@ -87,7 +88,7 @@ public class FxMatrixTest {
         .addRate(GBP, USD, 1.6)
         .build();
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
-    assertThrows(() -> matrix.fxRate(USD, EUR), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> matrix.fxRate(USD, EUR));
   }
 
   public void matrixCalculatesCrossRates() {
@@ -469,7 +470,7 @@ public class FxMatrixTest {
         .addRate(SEK, AUD, 0.16)
         .build();
 
-    assertThrows(() -> matrix1.merge(matrix2), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> matrix1.merge(matrix2));
   }
 
   public void mergeIgnoresDuplicateCurrencies() {

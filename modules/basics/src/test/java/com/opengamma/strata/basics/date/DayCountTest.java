@@ -27,6 +27,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -67,14 +68,14 @@ public class DayCountTest {
 
   @Test(dataProvider = "types")
   public void test_null(DayCount type) {
-    assertThrows(() -> type.yearFraction(null, JAN_01), IllegalArgumentException.class);
-    assertThrows(() -> type.yearFraction(JAN_01, null), IllegalArgumentException.class);
-    assertThrows(() -> type.yearFraction(null, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> type.yearFraction(null, JAN_01));
+    assertThrowsIllegalArg(() -> type.yearFraction(JAN_01, null));
+    assertThrowsIllegalArg(() -> type.yearFraction(null, null));
   }
 
   @Test(dataProvider = "types")
   public void test_wrongOrder(DayCount type) {
-    assertThrows(() -> type.yearFraction(JAN_02, JAN_01), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> type.yearFraction(JAN_02, JAN_01));
   }
 
   @Test(dataProvider = "types")
@@ -753,11 +754,11 @@ public class DayCountTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> DayCount.of("Rubbish"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> DayCount.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> DayCount.of(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> DayCount.of(null));
   }
 
   //-------------------------------------------------------------------------

@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_18;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -48,11 +47,11 @@ public class SchedulePeriodTest {
 
   //-------------------------------------------------------------------------
   public void test_of_null() {
-    assertThrows(() -> SchedulePeriod.of(null, JUL_18, JUL_04, JUL_17), IllegalArgumentException.class);
-    assertThrows(() -> SchedulePeriod.of(JUL_05, null, JUL_04, JUL_17), IllegalArgumentException.class);
-    assertThrows(() -> SchedulePeriod.of(JUL_05, JUL_18, null, JUL_17), IllegalArgumentException.class);
-    assertThrows(() -> SchedulePeriod.of(JUL_05, JUL_18, JUL_04, null), IllegalArgumentException.class);
-    assertThrows(() -> SchedulePeriod.of(null, null, null, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> SchedulePeriod.of(null, JUL_18, JUL_04, JUL_17));
+    assertThrowsIllegalArg(() -> SchedulePeriod.of(JUL_05, null, JUL_04, JUL_17));
+    assertThrowsIllegalArg(() -> SchedulePeriod.of(JUL_05, JUL_18, null, JUL_17));
+    assertThrowsIllegalArg(() -> SchedulePeriod.of(JUL_05, JUL_18, JUL_04, null));
+    assertThrowsIllegalArg(() -> SchedulePeriod.of(null, null, null, null));
   }
 
   public void test_of_all() {

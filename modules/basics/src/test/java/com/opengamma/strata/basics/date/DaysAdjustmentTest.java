@@ -6,7 +6,7 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.THURSDAY;
@@ -90,7 +90,7 @@ public class DaysAdjustmentTest {
   }
 
   public void test_ofCalendarDays2_null() {
-    assertThrows(() -> DaysAdjustment.ofCalendarDays(2, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> DaysAdjustment.ofCalendarDays(2, null));
   }
 
   //-------------------------------------------------------------------------
@@ -117,7 +117,7 @@ public class DaysAdjustmentTest {
   }
 
   public void test_ofBusinessDays2_null() {
-    assertThrows(() -> DaysAdjustment.ofBusinessDays(2, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(2, null));
   }
 
   //-------------------------------------------------------------------------
@@ -146,9 +146,9 @@ public class DaysAdjustmentTest {
   }
 
   public void test_ofBusinessDays3_null() {
-    assertThrows(() -> DaysAdjustment.ofBusinessDays(3, null, BDA_FOLLOW_SAT_SUN), IllegalArgumentException.class);
-    assertThrows(() -> DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, null), IllegalArgumentException.class);
-    assertThrows(() -> DaysAdjustment.ofBusinessDays(3, null, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(3, null, BDA_FOLLOW_SAT_SUN));
+    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, null));
+    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(3, null, null));
   }
 
   //-------------------------------------------------------------------------

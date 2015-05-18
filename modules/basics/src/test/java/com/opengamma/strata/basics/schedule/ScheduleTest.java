@@ -64,7 +64,7 @@ public class ScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_of_size0() {
-    assertThrows(() -> Schedule.builder().periods(ImmutableList.of()), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Schedule.builder().periods(ImmutableList.of()));
   }
 
   public void test_ofTerm() {

@@ -26,6 +26,7 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_6W;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.time.temporal.ChronoUnit.CENTURIES;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
@@ -116,19 +117,19 @@ public class TenorTest {
   }
 
   public void test_of_notZero() {
-    assertThrows(() -> Tenor.of(Period.ofDays(0)), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofDays(0), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofWeeks(0), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofMonths(0), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofYears(0), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Tenor.of(Period.ofDays(0)));
+    assertThrowsIllegalArg(() -> Tenor.ofDays(0));
+    assertThrowsIllegalArg(() -> Tenor.ofWeeks(0));
+    assertThrowsIllegalArg(() -> Tenor.ofMonths(0));
+    assertThrowsIllegalArg(() -> Tenor.ofYears(0));
   }
 
   public void test_of_notNegative() {
-    assertThrows(() -> Tenor.of(Period.ofDays(-1)), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofDays(-1), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofWeeks(-1), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofMonths(-1), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofYears(-1), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Tenor.of(Period.ofDays(-1)));
+    assertThrowsIllegalArg(() -> Tenor.ofDays(-1));
+    assertThrowsIllegalArg(() -> Tenor.ofWeeks(-1));
+    assertThrowsIllegalArg(() -> Tenor.ofMonths(-1));
+    assertThrowsIllegalArg(() -> Tenor.ofYears(-1));
   }
 
   //-------------------------------------------------------------------------

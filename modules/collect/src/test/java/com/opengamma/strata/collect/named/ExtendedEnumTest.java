@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.collect.named;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Level;
@@ -39,9 +39,9 @@ public class ExtendedEnumTest {
     assertEquals(test.lookup("Other", OtherSampleNameds.class), OtherSampleNameds.OTHER);
     assertEquals(test.lookup("Another1"), SampleNamedInstanceLookup1.ANOTHER1);
     assertEquals(test.lookup("Another2"), SampleNamedInstanceLookup2.ANOTHER2);
-    assertThrows(() -> test.lookup("Rubbish"), IllegalArgumentException.class);
-    assertThrows(() -> test.lookup(null), IllegalArgumentException.class);
-    assertThrows(() -> test.lookup("Other", MoreSampleNameds.class), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.lookup("Rubbish"));
+    assertThrowsIllegalArg(() -> test.lookup(null));
+    assertThrowsIllegalArg(() -> test.lookup("Other", MoreSampleNameds.class));
     assertEquals(test.toString(), "ExtendedEnum[SampleNamed]");
   }
 
@@ -49,8 +49,8 @@ public class ExtendedEnumTest {
     ExtendedEnum<SampleOther> test = ExtendedEnum.of(SampleOther.class);
     assertEquals(test.lookupAll(), ImmutableMap.of());
     assertEquals(test.alternateNames(), ImmutableMap.of());
-    assertThrows(() -> test.lookup("Rubbish"), IllegalArgumentException.class);
-    assertThrows(() -> test.lookup(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.lookup("Rubbish"));
+    assertThrowsIllegalArg(() -> test.lookup(null));
     assertEquals(test.toString(), "ExtendedEnum[SampleOther]");
   }
 

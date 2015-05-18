@@ -13,7 +13,6 @@ import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -62,9 +61,9 @@ public class CurrencyPairTest {
   }
 
   public void test_of_CurrencyCurrency_null() {
-    assertThrows(() -> CurrencyPair.of((Currency) null, USD), IllegalArgumentException.class);
-    assertThrows(() -> CurrencyPair.of(USD, (Currency) null), IllegalArgumentException.class);
-    assertThrows(() -> CurrencyPair.of((Currency) null, (Currency) null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> CurrencyPair.of((Currency) null, USD));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(USD, (Currency) null));
+    assertThrowsIllegalArg(() -> CurrencyPair.of((Currency) null, (Currency) null));
   }
 
   //-------------------------------------------------------------------------

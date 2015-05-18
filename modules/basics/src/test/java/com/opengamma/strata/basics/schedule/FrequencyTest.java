@@ -99,39 +99,39 @@ public class FrequencyTest {
   }
 
   public void test_of_notZero() {
-    assertThrows(() -> Frequency.of(Period.ofDays(0)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofDays(0), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofWeeks(0), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofMonths(0), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofYears(0), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofDays(0)));
+    assertThrowsIllegalArg(() -> Frequency.ofDays(0));
+    assertThrowsIllegalArg(() -> Frequency.ofWeeks(0));
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(0));
+    assertThrowsIllegalArg(() -> Frequency.ofYears(0));
   }
 
   public void test_of_notNegative() {
-    assertThrows(() -> Frequency.of(Period.ofDays(-1)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.ofMonths(-1)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.of(0, -1, -1)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.of(0, -1, 1)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.of(0, 1, -1)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofDays(-1), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofWeeks(-1), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofMonths(-1), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofYears(-1), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofDays(-1)));
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofMonths(-1)));
+    assertThrowsIllegalArg(() -> Frequency.of(Period.of(0, -1, -1)));
+    assertThrowsIllegalArg(() -> Frequency.of(Period.of(0, -1, 1)));
+    assertThrowsIllegalArg(() -> Frequency.of(Period.of(0, 1, -1)));
+    assertThrowsIllegalArg(() -> Frequency.ofDays(-1));
+    assertThrowsIllegalArg(() -> Frequency.ofWeeks(-1));
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(-1));
+    assertThrowsIllegalArg(() -> Frequency.ofYears(-1));
   }
 
   public void test_of_tooBig() {
-    assertThrows(() -> Frequency.of(Period.ofMonths(12001)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.ofMonths(Integer.MAX_VALUE)), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofMonths(12001)));
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofMonths(Integer.MAX_VALUE)));
 
-    assertThrows(() -> Frequency.of(Period.ofYears(1001)), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(1001)));
+    assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)));
 
-    assertThrows(() -> Frequency.ofMonths(12001), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofMonths(Integer.MAX_VALUE), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(12001));
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(Integer.MAX_VALUE));
 
-    assertThrows(() -> Frequency.ofYears(1001), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofYears(Integer.MAX_VALUE), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.ofYears(1001));
+    assertThrowsIllegalArg(() -> Frequency.ofYears(Integer.MAX_VALUE));
 
-    assertThrows(() -> Frequency.of(Period.of(10000, 0, 1)), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.of(Period.of(10000, 0, 1)));
   }
 
   //-------------------------------------------------------------------------
@@ -248,12 +248,12 @@ public class FrequencyTest {
   }
 
   public void test_eventsPerYear_bad() {
-    assertThrows(() -> Frequency.ofDays(3).eventsPerYear(), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofWeeks(3).eventsPerYear(), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofWeeks(104).eventsPerYear(), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofMonths(5).eventsPerYear(), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.ofMonths(24).eventsPerYear(), IllegalArgumentException.class);
-    assertThrows(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear(), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Frequency.ofDays(3).eventsPerYear());
+    assertThrowsIllegalArg(() -> Frequency.ofWeeks(3).eventsPerYear());
+    assertThrowsIllegalArg(() -> Frequency.ofWeeks(104).eventsPerYear());
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(5).eventsPerYear());
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(24).eventsPerYear());
+    assertThrowsIllegalArg(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear());
   }
 
   //-------------------------------------------------------------------------

@@ -24,7 +24,7 @@ import static com.opengamma.strata.basics.schedule.StubConvention.LONG_INITIAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.SUNDAY;
@@ -127,16 +127,11 @@ public class PeriodicScheduleTest {
   }
 
   public void test_of_LocalDateEom_null() {
-    assertThrows(() -> PeriodicSchedule.of(
-        null, SEP_17, P1M, BDA, SHORT_INITIAL, false), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, null, P1M, BDA, SHORT_INITIAL, false), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, null, BDA, SHORT_INITIAL, false), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, P1M, null, SHORT_INITIAL, false), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, P1M, BDA, null, false), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(null, SEP_17, P1M, BDA, SHORT_INITIAL, false));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, null, P1M, BDA, SHORT_INITIAL, false));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, null, BDA, SHORT_INITIAL, false));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, P1M, null, SHORT_INITIAL, false));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, P1M, BDA, null, false));
   }
 
   //-------------------------------------------------------------------------
@@ -162,31 +157,25 @@ public class PeriodicScheduleTest {
   }
 
   public void test_of_LocalDateRoll_null() {
-    assertThrows(() -> PeriodicSchedule.of(
-        null, SEP_17, P1M, BDA, SHORT_INITIAL, DAY_17), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, null, P1M, BDA, SHORT_INITIAL, DAY_17), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, null, BDA, SHORT_INITIAL, DAY_17), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, P1M, null, SHORT_INITIAL, DAY_17), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, P1M, BDA, null, DAY_17), IllegalArgumentException.class);
-    assertThrows(() -> PeriodicSchedule.of(
-        JUN_04, SEP_17, P1M, BDA, SHORT_INITIAL, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(null, SEP_17, P1M, BDA, SHORT_INITIAL, DAY_17));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, null, P1M, BDA, SHORT_INITIAL, DAY_17));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, null, BDA, SHORT_INITIAL, DAY_17));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, P1M, null, SHORT_INITIAL, DAY_17));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, P1M, BDA, null, DAY_17));
+    assertThrowsIllegalArg(() -> PeriodicSchedule.of(JUN_04, SEP_17, P1M, BDA, SHORT_INITIAL, null));
   }
 
   //-------------------------------------------------------------------------
   public void test_builder_invalidDateOrder() {
     // start vs end
-    assertThrows(() -> createDates(SEP_17, SEP_17, null, null), IllegalArgumentException.class);
-    assertThrows(() -> createDates(SEP_17, JUN_04, null, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> createDates(SEP_17, SEP_17, null, null));
+    assertThrowsIllegalArg(() -> createDates(SEP_17, JUN_04, null, null));
     // first/last regular vs start/end
-    assertThrows(() -> createDates(JUN_04, SEP_17, JUN_03, null), IllegalArgumentException.class);
-    assertThrows(() -> createDates(JUN_04, SEP_17, null, SEP_18), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, JUN_03, null));
+    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, null, SEP_18));
     // first regular vs last regular
-    assertThrows(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_05), IllegalArgumentException.class);
-    assertThrows(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_04), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_05));
+    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_04));
   }
 
   private PeriodicSchedule createDates(LocalDate start, LocalDate end, LocalDate first, LocalDate last) {

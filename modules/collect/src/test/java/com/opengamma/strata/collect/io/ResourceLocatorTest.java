@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
@@ -56,7 +56,7 @@ public class ResourceLocatorTest {
   }
 
   public void test_of_invalid() throws Exception {
-    assertThrows(() -> ResourceLocator.of("classpath:http:https:file:/foobar.txt"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> ResourceLocator.of("classpath:http:https:file:/foobar.txt"));
   }
 
   //-------------------------------------------------------------------------

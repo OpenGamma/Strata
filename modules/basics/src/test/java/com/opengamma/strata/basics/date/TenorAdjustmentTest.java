@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1W;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
@@ -67,10 +67,10 @@ public class TenorAdjustmentTest {
   }
 
   public void test_of_invalid_conventionForPeriod() {
-    assertThrows(() -> TenorAdjustment.of(TENOR_1W, LAST_DAY, BDA_NONE), IllegalArgumentException.class);
-    assertThrows(() -> TenorAdjustment.of(TENOR_1W, LAST_BUSINESS_DAY, BDA_NONE), IllegalArgumentException.class);
-    assertThrows(() -> TenorAdjustment.ofLastDay(TENOR_1W, BDA_NONE), IllegalArgumentException.class);
-    assertThrows(() -> TenorAdjustment.ofLastBusinessDay(TENOR_1W, BDA_NONE), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> TenorAdjustment.of(TENOR_1W, LAST_DAY, BDA_NONE));
+    assertThrowsIllegalArg(() -> TenorAdjustment.of(TENOR_1W, LAST_BUSINESS_DAY, BDA_NONE));
+    assertThrowsIllegalArg(() -> TenorAdjustment.ofLastDay(TENOR_1W, BDA_NONE));
+    assertThrowsIllegalArg(() -> TenorAdjustment.ofLastBusinessDay(TENOR_1W, BDA_NONE));
   }
 
   //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public class TenorAdjustmentTest {
 
   public void test_adjust_null() {
     TenorAdjustment test = TenorAdjustment.of(TENOR_3M, LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    assertThrows(() -> test.adjust(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.adjust(null));
   }
 
   //-------------------------------------------------------------------------

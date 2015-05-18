@@ -7,7 +7,7 @@ package com.opengamma.strata.collect.type;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -24,8 +24,8 @@ public class TypedStringTest {
   }
 
   public void test_of_invalid() {
-    assertThrows(() -> SampleType.of(null), IllegalArgumentException.class);
-    assertThrows(() -> SampleType.of(""), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> SampleType.of(null));
+    assertThrowsIllegalArg(() -> SampleType.of(""));
   }
 
   public void test_of_validated() {
@@ -34,8 +34,8 @@ public class TypedStringTest {
   }
 
   public void test_of_validated_invalid() {
-    assertThrows(() -> SampleValidatedType.of(null), IllegalArgumentException.class);
-    assertThrows(() -> SampleValidatedType.of("ABc"), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> SampleValidatedType.of(null));
+    assertThrowsIllegalArg(() -> SampleValidatedType.of("ABc"));
   }
 
   public void test_equalsHashCode() {

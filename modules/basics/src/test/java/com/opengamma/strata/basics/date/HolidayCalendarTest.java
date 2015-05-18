@@ -7,7 +7,7 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -99,7 +99,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_NO_HOLIDAYS_combineWith_null() {
-    assertThrows(() -> HolidayCalendars.NO_HOLIDAYS.combineWith(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HolidayCalendars.NO_HOLIDAYS.combineWith(null));
   }
 
   //-------------------------------------------------------------------------
@@ -360,7 +360,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_shift_null() {
-    assertThrows(() -> new MockHolCal().shift(null, 1), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().shift(null, 1));
   }
 
   @Test(dataProvider = "shift")
@@ -395,7 +395,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_next_null() {
-    assertThrows(() -> new MockHolCal().next(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().next(null));
   }
 
   //-------------------------------------------------------------------------
@@ -424,7 +424,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_nextOrSame_null() {
-    assertThrows(() -> new MockHolCal().nextOrSame(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().nextOrSame(null));
   }
 
   //-------------------------------------------------------------------------
@@ -453,7 +453,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_previous_null() {
-    assertThrows(() -> new MockHolCal().previous(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().previous(null));
   }
 
   //-------------------------------------------------------------------------
@@ -482,7 +482,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_previousOrSame_null() {
-    assertThrows(() -> new MockHolCal().previousOrSame(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().previousOrSame(null));
   }
 
   //-------------------------------------------------------------------------
@@ -514,7 +514,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_nextSameOrLastInMonth_null() {
-    assertThrows(() -> new MockHolCal().nextSameOrLastInMonth(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().nextSameOrLastInMonth(null));
   }
 
   //-------------------------------------------------------------------------
@@ -556,8 +556,8 @@ public class HolidayCalendarTest {
   }
 
   public void test_lastBusinessDayOfMonth_null() {
-    assertThrows(() -> new MockEomHolCal().isLastBusinessDayOfMonth(null), IllegalArgumentException.class);
-    assertThrows(() -> new MockEomHolCal().lastBusinessDayOfMonth(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockEomHolCal().isLastBusinessDayOfMonth(null));
+    assertThrowsIllegalArg(() -> new MockEomHolCal().lastBusinessDayOfMonth(null));
   }
 
   //-------------------------------------------------------------------------
@@ -593,10 +593,10 @@ public class HolidayCalendarTest {
 
   public void test_daysBetween_null() {
     HolidayCalendar test = new MockHolCal();
-    assertThrows(() -> test.daysBetween(null, WED_2014_07_16), IllegalArgumentException.class);
-    assertThrows(() -> test.daysBetween(WED_2014_07_16, null), IllegalArgumentException.class);
-    assertThrows(() -> test.daysBetween(null, null), IllegalArgumentException.class);
-    assertThrows(() -> test.daysBetween(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.daysBetween(null, WED_2014_07_16));
+    assertThrowsIllegalArg(() -> test.daysBetween(WED_2014_07_16, null));
+    assertThrowsIllegalArg(() -> test.daysBetween(null, null));
+    assertThrowsIllegalArg(() -> test.daysBetween(null));
   }
 
   //-------------------------------------------------------------------------
@@ -638,7 +638,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_combineWith_null() {
-    assertThrows(() -> new MockHolCal().combineWith(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> new MockHolCal().combineWith(null));
   }
 
   //-------------------------------------------------------------------------
