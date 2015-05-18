@@ -6,13 +6,15 @@
 package com.opengamma.strata.pricer.curve;
 
 import java.time.YearMonth;
+import java.util.List;
 
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.value.ValueAdjustment;
 
 /**
- * A curve providing forward estimates for a price index.
+ * Provides access to price related to a price index.
  * <p>
- * This provides a forward curve for a single {@link PriceIndex}.
+ * This provides historic and forward price for a single {@link PriceIndex}, such as 'US_CPI_U'.
  * Mainly used to price inflation related products.
  */
 public interface PriceIndexCurve {
@@ -38,25 +40,30 @@ public interface PriceIndexCurve {
    * Returns the sensitivities of the price index to the curve parameters at a given month.
    * 
    * @param month  the month to query the sensitivity for
-   * @return the sensitivity array, if the time is less than 1e<sup>-6</sup>, the rate is
-   *   ill-defined and zero is returned.
+   * @return the sensitivity array
    */
-  public abstract Double[] getPriceIndexParameterSensitivity(YearMonth month);
-  // TODO: should this be a double[], Double[] or something else.
+  public abstract double[] getPriceIndexParameterSensitivity(YearMonth month);
 
   /**
    * Gets the number of parameters defining the curve.
+   * <p>
+   * If the curve has no parameters, zero must be returned.
    * 
    * @return the number of parameters
    */
-  public abstract int getNumberOfParameters();
+  public abstract int getParameterCount();
 
   /**
-   * Returns a new curve for which each of the parameters has been shifted according to a vector of shifts.
+   * Returns a new curve for which each of the parameters has been adjusted.
+   * <p>
+   * The desired adjustment is specified using {@link ValueAdjustment}.
+   * The size of the list of adjustments is expected to match the number of parameters.
+   * If there are too many adjustments, no error will occur and the excess will be ignored.
+   * If there are too few adjustments, no error will occur and the remaining points will not be adjusted.
    * 
-   * @param shifts  the parameters shifts
+   * @param adjustments  the adjustments to make
    * @return the new curve
    */
-  public abstract PriceIndexCurve shiftedBy(double[] shifts);
+  public abstract PriceIndexCurve shiftedBy(List<ValueAdjustment> adjustments);
 
 }

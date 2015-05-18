@@ -6,11 +6,12 @@
 package com.opengamma.strata.pricer.curve;
 
 import static org.testng.Assert.assertEquals;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
@@ -18,6 +19,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.dataset.PriceIndexDataSets;
 
@@ -33,16 +35,14 @@ public class PriceIndexInterpolatedCurveTest {
           Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR);
 
   private static final YearMonth VALUATION_MONTH = YearMonth.of(2015, 5);
-  private static final double[] MONTHS_CURVE = new double[] {-4.0, -3.0, -2.0, 12.0, 24.0, 60.0, 120.0 };
+  private static final double[] MONTHS_CURVE = new double[] {9.0, 21.0, 57.0, 117.0 };
   private static final LocalDateDoubleTimeSeries USCPI_TS = PriceIndexDataSets.USCPI_TS;
-  private static final double[] VALUES = new double[] {USCPI_TS.get(LocalDate.of(2015, 1, 31)).getAsDouble(),
-    USCPI_TS.get(LocalDate.of(2015, 2, 28)).getAsDouble(), USCPI_TS.get(LocalDate.of(2015, 3, 31)).getAsDouble(),
-    240.500, 245.000, 265.000, 286.000 };
+  private static final double[] VALUES = new double[] {240.500, 245.000, 265.000, 286.000 };
   private static final String NAME = "USD-HICP";
   private static final InterpolatedDoublesCurve INTERPOLATED_CURVE =
       InterpolatedDoublesCurve.from(MONTHS_CURVE, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
   private static final PriceIndexInterpolatedCurve PRICE_CURVE =
-      PriceIndexInterpolatedCurve.of(VALUATION_MONTH, INTERPOLATED_CURVE);
+      PriceIndexInterpolatedCurve.of(VALUATION_MONTH, INTERPOLATED_CURVE, USCPI_TS);
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {YearMonth.of(2015, 1), YearMonth.of(2015, 5),
     YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12) };
@@ -51,7 +51,7 @@ public class PriceIndexInterpolatedCurveTest {
   
   @Test
   public void test_number_of_parameters() {
-    assertEquals(MONTHS_CURVE.length, PRICE_CURVE.getNumberOfParameters());
+    assertEquals(MONTHS_CURVE.length, PRICE_CURVE.getParameterCount());
   }
 
   @Test
@@ -62,28 +62,40 @@ public class PriceIndexInterpolatedCurveTest {
   @Test
   public void test_price_index() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
+      YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
+      double nbMonthLast = VALUATION_MONTH.until(lastMonth, MONTHS);
+      double[] xExtended = new double[MONTHS_CURVE.length + 1];
+      xExtended[0] = nbMonthLast;
+      System.arraycopy(MONTHS_CURVE, 0, xExtended, 1, MONTHS_CURVE.length);
+      double[] yExtended = new double[VALUES.length + 1];
+      yExtended[0] = USCPI_TS.getLatestValue();
+      System.arraycopy(VALUES, 0, yExtended, 1, VALUES.length);
+      InterpolatedDoublesCurve finalCurve =
+          new InterpolatedDoublesCurve(xExtended, yExtended, INTERPOLATOR_EXPONENTIAL, true, NAME);
       double nbMonth = VALUATION_MONTH.until(TEST_MONTHS[i], MONTHS);
-      double valueExpected = INTERPOLATED_CURVE.getYValue(nbMonth);
+      OptionalDouble valueTs = USCPI_TS.get(TEST_MONTHS[i].atEndOfMonth());
+      double valueExpected = valueTs.isPresent() ? valueTs.getAsDouble() : finalCurve.getYValue(nbMonth);
       double valueComputed = PRICE_CURVE.getPriceIndex(TEST_MONTHS[i]);
-      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
+      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE, "test_price_index - month: " + TEST_MONTHS[i]);
     }
   }
 
   @Test
   public void test_shift_curve() {
-    double[] shifts = new double[VALUES.length];
-    shifts[3] += 1.00;
-    shifts[5] += -2.00;
+    double[] shiftsAbsolute = new double[VALUES.length];
+    shiftsAbsolute[1] += 1.00;
+    shiftsAbsolute[3] += -2.00;
+    List<ValueAdjustment> adjustments = new ArrayList<>();
     double[] shiftedValues = VALUES.clone();
     for (int i = 0; i < VALUES.length; i++) {
-      shiftedValues[i] += shifts[i];
+      shiftedValues[i] += shiftsAbsolute[i];
+      adjustments.add(ValueAdjustment.ofDeltaAmount(shiftsAbsolute[i]));
     }
     InterpolatedDoublesCurve interpolatedShifted =
         InterpolatedDoublesCurve.from(MONTHS_CURVE, shiftedValues, INTERPOLATOR_EXPONENTIAL, NAME);
     PriceIndexInterpolatedCurve curveShiftedExpected =
-        PriceIndexInterpolatedCurve.of(VALUATION_MONTH, interpolatedShifted);
-    PriceIndexCurve curveShiftedComputed =
-        PRICE_CURVE.shiftedBy(shifts);
+        PriceIndexInterpolatedCurve.of(VALUATION_MONTH, interpolatedShifted, USCPI_TS);
+    PriceIndexCurve curveShiftedComputed = PRICE_CURVE.shiftedBy(adjustments);
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       double valueExpected = curveShiftedExpected.getPriceIndex(TEST_MONTHS[i]);
       double valueComputed = curveShiftedComputed.getPriceIndex(TEST_MONTHS[i]);
@@ -92,23 +104,19 @@ public class PriceIndexInterpolatedCurveTest {
   }
 
   @Test
-  public void test_shift_curve_wrong_length() {
-    double[] shifts = new double[VALUES.length + 1];
-    assertThrowsIllegalArg(() -> PRICE_CURVE.shiftedBy(shifts));
-  }
-
-  @Test
   public void test_curve_sensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      Double[] sensitivityComputed = PRICE_CURVE.getPriceIndexParameterSensitivity(TEST_MONTHS[i]);
-      Double[] sensitivityExpected = new Double[VALUES.length];
+      double[] sensitivityComputed = PRICE_CURVE.getPriceIndexParameterSensitivity(TEST_MONTHS[i]);
+      double[] sensitivityExpected = new double[VALUES.length];
       for (int j = 0; j < VALUES.length; j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
-          double[] shifts = new double[VALUES.length];
-          shifts[j] += (k == 0) ? -shift : shift;
-          PriceIndexCurve curveShifted = PRICE_CURVE.shiftedBy(shifts);
+          List<ValueAdjustment> adjustments = new ArrayList<>();
+          for (int l = 0; l < VALUES.length; l++) {
+            adjustments.add(ValueAdjustment.ofDeltaAmount((l == j) ? ((k == 0) ? -shift : shift) : 0.0d));
+          }
+          PriceIndexCurve curveShifted = PRICE_CURVE.shiftedBy(adjustments);
           valueFd[k] = curveShifted.getPriceIndex(TEST_MONTHS[i]);
         }
         sensitivityExpected[j] = (valueFd[1] - valueFd[0]) / (2 * shift);
