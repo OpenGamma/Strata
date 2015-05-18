@@ -7,12 +7,9 @@ package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -29,14 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ListMultimap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
@@ -44,20 +37,15 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
-import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
-import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
-import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
-import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivity;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.SensitivityKey;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.pricer.PricingException;
+import com.opengamma.strata.market.curve.DiscountFactorCurve;
+import com.opengamma.strata.market.curve.DiscountFxIndexCurve;
+import com.opengamma.strata.market.curve.DiscountIborIndexCurve;
+import com.opengamma.strata.market.curve.DiscountOvernightIndexCurve;
+import com.opengamma.strata.market.curve.FxIndexCurve;
+import com.opengamma.strata.market.curve.IborIndexCurve;
+import com.opengamma.strata.market.curve.OvernightIndexCurve;
+import com.opengamma.strata.market.curve.ZeroRateDiscountFactorCurve;
 
 /**
  * The default immutable rates provider, used to calculate analytic measures.
@@ -67,7 +55,8 @@ import com.opengamma.strata.pricer.PricingException;
  */
 @BeanDefinition
 public final class ImmutableRatesProvider
-    implements RatesProvider, ImmutableBean, Serializable {
+    extends AbstractRatesProvider
+    implements ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -169,321 +158,46 @@ public final class ImmutableRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(Currency currency, LocalDate date) {
-    ArgChecker.notNull(currency, "currency");
-    ArgChecker.notNull(date, "date");
-    return discountCurve(currency).getDiscountFactor(relativeTime(date));
-  }
-
-  @Override
-  public PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
-    ArgChecker.notNull(currency, "currency");
-    ArgChecker.notNull(date, "date");
-    double relativeTime = relativeTime(date);
-    double discountFactor = discountCurve(currency).getDiscountFactor(relativeTime);
-    return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);
-  }
-
-  // lookup the discount curve for the currency
-  private YieldAndDiscountCurve discountCurve(Currency currency) {
-    YieldAndDiscountCurve curve = discountCurves.get(currency);
+  public DiscountFactorCurve discountCurve(Currency currency) {
+    YieldCurve curve = (YieldCurve) discountCurves.get(currency);
     if (curve == null) {
       throw new IllegalArgumentException("Unable to find discount curve: " + currency);
     }
-    return curve;
+    return ZeroRateDiscountFactorCurve.of(currency, valuationDate, dayCount, curve);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(baseCurrency, "baseCurrency");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    ArgChecker.isTrue(
-        index.getCurrencyPair().contains(baseCurrency),
-        "Currency {} invalid for FxIndex {}", baseCurrency, index);
-    boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
-    if (!fixingDate.isAfter(valuationDate)) {
-      return fxIndexHistoricRate(index, fixingDate, inverse);
-    }
-    return fxIndexForwardRate(index, fixingDate, inverse);
-  }
-
-  // historic rate
-  private double fxIndexHistoricRate(FxIndex index, LocalDate fixingDate, boolean inverse) {
-    OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-    if (fixedRate.isPresent()) {
-      // if the index is the inverse of the desired pair, then invert it
-      double fxIndexRate = fixedRate.getAsDouble();
-      return (inverse ? 1d / fxIndexRate : fxIndexRate);
-    } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
-      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-    } else {
-      return fxIndexForwardRate(index, fixingDate, inverse);
-    }
-  }
-
-  // forward rate
-  private double fxIndexForwardRate(FxIndex index, LocalDate fixingDate, boolean inverse) {
-    // use the specified base currency to determine the desired currency pair
-    // then derive rate from discount factors based off desired currency pair, not that of the index
-    CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
-    double maturity = relativeTime(index.calculateMaturityFromFixing(fixingDate));
-    double dfCcyBaseAtMaturity = discountCurve(pair.getBase()).getDiscountFactor(maturity);
-    double dfCcyCounterAtMaturity = discountCurve(pair.getCounter()).getDiscountFactor(maturity);
-    return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+  public FxIndexCurve fxIndexCurve(FxIndex index) {
+    DiscountFactorCurve base = discountCurve(index.getCurrencyPair().getBase());
+    DiscountFactorCurve counter = discountCurve(index.getCurrencyPair().getCounter());
+    return DiscountFxIndexCurve.of(index, timeSeries(index), fxMatrix, base, counter);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double iborIndexRate(IborIndex index, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    if (!fixingDate.isAfter(valuationDate)) {
-      return iborIndexHistoricRate(index, fixingDate);
-    }
-    return iborIndexForwardRate(index, fixingDate);
-  }
-
-  // historic rate
-  private double iborIndexHistoricRate(IborIndex index, LocalDate fixingDate) {
-    OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-    if (fixedRate.isPresent()) {
-      return fixedRate.getAsDouble();
-    } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
-      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-    } else {
-      return iborIndexForwardRate(index, fixingDate);
-    }
-  }
-
-  // forward rate
-  private double iborIndexForwardRate(IborIndex index, LocalDate fixingDate) {
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    return indexCurve(index).getSimplyCompoundForwardRate(
-        relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
+  public IborIndexCurve iborIndexCurve(IborIndex index) {
+    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
+    YieldCurve curve = indexCurve(index);
+    DiscountFactorCurve dfc = ZeroRateDiscountFactorCurve.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    return DiscountIborIndexCurve.of(index, timeSeries, dfc);
   }
 
   @Override
-  public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    if (fixingDate.isBefore(valuationDate) ||
-        (fixingDate.equals(valuationDate) && timeSeries(index).get(fixingDate).isPresent())) {
-      return PointSensitivityBuilder.none();
-    }
-    return IborRateSensitivity.of(index, fixingDate, 1d);
+  public OvernightIndexCurve overnightIndexCurve(OvernightIndex index) {
+    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
+    YieldCurve curve = indexCurve(index);
+    DiscountFactorCurve dfc = ZeroRateDiscountFactorCurve.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    return DiscountOvernightIndexCurve.of(index, timeSeries, dfc);
   }
 
   // lookup the discount curve for the currency
-  private YieldAndDiscountCurve indexCurve(Index index) {
-    YieldAndDiscountCurve curve = indexCurves.get(index);
+  private YieldCurve indexCurve(Index index) {
+    YieldCurve curve = (YieldCurve) indexCurves.get(index);
     if (curve == null) {
       throw new IllegalArgumentException("Unable to find index curve: " + index);
     }
     return curve;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (!publicationDate.isAfter(valuationDate)) {
-      return overnightIndexHistoricRate(index, fixingDate, publicationDate);
-    }
-    return overnightIndexForwardRate(index, fixingDate);
-  }
-
-  // historic rate
-  private double overnightIndexHistoricRate(OvernightIndex index, LocalDate fixingDate, LocalDate publicationDate) {
-    OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-    if (fixedRate.isPresent()) {
-      return fixedRate.getAsDouble();
-    } else if (publicationDate.isBefore(valuationDate)) { // the fixing is required
-      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-    } else {
-      return overnightIndexForwardRate(index, fixingDate);
-    }
-  }
-
-  // forward rate
-  private double overnightIndexForwardRate(OvernightIndex index, LocalDate fixingDate) {
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    return indexCurve(index).getSimplyCompoundForwardRate(
-        relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
-  }
-
-  @Override
-  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (publicationDate.isBefore(valuationDate) ||
-        (publicationDate.equals(valuationDate) && timeSeries(index).get(fixingDate).isPresent())) {
-      return PointSensitivityBuilder.none();
-    }
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixingDate, fixingEndDate, 1d);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
-    double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
-    return indexCurve(index).getSimplyCompoundForwardRate(
-        relativeTime(startDate), relativeTime(endDate), fixingYearFraction);
-  }
-
-  @Override
-  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
-      OvernightIndex index,
-      LocalDate startDate,
-      LocalDate endDate) {
-
-    ArgChecker.notNull(index, "index");
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
-    return OvernightRateSensitivity.of(index, index.getCurrency(), startDate, endDate, 1d);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
-    Map<SensitivityKey, double[]> map = new HashMap<>();
-    paramSensitivityZeroRate(sensitivities, map);
-    parameterSensitivityIbor(sensitivities, map);
-    parameterSensitivityOvernight(sensitivities, map);
-    return CurveParameterSensitivity.of(map);
-  }
-
-  // handle zero rate sensitivities
-  private void paramSensitivityZeroRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
-    // group by currency
-    ListMultimap<CurrencyPair, DoublesPair> grouped = ArrayListMultimap.create();
-    for (PointSensitivity point : sensitivities.getSensitivities()) {
-      if (point instanceof ZeroRateSensitivity) {
-        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
-        CurrencyPair pair = CurrencyPair.of(pt.getCurveCurrency(), pt.getCurrency());
-        grouped.put(pair, DoublesPair.of(relativeTime(pt.getDate()), pt.getSensitivity()));
-      }
-    }
-    // calculate per currency
-    for (CurrencyPair key : grouped.keySet()) {
-      YieldAndDiscountCurve curve = discountCurves.get(key.getBase());
-      double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(key));
-      NameCurrencySensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCounter());
-      mutableMap.put(keyParam, sensiParam);
-    }
-  }
-
-  // sensitivity, copied from MulticurveProviderDiscount
-  private double[] parameterSensitivityZeroRate(YieldAndDiscountCurve curve, List<DoublesPair> pointSensitivity) {
-    int nbParameters = curve.getNumberOfParameters();
-    double[] result = new double[nbParameters];
-    for (DoublesPair timeAndS : pointSensitivity) {
-      double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
-      for (int i = 0; i < nbParameters; i++) {
-        result[i] += timeAndS.getSecond() * sensi1Point[i];
-      }
-    }
-    return result;
-  }
-
-  // handle ibor rate sensitivities
-  private void parameterSensitivityIbor(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
-    // group by currency
-    ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
-    for (PointSensitivity point : sensitivities.getSensitivities()) {
-      if (point instanceof IborRateSensitivity) {
-        IborRateSensitivity pt = (IborRateSensitivity) point;
-        IborIndex index = pt.getIndex();
-        LocalDate startDate = index.calculateEffectiveFromFixing(pt.getFixingDate());
-        LocalDate endDate = index.calculateMaturityFromEffective(startDate);
-        double startTime = relativeTime(startDate);
-        double endTime = relativeTime(endDate);
-        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
-        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, pt.getCurrency());
-        grouped.put(key, new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, pt.getSensitivity()));
-      }
-    }
-    // calculate per currency
-    for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      YieldAndDiscountCurve curve = indexCurve(key.getIndex());
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
-      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, ImmutableRatesProvider::combineArrays);
-    }
-  }
-
-  // handle overnight rate sensitivities
-  private void parameterSensitivityOvernight(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
-    // group by currency
-    ListMultimap<IndexCurrencySensitivityKey, ForwardSensitivity> grouped = ArrayListMultimap.create();
-    for (PointSensitivity point : sensitivities.getSensitivities()) {
-      if (point instanceof OvernightRateSensitivity) {
-        OvernightRateSensitivity pt = (OvernightRateSensitivity) point;
-        OvernightIndex index = pt.getIndex();
-        LocalDate fixingDate = pt.getFixingDate();
-        LocalDate endDate = pt.getEndDate();
-        LocalDate startDate = index.calculateEffectiveFromFixing(fixingDate);
-        double startTime = relativeTime(startDate);
-        double endTime = relativeTime(endDate);
-        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
-        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, pt.getCurrency());
-        grouped.put(key, new SimplyCompoundedForwardSensitivity(startTime, endTime, accrualFactor, pt.getSensitivity()));
-      }
-    }
-    // calculate per currency
-    for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      YieldAndDiscountCurve curve = indexCurve(key.getIndex());
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
-      double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, ImmutableRatesProvider::combineArrays);
-    }
-  }
-
-  // sensitivity, copied from MulticurveProviderDiscount
-  private double[] parameterSensitivityIndex(YieldAndDiscountCurve curve, List<ForwardSensitivity> pointSensitivity) {
-    int nbParameters = curve.getNumberOfParameters();
-    double[] result = new double[nbParameters];
-    for (ForwardSensitivity timeAndS : pointSensitivity) {
-      double startTime = timeAndS.getStartTime();
-      double endTime = timeAndS.getEndTime();
-      double forwardBar = timeAndS.getValue();
-      // Implementation note: only the sensitivity to the forward is available.
-      // The sensitivity to the pseudo-discount factors need to be computed.
-      double dfForwardStart = curve.getDiscountFactor(startTime);
-      double dfForwardEnd = curve.getDiscountFactor(endTime);
-      double dFwddyStart = timeAndS.derivativeToYieldStart(dfForwardStart, dfForwardEnd);
-      double dFwddyEnd = timeAndS.derivativeToYieldEnd(dfForwardStart, dfForwardEnd);
-      double[] sensiPtStart = curve.getInterestRateParameterSensitivity(startTime);
-      double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(endTime);
-      for (int i = 0; i < nbParameters; i++) {
-        result[i] += dFwddyStart * sensiPtStart[i] * forwardBar;
-        result[i] += dFwddyEnd * sensiPtEnd[i] * forwardBar;
-      }
-    }
-    return result;
-  }
-
-  // add two arrays
-  private static double[] combineArrays(double[] a, double[] b) {
-    ArgChecker.isTrue(a.length == b.length, "Sensitivity arrays must have same length");
-    double[] result = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      result[i] = a[i] + b[i];
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------

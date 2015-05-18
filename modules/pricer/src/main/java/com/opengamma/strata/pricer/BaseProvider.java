@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.market.curve.DiscountFactorCurve;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -42,7 +43,7 @@ public interface BaseProvider
    * @param baseCurrency  the base currency, to convert from
    * @param counterCurrency  the counter currency, to convert to
    * @return the current FX rate for the currency pair
-   * @throws RuntimeException if no FX rate could be found
+   * @throws IllegalArgumentException if the rate is not available
    */
   @Override
   public abstract double fxRate(Currency baseCurrency, Currency counterCurrency);
@@ -55,7 +56,7 @@ public interface BaseProvider
    * 
    * @param currencyPair  the ordered currency pair defining the rate required
    * @return the current FX rate for the currency pair
-   * @throws RuntimeException if no FX rate could be found
+   * @throws IllegalArgumentException if the rate is not available
    */
   @Override
   public default double fxRate(CurrencyPair currencyPair) {
@@ -63,6 +64,20 @@ public interface BaseProvider
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the discount factor curve for a currency.
+   * <p>
+   * The discount factor represents the time value of money for the specified currency
+   * when comparing the valuation date to the specified date.
+   * <p>
+   * If the valuation date is on or after the specified date, the discount factor is 1.
+   * 
+   * @param currency  the currency to get the discount factors for
+   * @return the discount factors for the specified currency
+   * @throws IllegalArgumentException if the curve is not available
+   */
+  public abstract DiscountFactorCurve discountCurve(Currency currency);
+
   /**
    * Gets the discount factor applicable for a currency.
    * <p>
@@ -74,8 +89,11 @@ public interface BaseProvider
    * @param currency  the currency to get the discount factor for
    * @param date  the date to discount to
    * @return the discount factor
+   * @throws IllegalArgumentException if the curve is not available
    */
-  public abstract double discountFactor(Currency currency, LocalDate date);
+  public default double discountFactor(Currency currency, LocalDate date) {
+    return discountCurve(currency).discountFactor(date);
+  }
 
   /**
    * Gets the zero rate curve sensitivity for the discount factor.
@@ -88,7 +106,10 @@ public interface BaseProvider
    * @param currency  the currency to get the sensitivity for
    * @param date  the date to discount to
    * @return the point sensitivity of the zero rate
+   * @throws IllegalArgumentException if the curve is not available
    */
-  public abstract PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date);
+  public default PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
+    return discountCurve(currency).pointSensitivity(date);
+  }
 
 }
