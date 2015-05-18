@@ -13,7 +13,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountingCurveId;
 
 /**
  * Market data function that satisfies requests for discounting curves by loading the

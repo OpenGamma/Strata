@@ -6,13 +6,12 @@
 package com.opengamma.strata.function.marketdata.scenarios.curves;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.marketdata.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.RateIndexCurveId;
 
 @Test
 public class CurveRateIndexFilterTest {

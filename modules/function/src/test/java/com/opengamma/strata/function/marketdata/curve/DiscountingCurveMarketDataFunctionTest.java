@@ -6,7 +6,6 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static org.mockito.Mockito.mock;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -17,9 +16,9 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.function.marketdata.MarketDataTestUtils;
-import com.opengamma.strata.marketdata.curve.CurveGroup;
-import com.opengamma.strata.marketdata.id.CurveGroupId;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.id.CurveGroupId;
+import com.opengamma.strata.market.id.DiscountingCurveId;
 
 @Test
 public class DiscountingCurveMarketDataFunctionTest {
