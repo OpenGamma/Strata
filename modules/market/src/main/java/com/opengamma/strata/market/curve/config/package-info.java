@@ -5,7 +5,7 @@
  */
 
 /**
- * Definitions of curves.
+ * Definitions of curve configuration.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.curve.config;
 
