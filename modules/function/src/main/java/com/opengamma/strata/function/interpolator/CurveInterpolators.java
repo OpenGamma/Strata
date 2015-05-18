@@ -39,4 +39,5 @@ public final class CurveInterpolators {
   /** Time square interpolator. */
   public static final CurveInterpolator TIME_SQUARE =
       CurveInterpolator.of(StandardCurveInterpolators.TIME_SQUARE.getName());
+
 }
