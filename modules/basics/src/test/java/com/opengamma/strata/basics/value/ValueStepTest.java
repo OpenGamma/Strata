@@ -63,7 +63,7 @@ public class ValueStepTest {
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
-    
+
     ValueStep d1 = ValueStep.of(date(2014, 6, 30), DELTA_MINUS_2000);
     ValueStep d2 = ValueStep.of(date(2014, 6, 30), DELTA_MINUS_2000);
     ValueStep e = ValueStep.of(date(2014, 7, 30), DELTA_MINUS_2000);

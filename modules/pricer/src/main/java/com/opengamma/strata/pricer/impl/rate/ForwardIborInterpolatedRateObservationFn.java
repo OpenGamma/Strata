@@ -65,13 +65,13 @@ public class ForwardIborInterpolatedRateObservationFn
     IborIndex index2 = observation.getLongIndex();
     DoublesPair weights = weights(index1, index2, fixingDate, endDate);
     double totalWeight = weights.getFirst() + weights.getSecond();
-    PointSensitivityBuilder sens1 = 
+    PointSensitivityBuilder sens1 =
         provider.iborIndexRateSensitivity(index1, fixingDate).multipliedBy(weights.getFirst() / totalWeight);
-    PointSensitivityBuilder sens2 = 
+    PointSensitivityBuilder sens2 =
         provider.iborIndexRateSensitivity(index2, fixingDate).multipliedBy(weights.getSecond() / totalWeight);
     return sens1.combinedWith(sens2);
   }
-  
+
   // computes the weights related to the two indices
   private DoublesPair weights(IborIndex index1, IborIndex index2, LocalDate fixingDate, LocalDate endDate) {
     LocalDate fixingStartDate1 = index1.calculateEffectiveFromFixing(fixingDate);

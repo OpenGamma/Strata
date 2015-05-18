@@ -430,7 +430,6 @@ public final class FxMatrix
      * @return the builder updated with the new rate
      */
     public Builder addRate(Currency ccy1, Currency ccy2, double rate) {
-
       ArgChecker.notNull(ccy1, "ccy1");
       ArgChecker.notNull(ccy2, "ccy2");
 
@@ -451,22 +450,14 @@ public final class FxMatrix
      * @return the builder updated with the new rates
      */
     public Builder addRates(Map<CurrencyPair, Double> rates) {
-
       ArgChecker.notNull(rates, "rates");
 
       if (!rates.isEmpty()) {
+        ensureCapacity(rates.keySet().stream()
+            .flatMap(cp -> Stream.of(cp.getBase(), cp.getCounter())));
 
-        ensureCapacity(
-            rates.keySet()
-                .stream()
-                .flatMap(cp ->
-                    Stream.<Currency>of(cp.getBase(), cp.getCounter())));
-
-        rates.entrySet()
-            .stream()
-            .forEach(e -> addRate(e.getKey(), e.getValue()));
+        rates.entrySet().stream().forEach(e -> addRate(e.getKey(), e.getValue()));
       }
-
       return this;
     }
 
@@ -536,10 +527,9 @@ public final class FxMatrix
 
     private void retryDisjoints() {
 
-      ensureCapacity(
-          disjointRates.keySet()
-              .stream()
-              .flatMap(cp -> Stream.of(cp.getBase(), cp.getCounter())));
+      ensureCapacity(disjointRates.keySet()
+          .stream()
+          .flatMap(cp -> Stream.of(cp.getBase(), cp.getCounter())));
 
       while (true) {
         int initialSize = disjointRates.size();

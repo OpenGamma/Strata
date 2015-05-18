@@ -373,7 +373,7 @@ public class ImmutableHolidayCalendarTest {
         {SAT_2014_07_19, 1, MON_2014_07_21},
         {SUN_2014_07_20, 1, MON_2014_07_21},
         {MON_2014_07_21, 1, TUE_2014_07_22},
-        
+
         {THU_2014_07_10, 2, TUE_2014_07_15},
         {FRI_2014_07_11, 2, THU_2014_07_17},
         {SAT_2014_07_12, 2, THU_2014_07_17},
@@ -386,7 +386,7 @@ public class ImmutableHolidayCalendarTest {
         {SAT_2014_07_19, 2, TUE_2014_07_22},
         {SUN_2014_07_20, 2, TUE_2014_07_22},
         {MON_2014_07_21, 2, WED_2014_07_23},
-        
+
         {THU_2014_07_10, 0, THU_2014_07_10},
         {FRI_2014_07_11, 0, FRI_2014_07_11},
         {SAT_2014_07_12, 0, SAT_2014_07_12},
@@ -399,7 +399,7 @@ public class ImmutableHolidayCalendarTest {
         {SAT_2014_07_19, 0, SAT_2014_07_19},
         {SUN_2014_07_20, 0, SUN_2014_07_20},
         {MON_2014_07_21, 0, MON_2014_07_21},
-        
+
         {FRI_2014_07_11, -1, THU_2014_07_10},
         {SAT_2014_07_12, -1, FRI_2014_07_11},
         {SUN_2014_07_13, -1, FRI_2014_07_11},
@@ -412,7 +412,7 @@ public class ImmutableHolidayCalendarTest {
         {SUN_2014_07_20, -1, FRI_2014_07_18},
         {MON_2014_07_21, -1, FRI_2014_07_18},
         {TUE_2014_07_22, -1, MON_2014_07_21},
-        
+
         {FRI_2014_07_11, -2, WED_2014_07_09},
         {SAT_2014_07_12, -2, THU_2014_07_10},
         {SUN_2014_07_13, -2, THU_2014_07_10},
@@ -788,7 +788,7 @@ public class ImmutableHolidayCalendarTest {
     ImmutableHolidayCalendar base2 = ImmutableHolidayCalendar.of("Test2", holidays2, FRIDAY, SATURDAY);
     HolidayCalendar test = base1.combineWith(base2);
     assertEquals(test.getName(), "Test1+Test2");
-    
+
     assertEquals(test.isHoliday(THU_2014_07_10), false);
     assertEquals(test.isHoliday(FRI_2014_07_11), true);
     assertEquals(test.isHoliday(SAT_2014_07_12), true);
@@ -822,7 +822,7 @@ public class ImmutableHolidayCalendarTest {
     ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
     HolidayCalendar test = base.combineWith(HolidayCalendars.FRI_SAT);
     assertEquals(test.getName(), "Test1+Fri/Sat");
-    
+
     assertEquals(test.isHoliday(THU_2014_07_10), false);
     assertEquals(test.isHoliday(FRI_2014_07_11), true);
     assertEquals(test.isHoliday(SAT_2014_07_12), true);

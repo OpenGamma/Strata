@@ -68,7 +68,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
   public PointSensitivityBuilder rateSensitivity(
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
-      LocalDate endDate, 
+      LocalDate endDate,
       RatesProvider provider) {
     OvernightIndex index = observation.getIndex();
     LocalDate valuationDate = provider.getValuationDate();

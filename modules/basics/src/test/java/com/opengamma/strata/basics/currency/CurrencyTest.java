@@ -157,13 +157,13 @@ public class CurrencyTest {
     assertEquals(0, a.compareTo(a));
     assertEquals(0, b.compareTo(b));
     assertEquals(0, c.compareTo(c));
-    
+
     assertTrue(a.compareTo(b) < 0);
     assertTrue(b.compareTo(a) > 0);
-    
+
     assertTrue(a.compareTo(c) < 0);
     assertTrue(c.compareTo(a) > 0);
-    
+
     assertTrue(b.compareTo(c) < 0);
     assertTrue(c.compareTo(b) > 0);
   }
@@ -181,15 +181,15 @@ public class CurrencyTest {
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(a2), true);
-    
+
     assertEquals(a2.equals(a1), true);
     assertEquals(a2.equals(a2), true);
     assertEquals(a2.equals(b), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(a2), false);
     assertEquals(b.equals(b), true);
-    
+
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

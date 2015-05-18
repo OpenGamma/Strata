@@ -369,8 +369,8 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 7, 8);
   private static final PriceIndexCurve GBPRI_CURVE;
   static {
-    double[] x = new double[] {0.5, 1.0, 2.0, 5.0, 10.0 };
-    double[] y = new double[] {227.2, 252.6, 289.5, 323.1, 351.1 };
+    double[] x = new double[] {0.5, 1.0, 2.0, 5.0, 10.0};
+    double[] y = new double[] {227.2, 252.6, 289.5, 323.1, 351.1};
     CombinedInterpolatorExtrapolator interp =
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
             Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -435,7 +435,7 @@ public class DiscountingSwapLegPricerTest {
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
     InflationMonthlyRateObservation obs =
         (InflationMonthlyRateObservation) ((RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0))
-        .getAccrualPeriods().get(0).getRateObservation();
+            .getAccrualPeriods().get(0).getRateObservation();
     PointSensitivityBuilder pvSensiExpected = obsFn.rateSensitivity(obs, DATE_14_06_09, DATE_19_06_09, prov);
     pvSensiExpected = pvSensiExpected.multipliedBy(-NOTIONAL);
     assertTrue(fvSensiComputed.build().normalized()
@@ -494,7 +494,7 @@ public class DiscountingSwapLegPricerTest {
     ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
     InflationInterpolatedRateObservation obs =
         (InflationInterpolatedRateObservation) ((RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0))
-        .getAccrualPeriods().get(0).getRateObservation();
+            .getAccrualPeriods().get(0).getRateObservation();
     double indexRate = obsFn.rate(obs, DATE_14_06_09, DATE_19_06_09, prov);
     double fvExpected = indexRate * (NOTIONAL);
     assertEquals(fvComputed.getCurrency(), GBP);

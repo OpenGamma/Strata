@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.collect.named;
 
-
 /**
  * Mock named object.
  */

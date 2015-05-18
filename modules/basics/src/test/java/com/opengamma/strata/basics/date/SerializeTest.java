@@ -25,7 +25,7 @@ public class SerializeTest {
     bean.setDayCount(DayCounts.ACT_360);
     bean.setObjects(ImmutableList.of(
         BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendars.NO_HOLIDAYS, DayCounts.ACT_360));
-    
+
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(bean);
     MockSerBean test = JodaBeanSer.COMPACT.xmlReader().read(xml, MockSerBean.class);
     assertEquals(test, bean);

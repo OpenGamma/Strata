@@ -561,7 +561,7 @@ public class RateCalculationSwapLegTest {
             .unadjustedEndDate(DATE_19_06_09)
             .yearFraction(1.0)
             .rateObservation(
-                    InflationMonthlyRateObservation.of(
+                InflationMonthlyRateObservation.of(
                     GB_RPI,
                     YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
                     YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3)))

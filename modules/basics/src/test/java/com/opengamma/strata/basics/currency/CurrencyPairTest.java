@@ -187,22 +187,22 @@ public class CurrencyPairTest {
     CurrencyPair a2 = CurrencyPair.of(AUD, GBP);
     CurrencyPair b = CurrencyPair.of(USD, GBP);
     CurrencyPair c = CurrencyPair.of(USD, EUR);
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(a2), false);
     assertEquals(b.equals(b), true);
     assertEquals(b.equals(c), false);
-    
+
     assertEquals(c.equals(a1), false);
     assertEquals(c.equals(a2), false);
     assertEquals(c.equals(b), false);
     assertEquals(c.equals(c), true);
-    
+
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

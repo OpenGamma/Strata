@@ -46,14 +46,14 @@ public class CountryTest {
     assertEquals(Country.of("SE"), Country.SE);
     assertEquals(Country.of("SK"), Country.SK);
     assertEquals(Country.of("TR"), Country.TR);
-    
+
     assertEquals(Country.of("AR"), Country.AR);
     assertEquals(Country.of("BR"), Country.BR);
     assertEquals(Country.of("CA"), Country.CA);
     assertEquals(Country.of("CL"), Country.CL);
     assertEquals(Country.of("MX"), Country.MX);
     assertEquals(Country.of("US"), Country.US);
-    
+
     assertEquals(Country.of("AU"), Country.AU);
     assertEquals(Country.of("CN"), Country.CN);
     assertEquals(Country.of("EG"), Country.EG);
@@ -159,13 +159,13 @@ public class CountryTest {
     assertEquals(0, a.compareTo(a));
     assertEquals(0, b.compareTo(b));
     assertEquals(0, c.compareTo(c));
-    
+
     assertTrue(a.compareTo(b) < 0);
     assertTrue(b.compareTo(a) > 0);
-    
+
     assertTrue(a.compareTo(c) < 0);
     assertTrue(c.compareTo(a) > 0);
-    
+
     assertTrue(b.compareTo(c) < 0);
     assertTrue(c.compareTo(b) > 0);
   }
@@ -183,15 +183,15 @@ public class CountryTest {
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(a2), true);
-    
+
     assertEquals(a2.equals(a1), true);
     assertEquals(a2.equals(a2), true);
     assertEquals(a2.equals(b), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(a2), false);
     assertEquals(b.equals(b), true);
-    
+
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

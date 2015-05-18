@@ -58,7 +58,8 @@ public class StubConventionTest {
   public void test_null(StubConvention type) {
     assertThrows(() -> type.toRollConvention(null, date(2014, JULY, 1), Frequency.P3M, true), IllegalArgumentException.class);
     assertThrows(() -> type.toRollConvention(date(2014, JULY, 1), null, Frequency.P3M, true), IllegalArgumentException.class);
-    assertThrows(() -> type.toRollConvention(date(2014, JULY, 1), date(2014, OCTOBER, 1), null, true), IllegalArgumentException.class);
+    assertThrows(() -> type.toRollConvention(date(2014, JULY, 1), date(2014, OCTOBER, 1), null, true),
+        IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -67,52 +68,52 @@ public class StubConventionTest {
     return new Object[][] {
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
-        
+
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, false, DAY_TUE},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_TUE},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
-        
+
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_16},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_16},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, JUNE, 30), P1M, false, DAY_30},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, JUNE, 30), P1M, true, EOM},
-        
+
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_SAT},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_SAT},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {SHORT_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
-        
+
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_16},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_16},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, JUNE, 30), P1M, false, DAY_30},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, JUNE, 30), P1M, true, EOM},
-        
+
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, false, DAY_SAT},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_SAT},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
-        
+
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
         {SHORT_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, false, DAY_30},
         {SHORT_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, true, EOM},
-        
+
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, false, DAY_TUE},
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_TUE},
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
-        
+
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
         {LONG_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, false, DAY_30},
         {LONG_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, true, EOM},
-        
+
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, false, DAY_TUE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_TUE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
-        
+
         {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, RollConventions.NONE},
         {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, RollConventions.NONE},
     };
@@ -132,27 +133,27 @@ public class StubConventionTest {
         {NONE, true, false, null},
         {NONE, false, true, null},
         {NONE, true, true, null},
-        
+
         {SHORT_INITIAL, false, false, SHORT_INITIAL},
         {SHORT_INITIAL, true, false, NONE},
         {SHORT_INITIAL, false, true, null},
         {SHORT_INITIAL, true, true, null},
-        
+
         {LONG_INITIAL, false, false, LONG_INITIAL},
         {LONG_INITIAL, true, false, NONE},
         {LONG_INITIAL, false, true, null},
         {LONG_INITIAL, true, true, null},
-        
+
         {SHORT_FINAL, false, false, SHORT_FINAL},
         {SHORT_FINAL, true, false, null},
         {SHORT_FINAL, false, true, NONE},
         {SHORT_FINAL, true, true, null},
-        
+
         {LONG_FINAL, false, false, LONG_FINAL},
         {LONG_FINAL, true, false, null},
         {LONG_FINAL, false, true, NONE},
         {LONG_FINAL, true, true, null},
-        
+
         {BOTH, false, false, null},
         {BOTH, true, false, null},
         {BOTH, false, true, null},

@@ -161,9 +161,9 @@ public class FxMatrixTest {
     Expected data as produced from old analytics FxMatrix
 
     [USD, GBP,    EUR] - {
-USD {1.0 ,0.666, 0.714283},
-GBP {1.5, 1.0,   1.071428},
-EUR {1.4, 0.933, 1.0}}
+    USD {1.0 ,0.666, 0.714283},
+    GBP {1.5, 1.0,   1.071428},
+    EUR {1.4, 0.933, 1.0}}
 
     [USD,     GBP,    EUR] - {
     {1.0,     0.625,  0.66964},
@@ -234,7 +234,6 @@ EUR {1.4, 0.933, 1.0}}
     assertThat(matrix2.fxRate(GBP, USD)).isEqualTo(1.6);
   }
 
-
   public void addSimpleMultipleRates() {
 
     // Use linked to force the order of evaluation
@@ -256,7 +255,7 @@ EUR {1.4, 0.933, 1.0}}
     assertThat(matrix.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.6, TOL);
     assertThat(matrix.fxRate(GBP, EUR)).isEqualTo(1.6 / 1.4, TOL);
   }
-  
+
   public void addMultipleRatesContainingEntryWithNoCommonCurrency() {
 
     LinkedHashMap<CurrencyPair, Double> rates = new LinkedHashMap<>();
@@ -300,7 +299,7 @@ EUR {1.4, 0.933, 1.0}}
   public void streamEntriesToMatrix() {
 
     // If we obtain a stream of rates we can collect to an fx matrix
-    Map<CurrencyPair, Double> rates = 
+    Map<CurrencyPair, Double> rates =
         ImmutableMap.<CurrencyPair, Double>builder()
             .put(CurrencyPair.of(GBP, USD), 1.6)
             .put(CurrencyPair.of(EUR, USD), 1.4)

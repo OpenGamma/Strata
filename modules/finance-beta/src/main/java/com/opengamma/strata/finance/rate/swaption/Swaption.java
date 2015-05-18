@@ -59,7 +59,7 @@ public class Swaption
    * The option is European, and can only be exercised on the expiration date. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate expiryDate;  
+  private final LocalDate expiryDate;
   /**
    * The expiry time of the option.  
    * <p>

@@ -197,11 +197,11 @@ public class SchedulePeriodTest {
     assertEquals(a.compareTo(a) == 0, true);
     assertEquals(a.compareTo(b) > 0, true);
     assertEquals(a.compareTo(c) > 0, true);
-    
+
     assertEquals(b.compareTo(a) < 0, true);
     assertEquals(b.compareTo(b) == 0, true);
     assertEquals(b.compareTo(c) < 0, true);
-    
+
     assertEquals(c.compareTo(a) < 0, true);
     assertEquals(c.compareTo(b) > 0, true);
     assertEquals(c.compareTo(c) == 0, true);

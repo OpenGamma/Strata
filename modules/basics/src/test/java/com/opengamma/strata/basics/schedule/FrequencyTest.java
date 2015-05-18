@@ -121,16 +121,16 @@ public class FrequencyTest {
   public void test_of_tooBig() {
     assertThrows(() -> Frequency.of(Period.ofMonths(12001)), IllegalArgumentException.class);
     assertThrows(() -> Frequency.of(Period.ofMonths(Integer.MAX_VALUE)), IllegalArgumentException.class);
-    
+
     assertThrows(() -> Frequency.of(Period.ofYears(1001)), IllegalArgumentException.class);
     assertThrows(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)), IllegalArgumentException.class);
-    
+
     assertThrows(() -> Frequency.ofMonths(12001), IllegalArgumentException.class);
     assertThrows(() -> Frequency.ofMonths(Integer.MAX_VALUE), IllegalArgumentException.class);
-    
+
     assertThrows(() -> Frequency.ofYears(1001), IllegalArgumentException.class);
     assertThrows(() -> Frequency.ofYears(Integer.MAX_VALUE), IllegalArgumentException.class);
-    
+
     assertThrows(() -> Frequency.of(Period.of(10000, 0, 1)), IllegalArgumentException.class);
   }
 
@@ -393,15 +393,15 @@ public class FrequencyTest {
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(a2), true);
-    
+
     assertEquals(a2.equals(a1), true);
     assertEquals(a2.equals(a2), true);
     assertEquals(a2.equals(b), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(a2), false);
     assertEquals(b.equals(b), true);
-    
+
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

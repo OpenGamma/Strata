@@ -26,7 +26,8 @@ import com.opengamma.strata.basics.index.Index;
 public class OvernightCompoundedRateObservationTest {
 
   public void test_of_noRateCutoff() {
-    OvernightCompoundedRateObservation test = OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
+    OvernightCompoundedRateObservation test =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
     OvernightCompoundedRateObservation expected = OvernightCompoundedRateObservation.builder()
         .index(USD_FED_FUND)
         .startDate(date(2014, 6, 1))
@@ -37,7 +38,8 @@ public class OvernightCompoundedRateObservationTest {
   }
 
   public void test_of_rateCutoff_0() {
-    OvernightCompoundedRateObservation test = OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1), 0);
+    OvernightCompoundedRateObservation test =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1), 0);
     OvernightCompoundedRateObservation expected = OvernightCompoundedRateObservation.builder()
         .index(USD_FED_FUND)
         .startDate(date(2014, 6, 1))
@@ -48,7 +50,8 @@ public class OvernightCompoundedRateObservationTest {
   }
 
   public void test_of_rateCutoff_2() {
-    OvernightCompoundedRateObservation test = OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1), 2);
+    OvernightCompoundedRateObservation test =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1), 2);
     OvernightCompoundedRateObservation expected = OvernightCompoundedRateObservation.builder()
         .index(USD_FED_FUND)
         .startDate(date(2014, 6, 1))
@@ -85,14 +88,17 @@ public class OvernightCompoundedRateObservationTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    OvernightCompoundedRateObservation test = OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
+    OvernightCompoundedRateObservation test =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
     coverImmutableBean(test);
-    OvernightCompoundedRateObservation test2 = OvernightCompoundedRateObservation.of(GBP_SONIA, date(2014, 6, 3), date(2014, 7, 3), 3);
+    OvernightCompoundedRateObservation test2 =
+        OvernightCompoundedRateObservation.of(GBP_SONIA, date(2014, 6, 3), date(2014, 7, 3), 3);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    OvernightCompoundedRateObservation test = OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
+    OvernightCompoundedRateObservation test =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
     assertSerialization(test);
   }
 

@@ -267,15 +267,15 @@ public class TenorTest {
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(a2), true);
-    
+
     assertEquals(a2.equals(a1), true);
     assertEquals(a2.equals(a2), true);
     assertEquals(a2.equals(b), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(a2), false);
     assertEquals(b.equals(b), true);
-    
+
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 
