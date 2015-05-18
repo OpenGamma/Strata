@@ -148,5 +148,14 @@ public class PriceIndexInterpolatedSeasonalityCurveTest {
       }
     }
   }
+  
+  @Test
+  public void test_start_date_before_fixing() {
+    double[] monthWrong = new double[] {-10.0, 21.0, 57.0, 117.0 };
+    InterpolatedDoublesCurve interpolated =
+        InterpolatedDoublesCurve.from(monthWrong, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
+    assertThrowsIllegalArg(
+        () -> PriceIndexInterpolatedSeasonalityCurve.of(VALUATION_MONTH, interpolated, USCPI_TS, SEASONALITY));
+  }
 
 }

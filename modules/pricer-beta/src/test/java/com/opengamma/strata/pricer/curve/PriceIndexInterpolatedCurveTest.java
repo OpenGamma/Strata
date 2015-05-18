@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.curve;
 
 import static org.testng.Assert.assertEquals;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
 import java.time.YearMonth;
@@ -124,6 +125,14 @@ public class PriceIndexInterpolatedCurveTest {
             TOLERANCE_DELTA, "Test: " + i + " - sensitivity: " + j);
       }
     }
+  }
+  
+  @Test
+  public void test_start_date_before_fixing() {
+    double[] monthWrong = new double[] {-10.0, 21.0, 57.0, 117.0 };
+    InterpolatedDoublesCurve interpolated =
+        InterpolatedDoublesCurve.from(monthWrong, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
+    assertThrowsIllegalArg(() -> PriceIndexInterpolatedCurve.of(VALUATION_MONTH, interpolated, USCPI_TS));
   }
 
 }
