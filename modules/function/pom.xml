@@ -13,8 +13,8 @@
   </parent>
   <artifactId>strata-function</artifactId>
   <packaging>jar</packaging>
-  <name>Strata-Functions</name>
-  <description>Functions</description>
+  <name>Strata-Function</name>
+  <description>Function and Integration logic between the engine and pricing</description>
 
   <!-- ==================================================================== -->
   <dependencies>
