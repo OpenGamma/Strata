@@ -10,8 +10,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
+import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.IborFutureOptionSensitivity;
 
 /**
  * Pricer implementation for Ibor future option.

@@ -16,8 +16,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
 
 /**
  * Test.

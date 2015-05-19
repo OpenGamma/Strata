@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.finance.rate.future.IborFuture;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 
 /**
  * Base pricer for Ibor futures.

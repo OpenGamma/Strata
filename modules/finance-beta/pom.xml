@@ -45,6 +45,7 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-finance</artifactId>
     </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
