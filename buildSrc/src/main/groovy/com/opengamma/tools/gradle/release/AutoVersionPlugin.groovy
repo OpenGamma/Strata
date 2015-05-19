@@ -12,7 +12,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-class AutoVersionPlugin implements Plugin<Project>
+class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator
 {
     public final static String UPDATE_VERSION_TASK_NAME = "updateVersion"
     public final static String DESCRIBE_TAG_TASK_NAME = "describeGitTag"
@@ -24,7 +24,7 @@ class AutoVersionPlugin implements Plugin<Project>
     void apply(Project target)
     {
         this.project = target
-        project.extensions.create("release", ReleaseExtension)
+        createReleaseExtension()
 
 	    Task describeTagTask = addDescribeGitTagTask()
 	    Task describeCommitTask = addDescribeGitCommitTask()
@@ -33,7 +33,12 @@ class AutoVersionPlugin implements Plugin<Project>
 	    updateVersionTask.dependsOn([describeCommitTask, describeTagTask])
 
 	    project.tasks.all {
-		    if([updateVersionTask, describeTagTask, describeCommitTask].contains(it)) return
+		    if([
+				    updateVersionTask,
+				    describeTagTask,
+				    describeCommitTask,
+				    project.tasks.findByName(ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME)
+		    ].contains(it)) return
 		    it.dependsOn updateVersionTask
 	    }
     }
@@ -41,7 +46,7 @@ class AutoVersionPlugin implements Plugin<Project>
     private Task addUpdateVersionTask()
     {
         Task t = project.tasks.create(UPDATE_VERSION_TASK_NAME, UpdateVersion)
-        // TODO t.mustRunAfter "checkReleaseEnvironment"
+        t.mustRunAfter project.tasks[ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME]
     }
 
 	private Task addDescribeGitTagTask()

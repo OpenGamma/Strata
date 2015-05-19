@@ -12,7 +12,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class GitPush extends BaseGitTask
+class GitPush extends GitWriteTask
 {
     @Input
     File repositoryLocation

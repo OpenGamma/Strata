@@ -42,6 +42,16 @@ class SimpleExec extends DefaultTask
             throw buildException("running system command", command.toString())
     }
 
+    void command(String... bits)
+    {
+        command = Arrays.asList(bits)
+    }
+
+    void command(Object command)
+    {
+        this.command = command
+    }
+
     protected Throwable buildException(String action, String attempt, Throwable cause = null)
     {
         return new GradleException("""\

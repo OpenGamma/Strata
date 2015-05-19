@@ -12,13 +12,13 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class GitTag extends BaseGitTask
+class GitTag extends GitWriteTask
 {
     @Input
-    String message
+    GString message
 
     @Input
-    String tagName
+    GString tagName
 
     @Input
     File repositoryLocation
@@ -28,9 +28,11 @@ class GitTag extends BaseGitTask
     {
         Task doTag = project.tasks.create("execGitTag", SimpleExec)
         doTag.configure {
-            command "git tag -a -m \"${message}\" ${tagName}"
+//            command "git tag -a -m \"${message}\" ${tagName}"
+            command "git",  "tag",  "-a", "-m", /"${message}"/, tagName
             workingDirectory repositoryLocation
         }
+
 
         doTag.execute()
     }

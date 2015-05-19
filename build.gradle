@@ -20,6 +20,8 @@ ext {
     javadocFooterLicense = ""
 }
 
+apply plugin: com.opengamma.tools.gradle.analytics.AnalyticsPlugin
+
 allprojects {
     version "0.9.0-SNAPSHOT"
     group "com.opengamma.strata"
@@ -27,9 +29,7 @@ allprojects {
 
 apply plugin: "base"
 apply plugin: SphinxPlugin
-apply plugin: AutoVersionPlugin
 apply plugin: "maven"
-
 
 sphinx {
     userGuideArchiveName = "strata-@project.version@-guide.zip"
@@ -42,7 +42,8 @@ subprojects {
     apply plugin: "findbugs"
     apply plugin: JodaBeansPlugin
     apply plugin: DistRepoPlugin
-    apply from: "${project.rootProject.projectDir}/gradle/deployment.gradle"
+    apply from: "${rootProject.projectDir}/gradle/deployment.gradle"
+    apply from: "${rootProject.projectDir}/gradle/analytics.gradle"
 
 
     compileJava {
@@ -148,6 +149,7 @@ task testReport(type: TestReport) { testReport ->
 }
 
 apply plugin: ReleasePlugin
+apply plugin: AutoVersionPlugin
 apply from: "${project.rootProject.projectDir}/gradle/packaging.gradle"
 
 allprojects {

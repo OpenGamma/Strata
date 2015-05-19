@@ -27,7 +27,7 @@ class DefaultShellExecutor implements ShellExecutor
 		}
 		catch(final Exception ex)
 		{
-			throw new GradleException("Could not run system command", ex)
+			throw new GradleException("Could not run system command (${command})", ex)
 		}
 
 		return new ShellResult(exit, sbOut.toString().trim(), sbErr.toString().trim())

@@ -25,7 +25,7 @@ modules.each { m ->
 
 include "examples"
 
-//if(System.properties['bootstrap']) {
-//        include "analytics"
-//        project(":analytics").projectDir = file "../Analytics"
-//}
+if(System.properties['analytics.ref']) {
+        include "analytics"
+        project(":analytics").projectDir = file "modules/analytics"
+}

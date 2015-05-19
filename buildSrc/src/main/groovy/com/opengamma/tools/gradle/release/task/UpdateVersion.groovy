@@ -49,7 +49,7 @@ class UpdateVersion extends DefaultTask
 			    newVersion = newVersion.setPreReleaseVersion("SNAPSHOT")
 
 	    String newVersionString = newVersion.toString()
-
+	    logger.quiet "Project version is ${newVersionString}"
 	    project.allprojects { p ->
 		    p.version = newVersionString
 	    }

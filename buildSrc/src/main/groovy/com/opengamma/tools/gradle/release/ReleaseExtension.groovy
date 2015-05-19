@@ -11,6 +11,8 @@ import com.github.zafarkhaja.semver.Version
 class ReleaseExtension
 {
     boolean releaseBuild = false
+    boolean skipS3 = false
+    boolean dryRun = false
     Version releaseVersion
     String releaseTagTemplate = "@version@"
 }

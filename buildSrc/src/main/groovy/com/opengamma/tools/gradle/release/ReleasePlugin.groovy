@@ -17,8 +17,9 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 
-class ReleasePlugin implements Plugin<Project>
+class ReleasePlugin implements Plugin<Project>, ReleaseExtensionCreator
 {
     public final static String RELEASE_TASK_NAME = "release"
     public final static String PACKAGE_TASK_NAME = "package"
@@ -26,6 +27,8 @@ class ReleasePlugin implements Plugin<Project>
 	public final static Optional<Class> DEPLOY_LOCAL_TASK_TYPE = safeGetClass("com.opengamma.tools.gradle.task.DeployLocal")
 	public final static String GIT_TAG_TASK_NAME = "gitTagRelease"
 	public final static String GIT_PUSH_TASK_NAME = "gitPushReleaseTag"
+	public final static String RELEASE_EXTENSION_NAME = "release"
+
 
 	Project project
 
@@ -33,6 +36,7 @@ class ReleasePlugin implements Plugin<Project>
     void apply(Project target)
     {
 	    this.project = target
+	    createReleaseExtension()
 
 	    addPackageTask()
 
@@ -53,9 +57,8 @@ class ReleasePlugin implements Plugin<Project>
 		Task t = project.tasks.create(RELEASE_TASK_NAME, DefaultTask)
 		t.configure {
 			project.gradle.taskGraph.whenReady { TaskExecutionGraph taskGraph ->
-				if(taskGraph.hasTask(project.tasks[ReleasePlugin.RELEASE_TASK_NAME]))
+				if(taskGraph.hasTask(project.tasks[RELEASE_TASK_NAME]))
 				{
-					project.release.releaseBuild = true
 					reconfigureVersion()
 				}
 			}
@@ -69,6 +72,7 @@ class ReleasePlugin implements Plugin<Project>
 	private void reconfigureVersion()
 	{
 		def setVersion = {
+			println "[!!] The version is being reconfigured because release! ${project.release.releaseVersion}"
 			project.allprojects*.version = project.release.releaseVersion.toString()
 		}
 		if(project.plugins.hasPlugin(AutoVersionPlugin))
@@ -79,8 +83,8 @@ class ReleasePlugin implements Plugin<Project>
 
 	private void addPackageTask()
 	{
-		Task t = project.tasks.create("package", DefaultTask)
-		t.dependsOn project.rootProject.getTasksByName("build", true)
+		Task t = project.tasks.create(PACKAGE_TASK_NAME, DefaultTask)
+		t.dependsOn project.rootProject.getTasksByName(LifecycleBasePlugin.BUILD_TASK_NAME, true)
 		project.rootProject.tasks.withType(AbstractArchiveTask) { at ->
 			t.dependsOn at
 		}
@@ -94,8 +98,8 @@ class ReleasePlugin implements Plugin<Project>
 	private void addGitTagTask()
 	{
 		GitTag t = project.tasks.create(GIT_TAG_TASK_NAME, GitTag)
-		t.message = "Release ${project.version}"
-		t.tagName = releaseTagName
+		t.message = "Release ${-> project.version}"
+		t.tagName = "${-> releaseTagName}"
 		t.repositoryLocation = project.rootProject.projectDir
 		t.dependsOn project.tasks[PACKAGE_TASK_NAME]
 	}
