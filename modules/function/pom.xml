@@ -13,8 +13,8 @@
   </parent>
   <artifactId>strata-function</artifactId>
   <packaging>jar</packaging>
-  <name>Strata-Functions</name>
-  <description>Functions</description>
+  <name>Strata-Function</name>
+  <description>Function and Integration logic between the engine and pricing</description>
 
   <!-- ==================================================================== -->
   <dependencies>
@@ -25,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-market-data</artifactId>
+      <artifactId>strata-market</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>

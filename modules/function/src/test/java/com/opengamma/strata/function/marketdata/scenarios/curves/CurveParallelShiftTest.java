@@ -27,7 +27,7 @@ import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountingCurveId;
 
 @Test
 public class CurveParallelShiftTest {

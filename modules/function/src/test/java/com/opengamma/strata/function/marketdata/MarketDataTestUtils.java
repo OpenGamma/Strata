@@ -13,7 +13,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.marketdata.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.pricer.impl.Legacy;
 
 /**

@@ -11,7 +11,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.marketdata.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.RateIndexCurveId;
 
 /**
  * Market data function that satisfies requests for forward curves by loading the

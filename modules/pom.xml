@@ -74,7 +74,7 @@
     <module>finance-beta</module>
     <module>function</module>
     <module>function-beta</module>
-    <module>market-data</module>
+    <module>market</module>
     <module>pricer</module>
     <module>pricer-beta</module>
   </modules>
@@ -238,7 +238,7 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-market-data</artifactId>
+        <artifactId>strata-market</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

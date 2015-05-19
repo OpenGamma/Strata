@@ -20,7 +20,7 @@ import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.DiscountingCurveKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricerBeta;
 

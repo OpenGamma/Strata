@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.engine.marketdata.scenarios.MarketDataFilter;
-import com.opengamma.strata.marketdata.id.RateIndexCurveId;
+import com.opengamma.strata.market.id.RateIndexCurveId;
 
 /**
  * A market data filter matching a curve for a rate index.

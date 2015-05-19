@@ -7,13 +7,12 @@ package com.opengamma.strata.function.marketdata.scenarios.curves;
 
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountingCurveId;
 
 @Test
 public class CurveNameFilterTest {
