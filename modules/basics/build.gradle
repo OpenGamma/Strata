@@ -1,0 +1,10 @@
+dependencies {
+	compile project(":collect")
+
+	testCompile project(":collect-testutils")
+}
+
+javadoc {
+    options.windowTitle = "OpenGamma Strata Basics"
+    title = "OpenGamma Strata Basics API"
+}

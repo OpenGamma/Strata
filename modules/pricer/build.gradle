@@ -1,0 +1,15 @@
+dependencies {
+	compile project(":collect")
+	compile project(":basics")
+	compile project(":finance")
+	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+
+	testCompile project(":collect-testutils")
+	testCompile project(":pricer-testutils")
+	testCompile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'
+}
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Pricer"
+	title = "OpenGamma Strata Pricer API Documentation"
+}

@@ -13,5 +13,5 @@ There are a number of sub-projects:
    :maxdepth: 2
    :glob:
 
-   ../modules/collect/src/docs/index
-   ../modules/basics/src/docs/index
+   modules/collect/src/docs/index
+   modules/basics/src/docs/index

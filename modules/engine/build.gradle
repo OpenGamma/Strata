@@ -1,0 +1,14 @@
+dependencies {
+	compile project(":collect")
+	compile project(":market-data")
+	compile project(":pricer")
+
+	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+
+	testCompile project(":collect-testutils")
+}
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Engine"
+	title = "OpenGamma Strata Engine API Documentation"
+}

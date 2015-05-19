@@ -1,0 +1,11 @@
+dependencies {
+	compile project(":basics")
+	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+
+	testCompile project(":collect")
+}
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Curve"
+	title = "OpenGamma Strata Curve API Documentation"
+}
