@@ -20,10 +20,10 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Test.

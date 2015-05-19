@@ -22,6 +22,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

@@ -21,7 +21,19 @@
     <!-- OpenGamma -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-basics</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-finance</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
@@ -29,7 +41,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-basics</artifactId>
+      <artifactId>strata-pricer</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.analytics</groupId>
@@ -37,6 +49,11 @@
     </dependency>
 
     <!-- Testing -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-pricer</artifactId>

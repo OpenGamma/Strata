@@ -27,6 +27,7 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-basics</artifactId>
     </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>com.opengamma.strata</groupId>

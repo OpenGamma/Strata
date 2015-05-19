@@ -29,11 +29,11 @@ import com.opengamma.strata.market.key.DiscountingCurveKey;
 import com.opengamma.strata.market.key.FxRateKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * A rates provider based on market data from the engine.

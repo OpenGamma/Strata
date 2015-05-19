@@ -20,10 +20,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
 * Test.

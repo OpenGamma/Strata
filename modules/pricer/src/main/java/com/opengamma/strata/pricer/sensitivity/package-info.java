@@ -5,11 +5,9 @@
  */
 
 /**
- * Entity objects for sensitivities.
+ * Calculators for sensitivities.
  * <p>
- * These objects are used to represent the sensitivity of an output value to the input data.
- * For example, present value sensitivity relates to the calculated present value
- * and measures the reaction to changes in underlying factors, such as the forward rate curve.
+ * These classes are used to calculate sensitivity measures.
  */
 package com.opengamma.strata.pricer.sensitivity;
 
