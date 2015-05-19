@@ -1,6 +1,6 @@
 dependencies {
 	compile project(":engine")
-	compile project(":market-data")
+	compile project(":market")
 	compile project(":basics")
 	compile project(":pricer")
 	compile project(":pricer-beta")

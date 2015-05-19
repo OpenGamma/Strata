@@ -1,6 +1,6 @@
 dependencies {
 	compile project(":engine")
-	compile project(":market-data")
+	compile project(":market")
 	compile project(":basics")
 	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
 

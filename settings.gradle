@@ -11,7 +11,7 @@ List<String> modules = [
         "finance-testutils",
         "function",
         "function-beta",
-        "market-data",
+        "market",
         "pricer",
         "pricer-beta",
         "pricer-testutils",

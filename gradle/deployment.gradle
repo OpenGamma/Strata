@@ -1,0 +1,27 @@
+ext {
+    SNAPSHOT_DEPLOY_REPO = "http://opengamma.artifactoryonline.com/opengamma/sandbox-snapshots-local"
+    RELEASE_DEPLOY_REPO  = "http://opengamma.artifactoryonline.com/opengamma/sandbox-releases-local"
+}
+
+uploadArchives {
+    onlyIf {
+        project.hasProperty("ogArtifactoryUsername") &&
+                project.hasProperty("ogArtifactoryPassword")
+    }
+
+    project.afterEvaluate {
+        logger.warn "[!] Configuring uploadArchives NOW!!!!!!!!!!!!!!!"
+        final String deploymentURL =
+                project.version.endsWith("-SNAPSHOT") ? SNAPSHOT_DEPLOY_REPO : RELEASE_DEPLOY_REPO
+
+        repositories {
+            mavenDeployer {
+                repository(url: deploymentURL) {
+                    authentication(userName: ogArtifactoryUsername, password: ogArtifactoryPassword)
+                }
+            }
+        }
+    }
+}
+
+
