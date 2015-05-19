@@ -26,6 +26,10 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
  */
 final class StandardCurveInterpolators {
 
+  // Private constructor as this class only exists to hold the interpolator constants
+  private StandardCurveInterpolators() {
+  }
+
   /** Linear interpolator. */
   public static final CurveInterpolator LINEAR = new LinearInterpolator1D();
 
@@ -43,5 +47,4 @@ final class StandardCurveInterpolators {
 
   /** Time square interpolator. */
   public static final CurveInterpolator TIME_SQUARE = new TimeSquareInterpolator1D();
-
 }
