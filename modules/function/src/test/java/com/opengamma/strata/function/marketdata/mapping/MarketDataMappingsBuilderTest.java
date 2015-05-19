@@ -15,11 +15,11 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
-import com.opengamma.strata.marketdata.id.IndexRateId;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.FxRateKey;
-import com.opengamma.strata.marketdata.key.IndexRateKey;
+import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.FxRateKey;
+import com.opengamma.strata.market.key.IndexRateKey;
 
 @Test
 public class MarketDataMappingsBuilderTest {

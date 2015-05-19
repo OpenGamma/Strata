@@ -24,8 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
+import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.key.DiscountingCurveKey;
 
 /**
  * Market data mapping that accepts a {@link DiscountingCurveKey} and returns a {@link DiscountingCurveId}

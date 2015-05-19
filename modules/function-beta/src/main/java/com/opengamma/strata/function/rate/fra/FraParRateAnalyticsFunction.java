@@ -31,8 +31,8 @@ import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.RateIndexCurveKey;
+import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 

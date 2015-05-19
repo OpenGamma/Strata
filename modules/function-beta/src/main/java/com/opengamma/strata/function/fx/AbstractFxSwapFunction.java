@@ -21,7 +21,7 @@ import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.DiscountingCurveKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricerBeta;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 

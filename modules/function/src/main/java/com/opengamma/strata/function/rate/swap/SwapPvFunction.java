@@ -26,9 +26,9 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.marketdata.key.DiscountingCurveKey;
-import com.opengamma.strata.marketdata.key.IndexRateKey;
-import com.opengamma.strata.marketdata.key.MarketDataKeys;
+import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**

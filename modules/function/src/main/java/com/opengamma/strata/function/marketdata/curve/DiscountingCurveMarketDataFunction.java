@@ -14,9 +14,9 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.marketdata.curve.CurveGroup;
-import com.opengamma.strata.marketdata.id.CurveGroupId;
-import com.opengamma.strata.marketdata.id.DiscountingCurveId;
+import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.id.CurveGroupId;
+import com.opengamma.strata.market.id.DiscountingCurveId;
 
 /**
  * Market data function that builds a {@link YieldCurve} representing the discounting curve for a currency.

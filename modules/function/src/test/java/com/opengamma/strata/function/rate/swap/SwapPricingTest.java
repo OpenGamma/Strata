@@ -73,8 +73,8 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
-import com.opengamma.strata.marketdata.curve.CurveGroup;
-import com.opengamma.strata.marketdata.id.CurveGroupId;
+import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
 
 @Test

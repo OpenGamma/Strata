@@ -24,8 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
-import com.opengamma.strata.marketdata.id.RateIndexCurveId;
-import com.opengamma.strata.marketdata.key.RateIndexCurveKey;
+import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.key.RateIndexCurveKey;
 
 /**
  * Market data mapping that accepts a {@link RateIndexCurveKey} and returns a {@link RateIndexCurveId}
