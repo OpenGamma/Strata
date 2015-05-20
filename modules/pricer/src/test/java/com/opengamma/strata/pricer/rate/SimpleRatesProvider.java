@@ -47,8 +47,6 @@ public class SimpleRatesProvider
   @PropertyDefinition
   private DayCount dayCount;
   @PropertyDefinition
-  private LocalDateDoubleTimeSeries timeSeries;
-  @PropertyDefinition
   private DiscountFactors discountFactors;
   @PropertyDefinition
   private FxIndexRates fxIndexRates;
@@ -90,7 +88,7 @@ public class SimpleRatesProvider
 
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
-    return timeSeries;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -210,31 +208,6 @@ public class SimpleRatesProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the timeSeries.
-   * @return the value of the property
-   */
-  public LocalDateDoubleTimeSeries getTimeSeries() {
-    return timeSeries;
-  }
-
-  /**
-   * Sets the timeSeries.
-   * @param timeSeries  the new value of the property
-   */
-  public void setTimeSeries(LocalDateDoubleTimeSeries timeSeries) {
-    this.timeSeries = timeSeries;
-  }
-
-  /**
-   * Gets the the {@code timeSeries} property.
-   * @return the property, not null
-   */
-  public final Property<LocalDateDoubleTimeSeries> timeSeries() {
-    return metaBean().timeSeries().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the discountFactors.
    * @return the value of the property
    */
@@ -348,7 +321,6 @@ public class SimpleRatesProvider
       SimpleRatesProvider other = (SimpleRatesProvider) obj;
       return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
           JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
           JodaBeanUtils.equal(getFxIndexRates(), other.getFxIndexRates()) &&
           JodaBeanUtils.equal(getIborRates(), other.getIborRates()) &&
@@ -362,7 +334,6 @@ public class SimpleRatesProvider
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFxIndexRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIborRates());
@@ -372,7 +343,7 @@ public class SimpleRatesProvider
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("SimpleRatesProvider{");
     int len = buf.length();
     toString(buf);
@@ -386,7 +357,6 @@ public class SimpleRatesProvider
   protected void toString(StringBuilder buf) {
     buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
     buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
     buf.append("fxIndexRates").append('=').append(JodaBeanUtils.toString(getFxIndexRates())).append(',').append(' ');
     buf.append("iborRates").append('=').append(JodaBeanUtils.toString(getIborRates())).append(',').append(' ');
@@ -414,11 +384,6 @@ public class SimpleRatesProvider
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofReadWrite(
         this, "dayCount", SimpleRatesProvider.class, DayCount.class);
     /**
-     * The meta-property for the {@code timeSeries} property.
-     */
-    private final MetaProperty<LocalDateDoubleTimeSeries> timeSeries = DirectMetaProperty.ofReadWrite(
-        this, "timeSeries", SimpleRatesProvider.class, LocalDateDoubleTimeSeries.class);
-    /**
      * The meta-property for the {@code discountFactors} property.
      */
     private final MetaProperty<DiscountFactors> discountFactors = DirectMetaProperty.ofReadWrite(
@@ -445,7 +410,6 @@ public class SimpleRatesProvider
         this, null,
         "valuationDate",
         "dayCount",
-        "timeSeries",
         "discountFactors",
         "fxIndexRates",
         "iborRates",
@@ -464,8 +428,6 @@ public class SimpleRatesProvider
           return valuationDate;
         case 1905311443:  // dayCount
           return dayCount;
-        case 779431844:  // timeSeries
-          return timeSeries;
         case -91613053:  // discountFactors
           return discountFactors;
         case 2123789395:  // fxIndexRates
@@ -511,14 +473,6 @@ public class SimpleRatesProvider
     }
 
     /**
-     * The meta-property for the {@code timeSeries} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDateDoubleTimeSeries> timeSeries() {
-      return timeSeries;
-    }
-
-    /**
      * The meta-property for the {@code discountFactors} property.
      * @return the meta-property, not null
      */
@@ -558,8 +512,6 @@ public class SimpleRatesProvider
           return ((SimpleRatesProvider) bean).getValuationDate();
         case 1905311443:  // dayCount
           return ((SimpleRatesProvider) bean).getDayCount();
-        case 779431844:  // timeSeries
-          return ((SimpleRatesProvider) bean).getTimeSeries();
         case -91613053:  // discountFactors
           return ((SimpleRatesProvider) bean).getDiscountFactors();
         case 2123789395:  // fxIndexRates
@@ -580,9 +532,6 @@ public class SimpleRatesProvider
           return;
         case 1905311443:  // dayCount
           ((SimpleRatesProvider) bean).setDayCount((DayCount) newValue);
-          return;
-        case 779431844:  // timeSeries
-          ((SimpleRatesProvider) bean).setTimeSeries((LocalDateDoubleTimeSeries) newValue);
           return;
         case -91613053:  // discountFactors
           ((SimpleRatesProvider) bean).setDiscountFactors((DiscountFactors) newValue);

@@ -77,6 +77,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
+    when(mockRates.getValuationDate()).thenReturn(valuationDate);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(valuationDate, mockRates);
 
     for (int i = 0; i < FIXING_DATES.length; i++) {
@@ -122,7 +123,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.periodRate(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
     double rateExpected = Math.log(1.0 + rateCmp * totalAf) / totalAf;
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -161,9 +162,9 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.periodRatePointSensitivity(FIXING_START_DATE, FIXING_END_DATE))
         .thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvUp.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvDw.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateUp = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -205,7 +206,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDate);
     double rateExpected = (Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff) / (afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -260,16 +261,16 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         mockRatesPeriodUp, simpleProvPeriodUp, mockRatesPeriodDw, simpleProvPeriodDw,
         ro, USD_FED_FUND, FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), rateCmp, null);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodUp.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodDw.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
       PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
       for (int i = 0; i < nRates; ++i) {
-        simpleProvUp[i].setValuationDate(valuationDate[loopvaldate]);
-        simpleProvDw[i].setValuationDate(valuationDate[loopvaldate]);
+        when(mockRatesUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockRatesDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
         double rateUp = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp[i]);
         double rateDw = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw[i]);
         double res = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -341,11 +342,11 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRatesPeriodDw.periodRate(periodStartDate, PeriodEndDate)).thenReturn(
         rateCmp - EPS_FD);
     if (tsb != null) {
-      simpleProvPeriodUp.setTimeSeries(tsb.build());
-      simpleProvPeriodDw.setTimeSeries(tsb.build());
+      when(mockRatesPeriodUp.getTimeSeries()).thenReturn(tsb.build());
+      when(mockRatesPeriodDw.getTimeSeries()).thenReturn(tsb.build());
       for (int i = 0; i < nRates; i++) {
-        simpleProvUp[i].setTimeSeries(tsb.build());
-        simpleProvDw[i].setTimeSeries(tsb.build());
+        when(mockRatesUp[i].getTimeSeries()).thenReturn(tsb.build());
+        when(mockRatesDw[i].getTimeSeries()).thenReturn(tsb.build());
       }
     }
   }
@@ -365,7 +366,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < 2; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < 2; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -394,7 +395,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = (FIXING_RATES[1] * afKnown + Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff)
         / (afKnown + afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -426,7 +427,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     OvernightIndexRates mockRatesPeriodDw = mock(OvernightIndexRates.class);
     SimpleRatesProvider simpleProvPeriodDw = new SimpleRatesProvider(mockRatesPeriodDw);
 
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < 2; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(PointSensitivityBuilder.none());
@@ -472,16 +473,16 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       }
     }
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodUp.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodDw.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
       PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
       for (int i = 0; i < nRates; ++i) {
-        simpleProvUp[i].setValuationDate(valuationDate[loopvaldate]);
-        simpleProvDw[i].setValuationDate(valuationDate[loopvaldate]);
+        when(mockRatesUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockRatesDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
         double rateUp = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp[i]);
         double rateDw = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw[i]);
         double res = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -523,7 +524,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -555,7 +556,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = (accruedKnown + Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff)
         / (afKnown + afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -588,7 +589,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     OvernightIndexRates mockRatesPeriodDw = mock(OvernightIndexRates.class);
     SimpleRatesProvider simpleProvPeriodDw = new SimpleRatesProvider(mockRatesPeriodDw);
 
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
@@ -621,8 +622,8 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         mockRatesUp, simpleProvUp, mockRatesDw, simpleProvDw,
         mockRatesPeriodUp, simpleProvPeriodUp, mockRatesPeriodDw, simpleProvPeriodDw,
         ro, USD_FED_FUND, FIXING_DATES[lastFixing], FIXING_DATES[5], rateCmp, tsb);
-    simpleProvPeriodUp.setTimeSeries(tsb.build());
-    simpleProvPeriodDw.setTimeSeries(tsb.build());
+    when(mockRatesPeriodUp.getTimeSeries()).thenReturn(tsb.build());
+    when(mockRatesPeriodDw.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRatesPeriodUp.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRatesPeriodDw.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
@@ -632,16 +633,16 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       }
     }
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodUp.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodDw.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
       PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
       for (int i = 0; i < nRates; ++i) {
-        simpleProvUp[i].setValuationDate(valuationDate[loopvaldate]);
-        simpleProvDw[i].setValuationDate(valuationDate[loopvaldate]);
+        when(mockRatesUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockRatesDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
         double rateUp = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp[i]);
         double rateDw = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw[i]);
         double res = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -682,7 +683,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -715,7 +716,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = (accruedKnown + Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff)
         / (afKnown + afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -748,7 +749,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     OvernightIndexRates mockRatesPeriodDw = mock(OvernightIndexRates.class);
     SimpleRatesProvider simpleProvPeriodDw = new SimpleRatesProvider(mockRatesPeriodDw);
 
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
@@ -780,8 +781,8 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         mockRatesUp, simpleProvUp, mockRatesDw, simpleProvDw,
         mockRatesPeriodUp, simpleProvPeriodUp, mockRatesPeriodDw, simpleProvPeriodDw,
         ro, GBP_SONIA, FIXING_DATES[lastFixing], FIXING_DATES[5], rateCmp, tsb);
-    simpleProvPeriodUp.setTimeSeries(tsb.build());
-    simpleProvPeriodDw.setTimeSeries(tsb.build());
+    when(mockRatesPeriodUp.getTimeSeries()).thenReturn(tsb.build());
+    when(mockRatesPeriodDw.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRatesPeriodUp.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRatesPeriodDw.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
@@ -791,16 +792,16 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       }
     }
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodUp.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodDw.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
       PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
       for (int i = 0; i < nRates; ++i) {
-        simpleProvUp[i].setValuationDate(valuationDate[loopvaldate]);
-        simpleProvDw[i].setValuationDate(valuationDate[loopvaldate]);
+        when(mockRatesUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockRatesDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
         double rateUp = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp[i]);
         double rateDw = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw[i]);
         double res = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -841,7 +842,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -870,7 +871,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = (accruedKnown + Math.log(1.0 + rateCmp * afApprox))
         / (afKnown + afApprox);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -903,7 +904,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     OvernightIndexRates mockRatesPeriodDw = mock(OvernightIndexRates.class);
     SimpleRatesProvider simpleProvPeriodDw = new SimpleRatesProvider(mockRatesPeriodDw);
 
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
@@ -936,8 +937,8 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         mockRatesUp, simpleProvUp, mockRatesDw, simpleProvDw,
         mockRatesPeriodUp, simpleProvPeriodUp, mockRatesPeriodDw, simpleProvPeriodDw,
         ro, GBP_SONIA, FIXING_DATES[lastFixing], FIXING_DATES[6], rateCmp, tsb);
-    simpleProvPeriodUp.setTimeSeries(tsb.build());
-    simpleProvPeriodDw.setTimeSeries(tsb.build());
+    when(mockRatesPeriodUp.getTimeSeries()).thenReturn(tsb.build());
+    when(mockRatesPeriodDw.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRatesPeriodUp.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       when(mockRatesPeriodDw.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
@@ -947,16 +948,16 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       }
     }
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodUp.setValuationDate(valuationDate[loopvaldate]);
-      simpleProvPeriodDw.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      when(mockRatesPeriodDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FN_APPROX_FWD.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
       PointSensitivityBuilder sensitivityBuilderExpected1 = PointSensitivityBuilder.none();
       for (int i = 0; i < nRates; ++i) {
-        simpleProvUp[i].setValuationDate(valuationDate[loopvaldate]);
-        simpleProvDw[i].setValuationDate(valuationDate[loopvaldate]);
+        when(mockRatesUp[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+        when(mockRatesDw[i].getValuationDate()).thenReturn(valuationDate[loopvaldate]);
         double rateUp = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp[i]);
         double rateDw = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw[i]);
         double res = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -990,6 +991,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
+    when(mockRates.getValuationDate()).thenReturn(valuationDate);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(valuationDate, mockRates);
 
     LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
@@ -997,7 +999,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -1028,7 +1030,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -1050,7 +1052,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = (accruedKnown + FIXING_RATES[4] * afCutOff)
         / (afKnown + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
     }
@@ -1072,9 +1074,9 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    simpleProv.setTimeSeries(tsb.build());
+    when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
-      simpleProv.setValuationDate(valuationDate[loopvaldate]);
+      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityBuilderExpected = OBS_FN_APPROX_FWD.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertEquals(sensitivityBuilderExpected, PointSensitivityBuilder.none());

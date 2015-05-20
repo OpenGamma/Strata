@@ -49,7 +49,9 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    return new ObservationDetails(observation, provider).calculateRate();
+    OvernightIndexRates rates = provider.overnightIndexRates(observation.getIndex());
+    ObservationDetails details = new ObservationDetails(observation, rates);
+    return details.calculateRate();
   }
 
   @Override
@@ -59,14 +61,15 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    return new ObservationDetails(observation, provider).calculateRateSensitivity();
+    OvernightIndexRates rates = provider.overnightIndexRates(observation.getIndex());
+    ObservationDetails details = new ObservationDetails(observation, rates);
+    return details.calculateRateSensitivity();
   }
 
   //-------------------------------------------------------------------------
   // Internal class. Observation details stored in a separate class to clarify the construction.
   private static class ObservationDetails {
 
-    private final RatesProvider provider;
     private final OvernightIndexRates rates;
     private final HolidayCalendar fixingCalendar;
     private final OvernightIndex index;
@@ -80,12 +83,11 @@ public class ForwardOvernightCompoundedRateObservationFn
     private final double[] accrualFactorCutoff; // Accrual factors for the sub-periods using the cutoff rate.
     private LocalDate nextFixing; // Running variable through the different methods: next fixing date to be analyzed
 
-    private ObservationDetails(OvernightCompoundedRateObservation observation, RatesProvider provider) {
-      this.provider = provider;
+    private ObservationDetails(OvernightCompoundedRateObservation observation, OvernightIndexRates rates) {
       this.index = observation.getIndex();
-      this.rates = provider.overnightIndexRates(index);
+      this.rates = rates;
       this.fixingCalendar = index.getFixingCalendar();
-      this.indexFixingDateSeries = provider.timeSeries(index);
+      this.indexFixingDateSeries = rates.getTimeSeries();
       // Details of the cutoff period
       this.firstFixing = observation.getStartDate();
       this.lastFixingP1 = observation.getEndDate();
@@ -112,7 +114,7 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate currentFixing = firstFixing;
       LocalDate currentPublication = index.calculatePublicationFromFixing(currentFixing);
       while ((currentFixing.isBefore(lastFixingNonCutoff)) && // fixing in the non-cutoff period
-          provider.getValuationDate().isAfter(currentPublication)) { // publication before valuation
+          rates.getValuationDate().isAfter(currentPublication)) { // publication before valuation
         LocalDate effectiveDate = index.calculateEffectiveFromFixing(currentFixing);
         LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
         double accrualFactor = index.getDayCount().yearFraction(effectiveDate, maturityDate);
@@ -121,7 +123,7 @@ public class ForwardOvernightCompoundedRateObservationFn
         currentPublication = index.calculatePublicationFromFixing(currentFixing);
       }
       if (currentFixing.equals(lastFixingNonCutoff) && // fixing is on the last non-cutoff date, cutoff period known
-          provider.getValuationDate().isAfter(currentPublication)) { // publication before valuation
+          rates.getValuationDate().isAfter(currentPublication)) { // publication before valuation
         double rate = checkedFixing(currentFixing, indexFixingDateSeries, index);
         LocalDate effectiveDate = index.calculateEffectiveFromFixing(currentFixing);
         LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
@@ -140,7 +142,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     private double valuationCompositionFactor() {
       LocalDate currentFixing = nextFixing;
       LocalDate currentPublication = index.calculatePublicationFromFixing(currentFixing);
-      if (provider.getValuationDate().equals(currentPublication) &&
+      if (rates.getValuationDate().equals(currentPublication) &&
           !(currentFixing.isAfter(lastFixingNonCutoff))) { // If currentFixing > lastFixingNonCutoff, everything fixed
         OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixing);
         if (fixedRate.isPresent()) {

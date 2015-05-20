@@ -54,14 +54,15 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       RatesProvider provider) {
 
     OvernightIndex index = observation.getIndex();
-    LocalDate valuationDate = provider.getValuationDate();
+    OvernightIndexRates rates = provider.overnightIndexRates(index);
+    LocalDate valuationDate = rates.getValuationDate();
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate startPublicationDate = index.calculatePublicationFromFixing(startFixingDate);
     // No fixing to analyze. Go directly to approximation and cut-off.
     if (valuationDate.isBefore(startPublicationDate)) {
-      return rateForward(observation, provider.overnightIndexRates(index));
+      return rateForward(observation, rates);
     }
-    ObservationDetails details = new ObservationDetails(observation, provider);
+    ObservationDetails details = new ObservationDetails(observation, rates);
     return details.calculateRate();
   }
 
@@ -73,14 +74,15 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       RatesProvider provider) {
 
     OvernightIndex index = observation.getIndex();
-    LocalDate valuationDate = provider.getValuationDate();
+    OvernightIndexRates rates = provider.overnightIndexRates(index);
+    LocalDate valuationDate = rates.getValuationDate();
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate startPublicationDate = index.calculatePublicationFromFixing(startFixingDate);
     // No fixing to analyze. Go directly to approximation and cut-off.
     if (valuationDate.isBefore(startPublicationDate)) {
-      return rateForwardSensitivity(observation, provider.overnightIndexRates(index));
+      return rateForwardSensitivity(observation, rates);
     }
-    ObservationDetails details = new ObservationDetails(observation, provider);
+    ObservationDetails details = new ObservationDetails(observation, rates);
     return details.calculateRateSensitivity();
   }
 
@@ -193,7 +195,6 @@ public class ApproxForwardOvernightAveragedRateObservationFn
   // Internal class representing all the details related to the observation
   private static class ObservationDetails {
     // The list below are created in the constructor and never modified after.
-    private final RatesProvider provider;
     private final OvernightIndexRates rates;
     private final List<LocalDate> fixingDates; // Dates on which the fixing take place
     private final List<LocalDate> onRatePeriodEffectiveDates; // Dates on which the fixing take place
@@ -208,10 +209,9 @@ public class ApproxForwardOvernightAveragedRateObservationFn
 
     // Construct all the details related to the observation: fixing dates, publication dates, start and end dates, 
     // accrual factors, number of already fixed ON rates.
-    private ObservationDetails(OvernightAveragedRateObservation observation, RatesProvider provider) {
-      this.provider = provider;
+    private ObservationDetails(OvernightAveragedRateObservation observation, OvernightIndexRates rates) {
       this.index = observation.getIndex();
-      this.rates = provider.overnightIndexRates(index);
+      this.rates = rates;
       ArrayList<LocalDate> fixingDatesCstr = new ArrayList<>();
       List<LocalDate> onRatePeriodEffectiveDatesCstr = new ArrayList<>();
       List<LocalDate> onRatePeriodMaturityDatesCstr = new ArrayList<>();
@@ -257,9 +257,9 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     // fixedPeriod is altered by this method.
     private double pastAccumulation() {
       double accumulatedInterest = 0.0d;
-      LocalDateDoubleTimeSeries indexFixingDateSeries = provider.timeSeries(index);
+      LocalDateDoubleTimeSeries indexFixingDateSeries = rates.getTimeSeries();
       while ((fixedPeriod < nbPeriods) &&
-          provider.getValuationDate().isAfter(publicationDates.get(fixedPeriod))) {
+          rates.getValuationDate().isAfter(publicationDates.get(fixedPeriod))) {
         accumulatedInterest += accrualFactors.get(fixedPeriod) *
             checkedFixing(fixingDates.get(fixedPeriod), indexFixingDateSeries, index);
         fixedPeriod++;
@@ -271,10 +271,10 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     // fixedPeriod is altered by this method.
     private double valuationDateAccumulation() {
       double accumulatedInterest = 0.0d;
-      LocalDateDoubleTimeSeries indexFixingDateSeries = provider.timeSeries(index);
+      LocalDateDoubleTimeSeries indexFixingDateSeries = rates.getTimeSeries();
       boolean ratePresent = true;
       while (ratePresent && fixedPeriod < nbPeriods &&
-          provider.getValuationDate().isEqual(publicationDates.get(fixedPeriod))) {
+          rates.getValuationDate().isEqual(publicationDates.get(fixedPeriod))) {
         OptionalDouble fixedRate = indexFixingDateSeries.get(fixingDates.get(fixedPeriod));
         if (fixedRate.isPresent()) {
           accumulatedInterest += accrualFactors.get(fixedPeriod) * fixedRate.getAsDouble();
