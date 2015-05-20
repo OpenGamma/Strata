@@ -21,18 +21,18 @@ public final class CurveExtrapolators {
       CurveExtrapolator.of(StandardCurveExtrapolators.LINEAR.getName());
 
   /** Log linear extrapolator. */
-  static final CurveExtrapolator LOG_LINEAR =
+  public static final CurveExtrapolator LOG_LINEAR =
       CurveExtrapolator.of(StandardCurveExtrapolators.LOG_LINEAR.getName());
 
   /** Quadratic left extrapolator. */
-  static final CurveExtrapolator QUADRATIC_LEFT =
+  public static final CurveExtrapolator QUADRATIC_LEFT =
       CurveExtrapolator.of(StandardCurveExtrapolators.QUADRATIC_LEFT.getName());
 
   /** Product polynomial extrapolator. */
-  static final CurveExtrapolator PRODUCT_POLYNOMIAL =
+  public static final CurveExtrapolator PRODUCT_POLYNOMIAL =
       CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_POLYNOMIAL.getName());
 
   /** Reciprocal extrapolator. */
-  static final CurveExtrapolator RECIPROCAL =
+  public static final CurveExtrapolator RECIPROCAL =
       CurveExtrapolator.of(StandardCurveExtrapolators.RECIPROCAL.getName());
 }
