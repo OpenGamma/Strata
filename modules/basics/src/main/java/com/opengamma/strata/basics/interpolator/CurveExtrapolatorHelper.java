@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.extrapolator;
+package com.opengamma.strata.basics.interpolator;
 
 import com.opengamma.strata.collect.named.ExtendedEnum;
 

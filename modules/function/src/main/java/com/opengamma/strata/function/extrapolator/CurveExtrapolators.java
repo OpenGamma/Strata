@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.extrapolator;
 
-import com.opengamma.strata.basics.extrapolator.CurveExtrapolator;
+import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 
 /**
  * The standard set of curve extrapolators.

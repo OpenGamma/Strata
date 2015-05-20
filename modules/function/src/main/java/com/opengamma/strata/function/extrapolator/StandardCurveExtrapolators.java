@@ -11,7 +11,7 @@ import com.opengamma.analytics.math.interpolation.LogLinearExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.ProductPolynomialExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.QuadraticPolynomialLeftExtrapolator;
 import com.opengamma.analytics.math.interpolation.ReciprocalExtrapolator1D;
-import com.opengamma.strata.basics.extrapolator.CurveExtrapolator;
+import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 
 /**
  * The standard set of curve extrapolators.
