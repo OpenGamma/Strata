@@ -25,22 +25,22 @@ import com.opengamma.strata.basics.extrapolator.CurveExtrapolator;
  */
 final class StandardCurveExtrapolators {
 
-  /** Factory for creating linear extrapolators. */
+  /** Linear extrapolator. */
   public static final CurveExtrapolator LINEAR = new LinearExtrapolator1D();
 
-  /** Factory for creating log linear extrapolators. */
+  /** Log linear extrapolator. */
   public static final CurveExtrapolator LOG_LINEAR = new LogLinearExtrapolator1D();
 
-  /** Factory for creating quadratic left extrapolators. */
+  /** Quadratic left extrapolator. */
   public static final CurveExtrapolator QUADRATIC_LEFT = new QuadraticPolynomialLeftExtrapolator();
 
-  /** Factory for creating product polynomial extrapolators. */
+  /** Product polynomial extrapolator. */
   public static final CurveExtrapolator PRODUCT_POLYNOMIAL = new ProductPolynomialExtrapolator1D();
 
-  /** Factory for creating reciprocal extrapolators. */
+  /** Reciprocal extrapolator. */
   public static final CurveExtrapolator RECIPROCAL = new ReciprocalExtrapolator1D();
 
-  // Private constructor as this class only exists to hold the extrapolator factory constants
+  // Private constructor as this class only exists to hold the extrapolator constants
   private StandardCurveExtrapolators() {
   }
 }
