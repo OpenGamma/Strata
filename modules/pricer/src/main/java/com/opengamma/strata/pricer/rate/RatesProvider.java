@@ -18,7 +18,6 @@ import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.BaseProvider;
 
 /**
@@ -173,64 +172,6 @@ public interface RatesProvider
    */
   public default double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
     return overnightIndexRates(index).rate(fixingDate);
-  }
-
-  /**
-   * Gets the basic curve sensitivity for the forward rate of an Overnight index.
-   * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
-   * If a time-series was used, then there is no sensitivity.
-   * Otherwise, the sensitivity has the value 1.
-   * The sensitivity refers to the result of {@link #overnightIndexRate(OvernightIndex, LocalDate)}.
-   * 
-   * @param index  the index to find the sensitivity for
-   * @param fixingDate  the fixing date to find the sensitivity for
-   * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
-    return overnightIndexRates(index).pointSensitivity(fixingDate);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the forward rate of an overnight index on a given period, potentially different from an overnight period.
-   * <p>
-   * The start date should be on or after the valuation date. The end date should be after the start date.
-   * <p>
-   * This computes the forward rate in the simple simply compounded convention of the index between two given date.
-   * This is used mainly to speed-up computation by computing the rate on a longer period instead of each individual 
-   * overnight rate. When data related to the overnight index rate are stored based on the fixing date and not
-   * the start and end date of the period, the call may return an {@code IllegalArgumentException}.
-   * 
-   * @param index  the index to find the rate for
-   * @param startDate  the start or effective date of the period on which the rate is computed
-   * @param endDate  the end or maturity date of the period on which the rate is computed
-   * @return the simply compounded rate associated to the period for the index
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    return overnightIndexRates(index).periodRate(startDate, endDate);
-  }
-
-  /**
-   * Gets the basic curve sensitivity for the forward rate of an Overnight index on a given period.
-   * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
-   * The sensitivity will have the value 1.
-   * The sensitivity refers to the result of {@link #overnightIndexRatePeriod(OvernightIndex, LocalDate, LocalDate)}.
-   * 
-   * @param index  the index to find the sensitivity for
-   * @param startDate  the start or effective date of the period on which the rate is computed
-   * @param endDate  the end or maturity date of the period on which the rate is computed
-   * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
-      OvernightIndex index,
-      LocalDate startDate,
-      LocalDate endDate) {
-    return overnightIndexRates(index).periodRatePointSensitivity(startDate, endDate);
   }
 
   //-------------------------------------------------------------------------

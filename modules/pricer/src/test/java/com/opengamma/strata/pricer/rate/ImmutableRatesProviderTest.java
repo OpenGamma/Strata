@@ -20,7 +20,6 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.YearMonth;
 
 import org.testng.annotations.Test;
@@ -33,7 +32,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
@@ -328,7 +326,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV2_DATE), 0.0134d, 0d);
-    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV2_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_overnightIndexRateFixing_beforePublication_notInTimeSeries() {
@@ -340,8 +337,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.overnightIndexRate(USD_FED_FUND, PREV2_DATE));
-    // sensitivity succeeds, as result would be no sensitivity whether data is there or not
-    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV2_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_overnightIndexRateFixing_publication_inTimeSeries() {
@@ -353,7 +348,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0134d, 0d);
-    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_overnightIndexRateFixing_publication_notInTimeSeries() {
@@ -379,8 +373,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 1e-8d);
-    PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, PREV_DATE, 1d);
-    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV_DATE), sens);
   }
 
   public void test_overnightIndexRateFixing_afterPublication() {
@@ -406,61 +398,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, NEXT_DATE), 0.0123d, 1e-8d);
-    PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, NEXT_DATE, 1d);
-    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, NEXT_DATE), sens);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_overnightIndexRatePeriod_badDatesNotSorted() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
-        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, NEXT_DATE, VAL_DATE));
-    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, NEXT_DATE, VAL_DATE));
-  }
-
-  public void test_overnightIndexRatePeriod_BadDateInPast() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
-        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, PREV2_DATE, PREV_DATE));
-    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, PREV2_DATE, PREV_DATE));
-  }
-
-  public void test_overnightIndexRatePeriod_forward() {
-    YieldAndDiscountCurve fedFundCurve =
-        new YieldCurve("USD-FED-FUND", new ConstantDoublesCurve(0.97d)) {
-          @Override
-          public double getDiscountFactor(double t) {
-            // reverse engineer discount factor from desired rate
-            if (t < 0.1) {
-              double accrualFactor = 92d / 360d;
-              return (0.0123d * accrualFactor + 1) * 0.95;
-            } else {
-              return 0.95d;
-            }
-          }
-        };
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
-    LocalDate startDate = NEXT_DATE;
-    LocalDate endDate = NEXT_DATE.plus(Period.ofMonths(3));
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .indexCurves(ImmutableMap.of(USD_FED_FUND, fedFundCurve))
-        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    assertEquals(test.overnightIndexRatePeriod(USD_FED_FUND, startDate, endDate), 0.0123d, 1e-8d);
-    PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, USD, startDate, endDate, 1d);
-    assertEquals(test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, startDate, endDate), sens);
   }
 
   //-------------------------------------------------------------------------
