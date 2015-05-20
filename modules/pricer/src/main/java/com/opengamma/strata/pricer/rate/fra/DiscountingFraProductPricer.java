@@ -128,8 +128,8 @@ public class DiscountingFraProductPricer {
    * <p>
    * The par rate is the rate for which the FRA present value is 0.
    * 
-   * @param product the FRA product for which the par rate should be computed
-   * @param provider the rates provider
+   * @param product  the FRA product for which the par rate should be computed
+   * @param provider  the rates provider
    * @return the par rate
    */
   public double parRate(FraProduct product, RatesProvider provider) {
