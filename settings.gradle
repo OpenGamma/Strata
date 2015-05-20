@@ -26,7 +26,20 @@ modules.each { m ->
 
 include "examples"
 
-if(System.properties['analytics.ref']) {
+if(System.properties['analytics.ref'])
+{
         include "analytics"
         project(":analytics").projectDir = file "modules/analytics"
+
+        String sourceBuildscriptSource = this.class.getResource("/analytics.gradle").text
+        File targetBuildscriptFile = new File(project(":analytics").projectDir, "build.gradle")
+        targetBuildscriptFile.parentFile.mkdirs()
+        targetBuildscriptFile.text = """\
+/**
+ * Modifications to this file will be overwritten
+ * Make changes in \$projectRoot/buildSrc/src/resources/analytics.gradle instead
+ */
+
+${sourceBuildscriptSource}
+"""
 }

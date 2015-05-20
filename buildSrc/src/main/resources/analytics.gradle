@@ -6,8 +6,6 @@ version = "3.0.0-SNAPSHOT"
 
 dependencies {
     compile project(":basics")
-    compile project(":collect")
-    compile project(":collect-testutils")
     compile "org.testng:testng:${testNGVersion}"
     compile "it.unimi.dsi:fastutil:${fastutilVersion}"
     compile "org.apache.commons:commons-math3:${commonsMath3Version}"
@@ -15,6 +13,7 @@ dependencies {
     compile "net.sourceforge.jtransforms:jtransforms:${jtransformsVersion}"
 
     testCompile project(":basics-testutils")
+    testCompile project(":collect-testutils")
     testCompile "net.sf.opencsv:opencsv:${openCSVVersion}"
     testCompile "org.apache.poi:poi:${poiVersion}"
 }

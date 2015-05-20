@@ -9,7 +9,8 @@ import org.gradle.api.tasks.SourceTask
 
 class AnalyticsPlugin implements Plugin<Project>
 {
-    private final static String ANALYTICS_REPO = "git@github.com:OpenGamma/Analytics.git"
+//    private final static String ANALYTICS_REPO = "git@github.com:OpenGamma/Analytics.git"
+    private final static String ANALYTICS_REPO = "/home/poundex/workspaces/og/scratch/Analytics"
 
     Project project
     Project analytics
@@ -33,7 +34,6 @@ class AnalyticsPlugin implements Plugin<Project>
 
         addCloneAnalyticsTask()
         configureAnalytics()
-        prepareAnalyticsProject()
     }
 
     private void addCloneAnalyticsTask()
@@ -47,36 +47,17 @@ class AnalyticsPlugin implements Plugin<Project>
     private void configureAnalytics()
     {
         project.allprojects*.tasks*.withType(SourceTask) { t ->
-            t.dependsOn this.project.tasks[MAKE_PROJECT_TASK_NAME]
+            t.dependsOn this.project.tasks[CLONE_ANALYTICS_TASK_NAME]
         }
-    }
-
-    private void prepareAnalyticsProject()
-    {
-        Copy t = project.tasks.create(MAKE_PROJECT_TASK_NAME, Copy)
-        t.from(getClass().getResource("/analytics.gradle")) {
-            rename("analytics\\.gradle", "build\\.gradle")
-        }
-        t.into project.tasks[CLONE_ANALYTICS_TASK_NAME].outputDirectory
-        t.doLast {
-            File buildscript = new File(t.outputs.files.singleFile, "build.gradle")
-            buildscript.text = """\
-/**
- * Modifications to this file will be overwritten
- * Make changes in \$projectRoot/buildSrc/src/resources/analytics.gradle instead
- */
-
- ${buildscript.text}
-"""
-        }
-        t.dependsOn project.tasks[CLONE_ANALYTICS_TASK_NAME]
     }
 
     private void extendDependencyHandler(Project target)
     {
-        target.dependencies.ext.ogAnalytics = analytics ?
-                { project.project(":analytics") } :
-                { "com.opengamma.analytics:og-analytics:${target.rootProject.ext.ogAnalyticsVersion}" }
+        target.dependencies.ext.ogAnalytics = {
+            analytics ?
+                    project.project(":analytics") :
+                    "com.opengamma.analytics:og-analytics:${target.rootProject.ext.ogAnalyticsVersion}"
+        }
     }
 
     private void extendAllDependencyHandlers()
