@@ -1,8 +1,12 @@
 package com.opengamma.tools.gradle.release
 
-/**
- * Created by poundex on 20/05/15.
- */
-trait TaskNamer {
+import groovy.transform.Memoized
 
+trait TaskNamer
+{
+    @Memoized
+    String taskNameFor(String baseName)
+    {
+        return "${baseName}${this.project.name.capitalize()}"
+    }
 }

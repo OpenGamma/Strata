@@ -16,6 +16,8 @@ tests/classes/
 tests/output/
 test-output/
 
+modules/analytics/
+
 # IntelliJ config files
 *.iws
 *.iml

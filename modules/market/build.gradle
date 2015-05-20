@@ -2,7 +2,9 @@ dependencies {
 	compile project(":basics")
 	compile project(":collect")
 	compile project(":finance")
-	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+	compile ogAnalytics()
+
+	testCompile project(":collect-testutils")
 }
 
 javadoc {

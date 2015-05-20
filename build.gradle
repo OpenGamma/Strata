@@ -1,3 +1,4 @@
+import com.opengamma.tools.gradle.analytics.AnalyticsPlugin
 import com.opengamma.tools.gradle.distrepo.DistRepoPlugin
 import com.opengamma.tools.gradle.sphinx.SphinxPlugin
 import com.opengamma.tools.gradle.release.AutoVersionPlugin
@@ -9,6 +10,12 @@ ext {
 	jodaConvertVersion = "1.7"
 	jodaBeansVersion = "1.5.1"
 	joolVersion = "0.9.6"
+    fastutilVersion = "6.5.6"
+    commonsMath3Version = "3.5"
+    coltVersion = "1.2.0"
+    jtransformsVersion = "2.4.0"
+    openCSVVersion = "2.3"
+    poiVersion = "3.9"
 	slf4jVersion = "1.7.5"
 	ogAnalyticsVersion = "3.0.0-SNAPSHOT"
 
@@ -20,7 +27,7 @@ ext {
     javadocFooterLicense = ""
 }
 
-apply plugin: com.opengamma.tools.gradle.analytics.AnalyticsPlugin
+apply plugin: AnalyticsPlugin
 
 allprojects {
     version "0.9.0-SNAPSHOT"
@@ -43,8 +50,6 @@ subprojects {
     apply plugin: JodaBeansPlugin
     apply plugin: DistRepoPlugin
     apply from: "${rootProject.projectDir}/gradle/deployment.gradle"
-    apply from: "${rootProject.projectDir}/gradle/analytics.gradle"
-
 
     compileJava {
         sourceCompatibility = "1.8"
@@ -177,6 +182,21 @@ allprojects {
 			}
 		}
 	}
+}
+
+if(project.hasProperty("fast"))
+{
+    [
+            "javadoc",
+            "fullJavadoc",
+            "findbugsMain",
+            "findbugsTest",
+            "checkstyleMain",
+            "checkstyleTest",
+            "jacocoAgent",
+    ].each { tn ->
+        project.getTasksByName(tn, true)*.enabled = false
+    }
 }
 
 buildscript {

@@ -4,7 +4,7 @@ dependencies {
 	compile project(":finance")
 	compile project(":finance-beta")
 	compile project(":pricer")
-	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
+	compile ogAnalytics()
 
 	testCompile project(":collect-testutils")
 	testCompile project(":pricer-testutils")

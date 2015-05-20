@@ -8,15 +8,16 @@ package com.opengamma.tools.gradle.release
 
 import com.opengamma.tools.gradle.release.task.UpdateVersion
 import com.opengamma.tools.gradle.simpleexec.SimpleExecWithFailover
+import groovy.transform.Memoized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator
+class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator, TaskNamer
 {
-    public final static String UPDATE_VERSION_TASK_NAME = "updateVersion"
-    public final static String DESCRIBE_TAG_TASK_NAME = "describeGitTag"
-    public final static String DESCRIBE_COMMIT_TASK_NAME = "describeGitCommit"
+    public final static String UPDATE_VERSION_TASK_BASE_NAME = "updateVersion"
+    public final static String DESCRIBE_TAG_TASK_BASE_NAME = "describeGitTag"
+    public final static String DESCRIBE_COMMIT_TASK_BASE_NAME = "describeGitCommit"
 
     Project project
 
@@ -37,7 +38,7 @@ class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator
 				    updateVersionTask,
 				    describeTagTask,
 				    describeCommitTask,
-				    project.tasks.findByName(ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME)
+				    project.rootProject.tasks.findByName(ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME)
 		    ].contains(it)) return
 		    it.dependsOn updateVersionTask
 	    }
@@ -45,27 +46,30 @@ class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator
 
     private Task addUpdateVersionTask()
     {
-        Task t = project.tasks.create(UPDATE_VERSION_TASK_NAME, UpdateVersion)
-        t.mustRunAfter project.tasks[ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME]
+        Task t = project.tasks.create(taskNameFor(UPDATE_VERSION_TASK_BASE_NAME), UpdateVersion)
+        project.rootProject.afterEvaluate {
+			t.mustRunAfter project.rootProject.tasks[ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME]
+		}
+		return t
     }
 
 	private Task addDescribeGitTagTask()
 	{
-		Task t = project.tasks.create(DESCRIBE_TAG_TASK_NAME, SimpleExecWithFailover)
+		Task t = project.tasks.create(taskNameFor(DESCRIBE_TAG_TASK_BASE_NAME), SimpleExecWithFailover)
 		t.command = "git describe --abbrev=0"
 		t.failoverCommand = "git describe --abbrev=0 --tags"
 		t.throwOnFailure = false
-		t.workingDirectory = project.rootDir
+		t.workingDirectory = project.projectDir
 		return t
 	}
 
 	private Task addDescribeGitCommitTask()
 	{
-		Task t = project.tasks.create(DESCRIBE_COMMIT_TASK_NAME, SimpleExecWithFailover)
+		Task t = project.tasks.create(taskNameFor(DESCRIBE_COMMIT_TASK_BASE_NAME), SimpleExecWithFailover)
 		t.command = "git describe"
 		t.failoverCommand = "git describe --tags"
 		t.throwOnFailure = false
-		t.workingDirectory = project.rootDir
+		t.workingDirectory = project.projectDir
 		return t
 	}
 }

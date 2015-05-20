@@ -9,19 +9,20 @@ package com.opengamma.tools.gradle.release.task
 import com.github.zafarkhaja.semver.Version
 import com.opengamma.tools.gradle.release.AutoVersionPlugin
 import com.opengamma.tools.gradle.release.SnapshotVersionDeriver
+import com.opengamma.tools.gradle.release.TaskNamer
 import com.opengamma.tools.gradle.simpleexec.SimpleExec
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-class UpdateVersion extends DefaultTask
+class UpdateVersion extends DefaultTask implements TaskNamer
 {
     @TaskAction
     void updateProjectVersion()
     {
 	    boolean fallbackVersionInUse = false
 	    String template = project.release.releaseTagTemplate
-	    SimpleExec baseDescTask = project.tasks[AutoVersionPlugin.DESCRIBE_TAG_TASK_NAME]
-	    SimpleExec commitDescTask = project.tasks[AutoVersionPlugin.DESCRIBE_COMMIT_TASK_NAME]
+	    SimpleExec baseDescTask = project.tasks[taskNameFor(AutoVersionPlugin.DESCRIBE_TAG_TASK_BASE_NAME)]
+	    SimpleExec commitDescTask = project.tasks[taskNameFor(AutoVersionPlugin.DESCRIBE_COMMIT_TASK_BASE_NAME)]
 	    String baseDesc, commitDesc
 	    if(baseDescTask.output.exitCode == 0 && commitDescTask.output.exitCode == 0)
 	    {
@@ -30,6 +31,7 @@ class UpdateVersion extends DefaultTask
 	    }
 	    else
 	    {
+			println "[!!] FALLING BACK FOR ${project.name} NAD VERSION IS ${project.version}"
 		    String fallbackVersion =
 				    project.version && project.version != "unspecified" ? project.version.toString() - "-SNAPSHOT" : "0.1.0"
 		    String desc = template.replaceAll("@version@", fallbackVersion)
@@ -50,8 +52,11 @@ class UpdateVersion extends DefaultTask
 
 	    String newVersionString = newVersion.toString()
 	    logger.quiet "Project version is ${newVersionString}"
-	    project.allprojects { p ->
-		    p.version = newVersionString
+
+		project.version = newVersionString
+	    project.subprojects { p ->
+			if(p.plugins.hasPlugin(AutoVersionPlugin)) return
+			p.version = newVersionString
 	    }
     }
 }

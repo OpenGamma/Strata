@@ -48,6 +48,7 @@ class SnapshotVersionDeriver
 		    commitCount += "."
         String tagVersion = baseTagDescription.replaceFirst(tagVersionPrefix, "")
         tagVersion = tagVersion - tagVersionSuffix
+        println "[!!] Passing ${tagVersion} to version"
         Version baseVersion = Version.valueOf(tagVersion)
 	    String build = null != buildNumber ? "b${buildNumber}" : ""
 	    if(objectName && build)

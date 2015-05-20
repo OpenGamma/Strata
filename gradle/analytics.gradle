@@ -1,3 +1,4 @@
+/*
 boolean bootstrapAnalytics = false
 String ogAnalyticsVersion = project.rootProject.ext.ogAnalyticsVersion
 String analyticsRef
@@ -15,3 +16,4 @@ project.dependencies.ext.ogAnalytics = bootstrapAnalytics ?
 //
 //compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
 //compile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'
+*/
