@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -77,7 +78,8 @@ public class ForwardIborAveragedRateObservationFn
       IborAveragedFixing fixing,
       RatesProvider provider) {
 
-    return provider.iborIndexRateSensitivity(observation.getIndex(), fixing.getFixingDate())
+    IborIndexRates rates = provider.iborIndexRates(observation.getIndex());
+    return rates.pointSensitivity(fixing.getFixingDate())
         .multipliedBy(fixing.getWeight() / observation.getTotalWeight());
   }
 

@@ -12,6 +12,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -38,6 +39,16 @@ public interface IborIndexRates {
    * @return the valuation date
    */
   public abstract LocalDate getValuationDate();
+
+  /**
+   * Gets the time-series of fixings for the index.
+   * <p>
+   * The time-series contains historic fixings of the index.
+   * It may be empty if the data is not available.
+   * 
+   * @return the time-series fixings
+   */
+  public abstract LocalDateDoubleTimeSeries getTimeSeries();
 
   /**
    * Gets the name of the underlying curve.

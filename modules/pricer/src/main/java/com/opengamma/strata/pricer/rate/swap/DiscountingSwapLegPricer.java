@@ -17,6 +17,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -265,7 +266,8 @@ public class DiscountingSwapLegPricer {
     ArgChecker.isTrue(
         accrualPeriod.getRateObservation() instanceof FixedRateObservation,
         "RateObservation must be instance of FixedRateObservation");
-    return provider.discountFactorZeroRateSensitivity(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate())
+    DiscountFactors discountFactors = provider.discountFactors(paymentPeriod.getCurrency());
+    return discountFactors.pointSensitivity(paymentPeriod.getPaymentDate())
         .multipliedBy(accrualPeriod.getYearFraction() * paymentPeriod.getNotional());
   }
 

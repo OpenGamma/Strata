@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
  * Provides access to rates for an FX index.
@@ -36,6 +37,16 @@ public interface FxIndexRates {
    * @return the valuation date
    */
   public abstract LocalDate getValuationDate();
+
+  /**
+   * Gets the time-series of fixings for the index.
+   * <p>
+   * The time-series contains historic fixings of the index.
+   * It may be empty if the data is not available.
+   * 
+   * @return the time-series fixings
+   */
+  public abstract LocalDateDoubleTimeSeries getTimeSeries();
 
   //-------------------------------------------------------------------------
   /**

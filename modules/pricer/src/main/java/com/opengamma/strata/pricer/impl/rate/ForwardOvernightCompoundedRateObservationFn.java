@@ -13,6 +13,7 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
@@ -48,7 +49,9 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    return new ObservationDetails(observation, provider).calculateRate();
+    OvernightIndexRates rates = provider.overnightIndexRates(observation.getIndex());
+    ObservationDetails details = new ObservationDetails(observation, rates);
+    return details.calculateRate();
   }
 
   @Override
@@ -58,14 +61,16 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    return new ObservationDetails(observation, provider).calculateRateSensitivity();
+    OvernightIndexRates rates = provider.overnightIndexRates(observation.getIndex());
+    ObservationDetails details = new ObservationDetails(observation, rates);
+    return details.calculateRateSensitivity();
   }
 
   //-------------------------------------------------------------------------
   // Internal class. Observation details stored in a separate class to clarify the construction.
   private static class ObservationDetails {
 
-    private final RatesProvider provider;
+    private final OvernightIndexRates rates;
     private final HolidayCalendar fixingCalendar;
     private final OvernightIndex index;
     private final LocalDateDoubleTimeSeries indexFixingDateSeries;
@@ -78,17 +83,17 @@ public class ForwardOvernightCompoundedRateObservationFn
     private final double[] accrualFactorCutoff; // Accrual factors for the sub-periods using the cutoff rate.
     private LocalDate nextFixing; // Running variable through the different methods: next fixing date to be analyzed
 
-    private ObservationDetails(OvernightCompoundedRateObservation observation, RatesProvider provider) {
-      this.provider = provider;
-      index = observation.getIndex();
-      fixingCalendar = index.getFixingCalendar();
-      indexFixingDateSeries = provider.timeSeries(index);
+    private ObservationDetails(OvernightCompoundedRateObservation observation, OvernightIndexRates rates) {
+      this.index = observation.getIndex();
+      this.rates = rates;
+      this.fixingCalendar = index.getFixingCalendar();
+      this.indexFixingDateSeries = rates.getTimeSeries();
       // Details of the cutoff period
-      firstFixing = observation.getStartDate();
-      lastFixingP1 = observation.getEndDate();
-      lastFixing = fixingCalendar.previous(lastFixingP1);
-      cutoffOffset = Math.max(observation.getRateCutOffDays(), 1);
-      accrualFactorCutoff = new double[cutoffOffset - 1];
+      this.firstFixing = observation.getStartDate();
+      this.lastFixingP1 = observation.getEndDate();
+      this.lastFixing = fixingCalendar.previous(lastFixingP1);
+      this.cutoffOffset = Math.max(observation.getRateCutOffDays(), 1);
+      this.accrualFactorCutoff = new double[cutoffOffset - 1];
       LocalDate currentFixing = lastFixing;
       for (int i = 0; i < cutoffOffset - 1; i++) {
         currentFixing = fixingCalendar.previous(currentFixing);
@@ -96,11 +101,11 @@ public class ForwardOvernightCompoundedRateObservationFn
         LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
         accrualFactorCutoff[i] = index.getDayCount().yearFraction(effectiveDate, maturityDate);
       }
-      lastFixingNonCutoff = currentFixing;
+      this.lastFixingNonCutoff = currentFixing;
       LocalDate startUnderlyingPeriod = index.calculateEffectiveFromFixing(firstFixing);
       LocalDate endUnderlyingPeriod =
           index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(lastFixing));
-      accrualFactorTotal = index.getDayCount().yearFraction(startUnderlyingPeriod, endUnderlyingPeriod);
+      this.accrualFactorTotal = index.getDayCount().yearFraction(startUnderlyingPeriod, endUnderlyingPeriod);
     }
 
     // Composition - publication strictly before valuation date: try accessing fixing time-series
@@ -109,7 +114,7 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate currentFixing = firstFixing;
       LocalDate currentPublication = index.calculatePublicationFromFixing(currentFixing);
       while ((currentFixing.isBefore(lastFixingNonCutoff)) && // fixing in the non-cutoff period
-          provider.getValuationDate().isAfter(currentPublication)) { // publication before valuation
+          rates.getValuationDate().isAfter(currentPublication)) { // publication before valuation
         LocalDate effectiveDate = index.calculateEffectiveFromFixing(currentFixing);
         LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
         double accrualFactor = index.getDayCount().yearFraction(effectiveDate, maturityDate);
@@ -118,7 +123,7 @@ public class ForwardOvernightCompoundedRateObservationFn
         currentPublication = index.calculatePublicationFromFixing(currentFixing);
       }
       if (currentFixing.equals(lastFixingNonCutoff) && // fixing is on the last non-cutoff date, cutoff period known
-          provider.getValuationDate().isAfter(currentPublication)) { // publication before valuation
+          rates.getValuationDate().isAfter(currentPublication)) { // publication before valuation
         double rate = checkedFixing(currentFixing, indexFixingDateSeries, index);
         LocalDate effectiveDate = index.calculateEffectiveFromFixing(currentFixing);
         LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
@@ -137,7 +142,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     private double valuationCompositionFactor() {
       LocalDate currentFixing = nextFixing;
       LocalDate currentPublication = index.calculatePublicationFromFixing(currentFixing);
-      if (provider.getValuationDate().equals(currentPublication) &&
+      if (rates.getValuationDate().equals(currentPublication) &&
           !(currentFixing.isAfter(lastFixingNonCutoff))) { // If currentFixing > lastFixingNonCutoff, everything fixed
         OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixing);
         if (fixedRate.isPresent()) {
@@ -164,7 +169,7 @@ public class ForwardOvernightCompoundedRateObservationFn
         LocalDate startDate = index.calculateEffectiveFromFixing(nextFixing);
         LocalDate endDate = index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(lastFixingNonCutoff));
         double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
-        double rate = provider.overnightIndexRatePeriod(index, startDate, endDate);
+        double rate = rates.periodRate(startDate, endDate);
         return 1.0d + accrualFactor * rate;
       }
       return 1.0d;
@@ -177,9 +182,8 @@ public class ForwardOvernightCompoundedRateObservationFn
         LocalDate endDate = index.calculateMaturityFromEffective(
             index.calculateEffectiveFromFixing(lastFixingNonCutoff));
         double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
-        double rate = provider.overnightIndexRatePeriod(index, startDate, endDate);
-        PointSensitivityBuilder rateSensitivity =
-            provider.overnightIndexRatePeriodSensitivity(index, startDate, endDate);
+        double rate = rates.periodRate(startDate, endDate);
+        PointSensitivityBuilder rateSensitivity = rates.periodRatePointSensitivity(startDate, endDate);
         rateSensitivity = rateSensitivity.multipliedBy(accrualFactor);
         return ObjectDoublePair.of(rateSensitivity, 1.0d + accrualFactor * rate);
       }
@@ -189,7 +193,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
     private double compositionFactorCutoff() {
       if (nextFixing.isBefore(lastFixingNonCutoff)) {
-        double rate = provider.overnightIndexRate(index, lastFixingNonCutoff);
+        double rate = rates.rate(lastFixingNonCutoff);
         double compositionFactor = 1.0d;
         for (int i = 0; i < cutoffOffset - 1; i++) {
           compositionFactor *= 1.0d + accrualFactorCutoff[i] * rate;
@@ -202,7 +206,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
     private ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff() {
       if (nextFixing.isBefore(lastFixingNonCutoff)) {
-        double rate = provider.overnightIndexRate(index, lastFixingNonCutoff);
+        double rate = rates.rate(lastFixingNonCutoff);
         double compositionFactor = 1.0d;
         double compositionFactorDerivative = 0.0;
         for (int i = 0; i < cutoffOffset - 1; i++) {
@@ -210,8 +214,8 @@ public class ForwardOvernightCompoundedRateObservationFn
           compositionFactorDerivative += accrualFactorCutoff[i] / (1.0d + accrualFactorCutoff[i] * rate);
         }
         compositionFactorDerivative *= compositionFactor;
-        PointSensitivityBuilder rateSensitivity = cutoffOffset <= 1 ? PointSensitivityBuilder.none() :
-            provider.overnightIndexRateSensitivity(index, lastFixingNonCutoff);
+        PointSensitivityBuilder rateSensitivity =
+            cutoffOffset <= 1 ? PointSensitivityBuilder.none() : rates.pointSensitivity(lastFixingNonCutoff);
         rateSensitivity = rateSensitivity.multipliedBy(compositionFactorDerivative);
         return ObjectDoublePair.of(rateSensitivity, compositionFactor);
       }
