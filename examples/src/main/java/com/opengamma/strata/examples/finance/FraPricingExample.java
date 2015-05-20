@@ -52,6 +52,7 @@ public class FraPricingExample {
         Column.of(Measure.COUNTERPARTY),
         Column.of(Measure.SETTLEMENT_DATE),
         Column.of(Measure.PRESENT_VALUE),
+        Column.of(Measure.PV01),
         Column.of(Measure.PAR_RATE),
         Column.of(Measure.PAR_SPREAD));
 

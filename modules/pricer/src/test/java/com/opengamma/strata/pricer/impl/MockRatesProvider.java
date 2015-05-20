@@ -13,10 +13,13 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Mock implementation of rate provider.
@@ -71,54 +74,29 @@ public class MockRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(Currency currency, LocalDate date) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
+  public DiscountFactors discountFactors(Currency currency) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
+  public FxIndexRates fxIndexRates(FxIndex index) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double iborIndexRate(IborIndex index, LocalDate fixingDate) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
+  public IborIndexRates iborIndexRates(IborIndex index) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
+  public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
