@@ -112,9 +112,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -361,9 +359,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -475,9 +471,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -604,9 +598,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
@@ -717,9 +709,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       when(mockRatesDw.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      ;
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
