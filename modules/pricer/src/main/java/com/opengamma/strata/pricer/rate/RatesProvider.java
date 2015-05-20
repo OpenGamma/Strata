@@ -13,6 +13,9 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -62,6 +65,20 @@ public interface RatesProvider
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the rates for an FX index.
+   * <p>
+   * This returns an object that can provide historic and forward rates for the specified index.
+   * <p>
+   * An FX rate is the conversion rate between two currencies. An FX index is the rate
+   * as published by a specific organization, typically at a well-known time-of-day.
+   * 
+   * @param index  the index to find rates for
+   * @return the rates for the specified index
+   * @throws IllegalArgumentException if the rates are not available
+   */
+  public abstract FxIndexRates fxIndexRates(FxIndex index);
+
+  /**
    * Gets the historic or forward rate of an FX rate for a currency pair.
    * <p>
    * The rate of the FX index varies over time.
@@ -87,13 +104,27 @@ public interface RatesProvider
    * @param baseCurrency  the base currency that the rate should be expressed against
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the index data is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate);
+  public default double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
+    return fxIndexRates(index).rate(baseCurrency, fixingDate);
+  }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the historic or forward rate of an IBOR-like index.
+   * Gets the rates for an Ibor index.
+   * <p>
+   * The rate of the Ibor index, such as 'GBP-LIBOR-3M', varies over time.
+   * This returns an object that can provide historic and forward rates for the specified index.
+   * 
+   * @param index  the index to find rates for
+   * @return the rates for the specified index
+   * @throws IllegalArgumentException if the rates are not available
+   */
+  public abstract IborIndexRates iborIndexRates(IborIndex index);
+
+  /**
+   * Gets the historic or forward rate of an Ibor index.
    * <p>
    * The rate of the IBOR-like index, such as 'GBP-LIBOR-3M', varies over time.
    * This method obtains the actual or estimated rate for the fixing date.
@@ -105,12 +136,14 @@ public interface RatesProvider
    * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the index data is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract double iborIndexRate(IborIndex index, LocalDate fixingDate);
+  public default double iborIndexRate(IborIndex index, LocalDate fixingDate) {
+    return iborIndexRates(index).rate(fixingDate);
+  }
 
   /**
-   * Gets the basic curve sensitivity for the forward rate of an IBOR-like index.
+   * Gets the basic curve sensitivity for the forward rate of an Ibor index.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
@@ -120,11 +153,25 @@ public interface RatesProvider
    * @param index  the index to find the sensitivity for
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the index data is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate);
+  public default PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
+    return iborIndexRates(index).pointSensitivity(fixingDate);
+  }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the rates for an Overnight index.
+   * <p>
+   * The rate of the Overnight index, such as 'EUR-EONIA', varies over time.
+   * This returns an object that can provide historic and forward rates for the specified index.
+   * 
+   * @param index  the index to find rates for
+   * @return the rates for the specified index
+   * @throws IllegalArgumentException if the rates are not available
+   */
+  public abstract OvernightIndexRates overnightIndexRates(OvernightIndex index);
+
   /**
    * Gets the historic or forward rate of an Overnight index.
    * <p>
@@ -139,9 +186,11 @@ public interface RatesProvider
    * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the index data is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract double overnightIndexRate(OvernightIndex index, LocalDate fixingDate);
+  public default double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
+    return overnightIndexRates(index).rate(fixingDate);
+  }
 
   /**
    * Gets the basic curve sensitivity for the forward rate of an Overnight index.
@@ -154,9 +203,11 @@ public interface RatesProvider
    * @param index  the index to find the sensitivity for
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the index data is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate);
+  public default PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
+    return overnightIndexRates(index).pointSensitivity(fixingDate);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -173,10 +224,11 @@ public interface RatesProvider
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the simply compounded rate associated to the period for the index
-   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
-   *   on the fixing date and not the start and end date of the period
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate);
+  public default double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+    return overnightIndexRates(index).periodRate(startDate, endDate);
+  }
 
   /**
    * Gets the basic curve sensitivity for the forward rate of an Overnight index on a given period.
@@ -189,13 +241,14 @@ public interface RatesProvider
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the index data is not available, or when data is stored based
-   *   on the fixing date and not the start and end date of the period
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
+  public default PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
       OvernightIndex index,
       LocalDate startDate,
-      LocalDate endDate);
+      LocalDate endDate) {
+    return overnightIndexRates(index).periodRatePointSensitivity(startDate, endDate);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -210,7 +263,7 @@ public interface RatesProvider
    * 1 month, 3 month, 12 month and 5 year nodal points.
    * 
    * @param pointSensitivities  the point sensitivity
-   * @return  the sensitivity to the curve parameters
+   * @return the sensitivity to the curve parameters
    */
   CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities);
 

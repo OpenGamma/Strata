@@ -123,6 +123,20 @@ public class DiscountingFraProductPricer {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Calculates the par rate of the FRA product.
+   * <p>
+   * The par rate is the rate for which the FRA present value is 0.
+   * 
+   * @param product  the FRA product for which the par rate should be computed
+   * @param provider  the rates provider
+   * @return the par rate
+   */
+  public double parRate(FraProduct product, RatesProvider provider) {
+    return forwardRate(product.expand(), provider);
+  }
+
+  //-------------------------------------------------------------------------
   // calculates the future value
   private double futureValue(ExpandedFra fra, RatesProvider provider) {
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {

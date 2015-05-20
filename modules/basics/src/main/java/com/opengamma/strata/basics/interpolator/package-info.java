@@ -5,7 +5,7 @@
  */
 
 /**
- * Types for interpolating between existing values in a set of data
+ * Types for interpolating between existing values in a set of data.
  * <p>
  * Interpolation is used extensively when calibrating market data, for example curves or surfaces.
  */

@@ -72,8 +72,7 @@ public class CurveGammaCalculator {
    */
   public double[] calculateSemiParallelGamma(
       ImmutableRatesProvider provider,
-      Function<ImmutableRatesProvider,
-      PointSensitivities> sensitivitiesFn) {
+      Function<ImmutableRatesProvider, PointSensitivities> sensitivitiesFn) {
 
     InterpolatedDoublesCurve curve = findCurve(provider);
     Delta deltaShift = new Delta(provider, curve, sensitivitiesFn);

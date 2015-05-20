@@ -26,7 +26,7 @@ public final class FraFunctionGroups {
           .addFunction(Measure.PAR_RATE, FraParRateFunction.class)
           .addFunction(Measure.PAR_SPREAD, FraParSpreadFunction.class)
           .addFunction(Measure.PRESENT_VALUE, FraPvFunction.class)
-          .addFunction(Measure.PV01, FraPvParameterSensitivityFunction.class)
+          .addFunction(Measure.PV01, FraPv01Function.class)
           .build();
 
   /**

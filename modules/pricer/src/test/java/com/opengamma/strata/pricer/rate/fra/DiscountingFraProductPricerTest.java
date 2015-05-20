@@ -414,6 +414,98 @@ public class DiscountingFraProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Test par rate for ISDA FRA Discounting method. 
+   */
+  public void test_parRate_ISDA() {
+    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    double forwardRate = 0.02;
+    double discountFactor = 0.98d;
+    ExpandedFra fraExp = FRA.expand();
+    Currency currency = FRA.getCurrency();
+    DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
+    when(mockObs.rate(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+        .thenReturn(forwardRate);
+    when(mockProv.discountFactor(currency, fraExp.getPaymentDate())).thenReturn(discountFactor);
+    double parRate = test.parRate(fraExp, mockProv);
+    assertEquals(parRate, forwardRate);
+    Fra fra = Fra.builder()
+        .buySell(FRA.getBuySell())
+        .notional(FRA.getNotional())
+        .startDate(FRA.getStartDate())
+        .endDate(FRA.getEndDate())
+        .index(FRA.getIndex())
+        .fixedRate(parRate)
+        .currency(FRA.getCurrency())
+        .build();
+    CurrencyAmount pv = test.presentValue(fra, mockProv);
+    assertEquals(pv.getAmount(), 0.0, FRA.getNotional() * TOLERANCE);
+  }
+
+  /**
+   * Test par rate for NONE FRA Discounting method. 
+   */
+  public void test_parRate_NONE() {
+    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    double forwardRate = 0.02;
+    double discountFactor = 0.98d;
+    ExpandedFra fraExp = FRA_NONE.expand();
+    Currency currency = FRA_NONE.getCurrency();
+    DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
+    when(mockObs.rate(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+        .thenReturn(forwardRate);
+    when(mockProv.discountFactor(currency, fraExp.getPaymentDate())).thenReturn(discountFactor);
+    double parRate = test.parRate(fraExp, mockProv);
+    assertEquals(parRate, forwardRate);
+    Fra fra = Fra.builder()
+        .buySell(FRA_NONE.getBuySell())
+        .notional(FRA_NONE.getNotional())
+        .startDate(FRA_NONE.getStartDate())
+        .endDate(FRA_NONE.getEndDate())
+        .index(FRA_NONE.getIndex())
+        .fixedRate(parRate)
+        .currency(FRA_NONE.getCurrency())
+        .build();
+    CurrencyAmount pv = test.presentValue(fra, mockProv);
+    assertEquals(pv.getAmount(), 0.0, FRA_NONE.getNotional() * TOLERANCE);
+  }
+
+  /**
+   * Test par rate for ISDA FRA Discounting method. 
+   */
+  public void test_parRate_AFMA() {
+    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    double forwardRate = 0.02;
+    double discountFactor = 0.98d;
+    ExpandedFra fraExp = FRA_AFMA.expand();
+    Currency currency = FRA_AFMA.getCurrency();
+    DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
+    when(mockObs.rate(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+        .thenReturn(forwardRate);
+    when(mockProv.discountFactor(currency, fraExp.getPaymentDate()))
+        .thenReturn(discountFactor);
+    double parRate = test.parRate(fraExp, mockProv);
+    assertEquals(parRate, forwardRate);
+    Fra fra = Fra.builder()
+        .buySell(FRA_AFMA.getBuySell())
+        .notional(FRA_AFMA.getNotional())
+        .startDate(FRA_AFMA.getStartDate())
+        .endDate(FRA_AFMA.getEndDate())
+        .index(FRA_AFMA.getIndex())
+        .fixedRate(parRate)
+        .currency(FRA_AFMA.getCurrency())
+        .build();
+    CurrencyAmount pv = test.presentValue(fra, mockProv);
+    assertEquals(pv.getAmount(), 0.0, FRA_AFMA.getNotional() * TOLERANCE);
+  }
+
+  //-------------------------------------------------------------------------
   private double futureValueFwdSensitivity(Fra fra, double forwardRate, double eps) {
 
     RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
