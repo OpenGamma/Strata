@@ -13,6 +13,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -163,12 +164,13 @@ public class DiscountingRatePaymentPeriodPricer
   @Override
   public PointSensitivityBuilder presentValueSensitivity(RatePaymentPeriod period, RatesProvider provider) {
     Currency ccy = period.getCurrency();
+    DiscountFactors discountFactors = provider.discountFactors(ccy);
     LocalDate paymentDate = period.getPaymentDate();
-    double df = provider.discountFactor(period.getCurrency(), paymentDate);
+    double df = discountFactors.discountFactor(paymentDate);
     PointSensitivityBuilder fwdSensitivity = futureValueSensitivity(period, provider);
     fwdSensitivity = fwdSensitivity.multipliedBy(df);
     double futureValue = futureValue(period, provider);
-    PointSensitivityBuilder dscSensitivity = provider.discountFactorZeroRateSensitivity(ccy, paymentDate);
+    PointSensitivityBuilder dscSensitivity = discountFactors.pointSensitivity(paymentDate);
     dscSensitivity = dscSensitivity.multipliedBy(futureValue);
     return fwdSensitivity.combinedWith(dscSensitivity);
   }

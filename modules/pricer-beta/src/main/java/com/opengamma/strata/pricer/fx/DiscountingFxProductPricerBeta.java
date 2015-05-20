@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.FxProduct;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -119,7 +120,8 @@ public class DiscountingFxProductPricerBeta {
 
   // from PaymentFixedDiscountingMethod
   public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
-    return provider.discountFactorZeroRateSensitivity(payment.getCurrency(), payment.getDate())
+    DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
+    return discountFactors.pointSensitivity(payment.getDate())
         .multipliedBy(payment.getAmount());
   }
 

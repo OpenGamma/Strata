@@ -32,8 +32,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
  * Test {@link ImmutableRatesProvider}.
@@ -145,18 +143,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.discountFactor(GBP, LocalDate.of(2014, 7, 30)));
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_discountFactorZeroRateSensitivity() {
-    double relativeTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    PointSensitivityBuilder expected = ZeroRateSensitivity.of(GBP, LocalDate.of(2014, 7, 30), -0.99d * relativeTime);
-    assertEquals(test.discountFactorZeroRateSensitivity(GBP, LocalDate.of(2014, 7, 30)), expected);
   }
 
   //-------------------------------------------------------------------------

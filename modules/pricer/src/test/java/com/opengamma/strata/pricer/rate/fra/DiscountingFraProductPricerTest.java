@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -30,6 +31,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 
 /**
  * Test.
@@ -291,8 +293,9 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_presentValueSensitivity_ISDA() {
     RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+
     ExpandedFra fraExp = FRA.expand();
     double forwardRate = 0.05;
     double discountRate = 0.015;
@@ -300,17 +303,17 @@ public class DiscountingFraProductPricerTest {
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA.getStartDate();
     PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
-    when(mockProv.discountFactor(FRA.getCurrency(), fraExp.getPaymentDate()))
+    when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
-    when(mockProv.discountFactorZeroRateSensitivity(FRA.getCurrency(), fraExp.getPaymentDate()))
+    when(mockDf.pointSensitivity(fraExp.getPaymentDate()))
         .thenReturn(ZeroRateSensitivity.of(
             fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
-    when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+    when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), simpleProv))
         .thenReturn(sens);
-    when(mockObs.rate(fraExp.getFloatingRate(), FRA.getStartDate(), FRA.getEndDate(), mockProv))
+    when(mockObs.rate(fraExp.getFloatingRate(), FRA.getStartDate(), FRA.getEndDate(), simpleProv))
         .thenReturn(forwardRate);
     DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
-    PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, mockProv);
+    PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, simpleProv);
     double eps = 1.e-7;
     double fdDscSense = dscSensitivity(FRA, forwardRate, discountFactor, paymentTime, eps);
     double fdSense = presentValueFwdSensitivity(FRA, forwardRate, discountFactor, paymentTime, eps);
@@ -328,7 +331,7 @@ public class DiscountingFraProductPricerTest {
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.presentValueSensitivity(FRA_TRADE, mockProv), test.presentValueSensitivity(fraExp, mockProv));
+    assertEquals(testTrade.presentValueSensitivity(FRA_TRADE, simpleProv), test.presentValueSensitivity(fraExp, simpleProv));
   }
 
   /**
@@ -336,8 +339,9 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_presentValueSensitivity_NONE() {
     RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+
     ExpandedFra fraExp = FRA_NONE.expand();
     double forwardRate = 0.025;
     double discountRate = 0.01;
@@ -345,17 +349,17 @@ public class DiscountingFraProductPricerTest {
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_NONE.getStartDate();
     PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
-    when(mockProv.discountFactor(FRA_NONE.getCurrency(), fraExp.getPaymentDate()))
+    when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
-    when(mockProv.discountFactorZeroRateSensitivity(FRA.getCurrency(), fraExp.getPaymentDate()))
+    when(mockDf.pointSensitivity(fraExp.getPaymentDate()))
         .thenReturn(ZeroRateSensitivity.of(
             fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
-    when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+    when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), simpleProv))
         .thenReturn(sens);
-    when(mockObs.rate(fraExp.getFloatingRate(), FRA_NONE.getStartDate(), FRA_NONE.getEndDate(), mockProv))
+    when(mockObs.rate(fraExp.getFloatingRate(), FRA_NONE.getStartDate(), FRA_NONE.getEndDate(), simpleProv))
         .thenReturn(forwardRate);
     DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
-    PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, mockProv);
+    PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, simpleProv);
     double eps = 1.e-7;
     double fdDscSense = dscSensitivity(FRA_NONE, forwardRate, discountFactor, paymentTime, eps);
     double fdSense = presentValueFwdSensitivity(FRA_NONE, forwardRate, discountFactor, paymentTime, eps);
@@ -377,8 +381,9 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_presentValueSensitivity_AFMA() {
     RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+
     ExpandedFra fraExp = FRA_AFMA.expand();
     double forwardRate = 0.05;
     double discountRate = 0.025;
@@ -386,17 +391,17 @@ public class DiscountingFraProductPricerTest {
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_AFMA.getStartDate();
     PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
-    when(mockProv.discountFactor(FRA_AFMA.getCurrency(), fraExp.getPaymentDate()))
+    when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
-    when(mockProv.discountFactorZeroRateSensitivity(FRA.getCurrency(), fraExp.getPaymentDate()))
+    when(mockDf.pointSensitivity(fraExp.getPaymentDate()))
         .thenReturn(ZeroRateSensitivity.of(
             fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
-    when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+    when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), simpleProv))
         .thenReturn(sens);
-    when(mockObs.rate(fraExp.getFloatingRate(), FRA_AFMA.getStartDate(), FRA_AFMA.getEndDate(), mockProv))
+    when(mockObs.rate(fraExp.getFloatingRate(), FRA_AFMA.getStartDate(), FRA_AFMA.getEndDate(), simpleProv))
         .thenReturn(forwardRate);
     DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
-    PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, mockProv);
+    PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, simpleProv);
     double eps = 1.e-7;
     double fdDscSense = dscSensitivity(FRA_AFMA, forwardRate, discountFactor, paymentTime, eps);
     double fdSense = presentValueFwdSensitivity(FRA_AFMA, forwardRate, discountFactor, paymentTime, eps);
