@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.index.FxIndex;
  * An FX rate is the conversion rate between two currencies. An FX index is the rate
  * as published by a specific organization, typically at a well-known time-of-day.
  */
-public interface FxIndexCurve {
+public interface FxIndexRates {
 
   /**
    * Gets the FX index.

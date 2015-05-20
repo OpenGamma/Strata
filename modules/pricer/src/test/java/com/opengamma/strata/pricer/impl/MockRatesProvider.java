@@ -14,10 +14,10 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.market.curve.DiscountFactorCurve;
-import com.opengamma.strata.market.curve.FxIndexCurve;
-import com.opengamma.strata.market.curve.IborIndexCurve;
-import com.opengamma.strata.market.curve.OvernightIndexCurve;
+import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 
@@ -74,25 +74,25 @@ public class MockRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public DiscountFactorCurve discountCurve(Currency currency) {
+  public DiscountFactors discountFactors(Currency currency) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FxIndexCurve fxIndexCurve(FxIndex index) {
+  public FxIndexRates fxIndexRates(FxIndex index) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public IborIndexCurve iborIndexCurve(IborIndex index) {
+  public IborIndexRates iborIndexRates(IborIndex index) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OvernightIndexCurve overnightIndexCurve(OvernightIndex index) {
+  public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     throw new UnsupportedOperationException();
   }
 

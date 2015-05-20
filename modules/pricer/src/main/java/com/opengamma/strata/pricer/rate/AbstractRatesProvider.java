@@ -20,9 +20,9 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.market.curve.DiscountIborIndexCurve;
-import com.opengamma.strata.market.curve.DiscountOvernightIndexCurve;
-import com.opengamma.strata.market.curve.ZeroRateDiscountFactorCurve;
+import com.opengamma.strata.market.curve.DiscountIborIndexRates;
+import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.curve.ZeroRateDiscountFactors;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
@@ -64,7 +64,7 @@ public abstract class AbstractRatesProvider
     }
     // calculate per currency
     for (CurrencyPair key : grouped.keySet()) {
-      YieldAndDiscountCurve curve = ((ZeroRateDiscountFactorCurve) discountCurve(key.getBase())).getCurve();
+      YieldAndDiscountCurve curve = ((ZeroRateDiscountFactors) discountFactors(key.getBase())).getCurve();
       double[] sensiParam = parameterSensitivityZeroRate(curve, grouped.get(key));
       NameCurrencySensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCounter());
       mutableMap.put(keyParam, sensiParam);
@@ -103,8 +103,8 @@ public abstract class AbstractRatesProvider
     }
     // calculate per currency
     for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      DiscountIborIndexCurve iborCurve = (DiscountIborIndexCurve) iborIndexCurve((IborIndex) key.getIndex());
-      YieldAndDiscountCurve curve = ((ZeroRateDiscountFactorCurve) iborCurve.getDiscountFactors()).getCurve();
+      DiscountIborIndexRates iborCurve = (DiscountIborIndexRates) iborIndexRates((IborIndex) key.getIndex());
+      YieldAndDiscountCurve curve = ((ZeroRateDiscountFactors) iborCurve.getDiscountFactors()).getCurve();
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
       double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, AbstractRatesProvider::combineArrays);
@@ -131,9 +131,9 @@ public abstract class AbstractRatesProvider
     }
     // calculate per currency
     for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      DiscountOvernightIndexCurve iborCurve =
-          (DiscountOvernightIndexCurve) overnightIndexCurve((OvernightIndex) key.getIndex());
-      YieldAndDiscountCurve curve = ((ZeroRateDiscountFactorCurve) iborCurve.getDiscountFactors()).getCurve();
+      DiscountOvernightIndexRates iborCurve =
+          (DiscountOvernightIndexRates) overnightIndexRates((OvernightIndex) key.getIndex());
+      YieldAndDiscountCurve curve = ((ZeroRateDiscountFactors) iborCurve.getDiscountFactors()).getCurve();
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(curve.getName(), key.getCurrency());
       double[] sensiParam = parameterSensitivityIndex(curve, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, AbstractRatesProvider::combineArrays);

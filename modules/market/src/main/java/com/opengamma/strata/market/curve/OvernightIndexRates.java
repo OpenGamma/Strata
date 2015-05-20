@@ -19,7 +19,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * <p>
  * This provides historic and forward rates for a single {@link OvernightIndex}, such as 'EUR-EONIA'.
  */
-public interface OvernightIndexCurve {
+public interface OvernightIndexRates {
 
   /**
    * Gets the Overnight index.
@@ -146,7 +146,7 @@ public interface OvernightIndexCurve {
    * @param operator  the operator that provides the change
    * @return the new curve
    */
-  OvernightIndexCurve shiftedBy(DoubleBinaryOperator operator);
+  OvernightIndexRates shiftedBy(DoubleBinaryOperator operator);
 
   /**
    * Returns a new curve for which each of the parameters has been shifted.
@@ -159,6 +159,6 @@ public interface OvernightIndexCurve {
    * @param adjustments  the adjustments to make
    * @return the new curve
    */
-  OvernightIndexCurve shiftedBy(List<ValueAdjustment> adjustments);
+  OvernightIndexRates shiftedBy(List<ValueAdjustment> adjustments);
 
 }

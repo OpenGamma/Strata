@@ -17,6 +17,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -42,8 +43,8 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * and zero-coupon continuously-compounded rates.
  */
 @BeanDefinition(builderScope = "private")
-public final class DiscountFxIndexCurve
-    implements FxIndexCurve, ImmutableBean, Serializable {
+public final class DiscountFxIndexRates
+    implements FxIndexRates, ImmutableBean, Serializable {
 
   /**
    * The index that the rates are for.
@@ -51,7 +52,7 @@ public final class DiscountFxIndexCurve
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FxIndex index;
   /**
-   * The time-series.
+   * The time-series, defaulted to an empty time-series.
    * This covers known historical fixings and may be empty.
    */
   @PropertyDefinition(validate = "notNull")
@@ -65,12 +66,12 @@ public final class DiscountFxIndexCurve
    * The discount factors for the base currency of the index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DiscountFactorCurve baseCurrencyDiscountFactors;
+  private final DiscountFactors baseCurrencyDiscountFactors;
   /**
    * The discount factors for the counter currency of the index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DiscountFactorCurve counterCurrencyDiscountFactors;
+  private final DiscountFactors counterCurrencyDiscountFactors;
   /**
    * The valuation date.
    */
@@ -78,42 +79,80 @@ public final class DiscountFxIndexCurve
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new FX index rates instance.
+   * Creates a new FX index rates instance with no historic fixings.
    * <p>
-   * The instance is based on the dicount factors for each currency.
+   * The instance is based on the discount factors for each currency.
    * 
    * @param index  the index
-   * @param knownFixings  the known historical fixings
    * @param fxRateProvider  the provider of FX rates
    * @param baseCurrencyFactors  the discount factors in the base currency of the index
    * @param counterCurrencyFactors  the discount factors in the counter currency of the index
-   * @return the curve
+   * @return the rates instance
    */
-  public static DiscountFxIndexCurve of(
+  public static DiscountFxIndexRates of(
       FxIndex index,
-      LocalDateDoubleTimeSeries knownFixings,
       FxRateProvider fxRateProvider,
-      DiscountFactorCurve baseCurrencyFactors,
-      DiscountFactorCurve counterCurrencyFactors) {
+      DiscountFactors baseCurrencyFactors,
+      DiscountFactors counterCurrencyFactors) {
 
-    return new DiscountFxIndexCurve(
-        index, knownFixings, fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
+    return of(index, LocalDateDoubleTimeSeries.empty(), fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
+  }
+
+  /**
+   * Creates a new FX index rates instance.
+   * <p>
+   * The instance is based on the discount factors for each currency.
+   * 
+   * @param index  the index
+   * @param fixings  the known historical fixings
+   * @param fxRateProvider  the provider of FX rates
+   * @param baseCurrencyFactors  the discount factors in the base currency of the index
+   * @param counterCurrencyFactors  the discount factors in the counter currency of the index
+   * @return the rates instance
+   */
+  public static DiscountFxIndexRates of(
+      FxIndex index,
+      LocalDateDoubleTimeSeries fixings,
+      FxRateProvider fxRateProvider,
+      DiscountFactors baseCurrencyFactors,
+      DiscountFactors counterCurrencyFactors) {
+
+    return new DiscountFxIndexRates(
+        index, fixings, fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
+  }
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.timeSeries = LocalDateDoubleTimeSeries.empty();
   }
 
   //-------------------------------------------------------------------------
   // restricted constructor
   @ImmutableConstructor
-  private DiscountFxIndexCurve(
+  private DiscountFxIndexRates(
       FxIndex index,
       LocalDateDoubleTimeSeries timeSeries,
       FxRateProvider fxRateProvider,
-      DiscountFactorCurve baseCurrencyDiscountFactors,
-      DiscountFactorCurve counterCurrencyDiscountFactors) {
+      DiscountFactors baseCurrencyDiscountFactors,
+      DiscountFactors counterCurrencyDiscountFactors) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
     JodaBeanUtils.notNull(fxRateProvider, "fxRateProvider");
     JodaBeanUtils.notNull(baseCurrencyDiscountFactors, "baseCurrencyDiscountFactors");
     JodaBeanUtils.notNull(counterCurrencyDiscountFactors, "counterCurrencyDiscountFactors");
+    if (!baseCurrencyDiscountFactors.getCurrency().equals(index.getCurrencyPair().getBase())) {
+      throw new IllegalArgumentException(Messages.format(
+          "Index base currency {} did not match discount factor base currency {}",
+          index.getCurrencyPair().getBase(),
+          baseCurrencyDiscountFactors.getCurrency()));
+    }
+    if (!counterCurrencyDiscountFactors.getCurrency().equals(index.getCurrencyPair().getCounter())) {
+      throw new IllegalArgumentException(Messages.format(
+          "Index counter currency {} did not match discount factor counter currency {}",
+          index.getCurrencyPair().getCounter(),
+          counterCurrencyDiscountFactors.getCurrency()));
+    }
     if (!baseCurrencyDiscountFactors.getValuationDate().equals(counterCurrencyDiscountFactors.getValuationDate())) {
       throw new IllegalArgumentException("Curves must have the same valuation date");
     }
@@ -149,6 +188,10 @@ public final class DiscountFxIndexCurve
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
     } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
+      if (timeSeries.isEmpty()) {
+        throw new IllegalArgumentException(
+            Messages.format("Unable to get fixing for {} on date {}, no time-series supplied", index, fixingDate));
+      }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
       return forwardRate(fixingDate);
@@ -168,15 +211,15 @@ public final class DiscountFxIndexCurve
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code DiscountFxIndexCurve}.
+   * The meta-bean for {@code DiscountFxIndexRates}.
    * @return the meta-bean, not null
    */
-  public static DiscountFxIndexCurve.Meta meta() {
-    return DiscountFxIndexCurve.Meta.INSTANCE;
+  public static DiscountFxIndexRates.Meta meta() {
+    return DiscountFxIndexRates.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(DiscountFxIndexCurve.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(DiscountFxIndexRates.Meta.INSTANCE);
   }
 
   /**
@@ -185,8 +228,8 @@ public final class DiscountFxIndexCurve
   private static final long serialVersionUID = 1L;
 
   @Override
-  public DiscountFxIndexCurve.Meta metaBean() {
-    return DiscountFxIndexCurve.Meta.INSTANCE;
+  public DiscountFxIndexRates.Meta metaBean() {
+    return DiscountFxIndexRates.Meta.INSTANCE;
   }
 
   @Override
@@ -211,7 +254,7 @@ public final class DiscountFxIndexCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-series.
+   * Gets the time-series, defaulted to an empty time-series.
    * This covers known historical fixings and may be empty.
    * @return the value of the property, not null
    */
@@ -233,7 +276,7 @@ public final class DiscountFxIndexCurve
    * Gets the discount factors for the base currency of the index.
    * @return the value of the property, not null
    */
-  public DiscountFactorCurve getBaseCurrencyDiscountFactors() {
+  public DiscountFactors getBaseCurrencyDiscountFactors() {
     return baseCurrencyDiscountFactors;
   }
 
@@ -242,7 +285,7 @@ public final class DiscountFxIndexCurve
    * Gets the discount factors for the counter currency of the index.
    * @return the value of the property, not null
    */
-  public DiscountFactorCurve getCounterCurrencyDiscountFactors() {
+  public DiscountFactors getCounterCurrencyDiscountFactors() {
     return counterCurrencyDiscountFactors;
   }
 
@@ -253,7 +296,7 @@ public final class DiscountFxIndexCurve
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DiscountFxIndexCurve other = (DiscountFxIndexCurve) obj;
+      DiscountFxIndexRates other = (DiscountFxIndexRates) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
           JodaBeanUtils.equal(getFxRateProvider(), other.getFxRateProvider()) &&
@@ -277,7 +320,7 @@ public final class DiscountFxIndexCurve
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("DiscountFxIndexCurve{");
+    buf.append("DiscountFxIndexRates{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
     buf.append("fxRateProvider").append('=').append(getFxRateProvider()).append(',').append(' ');
@@ -289,7 +332,7 @@ public final class DiscountFxIndexCurve
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code DiscountFxIndexCurve}.
+   * The meta-bean for {@code DiscountFxIndexRates}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -301,27 +344,27 @@ public final class DiscountFxIndexCurve
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", DiscountFxIndexCurve.class, FxIndex.class);
+        this, "index", DiscountFxIndexRates.class, FxIndex.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     private final MetaProperty<LocalDateDoubleTimeSeries> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", DiscountFxIndexCurve.class, LocalDateDoubleTimeSeries.class);
+        this, "timeSeries", DiscountFxIndexRates.class, LocalDateDoubleTimeSeries.class);
     /**
      * The meta-property for the {@code fxRateProvider} property.
      */
     private final MetaProperty<FxRateProvider> fxRateProvider = DirectMetaProperty.ofImmutable(
-        this, "fxRateProvider", DiscountFxIndexCurve.class, FxRateProvider.class);
+        this, "fxRateProvider", DiscountFxIndexRates.class, FxRateProvider.class);
     /**
      * The meta-property for the {@code baseCurrencyDiscountFactors} property.
      */
-    private final MetaProperty<DiscountFactorCurve> baseCurrencyDiscountFactors = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyDiscountFactors", DiscountFxIndexCurve.class, DiscountFactorCurve.class);
+    private final MetaProperty<DiscountFactors> baseCurrencyDiscountFactors = DirectMetaProperty.ofImmutable(
+        this, "baseCurrencyDiscountFactors", DiscountFxIndexRates.class, DiscountFactors.class);
     /**
      * The meta-property for the {@code counterCurrencyDiscountFactors} property.
      */
-    private final MetaProperty<DiscountFactorCurve> counterCurrencyDiscountFactors = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyDiscountFactors", DiscountFxIndexCurve.class, DiscountFactorCurve.class);
+    private final MetaProperty<DiscountFactors> counterCurrencyDiscountFactors = DirectMetaProperty.ofImmutable(
+        this, "counterCurrencyDiscountFactors", DiscountFxIndexRates.class, DiscountFactors.class);
     /**
      * The meta-properties.
      */
@@ -357,13 +400,13 @@ public final class DiscountFxIndexCurve
     }
 
     @Override
-    public BeanBuilder<? extends DiscountFxIndexCurve> builder() {
-      return new DiscountFxIndexCurve.Builder();
+    public BeanBuilder<? extends DiscountFxIndexRates> builder() {
+      return new DiscountFxIndexRates.Builder();
     }
 
     @Override
-    public Class<? extends DiscountFxIndexCurve> beanType() {
-      return DiscountFxIndexCurve.class;
+    public Class<? extends DiscountFxIndexRates> beanType() {
+      return DiscountFxIndexRates.class;
     }
 
     @Override
@@ -400,7 +443,7 @@ public final class DiscountFxIndexCurve
      * The meta-property for the {@code baseCurrencyDiscountFactors} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DiscountFactorCurve> baseCurrencyDiscountFactors() {
+    public MetaProperty<DiscountFactors> baseCurrencyDiscountFactors() {
       return baseCurrencyDiscountFactors;
     }
 
@@ -408,7 +451,7 @@ public final class DiscountFxIndexCurve
      * The meta-property for the {@code counterCurrencyDiscountFactors} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DiscountFactorCurve> counterCurrencyDiscountFactors() {
+    public MetaProperty<DiscountFactors> counterCurrencyDiscountFactors() {
       return counterCurrencyDiscountFactors;
     }
 
@@ -417,15 +460,15 @@ public final class DiscountFxIndexCurve
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((DiscountFxIndexCurve) bean).getIndex();
+          return ((DiscountFxIndexRates) bean).getIndex();
         case 779431844:  // timeSeries
-          return ((DiscountFxIndexCurve) bean).getTimeSeries();
+          return ((DiscountFxIndexRates) bean).getTimeSeries();
         case -1499624221:  // fxRateProvider
-          return ((DiscountFxIndexCurve) bean).getFxRateProvider();
+          return ((DiscountFxIndexRates) bean).getFxRateProvider();
         case 1151357473:  // baseCurrencyDiscountFactors
-          return ((DiscountFxIndexCurve) bean).getBaseCurrencyDiscountFactors();
+          return ((DiscountFxIndexRates) bean).getBaseCurrencyDiscountFactors();
         case -453959018:  // counterCurrencyDiscountFactors
-          return ((DiscountFxIndexCurve) bean).getCounterCurrencyDiscountFactors();
+          return ((DiscountFxIndexRates) bean).getCounterCurrencyDiscountFactors();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -443,20 +486,21 @@ public final class DiscountFxIndexCurve
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code DiscountFxIndexCurve}.
+   * The bean-builder for {@code DiscountFxIndexRates}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<DiscountFxIndexCurve> {
+  private static final class Builder extends DirectFieldsBeanBuilder<DiscountFxIndexRates> {
 
     private FxIndex index;
     private LocalDateDoubleTimeSeries timeSeries;
     private FxRateProvider fxRateProvider;
-    private DiscountFactorCurve baseCurrencyDiscountFactors;
-    private DiscountFactorCurve counterCurrencyDiscountFactors;
+    private DiscountFactors baseCurrencyDiscountFactors;
+    private DiscountFactors counterCurrencyDiscountFactors;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     //-----------------------------------------------------------------------
@@ -491,10 +535,10 @@ public final class DiscountFxIndexCurve
           this.fxRateProvider = (FxRateProvider) newValue;
           break;
         case 1151357473:  // baseCurrencyDiscountFactors
-          this.baseCurrencyDiscountFactors = (DiscountFactorCurve) newValue;
+          this.baseCurrencyDiscountFactors = (DiscountFactors) newValue;
           break;
         case -453959018:  // counterCurrencyDiscountFactors
-          this.counterCurrencyDiscountFactors = (DiscountFactorCurve) newValue;
+          this.counterCurrencyDiscountFactors = (DiscountFactors) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -527,8 +571,8 @@ public final class DiscountFxIndexCurve
     }
 
     @Override
-    public DiscountFxIndexCurve build() {
-      return new DiscountFxIndexCurve(
+    public DiscountFxIndexRates build() {
+      return new DiscountFxIndexRates(
           index,
           timeSeries,
           fxRateProvider,
@@ -540,7 +584,7 @@ public final class DiscountFxIndexCurve
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("DiscountFxIndexCurve.Builder{");
+      buf.append("DiscountFxIndexRates.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
       buf.append("fxRateProvider").append('=').append(JodaBeanUtils.toString(fxRateProvider)).append(',').append(' ');

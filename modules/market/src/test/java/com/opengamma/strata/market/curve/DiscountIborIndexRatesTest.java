@@ -27,10 +27,10 @@ import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
- * Test {@link DiscountIborIndexCurve}.
+ * Test {@link DiscountIborIndexRates}.
  */
 @Test
-public class DiscountIborIndexCurveTest {
+public class DiscountIborIndexRatesTest {
 
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
   private static final LocalDate DATE_BEFORE = date(2015, 6, 3);
@@ -43,8 +43,8 @@ public class DiscountIborIndexCurveTest {
           new double[] {0.01, 0.02},
           Interpolator1DFactory.LINEAR_INSTANCE,
           NAME.toString()));
-  private static final ZeroRateDiscountFactorCurve DFCURVE =
-      ZeroRateDiscountFactorCurve.of(GBP, DATE_VAL, ACT_365F, CURVE);
+  private static final ZeroRateDiscountFactors DFCURVE =
+      ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
 
   private static final double RATE_BEFORE = 0.013d;
   private static final double RATE_VAL = 0.014d;
@@ -52,11 +52,22 @@ public class DiscountIborIndexCurveTest {
       .put(DATE_BEFORE, RATE_BEFORE)
       .put(DATE_VAL, RATE_VAL)
       .build();
+  private static final LocalDateDoubleTimeSeries SERIES_MINIMAL = LocalDateDoubleTimeSeries.of(DATE_VAL, RATE_VAL);
   private static final LocalDateDoubleTimeSeries SERIES_EMPTY = LocalDateDoubleTimeSeries.empty();
 
   //-------------------------------------------------------------------------
-  public void test_of() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+  public void test_of_withoutFixings() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE);
+    assertEquals(test.getIndex(), GBP_LIBOR_3M);
+    assertEquals(test.getValuationDate(), DATE_VAL);
+    assertEquals(test.getTimeSeries(), SERIES_EMPTY);
+    assertEquals(test.getDiscountFactors(), DFCURVE);
+    assertEquals(test.getCurveName(), NAME);
+    assertEquals(test.getParameterCount(), 2);
+  }
+
+  public void test_of_withFixings() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES);
@@ -67,22 +78,27 @@ public class DiscountIborIndexCurveTest {
 
   //-------------------------------------------------------------------------
   public void test_rate_beforeValuation_fixing() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     assertEquals(test.rate(DATE_BEFORE), RATE_BEFORE);
   }
 
-  public void test_rate_beforeValuation_noFixing() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
+  public void test_rate_beforeValuation_noFixing_emptySeries() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
+    assertThrowsIllegalArg(() -> test.rate(DATE_BEFORE));
+  }
+
+  public void test_rate_beforeValuation_noFixing_notEmptySeries() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_MINIMAL, DFCURVE);
     assertThrowsIllegalArg(() -> test.rate(DATE_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     assertEquals(test.rate(DATE_VAL), RATE_VAL);
   }
 
   public void test_rate_onValuation_noFixing() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     LocalDate startDate = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_VAL);
     LocalDate endDate = GBP_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
@@ -91,7 +107,7 @@ public class DiscountIborIndexCurveTest {
   }
 
   public void test_rate_afterValuation() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     LocalDate startDate = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_AFTER);
     LocalDate endDate = GBP_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double accrualFactor = GBP_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
@@ -101,26 +117,26 @@ public class DiscountIborIndexCurveTest {
 
   //-------------------------------------------------------------------------
   public void test_pointSensitivity_fixing() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     assertEquals(test.pointSensitivity(DATE_BEFORE), PointSensitivityBuilder.none());
     assertEquals(test.pointSensitivity(DATE_VAL), PointSensitivityBuilder.none());
   }
 
   public void test_pointSensitivity_onValuation_noFixing() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
     assertEquals(test.pointSensitivity(DATE_VAL), expected);
   }
 
   public void test_pointSensitivity_afterValuation() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_AFTER, 1d);
     assertEquals(test.pointSensitivity(DATE_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_parameterSensitivity() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double[] expected = CURVE.getInterestRateParameterSensitivity(relativeTime);
     assertEquals(test.parameterSensitivity(DATE_AFTER), expected);
@@ -128,9 +144,9 @@ public class DiscountIborIndexCurveTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DiscountIborIndexCurve test = DiscountIborIndexCurve.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     coverImmutableBean(test);
-    DiscountIborIndexCurve test2 = DiscountIborIndexCurve.of(USD_LIBOR_3M, SERIES_EMPTY, DFCURVE);
+    DiscountIborIndexRates test2 = DiscountIborIndexRates.of(USD_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     coverBeanEquals(test, test2);
   }
 

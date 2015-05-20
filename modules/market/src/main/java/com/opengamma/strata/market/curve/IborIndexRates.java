@@ -10,26 +10,25 @@ import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 
-import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
- * Provides access to discount factors for a single currency.
+ * Provides access to rates for an Ibor index.
  * <p>
- * The discount factor represents the time value of money for the specified currency
- * when comparing the valuation date to the specified date.
+ * This provides historic and forward rates for a single {@link IborIndex}, such as 'GBP-LIBOR-3M'.
  */
-public interface DiscountFactorCurve {
+public interface IborIndexRates {
 
   /**
-   * Gets the currency.
+   * Gets the Ibor index.
    * <p>
-   * The currency that discount factors are provided for.
+   * The index that the rates are for.
    * 
-   * @return the currency
+   * @return the Ibor index
    */
-  public abstract Currency getCurrency();
+  public abstract IborIndex getIndex();
 
   /**
    * Gets the valuation date.
@@ -47,49 +46,6 @@ public interface DiscountFactorCurve {
    */
   public abstract CurveName getCurveName();
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the discount factor.
-   * <p>
-   * The discount factor represents the time value of money for the specified currency
-   * when comparing the valuation date to the specified date.
-   * <p>
-   * If the valuation date is on or after the specified date, the discount factor is 1.
-   * 
-   * @param date  the date to discount to
-   * @return the discount factor
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract double discountFactor(LocalDate date);
-
-  /**
-   * Gets the zero rate curve sensitivity for the discount factor.
-   * <p>
-   * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
-   * used to determine the discount factor.
-   * The sensitivity typically has the value {@code (-discountFactor * relativeTime)}.
-   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
-   * 
-   * @param date  the date to discount to
-   * @return the point sensitivity of the zero rate
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract PointSensitivityBuilder pointSensitivity(LocalDate date);
-
-  /**
-   * Returns the parameter sensitivity of the forward rate at the specified fixing date.
-   * <p>
-   * This returns the raw sensitivity for each parameter on the underlying curve.
-   * If the fixing date is before the valuation date an exception is thrown.
-   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
-   * 
-   * @param date  the fixing date to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract double[] parameterSensitivity(LocalDate date);
-
-  //-------------------------------------------------------------------------
   /**
    * Gets the number of parameters defining the curve.
    * <p>
@@ -99,6 +55,51 @@ public interface DiscountFactorCurve {
    */
   int getParameterCount();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the historic or forward rate at the specified fixing date.
+   * <p>
+   * The rate of the Ibor index, such as 'GBP-LIBOR-3M', varies over time.
+   * This method obtains the actual or estimated rate for the fixing date.
+   * <p>
+   * This retrieves the actual rate if the fixing date is before the valuation date,
+   * or the estimated rate if the fixing date is after the valuation date.
+   * If the fixing date equals the valuation date, then the best available rate is returned.
+   * 
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the rate of the index, either historic or forward
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double rate(LocalDate fixingDate);
+
+  /**
+   * Gets the point sensitivity of the historic or forward rate at the specified fixing date.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * If a time-series was used, then there is no sensitivity.
+   * Otherwise, the sensitivity has the value 1.
+   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
+   * 
+   * @param fixingDate  the fixing date to find the sensitivity for
+   * @return the point sensitivity of the rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract PointSensitivityBuilder pointSensitivity(LocalDate fixingDate);
+
+  /**
+   * Returns the parameter sensitivity of the forward rate at the specified fixing date.
+   * <p>
+   * This returns the raw sensitivity for each parameter on the underlying curve.
+   * If the fixing date is before the valuation date an exception is thrown.
+   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
+   * 
+   * @param fixingDate  the fixing date to find the sensitivity for
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double[] parameterSensitivity(LocalDate fixingDate);
+
+  //-------------------------------------------------------------------------
   /**
    * Returns a new curve for which each of the parameters has been shifted.
    * <p>
@@ -111,7 +112,7 @@ public interface DiscountFactorCurve {
    * @param operator  the operator that provides the change
    * @return the new curve
    */
-  DiscountFactorCurve shiftedBy(DoubleBinaryOperator operator);
+  IborIndexRates shiftedBy(DoubleBinaryOperator operator);
 
   /**
    * Returns a new curve for which each of the parameters has been shifted.
@@ -124,6 +125,6 @@ public interface DiscountFactorCurve {
    * @param adjustments  the adjustments to make
    * @return the new curve
    */
-  DiscountFactorCurve shiftedBy(List<ValueAdjustment> adjustments);
+  IborIndexRates shiftedBy(List<ValueAdjustment> adjustments);
 
 }

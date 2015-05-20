@@ -13,9 +13,9 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.FxIndexCurve;
-import com.opengamma.strata.market.curve.IborIndexCurve;
-import com.opengamma.strata.market.curve.OvernightIndexCurve;
+import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -65,7 +65,7 @@ public interface RatesProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the curve for an FX index.
+   * Gets the rates for an FX index.
    * <p>
    * This returns an object that can provide historic and forward rates for the specified index.
    * <p>
@@ -74,9 +74,9 @@ public interface RatesProvider
    * 
    * @param index  the index to find rates for
    * @return the rates for the specified index
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract FxIndexCurve fxIndexCurve(FxIndex index);
+  public abstract FxIndexRates fxIndexRates(FxIndex index);
 
   /**
    * Gets the historic or forward rate of an FX rate for a currency pair.
@@ -104,24 +104,24 @@ public interface RatesProvider
    * @param baseCurrency  the base currency that the rate should be expressed against
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
-    return fxIndexCurve(index).rate(baseCurrency, fixingDate);
+    return fxIndexRates(index).rate(baseCurrency, fixingDate);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the curve for an Ibor index.
+   * Gets the rates for an Ibor index.
    * <p>
    * The rate of the Ibor index, such as 'GBP-LIBOR-3M', varies over time.
    * This returns an object that can provide historic and forward rates for the specified index.
    * 
    * @param index  the index to find rates for
    * @return the rates for the specified index
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract IborIndexCurve iborIndexCurve(IborIndex index);
+  public abstract IborIndexRates iborIndexRates(IborIndex index);
 
   /**
    * Gets the historic or forward rate of an Ibor index.
@@ -136,10 +136,10 @@ public interface RatesProvider
    * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default double iborIndexRate(IborIndex index, LocalDate fixingDate) {
-    return iborIndexCurve(index).rate(fixingDate);
+    return iborIndexRates(index).rate(fixingDate);
   }
 
   /**
@@ -153,24 +153,24 @@ public interface RatesProvider
    * @param index  the index to find the sensitivity for
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
-    return iborIndexCurve(index).pointSensitivity(fixingDate);
+    return iborIndexRates(index).pointSensitivity(fixingDate);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the curve for an Overnight index.
+   * Gets the rates for an Overnight index.
    * <p>
    * The rate of the Overnight index, such as 'EUR-EONIA', varies over time.
    * This returns an object that can provide historic and forward rates for the specified index.
    * 
    * @param index  the index to find rates for
    * @return the rates for the specified index
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
-  public abstract OvernightIndexCurve overnightIndexCurve(OvernightIndex index);
+  public abstract OvernightIndexRates overnightIndexRates(OvernightIndex index);
 
   /**
    * Gets the historic or forward rate of an Overnight index.
@@ -186,10 +186,10 @@ public interface RatesProvider
    * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
-    return overnightIndexCurve(index).rate(fixingDate);
+    return overnightIndexRates(index).rate(fixingDate);
   }
 
   /**
@@ -203,10 +203,10 @@ public interface RatesProvider
    * @param index  the index to find the sensitivity for
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
-    return overnightIndexCurve(index).pointSensitivity(fixingDate);
+    return overnightIndexRates(index).pointSensitivity(fixingDate);
   }
 
   //-------------------------------------------------------------------------
@@ -224,10 +224,10 @@ public interface RatesProvider
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the simply compounded rate associated to the period for the index
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    return overnightIndexCurve(index).periodRate(startDate, endDate);
+    return overnightIndexRates(index).periodRate(startDate, endDate);
   }
 
   /**
@@ -241,13 +241,13 @@ public interface RatesProvider
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the curve is not available
+   * @throws IllegalArgumentException if the rates are not available
    */
   public default PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate) {
-    return overnightIndexCurve(index).periodRatePointSensitivity(startDate, endDate);
+    return overnightIndexRates(index).periodRatePointSensitivity(startDate, endDate);
   }
 
   //-------------------------------------------------------------------------
@@ -263,7 +263,7 @@ public interface RatesProvider
    * 1 month, 3 month, 12 month and 5 year nodal points.
    * 
    * @param pointSensitivities  the point sensitivity
-   * @return  the sensitivity to the curve parameters
+   * @return the sensitivity to the curve parameters
    */
   CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities);
 

@@ -24,14 +24,14 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
-import com.opengamma.strata.market.curve.DiscountFactorCurve;
-import com.opengamma.strata.market.curve.DiscountFxIndexCurve;
-import com.opengamma.strata.market.curve.DiscountIborIndexCurve;
-import com.opengamma.strata.market.curve.DiscountOvernightIndexCurve;
-import com.opengamma.strata.market.curve.FxIndexCurve;
-import com.opengamma.strata.market.curve.IborIndexCurve;
-import com.opengamma.strata.market.curve.OvernightIndexCurve;
-import com.opengamma.strata.market.curve.ZeroRateDiscountFactorCurve;
+import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.curve.DiscountFxIndexRates;
+import com.opengamma.strata.market.curve.DiscountIborIndexRates;
+import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
+import com.opengamma.strata.market.curve.ZeroRateDiscountFactors;
 import com.opengamma.strata.market.key.DiscountingCurveKey;
 import com.opengamma.strata.market.key.FxRateKey;
 import com.opengamma.strata.market.key.IndexRateKey;
@@ -102,37 +102,37 @@ public final class MarketDataRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public DiscountFactorCurve discountCurve(Currency currency) {
+  public DiscountFactors discountFactors(Currency currency) {
     YieldCurve yieldCurve = marketData.getValue(DiscountingCurveKey.of(currency));
-    return ZeroRateDiscountFactorCurve.of(currency, getValuationDate(), dayCount, yieldCurve);
+    return ZeroRateDiscountFactors.of(currency, getValuationDate(), dayCount, yieldCurve);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FxIndexCurve fxIndexCurve(FxIndex index) {
+  public FxIndexRates fxIndexRates(FxIndex index) {
     CurrencyPair pair = index.getCurrencyPair();
-    DiscountFactorCurve base = discountCurve(pair.getBase());
-    DiscountFactorCurve counter = discountCurve(pair.getCounter());
+    DiscountFactors base = discountFactors(pair.getBase());
+    DiscountFactors counter = discountFactors(pair.getCounter());
     FxRate fxRate = FxRate.of(pair, fxRate(pair));
-    return DiscountFxIndexCurve.of(index, timeSeries(index), fxRate, base, counter);
+    return DiscountFxIndexRates.of(index, timeSeries(index), fxRate, base, counter);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public IborIndexCurve iborIndexCurve(IborIndex index) {
+  public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    DiscountFactorCurve dfc = ZeroRateDiscountFactorCurve.of(index.getCurrency(), getValuationDate(), dayCount, curve);
-    return DiscountIborIndexCurve.of(index, timeSeries, dfc);
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public OvernightIndexCurve overnightIndexCurve(OvernightIndex index) {
+  public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    DiscountFactorCurve dfc = ZeroRateDiscountFactorCurve.of(index.getCurrency(), getValuationDate(), dayCount, curve);
-    return DiscountOvernightIndexCurve.of(index, timeSeries, dfc);
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }
 
   //-------------------------------------------------------------------------
