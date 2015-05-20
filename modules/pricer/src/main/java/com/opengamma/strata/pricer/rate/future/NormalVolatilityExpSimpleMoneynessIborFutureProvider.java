@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.pricer.sensitivity.IborFutureOptionSensitivity;
+import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 
 /**
  * Data provider of volatility for Ibor future options in the normal or Bachelier model. 

@@ -34,11 +34,11 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.PricingException;
-import com.opengamma.strata.pricer.sensitivity.IborRateSensitivity;
-import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
  * Test {@link ImmutableRatesProvider}.

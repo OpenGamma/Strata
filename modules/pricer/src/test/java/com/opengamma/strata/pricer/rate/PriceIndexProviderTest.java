@@ -29,10 +29,10 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.pricer.sensitivity.InflationRateSensitivity;
-import com.opengamma.strata.pricer.sensitivity.NameCurrencySensitivityKey;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
+import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * Test.

@@ -17,6 +17,9 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
+import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**

@@ -12,9 +12,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
+import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.IborFutureOptionSensitivity;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
  * Pricer of options on Ibor future with a normal model on the underlying future price.

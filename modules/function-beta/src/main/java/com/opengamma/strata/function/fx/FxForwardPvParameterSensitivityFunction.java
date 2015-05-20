@@ -6,9 +6,9 @@
 package com.opengamma.strata.function.fx;
 
 import com.opengamma.strata.finance.fx.ExpandedFx;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
  * Calculates the present value parameter sensitivity of an {@code FxForwardTrade} for each of a set of scenarios.

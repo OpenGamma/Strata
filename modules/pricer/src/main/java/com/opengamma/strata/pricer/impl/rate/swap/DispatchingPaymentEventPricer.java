@@ -9,9 +9,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer implementation for payment events using multiple dispatch.

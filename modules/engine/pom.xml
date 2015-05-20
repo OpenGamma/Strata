@@ -29,12 +29,7 @@
     </dependency>
 
     <!-- TODO temporary dependencies -->
-    <!-- Required for the Legacy class. -->
-    <dependency>
-      <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-pricer</artifactId>
-    </dependency>
-    <!-- Required for CurveGroupMapping -->
+    <!-- Required for ShiftType -->
     <dependency>
       <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
@@ -54,10 +49,6 @@
       <artifactId>joda-convert</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -67,6 +58,11 @@
     </dependency>
 
     <!-- Testing -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-collect</artifactId>

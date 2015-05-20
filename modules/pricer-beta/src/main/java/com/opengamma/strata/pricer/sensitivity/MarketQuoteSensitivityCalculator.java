@@ -16,6 +16,10 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
+import com.opengamma.strata.market.sensitivity.NameSensitivityKey;
+import com.opengamma.strata.market.sensitivity.SensitivityKey;
 
 /**
  * Calculator to obtain the Market Quote sensitivities from the {@link CurveBuildingBlockBundle} obtained through the 

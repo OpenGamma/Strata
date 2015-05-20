@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * A provider of data used for pricing.

@@ -75,7 +75,7 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <!-- TODO This is a temporary dependency on legacy code -->
+    <!-- TODO Temporary dependency on analytics -->
     <dependency>
       <groupId>com.opengamma.analytics</groupId>
       <artifactId>og-analytics</artifactId>
