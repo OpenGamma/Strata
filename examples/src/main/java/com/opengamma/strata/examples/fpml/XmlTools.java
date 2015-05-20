@@ -6,6 +6,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Source;
@@ -30,8 +31,8 @@ public class XmlTools {
     try {
       JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
       Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-      Object o = jaxbUnmarshaller.unmarshal(sourceFromXml(filename));
-      return (T) o;
+      JAXBElement<T> root = jaxbUnmarshaller.unmarshal(sourceFromXml(filename), clazz);
+      return root.getValue();
     } catch (JAXBException e) {
       throw new RuntimeException(e);
     }

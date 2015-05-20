@@ -13,6 +13,7 @@ public class LoadACDSFromFpML {
 
     DataDocument dataDocument = deserializeFromXml(DataDocument.class, exampleProduct);
     Trade cdsTrade = dataDocument.getTrade().get(0);
+    cdsTrade.getId();
   }
 
 }
