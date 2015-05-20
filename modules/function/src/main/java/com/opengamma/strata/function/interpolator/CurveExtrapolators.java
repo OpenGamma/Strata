@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.extrapolator;
+package com.opengamma.strata.function.interpolator;
 
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 
