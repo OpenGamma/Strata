@@ -142,23 +142,6 @@ public interface RatesProvider
     return iborIndexRates(index).rate(fixingDate);
   }
 
-  /**
-   * Gets the basic curve sensitivity for the forward rate of an Ibor index.
-   * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
-   * If a time-series was used, then there is no sensitivity.
-   * Otherwise, the sensitivity has the value 1.
-   * The sensitivity refers to the result of {@link #iborIndexRate(IborIndex, LocalDate)}.
-   * 
-   * @param index  the index to find the sensitivity for
-   * @param fixingDate  the fixing date to find the sensitivity for
-   * @return the point sensitivity of the rate
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
-    return iborIndexRates(index).pointSensitivity(fixingDate);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the rates for an Overnight index.

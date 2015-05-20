@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -263,7 +262,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, PREV_DATE), 0.0134d, 0d);
-    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, PREV_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_iborIndexRate_beforeToday_notInTimeSeries() {
@@ -275,8 +273,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.iborIndexRate(USD_LIBOR_3M, PREV_DATE));
-    // sensitivity succeeds, as result would be no sensitivity whether data is there or not
-    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, PREV_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_iborIndexRate_today_inTimeSeries() {
@@ -288,7 +284,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, VAL_DATE), 0.0134d, 0d);
-    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, VAL_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_iborIndexRate_today_notInTimeSeries() {
@@ -300,9 +295,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, VAL_DATE), 0.0123d, 1e-8d);
-
-    PointSensitivityBuilder sens = IborRateSensitivity.of(USD_LIBOR_3M, VAL_DATE, 1.0);
-    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, VAL_DATE), sens);
   }
 
   public void test_iborIndexRate_afterToday() {
@@ -314,9 +306,6 @@ public class ImmutableRatesProviderTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, NEXT_DATE), 0.0123d, 1e-8d);
-
-    PointSensitivityBuilder sens = IborRateSensitivity.of(USD_LIBOR_3M, LocalDate.of(2014, 7, 30), 1.0);
-    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, LocalDate.of(2014, 7, 30)), sens);
   }
 
   public void test_iborIndexRate_notKnown() {
