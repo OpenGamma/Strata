@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is pretrade-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/pretrade-->
+<!--View is pretrade-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/pretrade-->
+<!--
+  == Copyright (c) 2002-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<!--
+  == This example describes a package that is a switch 
+Execution details of one trade: 
+Switch tenors   5x10YR
+Notional        50M
+bps     123
+        
+Standard switches and flies are executed on a DV01 neutral basis. Meaning for a switch the DV01 of payer swap will be the same as the receiver swap.    
+The switch basis is calculated by subtracting the rate of the shorter tenor from the rate of the longer tenor.  
+Switches are traded in basis points as opposed to rate.         
+        
+For example, 5x10 switch with 10yr rate trading 2.232% and 5yr rate trading 1.002% would net a switch basis of;         
+        
+Payer Swap DV01 = Receiver Swap DV01    
+223 - 100 = 123 basis points.   
+
+  -->
+<requestLimitCheck xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-7" xsi:schemaLocation="http://www.fpml.org/FpML-5/pretrade ../fpml-main-5-7.xsd http://www.w3.org/2000/09/xmldsig# ../xmldsig-core-schema.xsd">
+  <header>
+    <messageId messageIdScheme="http://www.mw.com/message-id">123453212</messageId>
+    <sentBy>MIDDLEWARE</sentBy>
+    <sendTo>FCM1</sendTo>
+    <creationTimestamp>2014-01-15T09:57:00Z</creationTimestamp>
+  </header>
+  <isCorrection>false</isCorrection>
+  <correlationId correlationIdScheme="http://www.mw.com/correlation-id">234231132</correlationId>
+  <sequenceNumber>1</sequenceNumber>
+  <tradePackage>
+    <packageHeader>
+      <packageIdentifier>
+        <issuer>SEF123</issuer>
+        <tradeId tradeIdScheme="http://sefco.com/package_id">123</tradeId>
+      </packageIdentifier>
+    </packageHeader>
+    <trade>
+      <tradeHeader>
+        <partyTradeIdentifier>
+          <partyReference href="sef" />
+          <tradeId tradeIdScheme="http://www.sefco.com/swaps/trade-id">1</tradeId>
+        </partyTradeIdentifier>
+        <tradeDate>2014-01-15</tradeDate>
+      </tradeHeader>
+      <swap>
+<!-- mega client pays 2.232 on 50MM for 10 years -->
+        <swapStream>
+          <payerPartyReference href="dealer" />
+          <receiverPartyReference href="fcm1" />
+          <receiverAccountReference href="party1acct" />
+          <calculationPeriodDates id="floatingCalcPeriodDates1">
+            <effectiveDate>
+              <unadjustedDate>2014-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>NONE</businessDayConvention>
+              </dateAdjustments>
+            </effectiveDate>
+            <terminationDate>
+              <unadjustedDate>2024-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                <businessCenters id="primaryBusinessCenters1">
+                  <businessCenter>USNY</businessCenter>
+                </businessCenters>
+              </dateAdjustments>
+            </terminationDate>
+            <calculationPeriodDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters1" />
+            </calculationPeriodDatesAdjustments>
+            <calculationPeriodFrequency>
+              <periodMultiplier>3</periodMultiplier>
+              <period>M</period>
+              <rollConvention>17</rollConvention>
+            </calculationPeriodFrequency>
+          </calculationPeriodDates>
+          <paymentDates>
+            <calculationPeriodDatesReference href="floatingCalcPeriodDates1" />
+            <paymentFrequency>
+              <periodMultiplier>3</periodMultiplier>
+              <period>M</period>
+            </paymentFrequency>
+            <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+            <paymentDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters1" />
+            </paymentDatesAdjustments>
+          </paymentDates>
+          <resetDates id="resetDates1">
+            <calculationPeriodDatesReference href="floatingCalcPeriodDates1" />
+            <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+            <fixingDates>
+              <periodMultiplier>-2</periodMultiplier>
+              <period>D</period>
+              <dayType>Business</dayType>
+              <businessDayConvention>NONE</businessDayConvention>
+              <businessCenters>
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+              </businessCenters>
+              <dateRelativeTo href="resetDates1" />
+            </fixingDates>
+            <resetFrequency>
+              <periodMultiplier>3</periodMultiplier>
+              <period>M</period>
+            </resetFrequency>
+            <resetDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters1" />
+            </resetDatesAdjustments>
+          </resetDates>
+          <calculationPeriodAmount>
+            <calculation>
+              <notionalSchedule>
+                <notionalStepSchedule>
+                  <initialValue>25000000.00</initialValue>
+                  <currency currencyScheme="http://www.fpml.org/coding-scheme/external/iso4217">USD</currency>
+                </notionalStepSchedule>
+              </notionalSchedule>
+              <floatingRateCalculation>
+                <floatingRateIndex>USD-LIBOR-Reuters</floatingRateIndex>
+                <indexTenor>
+                  <periodMultiplier>3</periodMultiplier>
+                  <period>M</period>
+                </indexTenor>
+              </floatingRateCalculation>
+              <dayCountFraction>ACT/365</dayCountFraction>
+            </calculation>
+          </calculationPeriodAmount>
+        </swapStream>
+        <swapStream>
+          <payerPartyReference href="fcm1" />
+          <payerAccountReference href="party1acct" />
+          <receiverPartyReference href="dealer" />
+          <calculationPeriodDates id="fixedCalcPeriodDates1">
+            <effectiveDate>
+              <unadjustedDate>2014-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>NONE</businessDayConvention>
+              </dateAdjustments>
+            </effectiveDate>
+            <terminationDate>
+              <unadjustedDate>2019-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                <businessCentersReference href="primaryBusinessCenters1" />
+              </dateAdjustments>
+            </terminationDate>
+            <calculationPeriodDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters1" />
+            </calculationPeriodDatesAdjustments>
+            <calculationPeriodFrequency>
+              <periodMultiplier>6</periodMultiplier>
+              <period>M</period>
+              <rollConvention>17</rollConvention>
+            </calculationPeriodFrequency>
+          </calculationPeriodDates>
+          <paymentDates>
+            <calculationPeriodDatesReference href="fixedCalcPeriodDates1" />
+            <paymentFrequency>
+              <periodMultiplier>6</periodMultiplier>
+              <period>M</period>
+            </paymentFrequency>
+            <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+            <paymentDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters1" />
+            </paymentDatesAdjustments>
+          </paymentDates>
+          <calculationPeriodAmount>
+            <calculation>
+              <notionalSchedule>
+                <notionalStepSchedule>
+                  <initialValue>25000000.00</initialValue>
+                  <currency currencyScheme="http://www.fpml.org/coding-scheme/external/iso4217">USD</currency>
+                </notionalStepSchedule>
+              </notionalSchedule>
+              <fixedRateSchedule>
+                <initialValue>0.02232</initialValue>
+              </fixedRateSchedule>
+              <dayCountFraction>30E/360</dayCountFraction>
+            </calculation>
+          </calculationPeriodAmount>
+        </swapStream>
+      </swap>
+    </trade>
+    <trade>
+      <tradeHeader>
+        <partyTradeIdentifier>
+          <partyReference href="sef" />
+          <tradeId tradeIdScheme="http://www.sefco.com/swaps/trade-id">2</tradeId>
+        </partyTradeIdentifier>
+        <tradeDate>2014-01-15</tradeDate>
+      </tradeHeader>
+      <swap>
+<!-- mega client receives 1.002% on 94.6mm for 10 years -->
+        <swapStream>
+          <payerPartyReference href="fcm1" />
+          <payerAccountReference href="party1acct" />
+          <receiverPartyReference href="dealer" />
+          <calculationPeriodDates id="floatingCalcPeriodDates2">
+            <effectiveDate>
+              <unadjustedDate>2014-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>NONE</businessDayConvention>
+              </dateAdjustments>
+            </effectiveDate>
+            <terminationDate>
+              <unadjustedDate>2024-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                <businessCenters id="primaryBusinessCenters2">
+                  <businessCenter>USNY</businessCenter>
+                </businessCenters>
+              </dateAdjustments>
+            </terminationDate>
+            <calculationPeriodDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters2" />
+            </calculationPeriodDatesAdjustments>
+            <calculationPeriodFrequency>
+              <periodMultiplier>3</periodMultiplier>
+              <period>M</period>
+              <rollConvention>17</rollConvention>
+            </calculationPeriodFrequency>
+          </calculationPeriodDates>
+          <paymentDates>
+            <calculationPeriodDatesReference href="floatingCalcPeriodDates2" />
+            <paymentFrequency>
+              <periodMultiplier>3</periodMultiplier>
+              <period>M</period>
+            </paymentFrequency>
+            <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+            <paymentDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters2" />
+            </paymentDatesAdjustments>
+          </paymentDates>
+          <resetDates id="resetDates2">
+            <calculationPeriodDatesReference href="floatingCalcPeriodDates2" />
+            <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+            <fixingDates>
+              <periodMultiplier>-2</periodMultiplier>
+              <period>D</period>
+              <dayType>Business</dayType>
+              <businessDayConvention>NONE</businessDayConvention>
+              <businessCenters>
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+              </businessCenters>
+              <dateRelativeTo href="resetDates2" />
+            </fixingDates>
+            <resetFrequency>
+              <periodMultiplier>3</periodMultiplier>
+              <period>M</period>
+            </resetFrequency>
+            <resetDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters2" />
+            </resetDatesAdjustments>
+          </resetDates>
+          <calculationPeriodAmount>
+            <calculation>
+              <notionalSchedule>
+                <notionalStepSchedule>
+                  <initialValue>47300000.00</initialValue>
+                  <currency currencyScheme="http://www.fpml.org/coding-scheme/external/iso4217">USD</currency>
+                </notionalStepSchedule>
+              </notionalSchedule>
+              <floatingRateCalculation>
+                <floatingRateIndex>USD-LIBOR-Reuters</floatingRateIndex>
+                <indexTenor>
+                  <periodMultiplier>3</periodMultiplier>
+                  <period>M</period>
+                </indexTenor>
+              </floatingRateCalculation>
+              <dayCountFraction>ACT/365</dayCountFraction>
+            </calculation>
+          </calculationPeriodAmount>
+        </swapStream>
+        <swapStream>
+          <payerPartyReference href="dealer" />
+          <receiverPartyReference href="fcm1" />
+          <receiverAccountReference href="party1acct" />
+          <calculationPeriodDates id="fixedCalcPeriodDates2">
+            <effectiveDate>
+              <unadjustedDate>2014-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>NONE</businessDayConvention>
+              </dateAdjustments>
+            </effectiveDate>
+            <terminationDate>
+              <unadjustedDate>2024-01-17</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                <businessCentersReference href="primaryBusinessCenters2" />
+              </dateAdjustments>
+            </terminationDate>
+            <calculationPeriodDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters2" />
+            </calculationPeriodDatesAdjustments>
+            <calculationPeriodFrequency>
+              <periodMultiplier>6</periodMultiplier>
+              <period>M</period>
+              <rollConvention>17</rollConvention>
+            </calculationPeriodFrequency>
+          </calculationPeriodDates>
+          <paymentDates>
+            <calculationPeriodDatesReference href="fixedCalcPeriodDates2" />
+            <paymentFrequency>
+              <periodMultiplier>6</periodMultiplier>
+              <period>M</period>
+            </paymentFrequency>
+            <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+            <paymentDatesAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCentersReference href="primaryBusinessCenters2" />
+            </paymentDatesAdjustments>
+          </paymentDates>
+          <calculationPeriodAmount>
+            <calculation>
+              <notionalSchedule>
+                <notionalStepSchedule>
+                  <initialValue>47300000.00</initialValue>
+                  <currency currencyScheme="http://www.fpml.org/coding-scheme/external/iso4217">USD</currency>
+                </notionalStepSchedule>
+              </notionalSchedule>
+              <fixedRateSchedule>
+                <initialValue>0.01002</initialValue>
+              </fixedRateSchedule>
+              <dayCountFraction>30E/360</dayCountFraction>
+            </calculation>
+          </calculationPeriodAmount>
+        </swapStream>
+      </swap>
+    </trade>
+<!-- credit approval -->
+    <approvals>
+      <approval>
+        <type>PreClearingCredit</type>
+        <status>Pending</status>
+        <approvingPartyReference href="broker1" />
+      </approval>
+    </approvals>
+  </tradePackage>
+  <party id="sef">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso9362">SEF123</partyId>
+    <partyName>SEF Corp</partyName>
+  </party>
+  <party id="dealer">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso9362">UNKNOWN</partyId>
+  </party>
+  <party id="party1">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso9362">MEGAUS33</partyId>
+    <partyName>Megaclient</partyName>
+  </party>
+  <party id="broker1">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso9362">BROKER1</partyId>
+    <partyName>Broker Corp.</partyName>
+  </party>
+  <party id="fcm1">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso9362">FCMBUS33</partyId>
+    <partyName>FCM A</partyName>
+  </party>
+  <account id="party1acct">
+    <accountId>1111</accountId>
+    <accountBeneficiary href="party1" />
+    <servicingParty href="fcm1" />
+  </account>
+</requestLimitCheck>
+

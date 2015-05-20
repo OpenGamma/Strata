@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is pretrade-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/pretrade-->
+<!--
+  == Copyright (c) 2002-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<!-- message always replaces credit limit for that party -->
+<setCreditLimit xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-7" xsi:schemaLocation="http://www.fpml.org/FpML-5/pretrade ../fpml-main-5-7.xsd http://www.w3.org/2000/09/xmldsig# ../xmldsig-core-schema.xsd">
+  <header>
+    <messageId messageIdScheme="http://fcm1.com/message-id">Z123479</messageId>
+    <sentBy>FCM1</sentBy>
+    <sendTo>Client1</sendTo>
+    <creationTimestamp>2012-07-25T08:57:00Z</creationTimestamp>
+  </header>
+  <creditLimitInformation>
+    <partyInformation>
+      <partyReference href="party1" />
+      <relatedParty>
+        <partyReference href="DCO1" />
+        <role>ClearingOrganization</role>
+      </relatedParty>
+    </partyInformation>
+    <limitModel>PushToPing</limitModel>
+<!-- == Model Type Code -->
+    <creditLimit>
+      <limitId>x123</limitId>
+      <primaryAssetClass>InterestRate</primaryAssetClass>
+      <productType productTypeScheme="http://www.fpml.org/coding-scheme/product-taxonomy">InterestRate:Irswap:Fixed-Float</productType>
+      <productId>SWI-ST-USD-IRS</productId>
+      <currency>USD</currency>
+      <tenor>
+        <periodMultiplier>20</periodMultiplier>
+        <period>Y</period>
+      </tenor>
+      <limitApplicable>
+        <limitType>maximumOrderQuantity</limitType>
+        <clipSize>50</clipSize>
+<!-- max number of open orders -->
+        <amountUtilized>5</amountUtilized>
+        <amountRemaining>45</amountRemaining>
+      </limitApplicable>
+      <limitApplicable>
+        <limitType>Notional</limitType>
+        <clipSize>500000000</clipSize>
+<!--500M-->
+        <amountUtilized>0</amountUtilized>
+        <amountRemaining>1000000000</amountRemaining>
+        <currency>USD</currency>
+        <velocity>
+          <periodMultiplier>2</periodMultiplier>
+          <period>Minute</period>
+<!-- extending the PeriodEnum (new PeriodTimeEnum type) Hour Minute Second -->
+        </velocity>
+      </limitApplicable>
+      <limitApplicable>
+        <limitType>DV01</limitType>
+        <clipSize>300000000</clipSize>
+<!--300M-->
+        <currency>USD</currency>
+      </limitApplicable>
+      <expirationDate>2012-07-25T09:00:00Z</expirationDate>
+      <rfqRevalidation>true</rfqRevalidation>
+<!-- only available in the setCreditLimit message -->
+      <orderRevalidation>true</orderRevalidation>
+<!-- only available in the setCreditLimit message -->
+    </creditLimit>
+    <creditLimit>
+      <limitId>2129130400</limitId>
+      <primaryAssetClass>InterestRate</primaryAssetClass>
+      <productType productTypeScheme="http://www.fpml.org/coding-scheme/product-taxonomy">InterestRate:Irswap:Fixed-Float</productType>
+      <productId>SWI-ST-EUR-IRS</productId>
+<!-- optional -->
+      <currency>EUR</currency>
+      <tenor>
+        <periodMultiplier>20</periodMultiplier>
+        <period>Y</period>
+      </tenor>
+      <limitApplicable>
+        <limitType>maximumOrderQuantity</limitType>
+        <clipSize>50</clipSize>
+        <amountUtilized>5</amountUtilized>
+        <amountRemaining>45</amountRemaining>
+      </limitApplicable>
+    </creditLimit>
+  </creditLimitInformation>
+  <party id="party1">
+    <partyId>CLIENT1</partyId>
+  </party>
+  <party id="DCO1">
+    <partyId>CCP1</partyId>
+  </party>
+  <party id="DCO2">
+    <partyId>CCP2</partyId>
+  </party>
+</setCreditLimit>
+

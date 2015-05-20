@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+== Copyright (c) 2002-2015 All rights reserved. 
+== Financial Products Markup Language is subject to the FpML public license. 
+== A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:fpml-annotation="http://www.fpml.org/annotation" targetNamespace="http://www.fpml.org/FpML-5/pretrade" ecore:documentRoot="FpML" ecore:nsPrefix="pre" ecore:package="org.fpml.pretrade" version="$Revision: 11711 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd" />
+  <xsd:include schemaLocation="fpml-doc-5-7.xsd" />
+  <xsd:complexType name="AdditionalData">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Provides extra information not represented in the model that may be useful in processing the message i.e. diagnosing the reason for failure.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="mimeType" type="MimeType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Indicates the type of media used to provide the extra information. mimeType is used to determine the software product(s) that can read the content. MIME Types are described in RFC 2046.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="string" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Provides extra information as string. In case the extra information is in XML format, a CDATA section must be placed around the source message to prevent its interpretation as XML content.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="hexadecimalBinary" type="xsd:hexBinary">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Provides extra information as binary contents coded in hexadecimal.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="base64Binary" type="xsd:base64Binary">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Provides extra information as binary contents coded in base64.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="originalMessage">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Provides extra information as binary contents coded in base64.</xsd:documentation>
+          </xsd:annotation>
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:any processContents="skip" />
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Acknowledgement">
+    <xsd:complexContent>
+      <xsd:extension base="ResponseMessage">
+        <xsd:sequence>
+          <xsd:element name="originalMessage" type="UnprocessedElementWrapper" minOccurs="0" />
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="BusinessProcess">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to identify the type of business process in a request. Examples include Allocation, Clearing, Confirmation, etc.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="businessProcessScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/business-process" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="CorrectableRequestMessage">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a request message that can be subsequently corrected or retracted.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="RequestMessage">
+        <xsd:sequence>
+          <xsd:element name="isCorrection" type="xsd:boolean" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Indicates if this message corrects an earlier request.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:group ref="CorrelationAndSequence.model" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">This provides a mechanism for the requester to assign an ID that can be used for subsequent corrections and retractions, without requiring any acknowledgement or reply from the message recipient. The FpML architecture recommends that services support this feature, because otherwise requesters cannot correct or retract requests until they receive a reply from the service. If the correlation ID is not supplied by the requester, the recipient should provide a correlation ID in its response, which the requester should retain in case subsequent corrections or retractions are required. In this case, the "inReplyTo" element in the message header may be used to link the response to the request.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:group>
+          <xsd:group ref="OnBehalfOf.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="CorrelationId">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining a correlation identifier and qualifying scheme</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="correlationIdScheme" type="xsd:anyURI" use="required" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="EventIdentifier">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Identification of a business event, for example through its correlation id or a business identifier.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:sequence>
+        <xsd:group ref="CorrelationId.model" />
+        <xsd:group ref="Sequence.model" minOccurs="0" fpml-annotation:deprecated="true" fpml-annotation:deprecatedReason="Event requests should be for the whole workflow, not a specific message" />
+      </xsd:sequence>
+      <xsd:element name="tradeIdentifier" type="TradeIdentifier" />
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="EventStatus">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A coding scheme used to describe the matching/confirmation status of a trade, post-trade event, position, or cash flows.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="eventStatusScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/event-status" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="EventStatusItem">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type used in event status enquiry messages which relates an event identifier to its current status value.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="eventIdentifier" type="EventIdentifier" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An instance of a unique event identifier.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="status" type="EventStatus" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An event status value.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="EventStatusResponse">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a message normally generated in response to a requestEventStatus request.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="ResponseMessage">
+        <xsd:sequence>
+          <xsd:element name="statusItem" type="EventStatusItem" maxOccurs="unbounded" minOccurs="0" />
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="Exception">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the basic content for a message sent to inform another system that some exception has been detected.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Message">
+        <xsd:sequence>
+          <xsd:element name="header" type="ExceptionMessageHeader" minOccurs="0" />
+          <xsd:group ref="Validation.model"></xsd:group>
+          <xsd:group ref="CorrelationAndOptionalSequence.model" minOccurs="0" />
+          <xsd:group ref="Exception.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ExceptionMessageHeader">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for an exception message header.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="MessageHeader">
+        <xsd:sequence>
+          <xsd:element name="inReplyTo" type="MessageId" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A copy of the unique message identifier (within it own coding scheme) to which this message is responding.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:group ref="MessageHeader.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="Message" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the basic structure of all FpML messages which is refined by its derived types.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Document" />
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="MessageAddress">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The data type used for identifying a message address.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="messageAddressScheme" type="xsd:anyURI" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="MessageHeader" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a generic message header that is refined by its derived classes.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="messageId" type="MessageId" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A unique identifier (within its coding scheme) assigned to the message by its creating party.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="MessageId">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The data type use for message identifiers.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="messageIdScheme" type="xsd:anyURI" use="required" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="NonCorrectableRequestMessage">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a request message that cannot be subsequently corrected or retracted.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="RequestMessage">
+        <xsd:sequence>
+          <xsd:group ref="CorrelationAndSequence.model" minOccurs="0" />
+          <xsd:group ref="OnBehalfOf.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="NotificationMessage" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the basic content for a message sent to inform another system that some 'business event' has occured. Notifications are not expected to be replied to.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Message">
+        <xsd:sequence>
+          <xsd:element name="header" type="NotificationMessageHeader" minOccurs="0" />
+          <xsd:group ref="Validation.model"></xsd:group>
+          <xsd:group ref="CorrelationAndOptionalSequence.model" minOccurs="0" />
+          <xsd:group ref="OnBehalfOf.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="NotificationMessageHeader">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that refines the generic message header to match the requirements of a NotificationMessage.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="MessageHeader">
+        <xsd:sequence>
+          <xsd:element name="inReplyTo" type="MessageId" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A copy of the unique message identifier (within it own coding scheme) to which this message is responding.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:group ref="MessageHeader.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ImplementationSpecification">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A version of a specification document used by the message generator to format the document.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:normalizedString" minOccurs="0" />
+      <xsd:element name="version" type="ImplementationSpecificationVersion" minOccurs="0" />
+      <xsd:element name="date" type="xsd:date" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ImplementationSpecificationVersion">
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="implementationSpecificationVersionScheme" type="xsd:anyURI" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PartyMessageInformation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining additional information that may be recorded against a message.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="partyReference" type="PartyReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Identifies that party that has ownership of this information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PortfolioReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure used to group together individual messages that can be acted on at a group level.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="PortfolioReferenceBase">
+        <xsd:sequence>
+          <xsd:element name="sequenceNumber" type="xsd:positiveInteger" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A numeric, sequentially ascending (i.e. gapless) value (starting at 1) that can be used to identify and distinguish the individual constituents of a portfolio request. A recipient should ensure that all sequence numbers from 1 to the final sequence number (where submissionsComplete is true) have arrived before completing the portfolio request.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="submissionsComplete" type="xsd:boolean" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Indicates whether all individual requests have been submitted for this portfolio request.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="PortfolioConstituentReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure used to group together individual messages that can be acted on at a group level.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="PortfolioReferenceBase">
+        <xsd:sequence>
+          <xsd:element name="sequenceNumber" type="xsd:positiveInteger" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A numeric, sequentially ascending (i.e. gapless) value (starting at 1) that can be used to identify and distinguish the individual constituents of a portfolio request. A recipient should ensure that all sequence numbers from 1 to the final sequence number (where submissionsComplete is true) have arrived before completing the portfolio request.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="PortfolioReferenceBase">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure used to identify a portfolio in a message.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="portfolioName" type="PortfolioName" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An identifier that is unique for each portfolio-level request, and which can be used to group together the individual messages in the portfolio request.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ProblemLocation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Provides a lexical location (i.e. a line number and character for bad XML) or an XPath location (i.e. place to identify the bad location for valid XML).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:normalizedString">
+        <xsd:attribute name="locationType" type="xsd:token">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The value of the locationType attribute defines which type of location has been given. It may take the values 'lexical' or 'xpath'.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="Reason">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining a content model for describing the nature and possible location of a error within a previous message.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="reasonCode" type="ReasonCode" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A machine interpretable error code.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="location" type="ProblemLocation" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A value indicating the location of the problem within the subject message.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="description" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Plain English text describing the associated error condition</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="validationRuleId" type="Validation" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A reference identifying a rule within a validation scheme</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="additionalData" type="AdditionalData" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Any string of additional data that may help the message processor, for example in a rejection message this might contain a code value or the text of any one of the messages (within a CDATA section).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ReasonCode">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a list of machine interpretable error codes.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="reasonCodeScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/reason-code" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="RequestEventStatus">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a message allowing one party to query the status of one event (trade or post-trade event) previously sent to another party.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="NonCorrectableRequestMessage">
+        <xsd:sequence>
+          <xsd:element name="businessProcess" type="BusinessProcess" minOccurs="0" />
+          <xsd:element name="eventIdentifier" type="EventIdentifier" minOccurs="0" />
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="RequestMessage" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the basic content of a message that requests the receiver to perform some business operation determined by the message type and its content.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Message">
+        <xsd:sequence>
+          <xsd:element name="header" type="RequestMessageHeader" minOccurs="0" />
+          <xsd:group ref="Validation.model"></xsd:group>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="RequestMessageHeader">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type refining the generic message header content to make it specific to request messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="MessageHeader">
+        <xsd:sequence>
+          <xsd:group ref="MessageHeader.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="RequestRetransmission">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A message to request that a message be retransmitted. The original message will typically be a component of a group of messages, such as a portfolio or a report in multiple parts.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="NonCorrectableRequestMessage">
+        <xsd:sequence>
+          <xsd:group ref="PortfolioReferenceOrReportIdentification.model" />
+          <xsd:group ref="PartiesAndAccounts.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ReportId">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to hold an identifier for a report instance.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="reportIdScheme" type="xsd:anyURI" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="ReportSectionIdentification">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that allows the specific report and section to be identified.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="reportId" type="ReportId" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An identifier for the specific instance of this report.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="sectionNumber" type="xsd:positiveInteger" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A strictly ascending sequential (gapless) numeric value that can be used to identify the section of a report.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ResponseMessage" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type refining the generic message content model to make it specific to response messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Message">
+        <xsd:sequence>
+          <xsd:element name="header" type="ResponseMessageHeader" minOccurs="0" />
+          <xsd:group ref="Validation.model"></xsd:group>
+          <xsd:group ref="CorrelationAndOptionalSequence.model" />
+          <xsd:group ref="OnBehalfOf.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ResponseMessageHeader">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type refining the generic message header to make it specific to response messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="MessageHeader">
+        <xsd:sequence>
+          <xsd:element name="inReplyTo" type="MessageId" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A copy of the unique message identifier (within it own coding scheme) to which this message is responding.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:group ref="MessageHeader.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceAdvisory">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a human-readable notification to the users of a service.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="category" type="ServiceAdvisoryCategory" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The category or type of the notification message, e.g. availability, product coverage, rules, etc.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="description" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A human-readable notification.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="effectiveFrom" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The time at which the information supplied by the advisory becomes effective. For example, if the advisory advises of a newly planned service outage, it will be the time the service outage begins.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="effectiveTo" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The time at which the information supplied by the advisory becomes no longer effective. For example, if the advisory advises of a newly planned service outage, it will be the time the service outage ends.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceAdvisoryCategory">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to describe the category of an advisory message, e.g.. Availability, Rules, Products, etc., etc..</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="serviceAdvisoryCategoryScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/service-advisory-category" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">Event Status messages.</xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexType name="ServiceNotification">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for a message that allows a service to send a notification message to a user of the service.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="NotificationMessage">
+        <xsd:sequence>
+          <xsd:element name="serviceName" type="xsd:normalizedString" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The name of the service to which the message applies</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:choice minOccurs="0">
+            <xsd:element name="status" type="ServiceStatus">
+              <xsd:annotation>
+                <xsd:documentation xml:lang="en">The current state of the service (e.g. Available, Unavailable).</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="processingStatus" type="ServiceProcessingStatus">
+              <xsd:annotation>
+                <xsd:documentation xml:lang="en">A description of the stage of processing of the service, for example EndofDayProcessingCutoffOccurred, EndOfDayProcessingCompleted. [TBD: could be combined with advisory]</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="advisory" type="ServiceAdvisory">
+              <xsd:annotation>
+                <xsd:documentation xml:lang="en">A human-readable message providing information about the service..</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:choice>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceProcessingCycle">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to describe the processing phase of a service. For example, EndOfDay, Intraday.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="serviceProcessingCycleScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/service-processing-cycle" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceProcessingEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to describe a stage or step in processing provided by a service, for example processing completed.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="serviceProcessingEventScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/service-processing-event" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceProcessingStatus">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the content model for report on the status of the processing by a service. In the future we may wish to provide some kind of scope or other qualification for the event, e.g. the currencies, products, or books to which it applies.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cycle" type="ServiceProcessingCycle" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The processing cycle or phase that this message describes. For example, EndOfDay or Intraday.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="step" type="ServiceProcessingStep" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The stage within a processing cycle or phase that this message describes. For example, Netting or Valuation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="event" type="ServiceProcessingEvent" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The event that occurred within the cycle or step, for example "Started" or "Completed"..</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceProcessingStep">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to describe what stage of processing a service is in. For example, Netting or Valuation.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="serviceProcessingStep" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/service-processing-step" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="ServiceStatus">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that can be used to describe the availability or other state of a service, e.g. Available, Unavaialble.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="serviceStatusScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/service-status" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="UnprocessedElementWrapper">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type holding a structure that is unvalidated</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:any processContents="skip" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="VerificationStatus">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The verification status of the position as reported by the sender (Verified, Disputed).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="verificationStatusScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/verification-status" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="VerificationStatusNotification">
+    <xsd:complexContent>
+      <xsd:extension base="NonCorrectableRequestMessage">
+        <xsd:sequence>
+          <xsd:element name="status" type="VerificationStatus" minOccurs="0"></xsd:element>
+          <xsd:element name="reason" type="Reason" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The reason for any dispute or change in verification status.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="partyTradeIdentifier" type="PartyTradeIdentifier" minOccurs="0"></xsd:element>
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:group name="Correlation.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group defining the elements used for process correlation. The correlation ID is used to link followup corrections and retractions to the original request, and to help identify which replies link to which requests. The parent correlation ID is used to keep track of the parent process.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="parentCorrelationId" type="CorrelationId" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An optional identifier used to correlate between related processes</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="CorrelationId.model" />
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="CorrelationAndOptionalSequence.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group defining the full messsage correlation mechanism, but with optional sequence. Please note that for reports in Reporting view, usage of the correlation and sequence model is not well defined in the standard an may be deprecated from future versions of the standard. Use the ReportReference structure to identify report instances and section numbers if a report must be divided into chunks.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="Correlation.model" />
+      <xsd:group ref="Sequence.model" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="CorrelationAndSequence.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group defining the full messsage correlation mechanism. The correlation ID is used to link followup corrections and retractions to the original request, and to help identify which replies link to which requests. (The "inReplyTo" element may also be used for this purpose, but it contains a message identifier rather than a business object identifier.) The sequence ID is used to establish an ordering between multiple messages related to the same business object (identified by the same correlation identifier). It contains a value the must ascend (possibly with gaps) messages on the same correlation ID.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="Correlation.model" />
+      <xsd:group ref="Sequence.model" />
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="CorrelationId.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group defining the element used for process correlation. The correlation ID is used to link followup corrections and retractions to the original request, and to help identify which replies link to which requests.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="correlationId" type="CorrelationId" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A qualified identifier used to correlate between messages</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="Exception.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group which has exception elements.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="reason" type="Reason" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An instance of the Reason type used to record the nature of any errors associated with a message.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="additionalData" type="AdditionalData" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Any string of additional data that may help the message processor, for example in a rejection message this might contain a code value or the text of the original request (within a CDATA section).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="MessageHeader.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines the structure that contains routing and identification information, which allows processing and transfer of the message. It contains only messaging information that is applicable to all messages. If the information is not message related or is not applicable to all messages then it is not defined in the message header.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="sentBy" type="MessageAddress" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The unique identifier (within its coding scheme) for the originator of a message instance.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="sendTo" type="MessageAddress" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A unique identifier (within its coding scheme) indicating an intended recipent of a message.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="copyTo" type="MessageAddress" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="creationTimestamp" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date and time (on the source system) when this message instance was created.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="expiryTimestamp" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date and time (on the source system) when this message instance will be considered expired.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="implementationSpecification" type="ImplementationSpecification" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The version(s) of specifications that the sender asserts the message was developed for.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="partyMessageInformation" type="PartyMessageInformation" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Additional message information that may be provided by each involved party.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element ref="dsig:Signature" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="PortfolioConstituentReference.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a model group that allows a constituent of a portfolio to be included in a request retransmission message.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="portfolioReference" type="PortfolioConstituentReference" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:group>
+<!--View Generation: SKIPPED PortfolioReferenceBase.model - Unsupported-->
+  <xsd:group name="PortfolioReferenceOrReportIdentification.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a model group that allows either details of a portoflio constituent or report constituent to be provided. Typically this will be used in a request retransmission message.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:group ref="PortfolioConstituentReference.model" />
+      <xsd:group ref="ReportSectionIdentification.model" />
+    </xsd:choice>
+  </xsd:group>
+  <xsd:group name="ReportSectionIdentification.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a model group that allows a chunck of a report to be included in a request retransmission message.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="reportIdentification" type="ReportSectionIdentification" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="Sequence.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group defining the element used for message sequencing</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="sequenceNumber" type="xsd:positiveInteger" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A numeric value that can be used to order messages with the same correlation identifier from the same sender.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:element name="eventStatusResponse" type="EventStatusResponse" />
+  <xsd:element name="eventStatusException" type="Exception" />
+  <xsd:element name="messageRejected" type="Exception">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The root element used for rejected message exceptions</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="serviceNotification" type="ServiceNotification" />
+  <xsd:element name="serviceNotificationException" type="Exception" />
+  <xsd:element name="requestEventStatus" type="RequestEventStatus" />
+  <xsd:element name="requestRetransmission" type="RequestRetransmission"></xsd:element>
+  <xsd:element name="verificationStatusNotification" type="VerificationStatusNotification" />
+  <xsd:element name="verificationStatusException" type="Exception" />
+  <xsd:element name="verificationStatusAcknowledgement" type="Acknowledgement" />
+</xsd:schema>
+

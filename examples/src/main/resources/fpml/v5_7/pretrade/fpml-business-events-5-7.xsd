@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+== Copyright (c) 2002-2015 All rights reserved. 
+== Financial Products Markup Language is subject to the FpML public license. 
+== A copy of this license is availa-5-8ble at http://www.fpml.org/license/license.html
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:fpml-annotation="http://www.fpml.org/annotation" targetNamespace="http://www.fpml.org/FpML-5/pretrade" ecore:documentRoot="FpML" ecore:nsPrefix="pre" ecore:package="org.fpml.pretrade" version="$Revision: 11753 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:include schemaLocation="fpml-msg-5-7.xsd" />
+  <xsd:include schemaLocation="fpml-asset-5-7.xsd" />
+  <xsd:complexType name="AbstractEvent" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Abstract base type for all events.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="eventIdentifier" type="BusinessEventIdentifier" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED ActionOnExpiration - Unsupported-->
+  <xsd:complexType name="AdditionalEvent" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Abstract base type for an extension/substitution point to customize FpML and add additional events.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="AbstractEvent" />
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="BasketChangeEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure indicating that the basket underlyer of the trade has changed due to client trading activity</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="ChangeEvent">
+<!--View Generation: Skipped an empty sequence.-->
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="BusinessEventIdentifier">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining an event identifier issued by the indicated party.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="PartyAndAccountReferences.model">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A pointer style reference to a party identifier and optionally an account identifier defined elsewhere in the document. The party referenced has allocated the trade identifier.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:element name="eventId" type="EventId" minOccurs="0"></xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="ChangeEvent" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Abstract base type for non-negotiated trade change descriptions</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="AbstractEvent">
+<!--View Generation: Skipped an empty sequence.-->
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+<!--View Generation: SKIPPED ClearingStatusItem - PartySpecific-->
+<!--View Generation: SKIPPED ClearingInstructions - Unsupported-->
+<!--View Generation: SKIPPED CompressionActivity - Unsupported-->
+<!--View Generation: SKIPPED CompressionType - Unsupported-->
+  <xsd:complexType name="CorporateActionEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure indicating that a trade has changed due to a corporate action</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="ChangeEvent">
+        <xsd:sequence>
+          <xsd:element name="type" type="CorporateActionType" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="CorporateActionType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that describes what type of corporate action occurred.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="corporateActionScheme" type="xsd:anyURI" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="CreditLimitBase">
+    <xsd:annotation>
+      <xsd:documentation>A structure describing a basic credit limit.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="limitId" type="LimitId" minOccurs="0" />
+      <xsd:group ref="Product.model" />
+      <xsd:element name="currency" type="Currency" minOccurs="0" />
+      <xsd:element name="tenor" type="Period" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CreditLimit">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure describing a credit limit with applicability constraints.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="CreditLimitBase">
+        <xsd:sequence>
+          <xsd:element name="limitApplicable" type="LimitApplicable" maxOccurs="unbounded" minOccurs="0" />
+          <xsd:element name="expirationDate" type="xsd:dateTime" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="CreditLimitInformation">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="partyInformation" type="PartyTradeInformation" minOccurs="0" />
+      <xsd:element name="limitModel" type="LimitModelEnum" minOccurs="0" />
+      <xsd:element name="creditLimit" type="CreditLimit" maxOccurs="unbounded" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CreditLimitReference">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="approvingPartyReference" type="PartyReference" minOccurs="0" />
+      <xsd:element name="approvalId" type="ApprovalId" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CreditLimitUtilization">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="executed" type="CreditLimitUtilizationPosition" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Credit limit utilization attributable to executed trades.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="pending" type="CreditLimitUtilizationPosition" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Credit limit utilization attributable to pending unexecuted orders.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CreditLimitUtilizationPosition">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:sequence>
+        <xsd:element name="short" type="NonNegativeDecimal" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>Credit limit utilization attributable to short positions.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="long" type="NonNegativeDecimal" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>Credit limit utilization attributable to long positions.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="global" type="NonNegativeDecimal" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>Global credit limit utilization amount, agnostic of long/short position direction.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+<!--View Generation: SKIPPED global - Technical-->
+    </xsd:choice>
+  </xsd:complexType>
+<!--View Generation: SKIPPED DeClear - Unsupported-->
+<!--View Generation: SKIPPED DeclearReason - Unsupported-->
+  <xsd:complexType name="EventId">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A post-trade event reference identifier allocated by a party. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="eventIdScheme" type="xsd:anyURI" />
+        <xsd:attribute name="id" type="xsd:ID" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+<!--View Generation: SKIPPED EventsChoice - Unsupported-->
+  <xsd:complexType name="IndexChange">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A structure describing the effect of a change to an index.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="ChangeEvent">
+        <xsd:sequence>
+          <xsd:element name="indexFactor" type="xsd:decimal" minOccurs="0" />
+          <xsd:element name="factoredCalculationAmount" type="Money" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="LimitApplicable">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="limitType" type="LimitType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="clipSize" type="xsd:integer" minOccurs="0" />
+      <xsd:choice minOccurs="0">
+        <xsd:element name="amountUtilized" type="xsd:integer" />
+        <xsd:element name="utilization" type="CreditLimitUtilization">
+          <xsd:annotation>
+            <xsd:documentation>Credit limit utilization breakdown by executed trades and pending orders.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="amountRemaining" type="xsd:integer" minOccurs="0" />
+      <xsd:element name="currency" type="Currency" minOccurs="0" />
+      <xsd:element name="velocity" type="Velocity" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="LimitId">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="creditLimitIdScheme" type="xsd:anyURI" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="LimitType">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="creditLimitTypeScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/credit-limit-type" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+<!--View Generation: SKIPPED OptionExercise - Unsupported-->
+<!--View Generation: SKIPPED OptionExerciseAmounts - Unsupported-->
+<!--View Generation: SKIPPED OptionExpiry - Unsupported-->
+<!--View Generation: SKIPPED OptionExpiryBase - Unsupported-->
+  <xsd:complexType name="PackageHeader">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Identifying information for a tradePackage (a bundle of trades).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="packageIdentifier" type="IssuerTradeId" minOccurs="0" />
+      <xsd:element name="orderIdentifier" type="OrderIdentifier" minOccurs="0" />
+      <xsd:element name="packageType" type="PackageType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="size" type="PositiveDecimal" minOccurs="0" />
+      <xsd:element name="originatingEvent" type="OriginatingEvent" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">This may be used to describe why a package was created. This can be used to provide context for a newly created package that is not part of a post-trade event. For example, it can report that the package was created as a result of netting activity, or due to a transfer, an allocation process, etc.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="packageInformation" type="PackageInformation" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED PhysicalSettlement - Unsupported-->
+<!--View Generation: SKIPPED ReportingRegimeIdentifier - Unsupported-->
+<!--View Generation: SKIPPED RequestedClearingAction - Unsupported-->
+<!--View Generation: SKIPPED RequestedWithdrawalAction - Unsupported-->
+<!--View Generation: SKIPPED SupervisorRegistrationIdentification - Unsupported-->
+  <xsd:complexType name="TerminatingEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that describes why a trade terminated.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="terminatingEventScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/terminating-event" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+<!--View Generation: SKIPPED TradeAmendmentContent - Unsupported-->
+<!--View Generation: SKIPPED TradeChangeBase - Unsupported-->
+<!--View Generation: SKIPPED TradeChangeContent - Unsupported-->
+<!--View Generation: SKIPPED TradeLegPriceChange - Unsupported-->
+<!--View Generation: SKIPPED TradeLegSizeChange - Unsupported-->
+<!--View Generation: SKIPPED TradeMaturity - Unsupported-->
+<!--View Generation: SKIPPED TradeNotionalChange - Unsupported-->
+<!--View Generation: SKIPPED TradeNovationContent - Unsupported-->
+  <xsd:complexType name="TradePackage">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A bundle of trades collected together into a single unit for reporting.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="packageHeader" type="PackageHeader" minOccurs="0" />
+      <xsd:choice minOccurs="0">
+        <xsd:element name="trade" type="Trade" maxOccurs="unbounded" />
+        <xsd:group ref="TradeReferenceInformation.model" maxOccurs="unbounded" />
+        <xsd:element name="tradeIdentifier" type="TradeIdentifier" maxOccurs="unbounded" />
+      </xsd:choice>
+      <xsd:element name="allocations" type="Allocations" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">"Short-form" representation of allocations in which the key block economics are stated once within the trade structure, and the allocation data is contained in this allocations structure. This will normally be expressed in percentage terms and used prior to execution to authorize credit.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="approvals" type="Approvals" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A container for approval states in the workflow.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="TradeReferenceInformation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a type that allows trade identifiers and/or trade information to be represented for a trade.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="originatingEvent" type="OriginatingEvent">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">This may be used to describe why a trade was created. This can be used to provide context for a newly created trade that is not part of a post-trade event. For example, it can report that the trade was created as a result of netting activity, or due to a transfer, an allocation process, etc. Omitting this implies that the trade record was created as a result of a negotiated new trade.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="terminatingEvent" type="TerminatingEvent">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">This may be used to describe why a trade was terminated.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="partyTradeIdentifier" type="PartyTradeIdentifier" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">This allows the acknowledging party to supply additional trade identifiers for a trade underlying a request relating to a business event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="partyTradeInformation" type="PartyTradeInformation" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">This allows the acknowledging party to supply additional trade information about a trade underlying a request relating to a business event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="productType" type="ProductType" minOccurs="0" />
+      <xsd:element name="productId" type="ProductId" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Velocity">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="periodMultiplier" type="xsd:integer" minOccurs="0" />
+      <xsd:element name="period" type="PeriodTimeEnum" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED Withdrawal - Unsupported-->
+<!--View Generation: SKIPPED WithdrawalReason - Unsupported-->
+  <xsd:element name="additionalEvent" type="AdditionalEvent" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The additionalEvent element is an extension/substitution point to customize FpML and add additional events.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="basketChange" type="BasketChangeEvent" substitutionGroup="changeEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Describes a change due to change in composition of basket underlyer</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="changeEvent" type="ChangeEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Abstract substitutable place holder for specific change details.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="corporateAction" type="CorporateActionEvent" substitutionGroup="changeEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Describes a change due to a corporate action</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="indexChange" type="IndexChange" substitutionGroup="changeEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Describes a change due to an index component being adjusted.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+<!--View Generation: SKIPPED AgreementAndEffectiveDates.model - Unsupported-->
+<!--View Generation: SKIPPED Compression.model - Unsupported-->
+  <xsd:group name="Events.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Choice between a trade and a post-trade event.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="tradePackage" type="TradePackage"></xsd:element>
+      <xsd:sequence>
+<!--View Generation: SKIPPED originatingEvent - Unsupported-->
+        <xsd:element name="trade" type="Trade"></xsd:element>
+      </xsd:sequence>
+<!--View Generation: SKIPPED amendment - Unsupported-->
+<!--View Generation: SKIPPED increase - Unsupported-->
+<!--View Generation: Skipped an empty sequence.-->
+<!--View Generation: SKIPPED novation - Unsupported-->
+<!--View Generation: SKIPPED change - Unsupported-->
+<!--View Generation: SKIPPED optionExercise - Unsupported-->
+<!--View Generation: SKIPPED optionExpiry - Unsupported-->
+<!--View Generation: SKIPPED deClear - Unsupported-->
+<!--View Generation: SKIPPED withdrawal - Unsupported-->
+<!--View Generation: SKIPPED  - Unsupported-->
+    </xsd:choice>
+  </xsd:group>
+  <xsd:group name="EventValuation.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A model group holding valuation information for an event.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="quote" type="BasicQuotation" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Pricing information for the trade.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+<!--View Generation: SKIPPED FeeTrade.model - Unsupported-->
+<!--View Generation: SKIPPED NewTrade.model - Unsupported-->
+<!--View Generation: SKIPPED NovationAmounts.model - Unsupported-->
+<!--View Generation: SKIPPED NovationAmountsOld.model - Unsupported-->
+<!--View Generation: SKIPPED NovationDates.model - Unsupported-->
+<!--View Generation: SKIPPED NovationRoles.model - Unsupported-->
+<!--View Generation: SKIPPED NovationTerms.model - Unsupported-->
+<!--View Generation: SKIPPED OldTrade.model - Unsupported-->
+<!--View Generation: SKIPPED OptionExerciseAmount.model - Unsupported-->
+<!--View Generation: SKIPPED ProposedMatch.model - Unsupported-->
+<!--View Generation: SKIPPED TradeAlterationPayment.model - Unsupported-->
+<!--View Generation: SKIPPED TradeLegFixedAmountChange.model - Unsupported-->
+<!--View Generation: SKIPPED TradeLegNotionalChange.model - Unsupported-->
+  <xsd:group name="TradeLegNotionalScheduleChange.model">
+    <xsd:sequence>
+      <xsd:element name="notionalScheduleReference" type="NotionalReference" minOccurs="0" />
+<!-- in the future perhaps this should allow a notional schedule to be put in here instead of a single value -->
+      <xsd:element name="changeInNotionalSchedule" type="NonNegativeAmountSchedule" minOccurs="0"></xsd:element>
+      <xsd:element name="outstandingNotionalSchedule" type="NonNegativeAmountSchedule" minOccurs="0"></xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+<!--View Generation: SKIPPED TradeLegNumberOfOptionsChange.model - Unsupported-->
+<!--View Generation: SKIPPED TradeLegNumberOfUnitsChange.model - Unsupported-->
+<!--View Generation: SKIPPED TradeNotionalChange.model - Unsupported-->
+  <xsd:group name="TradeReferenceInformation.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a model group that allows information about a trade to be represented.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="tradeReferenceInformation" type="TradeReferenceInformation" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Information about a trade.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+</xsd:schema>
+

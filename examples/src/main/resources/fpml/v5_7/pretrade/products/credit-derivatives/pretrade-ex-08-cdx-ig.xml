@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is pretrade-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/pretrade-->
+<!--
+  == Copyright (c) 2002-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-7" xsi:schemaLocation="http://www.fpml.org/FpML-5/pretrade ../../fpml-main-5-7.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <creditDefaultSwap>
+<!--Added for FpML-->
+      <productId productIdScheme="http://xxxx.com/code/product_id">573293</productId>
+      <generalTerms>
+        <effectiveDate>
+          <unadjustedDate>2012-09-10</unadjustedDate>
+        </effectiveDate>
+        <scheduledTerminationDate>
+          <unadjustedDate>2016-12-20</unadjustedDate>
+        </scheduledTerminationDate>
+<!--IY: added optional "buyerConvention" indicator in  pre-trade view -  ETTF-2012-11-19
+             The purpose of this element is to disambiguate whether the buyer of the product effectively buys protection or whether he buys risk (and, hence, sells protection) in the case, 
+             such as high yields instruments, where no firm standard appears to exist at the execution level
+              -->
+        <buyerConvention>Protection</buyerConvention>
+        <indexReferenceInformation>
+          <indexName>IG.17</indexName>
+          <indexId indexIdScheme="http://www.fpml.org/spec/2003/instrument-id-RED-pair-1-0">2I65BYCN3</indexId>
+          <indexAnnexDate>2011-09-20</indexAnnexDate>
+        </indexReferenceInformation>
+      </generalTerms>
+      <feeLeg>
+<!--IY: removed 'initialPayment' for phase 1 ETTF-2012-11-05 -->
+<!--<initialPayment>
+                                                  <!-\-Trade level payerPartyReference-\->
+                                                  <payerPartyReference href="party1"/>
+                                                  <receiverPartyReference href="party2"/>
+                                                  <paymentAmount>
+                                                  <currency>USD</currency>
+                                                  <amount>0.0</amount>
+                                                  </paymentAmount>
+                                                </initialPayment>-->
+        <marketFixedRate>0.0</marketFixedRate>
+      </feeLeg>
+      <protectionTerms>
+        <calculationAmount>
+          <currency>USD</currency>
+        </calculationAmount>
+      </protectionTerms>
+    </creditDefaultSwap>
+  </trade>
+<!--IY: 'party' block is optional, party info in FIX -  ETTF-2012-11-05-->
+<!--<party id="party1">
+                        <partyId>NEWBANKNYBICXXX</partyId>
+                        <partyName>New Bank, New York</partyName>
+            </party>
+            <party id="party2">
+                        <partyId>MASSIVENYBICXXX</partyId>
+                        <partyName>Massive Bank, New York</partyName>
+            </party>-->
+</dataDocument>
+

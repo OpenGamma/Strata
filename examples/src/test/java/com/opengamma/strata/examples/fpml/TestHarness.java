@@ -16,6 +16,7 @@ public class TestHarness {
   protected final static String goodXmlFile = "fpml/test/xml/note.xml";
 
   protected final static String badXmlFile = "fpml/test/xml/bad.xml";
+  protected final static String missingXmlFile = "A/PATH/THAT/JUST/DOES/NOT/EXIST";
 
   @Test
   public void canReadGoodSchemaFile() {

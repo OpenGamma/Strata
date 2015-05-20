@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is pretrade-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/pretrade-->
+<!--
+  == Copyright (c) 2002-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-7" xsi:schemaLocation="http://www.fpml.org/FpML-5/pretrade ../../fpml-main-5-7.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+<!--IY: 'tradeHeader' (partyTradeIdentifier, tradeDate)  -  optional, info in FIX -  ETTF-2012-11-05-->
+    <creditDefaultSwap>
+<!--<productType>singleNameCreditDefaultSwap</productType>-->
+      <productId productIdScheme="http://newutility.com/code/product_id">123456-</productId>
+      <generalTerms>
+        <effectiveDate>
+<!--
+                                        -       Effective date in CDS has little value. Originally , the main goal was to determine when protection would start. 
+                                                With the Big bang protocol and the 60 or 90 day look-back period, that has gone away. e.g. for a 5yr CDS, 
+                                                if the maturity date is the same they are fungible - the maturity date stays the same for a 3months period for the 5yr tenor, after that you roll to the next IMM date.                         
+                                        -       So where 
+                                                in rates, a "5yr USD BBA Libor 3M" every day would become a new instrument as the start and end date shift one day; 
+                                                in credit, a 5yr CDS on Ford, expiry June 2016 will stays the same from March 21 2011 to June 20 2011.
+                                        -->
+          <unadjustedDate>2010-06-20Z</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>NONE</businessDayConvention>
+          </dateAdjustments>
+        </effectiveDate>
+        <scheduledTerminationDate>
+          <unadjustedDate>2012-06-20Z</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>NONE</businessDayConvention>
+          </dateAdjustments>
+        </scheduledTerminationDate>
+<!--IY:  BuyerSeller.model is optional - party info will be in FIX -  ETTF-2012-11-05-->
+<!--IY: added optional "buyerConvention" indicator in  pre-trade view -  ETTF-2012-11-05
+                                The purpose of this element is to disambiguate whether the buyer of the product effectively buys protection or whether he buys risk (and, hence, sells protection) in the case, 
+                                such as high yields instruments, where no firm standard appears to exist at the execution level
+                                -->
+        <buyerConvention>Protection</buyerConvention>
+<!--Matrix menu optionality representation: 1 currency means separate product -  (see CDS-TT-BC-C.xls)  -->
+        <dateAdjustments>
+          <businessDayConvention>FOLLOWING</businessDayConvention>
+<!--IY: businessCneter  - in matrix - ETTF-2012-11-05 -->
+        </dateAdjustments>
+        <referenceInformation>
+          <referenceEntity id="referenceEntity">
+            <entityName>Ford Motor Company</entityName>
+            <entityId entityIdScheme="http://www.ext.org/entity-id-RED-1-0">3H98A7</entityId>
+            <entityId entityIdScheme="" />
+          </referenceEntity>
+          <referenceObligation>
+            <bond>
+              <instrumentId instrumentIdScheme="http://www.ext.org/instrument-id-ISIN-1-0">US345370BX76</instrumentId>
+              <currency>USD</currency>
+              <seniority>Senior</seniority>
+<!--<couponRate>0.05375</couponRate>
+                                                        <maturity>2009-12-30</maturity>-->
+            </bond>
+<!--                                            <primaryObligor>
+                                                        <entityName>Abbey National Treasury Services plc</entityName>
+                                                        <entityId entityIdScheme="http://www.ext.org/entity-id-RED-1-0">2E45A9</entityId>
+                                                </primaryObligor>
+                                                <guarantorReference href="referenceEntity"/>-->
+          </referenceObligation>
+<!--IY: optional 'calculationAgentBusinessCenter' and 'allGuarantees' - in matrix - ETTF-2012-11-05 -->
+        </referenceInformation>
+      </generalTerms>
+      <feeLeg>
+<!--IY: removed 'initialPayment' for phase 1 ETTF-2012-11-05 -->
+        <periodicPayment>
+<!--IY: optional Product level->'paymentFrequency'='quarterly' - in matrix - ETTF-2012-11-05 -->
+          <rollConvention>20</rollConvention>
+          <fixedAmountCalculation>
+            <fixedRate>1.00</fixedRate>
+          </fixedAmountCalculation>
+        </periodicPayment>
+      </feeLeg>
+      <protectionTerms>
+        <calculationAmount>
+          <currency>USD</currency>
+        </calculationAmount>
+      </protectionTerms>
+<!--IY: optional Product level->'protectionTerms' - in matrix - ETTF-2012-11-05 -->
+<!--IY: optional Product level->'physicalSettlementTerms' - in matrix - ETTF-2012-11-05-->
+    </creditDefaultSwap>
+<!--IY: documentation is optional, contractual Matrix needs to be provided for short form CDS - ETTF-2012-11-05 -->
+    <documentation>
+      <masterConfirmation>
+        <masterConfirmationType masterConfirmationTypeScheme="http://www.fpml.org/coding-scheme/master-confirmation-type">ISDA2003CreditNorthAmerican</masterConfirmationType>
+        <masterConfirmationDate>2003-06-06Z</masterConfirmationDate>
+      </masterConfirmation>
+      <contractualTermsSupplement>
+        <type contractualSupplementScheme="http://www.fpml.org/coding-scheme/contractual-supplement" />
+        <publicationDate>2010-09-24</publicationDate>
+      </contractualTermsSupplement>
+<!---matrix menu for NorthAmericanCorporate applies here. In FpML trade/documentation/contractualMatrix/matrixTerm credit-matrix-transaction-type-->
+      <contractualMatrix>
+        <matrixType matrixTypeScheme="http://www.fpml.org/coding-scheme/matrix-type">CreditDerivativesPhysicalSettlementMatrix</matrixType>
+        <publicationDate>2011-01-20</publicationDate>
+        <matrixTerm matrixTermScheme="http://www.fpml.org/coding-scheme/credit-matrix-transaction-type">NorthAmericanCorporate</matrixTerm>
+      </contractualMatrix>
+    </documentation>
+  </trade>
+<!--IY: 'party' block is optional, party info in FIX -  ETTF-2012-11-05-->
+</dataDocument>
+<!--Matrix Term : Obligation Characteristics: None. In FpML, (/protectionTerms/obligations/) there is no specific field to specify "None" for obligation characteristics, instead you would just not specify any values. -->
+<!--The Following Matrix Terms could not be found in FpML expression:                        -  KE: blends into def. def say by default
+        - Conditions to Settlement: Notice of Publicly Available Information Applicable.         
+        - Settlement Method: Auction Settlement
+        - Fallback Settlement Method: Physical Settlement
+-->
+

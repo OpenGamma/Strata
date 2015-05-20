@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+== Copyright (c) 2002-2015 All rights reserved. 
+== Financial Products Markup Language is subject to the FpML public license. 
+== A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/pretrade" targetNamespace="http://www.fpml.org/FpML-5/pretrade" ecore:documentRoot="FpML" ecore:nsPrefix="pre" ecore:package="org.fpml.pretrade" version="$Revision: 11711 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:include schemaLocation="fpml-asset-5-7.xsd" />
+<!--View Generation: SKIPPED Asian - NonStandardFeature-->
+<!--View Generation: SKIPPED AveragingObservationList - NonStandardFeature-->
+<!--View Generation: SKIPPED AveragingPeriod - NonStandardFeature-->
+<!--View Generation: SKIPPED AveragingSchedule - NonStandardFeature-->
+<!--View Generation: SKIPPED Barrier - NonStandardFeature-->
+<!--View Generation: SKIPPED CalendarSpread - NonStandardFeature-->
+<!--View Generation: SKIPPED ClassifiedPayment - Unsupported-->
+<!--View Generation: SKIPPED Composite - NonStandardFeature-->
+  <xsd:complexType name="CreditEventNotice">
+    <xsd:sequence>
+      <xsd:element name="notifyingParty" type="NotifyingParty" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Pointer style references to a party identifier defined elsewhere in the document. The notifying party is the party that notifies the other party when a credit event has occurred by means of a credit event notice. If more than one party is referenced as being the notifying party then either party may notify the other of a credit event occurring. ISDA 2003 Term: Notifying Party.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="businessCenter" type="BusinessCenter" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Inclusion of this business center element implies that Greenwich Mean Time in Section 3.3 of the 2003 ISDA Credit Derivatives Definitions is replaced by the local time of the city indicated by the businessCenter element value.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="publiclyAvailableInformation" type="PubliclyAvailableInformation" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A specified condition to settlement. Publicly available information means information that reasonably confirms any of the facts relevant to determining that a credit event or potential repudiation/moratorium, as applicable, has occurred. The ISDA defined list (2003) is the market standard and is considered comprehensive, and a minimum of two differing public sources must have published the relevant information, to declare a Credit Event. ISDA 2003 Term: Notice of Publicly Available Information Applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CreditEvents">
+    <xsd:sequence>
+      <xsd:element name="bankruptcy" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as "technically" a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="failureToPay" type="FailureToPay" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregrate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="failureToPayPrincipal" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="failureToPayInterest" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. Corresponds to the failure by the Reference Entity to pay an expected interest amount or the payment of an actual interest amount that is less than the expected interest amount. ISDA 2003 Term: Failure to Pay Interest.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="obligationDefault" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. One or more of the obligations have become capable of being declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay. ISDA 2003 Term: Obligation Default.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="obligationAcceleration" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. One or more of the obligations have been declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay (preferred by the market over Obligation Default, because more definitive and encompasses the definition of Obligation Default - this is more favorable to the Seller). Subject to the default requirement amount. ISDA 2003 Term: Obligation Acceleration.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="repudiationMoratorium" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. The reference entity, or a governmental authority, either refuses to recognise or challenges the validity of one or more obligations of the reference entity, or imposes a moratorium thereby postponing payments on one or more of the obligations of the reference entity. Subject to the default requirement amount. ISDA 2003 Term: Repudiation/Moratorium.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="restructuring" type="Restructuring" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. A restructuring is an event that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2003 Term: Restructuring.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="governmentalIntervention" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. A governmental intervention is an event resulting from an action by a governmental authority that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2014 Term: Governmental Intervention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="distressedRatingsDowngrade" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. Results from the fact that the rating of the reference obligation is downgraded to a distressed rating level. From a usage standpoint, this credit event is typically not applicable in case of RMBS trades.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="maturityExtension" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. Results from the fact that the underlier fails to make principal payments as expected.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="writedown" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. Results from the fact that the underlier writes down its outstanding principal amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="impliedWritedown" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A credit event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="defaultRequirement" type="Money" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">In relation to certain credit events, serves as a threshold for Obligation Acceleration, Obligation Default, Repudiation/Moratorium and Restructuring. Market standard is USD 10,000,000 (JPY 1,000,000,000 for all Japanese Yen trades). This is applied on an aggregate or total basis across all Obligations of the Reference Entity. Used to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Default Requirement.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="creditEventNotice" type="CreditEventNotice" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A specified condition to settlement. An irrevocable written or verbal notice that describes a credit event that has occurred. The notice is sent from the notifying party (either the buyer or the seller) to the counterparty. It provides information relevant to determining that a credit event has occurred. This is typically accompanied by Publicly Available Information. ISDA 2003 Term: Credit Event Notice.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="optional" />
+  </xsd:complexType>
+<!--View Generation: SKIPPED CreditEventsReference - Documentation-->
+  <xsd:complexType name="FailureToPay">
+    <xsd:sequence>
+      <xsd:element name="applicable" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Indicates whether the failure to pay provision is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="gracePeriodExtension" type="GracePeriodExtension" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If this element is specified, indicates whether or not a grace period extension is applicable. ISDA 2003 Term: Grace Period Extension Applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="paymentRequirement" type="Money" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies a threshold for the failure to pay credit event. Market standard is USD 1,000,000 (JPY 100,000,000 for Japanese Yen trades) or its equivalent in the relevant obligation currency. This is applied on an aggregate basis across all Obligations of the Reference Entity. Intended to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Payment Requirement.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED FeaturePayment - NonStandardFeature-->
+<!--View Generation: SKIPPED FxFeature - NonStandardFeature-->
+  <xsd:complexType name="GracePeriodExtension">
+    <xsd:sequence>
+      <xsd:element name="applicable" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Indicates whether the grace period extension provision is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="gracePeriod" type="Offset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The number of calendar or business days after any due date that the reference entity has to fulfil its obligations before a failure to pay credit event is deemed to have occurred. ISDA 2003 Term: Grace Period.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED Knock - NonStandardFeature-->
+<!--View Generation: SKIPPED MarketDisruption - Documentation-->
+  <xsd:complexType name="NotifyingParty">
+    <xsd:sequence>
+      <xsd:element name="buyerPartyReference" type="PartyReference" minOccurs="0" />
+      <xsd:element name="sellerPartyReference" type="PartyReference" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED Option - Unsupported-->
+<!--View Generation: SKIPPED OptionBase - Unsupported-->
+<!--View Generation: SKIPPED OptionBaseExtended - Unsupported-->
+<!--View Generation: SKIPPED OptionFeature - NonStandardFeature-->
+<!--View Generation: SKIPPED OptionNumericStrike - Unsupported-->
+<!--View Generation: SKIPPED OptionStrike - Unsupported-->
+<!--View Generation: SKIPPED PassThrough - Unsupported-->
+<!--View Generation: SKIPPED PassThroughItem - Unsupported-->
+<!--View Generation: SKIPPED Premium - Unsupported-->
+  <xsd:complexType name="PubliclyAvailableInformation">
+    <xsd:sequence>
+      <xsd:element name="standardPublicSources" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If this element is specified and set to 'true', indicates that ISDA defined Standard Public Sources are applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="publicSource" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred. ISDA 2003 Term: Public Source.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="specifiedNumber" type="xsd:positiveInteger" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The minimum number of the specified public information sources that must publish information that reasonably confirms that a credit event has occurred. The market convention is two. ISDA 2003 Term: Specified Number.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED Quanto - Unsupported-->
+  <xsd:complexType name="Restructuring">
+    <xsd:sequence>
+      <xsd:element name="applicable" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Indicates whether the restructuring provision is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="restructuringType" type="RestructuringType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies the type of restructuring that is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="multipleHolderObligation" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">In relation to a restructuring credit event, unless multiple holder obligation is not specified restructurings are limited to multiple holder obligations. A multiple holder obligation means an obligation that is held by more than three holders that are not affiliates of each other and where at least two thirds of the holders must agree to the event that constitutes the restructuring credit event. ISDA 2003 Term: Multiple Holder Obligation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="multipleCreditEventNotices" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Presence of this element and value set to 'true' indicates that Section 3.9 of the 2003 Credit Derivatives Definitions shall apply. Absence of this element indicates that Section 3.9 shall not apply. NOTE: Not allowed under ISDA Credit 1999.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="RestructuringType">
+    <xsd:simpleContent>
+      <xsd:extension base="Scheme">
+        <xsd:attribute name="restructuringScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/restructuring" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="SettlementTerms">
+    <xsd:sequence>
+      <xsd:element name="settlementCurrency" type="Currency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">ISDA 2003 Term: Settlement Currency</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="optional" />
+  </xsd:complexType>
+<!--View Generation: SKIPPED StrategyFeature - NonStandardFeature-->
+<!--View Generation: SKIPPED StrikeSpread - NonStandardFeature-->
+<!--View Generation: SKIPPED Trigger - Unsupported-->
+<!--View Generation: SKIPPED TriggerEvent - NonStandardFeature-->
+<!--View Generation: SKIPPED WeightedAveragingObservation - NonStandardFeature-->
+<!--View Generation: SKIPPED OptionBaseFeature.model - NonStandardFeature-->
+<!--View Generation: SKIPPED OptionDenomination.model - Unsupported-->
+<!--View Generation: SKIPPED OptionFeature.model - NonStandardFeature-->
+<!--View Generation: SKIPPED OptionSettlement.model - Unsupported-->
+</xsd:schema>
+

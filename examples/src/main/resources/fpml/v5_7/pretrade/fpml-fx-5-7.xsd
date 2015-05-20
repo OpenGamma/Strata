@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+        == Copyright (c) 2002-2015 All rights reserved. 
+        == Financial Products Markup Language is subject to the FpML public license. 
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:fpml-annotation="http://www.fpml.org/annotation" targetNamespace="http://www.fpml.org/FpML-5/pretrade" ecore:documentRoot="FpML" ecore:nsPrefix="pre" ecore:package="org.fpml.pretrade" version="$Revision: 11711 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:include schemaLocation="fpml-option-shared-5-7.xsd" />
+<!--View Generation: SKIPPED PointValue - Unsupported-->
+<!--View Generation: SKIPPED CrossRate - Unsupported-->
+<!--View Generation: SKIPPED CutName - Unsupported-->
+<!--View Generation: SKIPPED DualCurrencyFeature - Unsupported-->
+<!--View Generation: SKIPPED DualCurrencyStrikePrice - Unsupported-->
+  <xsd:complexType name="ExchangeRate">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that is used for describing the exchange rate for a particular transaction.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="quotedCurrencyPair" type="QuotedCurrencyPair">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Defines the two currencies for an FX trade and the quotation relationship between the two currencies.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="rate" type="PositiveDecimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+<!--View Generation: Skipped an empty sequence.-->
+<!--View Generation: SKIPPED crossRate - Unsupported-->
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED FxAmericanExercise - Unsupported-->
+<!--View Generation: SKIPPED FxAsianFeature - NonStandardFeature-->
+<!--View Generation: SKIPPED FxAverageRateObservation - Unsupported-->
+<!--View Generation: SKIPPED FxAverageRateObservationSchedule - Unsupported-->
+<!--View Generation: SKIPPED FxBarrierFeature - NonStandardFeature-->
+<!--View Generation: SKIPPED FxBusinessCenterDateTime - Unsupported-->
+<!--View Generation: SKIPPED FxDigitalAmericanExercise - Unsupported-->
+<!--View Generation: SKIPPED FxDigitalOption - Unsupported-->
+<!--View Generation: SKIPPED FxDisruption - Unsupported-->
+<!--View Generation: SKIPPED FxDisruptionEvent - Unsupported-->
+<!--View Generation: SKIPPED FxDisruptionEvents - Unsupported-->
+<!--View Generation: SKIPPED FxDisruptionFallback - Unsupported-->
+<!--View Generation: SKIPPED FxDisruptionFallbacks - Unsupported-->
+<!--View Generation: SKIPPED FxDisruptionProvisions - Unsupported-->
+<!--View Generation: SKIPPED FxEuropeanExercise - Unsupported-->
+<!--View Generation: SKIPPED FxFallbackReferencePrice - Unsupported-->
+<!--View Generation: SKIPPED FxFlexibleForward - Unsupported-->
+<!--View Generation: SKIPPED FxFlexibleForwardExecutionPeriod - Unsupported-->
+<!--View Generation: SKIPPED FxFlexibleForwardRate - Unsupported-->
+<!--View Generation: SKIPPED FxMultipleExercise - Unsupported-->
+<!--View Generation: SKIPPED FxOption - Unsupported-->
+<!--View Generation: SKIPPED FxOptionFeatures - NonStandardFeature-->
+<!--View Generation: SKIPPED FxOptionPayout - Unsupported-->
+<!--View Generation: SKIPPED FxOptionPremium - Unsupported-->
+  <xsd:complexType name="FxSingleLeg">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining either a spot or forward FX transactions.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Product">
+        <xsd:sequence>
+          <xsd:group ref="FxCoreDetails.model" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+<!--View Generation: SKIPPED FxStrikePrice - Unsupported-->
+<!--View Generation: SKIPPED FxSwap - Unsupported-->
+<!--View Generation: SKIPPED FxSwapLeg - Unsupported-->
+<!--View Generation: SKIPPED FxTemplateTerms - Unsupported-->
+<!--View Generation: SKIPPED FxTouch - Unsupported-->
+<!--View Generation: SKIPPED FxTrigger - Unsupported-->
+<!--View Generation: SKIPPED NonDeliverableSubstitute - Unsupported-->
+<!--View Generation: SKIPPED Postponement - Unsupported-->
+<!--View Generation: SKIPPED PremiumQuote - Unsupported-->
+<!--View Generation: SKIPPED PriceMateriality - Unsupported-->
+<!--View Generation: SKIPPED TermDeposit - Unsupported-->
+<!--View Generation: SKIPPED TermDepositFeatures - Unsupported-->
+<!--FX products-->
+<!--View Generation: SKIPPED fxDigitalOption - Unsupported-->
+<!--View Generation: SKIPPED fxFlexibleForward - Unsupported-->
+  <xsd:element name="fxSingleLeg" type="FxSingleLeg" substitutionGroup="product">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A simple FX spot or forward transaction definition.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+<!--View Generation: SKIPPED fxSwap - Unsupported-->
+<!--View Generation: SKIPPED fxOption - Unsupported-->
+<!--View Generation: SKIPPED termDeposit - Unsupported-->
+<!--Fx Disruption Events and Fallbacks-->
+<!--View Generation: SKIPPED calculationAgentDetermination - Unsupported-->
+<!--View Generation: SKIPPED dualExchangeRate - Unsupported-->
+<!--View Generation: SKIPPED exchangeRestrictions - Unsupported-->
+<!--View Generation: SKIPPED fallbackReferencePrice - Unsupported-->
+<!--View Generation: SKIPPED fxDisruptionEvent - Unsupported-->
+<!--View Generation: SKIPPED fxDisruptionFallback - Unsupported-->
+<!--View Generation: SKIPPED noFaultTermination - Unsupported-->
+<!--View Generation: SKIPPED nonDeliverableSubstitute - Unsupported-->
+<!--View Generation: SKIPPED priceSourceDisruption - Unsupported-->
+<!--View Generation: SKIPPED priceMateriality - Unsupported-->
+<!--View Generation: SKIPPED settlementPostponement - Unsupported-->
+<!--View Generation: SKIPPED valuationPostponement - Unsupported-->
+  <xsd:group name="FxCoreDetails.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The elements common to FX spot, forward and swap legs.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="exchangedCurrency1" type="Payment">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">This is the first of the two currency flows that define a single leg of a standard foreign exchange transaction.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="exchangedCurrency2" type="Payment">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">This is the second of the two currency flows that define a single leg of a standard foreign exchange transaction.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+<!--View Generation: SKIPPED dealtCurrency - Unsupported-->
+<!--View Generation: SKIPPED  - Unsupported-->
+<!--View Generation: Removed a degenerate choice.-->
+      <xsd:element name="valueDate" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which both currencies traded will settle.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="exchangeRate" type="ExchangeRate" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The rate of exchange between the two currencies.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="nonDeliverableSettlement" type="FxCashSettlement" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used to describe a particular type of FX forward transaction that is settled in a single currency (for example, a non-deliverable forward).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+<!--View Generation: SKIPPED disruption - Unsupported-->
+    </xsd:sequence>
+  </xsd:group>
+<!--View Generation: SKIPPED FxRateObservation.model - Unsupported-->
+<!--View Generation: SKIPPED FxTenor.model - Unsupported-->
+<!--View Generation: SKIPPED PrioritizedRateSource.model - Unsupported-->
+<!--View Generation: SKIPPED PutCallCurrency.model - Unsupported-->
+</xsd:schema>
+

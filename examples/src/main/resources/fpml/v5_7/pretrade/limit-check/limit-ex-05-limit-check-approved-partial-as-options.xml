@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is pretrade-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/pretrade-->
+<!--
+  == Copyright (c) 2002-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  -->
+<limitCheckApproved xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-7" xsi:schemaLocation="http://www.fpml.org/FpML-5/pretrade ../fpml-main-5-7.xsd http://www.w3.org/2000/09/xmldsig# ../xmldsig-core-schema.xsd">
+  <header>
+    <messageId messageIdScheme="http://fcm1.com/message-id">Z123479</messageId>
+    <inReplyTo messageIdScheme="http://sef1.com/message-id">M000123</inReplyTo>
+    <sentBy>FCM1</sentBy>
+    <sendTo>SEF1</sendTo>
+    <creationTimestamp>2012-07-25T08:57:00Z</creationTimestamp>
+  </header>
+  <correlationId correlationIdScheme="http://sef1.com/coding-scheme/correlation-id">0123456</correlationId>
+  <sequenceNumber>2</sequenceNumber>
+<!-- requesting party is the one for whom a limit check is being requested, must be a counterparty on the trade -->
+  <creditRiskLimit>
+<!-- ******* PARTIAL APPROVAL ******** -->
+    <requestedNumberOfOptions>1000</requestedNumberOfOptions>
+    <approvedNumberOfOptions>995</approvedNumberOfOptions>
+<!-- OR could also used # of units e.g., <approvedNumberOfUnits>10</approvedNumberOfUnits> -->
+    <reason>
+      <reasonCode>ReachedLimit</reasonCode>
+      <description>You requested approval for 1000 options but you only have 995</description>
+    </reason>
+    <limitExpiryTimeStamp>2012-07-25T09:00:00Z</limitExpiryTimeStamp>
+    <creditLimitReference>
+      <approvingPartyReference href="ClearingFirm" />
+      <approvalId approvalIdScheme="http://fcm1.com/approvalid">FCM1-REFERENCE</approvalId>
+    </creditLimitReference>
+    <creditLimitReference>
+      <approvingPartyReference href="ClearingOrganization" />
+      <approvalId approvalIdScheme="http://clearco.com/approvalid">CCP1-REFERENCE</approvalId>
+    </creditLimitReference>
+    <originalRequestDetails>
+      <requestingPartyReference href="party1" />
+      <creditApprovalRequestType>AllowPartial</creditApprovalRequestType>
+      <creditApprovalModel>Ping</creditApprovalModel>
+      <tradeIdentifier>
+        <issuer issuerIdScheme="http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier">0123456SEF</issuer>
+        <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/unique-transaction-identifier">SEF00000000000000000006488854460</tradeId>
+      </tradeIdentifier>
+    </originalRequestDetails>
+  </creditRiskLimit>
+  <party id="party1">
+    <partyId>CLIENT1</partyId>
+  </party>
+  <party id="ClearingFirm">
+    <partyId>FCM1</partyId>
+  </party>
+  <party id="ExecutionFacility">
+    <partyId>SEF1</partyId>
+  </party>
+  <party id="ClearingOrganization">
+    <partyId>CCP1</partyId>
+  </party>
+</limitCheckApproved>
+

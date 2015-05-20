@@ -1,0 +1,1476 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+== Copyright (c) 2002-2015 All rights reserved. 
+== Financial Products Markup Language is subject to the FpML public license. 
+== A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/pretrade" xmlns:fpml-annotation="http://www.fpml.org/annotation" targetNamespace="http://www.fpml.org/FpML-5/pretrade" ecore:documentRoot="FpML" ecore:nsPrefix="pre" ecore:package="org.fpml.pretrade" version="$Revision: 11711 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:include schemaLocation="fpml-asset-5-7.xsd" />
+  <xsd:complexType name="BondReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type including a reference to a bond to support the representation of an asset swap or Condition Precedent Bond. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element ref="bond" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Reference to a bond underlyer.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="conditionPrecedentBond" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="discrepancyClause" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">To indicate whether the Discrepancy Clause is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED BulletPayment - Unsupported-->
+  <xsd:complexType name="Calculation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type definining the parameters used in the calculation of fixed or floating calculation period amounts.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="notionalSchedule" type="Notional">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The notional amount or notional amount schedule.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="fxLinkedNotionalSchedule" type="FxLinkedNotionalSchedule">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A notional amount schedule where each notional that applied to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+<!--View Generation: Skipped an empty sequence.-->
+      </xsd:choice>
+      <xsd:choice minOccurs="0">
+        <xsd:sequence>
+          <xsd:element name="fixedRateSchedule" type="Schedule" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="futureValueNotional" type="FutureValueAmount" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The future value notional is normally only required for BRL CDI Swaps. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:element ref="rateCalculation">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">This element is the head of a substitution group. It is substituted by the floatingRateCalculation element for standard Floating Rate legs, or the inflationRateCalculation element for inflation swaps.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="dayCountFraction" type="DayCountFraction" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The day count fraction.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="discounting" type="Discounting" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="compoundingMethod" type="CompoundingMethodEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If more that one calculation period contributes to a single payment amount this element specifies whether compounding is applicable, and if so, what compounding method is to be used. This element must only be included when more that one calculation period contributes to a single payment amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CalculationPeriod">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters used in the calculation of a fixed or floating rate calculation period amount. This type forms part of cashflows representation of a swap stream.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="unadjustedStartDate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="unadjustedEndDate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="adjustedStartDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The calculation period start date, adjusted according to any relevant business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedEndDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The calculation period end date, adjusted according to any relevant business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationPeriodNumberOfDays" type="xsd:positiveInteger" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The number of days from the adjusted effective / start date to the adjusted termination / end date calculated in accordance with the applicable day count fraction.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="notionalAmount" type="xsd:decimal">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The amount that a cashflow will accrue interest on.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="fxLinkedNotionalAmount" type="FxLinkedNotionalAmount">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The amount that a cashflow will accrue interest on. This is the calculated amount of the fx linked - ie the other currency notional amount multiplied by the appropriate fx spot rate.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="floatingRateDefinition" type="FloatingRateDefinition">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The floating rate reset information for the calculation period.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="fixedRate" type="xsd:decimal">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="dayCountYearFraction" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The year fraction value of the calculation period, result of applying the ISDA rules for day count fraction defined in the ISDA Annex.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="forecastAmount" type="Money" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The amount representing the forecast of the accrued value of the calculation period. An intermediate value used to generate the forecastPaymentAmount in the PaymentCalculationPeriod.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="forecastRate" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A value representing the forecast rate used to calculate the forecast future value of the accrual period. This is a calculated rate determined based on averaging the rates in the rateObservation elements, and incorporates all of the rate treatment and averaging rules. A value of 1% should be represented as 0.01</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="CalculationPeriodAmount">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters used in the calculation of fixed or floating rate calculation period amounts or for specifying a known calculation period amount or known amount schedule.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="calculation" type="Calculation">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The parameters used in the calculation of fixed or floaring rate calculation period amounts.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+<!--View Generation: SKIPPED knownAmountSchedule - Unsupported-->
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="CalculationPeriodDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation perod schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStateDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="effectiveDate" type="AdjustableDate">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="relativeEffectiveDate" type="AdjustedRelativeDateOffset">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Defines the effective date.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="terminationDate" type="AdjustableDate">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The last day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="relativeTerminationDate" type="RelativeDateOffset">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The term/maturity of the swap, express as a tenor (typically in years).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="calculationPeriodDatesAdjustments" type="BusinessDayAdjustments" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The business day convention to apply to each calculation period end date if it would otherwise fall on a day that is not a business day in the specified financial business centers.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="firstPeriodStartDate" type="AdjustableDate" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The start date of the calculation period if the date falls before the effective date. It must only be specified if it is not equal to the effective date. This date may be subject to adjustment in accordance with a business day convention. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="firstRegularPeriodStartDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="firstCompoundingPeriodEndDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="lastRegularPeriodEndDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The end date of the regular part of the calculation period schedule. It must only be specified if there is a final stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="stubPeriodType" type="StubPeriodTypeEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationPeriodFrequency" type="CalculationPeriodFrequency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="required"></xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="CalculationPeriodDatesReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to a calculation period dates component.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="CalculationPeriodDates" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="CancelableProvision">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walkaway' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="BuyerSeller.model"></xsd:group>
+      <xsd:element ref="exercise" minOccurs="0" />
+      <xsd:element name="exerciseNotice" type="ExerciseNotice" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Definition of the party to whom notice of exercise should be given.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="followUpConfirmation" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cancelableProvisionAdjustedDates" type="CancelableProvisionAdjustedDates" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted dates associated with a cancelable provision. These dates have been adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="finalCalculationPeriodDateAdjustment" type="FinalCalculationPeriodDateAdjustment" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Business date convention adjustment to final payment period per leg (swapStream) upon exercise event. The adjustments can be made in-line with leg level BDC's or they can be specified seperately.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="initialFee" type="SimplePayment" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An initial fee for the cancelable option.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CancelableProvisionAdjustedDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to define the adjusted dates for a cancelable provision on a swap transaction. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cancellationEvent" type="CancellationEvent" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted dates for an individual cancellation date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CancellationEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The adjusted dates for a specific cancellation date, including the adjusted exercise date and adjusted termination date.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="adjustedExerciseDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedEarlyTerminationDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+<!--View Generation: SKIPPED CapFloor - Unsupported-->
+  <xsd:complexType name="Cashflows">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the cashflow representation of a swap trade.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cashflowsMatchParameters" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="principalExchange" type="PrincipalExchange" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The initial, intermediate and final principal exchange amounts. Typically required on cross currency interest rate swaps where actual exchanges of principal occur. A list of principal exchange elements may be ordered in the document by ascending adjusted principal exchange date. An FpML document containing an unordered principal exchange list is still regarded as a conformant document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="paymentCalculationPeriod" type="PaymentCalculationPeriod" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. A list of payment calculation period elements may be ordered in the document by ascending adjusted payment date. An FpML document containing an unordered list of payment calculation periods is still regarded as a conformant document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CashPriceMethod">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters necessary for each of the ISDA cash price methods for cash settlement.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cashSettlementReferenceBanks" type="CashSettlementReferenceBanks" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A container for a set of reference institutions. These reference institutions may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cashSettlementCurrency" type="Currency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The currency in which the cash settlement amount will be calculated and settled.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quotationRateType" type="QuotationRateTypeEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CashSettlement">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to define the cash settlement terms for a product where cash settlement is applicable.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cashSettlementValuationTime" type="BusinessCenterTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cashSettlementValuationDate" type="RelativeDateOffset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cashSettlementPaymentDate" type="CashSettlementPaymentDate" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which the cash settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="cashPriceMethod" type="CashPriceMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (a).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="cashPriceAlternateMethod" type="CashPriceMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (b).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="parYieldCurveAdjustedMethod" type="YieldCurveMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (c).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="zeroCouponYieldAdjustedMethod" type="YieldCurveMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (d).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="parYieldCurveUnadjustedMethod" type="YieldCurveMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (e).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="crossCurrencyMethod" type="CrossCurrencyMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (f) (published in Supplement number 23).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="collateralizedCashPriceMethod" type="YieldCurveMethod">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="CashSettlementPaymentDate">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="adjustableDates" type="AdjustableDates">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="relativeDate" type="RelativeDateOffset">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A date specified as some offset to another date (the anchor date).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="businessDateRange" type="BusinessDateRange">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A range of contiguous business days.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:choice>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="CrossCurrencyMethod">
+    <xsd:sequence>
+      <xsd:element name="cashSettlementReferenceBanks" type="CashSettlementReferenceBanks" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A container for a set of reference institutions. These reference institutions may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cashSettlementCurrency" type="Currency" maxOccurs="2" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quotationRateType" type="QuotationRateTypeEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="DateRelativeToCalculationPeriodDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="calculationPeriodDatesReference" type="CalculationPeriodDatesReference" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A set of href pointers to calculation period dates defined somewhere else in the document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="DateRelativeToPaymentDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="paymentDatesReference" type="PaymentDatesReference" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A set of href pointers to payment dates defined somewhere else in the document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Discounting">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="discountingType" type="DiscountingTypeEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The discounting method that is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="DiscountRate.model" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="EarlyTerminationEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to define the adjusted dates associated with an early termination provision.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="adjustedExerciseDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedEarlyTerminationDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedCashSettlementValuationDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedCashSettlementPaymentDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business dat convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedExerciseFeePaymentDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="EarlyTerminationProvision">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:sequence>
+        <xsd:group ref="MandatoryEarlyTermination.model" />
+        <xsd:group ref="OptionalEarlyTermination.model" minOccurs="0" />
+      </xsd:sequence>
+<!--View Generation: SKIPPED  - Technical-->
+    </xsd:choice>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+<!--View Generation: SKIPPED ExerciseEvent - Unsupported-->
+  <xsd:complexType name="ExercisePeriod">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any). - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="earliestExerciseDateTenor" type="Period" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The time interval to the first (and possibly only) exercise date in the exercise period.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="exerciseFrequency" type="Period" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The frequency of subsequent exercise dates in the exercise period following the earliest exercise date. An interval of 1 day should be used to indicate an American style exercise period.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="ExtendibleProvision">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining an option to extend an existing swap transaction on the specified exercise dates for a term ending on the specified new termination date. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="BuyerSeller.model"></xsd:group>
+      <xsd:element ref="exercise" minOccurs="0" />
+      <xsd:element name="exerciseNotice" type="ExerciseNotice" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Definition of the party to whom notice of exercise should be given.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="followUpConfirmation" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="extendibleProvisionAdjustedDates" type="ExtendibleProvisionAdjustedDates" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted dates associated with an extendible provision. These dates have been adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ExtendibleProvisionAdjustedDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the adjusted dates associated with a provision to extend a swap. For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="extensionEvent" type="ExtensionEvent" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted dates associated with a single extendible exercise date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ExtensionEvent">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to define the adjusted dates associated with an individual extension event. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="adjustedExerciseDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedExtendedTerminationDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The termination date if an extendible provision is exercised. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="FallbackReferencePrice">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The method, prioritzed by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="valuationPostponement" type="ValuationPostponement" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="fallbackSettlementRateOption" type="SettlementRateOption" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">This settlement rate option will be used in its place.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="fallbackSurveyValuationPostponenment" type="Empty" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Request rate quotes from the market.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationAgentDetermination" type="CalculationAgent" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The calculation agent will decide the rate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="FinalCalculationPeriodDateAdjustment">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to define business date convention adjustment to final payment period per leg. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="relevantUnderlyingDateReference" type="RelevantUnderlyingDateReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Reference to the unadjusted cancellation effective dates.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="swapStreamReference" type="InterestRateStreamReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Reference to the leg, where date adjustments may apply.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="businessDayConvention" type="BusinessDayConventionEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Override business date convention. This takes precedence over leg level information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="FloatingRateDefinition">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining parameters associated with a floating rate reset. This type forms part of the cashflows representation of a stream.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="calculatedRate" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The final calculated rate for a calculation period after any required averaging of rates A calculated rate of 5% would be represented as 0.05.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="rateObservation" type="RateObservation" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The details of a particular rate observation, including the fixing date and observed rate. A list of rate observation elements may be ordered in the document by ascending adjusted fixing date. An FpML document containing an unordered list of rate observations is still regarded as a conformant document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="floatingRateMultiplier" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A rate multiplier to apply to the floating rate. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="spread" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The ISDA Spread, if any, which applies for the calculation period. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="capRate" type="Strike" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The cap rate, if any, which applies to the floating rate for the calculation period. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain strike level. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="floorRate" type="Strike" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The floor rate, if any, which applies to the floating rate for the calculation period. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. The floor rate of 5% would be represented as 0.05.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED Fra - Unsupported-->
+  <xsd:complexType name="FxFixingDate">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type that is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Offset">
+        <xsd:sequence>
+          <xsd:element name="businessDayConvention" type="BusinessDayConventionEnum" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The convention for adjusting a date if it would otherwise fall on a day that is not a business day.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:group ref="BusinessCentersOrReference.model" minOccurs="0" />
+          <xsd:choice minOccurs="0">
+            <xsd:element name="dateRelativeToPaymentDates" type="DateRelativeToPaymentDates">
+              <xsd:annotation>
+                <xsd:documentation xml:lang="en">The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="dateRelativeToCalculationPeriodDates" type="DateRelativeToCalculationPeriodDates">
+              <xsd:annotation>
+                <xsd:documentation xml:lang="en">The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:choice>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="FxLinkedNotionalAmount">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to describe the cashflow representation for fx linked notionals.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="resetDate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="adjustedFxSpotFixingDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which the fx spot rate is observed. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="observedFxSpotRate" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The actual observed fx spot rate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="notionalAmount" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The calculation period notional amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="FxLinkedNotionalSchedule">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="constantNotionalScheduleReference" type="NotionalReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="initialValue" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="varyingNotionalCurrency" type="Currency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="varyingNotionalFixingDates" type="RelativeDateOffset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="fxSpotRateSource" type="FxSpotRateSource" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The information source and time at which the spot currency exchange rate will be observed.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="varyingNotionalInterimExchangePaymentDates" type="RelativeDateOffset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The dates on which interim exchanges of notional are paid. Interim exchanges will arise as a result of changes in the spot currency exchange amount or changes in the constant notional schedule (e.g. amortization).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED InflationRateCalculation - Unsupported-->
+  <xsd:complexType name="InterestRateStream">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the components specifiying an interest rate stream, including both a parametric and cashflow representation for the stream of payments.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Leg">
+        <xsd:sequence>
+          <xsd:group ref="PayerReceiver.model" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">PayerReceiver - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:group>
+          <xsd:element name="calculationPeriodDates" type="CalculationPeriodDates" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The calculation periods dates schedule.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="paymentDates" type="PaymentDates" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The payment dates schedule.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="resetDates" type="ResetDates" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The reset dates schedule. The reset dates schedule only applies for a floating rate stream. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="calculationPeriodAmount" type="CalculationPeriodAmount" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The calculation period amount parameters.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="stubCalculationPeriodAmount" type="StubCalculationPeriodAmount" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="principalExchanges" type="PrincipalExchanges" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The true/false flags indicating whether initial, intermediate or final exchanges of principal should occur.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="cashflows" type="Cashflows" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The cashflows representation of the swap stream. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="settlementProvision" type="SettlementProvision" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A provision that allows the specification of settlement terms, occuring when the settlement currency is different to the notional currency of the trade. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="formula" type="Formula" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">An interest rate derivative formula. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="InterestRateStreamReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to an InterestRateStream component.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="InterestRateStream" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="MandatoryEarlyTermination">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type to define an early termination provision for which exercise is mandatory. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="mandatoryEarlyTerminationDate" type="AdjustableDate" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The early termination date associated with a mandatory early termination of a swap.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationAgent" type="CalculationAgent" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cashSettlement" type="CashSettlement" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement prodcedure. If not specified, then physical settlement is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="mandatoryEarlyTerminationAdjustedDates" type="MandatoryEarlyTerminationAdjustedDates" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted dates associated with a mandatory early termination provision. These dates have been adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="MandatoryEarlyTerminationAdjustedDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the adjusted dates associated with a mandatory early termination provision.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="adjustedEarlyTerminationDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedCashSettlementValuationDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="adjustedCashSettlementPaymentDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business dat convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="NonDeliverableSettlement">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters used when the reference currency of the swapStream is non-deliverable. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="referenceCurrency" type="Currency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The currency in which the swap stream is denominated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="fxFixingDate" type="FxFixingDate">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The date, when expressed as a relative date, on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="fxFixingSchedule" type="AdjustableDates">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The date, when expressed as a schedule of date(s), on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="settlementRateOption" type="SettlementRateOption" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The rate source for the conversion to the settlement currency. This source is specified through a scheme that reflects the terms of the Annex A to the 1998 FX and Currency Option Definitions.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="priceSourceDisruption" type="PriceSourceDisruption" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A type defining the parameters to get a new quote when a settlement rate option is disrupted.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Notional">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">An type defining the notional amount or notional amount schedule associated with a swap stream. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="notionalStepSchedule" type="NonNegativeAmountSchedule" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="notionalStepParameters" type="NotionalStepRule" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="NotionalStepRule">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining a parametric representation of the notional step schedule, i.e. parameters used to generate the notional balance on each step date. The step change in notional can be expressed in terms of either a fixed amount or as a percentage of either the initial notional or previous notional amount. This parametric representation is intended to cover the more common amortizing/accreting. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="calculationPeriodDatesReference" type="CalculationPeriodDatesReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A pointer style reference to the associated calculation period dates component defined elsewhere in the document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="stepFrequency" type="Frequency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The frequency at which the notional step changes occur. This frequency must be an integer multiple of the stream calculation period frequency.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="firstNotionalStepDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Effective date of the first change in notional (i.e. a calculation period start date).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="lastNotionalStepDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Effective date of the last change in notional (i.e. a calculation period start date).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="notionalStepAmount" type="xsd:decimal">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The explicit amount that the notional changes on each step date. This can be a positive or negative amount.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:sequence>
+          <xsd:element name="notionalStepRate" type="xsd:decimal" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The percentage amount by which the notional changes on each step date. The percentage is either a percentage applied to the initial notional amount or the previous outstanding notional, depending on the value of the element stepRelativeTo. The percentage can be either positive or negative. A percentage of 5% would be represented as 0.05.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="stepRelativeTo" type="StepRelativeToEnum" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Specifies whether the notionalStepRate should be applied to the initial notional or the previous notional in order to calculate the notional step change amount.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="OptionalEarlyTermination">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining an early termination provision where either or both parties have the right to exercise. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="singlePartyOption" type="SinglePartyOption" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If optional early termination is not available to both parties then this component specifies the buyer and seller of the option.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element ref="exercise" minOccurs="0"></xsd:element>
+      <xsd:element name="exerciseNotice" type="ExerciseNotice" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Definition of the party to whom notice of exercise should be given.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="followUpConfirmation" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationAgent" type="CalculationAgent" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cashSettlement" type="CashSettlement" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement prodcedure. If not specified, then physical settlement is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="optionalEarlyTerminationAdjustedDates" type="OptionalEarlyTerminationAdjustedDates" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An early termination provision to terminate the trade at fair value where one or both parties have the right to decide on termination.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="OptionalEarlyTerminationAdjustedDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the adjusted dates associated with an optional early termination provision.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="earlyTerminationEvent" type="EarlyTerminationEvent" maxOccurs="unbounded" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted dates associated with an individual earley termination date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PaymentCalculationPeriod">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This type forms part of the cashflow representation of a swap stream. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="unadjustedPaymentDate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="adjustedPaymentDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The adjusted payment date. This date should already be adjusted for any applicable business day convention. This component is not intended for use in trade confirmation but may be specified to allow the fee structure to also serve as a cashflow type component (all dates the Cashflows type are adjusted payment dates).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="calculationPeriod" type="CalculationPeriod" maxOccurs="unbounded">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The parameters used in the calculation of a fixed or floating rate calculation period amount. A list of calculation period elements may be ordered in the document by ascending start date. An FpML document which contains an unordered list of calcularion periods is still regarded as a conformant document.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="fixedPaymentAmount" type="xsd:decimal">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A known fixed payment amount.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="discountFactor" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A decimal value representing the discount factor used to calculate the present value of cash flow.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="forecastPaymentAmount" type="Money" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A monetary amount representing the forecast of the future value of the payment.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="presentValueAmount" type="Money" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A monetary amount representing the present value of the forecast payment.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+<!--View Generation: SKIPPED href - Unsupported-->
+  </xsd:complexType>
+  <xsd:complexType name="PaymentDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining parameters used to generate the payment dates schedule, including the specification of early or delayed payments. Payment dates are determined relative to the calculation period dates or the reset dates. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="calculationPeriodDatesReference" type="CalculationPeriodDatesReference">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A pointer style reference to the associated calculation period dates component defined elsewhere in the document.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="resetDatesReference" type="ResetDatesReference">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A pointer style reference to the associated reset dates component defined elsewhere in the document.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="valuationDatesReference" type="ValuationDatesReference">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="paymentFrequency" type="Frequency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the swap\swapStream\calculationPerioDates\effectiveDate and the swap\swapStream\calculationPerioDates\terminationDate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="firstPaymentDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="lastRegularPaymentDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="payRelativeTo" type="PayRelativeToEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment.The valuation date is applicable for Brazilian-CDI swaps. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="paymentDaysOffset" type="Offset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="paymentDatesAdjustments" type="BusinessDayAdjustments" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="PaymentDatesReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to a payment dates structure.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="PaymentDates" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="PriceSourceDisruption">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters used to get a price quote to replace the settlement rate option that is disrupted. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="fallbackReferencePrice" type="FallbackReferencePrice" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The method, prioritzed by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PrincipalExchange">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining a principal exchange amount and adjusted exchange date. The type forms part of the cashflow representation of a swap stream. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="unadjustedPrincipalExchangeDate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="adjustedPrincipalExchangeDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The principal exchange date. This date should already be adjusted for any applicable business day convention.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="principalExchangeAmount" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The principal exchange amount. This amount should be positive if the stream payer is paying the exchange amount and signed negative if they are receiving it.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="discountFactor" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The value representing the discount factor used to calculate the present value of the principal exchange amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="presentValuePrincipalExchangeAmount" type="Money" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The amount representing the present value of the principal exchange.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="RelevantUnderlyingDateReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to relevant underlying date.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ResetDates">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are determined relative to the calculation periods schedules dates. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="calculationPeriodDatesReference" type="CalculationPeriodDatesReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A pointer style reference to the associated calculation period dates component defined elsewhere in the document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="resetRelativeTo" type="ResetRelativeToEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date. If the reset frequency is specified as daily this element must not be included.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="initialFixingDate" type="RelativeDateOffset" minOccurs="0"></xsd:element>
+      <xsd:element name="fixingDates" type="RelativeDateOffset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies the fixing date relative to the reset date in terms of a business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction. The href attribute on the dateRelativeTo element should reference the id attribute on the resetDates element.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="rateCutOffDaysOffset" type="Offset" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="resetFrequency" type="ResetFrequency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The frequency at which reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset date is established for each calculation period and some form of rate averaging is applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="resetDatesAdjustments" type="BusinessDayAdjustments" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The business day convention to apply to each reset date if it would otherwise fall on a day that is not a business day in the specified financial business centers.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="required"></xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="ResetDatesReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to a reset dates component. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="ResetDates" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="SettlementProvision">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the specification of settlement terms, occuring when the settlement currency is different to the notional currency of the trade. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="settlementCurrency" type="Currency" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The currency that stream settles in (to support swaps that settle in a currency different from the notional currency).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="nonDeliverableSettlement" type="NonDeliverableSettlement" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The specification of the non-deliverable settlement provision.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="SinglePartyOption">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type describing the buyer and seller of an option.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="BuyerSeller.model" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="StubCalculationPeriodAmount">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="calculationPeriodDatesReference" type="CalculationPeriodDatesReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A pointer style reference to the associated calculation period dates component defined elsewhere in the document. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+<!--View Generation: Removed a degenerate choice.-->
+      <xsd:sequence>
+        <xsd:element name="initialStub" type="StubValue" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="finalStub" type="StubValue" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Swap">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining swap streams and additional payments between the principal parties involved in the swap.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Product">
+        <xsd:sequence>
+          <xsd:element name="swapStream" type="InterestRateStream" maxOccurs="2" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">The swap streams.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="earlyTerminationProvision" type="EarlyTerminationProvision" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Parameters specifying provisions relating to the optional and mandatory early terminarion of a swap transaction. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="cancelableProvision" type="CancelableProvision" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="extendibleProvision" type="ExtendibleProvision" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="additionalPayment" type="Payment" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Additional payments between the principal parties. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="additionalTerms" type="SwapAdditionalTerms" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Contains any additional terms to the swap contract. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="SwapAdditionalTerms">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Additional terms to a swap contract. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="bondReference" type="BondReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED Swaption - Unsupported-->
+<!--View Generation: SKIPPED SwaptionAdjustedDates - DateAdjustments-->
+  <xsd:complexType name="ValuationDatesReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to a Valuation dates node. - For use with pre-trade Credit Limit Check messages.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="FxFixingDate" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ValuationPostponement">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="maximumDaysOfPostponement" type="xsd:positiveInteger" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The maximum number of days to wait for a quote from the disrupted settlement rate option before proceding to the next method.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="YieldCurveMethod">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining the parameters required for each of the ISDA defined yield curve methods for cash settlement.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="settlementRateSource" type="SettlementRateSource" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The method for obtaining a settlement rate. This may be from some information source (e.g. Reuters) or from a set of reference banks.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quotationRateType" type="QuotationRateTypeEnum" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+<!--View Generation: SKIPPED bulletPayment - Unsupported-->
+<!--View Generation: SKIPPED capFloor - Unsupported-->
+  <xsd:element name="floatingRateCalculation" type="FloatingRateCalculation" substitutionGroup="rateCalculation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A floating rate calculation definition.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+<!--View Generation: SKIPPED fra - Unsupported-->
+<!--View Generation: SKIPPED inflationRateCalculation - Unsupported-->
+  <xsd:element name="rateCalculation" type="Rate" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The base element for the floating rate calculation definitions.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="swap" type="Swap" substitutionGroup="product">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A swap product definition.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+<!--View Generation: SKIPPED swaption - Unsupported-->
+  <xsd:group name="DiscountRate.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Model group enforces association of day count fraction with the discount rate.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="discountRate" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A discount rate, expressed as a decimal, to be used in the calculation of a discounted amount. A discount amount of 5% would be represented as 0.05.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="discountRateDayCountFraction" type="DayCountFraction" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A discount day count fraction to be used in the calculation of a discounted amount.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="MandatoryEarlyTermination.model">
+    <xsd:choice>
+<!--View Generation: SKIPPED mandatoryEarlyTermination - Technical-->
+      <xsd:sequence>
+        <xsd:element name="mandatoryEarlyTerminationDateTenor" type="Period" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Period after trade date of the mandatory early termination date.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="mandatoryEarlyTermination" type="MandatoryEarlyTermination" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A mandatory early termination provision to terminate the swap at fair value.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:group name="OptionalEarlyTermination.model">
+    <xsd:choice>
+<!--View Generation: SKIPPED optionalEarlyTermination - Technical-->
+      <xsd:sequence>
+        <xsd:element name="optionalEarlyTerminationParameters" type="ExercisePeriod" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="optionalEarlyTermination" type="OptionalEarlyTermination" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">An option for either or both parties to terminate the swap at fair value.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:choice>
+  </xsd:group>
+</xsd:schema>
+
