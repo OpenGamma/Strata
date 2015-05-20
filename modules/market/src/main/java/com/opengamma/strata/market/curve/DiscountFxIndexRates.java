@@ -55,7 +55,7 @@ public final class DiscountFxIndexRates
    * The time-series, defaulted to an empty time-series.
    * This covers known historical fixings and may be empty.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDateDoubleTimeSeries timeSeries;
   /**
    * The provider of FX rates.
@@ -258,6 +258,7 @@ public final class DiscountFxIndexRates
    * This covers known historical fixings and may be empty.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries() {
     return timeSeries;
   }

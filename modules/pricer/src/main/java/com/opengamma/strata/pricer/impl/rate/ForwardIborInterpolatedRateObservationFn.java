@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -65,10 +66,13 @@ public class ForwardIborInterpolatedRateObservationFn
     IborIndex index2 = observation.getLongIndex();
     DoublesPair weights = weights(index1, index2, fixingDate, endDate);
     double totalWeight = weights.getFirst() + weights.getSecond();
-    PointSensitivityBuilder sens1 =
-        provider.iborIndexRateSensitivity(index1, fixingDate).multipliedBy(weights.getFirst() / totalWeight);
-    PointSensitivityBuilder sens2 =
-        provider.iborIndexRateSensitivity(index2, fixingDate).multipliedBy(weights.getSecond() / totalWeight);
+
+    IborIndexRates ratesIndex1 = provider.iborIndexRates(index1);
+    PointSensitivityBuilder sens1 = ratesIndex1.pointSensitivity(fixingDate)
+        .multipliedBy(weights.getFirst() / totalWeight);
+    IborIndexRates ratesIndex2 = provider.iborIndexRates(index2);
+    PointSensitivityBuilder sens2 = ratesIndex2.pointSensitivity(fixingDate)
+        .multipliedBy(weights.getSecond() / totalWeight);
     return sens1.combinedWith(sens2);
   }
 

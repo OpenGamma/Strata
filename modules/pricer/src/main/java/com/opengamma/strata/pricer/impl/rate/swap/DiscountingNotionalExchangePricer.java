@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
@@ -39,8 +40,9 @@ public class DiscountingNotionalExchangePricer
 
   @Override
   public PointSensitivityBuilder presentValueSensitivity(NotionalExchange event, RatesProvider provider) {
-    PointSensitivityBuilder sensi = provider.discountFactorZeroRateSensitivity(event.getCurrency(), event.getPaymentDate());
-    return sensi.multipliedBy(event.getPaymentAmount().getAmount());
+    DiscountFactors discountFactors = provider.discountFactors(event.getCurrency());
+    return discountFactors.pointSensitivity(event.getPaymentDate())
+        .multipliedBy(event.getPaymentAmount().getAmount());
   }
 
   //-------------------------------------------------------------------------

@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * A provider of data used for pricing.
@@ -93,23 +92,6 @@ public interface BaseProvider
    */
   public default double discountFactor(Currency currency, LocalDate date) {
     return discountFactors(currency).discountFactor(date);
-  }
-
-  /**
-   * Gets the zero rate curve sensitivity for the discount factor.
-   * <p>
-   * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
-   * used to determine the discount factor.
-   * The sensitivity typically has the value {@code (-discountFactor * relativeTime)}.
-   * The sensitivity refers to the result of {@link #discountFactor(Currency, LocalDate)}.
-   * 
-   * @param currency  the currency to get the sensitivity for
-   * @param date  the date to discount to
-   * @return the point sensitivity of the zero rate
-   * @throws IllegalArgumentException if the discount factors are not available
-   */
-  public default PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
-    return discountFactors(currency).pointSensitivity(date);
   }
 
 }

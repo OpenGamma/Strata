@@ -11,6 +11,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.market.curve.CurveName;
+
 /**
  * Test {@link NameSensitivityKey}.
  */
@@ -18,12 +20,19 @@ import org.testng.annotations.Test;
 public class NameSensitivityKeyTest {
 
   private static final String NAME = "USD-LIBOR-3M";
+  private static final CurveName CURVE_NAME = CurveName.of(NAME);
 
-  public void test_of() {
+  public void test_of_String() {
     NameSensitivityKey test = NameSensitivityKey.of(NAME);
-    assertEquals(test.getCurveName(), NAME);
+    assertEquals(test.getCurveName(), CURVE_NAME);
   }
 
+  public void test_of_CurveName() {
+    NameSensitivityKey test = NameSensitivityKey.of(CURVE_NAME);
+    assertEquals(test.getCurveName(), CURVE_NAME);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     NameSensitivityKey test = NameSensitivityKey.of(NAME);
     coverImmutableBean(test);

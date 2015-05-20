@@ -56,7 +56,7 @@ public final class DiscountIborIndexRates
    * The time-series.
    * This covers known historical fixings and may be empty.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDateDoubleTimeSeries timeSeries;
   /**
    * The underlying discount factor curve.
@@ -245,6 +245,7 @@ public final class DiscountIborIndexRates
    * This covers known historical fixings and may be empty.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries() {
     return timeSeries;
   }

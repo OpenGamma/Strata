@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,10 +20,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 
 /**
  * Test.
@@ -54,22 +57,22 @@ public class DiscountingNotionalExchangePricerTest {
   */
   public void test_presentValueSensitivity() {
     double discountFactor = 0.98d;
-    double paymentTime = 0.75;
-    RatesProvider mockProv = mock(RatesProvider.class);
+    LocalDate valDate = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate().minusDays(90);
+    double paymentTime = ACT_360.relativeYearFraction(valDate, NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate());
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(valDate, mockDf);
+    simpleProv.setDayCount(ACT_360);
+
     LocalDate paymentDate = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
-    when(mockProv.relativeTime(paymentDate))
-        .thenReturn(paymentTime);
-    when(mockProv.discountFactor(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), paymentDate))
-        .thenReturn(discountFactor);
+    when(mockDf.discountFactor(paymentDate)).thenReturn(discountFactor);
     PointSensitivityBuilder builder = ZeroRateSensitivity.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(),
         paymentDate, -discountFactor * paymentTime); // this is implemented in provider
-    when(mockProv.discountFactorZeroRateSensitivity(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), paymentDate))
-        .thenReturn(builder);
+    when(mockDf.pointSensitivity(paymentDate)).thenReturn(builder);
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, mockProv).build();
+    PointSensitivities senseComputed = pricer.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, simpleProv).build();
 
     double eps = 1.0e-7;
-    PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(mockProv,
+    PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(simpleProv,
         NOTIONAL_EXCHANGE_REC_GBP, eps));
     assertTrue(senseComputed.equalWithTolerance(
         senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));

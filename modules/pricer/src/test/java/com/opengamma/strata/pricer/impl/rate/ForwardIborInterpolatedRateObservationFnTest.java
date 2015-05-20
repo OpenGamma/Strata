@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -40,10 +41,9 @@ public class ForwardIborInterpolatedRateObservationFnTest {
 
   public void test_rate() {
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE))
-        .thenReturn(RATE3);
-    when(mockProv.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE))
-        .thenReturn(RATE6);
+    when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3);
+    when(mockProv.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6);
+
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     ForwardIborInterpolatedRateObservationFn obs = ForwardIborInterpolatedRateObservationFn.DEFAULT;
     LocalDate fixingStartDate = ro.getShortIndex().calculateEffectiveFromFixing(ro.getFixingDate());
@@ -61,10 +61,13 @@ public class ForwardIborInterpolatedRateObservationFnTest {
 
   public void test_rateSensitivity() {
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATE))
-        .thenReturn(SENSITIVITY3);
-    when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_6M, FIXING_DATE))
-        .thenReturn(SENSITIVITY6);
+    IborIndexRates mockRates3M = mock(IborIndexRates.class);
+    IborIndexRates mockRates6M = mock(IborIndexRates.class);
+    when(mockProv.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRates3M);
+    when(mockProv.iborIndexRates(GBP_LIBOR_6M)).thenReturn(mockRates6M);
+    when(mockRates3M.pointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY3);
+    when(mockRates6M.pointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY6);
+
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     ForwardIborInterpolatedRateObservationFn obsFn = ForwardIborInterpolatedRateObservationFn.DEFAULT;
     LocalDate fixingStartDate = ro.getShortIndex().calculateEffectiveFromFixing(ro.getFixingDate());
@@ -85,8 +88,13 @@ public class ForwardIborInterpolatedRateObservationFnTest {
   public void test_rateSensitivity_finiteDifference() {
     double eps = 1.0e-7;
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(SENSITIVITY3);
-    when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(SENSITIVITY6);
+    IborIndexRates mockRates3M = mock(IborIndexRates.class);
+    IborIndexRates mockRates6M = mock(IborIndexRates.class);
+    when(mockProv.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRates3M);
+    when(mockProv.iborIndexRates(GBP_LIBOR_6M)).thenReturn(mockRates6M);
+    when(mockRates3M.pointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY3);
+    when(mockRates6M.pointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY6);
+
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     ForwardIborInterpolatedRateObservationFn obs = ForwardIborInterpolatedRateObservationFn.DEFAULT;
     PointSensitivityBuilder test = obs.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);

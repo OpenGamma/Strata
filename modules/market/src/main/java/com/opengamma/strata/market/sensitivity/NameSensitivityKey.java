@@ -22,6 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.market.curve.CurveName;
+
 /**
  * A key used for sensitivity to a curve.
  * <p>
@@ -35,7 +37,7 @@ public final class NameSensitivityKey
    * The curve name that the sensitivity refers to.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String curveName;
+  private final CurveName curveName;
 
   //-------------------------------------------------------------------------
   /**
@@ -45,6 +47,16 @@ public final class NameSensitivityKey
    * @return the key
    */
   public static NameSensitivityKey of(String curveName) {
+    return of(CurveName.of(curveName));
+  }
+
+  /**
+   * Obtains a key from the curve name.
+   * 
+   * @param curveName  the curve name
+   * @return the key
+   */
+  public static NameSensitivityKey of(CurveName curveName) {
     return new NameSensitivityKey(curveName);
   }
 
@@ -71,7 +83,7 @@ public final class NameSensitivityKey
   }
 
   private NameSensitivityKey(
-      String curveName) {
+      CurveName curveName) {
     JodaBeanUtils.notNull(curveName, "curveName");
     this.curveName = curveName;
   }
@@ -96,7 +108,7 @@ public final class NameSensitivityKey
    * Gets the curve name that the sensitivity refers to.
    * @return the value of the property, not null
    */
-  public String getCurveName() {
+  public CurveName getCurveName() {
     return curveName;
   }
 
@@ -133,8 +145,8 @@ public final class NameSensitivityKey
     /**
      * The meta-property for the {@code curveName} property.
      */
-    private final MetaProperty<String> curveName = DirectMetaProperty.ofImmutable(
-        this, "curveName", NameSensitivityKey.class, String.class);
+    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
+        this, "curveName", NameSensitivityKey.class, CurveName.class);
     /**
      * The meta-properties.
      */
@@ -177,7 +189,7 @@ public final class NameSensitivityKey
      * The meta-property for the {@code curveName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveName() {
+    public MetaProperty<CurveName> curveName() {
       return curveName;
     }
 
@@ -208,7 +220,7 @@ public final class NameSensitivityKey
    */
   private static final class Builder extends DirectFieldsBeanBuilder<NameSensitivityKey> {
 
-    private String curveName;
+    private CurveName curveName;
 
     /**
      * Restricted constructor.
@@ -231,7 +243,7 @@ public final class NameSensitivityKey
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 771153946:  // curveName
-          this.curveName = (String) newValue;
+          this.curveName = (CurveName) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

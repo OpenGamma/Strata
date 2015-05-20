@@ -10,6 +10,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositProduct;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -73,9 +74,10 @@ public class DiscountingTermDepositProductPricerBeta {
     double dfEndBar = deposit.getPrincipal() + deposit.getInterest();
     double dfStartBar = -initialAmount(deposit, provider);
     // sensitivity
-    PointSensitivityBuilder sensStart = provider.discountFactorZeroRateSensitivity(currency, deposit.getStartDate())
+    DiscountFactors discountFactors = provider.discountFactors(currency);
+    PointSensitivityBuilder sensStart = discountFactors.pointSensitivity(deposit.getStartDate())
         .multipliedBy(dfStartBar);
-    PointSensitivityBuilder sensEnd = provider.discountFactorZeroRateSensitivity(currency, deposit.getEndDate())
+    PointSensitivityBuilder sensEnd = discountFactors.pointSensitivity(deposit.getEndDate())
         .multipliedBy(dfEndBar);
     return sensStart.combinedWith(sensEnd).build();
   }
@@ -139,9 +141,10 @@ public class DiscountingTermDepositProductPricerBeta {
     double dfStartBar = (initialAmount(deposit, provider) / dfEnd) / accrualFactorPrincipal;
     double dfEndBar = -(initialAmount(deposit, provider) * dfStart / (dfEnd * dfEnd)) / accrualFactorPrincipal;
     // sensitivity
-    PointSensitivityBuilder sensStart = provider.discountFactorZeroRateSensitivity(currency, deposit.getStartDate())
+    DiscountFactors discountFactors = provider.discountFactors(currency);
+    PointSensitivityBuilder sensStart = discountFactors.pointSensitivity(deposit.getStartDate())
         .multipliedBy(dfStartBar);
-    PointSensitivityBuilder sensEnd = provider.discountFactorZeroRateSensitivity(currency, deposit.getEndDate())
+    PointSensitivityBuilder sensEnd = discountFactors.pointSensitivity(deposit.getEndDate())
         .multipliedBy(dfEndBar);
     return sensStart.combinedWith(sensEnd).build();
   }

@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -33,8 +34,8 @@ public class ForwardIborRateObservationFnTest {
 
   public void test_rate() {
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE))
-        .thenReturn(RATE);
+    when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE);
+
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
     assertEquals(obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv), RATE);
@@ -42,8 +43,10 @@ public class ForwardIborRateObservationFnTest {
 
   public void test_rateSensitivity() {
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATE))
-        .thenReturn(SENSITIVITY);
+    IborIndexRates mockRates = mock(IborIndexRates.class);
+    when(mockProv.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRates);
+    when(mockRates.pointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY);
+
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
     assertEquals(obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv), SENSITIVITY);

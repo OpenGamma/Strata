@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -42,6 +43,7 @@ public class ForwardOvernightAveragedRateObservationFn
       RatesProvider provider) {
 
     OvernightIndex index = observation.getIndex();
+    OvernightIndexRates rates = provider.overnightIndexRates(index);
     LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
     double accumulatedInterest = 0.0d;
@@ -58,7 +60,7 @@ public class ForwardOvernightAveragedRateObservationFn
       accrualFactorTotal += accrualFactor;
       cutoffAccrualFactor += accrualFactor;
     }
-    double forwardRateCutOff = provider.overnightIndexRate(index, lastNonCutoffFixing);
+    double forwardRateCutOff = rates.rate(lastNonCutoffFixing);
     accumulatedInterest += cutoffAccrualFactor * forwardRateCutOff;
     LocalDate currentFixingNonCutoff = observation.getStartDate();
     while (currentFixingNonCutoff.isBefore(lastNonCutoffFixing)) {
@@ -67,7 +69,7 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate currentOnRateStart = index.calculateEffectiveFromFixing(currentFixingNonCutoff);
       LocalDate currentOnRateEnd = index.calculateMaturityFromEffective(currentOnRateStart);
       double accrualFactor = index.getDayCount().yearFraction(currentOnRateStart, currentOnRateEnd);
-      double forwardRate = provider.overnightIndexRate(index, currentFixingNonCutoff);
+      double forwardRate = rates.rate(currentFixingNonCutoff);
       accrualFactorTotal += accrualFactor;
       accumulatedInterest += accrualFactor * forwardRate;
       currentFixingNonCutoff = index.getFixingCalendar().next(currentFixingNonCutoff);
@@ -84,6 +86,7 @@ public class ForwardOvernightAveragedRateObservationFn
       RatesProvider provider) {
 
     OvernightIndex index = observation.getIndex();
+    OvernightIndexRates rates = provider.overnightIndexRates(index);
     LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
     double accrualFactorTotal = 0.0d;
@@ -99,8 +102,7 @@ public class ForwardOvernightAveragedRateObservationFn
       accrualFactorTotal += accrualFactor;
       cutoffAccrualFactor += accrualFactor;
     }
-    PointSensitivityBuilder combinedPointSensitivityBuilder =
-        provider.overnightIndexRateSensitivity(index, lastNonCutoffFixing);
+    PointSensitivityBuilder combinedPointSensitivityBuilder = rates.pointSensitivity(lastNonCutoffFixing);
     combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.multipliedBy(cutoffAccrualFactor);
 
     LocalDate currentFixingNonCutoff = observation.getStartDate();
@@ -110,8 +112,7 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate currentOnRateStart = index.calculateEffectiveFromFixing(currentFixingNonCutoff);
       LocalDate currentOnRateEnd = index.calculateMaturityFromEffective(currentOnRateStart);
       double accrualFactor = index.getDayCount().yearFraction(currentOnRateStart, currentOnRateEnd);
-      PointSensitivityBuilder forwardRateSensitivity =
-          provider.overnightIndexRateSensitivity(index, currentFixingNonCutoff);
+      PointSensitivityBuilder forwardRateSensitivity = rates.pointSensitivity(currentFixingNonCutoff);
       forwardRateSensitivity = forwardRateSensitivity.multipliedBy(accrualFactor);
       combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivity);
       accrualFactorTotal += accrualFactor;
