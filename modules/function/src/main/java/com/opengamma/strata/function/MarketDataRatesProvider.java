@@ -9,31 +9,34 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.OptionalDouble;
 
 import org.joda.beans.JodaBeanUtils;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
+import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.curve.DiscountFxIndexRates;
+import com.opengamma.strata.market.curve.DiscountIborIndexRates;
+import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.curve.OvernightIndexRates;
+import com.opengamma.strata.market.curve.ZeroRateDiscountFactors;
 import com.opengamma.strata.market.key.DiscountingCurveKey;
 import com.opengamma.strata.market.key.FxRateKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.PricingException;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
 /**
  * A rates provider based on market data from the engine.
@@ -42,7 +45,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This includes FX rates, discount factors and forward curves.
  */
 public final class MarketDataRatesProvider
-    implements RatesProvider, Serializable {
+    extends AbstractRatesProvider
+    implements Serializable {
 
   /**
    * Serialization version.
@@ -98,141 +102,37 @@ public final class MarketDataRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(Currency currency, LocalDate date) {
-    ArgChecker.notNull(currency, "currency");
-    ArgChecker.notNull(date, "date");
-    YieldCurve curve = marketData.getValue(DiscountingCurveKey.of(currency));
-    return curve.getDiscountFactor(relativeTime(date));
-  }
-
-  @Override
-  public PointSensitivityBuilder discountFactorZeroRateSensitivity(
-      Currency currency, LocalDate date) {
-    // TODO implement MarketDataRatesProvider.discountFactorZeroRateSensitivity
-    throw new UnsupportedOperationException("discountFactorZeroRateSensitivity not implemented");
+  public DiscountFactors discountFactors(Currency currency) {
+    YieldCurve yieldCurve = marketData.getValue(DiscountingCurveKey.of(currency));
+    return ZeroRateDiscountFactors.of(currency, getValuationDate(), dayCount, yieldCurve);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(baseCurrency, "baseCurrency");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    ArgChecker.isTrue(
-        index.getCurrencyPair().contains(baseCurrency),
-        "Currency {} invalid for FxIndex {}", baseCurrency, index);
-    // historic rate
-    boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
-    if (!fixingDate.isAfter(marketData.getValuationDate())) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        // if the index is the inverse of the desired pair, then invert it
-        double fxIndexRate = fixedRate.getAsDouble();
-        return (inverse ? 1d / fxIndexRate : fxIndexRate);
-      } else if (fixingDate.isBefore(marketData.getValuationDate())) { // the fixing is required
-        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
-    }
-    // forward rate
-    // use the specified base currency to determine the desired currency pair
-    // then derive rate from discount factors based off desired currency pair, not that of the index
-    CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
-    double maturity = relativeTime(index.calculateMaturityFromFixing(fixingDate));
-    YieldCurve baseDiscountingCurve = marketData.getValue(DiscountingCurveKey.of(pair.getBase()));
-    YieldCurve counterDiscountingCurve = marketData.getValue(DiscountingCurveKey.of(pair.getCounter()));
-    double dfCcyBaseAtMaturity = baseDiscountingCurve.getDiscountFactor(maturity);
-    double dfCcyCounterAtMaturity = counterDiscountingCurve.getDiscountFactor(maturity);
-    return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+  public FxIndexRates fxIndexRates(FxIndex index) {
+    CurrencyPair pair = index.getCurrencyPair();
+    DiscountFactors base = discountFactors(pair.getBase());
+    DiscountFactors counter = discountFactors(pair.getCounter());
+    FxRate fxRate = FxRate.of(pair, fxRate(pair));
+    return DiscountFxIndexRates.of(index, timeSeries(index), fxRate, base, counter);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double iborIndexRate(IborIndex index, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    // historic rate
-    if (!fixingDate.isAfter(marketData.getValuationDate())) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        return fixedRate.getAsDouble();
-      } else if (fixingDate.isBefore(marketData.getValuationDate())) { // the fixing is required
-        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
-    }
-    // forward rate
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+  public IborIndexRates iborIndexRates(IborIndex index) {
+    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    double startTime = relativeTime(fixingStartDate);
-    double endTime = relativeTime(fixingEndDate);
-    return (curve.getDiscountFactor(startTime) / curve.getDiscountFactor(endTime) - 1) / fixingYearFraction;
-  }
-
-  @Override
-  public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
-    // TODO implement MarketDataRatesProvider.iborIndexRateSensitivity
-    throw new UnsupportedOperationException("iborIndexRateSensitivity not implemented");
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixingDate, "fixingDate");
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (!publicationDate.isAfter(marketData.getValuationDate())) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        return fixedRate.getAsDouble();
-      } else if (publicationDate.isBefore(marketData.getValuationDate())) { // the fixing is required
-        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
-    }
-    // forward rate
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+  public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
+    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    double startTime = relativeTime(fixingStartDate);
-    double endTime = relativeTime(fixingEndDate);
-    return (curve.getDiscountFactor(startTime) / curve.getDiscountFactor(endTime) - 1) / fixingYearFraction;
-  }
-
-  @Override
-  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
-    // TODO implement MarketDataRatesProvider.overnightIndexRateSensitivity
-    throw new UnsupportedOperationException("overnightIndexRateSensitivity not implemented");
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(startDate, "startDate");
-    ArgChecker.notNull(endDate, "endDate");
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderOrEqual(marketData.getValuationDate(), startDate, "valuationDate", "startDate");
-    YieldCurve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
-    double startTime = relativeTime(startDate);
-    double endTime = relativeTime(endDate);
-    return (curve.getDiscountFactor(startTime) / curve.getDiscountFactor(endTime) - 1) / fixingYearFraction;
-  }
-
-  @Override
-  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
-      OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    // TODO implement MarketDataRatesProvider.overnightIndexRatePeriodSensitivity
-    throw new UnsupportedOperationException("overnightIndexRatePeriodSensitivity not implemented");
-  }
-
-  //-------------------------------------------------------------------------
-
-  @Override
-  public CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities) {
-    // TODO: Implement before creating PV01 results
-    throw new UnsupportedOperationException();
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }
 
   //-------------------------------------------------------------------------
