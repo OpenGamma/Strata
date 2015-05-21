@@ -47,6 +47,15 @@ public interface DiscountFactors {
    */
   public abstract CurveName getCurveName();
 
+  /**
+   * Gets the number of parameters defining the curve.
+   * <p>
+   * If the curve has no parameters, zero must be returned.
+   * 
+   * @return the number of parameters
+   */
+  public abstract int getParameterCount();
+
   //-------------------------------------------------------------------------
   /**
    * Gets the discount factor.
@@ -110,16 +119,7 @@ public interface DiscountFactors {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the number of parameters defining the curve.
-   * <p>
-   * If the curve has no parameters, zero must be returned.
-   * 
-   * @return the number of parameters
-   */
-  int getParameterCount();
-
-  /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new instance for which each of the parameters in the curve have been shifted.
    * <p>
    * The desired adjustment is specified using {@link DoubleUnaryOperator}.
    * <p>
@@ -130,10 +130,10 @@ public interface DiscountFactors {
    * @param operator  the operator that provides the change
    * @return the new curve
    */
-  DiscountFactors shiftedBy(DoubleBinaryOperator operator);
+  public abstract DiscountFactors shiftedBy(DoubleBinaryOperator operator);
 
   /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new instance for which each of the parameters in the curve have been shifted.
    * <p>
    * The desired adjustment is specified using {@link ValueAdjustment}.
    * The size of the list of adjustments is expected to match the number of parameters.
@@ -143,6 +143,6 @@ public interface DiscountFactors {
    * @param adjustments  the adjustments to make
    * @return the new curve
    */
-  DiscountFactors shiftedBy(List<ValueAdjustment> adjustments);
+  public abstract DiscountFactors shiftedBy(List<ValueAdjustment> adjustments);
 
 }

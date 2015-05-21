@@ -64,7 +64,7 @@ public interface IborIndexRates {
    * 
    * @return the number of parameters
    */
-  int getParameterCount();
+  public abstract int getParameterCount();
 
   //-------------------------------------------------------------------------
   /**
@@ -112,7 +112,7 @@ public interface IborIndexRates {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new instance for which each of the parameters in the curve have been shifted.
    * <p>
    * The desired adjustment is specified using {@link DoubleUnaryOperator}.
    * <p>
@@ -123,10 +123,10 @@ public interface IborIndexRates {
    * @param operator  the operator that provides the change
    * @return the new curve
    */
-  IborIndexRates shiftedBy(DoubleBinaryOperator operator);
+  public abstract IborIndexRates shiftedBy(DoubleBinaryOperator operator);
 
   /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new instance for which each of the parameters in the curve have been shifted.
    * <p>
    * The desired adjustment is specified using {@link ValueAdjustment}.
    * The size of the list of adjustments is expected to match the number of parameters.
@@ -136,6 +136,6 @@ public interface IborIndexRates {
    * @param adjustments  the adjustments to make
    * @return the new curve
    */
-  IborIndexRates shiftedBy(List<ValueAdjustment> adjustments);
+  public abstract IborIndexRates shiftedBy(List<ValueAdjustment> adjustments);
 
 }

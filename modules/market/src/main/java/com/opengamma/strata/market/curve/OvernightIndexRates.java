@@ -57,6 +57,15 @@ public interface OvernightIndexRates {
    */
   public abstract CurveName getCurveName();
 
+  /**
+   * Gets the number of parameters defining the curve.
+   * <p>
+   * If the curve has no parameters, zero must be returned.
+   * 
+   * @return the number of parameters
+   */
+  public abstract int getParameterCount();
+
   //-------------------------------------------------------------------------
   /**
    * Gets the historic or forward rate at the specified fixing date.
@@ -87,7 +96,7 @@ public interface OvernightIndexRates {
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the value cannot be obtained
    */
-  public PointSensitivityBuilder pointSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder pointSensitivity(LocalDate fixingDate);
 
   //-------------------------------------------------------------------------
   /**
@@ -119,7 +128,7 @@ public interface OvernightIndexRates {
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the value cannot be obtained
    */
-  public PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate);
+  public abstract PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate);
 
   //-------------------------------------------------------------------------
   /**
@@ -137,16 +146,7 @@ public interface OvernightIndexRates {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the number of parameters defining the curve.
-   * <p>
-   * If the curve has no parameters, zero must be returned.
-   * 
-   * @return the number of parameters
-   */
-  int getParameterCount();
-
-  /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new instance for which each of the parameters in the curve have been shifted.
    * <p>
    * The desired adjustment is specified using {@link DoubleUnaryOperator}.
    * <p>
@@ -157,10 +157,10 @@ public interface OvernightIndexRates {
    * @param operator  the operator that provides the change
    * @return the new curve
    */
-  OvernightIndexRates shiftedBy(DoubleBinaryOperator operator);
+  public abstract OvernightIndexRates shiftedBy(DoubleBinaryOperator operator);
 
   /**
-   * Returns a new curve for which each of the parameters has been shifted.
+   * Returns a new instance for which each of the parameters in the curve have been shifted.
    * <p>
    * The desired adjustment is specified using {@link ValueAdjustment}.
    * The size of the list of adjustments is expected to match the number of parameters.
@@ -170,6 +170,6 @@ public interface OvernightIndexRates {
    * @param adjustments  the adjustments to make
    * @return the new curve
    */
-  OvernightIndexRates shiftedBy(List<ValueAdjustment> adjustments);
+  public abstract OvernightIndexRates shiftedBy(List<ValueAdjustment> adjustments);
 
 }
