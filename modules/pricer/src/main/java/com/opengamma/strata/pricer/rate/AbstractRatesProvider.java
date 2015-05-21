@@ -12,7 +12,9 @@ import java.util.Map;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
@@ -21,12 +23,15 @@ import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.curve.DiscountIborIndexRates;
 import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
+import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
@@ -41,11 +46,57 @@ public abstract class AbstractRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
+    PointSensitivities sensiFxDecomposed = resolveFxRateSensitivities(sensitivities);
     Map<SensitivityKey, double[]> map = new HashMap<>();
-    paramSensitivityZeroRate(sensitivities, map);
-    parameterSensitivityIbor(sensitivities, map);
-    parameterSensitivityOvernight(sensitivities, map);
+    paramSensitivityZeroRate(sensiFxDecomposed, map);
+    parameterSensitivityIbor(sensiFxDecomposed, map);
+    parameterSensitivityOvernight(sensiFxDecomposed, map);
     return CurveParameterSensitivity.of(map);
+  }
+
+  // resolve any FX Index sensitivity into zero-rate sensitivities
+  private PointSensitivities resolveFxRateSensitivities(PointSensitivities sensitivities) {
+    if (!sensitivities.getSensitivities().stream().anyMatch(s -> s instanceof FxIndexSensitivity)) {
+      return sensitivities;
+    }
+    MutablePointSensitivities mutable = new MutablePointSensitivities();
+    for (PointSensitivity point : sensitivities.getSensitivities()) {
+      if (point instanceof FxIndexSensitivity) {
+        mutable.combinedWith(fxIndexForwardRateSensitivity((FxIndexSensitivity) point));
+      } else {
+        mutable.add(point);
+      }
+    }
+    return mutable.build();
+  }
+
+  // resolve single FX Index sensitivity into zero-rate sensitivity
+  private PointSensitivityBuilder fxIndexForwardRateSensitivity(FxIndexSensitivity fxRateSensitivity) {
+    // use the specified base currency to determine the desired currency pair
+    // then derive sensitivity from discount factors based off desired currency pair, not that of the index
+    FxIndex index = fxRateSensitivity.getIndex();
+    Currency refBaseCurrency = fxRateSensitivity.getReferenceCurrency();
+    Currency refCounterCurrency = fxRateSensitivity.getReferenceCounterCurrency();
+    Currency sensitivityCurrency = fxRateSensitivity.getCurrency();
+    LocalDate maturityDate = index.calculateMaturityFromFixing(fxRateSensitivity.getFixingDate());
+
+    DiscountFactors discountFactorsBase = discountFactors(refBaseCurrency);
+    DiscountFactors discountFactorsCounter = discountFactors(refCounterCurrency);
+    double dfCcyBaseAtMaturity = discountFactorsBase.discountFactor(maturityDate);
+    double dfCcyCounterAtMaturityInv = 1.0 / discountFactorsCounter.discountFactor(maturityDate);
+
+    PointSensitivityBuilder dfCcyBaseAtMaturitySensitivity =
+        discountFactorsBase.pointSensitivity(maturityDate, sensitivityCurrency);
+    dfCcyBaseAtMaturitySensitivity = dfCcyBaseAtMaturitySensitivity.multipliedBy(
+        fxRate(refBaseCurrency, refCounterCurrency) * dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
+
+    PointSensitivityBuilder dfCcyCounterAtMaturitySensitivity =
+        discountFactorsCounter.pointSensitivity(maturityDate, sensitivityCurrency);
+    dfCcyCounterAtMaturitySensitivity = dfCcyCounterAtMaturitySensitivity.multipliedBy(
+        -fxRate(refBaseCurrency, refCounterCurrency) * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
+            dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
+
+    return dfCcyBaseAtMaturitySensitivity.combinedWith(dfCcyCounterAtMaturitySensitivity);
   }
 
   // handle zero rate sensitivities

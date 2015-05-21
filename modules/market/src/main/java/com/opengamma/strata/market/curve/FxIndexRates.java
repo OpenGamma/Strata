@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * Provides access to rates for an FX index.
@@ -77,5 +78,20 @@ public interface FxIndexRates {
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double rate(Currency baseCurrency, LocalDate fixingDate);
+
+  /**
+   * Gets the point sensitivity of the historic or forward rate at the specified fixing date.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * If a time-series was used, then there is no sensitivity.
+   * Otherwise, the sensitivity has the value 1.
+   * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.
+   * 
+   * @param baseCurrency  the base currency that the rate should be expressed against
+   * @param fixingDate  the fixing date to find the sensitivity for
+   * @return the point sensitivity of the rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract PointSensitivityBuilder pointSensitivity(Currency baseCurrency, LocalDate fixingDate);
 
 }

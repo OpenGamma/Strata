@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -29,6 +30,8 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * Test {@link DiscountFxIndexRates}.
@@ -149,6 +152,35 @@ public class DiscountFxIndexRatesTest {
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
     assertEquals(test.rate(GBP, DATE_AFTER), expected, 1e-8);
     assertEquals(test.rate(USD, DATE_AFTER), 1d / expected, 1e-8);
+  }
+
+  public void test_rate_nonMatchingCurrency() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    assertThrowsIllegalArg(() -> test.rate(EUR, DATE_VAL));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_pointSensitivity_fixing() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    assertEquals(test.pointSensitivity(GBP, DATE_BEFORE), PointSensitivityBuilder.none());
+    assertEquals(test.pointSensitivity(GBP, DATE_VAL), PointSensitivityBuilder.none());
+  }
+
+  public void test_pointSensitivity_onValuation_noFixing() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES_EMPTY, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    assertEquals(test.pointSensitivity(GBP, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d));
+    assertEquals(test.pointSensitivity(USD, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_VAL, 1d));
+  }
+
+  public void test_pointSensitivity_afterValuation() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    assertEquals(test.pointSensitivity(GBP, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_AFTER, 1d));
+    assertEquals(test.pointSensitivity(USD, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_AFTER, 1d));
+  }
+
+  public void test_pointSensitivity_nonMatchingCurrency() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    assertThrowsIllegalArg(() -> test.pointSensitivity(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------

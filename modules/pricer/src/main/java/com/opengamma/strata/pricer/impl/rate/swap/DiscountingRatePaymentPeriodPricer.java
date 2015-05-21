@@ -14,6 +14,7 @@ import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -62,12 +63,7 @@ public class DiscountingRatePaymentPeriodPricer
     // notional * fxRate
     // fxRate is 1 if no FX conversion
     double notional = period.getNotional() * fxRate(period, provider);
-    // handle simple case and more complex compounding for whole payment period
-    if (period.getAccrualPeriods().size() == 1) {
-      RateAccrualPeriod accrualPeriod = period.getAccrualPeriods().get(0);
-      return unitNotionalAccrual(accrualPeriod, accrualPeriod.getSpread(), provider) * notional;
-    }
-    return accrueCompounded(period, notional, provider);
+    return accrualWithNotional(period, notional, provider);
   }
 
   //-------------------------------------------------------------------------
@@ -80,6 +76,15 @@ public class DiscountingRatePaymentPeriodPricer
     } else {
       return 1d;
     }
+  }
+
+  private double accrualWithNotional(RatePaymentPeriod period, double notional, RatesProvider provider) {
+    // handle simple case and more complex compounding for whole payment period
+    if (period.getAccrualPeriods().size() == 1) {
+      RateAccrualPeriod accrualPeriod = period.getAccrualPeriods().get(0);
+      return unitNotionalAccrual(accrualPeriod, accrualPeriod.getSpread(), provider) * notional;
+    }
+    return accrueCompounded(period, notional, provider);
   }
 
   // calculate the accrual for a unit notional
@@ -181,19 +186,28 @@ public class DiscountingRatePaymentPeriodPricer
     if (period.getPaymentDate().isBefore(provider.getValuationDate())) {
       return PointSensitivityBuilder.none();
     }
-    double fxRate = 1d;
-    if (period.getFxReset().isPresent()) {
-      // TODO find FX rate, using 1 if no FX reset occurs
-      throw new UnsupportedOperationException("FX Reset not yet implemented for futureValueSensitivity");
-    }
-    double notional = period.getNotional() * fxRate;
-    PointSensitivityBuilder unitAccrual;
+    PointSensitivityBuilder sensiFx = fxRateSensitivity(period, provider);
+    double accrual = accrualWithNotional(period, period.getNotional(), provider);
+    sensiFx = sensiFx.multipliedBy(accrual);
+    PointSensitivityBuilder sensiAccrual = PointSensitivityBuilder.none();
     if (period.isCompoundingApplicable()) {
-      unitAccrual = accrueCompoundedSensitivity(period, notional, provider);
+      sensiAccrual = accrueCompoundedSensitivity(period, provider);
     } else {
-      unitAccrual = unitNotionalSensitivityNoCompounding(period, provider);
+      sensiAccrual = unitNotionalSensitivityNoCompounding(period, provider);
     }
-    return unitAccrual.multipliedBy(notional);
+    double notional = period.getNotional() * fxRate(period, provider);
+    sensiAccrual = sensiAccrual.multipliedBy(notional);
+    return sensiFx.combinedWith(sensiAccrual);
+  }
+
+  // resolve the FX rate sensitivity from the FX reset
+  private PointSensitivityBuilder fxRateSensitivity(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
+    if (paymentPeriod.getFxReset().isPresent()) {
+      FxReset fxReset = paymentPeriod.getFxReset().get();
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
+      return rates.pointSensitivity(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+    }
+    return PointSensitivityBuilder.none();
   }
 
   // computes the sensitivity of the payment period to the rate observations (not to the discount factors)
@@ -221,7 +235,6 @@ public class DiscountingRatePaymentPeriodPricer
   // apply compounding - sensitivity
   private PointSensitivityBuilder accrueCompoundedSensitivity(
       RatePaymentPeriod paymentPeriod,
-      double notional,
       RatesProvider provider) {
 
     switch (paymentPeriod.getCompoundingMethod()) {

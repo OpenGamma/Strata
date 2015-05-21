@@ -8,6 +8,10 @@ package com.opengamma.strata.pricer.datasets;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
+import static com.opengamma.strata.basics.index.FxIndices.WM_EUR_USD;
+import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -74,6 +78,10 @@ public class RatesProviderDataSets {
           .put(GBP_SONIA, LocalDateDoubleTimeSeries.empty())
           .put(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.empty())
           .put(GBP_LIBOR_6M, LocalDateDoubleTimeSeries.empty())
+          .put(WM_GBP_USD, LocalDateDoubleTimeSeries.empty())
+          .put(WM_EUR_USD, LocalDateDoubleTimeSeries.empty())
+          .put(ECB_EUR_GBP, LocalDateDoubleTimeSeries.empty())
+          .put(ECB_EUR_USD, LocalDateDoubleTimeSeries.empty())
           .build();
 
   //-------------------------------------------------------------------------

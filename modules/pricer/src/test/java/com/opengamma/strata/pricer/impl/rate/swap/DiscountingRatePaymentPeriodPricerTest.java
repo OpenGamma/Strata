@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -24,6 +25,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
@@ -34,13 +36,16 @@ import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
 /**
  * Test {@link DiscountingRatePaymentPeriodPricer}
@@ -68,6 +73,10 @@ public class DiscountingRatePaymentPeriodPricerTest {
   private static final double RATE_FX = 1.6d;
   private static final double DISCOUNT_FACTOR = 0.976d;
   private static final double TOLERANCE_PV = 1E-7;
+
+  private static final double EPS_FD = 1.0e-7;
+  private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
+      new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   private static final RateAccrualPeriod ACCRUAL_PERIOD_1 = RateAccrualPeriod.builder()
       .startDate(CPN_DATE_1)
@@ -140,12 +149,19 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
-  private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX = RatePaymentPeriod.builder()
+  private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX_USD = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_GS, ACCRUAL_PERIOD_2_GS, ACCRUAL_PERIOD_3_GS))
       .currency(USD)
       .notional(NOTIONAL_100)
       .fxReset(FxReset.of(WM_GBP_USD, GBP, FX_DATE_1))
+      .build();
+  private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX_GBP = RatePaymentPeriod.builder()
+      .paymentDate(PAYMENT_DATE_3)
+      .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_GS, ACCRUAL_PERIOD_2_GS, ACCRUAL_PERIOD_3_GS))
+      .currency(GBP)
+      .notional(NOTIONAL_100)
+      .fxReset(FxReset.of(WM_GBP_USD, USD, FX_DATE_1))
       .build();
 
   // all tests use a fixed rate to avoid excessive use of mocks
@@ -214,7 +230,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
             ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * RATE_FX);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_FULL_GS_FX, mockProv);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_FULL_GS_FX_USD, mockProv);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -274,7 +290,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundSpreadExclusive_fx() {
-    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX.toBuilder()
+    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX_USD.toBuilder()
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
@@ -344,7 +360,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
-  private static final double EPS_FD = 1.0e-7;
 
   /**
   * Test present value sensitivity for ibor, no compounding.
@@ -445,6 +460,52 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertTrue(senseComputed.equalWithTolerance(senseExpected, EPS_FD * period.getNotional()));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_futureValueSensitivity_compoundNone_fx() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD;
+    PointSensitivityBuilder pointSensiComputedUSD =
+        pricer.futureValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    CurveParameterSensitivity sensiComputedUSD =
+        provider.parameterSensitivity(pointSensiComputedUSD.build().normalized());
+    CurveParameterSensitivity sensiExpectedUSD = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(USD, pricer.futureValue(PAYMENT_PERIOD_FULL_GS_FX_USD, (p))));
+    assertTrue(sensiComputedUSD.equalWithTolerance(
+        sensiExpectedUSD, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_USD.getNotional()));
+
+    PointSensitivityBuilder pointSensiComputedGBP =
+        pricer.futureValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    CurveParameterSensitivity sensiComputedGBP =
+        provider.parameterSensitivity(pointSensiComputedGBP.build().normalized());
+    CurveParameterSensitivity sensiExpectedGBP = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(GBP, pricer.futureValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
+    assertTrue(sensiComputedGBP.equalWithTolerance(
+        sensiExpectedGBP, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_GBP.getNotional()));
+  }
+
+  public void test_presentValueSensitivity_compoundNone_fx() {
+    DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ImmutableRatesProvider provider = MULTI_GBP_USD;
+    PointSensitivityBuilder pointSensiComputedUSD =
+        pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
+    CurveParameterSensitivity sensiComputedUSD =
+        provider.parameterSensitivity(pointSensiComputedUSD.build().normalized());
+    CurveParameterSensitivity sensiExpectedUSD = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(USD, pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, (p))));
+    assertTrue(sensiComputedUSD.equalWithTolerance(
+        sensiExpectedUSD, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_USD.getNotional()));
+
+    PointSensitivityBuilder pointSensiComputedGBP =
+        pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_GBP, provider);
+    CurveParameterSensitivity sensiComputedGBP =
+        provider.parameterSensitivity(pointSensiComputedGBP.build().normalized());
+    CurveParameterSensitivity sensiExpectedGBP = CAL_FD.sensitivity(
+        provider, (p) -> CurrencyAmount.of(GBP, pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_GBP, (p))));
+    assertTrue(sensiComputedGBP.equalWithTolerance(
+        sensiExpectedGBP, EPS_FD * PAYMENT_PERIOD_FULL_GS_FX_GBP.getNotional()));
+  }
+
+  //-------------------------------------------------------------------------
   @SuppressWarnings("null")
   private List<IborRateSensitivity> futureFwdSensitivityFD(RatesProvider provider, RatePaymentPeriod payment,
       RateObservationFn<RateObservation> obsFunc, double eps) {
