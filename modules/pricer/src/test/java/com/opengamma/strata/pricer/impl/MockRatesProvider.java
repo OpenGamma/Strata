@@ -13,13 +13,13 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Mock implementation of rate provider.

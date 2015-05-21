@@ -43,20 +43,23 @@ public class ImmutableRatesProviderTest {
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
   private static final LocalDate NEXT_DATE = LocalDate.of(2014, 7, 1);
+  private static final double FX_GBP_USD = 1.6d;
+  private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, FX_GBP_USD);
 
-  private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, 1.6d);
+  private static final double GBP_DSC = 0.99d;
+  private static final double USD_DSC = 0.95d;
   private static final YieldAndDiscountCurve DISCOUNT_CURVE_GBP =
-      new YieldCurve("GBP-Discount", new ConstantDoublesCurve(0.99d)) {
+      new YieldCurve("GBP-Discount", new ConstantDoublesCurve(GBP_DSC)) {
         @Override
         public double getDiscountFactor(double t) {
-          return 0.99d;
+          return GBP_DSC;
         }
       };
   private static final YieldAndDiscountCurve DISCOUNT_CURVE_USD =
-      new YieldCurve("USD-Discount", new ConstantDoublesCurve(0.95d)) {
+      new YieldCurve("USD-Discount", new ConstantDoublesCurve(USD_DSC)) {
         @Override
         public double getDiscountFactor(double t) {
-          return 0.95d;
+          return USD_DSC;
         }
       };
   private static final YieldAndDiscountCurve USD_LIBOR_CURVE =
@@ -69,9 +72,9 @@ public class ImmutableRatesProviderTest {
           if (t >= 0 && t <= time) {
             LocalDate fixingEndDate = USD_LIBOR_3M.calculateMaturityFromEffective(fixingStartDate);
             double fixingYearFraction = USD_LIBOR_3M.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-            return (0.0123d * fixingYearFraction + 1) * 0.95;
+            return (0.0123d * fixingYearFraction + 1) * 0.96d;
           }
-          return 0.95d;
+          return 0.96d;
         }
       };
   private static final YieldAndDiscountCurve FED_FUND_CURVE =
@@ -134,7 +137,7 @@ public class ImmutableRatesProviderTest {
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.discountFactor(GBP, LocalDate.of(2014, 7, 30)), 0.99d, 0d);
+    assertEquals(test.discountFactor(GBP, LocalDate.of(2014, 7, 30)), GBP_DSC, 0d);
   }
 
   public void test_discountFactor_notKnown() {
@@ -152,7 +155,7 @@ public class ImmutableRatesProviderTest {
         .fxMatrix(FX_MATRIX)
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxRate(USD, GBP), 1 / 1.6d, 0d);
+    assertEquals(test.fxRate(USD, GBP), 1 / FX_GBP_USD, 0d);
     assertEquals(test.fxRate(USD, USD), 1d, 0d);
   }
 
@@ -162,7 +165,7 @@ public class ImmutableRatesProviderTest {
         .fxMatrix(FX_MATRIX)
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / 1.6d, 0d);
+    assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / FX_GBP_USD, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -210,8 +213,8 @@ public class ImmutableRatesProviderTest {
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), 1.6d * (0.99d / 0.95d), 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / 1.6d) * (0.95d / 0.99d), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), FX_GBP_USD * (GBP_DSC / USD_DSC), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / FX_GBP_USD) * (USD_DSC / GBP_DSC), 0d);
   }
 
   public void test_fxIndexRate_afterToday() {
@@ -223,9 +226,9 @@ public class ImmutableRatesProviderTest {
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), 1.6d * (0.99d / 0.95d), 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), 1d / (1.6d * (0.99d / 0.95d)), 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / 1.6d) * (0.95d / 0.99d), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), FX_GBP_USD * (GBP_DSC / USD_DSC), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), 1d / (FX_GBP_USD * (GBP_DSC / USD_DSC)), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / FX_GBP_USD) * (USD_DSC / GBP_DSC), 0d);
   }
 
   public void test_fxIndexRate_badCurrency() {
@@ -344,9 +347,9 @@ public class ImmutableRatesProviderTest {
             // reverse engineer discount factor from desired rate
             if (t < 0) {
               double accrualFactor = 3d / 360d;
-              return (0.0123d * accrualFactor + 1) * 0.95;
+              return (0.0123d * accrualFactor + 1) * 0.96d;
             } else {
-              return 0.95d;
+              return 0.96d;
             }
           }
         };
@@ -369,9 +372,9 @@ public class ImmutableRatesProviderTest {
             // reverse engineer discount factor from desired rate
             if (t < 0.003) {
               double accrualFactor = 1d / 360d;
-              return (0.0123d * accrualFactor + 1) * 0.95;
+              return (0.0123d * accrualFactor + 1) * 0.96d;
             } else {
-              return 0.95d;
+              return 0.96d;
             }
           }
         };
@@ -407,7 +410,6 @@ public class ImmutableRatesProviderTest {
     coverImmutableBean(test);
     ImmutableRatesProvider test2 = ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 6, 27))
-        .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
         .timeSeries(ImmutableMap.of(USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
         .dayCount(ACT_365F)
