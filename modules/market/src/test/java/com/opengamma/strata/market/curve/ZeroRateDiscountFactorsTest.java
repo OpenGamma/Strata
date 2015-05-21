@@ -68,6 +68,14 @@ public class ZeroRateDiscountFactorsTest {
     assertEquals(test.pointSensitivity(DATE_AFTER), expected);
   }
 
+  public void test_pointSensitivity_sensitivityCurrency() {
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
+    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double df = CURVE.getDiscountFactor(relativeTime);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, USD, DATE_AFTER, -df * relativeTime);
+    assertEquals(test.pointSensitivity(DATE_AFTER, USD), expected);
+  }
+
   //-------------------------------------------------------------------------
   public void test_parameterSensitivity() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);

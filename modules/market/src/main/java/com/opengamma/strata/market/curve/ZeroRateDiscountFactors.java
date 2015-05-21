@@ -113,10 +113,10 @@ public final class ZeroRateDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder pointSensitivity(LocalDate date) {
+  public PointSensitivityBuilder pointSensitivity(LocalDate date, Currency sensitivityCurrency) {
     double relativeTime = relativeTime(date);
     double discountFactor = discountFactor(relativeTime);
-    return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);
+    return ZeroRateSensitivity.of(currency, sensitivityCurrency, date, -discountFactor * relativeTime);
   }
 
   @Override

@@ -74,7 +74,26 @@ public interface DiscountFactors {
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract PointSensitivityBuilder pointSensitivity(LocalDate date);
+  public default PointSensitivityBuilder pointSensitivity(LocalDate date) {
+    return pointSensitivity(date, getCurrency());
+  }
+
+  /**
+   * Gets the zero rate curve sensitivity for the discount factor specifying the currency of the sensitivity.
+   * <p>
+   * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
+   * used to determine the discount factor.
+   * The sensitivity typically has the value {@code (-discountFactor * relativeTime)}.
+   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
+   * <p>
+   * This method allows the currency of the sensitivity to differ from the currency of the curve.
+   * 
+   * @param date  the date to discount to
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract PointSensitivityBuilder pointSensitivity(LocalDate date, Currency sensitivityCurrency);
 
   /**
    * Returns the parameter sensitivity of the forward rate at the specified fixing date.
