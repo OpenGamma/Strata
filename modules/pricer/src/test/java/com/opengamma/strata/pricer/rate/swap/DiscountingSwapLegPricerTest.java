@@ -38,20 +38,19 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.YearMonth;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -77,6 +76,8 @@ import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.market.cashflow.CashFlow;
 import com.opengamma.strata.market.cashflow.CashFlows;
+import com.opengamma.strata.market.curve.ForwardPriceIndexValues;
+import com.opengamma.strata.market.curve.PriceIndexValues;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -369,54 +370,48 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate DATE_19_06_09 = date(2019, 6, 9);
   private static final LocalDate DATE_14_03_31 = date(2014, 3, 31);
   private static final double START_INDEX = 218.0;
-  private static final double CONSTANT_INDEX = 242.0;
   private static final double NOTIONAL = 1000d;
-  private static final PriceIndexCurve GBPRI_CURVE_FLAT = new PriceIndexCurveSimple(new ConstantDoublesCurve(
-      CONSTANT_INDEX));
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 7, 8);
-  private static final PriceIndexCurve GBPRI_CURVE;
-  static {
-    double[] x = new double[] {0.5, 1.0, 2.0, 5.0, 10.0};
-    double[] y = new double[] {227.2, 252.6, 289.5, 323.1, 351.1};
-    CombinedInterpolatorExtrapolator interp =
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
-            Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    String curveName = "GB_RPI_CURVE";
-    InterpolatedDoublesCurve interpCurve = InterpolatedDoublesCurve.from(x, y, interp, curveName);
-    GBPRI_CURVE = new PriceIndexCurveSimple(interpCurve);
-  }
+  private static final YearMonth VAL_MONTH = YearMonth.from(VAL_DATE);
+
+  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LINEAR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final double CONSTANT_INDEX = 242.0;
+  private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
+      GB_RPI,
+      VAL_MONTH,
+      LocalDateDoubleTimeSeries.of(VAL_DATE.minusMonths(3), START_INDEX),
+      InterpolatedDoublesCurve.from(
+          new double[] {1, 200},
+          new double[] {CONSTANT_INDEX, CONSTANT_INDEX},
+          INTERPOLATOR,
+          "GB_RPI_CURVE"));
+
+  private static final Interpolator1D INTERP_SPLINE = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
+      GB_RPI,
+      VAL_MONTH,
+      LocalDateDoubleTimeSeries.of(VAL_DATE.minusMonths(3), 227.2),
+      InterpolatedDoublesCurve.from(
+          new double[] {6, 12, 24, 60, 120},
+          new double[] {227.2, 252.6, 289.5, 323.1, 351.1},
+          INTERP_SPLINE,
+          "GB_RPI_CURVE"));
+
   private static final double EPS = 1.0e-14;
 
   public void test_inflation_monthly() {
     // setup
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
-    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
-        .startDate(DATE_14_06_09)
-        .endDate(DATE_19_06_09)
-        .frequency(Frequency.ofYears(5))
-        .businessDayAdjustment(adj)
-        .build();
-    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
-        .paymentFrequency(Frequency.ofYears(5))
-        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
-        .build();
-    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
-        .index(GB_RPI)
-        .interpolated(false)
-        .lag(Period.ofMonths(3))
-        .build();
-    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, NOTIONAL);
-    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PAY)
-        .accrualSchedule(accrualSchedule)
-        .paymentSchedule(paymentSchedule)
-        .notionalSchedule(notionalSchedule)
-        .calculation(rateCalc)
-        .build();
+    SwapLeg swapLeg = createInflationSwapLeg(false, PAY);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
     Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
@@ -440,9 +435,9 @@ public class DiscountingSwapLegPricerTest {
     PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
     ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
+    RatePaymentPeriod paymentPeriod = (RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0);
     InflationMonthlyRateObservation obs =
-        (InflationMonthlyRateObservation) ((RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0))
-            .getAccrualPeriods().get(0).getRateObservation();
+        (InflationMonthlyRateObservation) paymentPeriod.getAccrualPeriods().get(0).getRateObservation();
     PointSensitivityBuilder pvSensiExpected = obsFn.rateSensitivity(obs, DATE_14_06_09, DATE_19_06_09, prov);
     pvSensiExpected = pvSensiExpected.multipliedBy(-NOTIONAL);
     assertTrue(fvSensiComputed.build().normalized()
@@ -457,34 +452,11 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_inflation_interpolated() {
     // setup
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
-    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
-        .startDate(DATE_14_06_09)
-        .endDate(DATE_19_06_09)
-        .frequency(Frequency.ofYears(5))
-        .businessDayAdjustment(adj)
-        .build();
-    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
-        .paymentFrequency(Frequency.ofYears(5))
-        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
-        .build();
-    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
-        .index(GB_RPI)
-        .interpolated(true)
-        .lag(Period.ofMonths(3))
-        .build();
-    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
-    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
-        .payReceive(RECEIVE)
-        .accrualSchedule(accrualSchedule)
-        .paymentSchedule(paymentSchedule)
-        .notionalSchedule(notionalSchedule)
-        .calculation(rateCalc)
-        .build();
+    SwapLeg swapLeg = createInflationSwapLeg(true, RECEIVE);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    ImmutableMap<PriceIndex, PriceIndexCurve> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
     Map<Currency, YieldAndDiscountCurve> dscCurve = RATES_GBP.getDiscountCurves();
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexCurves(map).build();
+    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
@@ -499,9 +471,9 @@ public class DiscountingSwapLegPricerTest {
     LocalDate paymentDate = swapLeg.expand().getPaymentPeriods().get(0).getPaymentDate();
     double dscFactor = prov.discountFactor(GBP, paymentDate);
     ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
+    RatePaymentPeriod paymentPeriod = (RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0);
     InflationInterpolatedRateObservation obs =
-        (InflationInterpolatedRateObservation) ((RatePaymentPeriod) swapLeg.expand().getPaymentPeriods().get(0))
-            .getAccrualPeriods().get(0).getRateObservation();
+        (InflationInterpolatedRateObservation) paymentPeriod.getAccrualPeriods().get(0).getRateObservation();
     double indexRate = obsFn.rate(obs, DATE_14_06_09, DATE_19_06_09, prov);
     double fvExpected = indexRate * (NOTIONAL);
     assertEquals(fvComputed.getCurrency(), GBP);
@@ -522,6 +494,34 @@ public class DiscountingSwapLegPricerTest {
     pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
     assertTrue(pvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+  }
+
+  private SwapLeg createInflationSwapLeg(boolean interpolated, PayReceive pay) {
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(DATE_14_06_09)
+        .endDate(DATE_19_06_09)
+        .frequency(Frequency.ofYears(5))
+        .businessDayAdjustment(adj)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.ofYears(5))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+        .build();
+    InflationRateCalculation rateCalc = InflationRateCalculation.builder()
+        .index(GB_RPI)
+        .interpolated(interpolated)
+        .lag(Period.ofMonths(3))
+        .build();
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, NOTIONAL);
+    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
+        .payReceive(pay)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(rateCalc)
+        .build();
+    return swapLeg;
   }
 
   public void test_inflation_fixed() {
