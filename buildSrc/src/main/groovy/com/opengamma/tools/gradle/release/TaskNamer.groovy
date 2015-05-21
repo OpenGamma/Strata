@@ -4,7 +4,6 @@ import groovy.transform.Memoized
 
 trait TaskNamer
 {
-    @Memoized
     String taskNameFor(String baseName)
     {
         return "${baseName}${this.project.name.capitalize()}"

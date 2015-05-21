@@ -18,6 +18,7 @@ class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator, Tas
     public final static String UPDATE_VERSION_TASK_BASE_NAME = "updateVersion"
     public final static String DESCRIBE_TAG_TASK_BASE_NAME = "describeGitTag"
     public final static String DESCRIBE_COMMIT_TASK_BASE_NAME = "describeGitCommit"
+	public final static String VERSIONING_EXTENSION_NAME = "versioning"
 
     Project project
 
@@ -25,7 +26,9 @@ class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator, Tas
     void apply(Project target)
     {
         this.project = target
+	    ClassEnhancer.enhanceVersion()
         createReleaseExtension()
+	    createVersioningExtension()
 
 	    Task describeTagTask = addDescribeGitTagTask()
 	    Task describeCommitTask = addDescribeGitCommitTask()
@@ -71,5 +74,10 @@ class AutoVersionPlugin implements Plugin<Project>, ReleaseExtensionCreator, Tas
 		t.throwOnFailure = false
 		t.workingDirectory = project.projectDir
 		return t
+	}
+
+	private void createVersioningExtension()
+	{
+		project.extensions.create(VERSIONING_EXTENSION_NAME, AutoVersionExtension)
 	}
 }

@@ -7,6 +7,7 @@
 package com.opengamma.tools.gradle.release.task
 
 import com.github.zafarkhaja.semver.Version
+import com.opengamma.tools.gradle.release.AutoVersionExtension
 import com.opengamma.tools.gradle.release.AutoVersionPlugin
 import com.opengamma.tools.gradle.release.SnapshotVersionDeriver
 import com.opengamma.tools.gradle.release.TaskNamer
@@ -31,27 +32,33 @@ class UpdateVersion extends DefaultTask implements TaskNamer
 	    }
 	    else
 	    {
-			println "[!!] FALLING BACK FOR ${project.name} NAD VERSION IS ${project.version}"
 		    String fallbackVersion =
 				    project.version && project.version != "unspecified" ? project.version.toString() - "-SNAPSHOT" : "0.1.0"
 		    String desc = template.replaceAll("@version@", fallbackVersion)
 		    baseDesc = desc
 		    commitDesc = desc
-		    logger.warn "[!!!] Setting the flag!"
 		    fallbackVersionInUse = true
 	    }
 	    Integer buildNumber = System.getenv("BUILD_NUMBER") as Integer
-	    SnapshotVersionDeriver versionDeriver = new SnapshotVersionDeriver(baseDesc, commitDesc, template, buildNumber)
 
+	    AutoVersionExtension config = project.extensions.getByType(AutoVersionExtension)
+
+	    SnapshotVersionDeriver versionDeriver = new SnapshotVersionDeriver(
+			    baseDesc,
+			    commitDesc,
+			    template,
+			    buildNumber,
+			    config.includeCommitcount,
+			    config.includeObjectName,
+			    config.includeBuildNumber
+	    )
 	    Version newVersion = versionDeriver.deriveSnapshot()
-
-	    logger.warn "[!!] fallBackVersionInUse: ${fallbackVersionInUse} newVersion.normalVersion: ${newVersion.normalVersion} newVersion.toString(): ${newVersion.toString()}"
 
 	    if(fallbackVersionInUse && newVersion.normalVersion == newVersion.toString())
 			    newVersion = newVersion.setPreReleaseVersion("SNAPSHOT")
 
 	    String newVersionString = newVersion.toString()
-	    logger.quiet "Project version is ${newVersionString}"
+	    logger.quiet "${project.name}: Project version is ${newVersionString}"
 
 		project.version = newVersionString
 	    project.subprojects { p ->

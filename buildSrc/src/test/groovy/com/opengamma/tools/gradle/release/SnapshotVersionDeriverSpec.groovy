@@ -8,11 +8,15 @@ package com.opengamma.tools.gradle.release
 
 import com.github.zafarkhaja.semver.Version
 import spock.lang.Specification
-import spock.lang.Unroll
 
 class SnapshotVersionDeriverSpec extends Specification
 {
-//	@Unroll
+	void setup()
+	{
+		ClassEnhancer.enhanceVersion()
+	}
+
+	//	@Unroll
     void "Test version deriver"(
 		    String baseTagDescription,
 		    String commitDescription,
@@ -44,4 +48,48 @@ class SnapshotVersionDeriverSpec extends Specification
 	    "rel/test-2.2.1-M3" | "rel/test-2.2.1-M3"       | "rel/test-@version@" | null        | "2.2.1-M3"
 	    "rel/test-2.2.1-M3" | "rel/test-2.2.1-M3"       | "rel/test-@version@" | 201         | "2.2.1-M3+b201"
     }
+
+	void "Test configurable metadata"(
+			Integer buildNumber,
+			boolean includeCommitCount,
+			boolean includeObjectName,
+			boolean includeBuildNumber,
+			String expected)
+	{
+		setup:
+		SnapshotVersionDeriver versionDeriver = new SnapshotVersionDeriver(
+				"v1.0.0",
+				"v1.0.0-10-g123abc",
+				"v@version@",
+				buildNumber,
+				includeCommitCount,
+				includeObjectName,
+				includeBuildNumber
+		)
+
+		when:
+		Version v = versionDeriver.deriveSnapshot()
+
+		then:
+		v == Version.valueOf(expected)
+
+		where:
+		buildNumber | includeCommitCount | includeObjectName | includeBuildNumber | expected
+		null        | true               | true              | true               | "1.0.0+10.g123abc"
+		120         | true               | true              | true               | "1.0.0+10.g123abc.b120"
+		null        | true               | true              | false              | "1.0.0+10.g123abc"
+		120         | true               | true              | false              | "1.0.0+10.g123abc"
+		null        | true               | false             | true               | "1.0.0+10.b120"
+		120         | true               | false             | true               | "1.0.0+10.b120"
+		null        | true               | false             | false              | "1.0.0+10"
+		120         | true               | false             | false              | "1.0.0+10"
+		null        | false              | true              | true               | "1.0.0+g123abc"
+		120         | false              | true              | true               | "1.0.0+g123abc.b120"
+		null        | false              | true              | false              | "1.0.0+g123abc"
+		120         | false              | true              | false              | "1.0.0+g123abc"
+		null        | false              | false             | true               | "1.0.0"
+		120         | false              | false             | true               | "1.0.0+b120"
+		null        | false              | false             | false              | "1.0.0"
+		120         | false              | false             | false              | "1.0.0"
+	}
 }

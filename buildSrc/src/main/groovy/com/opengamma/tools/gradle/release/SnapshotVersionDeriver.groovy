@@ -7,15 +7,49 @@
 package com.opengamma.tools.gradle.release
 
 import com.github.zafarkhaja.semver.Version
-import groovy.transform.Immutable
 
-@Immutable
+//@Immutable
 class SnapshotVersionDeriver
 {
-    String baseTagDescription
-    String commitDescription
-    String releaseTagTemplate
-    Integer buildNumber
+    private static final String VERSION_TOKEN = "@version@"
+
+    private final String baseTagDescription
+    private final String commitDescription
+    private final String releaseTagTemplate
+    private final Integer buildNumber
+
+    private final String tagVersionPrefix
+    private final String tagVersionSuffix
+
+    private final boolean includeCommitCount
+    private final boolean includeGitObjectName
+    private final boolean includeBuild
+
+    private String rawMetadata
+    private String commitCount
+    private String gitObjectName
+    private String tagVersion
+    private String build
+
+    SnapshotVersionDeriver(
+            String baseTagDescription,
+            String commitDescription,
+            String releaseTagTemplate,
+            Integer buildNumber,
+            boolean includeCommitCount = true,
+            boolean includeGitObjectName = true,
+            boolean includeBuild = true)
+    {
+        this.baseTagDescription = baseTagDescription
+        this.commitDescription = commitDescription
+        this.releaseTagTemplate = releaseTagTemplate
+        this.buildNumber = buildNumber
+        this.includeCommitCount = includeCommitCount
+        this.includeGitObjectName = includeGitObjectName
+        this.includeBuild = includeBuild
+
+        (tagVersionPrefix, tagVersionSuffix) = releaseTagTemplate.split(VERSION_TOKEN, 2)
+    }
 
     /**
      * TODO - This doc copied from original OGM implementation - needs updating
@@ -37,28 +71,60 @@ class SnapshotVersionDeriver
      *
      * @return - a Version object populated with the base version plus derived build metadata
      */
-    public Version deriveSnapshot() // TODO - Refactor this swamp
+    public Version deriveSnapshot()
     {
-        def (String tagVersionPrefix, String tagVersionSuffix) = releaseTagTemplate.split("@version@", 2)
-        String rawMetadata = commitDescription.replaceFirst("${baseTagDescription}", "")
-	    if(rawMetadata.startsWith("-"))
-		    rawMetadata = rawMetadata.replaceFirst("-", "")
-        def (String commitCount, String objectName) = rawMetadata ? rawMetadata.split("-", 2) : ["", ""]
-	    if(commitCount)
-		    commitCount += "."
-        String tagVersion = baseTagDescription.replaceFirst(tagVersionPrefix, "")
-        tagVersion = tagVersion - tagVersionSuffix
-        println "[!!] Passing ${tagVersion} to version"
+        parseGitMetadata()
+        extractCommitCountAndObjectName()
+        extractLastTaggedVersion()
+	    extractBuildMetadata()
+
         Version baseVersion = Version.valueOf(tagVersion)
-	    String build = null != buildNumber ? "b${buildNumber}" : ""
-	    if(objectName && build)
-		    objectName += "."
         Version snapshotVersion = new Version.Builder().
                 setNormalVersion(baseVersion.normalVersion).
                 setPreReleaseVersion(baseVersion.preReleaseVersion).
-                setBuildMetadata("${commitCount}${objectName}${build}").
+                setBuildMetadata(versionMetadata).
                 build()
 
         return snapshotVersion
+    }
+
+    private void parseGitMetadata()
+    {
+        rawMetadata = commitDescription.replaceFirst("${baseTagDescription}", "")
+        if(this.rawMetadata.startsWith("-"))
+            this.rawMetadata = this.rawMetadata.replaceFirst("-", "")
+    }
+
+    private void extractCommitCountAndObjectName()
+    {
+        (commitCount, gitObjectName) = this.rawMetadata ? this.rawMetadata.split("-", 2) : ["", ""]
+    }
+
+    private void extractLastTaggedVersion()
+    {
+        String tagVersion = baseTagDescription.replaceFirst(tagVersionPrefix, "")
+        tagVersion = tagVersion - tagVersionSuffix
+        this.tagVersion = tagVersion
+    }
+
+    private void extractBuildMetadata()
+    {
+        build = null != buildNumber ? "b${buildNumber}" : ""
+    }
+
+    private String getVersionMetadata()
+    {
+        List<String> metadata = []
+
+        if(commitCount && includeCommitCount)
+            metadata << commitCount
+
+        if(gitObjectName && includeGitObjectName)
+            metadata << gitObjectName
+
+        if(build && includeBuild)
+            metadata << build
+
+        return metadata.join(".")
     }
 }
