@@ -93,6 +93,7 @@ public class SwapPricingExample {
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.PRESENT_VALUE_PAY_LEG),
         Column.of(Measure.PRESENT_VALUE_RECEIVE_LEG),
+        Column.of(Measure.PV01),
         Column.of(Measure.ACCRUED_INTEREST));
 
     // the complete set of rules for calculating measures

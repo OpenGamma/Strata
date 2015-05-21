@@ -32,6 +32,8 @@ public final class SwapFunctionGroups {
               FunctionConfig.builder(SwapLegPvFunction.class).addArgument("payReceive", PayReceive.PAY).build())
           .addFunction(Measure.PRESENT_VALUE_RECEIVE_LEG,
               FunctionConfig.builder(SwapLegPvFunction.class).addArgument("payReceive", PayReceive.RECEIVE).build())
+          .addFunction(Measure.PV01, SwapPv01Function.class)
+          .addFunction(Measure.PAR_RATE, SwapParRateFunction.class)
           .addFunction(Measure.ACCRUED_INTEREST, SwapTradeAccruedInterestFunction.class)
           .build();
 
@@ -51,8 +53,10 @@ public final class SwapFunctionGroups {
    *   <li>{@linkplain Measure#MATURITY_DATE Maturity date}
    *   <li>{@linkplain Measure#NOTIONAL Notional}
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measure#PV01 PV01}
    *   <li>{@linkplain Measure#PRESENT_VALUE_PAY_LEG Pay leg present value}
    *   <li>{@linkplain Measure#PRESENT_VALUE_RECEIVE_LEG Receive leg present value}
+   *   <li>{@linkplain Measure#PAR_RATE Par rate}
    *   <li>{@linkplain Measure#ACCRUED_INTEREST Accrued interest}
    * </ul>
    * 

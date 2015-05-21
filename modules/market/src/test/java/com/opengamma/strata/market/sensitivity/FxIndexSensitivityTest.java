@@ -36,8 +36,8 @@ public class FxIndexSensitivityTest {
 
   public void test_of() {
     FxIndexSensitivity test = FxIndexSensitivity.of(WM_GBP_USD, GBP, USD, FIXING_DATE, SENSITIVITY_VALUE);
-    assertEquals(test.getBaseCurrency(), USD);
-    assertEquals(test.getCounterCurrency(), GBP);
+    assertEquals(test.getReferenceCurrency(), USD);
+    assertEquals(test.getReferenceCounterCurrency(), GBP);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFixingDate(), FIXING_DATE);
     assertEquals(test.getIndex(), WM_GBP_USD);
@@ -46,8 +46,8 @@ public class FxIndexSensitivityTest {
 
   public void test_of_noCurrency() {
     FxIndexSensitivity test = FxIndexSensitivity.of(WM_GBP_USD, GBP, FIXING_DATE, SENSITIVITY_VALUE);
-    assertEquals(test.getBaseCurrency(), GBP);
-    assertEquals(test.getCounterCurrency(), USD);
+    assertEquals(test.getReferenceCurrency(), GBP);
+    assertEquals(test.getReferenceCounterCurrency(), USD);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getFixingDate(), FIXING_DATE);
     assertEquals(test.getIndex(), WM_GBP_USD);

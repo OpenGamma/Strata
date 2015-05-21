@@ -40,4 +40,7 @@ public final class CurveInterpolators {
   public static final CurveInterpolator TIME_SQUARE =
       CurveInterpolator.of(StandardCurveInterpolators.TIME_SQUARE.getName());
 
+  // Private constructor as this class only exists to hold the interpolator constants
+  private CurveInterpolators() {
+  }
 }

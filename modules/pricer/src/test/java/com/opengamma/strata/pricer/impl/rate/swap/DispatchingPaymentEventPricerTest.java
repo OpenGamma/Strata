@@ -46,12 +46,12 @@ public class DispatchingPaymentEventPricerTest {
   public void test_presentValue_FxResetNotionalExchange() {
     double expected = 0.0123d;
     PaymentEventPricer<FxResetNotionalExchange> mockCalledFn = mock(PaymentEventPricer.class);
-    when(mockCalledFn.presentValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE, MOCK_PROV))
+    when(mockCalledFn.presentValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentEventPricer test = new DispatchingPaymentEventPricer(
         MOCK_NOTIONAL_EXG,
         mockCalledFn);
-    assertEquals(test.presentValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE, MOCK_PROV), expected, 0d);
+    assertEquals(test.presentValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV), expected, 0d);
   }
 
   public void test_presentValue_unknownType() {
@@ -75,12 +75,12 @@ public class DispatchingPaymentEventPricerTest {
   public void test_futureValue_FxResetNotionalExchange() {
     double expected = 0.0123d;
     PaymentEventPricer<FxResetNotionalExchange> mockCalledFn = mock(PaymentEventPricer.class);
-    when(mockCalledFn.futureValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE, MOCK_PROV))
+    when(mockCalledFn.futureValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV))
         .thenReturn(expected);
     DispatchingPaymentEventPricer test = new DispatchingPaymentEventPricer(
         MOCK_NOTIONAL_EXG,
         mockCalledFn);
-    assertEquals(test.futureValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE, MOCK_PROV), expected, 0d);
+    assertEquals(test.futureValue(SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD, MOCK_PROV), expected, 0d);
   }
 
   public void test_futureValue_unknownType() {

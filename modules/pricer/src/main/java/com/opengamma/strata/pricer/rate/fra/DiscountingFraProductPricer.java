@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
+import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
@@ -75,15 +76,15 @@ public class DiscountingFraProductPricer {
    */
   public PointSensitivities presentValueSensitivity(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    DiscountFactors discountFactors = provider.discountFactors(fra.getCurrency());
+    double df = discountFactors.discountFactor(fra.getPaymentDate());
     double notional = fra.getNotional();
     double unitAmount = unitAmount(fra, provider);
     double derivative = derivative(fra, provider);
     PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
         .multipliedBy(derivative * df * notional);
-    PointSensitivityBuilder discSens =
-        provider.discountFactorZeroRateSensitivity(fra.getCurrency(), fra.getPaymentDate())
-            .multipliedBy(unitAmount * notional);
+    PointSensitivityBuilder discSens = discountFactors.pointSensitivity(fra.getPaymentDate())
+        .multipliedBy(unitAmount * notional);
     return iborSens.withCurrency(fra.getCurrency()).combinedWith(discSens).build();
   }
 
@@ -120,6 +121,20 @@ public class DiscountingFraProductPricer {
     PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
         .multipliedBy(derivative * notional);
     return iborSens.withCurrency(fra.getCurrency()).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the par rate of the FRA product.
+   * <p>
+   * The par rate is the rate for which the FRA present value is 0.
+   * 
+   * @param product  the FRA product for which the par rate should be computed
+   * @param provider  the rates provider
+   * @return the par rate
+   */
+  public double parRate(FraProduct product, RatesProvider provider) {
+    return forwardRate(product.expand(), provider);
   }
 
   //-------------------------------------------------------------------------

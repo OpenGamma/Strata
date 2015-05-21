@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * A key used for sensitivity to a curve in a specific currency, identified by the name.
@@ -37,7 +38,7 @@ public final class NameCurrencySensitivityKey
    * The curve name that the sensitivity refers to.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String curveName;
+  private final CurveName curveName;
   /**
    * The currency of the sensitivity.
    */
@@ -53,6 +54,17 @@ public final class NameCurrencySensitivityKey
    * @return the key
    */
   public static NameCurrencySensitivityKey of(String curveName, Currency currency) {
+    return of(CurveName.of(curveName), currency);
+  }
+
+  /**
+   * Obtains a key from the curve name and currency.
+   * 
+   * @param curveName  the curve name
+   * @param currency  the currency of the sensitivity
+   * @return the key
+   */
+  public static NameCurrencySensitivityKey of(CurveName curveName, Currency currency) {
     return new NameCurrencySensitivityKey(curveName, currency);
   }
 
@@ -79,7 +91,7 @@ public final class NameCurrencySensitivityKey
   }
 
   private NameCurrencySensitivityKey(
-      String curveName,
+      CurveName curveName,
       Currency currency) {
     JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(currency, "currency");
@@ -107,7 +119,7 @@ public final class NameCurrencySensitivityKey
    * Gets the curve name that the sensitivity refers to.
    * @return the value of the property, not null
    */
-  public String getCurveName() {
+  public CurveName getCurveName() {
     return curveName;
   }
 
@@ -155,8 +167,8 @@ public final class NameCurrencySensitivityKey
     /**
      * The meta-property for the {@code curveName} property.
      */
-    private final MetaProperty<String> curveName = DirectMetaProperty.ofImmutable(
-        this, "curveName", NameCurrencySensitivityKey.class, String.class);
+    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
+        this, "curveName", NameCurrencySensitivityKey.class, CurveName.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -207,7 +219,7 @@ public final class NameCurrencySensitivityKey
      * The meta-property for the {@code curveName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveName() {
+    public MetaProperty<CurveName> curveName() {
       return curveName;
     }
 
@@ -248,7 +260,7 @@ public final class NameCurrencySensitivityKey
    */
   private static final class Builder extends DirectFieldsBeanBuilder<NameCurrencySensitivityKey> {
 
-    private String curveName;
+    private CurveName curveName;
     private Currency currency;
 
     /**
@@ -274,7 +286,7 @@ public final class NameCurrencySensitivityKey
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 771153946:  // curveName
-          this.curveName = (String) newValue;
+          this.curveName = (CurveName) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;

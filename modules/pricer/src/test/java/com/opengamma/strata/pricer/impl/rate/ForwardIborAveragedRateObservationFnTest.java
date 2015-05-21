@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -59,8 +60,7 @@ public class ForwardIborAveragedRateObservationFnTest {
       fixings.add(fixing);
       totalWeightedRate += FIXING_VALUES[i] * WEIGHTS[i];
       totalWeight += WEIGHTS[i];
-      when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[i]))
-          .thenReturn(FIXING_VALUES[i]);
+      when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[i])).thenReturn(FIXING_VALUES[i]);
     }
     double rateExpected = totalWeightedRate / totalWeight;
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
@@ -71,6 +71,7 @@ public class ForwardIborAveragedRateObservationFnTest {
 
   public void test_rateSensitivity() {
     RatesProvider mockProv = mock(RatesProvider.class);
+    IborIndexRates mockRates = mock(IborIndexRates.class);
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeight = 0.0d;
     for (int i = 0; i < FIXING_DATES.length; i++) {
@@ -80,8 +81,8 @@ public class ForwardIborAveragedRateObservationFnTest {
           .build();
       fixings.add(fixing);
       totalWeight += WEIGHTS[i];
-      when(mockProv.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATES[i]))
-          .thenReturn(SENSITIVITIES[i]);
+      when(mockProv.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRates);
+      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
     }
     PointSensitivities expected = PointSensitivities.of(ImmutableList.of(
         IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[0], WEIGHTS[0] / totalWeight),
@@ -98,6 +99,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     double eps = 1.0e-7;
     int nDates = FIXING_DATES.length;
     RatesProvider mockProvBase = mock(RatesProvider.class);
+    IborIndexRates mockRatesBase = mock(IborIndexRates.class);
 
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < nDates; i++) {
@@ -106,7 +108,8 @@ public class ForwardIborAveragedRateObservationFnTest {
           .weight(WEIGHTS[i])
           .build();
       fixings.add(fixing);
-      when(mockProvBase.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockProvBase.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRatesBase);
+      when(mockRatesBase.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
     }
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;

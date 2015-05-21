@@ -16,6 +16,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.NameSensitivityKey;
@@ -45,16 +46,16 @@ public class MarketQuoteSensitivityCalculator {
     CurveParameterSensitivity result = CurveParameterSensitivity.empty();
     for(Entry<SensitivityKey, double[]> entry: sensitivityMap.entrySet()) {
       SensitivityKey key = entry.getKey();
-      ArgChecker.isTrue((key instanceof NameCurrencySensitivityKey) || 
-          (key instanceof NameSensitivityKey), "only Sensitivity keys with curve name supported");
-      // TODO: improve the "instanceof"
-      String curveName = null;
+      // TODO: improve types of sensitivity key
+      CurveName curveName;
       if(key instanceof NameCurrencySensitivityKey) {
         curveName = ((NameCurrencySensitivityKey) key).getCurveName();
       } else if(key instanceof NameSensitivityKey){
         curveName = ((NameSensitivityKey) key).getCurveName();        
+      } else {
+        throw new IllegalArgumentException("Invalid sensitivity key type, must have curve name");
       }
-      Pair<CurveBuildingBlock, DoubleMatrix2D> blockEntry = blocks.getBlock(curveName);
+      Pair<CurveBuildingBlock, DoubleMatrix2D> blockEntry = blocks.getBlock(curveName.toString());
       double[] parameterSensitivityEntry = entry.getValue();
       DoubleMatrix1D parameterSensitivityEntryMatrix = new DoubleMatrix1D(parameterSensitivityEntry);
       double[] keySensi = ((DoubleMatrix1D) MATRIX_ALGEBRA
