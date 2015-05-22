@@ -1,3 +1,4 @@
+import com.github.jk1.license.LicenseReportPlugin
 import com.opengamma.tools.gradle.analytics.AnalyticsPlugin
 import com.opengamma.tools.gradle.depreport.InMemoryRenderer
 import com.opengamma.tools.gradle.depreport.task.AggregatedCSVDependencyReport
@@ -32,7 +33,7 @@ ext {
 apply plugin: AnalyticsPlugin
 
 allprojects {
-    version "0.9.0-SNAPSHOT"
+    version "0.7.0-SNAPSHOT"
     group "com.opengamma.strata"
 }
 
@@ -54,8 +55,8 @@ subprojects {
     apply from: "${rootProject.projectDir}/gradle/deployment.gradle"
 
     compileJava {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 
 	tasks.withType(JavaCompile) {
@@ -123,9 +124,7 @@ task fullJavadoc(type: Javadoc) {
     options.windowTitle = "OpenGamma Strata"
     title = "OpenGamma Strata API Documentation"
 
-    // TODO - This doesn't work. Don't know what it's supposed to do when it does work. Find out & fix.
-    //options.header = """<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ["\$","\$"], ["\\\\\\\\(","\\\\\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>"""
-
+    options.header = """<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ["\$","\$"], ["\\\\\\\\(","\\\\\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>"""
     options.footer = """<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadocFooterLicense}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-12092825-5"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true; ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s); })(); </script>"""
 }
 
@@ -156,13 +155,13 @@ task testReport(type: TestReport) { testReport ->
 }
 
 allprojects {
-    apply plugin: com.github.jk1.license.LicenseReportPlugin
+    apply plugin: LicenseReportPlugin
     licenseReport {
         renderer = new InMemoryRenderer()
     }
 }
 
-task dependencyReport(type: com.opengamma.tools.gradle.depreport.task.AggregatedCSVDependencyReport)
+task dependencyReport(type: AggregatedCSVDependencyReport)
 
 apply plugin: ReleasePlugin
 apply plugin: AutoVersionPlugin

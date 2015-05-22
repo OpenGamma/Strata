@@ -13,3 +13,35 @@ javadoc {
     options.windowTitle = "OpenGamma Strata Examples"
     title = "OpenGamma Strata Examples API Documentation"
 }
+
+task runSheduleGuiExample(type: JavaExec) {
+    group = "Examples"
+    main = "com.opengamma.strata.examples.basics.ScheduleGui"
+
+    dependsOn JavaPlugin.CLASSES_TASK_NAME
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task runFraPricingExample(type: JavaExec) {
+    group = "Examples"
+    main = "com.opengamma.strata.examples.finance.FraPricingExample"
+
+    dependsOn JavaPlugin.CLASSES_TASK_NAME
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task runSwapPricingExample(type: JavaExec) {
+    group = "Examples"
+    main = "com.opengamma.strata.examples.finance.SwapPricingExample"
+
+    dependsOn JavaPlugin.CLASSES_TASK_NAME
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task runSwapTradeModelDemo(type: JavaExec) {
+    group = "Examples"
+    main = "com.opengamma.strata.examples.finance.SwapTradeModelDemo"
+
+    dependsOn JavaPlugin.CLASSES_TASK_NAME
+    classpath = sourceSets.main.runtimeClasspath
+}
