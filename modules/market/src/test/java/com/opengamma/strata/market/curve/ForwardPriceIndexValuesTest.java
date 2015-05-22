@@ -56,7 +56,7 @@ public class ForwardPriceIndexValuesTest {
       233.916, 234.781, 236.293, 237.072, 237.900, 238.343, 238.250, 237.852, 238.031, 237.433, 236.151, 234.812, // 2014
       233.707, 234.722, 236.119}; // 2015
   private static final LocalDate USCPI_START_DATE = LocalDate.of(2009, 1, 31);
-  public static final LocalDateDoubleTimeSeries USCPI_TS;
+  private static final LocalDateDoubleTimeSeries USCPI_TS;
   static {
     LocalDateDoubleTimeSeriesBuilder builder = LocalDateDoubleTimeSeries.builder();
     for (int i = 0; i < USCPI_VALUES.length; i++) {
