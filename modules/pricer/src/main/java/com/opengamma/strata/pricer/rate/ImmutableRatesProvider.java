@@ -36,6 +36,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.DiscountFactors;
@@ -122,6 +123,11 @@ public final class ImmutableRatesProvider
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public <T> T data(MarketDataKey<T> key) {
+    throw new IllegalArgumentException("Unknown key: " + key.toString());
+  }
+
   @Override
   public <T> T data(Class<T> type) {
     ArgChecker.notNull(type, "type");
