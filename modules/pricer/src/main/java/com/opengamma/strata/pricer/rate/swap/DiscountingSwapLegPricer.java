@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.rate.swap;
 import java.time.LocalDate;
 import java.util.function.BiFunction;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -276,16 +277,16 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates a stream of future cash flows of the swap leg. 
+   * Calculates the future cash flows of the swap leg.
    * <p>
-   * The expected currency amount of each payment is the future value in the payment currency.
-   * The discount factor is computed using the payment currency of the leg.
+   * Each expected cash flow is added to the result.
+   * This is based on {@link #futureValue(SwapLeg, RatesProvider)}.
    * 
-   * @param leg the swap leg for which the cash flows should be computed
-   * @param provider the rates provider
-   * @return the cash flow
+   * @param leg  the swap leg for which the cash flows should be computed
+   * @param provider  the rates provider
+   * @return the cash flows
    */
-  public CashFlows cashFlow(SwapLeg leg, RatesProvider provider) {
+  public CashFlows cashFlows(SwapLeg leg, RatesProvider provider) {
     ExpandedSwapLeg expanded = leg.expand();
     CashFlows cashFlowPeriods = cashFlowPeriodsInternal(expanded, provider);
     CashFlows cashFlowEvents = cashFlowEventsInternal(expanded, provider);
@@ -359,40 +360,41 @@ public class DiscountingSwapLegPricer {
     return builder;
   }
 
+  //-------------------------------------------------------------------------
   // calculates the cash flow of the periods composing the leg in the currency of the swap leg
   CashFlows cashFlowPeriodsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
-    CashFlows cashFlow = CashFlows.NONE;
+    ImmutableList.Builder<CashFlow> builder = ImmutableList.builder();
     for (PaymentPeriod period : leg.getPaymentPeriods()) {
       if (!period.getPaymentDate().isBefore(provider.getValuationDate())) {
         double futureValue = paymentPeriodPricer.futureValue(period, provider);
-        if (futureValue != 0.0d) {
+        if (futureValue != 0d) {
           Currency currency = period.getCurrency();
           LocalDate paymentDate = period.getPaymentDate();
           double discountFactor = provider.discountFactor(currency, paymentDate);
           CashFlow singleCashFlow = CashFlow.of(paymentDate, currency, futureValue, discountFactor);
-          cashFlow = cashFlow.combinedWith(singleCashFlow);
+          builder.add(singleCashFlow);
         }
       }
     }
-    return cashFlow;
+    return CashFlows.of(builder.build());
   }
 
   // calculates the cash flow of the events composing the leg in the currency of the swap leg
   CashFlows cashFlowEventsInternal(ExpandedSwapLeg leg, RatesProvider provider) {
-    CashFlows cashFlow = CashFlows.NONE;
+    ImmutableList.Builder<CashFlow> builder = ImmutableList.builder();
     for (PaymentEvent event : leg.getPaymentEvents()) {
       if (!event.getPaymentDate().isBefore(provider.getValuationDate())) {
         double futureValue = paymentEventPricer.futureValue(event, provider);
-        if (futureValue != 0.0d) {
+        if (futureValue != 0d) {
           Currency currency = event.getCurrency();
           LocalDate paymentDate = event.getPaymentDate();
           double discountFactor = provider.discountFactor(currency, paymentDate);
           CashFlow singleCashFlow = CashFlow.of(paymentDate, currency, futureValue, discountFactor);
-          cashFlow = cashFlow.combinedWith(singleCashFlow);
+          builder.add(singleCashFlow);
         }
       }
     }
-    return cashFlow;
+    return CashFlows.of(builder.build());
   }
 
 }

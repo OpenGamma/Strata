@@ -288,28 +288,20 @@ public class DiscountingSwapProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates a stream of future cash flows of the swap product. 
+   * Calculates the future cash flows of the swap product.
    * <p>
-   * The expected currency amount of each payment is the future value in the payment currency.
-   * The discount factor is computed using the payment currency of the individual leg.
+   * Each expected cash flow is added to the result.
+   * This is based on {@link #futureValue(SwapProduct, RatesProvider)}.
    * 
-   * @param product the swap product for which the cash flows should be computed
-   * @param provider the rates provider
+   * @param product  the swap product for which the cash flows should be computed
+   * @param provider  the rates provider
    * @return the cash flow
    */
-  public CashFlows cashFlow(SwapProduct product, RatesProvider provider) {
-    return cashFlow(product.expand(), provider, legPricer::cashFlow);
-  }
-
-  private static CashFlows cashFlow(
-      ExpandedSwap swap,
-      RatesProvider provider,
-      BiFunction<SwapLeg, RatesProvider, CashFlows> legFn) {
-    CashFlows cashFlow = CashFlows.NONE;
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
-      cashFlow = cashFlow.combinedWith(legFn.apply(leg, provider));
-    }
-    return cashFlow;
+  public CashFlows cashFlows(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap expanded = product.expand();
+    return expanded.getLegs().stream()
+        .map(leg -> legPricer.cashFlows(leg, provider))
+        .reduce(CashFlows.NONE, CashFlows::combinedWith);
   }
 
   //-------------------------------------------------------------------------

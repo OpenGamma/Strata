@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -508,6 +509,40 @@ public class DiscountingFraProductPricerTest {
         .build();
     CurrencyAmount pv = test.presentValue(fra, mockProv);
     assertEquals(pv.getAmount(), 0.0, FRA_AFMA.getNotional() * TOLERANCE);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Test cash flow for ISDA FRA Discounting method. 
+   */
+  public void test_cashFlows_ISDA() {
+    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    double forwardRate = 0.02;
+    double discountFactor = 0.98d;
+    ExpandedFra fraExp = FRA.expand();
+    Currency currency = fraExp.getCurrency();
+
+    DiscountingFraProductPricer test = new DiscountingFraProductPricer(mockObs);
+    double fixedRate = FRA.getFixedRate();
+    double yearFraction = fraExp.getYearFraction();
+    double notional = fraExp.getNotional();
+    when(mockObs.rate(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), mockProv))
+        .thenReturn(forwardRate);
+    when(mockProv.discountFactor(currency, fraExp.getPaymentDate())).thenReturn(discountFactor);
+
+    CashFlows computed = test.cashFlows(fraExp, mockProv);
+    assertEquals(computed.getCashFlows().size(), 1);
+    assertEquals(computed.getCashFlows().size(), 1);
+    double expected = notional * yearFraction * (forwardRate - fixedRate) / (1.0 + yearFraction * forwardRate);
+    assertEquals(computed.getCashFlows().get(0).getPaymentDate(), fraExp.getPaymentDate());
+    assertEquals(computed.getCashFlows().get(0).getFutureValue().getCurrency(), currency);
+    assertEquals(computed.getCashFlows().get(0).getFutureValue().getAmount(), expected, TOLERANCE);
+
+    // test via FraTrade
+    DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
+    assertEquals(testTrade.cashFlows(FRA_TRADE, mockProv), test.cashFlows(fraExp, mockProv));
   }
 
   //-------------------------------------------------------------------------

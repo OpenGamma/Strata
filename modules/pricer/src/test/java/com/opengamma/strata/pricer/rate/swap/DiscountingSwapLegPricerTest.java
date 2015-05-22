@@ -580,7 +580,7 @@ public class DiscountingSwapLegPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_cashFlow() {
+  public void test_cashFlows() {
     RatesProvider mockProv = mock(RatesProvider.class);
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     DispatchingPaymentEventPricer eventPricer = DispatchingPaymentEventPricer.DEFAULT;
@@ -600,12 +600,13 @@ public class DiscountingSwapLegPricerTest {
     when(mockProv.discountFactor(expSwapLeg.getCurrency(), period2.getPaymentDate())).thenReturn(df2);
     when(mockProv.discountFactor(expSwapLeg.getCurrency(), event.getPaymentDate())).thenReturn(df);
     DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, eventPricer);
-    CashFlows computed = pricer.cashFlow(expSwapLeg, mockProv);
+
+    CashFlows computed = pricer.cashFlows(expSwapLeg, mockProv);
     CashFlow flow1 = CashFlow.of(period1.getPaymentDate(), GBP, fv1, df1);
     CashFlow flow2 = CashFlow.of(period2.getPaymentDate(), GBP, fv2, df2);
     CashFlow flow3 = CashFlow.of(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
     CashFlows expected = CashFlows.of(ImmutableList.of(flow1, flow2, flow3));
     assertEquals(computed, expected);
-
   }
+
 }

@@ -42,12 +42,15 @@ public class CashFlowsTest {
     CashFlows test = CashFlows.of(CASH_FLOW_1);
     assertEquals(test.getCashFlows().size(), 1);
     assertEquals(test.getCashFlows().get(0), CASH_FLOW_1);
+    assertEquals(test.getCashFlow(0), CASH_FLOW_1);
   }
 
   public void test_of_listFlows() {
     List<CashFlow> list = ImmutableList.<CashFlow>builder().add(CASH_FLOW_1, CASH_FLOW_2).build();
     CashFlows test = CashFlows.of(list);
     assertEquals(test.getCashFlows(), list);
+    assertEquals(test.getCashFlow(0), CASH_FLOW_1);
+    assertEquals(test.getCashFlow(1), CASH_FLOW_2);
   }
 
   //-------------------------------------------------------------------------

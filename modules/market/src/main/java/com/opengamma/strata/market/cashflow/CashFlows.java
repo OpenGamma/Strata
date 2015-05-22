@@ -72,14 +72,25 @@ public final class CashFlows
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the cash flow by index.
+   * 
+   * @param index  the index to get
+   * @return the cash flow
+   */
+  public CashFlow getCashFlow(int index) {
+    return cashFlows.get(index);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Combines this cash flows instance with another cash flow.
    * <p>
    * This returns a new cash flows instance with a combined list of cash flow instances. 
    * This instance is immutable and unaffected by this method.
    * The result may contain duplicate cash flows. 
    * 
-   * @param cashFlow the additional single cash flow
-   * @return the new instance of {@code CashFlows} based on this instance, with the additional single cash flow added. 
+   * @param cashFlow  the additional single cash flow
+   * @return the new instance of {@code CashFlows} based on this instance, with the additional single cash flow added
    */
   public CashFlows combinedWith(CashFlow cashFlow) {
     return new CashFlows(ImmutableList.<CashFlow>builder()
@@ -95,8 +106,8 @@ public final class CashFlows
    * This instance is immutable and unaffected by this method.
    * The result may contain duplicate cash flows. 
    * 
-   * @param other the other cash flows
-   * @return the new instance of {@code CashFlows} based on this instance, with the other instance added. 
+   * @param other  the other cash flows
+   * @return the new instance of {@code CashFlows} based on this instance, with the other instance added
    */
   public CashFlows combinedWith(CashFlows other) {
     return new CashFlows(ImmutableList.<CashFlow>builder()

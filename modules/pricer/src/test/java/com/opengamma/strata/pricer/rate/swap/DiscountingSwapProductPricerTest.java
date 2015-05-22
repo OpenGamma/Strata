@@ -609,7 +609,7 @@ public class DiscountingSwapProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_cashFlow() {
+  public void test_cashFlows() {
     RatesProvider mockProv = mock(RatesProvider.class);
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     double df1 = 0.98;
@@ -627,11 +627,16 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    CashFlows computed = pricerSwap.cashFlow(expanded, mockProv);
 
+    CashFlows computed = pricerSwap.cashFlows(expanded, mockProv);
     CashFlow flowGBP = CashFlow.of(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), GBP, fvGBP, df1);
     CashFlow flowUSD = CashFlow.of(FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate(), USD, fvUSD, df2);
     CashFlows expected = CashFlows.of(ImmutableList.of(flowGBP, flowUSD));
     assertEquals(computed, expected);
+
+    // test via SwapTrade
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(pricerTrade.cashFlows(SWAP_TRADE, MOCK_PROV), pricerSwap.cashFlows(expanded, MOCK_PROV));
   }
+
 }

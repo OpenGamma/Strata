@@ -143,20 +143,20 @@ public class DiscountingFraProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future cash flow of the FRA product. 
+   * Calculates the future cash flow of the FRA product.
    * <p>
    * There is only one cash flow on the payment date for the FRA product.
-   * The expected currency amount of the cash flow is the same as {@link #futureValue(FraProduct, RatesProvider)}. 
+   * The expected currency amount of the cash flow is the same as {@link #futureValue(FraProduct, RatesProvider)}.
    * 
    * @param product  the FRA product for which the cash flow should be computed
    * @param provider  the rates provider
-   * @return the cash flow
+   * @return the cash flows
    */
-  public CashFlows cashFlow(FraProduct product, RatesProvider provider) {
+  public CashFlows cashFlows(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    double futureValue = futureValue(fra, provider);
     LocalDate paymentDate = fra.getPaymentDate();
-    double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    double futureValue = futureValue(fra, provider);
+    double df = provider.discountFactor(fra.getCurrency(), paymentDate);
     CashFlow cashFlow = CashFlow.of(paymentDate, fra.getCurrency(), futureValue, df);
     return CashFlows.of(cashFlow);
   }
