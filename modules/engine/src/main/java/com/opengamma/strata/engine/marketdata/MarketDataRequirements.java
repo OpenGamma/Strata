@@ -36,8 +36,8 @@ import com.opengamma.strata.basics.market.ObservableId;
 @BeanDefinition(builderScope = "private")
 public final class MarketDataRequirements implements ImmutableBean {
 
-  /** A set of requirements that specifies that no market data is required. */
-  public static final MarketDataRequirements EMPTY = MarketDataRequirements.builder().build();
+  /** A set of requirements which specifies that no market data is required. */
+  private static final MarketDataRequirements EMPTY = MarketDataRequirements.builder().build();
 
   /** Keys identifying the market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
@@ -68,6 +68,15 @@ public final class MarketDataRequirements implements ImmutableBean {
    */
   public static MarketDataRequirementsBuilder builder() {
     return new MarketDataRequirementsBuilder();
+  }
+
+  /**
+   * Returns a set of requirements specifying that no market data is required.
+   *
+   * @return a set of requirements specifying that no market data is required
+   */
+  public static MarketDataRequirements empty() {
+    return EMPTY;
   }
 
   /**

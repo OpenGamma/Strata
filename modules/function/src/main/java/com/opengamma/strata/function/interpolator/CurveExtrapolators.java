@@ -35,4 +35,12 @@ public final class CurveExtrapolators {
   /** Reciprocal extrapolator. */
   public static final CurveExtrapolator RECIPROCAL =
       CurveExtrapolator.of(StandardCurveExtrapolators.RECIPROCAL.getName());
+
+  /** Flat extrapolator. */
+  public static final CurveExtrapolator FLAT =
+      CurveExtrapolator.of(StandardCurveExtrapolators.FLAT.getName());
+
+  /** Extrapolator that does no extrapolation and delegates to the interpolator. */
+  public static final CurveExtrapolator INTERPOLATOR =
+      CurveExtrapolator.of(StandardCurveExtrapolators.INTERPOLATOR.getName());
 }

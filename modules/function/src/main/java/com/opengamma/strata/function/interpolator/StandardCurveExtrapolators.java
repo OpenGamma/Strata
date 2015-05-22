@@ -6,6 +6,8 @@
 package com.opengamma.strata.function.interpolator;
 
 import com.opengamma.analytics.math.interpolation.Extrapolator1D;
+import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.InterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.LogLinearExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.ProductPolynomialExtrapolator1D;
@@ -39,6 +41,12 @@ final class StandardCurveExtrapolators {
 
   /** Reciprocal extrapolator. */
   public static final CurveExtrapolator RECIPROCAL = new ReciprocalExtrapolator1D();
+
+  /** Flat extrapolator. */
+  public static final CurveExtrapolator FLAT = new FlatExtrapolator1D();
+
+  /** Extrapolator that does no extrapolation and delegates to the interpolator. */
+  public static final CurveExtrapolator INTERPOLATOR = new InterpolatorExtrapolator();
 
   // Private constructor as this class only exists to hold the extrapolator constants
   private StandardCurveExtrapolators() {

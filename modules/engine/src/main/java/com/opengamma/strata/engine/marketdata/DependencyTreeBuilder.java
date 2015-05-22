@@ -14,6 +14,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 
 /**
@@ -41,29 +42,36 @@ class DependencyTreeBuilder {
   /** The requirements for market data used in a set of calculations. */
   private final MarketDataRequirements requirements;
 
+  /** Configuration specifying how market data values should be built. */
+  private final MarketDataConfig marketDataConfig;
+
   /**
    * Returns a tree builder that builds the dependency tree for the market data required by a set of calculations.
    *
    * @param suppliedData  market data supplied by the user
    * @param requirements  specifies the market data required for the calculations
+   * @param marketDataConfig  configuration specifying how market data values should be built
    * @param functions  functions that create items of market data
    * @return a tree builder that builds the dependency tree for the market data required by a set of calculations
    */
   static DependencyTreeBuilder of(
       BaseMarketData suppliedData,
       MarketDataRequirements requirements,
+      MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
-    return new DependencyTreeBuilder(suppliedData, requirements, functions);
+    return new DependencyTreeBuilder(suppliedData, requirements, marketDataConfig, functions);
   }
 
   private DependencyTreeBuilder(
       BaseMarketData suppliedData,
       MarketDataRequirements requirements,
+      MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
     this.suppliedData = suppliedData;
     this.requirements = requirements;
+    this.marketDataConfig = marketDataConfig;
     this.functions = functions;
   }
 
@@ -132,7 +140,7 @@ class DependencyTreeBuilder {
 
     if (builder != null) {
       @SuppressWarnings("unchecked")
-      MarketDataRequirements requirements = builder.requirements(id);
+      MarketDataRequirements requirements = builder.requirements(id, marketDataConfig);
       return MarketDataNode.child(id, dataType, childNodes(requirements));
     } else {
       // If there is no builder insert a leaf node. It will be flagged as an error when the data is built

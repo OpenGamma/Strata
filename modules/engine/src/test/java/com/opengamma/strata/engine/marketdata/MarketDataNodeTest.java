@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -148,7 +149,11 @@ public class MarketDataNodeTest {
             TestIdB.class, builderB);
 
     MarketDataNode root =
-        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 3, 8)), functions);
+        MarketDataNode.buildDependencyTree(
+            requirements,
+            BaseMarketData.empty(date(2011, 3, 8)),
+            MarketDataConfig.empty(),
+            functions);
 
     assertThat(root).isEqualTo(expected);
   }
@@ -193,7 +198,11 @@ public class MarketDataNodeTest {
             TestIdB.class, builder);
 
     MarketDataNode root1 =
-        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 3, 8)), functions);
+        MarketDataNode.buildDependencyTree(
+            requirements,
+            BaseMarketData.empty(date(2011, 3, 8)),
+            MarketDataConfig.empty(),
+            functions);
 
     assertThat(root1).isEqualTo(expected1);
 
@@ -203,7 +212,11 @@ public class MarketDataNodeTest {
             .addValue(new TestIdB("3"), new TestMarketDataB())
             .build();
 
-    MarketDataNode root2 = MarketDataNode.buildDependencyTree(requirements, suppliedData, functions);
+    MarketDataNode root2 = MarketDataNode.buildDependencyTree(
+        requirements,
+        suppliedData,
+        MarketDataConfig.empty(),
+        functions);
 
     MarketDataNode expected2 =
         rootNode(
@@ -239,7 +252,11 @@ public class MarketDataNodeTest {
         ImmutableMap.of(TestIdB.class, builder);
     // Build the tree without providing a market data function to handle TestId3
     MarketDataNode root =
-        MarketDataNode.buildDependencyTree(requirements, BaseMarketData.empty(date(2011, 8, 3)), functions);
+        MarketDataNode.buildDependencyTree(
+            requirements,
+            BaseMarketData.empty(date(2011, 8, 3)),
+            MarketDataConfig.empty(),
+            functions);
 
     assertThat(root).isEqualTo(expected);
   }
@@ -288,6 +305,11 @@ public class MarketDataNodeTest {
     @Override
     public Class<Double> getMarketDataType() {
       return Double.class;
+    }
+
+    @Override
+    public ObservableKey toObservableKey() {
+      throw new UnsupportedOperationException("toObservableKey not implemented");
     }
 
     @Override
@@ -388,13 +410,13 @@ public class MarketDataNodeTest {
   private static final class TestMarketDataFunctionA implements MarketDataFunction<Double, TestIdA> {
 
     @Override
-    public MarketDataRequirements requirements(TestIdA id) {
+    public MarketDataRequirements requirements(TestIdA id, MarketDataConfig marketDataConfig) {
       // The ID represents observable data which has no dependencies by definition
-      return MarketDataRequirements.EMPTY;
+      return MarketDataRequirements.empty();
     }
 
     @Override
-    public Result<Double> build(TestIdA id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+    public Result<Double> build(TestIdA id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
       throw new UnsupportedOperationException("build not implemented");
     }
 
@@ -415,12 +437,12 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public MarketDataRequirements requirements(TestIdB id) {
-      return requirements.getOrDefault(id, MarketDataRequirements.EMPTY);
+    public MarketDataRequirements requirements(TestIdB id, MarketDataConfig marketDataConfig) {
+      return requirements.getOrDefault(id, MarketDataRequirements.empty());
     }
 
     @Override
-    public Result<TestMarketDataB> build(TestIdB id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+    public Result<TestMarketDataB> build(TestIdB id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
       throw new UnsupportedOperationException("build not implemented");
     }
 

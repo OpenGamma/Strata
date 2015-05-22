@@ -5,7 +5,11 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
@@ -25,6 +29,16 @@ public interface MarketDataLookup {
   public abstract boolean containsValue(MarketDataId<?> id);
 
   /**
+   * Checks if this set of data contains values for all the specified IDs with the expected types.
+   *
+   * @param ids  IDs of items of market data
+   * @return true if this set of market data contains values for every ID and the values have the expected types
+   */
+  public default boolean containsValues(Set<? extends MarketDataId<?>> ids) {
+    return ids.stream().allMatch(this::containsValue);
+  }
+
+  /**
    * Returns a market data value.
    * <p>
    * The date of the market data is the same as the valuation date of the calculations.
@@ -37,6 +51,34 @@ public interface MarketDataLookup {
    */
   @SuppressWarnings("unchecked")
   public abstract <T, I extends MarketDataId<T>> T getValue(I id);
+
+  /**
+   * Returns a map of market data values for a set of IDs.
+   * <p>
+   * The return value is guaranteed to contain a value for every ID. If any values are unavailable this
+   * method throws {@code IllegalArgumentException}.
+   *
+   * @param ids  market data IDs
+   * @return a map of market data values for the IDs
+   * @throws IllegalArgumentException if there is no value for any of the IDs
+   */
+  public default Map<MarketDataId<?>, Object> getValues(Set<? extends MarketDataId<?>> ids) {
+    return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
+  }
+
+  /**
+   * Returns a map of observable market data values for a set of IDs.
+   * <p>
+   * The return value is guaranteed to contain a value for every ID. If any values are unavailable this
+   * method throws {@code IllegalArgumentException}.
+   *
+   * @param ids  market data IDs
+   * @return a map of market data values for the IDs
+   * @throws IllegalArgumentException if there is no value for any of the IDs
+   */
+  public default Map<ObservableId, Double> getObservableValues(Set<? extends ObservableId> ids) {
+    return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
+  }
 
   /**
    * Checks if this set of data contains a time series for the specified market data ID.

@@ -61,13 +61,13 @@ public abstract class AbstractSwapFunction<T>
 
     Set<MarketDataKey<?>> indexCurveKeys =
         indices.stream()
-            .map(MarketDataKeys::indexCurveKey)
+            .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
 
     Set<DiscountingCurveKey> discountingCurveKeys =
         swap.getLegs().stream()
             .map(SwapLeg::getCurrency)
-            .map(DiscountingCurveKey::of)
+            .map(MarketDataKeys::discountingCurve)
             .collect(toImmutableSet());
 
     return CalculationRequirements.builder()

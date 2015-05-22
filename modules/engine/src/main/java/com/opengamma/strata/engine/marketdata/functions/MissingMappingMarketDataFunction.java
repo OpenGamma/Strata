@@ -26,12 +26,12 @@ public final class MissingMappingMarketDataFunction implements MarketDataFunctio
   }
 
   @Override
-  public MarketDataRequirements requirements(MissingMappingId id) {
-    return MarketDataRequirements.EMPTY;
+  public MarketDataRequirements requirements(MissingMappingId id, MarketDataConfig marketDataConfig) {
+    return MarketDataRequirements.empty();
   }
 
   @Override
-  public Result<Void> build(MissingMappingId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+  public Result<Void> build(MissingMappingId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data mapping found for market data key {}",
