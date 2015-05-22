@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.curve.DiscountFactors;
@@ -72,6 +73,11 @@ public final class MarketDataRatesProvider
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public <T> T data(MarketDataKey<T> key) {
+    return marketData.getValue(key);
+  }
+
   @Override
   public <T> T data(Class<T> type) {
     throw new IllegalArgumentException("Unknown type: " + type.getName());
