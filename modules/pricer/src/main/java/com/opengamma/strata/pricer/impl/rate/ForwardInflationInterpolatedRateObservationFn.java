@@ -10,6 +10,7 @@ import java.time.YearMonth;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
+import com.opengamma.strata.market.curve.PriceIndexValues;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
@@ -95,9 +96,9 @@ public class ForwardInflationInterpolatedRateObservationFn
       double weight2,
       RatesProvider provider) {
 
-    PriceIndexProvider priceProvider = provider.data(PriceIndexProvider.class);
-    double indexReferenceStart1 = priceProvider.inflationIndexRate(index, month1, provider);
-    double indexReferenceStart2 = priceProvider.inflationIndexRate(index, month2, provider);
+    PriceIndexValues values = provider.data(PriceIndexProvider.class).priceIndexValues(index);
+    double indexReferenceStart1 = values.value(month1);
+    double indexReferenceStart2 = values.value(month2);
     return weight1 * indexReferenceStart1 + weight2 * indexReferenceStart2;
   }
 
@@ -110,10 +111,10 @@ public class ForwardInflationInterpolatedRateObservationFn
       double weight2,
       RatesProvider provider) {
 
-    PriceIndexProvider priceProvider = provider.data(PriceIndexProvider.class);
-    PointSensitivityBuilder sensi1 = priceProvider.inflationIndexRateSensitivity(index, month1, provider);
+    PriceIndexValues values = provider.data(PriceIndexProvider.class).priceIndexValues(index);
+    PointSensitivityBuilder sensi1 = values.pointSensitivity(month1);
     sensi1 = sensi1.multipliedBy(weight1);
-    PointSensitivityBuilder sensi2 = priceProvider.inflationIndexRateSensitivity(index, month2, provider);
+    PointSensitivityBuilder sensi2 = values.pointSensitivity(month2);
     sensi2 = sensi2.multipliedBy(weight2);
     return sensi1.combinedWith(sensi2);
   }
