@@ -43,6 +43,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
@@ -68,6 +69,8 @@ import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.market.cashflow.CashFlow;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -604,4 +607,36 @@ public class DiscountingSwapProductPricerTest {
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(fvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
   }
+
+  //-------------------------------------------------------------------------
+  public void test_cashFlows() {
+    RatesProvider mockProv = mock(RatesProvider.class);
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    double df1 = 0.98;
+    double df2 = 0.93;
+    double fvGBP = 1000d;
+    double fvUSD = -500d;
+    when(mockPeriod.futureValue(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, mockProv)).thenReturn(fvGBP);
+    when(mockPeriod.futureValue(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, mockProv)).thenReturn(fvUSD);
+    when(mockProv.getValuationDate()).thenReturn(LocalDate.of(2014, 7, 1));
+    when(mockProv.discountFactor(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getCurrency(),
+        IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate())).thenReturn(df1);
+    when(mockProv.discountFactor(FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getCurrency(),
+        FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate())).thenReturn(df2);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
+
+    CashFlows computed = pricerSwap.cashFlows(expanded, mockProv);
+    CashFlow flowGBP = CashFlow.of(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), GBP, fvGBP, df1);
+    CashFlow flowUSD = CashFlow.of(FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate(), USD, fvUSD, df2);
+    CashFlows expected = CashFlows.of(ImmutableList.of(flowGBP, flowUSD));
+    assertEquals(computed, expected);
+
+    // test via SwapTrade
+    DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
+    assertEquals(pricerTrade.cashFlows(SWAP_TRADE, MOCK_PROV), pricerSwap.cashFlows(expanded, MOCK_PROV));
+  }
+
 }

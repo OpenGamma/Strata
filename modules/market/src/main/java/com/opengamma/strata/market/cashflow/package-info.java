@@ -5,7 +5,7 @@
  */
 
 /**
- * Defines a key and identifier for market data.
+ * Defines representation of cash flows.
  */
-package com.opengamma.strata.market;
+package com.opengamma.strata.market.cashflow;
 

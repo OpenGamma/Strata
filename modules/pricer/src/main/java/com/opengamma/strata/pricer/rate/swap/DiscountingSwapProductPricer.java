@@ -22,6 +22,7 @@ import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -283,6 +284,24 @@ public class DiscountingSwapProductPricer {
     return pvbpFixedLegDr.multipliedBy(pvbpFixedLegBar)
         .combinedWith(fixedLegEventsPvDr.multipliedBy(fixedLegEventsPvBar))
         .combinedWith(otherLegsConvertedPvDr.multipliedBy(otherLegsConvertedPvBar));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flows of the swap product.
+   * <p>
+   * Each expected cash flow is added to the result.
+   * This is based on {@link #futureValue(SwapProduct, RatesProvider)}.
+   * 
+   * @param product  the swap product for which the cash flows should be computed
+   * @param provider  the rates provider
+   * @return the cash flow
+   */
+  public CashFlows cashFlows(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap expanded = product.expand();
+    return expanded.getLegs().stream()
+        .map(leg -> legPricer.cashFlows(leg, provider))
+        .reduce(CashFlows.NONE, CashFlows::combinedWith);
   }
 
   //-------------------------------------------------------------------------
