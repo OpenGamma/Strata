@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.key;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,39 +25,49 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * Market data key identifying an FX rate.
+ * <p>
+ * This is used when there is a need to obtain the current FX rate for a currency pair.
+ * Historic FX rates are available using {@link FxIndex}.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
-
-  /** The currency pair whose rate this identifies. */
-  @PropertyDefinition(validate = "notNull")
-  private final CurrencyPair currencyPair;
+public final class FxRateKey
+    implements MarketDataKey<Double>, ImmutableBean, Serializable {
 
   /**
-   * Creates an ID for the FX rate for a currency pair.
+   * The currency pair that is required.
+   * For example, 'GBP/USD'.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final CurrencyPair pair;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a key to obtain the market FX rate associated with a currency pair.
    *
-   * @param currencyPair a currency pair
-   * @return an ID for the FX rate for the currency pair
+   * @param currencyPair  the currency pair
+   * @return a key for the FX rate
    */
   public static FxRateKey of(CurrencyPair currencyPair) {
     return new FxRateKey(currencyPair);
   }
 
   /**
-   * Creates an ID for the FX rate for a currency pair.
+   * Creates a key to obtain the market FX rate associated with a currency pair.
    *
    * @param base  the base currency of the pair
    * @param counter  the counter currency of the pair
-   * @return an ID for the FX rate for the currency pair
+   * @return a key for the FX rate
    */
   public static FxRateKey of(Currency base, Currency counter) {
     return new FxRateKey(CurrencyPair.of(base, counter));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<Double> getMarketDataType() {
     return Double.class;
@@ -76,10 +87,15 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     JodaBeanUtils.registerMetaBean(FxRateKey.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private FxRateKey(
-      CurrencyPair currencyPair) {
-    JodaBeanUtils.notNull(currencyPair, "currencyPair");
-    this.currencyPair = currencyPair;
+      CurrencyPair pair) {
+    JodaBeanUtils.notNull(pair, "pair");
+    this.pair = pair;
   }
 
   @Override
@@ -99,11 +115,12 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency pair whose rate this identifies.
+   * Gets the currency pair that is required.
+   * For example, 'GBP/USD'.
    * @return the value of the property, not null
    */
-  public CurrencyPair getCurrencyPair() {
-    return currencyPair;
+  public CurrencyPair getPair() {
+    return pair;
   }
 
   //-----------------------------------------------------------------------
@@ -114,7 +131,7 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxRateKey other = (FxRateKey) obj;
-      return JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair());
+      return JodaBeanUtils.equal(getPair(), other.getPair());
     }
     return false;
   }
@@ -122,7 +139,7 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPair());
     return hash;
   }
 
@@ -130,7 +147,7 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("FxRateKey{");
-    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(getCurrencyPair()));
+    buf.append("pair").append('=').append(JodaBeanUtils.toString(getPair()));
     buf.append('}');
     return buf.toString();
   }
@@ -146,16 +163,16 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code currencyPair} property.
+     * The meta-property for the {@code pair} property.
      */
-    private final MetaProperty<CurrencyPair> currencyPair = DirectMetaProperty.ofImmutable(
-        this, "currencyPair", FxRateKey.class, CurrencyPair.class);
+    private final MetaProperty<CurrencyPair> pair = DirectMetaProperty.ofImmutable(
+        this, "pair", FxRateKey.class, CurrencyPair.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "currencyPair");
+        "pair");
 
     /**
      * Restricted constructor.
@@ -166,8 +183,8 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1005147787:  // currencyPair
-          return currencyPair;
+        case 3433178:  // pair
+          return pair;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -189,19 +206,19 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code currencyPair} property.
+     * The meta-property for the {@code pair} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyPair> currencyPair() {
-      return currencyPair;
+    public MetaProperty<CurrencyPair> pair() {
+      return pair;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1005147787:  // currencyPair
-          return ((FxRateKey) bean).getCurrencyPair();
+        case 3433178:  // pair
+          return ((FxRateKey) bean).getPair();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -223,7 +240,7 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
    */
   private static final class Builder extends DirectFieldsBeanBuilder<FxRateKey> {
 
-    private CurrencyPair currencyPair;
+    private CurrencyPair pair;
 
     /**
      * Restricted constructor.
@@ -235,8 +252,8 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1005147787:  // currencyPair
-          return currencyPair;
+        case 3433178:  // pair
+          return pair;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -245,8 +262,8 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1005147787:  // currencyPair
-          this.currencyPair = (CurrencyPair) newValue;
+        case 3433178:  // pair
+          this.pair = (CurrencyPair) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -281,7 +298,7 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     @Override
     public FxRateKey build() {
       return new FxRateKey(
-          currencyPair);
+          pair);
     }
 
     //-----------------------------------------------------------------------
@@ -289,7 +306,7 @@ public final class FxRateKey implements MarketDataKey<Double>, ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("FxRateKey.Builder{");
-      buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair));
+      buf.append("pair").append('=').append(JodaBeanUtils.toString(pair));
       buf.append('}');
       return buf.toString();
     }
