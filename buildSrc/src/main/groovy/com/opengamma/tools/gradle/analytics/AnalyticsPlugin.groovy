@@ -4,7 +4,6 @@ import com.opengamma.tools.gradle.git.task.GitClone
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceTask
 
 class AnalyticsPlugin implements Plugin<Project>
@@ -16,7 +15,6 @@ class AnalyticsPlugin implements Plugin<Project>
     Project analytics
     String analyticsRef
     public final static String CLONE_ANALYTICS_TASK_NAME = "cloneAnalytics"
-    public final static String MAKE_PROJECT_TASK_NAME = "prepareProject"
 
     @Override
     void apply(Project target)

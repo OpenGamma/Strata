@@ -9,7 +9,6 @@ package com.opengamma.tools.gradle.release
 import com.opengamma.tools.gradle.git.task.GitPush
 import com.opengamma.tools.gradle.git.task.GitTag
 import com.opengamma.tools.gradle.release.task.CheckReleaseEnvironment
-import com.opengamma.tools.gradle.release.task.UpdateVersion
 import groovy.transform.Memoized
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -19,7 +18,7 @@ import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 
-class ReleasePlugin implements Plugin<Project>, ReleaseExtensionCreator
+class ReleasePlugin implements Plugin<Project>, ReleaseExtensionCreator, TaskNamer
 {
     public final static String RELEASE_TASK_NAME = "release"
     public final static String PACKAGE_TASK_NAME = "package"
@@ -28,7 +27,6 @@ class ReleasePlugin implements Plugin<Project>, ReleaseExtensionCreator
 	public final static String GIT_TAG_TASK_NAME = "gitTagRelease"
 	public final static String GIT_PUSH_TASK_NAME = "gitPushReleaseTag"
 	public final static String RELEASE_EXTENSION_NAME = "release"
-
 
 	Project project
 
@@ -72,11 +70,10 @@ class ReleasePlugin implements Plugin<Project>, ReleaseExtensionCreator
 	private void reconfigureVersion()
 	{
 		def setVersion = {
-			println "[!!] The version is being reconfigured because release! ${project.release.releaseVersion}"
 			project.allprojects*.version = project.release.releaseVersion.toString()
 		}
 		if(project.plugins.hasPlugin(AutoVersionPlugin))
-			project.tasks[AutoVersionPlugin.UPDATE_VERSION_TASK_NAME].doLast setVersion
+			project.tasks[taskNameFor(AutoVersionPlugin.UPDATE_VERSION_TASK_BASE_NAME)].doLast setVersion
 		else
 			setVersion()
 	}

@@ -4,14 +4,12 @@ import com.github.zafarkhaja.semver.UnexpectedCharacterException
 import com.github.zafarkhaja.semver.Version
 import com.monochromeroad.gradle.plugin.aws.s3.S3Sync
 import com.opengamma.tools.gradle.distrepo.task.DeployLocal
-import com.opengamma.tools.gradle.git.task.BaseGitTask
 import com.opengamma.tools.gradle.git.task.GitWriteTask
 import com.opengamma.tools.gradle.release.ReleaseExtension
 import com.opengamma.tools.gradle.simpleexec.SimpleExec
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Task
-import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Upload
 

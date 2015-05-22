@@ -1,7 +1,5 @@
 package com.opengamma.tools.gradle.release
 
-import groovy.transform.Memoized
-
 trait TaskNamer
 {
     String taskNameFor(String baseName)

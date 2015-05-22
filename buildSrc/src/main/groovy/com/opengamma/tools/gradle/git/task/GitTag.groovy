@@ -28,11 +28,9 @@ class GitTag extends GitWriteTask
     {
         Task doTag = project.tasks.create("execGitTag", SimpleExec)
         doTag.configure {
-//            command "git tag -a -m \"${message}\" ${tagName}"
             command "git",  "tag",  "-a", "-m", /"${message}"/, tagName
             workingDirectory repositoryLocation
         }
-
 
         doTag.execute()
     }

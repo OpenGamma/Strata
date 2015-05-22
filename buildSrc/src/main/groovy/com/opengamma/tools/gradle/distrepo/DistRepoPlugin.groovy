@@ -3,12 +3,10 @@ package com.opengamma.tools.gradle.distrepo
 import com.opengamma.tools.gradle.distrepo.task.DeployLocal
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.MavenPlugin
 import org.gradle.api.plugins.MavenRepositoryHandlerConvention
-import org.gradle.api.tasks.Upload
 
 class DistRepoPlugin implements Plugin<Project>
 {

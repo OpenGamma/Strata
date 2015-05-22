@@ -14,19 +14,42 @@ import org.gradle.api.tasks.TaskAction
 
 class SimpleExec extends DefaultTask
 {
-
+    /**
+     * The command to execute, including arguments. Unless this is a {@link List} (which will be used as-is}, the command
+     * will be the result of calling {@link Object#toString}
+     */
     @Input
     Object command
 
+    /**
+     * OPTIONAL
+     * The Environment to use when executing this command.
+     *
+     * The default value varies depending on how this task is configured. {@see inheritEnvironment}
+     */
     @Input @Optional
     Map<String, String> environment
 
+    /**
+     * OPTIONAL
+     * The working directory (ie. user.dir) to run this command in. Defaults to the current working directory.
+     */
     @Input @Optional
     File workingDirectory
 
+    /**
+     * OPTIONAL
+     * Whether or not to inherit the outer environment for this task.
+     *
+     * Defaults to true.
+     */
     @Input @Optional
     boolean inheritEnvironment = true
 
+    /**
+     * OPTIONAL
+     * Whether or not failure to execute this command should result in an exception.
+     */
     @Input @Optional
     boolean throwOnFailure = true
 

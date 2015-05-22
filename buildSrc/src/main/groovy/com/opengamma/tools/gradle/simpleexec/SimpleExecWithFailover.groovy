@@ -12,6 +12,9 @@ import org.gradle.api.tasks.TaskAction
 
 class SimpleExecWithFailover extends SimpleExec
 {
+    /**
+     * The command that will be executed iif the execution of {@see command} fails.
+     */
     @Input @Optional
     Object failoverCommand
 

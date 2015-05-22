@@ -8,7 +8,6 @@ package com.opengamma.tools.gradle.release
 
 import com.opengamma.tools.gradle.release.task.UpdateVersion
 import com.opengamma.tools.gradle.simpleexec.SimpleExecWithFailover
-import groovy.transform.Memoized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task

@@ -8,6 +8,9 @@ trait ReleaseExtensionCreator
 {
     private Project target
 
+    /**
+     * Add the {@link ReleaseExtension} extension to the this Project iif it has not already been added.
+     */
     void createReleaseExtension()
     {
         target = (Project) this.project

@@ -8,7 +8,6 @@ package com.opengamma.tools.gradle.release
 
 import com.github.zafarkhaja.semver.Version
 
-//@Immutable
 class SnapshotVersionDeriver
 {
     private static final String VERSION_TOKEN = "@version@"

@@ -10,7 +10,6 @@ uploadArchives {
     }
 
     project.afterEvaluate {
-        logger.warn "[!] Configuring uploadArchives NOW!!!!!!!!!!!!!!!"
         final String deploymentURL =
                 project.version.endsWith("-SNAPSHOT") ? SNAPSHOT_DEPLOY_REPO : RELEASE_DEPLOY_REPO
 
