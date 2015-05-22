@@ -72,7 +72,8 @@ public class DiscountingRatePaymentPeriodPricer
     // inefficient to use Optional.orElse because double primitive type would be boxed
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
-      return provider.fxIndexRate(fxReset.getIndex(), fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
+      return rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
     } else {
       return 1d;
     }

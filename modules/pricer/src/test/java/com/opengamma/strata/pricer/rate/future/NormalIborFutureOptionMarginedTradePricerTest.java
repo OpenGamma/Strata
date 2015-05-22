@@ -32,9 +32,10 @@ import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 
 /**
  * Tests {@link NormalIborFutureOptionMarginedTradePricer}
@@ -91,11 +92,6 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
       .build();
 
   private static final double RATE = 0.015;
-  private static final RatesProvider PROV_MOCK = mock(RatesProvider.class);
-  static {
-    when(PROV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getIndex(),
-        FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
-  }
 
   private static final DiscountingIborFutureProductPricer FUTURE_PRICER = DiscountingIborFutureProductPricer.DEFAULT;
   private static final NormalIborFutureOptionMarginedProductPricer OPTION_PRODUCT_PRICER =
@@ -108,7 +104,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
 
   // ----------     present value     ----------
 
-  public void presentvalue_from_option_price_trade_date() {
+  public void presentValue_from_option_price_trade_date() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
@@ -118,24 +114,34 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
   }
 
-  public void presentvalue_from_future_price() {
+  public void presentValue_from_future_price() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
+
     double futurePrice = 0.9875;
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
-        .presentValue(FUTURE_OPTION_TRADE, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE, futurePrice, lastClosingPrice);
+        .presentValue(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice, lastClosingPrice);
     double optionPrice =
-        OPTION_PRODUCT_PRICER.price(FUTURE_OPTION_PRODUCT, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+        OPTION_PRODUCT_PRICER.price(FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     double pvExpected = (OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, optionPrice) -
         OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, lastClosingPrice)) * OPTION_QUANTITY;
     assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
   }
 
-  public void presentvalue_from_env() {
+  public void presentValue_from_env() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
+
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
-        .presentValue(FUTURE_OPTION_TRADE, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE, lastClosingPrice);
+        .presentValue(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE, lastClosingPrice);
     double optionPrice =
-        OPTION_PRODUCT_PRICER.price(FUTURE_OPTION_PRODUCT, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE);
+        OPTION_PRODUCT_PRICER.price(FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE);
     double pvExpected = (OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, optionPrice) -
         OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, lastClosingPrice)) * OPTION_QUANTITY;
     assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
@@ -143,25 +149,35 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
 
   // ----------     present value sensitivity     ----------
 
-  public void presentvalueSensitivity_from_env() {
+  public void presentValueSensitivity_from_env() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
+
     PointSensitivities psProduct =
-        OPTION_PRODUCT_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE);
+        OPTION_PRODUCT_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE);
     PointSensitivities psExpected = psProduct
         .multipliedBy(OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, 1) * OPTION_QUANTITY);
     PointSensitivities psComputed = OPTION_TRADE_PRICER
-        .presentValueSensitivity(FUTURE_OPTION_TRADE, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE);
+        .presentValueSensitivity(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE);
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_PV_DELTA));
   }
 
   // ----------     present value normal vol sensitivity     ----------
 
   public void presentvalue_normalVolSensitivity_from_env() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
+
     IborFutureOptionSensitivity psProduct =
-        OPTION_PRODUCT_PRICER.priceSensitivityNormalVolatility(FUTURE_OPTION_PRODUCT, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE);
+        OPTION_PRODUCT_PRICER.priceSensitivityNormalVolatility(FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE);
     IborFutureOptionSensitivity psExpected = psProduct.withSensitivity(
         psProduct.getSensitivity() * OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, 1) * OPTION_QUANTITY);
     IborFutureOptionSensitivity psComputed = OPTION_TRADE_PRICER
-        .presentValueSensitivityNormalVolatility(FUTURE_OPTION_TRADE, PROV_MOCK, VOL_SIMPLE_MONEY_PRICE);
+        .presentValueSensitivityNormalVolatility(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE);
     assertTrue(psExpected.compareExcludingSensitivity(psComputed) == 0);
     assertEquals(psComputed.getSensitivity(), psExpected.getSensitivity(), TOLERANCE_PV_DELTA);
   }

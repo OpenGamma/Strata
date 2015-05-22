@@ -10,9 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.curve.IborIndexRates;
@@ -57,12 +55,6 @@ public class MockRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public <T> T data(Class<T> type) {
-    throw new UnsupportedOperationException();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public LocalDateDoubleTimeSeries timeSeries(Index index) {
     throw new UnsupportedOperationException();
   }
 

@@ -55,7 +55,8 @@ public class DiscountingFxResetNotionalExchangePricer
   @Override
   public double futureValue(FxResetNotionalExchange event, RatesProvider provider) {
     // notional * fxRate
-    double fxRate = provider.fxIndexRate(event.getIndex(), event.getReferenceCurrency(), event.getFixingDate());
+    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
+    double fxRate = rates.rate(event.getReferenceCurrency(), event.getFixingDate());
     return event.getNotional() * fxRate;
   }
 

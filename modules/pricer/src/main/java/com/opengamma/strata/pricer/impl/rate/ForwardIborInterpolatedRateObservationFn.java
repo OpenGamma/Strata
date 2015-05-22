@@ -44,11 +44,14 @@ public class ForwardIborInterpolatedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    LocalDate fixingDate = observation.getFixingDate();
     IborIndex index1 = observation.getShortIndex();
     IborIndex index2 = observation.getLongIndex();
-    double rate1 = provider.iborIndexRate(index1, fixingDate);
-    double rate2 = provider.iborIndexRate(index2, fixingDate);
+    IborIndexRates rates1 = provider.iborIndexRates(index1);
+    IborIndexRates rates2 = provider.iborIndexRates(index2);
+
+    LocalDate fixingDate = observation.getFixingDate();
+    double rate1 = rates1.rate(fixingDate);
+    double rate2 = rates2.rate(fixingDate);
     DoublesPair weights = weights(index1, index2, fixingDate, endDate);
     return ((rate1 * weights.getFirst()) + (rate2 * weights.getSecond())) / (weights.getFirst() + weights.getSecond());
   }

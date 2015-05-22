@@ -7,8 +7,6 @@ package com.opengamma.strata.pricer.rate.future;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -23,7 +21,6 @@ import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.future.IborFutureOption;
 import com.opengamma.strata.finance.rate.future.IborFutureOptionTrade;
-import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Tests {@link IborFutureOptionMarginedTradePricer}
@@ -60,13 +57,6 @@ public class IborFutureOptionMarginedTradePricerTest {
       .initialPrice(TRADE_PRICE)
       .build();
 
-  private static final double RATE = 0.015;
-  private static final RatesProvider ENV_MOCK = mock(RatesProvider.class);
-  static {
-    when(ENV_MOCK.iborIndexRate(FUTURE_OPTION_PRODUCT.getUnderlying().getIndex(),
-        FUTURE_OPTION_PRODUCT.getUnderlying().getLastTradeDate())).thenReturn(RATE);
-  }
-
   private static final DiscountingIborFutureProductPricer FUTURE_PRICER = DiscountingIborFutureProductPricer.DEFAULT;
   private static final NormalIborFutureOptionMarginedProductPricer OPTION_PRODUCT_PRICER =
       new NormalIborFutureOptionMarginedProductPricer(FUTURE_PRICER);
@@ -76,7 +66,7 @@ public class IborFutureOptionMarginedTradePricerTest {
   private static final double TOLERANCE_PV = 1.0E-2;
 
   // ----------     present value     ----------
-  public void presentvalue_from_no_trade_date() {
+  public void presentValue_from_no_trade_date() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     IborFutureOptionTrade trade = IborFutureOptionTrade.builder()
@@ -86,7 +76,7 @@ public class IborFutureOptionMarginedTradePricerTest {
     assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice));
   }
 
-  public void presentvalue_from_no_trade_price() {
+  public void presentValue_from_no_trade_price() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     IborFutureOptionTrade trade = IborFutureOptionTrade.builder()
@@ -96,7 +86,7 @@ public class IborFutureOptionMarginedTradePricerTest {
     assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice));
   }
 
-  public void presentvalue_from_option_price_trade_date() {
+  public void presentValue_from_option_price_trade_date() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
@@ -106,7 +96,7 @@ public class IborFutureOptionMarginedTradePricerTest {
     assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
   }
 
-  public void presentvalue_from_option_price_after_trade_date() {
+  public void presentVSalue_from_option_price_after_trade_date() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
