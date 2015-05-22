@@ -34,7 +34,6 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.finance.rate.fra.FraProduct;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
@@ -52,7 +51,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 
 @Test
 public class CurveGroupMarketDataFunctionTest {
@@ -187,8 +186,7 @@ public class CurveGroupMarketDataFunctionTest {
 
   private void checkFraPvIsZero(FraCurveNode node, LocalDate valuationDate, RatesProvider ratesProvider) {
     Trade trade = node.buildTrade(valuationDate, ImmutableMap.of());
-    FraProduct product = ((FraTrade) trade).getProduct();
-    CurrencyAmount currencyAmount = DiscountingFraProductPricer.DEFAULT.presentValue(product, ratesProvider);
+    CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue((FraTrade) trade, ratesProvider);
     double pv = currencyAmount.getAmount();
     assertThat(pv).isCloseTo(0, offset(1e-6));
   }

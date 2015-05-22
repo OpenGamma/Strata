@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -49,10 +50,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
       return MarketDataRequirements.empty();
     }
     InterpolatedCurveConfig curveConfig = (InterpolatedCurveConfig) entry.getCurveConfig();
-    Set<ObservableId> requirements = curveConfig.getNodes().stream()
-        .flatMap(node -> node.requirements().stream())
-        .map(key -> key.toObservableId(id.getMarketDataFeed()))
-        .collect(toImmutableSet());
+    Set<ObservableId> requirements = nodeRequirements(id.getMarketDataFeed(), curveConfig);
     return MarketDataRequirements.builder().addValues(requirements).build();
   }
 
@@ -82,10 +80,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
           groupName);
     }
     InterpolatedCurveConfig curveConfig = (InterpolatedCurveConfig) entry.getCurveConfig();
-    Set<ObservableId> requirements = curveConfig.getNodes().stream()
-        .flatMap(node -> node.requirements().stream())
-        .map(key -> key.toObservableId(id.getMarketDataFeed()))
-        .collect(toImmutableSet());
+    Set<ObservableId> requirements = nodeRequirements(id.getMarketDataFeed(), curveConfig);
 
     if (!marketData.containsValues(requirements)) {
       Set<ObservableId> missingRequirements = requirements.stream()
@@ -94,12 +89,26 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
       return Result.failure(FailureReason.MISSING_DATA, "No market data available for '{}'", missingRequirements);
     }
     Map<ObservableId, Double> rates = marketData.getObservableValues(requirements);
-    ParRates parRates = ParRates.builder().rates(rates).build();
+    ParRates parRates = ParRates.of(rates);
     return Result.success(parRates);
   }
 
   @Override
   public Class<ParRatesId> getMarketDataIdType() {
     return ParRatesId.class;
+  }
+
+  /**
+   * Returns requirements for the market data needed by the curve nodes to build trades.
+   *
+   * @param feed  the market data feed which provides quotes used to build the curve
+   * @param curveConfig  the curve configuration containing the nodes
+   * @return requirements for the market data needed by the nodes to build trades
+   */
+  private static Set<ObservableId> nodeRequirements(MarketDataFeed feed, InterpolatedCurveConfig curveConfig) {
+    return curveConfig.getNodes().stream()
+        .flatMap(node -> node.requirements().stream())
+        .map(key -> key.toObservableId(feed))
+        .collect(toImmutableSet());
   }
 }

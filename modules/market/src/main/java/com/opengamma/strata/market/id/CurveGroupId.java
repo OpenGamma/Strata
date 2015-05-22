@@ -41,6 +41,16 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   private final MarketDataFeed marketDataFeed;
 
   /**
+   * Returns an ID identifying a curve group with a market data feed of {@link MarketDataFeed#NONE}.
+   *
+   * @param curveGroupName  the name of the curve group
+   * @return an ID identifying a curve group by name
+   */
+  public static CurveGroupId of(String curveGroupName) {
+    return new CurveGroupId(curveGroupName, MarketDataFeed.NONE);
+  }
+
+  /**
    * Returns an ID identifying a curve group.
    *
    * @param curveGroupName  the name of the curve group
@@ -49,16 +59,6 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
    */
   public static CurveGroupId of(String curveGroupName, MarketDataFeed marketDataFeed) {
     return new CurveGroupId(curveGroupName, marketDataFeed);
-  }
-
-  /**
-   * Returns an ID identifying a curve group with a market data feed of {@link MarketDataFeed#NONE}.
-   *
-   * @param curveGroupName  the name of the curve group
-   * @return an ID identifying a curve group by name
-   */
-  public static CurveGroupId of(String curveGroupName) {
-    return new CurveGroupId(curveGroupName, MarketDataFeed.NONE);
   }
 
   @Override
