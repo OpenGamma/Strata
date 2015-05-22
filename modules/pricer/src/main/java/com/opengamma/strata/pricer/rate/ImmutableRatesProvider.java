@@ -135,14 +135,23 @@ public final class ImmutableRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public LocalDateDoubleTimeSeries timeSeries(Index index) {
+  // finds the time-series
+  private LocalDateDoubleTimeSeries timeSeries(Index index) {
     ArgChecker.notNull(index, "index");
     LocalDateDoubleTimeSeries series = timeSeries.get(index);
     if (series == null) {
       throw new IllegalArgumentException("Unknown index: " + index.getName());
     }
     return series;
+  }
+
+  // finds the index curve
+  private YieldCurve indexCurve(Index index) {
+    YieldCurve curve = (YieldCurve) indexCurves.get(index);
+    if (curve == null) {
+      throw new IllegalArgumentException("Unable to find index curve: " + index);
+    }
+    return curve;
   }
 
   //-------------------------------------------------------------------------
@@ -189,15 +198,6 @@ public final class ImmutableRatesProvider
     YieldCurve curve = indexCurve(index);
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
-  }
-
-  // lookup the discount curve for the currency
-  private YieldCurve indexCurve(Index index) {
-    YieldCurve curve = (YieldCurve) indexCurves.get(index);
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find index curve: " + index);
-    }
-    return curve;
   }
 
   //-------------------------------------------------------------------------

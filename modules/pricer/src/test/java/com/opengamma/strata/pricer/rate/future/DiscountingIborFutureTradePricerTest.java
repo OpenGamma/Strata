@@ -15,8 +15,9 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.future.IborFuture;
 import com.opengamma.strata.finance.rate.future.IborFutureTrade;
+import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 
 /**
  * Test {@link DiscountingIborFutureTradePricer}.
@@ -30,11 +31,11 @@ public class DiscountingIborFutureTradePricerTest {
   private static final IborFuture FUTURE_PRODUCT = FUTURE_TRADE.getSecurity().getProduct();
 
   private static final double RATE = 0.045;
-  private static final RatesProvider MOCK_PROV = mock(RatesProvider.class);
-  static {
-    when(MOCK_PROV.iborIndexRate(FUTURE_TRADE.getSecurity().getProduct().getIndex(),
-        FUTURE_TRADE.getSecurity().getProduct().getFixingDate())).thenReturn(RATE);
-  }
+//  private static final RatesProvider MOCK_PROV = mock(RatesProvider.class);
+//  static {
+//    when(MOCK_PROV.iborIndexRate(FUTURE_TRADE.getSecurity().getProduct().getIndex(),
+//        FUTURE_TRADE.getSecurity().getProduct().getFixingDate())).thenReturn(RATE);
+//  }
 
   private static final double TOLERANCE_PRICE = 1.0e-9;
   private static final double TOLERANCE_PRICE_DELTA = 1.0e-9;
@@ -43,42 +44,65 @@ public class DiscountingIborFutureTradePricerTest {
 
   //------------------------------------------------------------------------- 
   public void test_price() {
-    assertEquals(PRICER_TRADE.price(FUTURE_TRADE, MOCK_PROV), 1.0 - RATE, TOLERANCE_PRICE);
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
+
+    assertEquals(PRICER_TRADE.price(FUTURE_TRADE, prov), 1.0 - RATE, TOLERANCE_PRICE);
   }
 
   //-------------------------------------------------------------------------
   public void test_parSpread() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
+
     double referencePrice = 0.99;
-    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, MOCK_PROV) - referencePrice;
-    double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, MOCK_PROV, referencePrice);
+    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - referencePrice;
+    double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, referencePrice);
     assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
   }
 
   //------------------------------------------------------------------------- 
   public void test_presentValue() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE_PRODUCT.getFixingDate())).thenReturn(RATE);
+
     double lastClosingPrice = 1.025;
     IborFuture future = FUTURE_TRADE.getSecurity().getProduct();
     DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
     double expected = ((1.0 - RATE) - lastClosingPrice) *
         future.getAccrualFactor() * future.getNotional() * FUTURE_TRADE.getQuantity();
-    CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, MOCK_PROV, lastClosingPrice);
+    CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, prov, lastClosingPrice);
     assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
     assertEquals(computed.getCurrency(), future.getCurrency());
   }
 
   //-------------------------------------------------------------------------   
   public void test_presentValueSensitivity() {
-    PointSensitivities sensiPrice = PRICER_PRODUCT.priceSensitivity(FUTURE_PRODUCT, MOCK_PROV);
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+
+    PointSensitivities sensiPrice = PRICER_PRODUCT.priceSensitivity(FUTURE_PRODUCT, prov);
     PointSensitivities sensiPresentValueExpected = sensiPrice.multipliedBy(
         FUTURE_PRODUCT.getNotional() * FUTURE_PRODUCT.getAccrualFactor() * FUTURE_TRADE.getQuantity());
-    PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(FUTURE_TRADE, MOCK_PROV);
+    PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(FUTURE_TRADE, prov);
     assertTrue(sensiPresentValueComputed.equalWithTolerance(sensiPresentValueExpected, TOLERANCE_PV_DELTA));
   }
 
   //-------------------------------------------------------------------------
   public void test_parSpreadSensitivity() {
-    PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(FUTURE_PRODUCT, MOCK_PROV);
-    PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(FUTURE_TRADE, MOCK_PROV);
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+
+    PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(FUTURE_PRODUCT, prov);
+    PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(FUTURE_TRADE, prov);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }
 

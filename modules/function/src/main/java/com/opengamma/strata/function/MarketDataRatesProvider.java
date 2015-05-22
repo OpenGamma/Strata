@@ -21,7 +21,6 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.curve.DiscountFactors;
@@ -79,9 +78,8 @@ public final class MarketDataRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public LocalDateDoubleTimeSeries timeSeries(Index index) {
-    ArgChecker.notNull(index, "index");
+  // finds the time-series
+  private LocalDateDoubleTimeSeries timeSeries(Index index) {
     LocalDateDoubleTimeSeries series = marketData.getTimeSeries(IndexRateKey.of(index));
     if (series == null) {
       throw new IllegalArgumentException("Unknown index: " + index.getName());
@@ -92,8 +90,6 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
-    ArgChecker.notNull(baseCurrency, "baseCurrency");
-    ArgChecker.notNull(counterCurrency, "counterCurrency");
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
@@ -138,7 +134,6 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public double relativeTime(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return (date.isBefore(marketData.getValuationDate()) ?
         -dayCount.yearFraction(date, marketData.getValuationDate()) :
         dayCount.yearFraction(marketData.getValuationDate(), date));

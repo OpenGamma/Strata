@@ -30,10 +30,12 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
 /**
@@ -70,15 +72,19 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   public void test_presentValue() {
     double discountFactor = 0.98d;
     FxResetNotionalExchange ne = FX_RESET_NOTIONAL_EXCHANGE_REC_USD;
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.fxIndexRate(ne.getIndex(), ne.getReferenceCurrency(), ne.getFixingDate()))
-        .thenReturn(1.6d);
-    when(mockProv.discountFactor(ne.getCurrency(), ne.getPaymentDate()))
-        .thenReturn(discountFactor);
+
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    when(mockDf.discountFactor(ne.getPaymentDate())).thenReturn(discountFactor);
+
+    FxIndexRates mockFxRates = mock(FxIndexRates.class);
+    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(1.6d);
+
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    prov.setDiscountFactors(mockDf);
+    prov.setFxIndexRates(mockFxRates);
+
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
-    assertEquals(
-        test.presentValue(ne, mockProv),
-        ne.getNotional() * 1.6d * discountFactor, 0d);
+    assertEquals(test.presentValue(ne, prov), ne.getNotional() * 1.6d * discountFactor, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -109,13 +115,15 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   //-------------------------------------------------------------------------
   public void test_futureValue() {
     FxResetNotionalExchange ne = FX_RESET_NOTIONAL_EXCHANGE_REC_USD;
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.fxIndexRate(ne.getIndex(), ne.getReferenceCurrency(), ne.getFixingDate()))
-        .thenReturn(1.6d);
+
+    FxIndexRates mockFxRates = mock(FxIndexRates.class);
+    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(1.6d);
+
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    prov.setFxIndexRates(mockFxRates);
+
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
-    assertEquals(
-        test.futureValue(ne, mockProv),
-        ne.getNotional() * 1.6d, 0d);
+    assertEquals(test.futureValue(ne, prov), ne.getNotional() * 1.6d, 0d);
   }
 
   //-------------------------------------------------------------------------
