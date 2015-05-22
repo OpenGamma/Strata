@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.market.curve.CurveGroup;
 
@@ -35,14 +36,29 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   @PropertyDefinition(validate = "notEmpty")
   private final String name;
 
+  /** The market data feed which provides quotes used to build curves in the group. */
+  @PropertyDefinition(validate = "notNull")
+  private final MarketDataFeed marketDataFeed;
+
   /**
-   * Returns an ID identifying a curve group by name.
+   * Returns an ID identifying a curve group.
+   *
+   * @param curveGroupName  the name of the curve group
+   * @param marketDataFeed  the market data feed which provides quotes used to build curves in the group
+   * @return an ID identifying a curve group by name
+   */
+  public static CurveGroupId of(String curveGroupName, MarketDataFeed marketDataFeed) {
+    return new CurveGroupId(curveGroupName, marketDataFeed);
+  }
+
+  /**
+   * Returns an ID identifying a curve group with a market data feed of {@link MarketDataFeed#NONE}.
    *
    * @param curveGroupName  the name of the curve group
    * @return an ID identifying a curve group by name
    */
   public static CurveGroupId of(String curveGroupName) {
-    return new CurveGroupId(curveGroupName);
+    return new CurveGroupId(curveGroupName, MarketDataFeed.NONE);
   }
 
   @Override
@@ -65,9 +81,12 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   }
 
   private CurveGroupId(
-      String name) {
+      String name,
+      MarketDataFeed marketDataFeed) {
     JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.name = name;
+    this.marketDataFeed = marketDataFeed;
   }
 
   @Override
@@ -95,6 +114,15 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the market data feed which provides quotes used to build curves in the group.
+   * @return the value of the property, not null
+   */
+  public MarketDataFeed getMarketDataFeed() {
+    return marketDataFeed;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -102,7 +130,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupId other = (CurveGroupId) obj;
-      return JodaBeanUtils.equal(getName(), other.getName());
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
     }
     return false;
   }
@@ -111,14 +140,16 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("CurveGroupId{");
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
     buf.append('}');
     return buf.toString();
   }
@@ -139,11 +170,17 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", CurveGroupId.class, String.class);
     /**
+     * The meta-property for the {@code marketDataFeed} property.
+     */
+    private final MetaProperty<MarketDataFeed> marketDataFeed = DirectMetaProperty.ofImmutable(
+        this, "marketDataFeed", CurveGroupId.class, MarketDataFeed.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "name");
+        "name",
+        "marketDataFeed");
 
     /**
      * Restricted constructor.
@@ -156,6 +193,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 842621124:  // marketDataFeed
+          return marketDataFeed;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -184,12 +223,22 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
       return name;
     }
 
+    /**
+     * The meta-property for the {@code marketDataFeed} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<MarketDataFeed> marketDataFeed() {
+      return marketDataFeed;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((CurveGroupId) bean).getName();
+        case 842621124:  // marketDataFeed
+          return ((CurveGroupId) bean).getMarketDataFeed();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -212,6 +261,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupId> {
 
     private String name;
+    private MarketDataFeed marketDataFeed;
 
     /**
      * Restricted constructor.
@@ -225,6 +275,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 842621124:  // marketDataFeed
+          return marketDataFeed;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -235,6 +287,9 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
+          break;
+        case 842621124:  // marketDataFeed
+          this.marketDataFeed = (MarketDataFeed) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -269,15 +324,17 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     @Override
     public CurveGroupId build() {
       return new CurveGroupId(
-          name);
+          name,
+          marketDataFeed);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("CurveGroupId.Builder{");
-      buf.append("name").append('=').append(JodaBeanUtils.toString(name));
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
       buf.append('}');
       return buf.toString();
     }

@@ -6,6 +6,7 @@
 package com.opengamma.strata.function.marketdata.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -70,7 +71,7 @@ public class MarketDataMappingsBuilderTest {
    */
   public void observableMarketDataFeed() {
     MarketDataFeed feed = MarketDataFeed.of("FeedName");
-    MarketDataMappings mappings = MarketDataMappingsBuilder.create().marketDataFeed(feed).build();
+    MarketDataMappings mappings = MarketDataMappingsBuilder.create(feed).build();
     MarketDataId<Double> id = mappings.getIdForObservableKey(IndexRateKey.of(IborIndices.CHF_LIBOR_12M));
     assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, feed));
   }

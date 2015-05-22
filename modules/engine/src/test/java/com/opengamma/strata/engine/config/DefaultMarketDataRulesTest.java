@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.config;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;

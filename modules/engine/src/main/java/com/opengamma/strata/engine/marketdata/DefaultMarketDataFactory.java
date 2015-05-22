@@ -128,7 +128,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
     // of those nodes represent the market data required to build that data, and so on
-    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, functions);
+    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, marketDataConfig, functions);
 
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:
@@ -269,7 +269,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
     // of those nodes represent the market data required to build that data, and so on
-    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, functions);
+    MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, marketDataConfig, functions);
 
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:

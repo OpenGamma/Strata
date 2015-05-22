@@ -20,7 +20,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 public class MarketDataMappingsBuilder {
 
   /** Market data feed that is the source for observable market data, for example Bloomberg or Reuters. */
-  private MarketDataFeed marketDataFeed = MarketDataFeed.NONE;
+  private final MarketDataFeed marketDataFeed;
 
   /**
    * Mappings that translate data requests from calculators into requests that can be used to look
@@ -28,16 +28,27 @@ public class MarketDataMappingsBuilder {
    */
   private List<MarketDataMapping<?, ?>> mappings = new ArrayList<>();
 
-  private MarketDataMappingsBuilder() {
+  private MarketDataMappingsBuilder(MarketDataFeed marketDataFeed) {
+    this.marketDataFeed = marketDataFeed;
   }
 
   /**
-   * Returns an empty builder.
+   * Returns an empty builder with a market data feed of {@link MarketDataFeed#NONE}.
    *
    * @return an empty builder
    */
   public static MarketDataMappingsBuilder create() {
-    return new MarketDataMappingsBuilder();
+    return new MarketDataMappingsBuilder(MarketDataFeed.NONE);
+  }
+
+  /**
+   * Returns an empty builder with the specified market data feed.
+   *
+   * @param marketDataFeed  the market data feed used in the mappings
+   * @return an empty builder
+   */
+  public static MarketDataMappingsBuilder create(MarketDataFeed marketDataFeed) {
+    return new MarketDataMappingsBuilder(marketDataFeed);
   }
 
   /**
@@ -48,19 +59,8 @@ public class MarketDataMappingsBuilder {
    */
   public MarketDataMappingsBuilder curveGroup(String curveGroupName) {
     ArgChecker.notEmpty(curveGroupName, "curveGroupName");
-    mappings.add(DiscountingCurveMapping.of(curveGroupName));
-    mappings.add(RateIndexCurveMapping.of(curveGroupName));
-    return this;
-  }
-
-  /**
-   * Adds a mapping that sets the source of observable market data.
-   *
-   * @param feed  the feed that is the source of observable market data
-   * @return this builder
-   */
-  public MarketDataMappingsBuilder marketDataFeed(MarketDataFeed feed) {
-    marketDataFeed = ArgChecker.notNull(feed, "feed");
+    mappings.add(DiscountingCurveMapping.of(curveGroupName, marketDataFeed));
+    mappings.add(RateIndexCurveMapping.of(curveGroupName, marketDataFeed));
     return this;
   }
 

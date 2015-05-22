@@ -4,7 +4,6 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,7 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -45,7 +45,7 @@ public class DefaultMarketDataFactoryTest {
   private static final MarketDataFeed VENDOR = MarketDataFeed.of("RealFeed");
   private static final TestObservableId ID1 = TestObservableId.of("1", VENDOR);
   private static final TestObservableId ID2 = TestObservableId.of("2", VENDOR);
-  private static final MarketDataConfig MARKET_DATA_CONFIG = mock(MarketDataConfig.class);
+  private static final MarketDataConfig MARKET_DATA_CONFIG = MarketDataConfig.empty();
 
   /**
    * Tests building time series from requirements.
@@ -962,6 +962,11 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
+    public ObservableKey toObservableKey() {
+      throw new UnsupportedOperationException("toObservableKey not implemented");
+    }
+
+    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -1098,25 +1103,25 @@ public class DefaultMarketDataFactoryTest {
   private final class TestMarketDataFunctionB implements MarketDataFunction<TestMarketDataB, TestIdB> {
 
     @Override
-    public MarketDataRequirements requirements(TestIdB id) {
+    public MarketDataRequirements requirements(TestIdB id, MarketDataConfig marketDataConfig) {
       return MarketDataRequirements.builder()
           .addValues(new TestIdA(id.str), new TestIdC(id.str))
           .build();
     }
 
     @Override
-    public Result<TestMarketDataB> build(TestIdB id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+    public Result<TestMarketDataB> build(TestIdB id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
       TestIdA idA = new TestIdA(id.str);
       TestIdC idC = new TestIdC(id.str);
 
-      if (!builtData.containsValue(idA)) {
+      if (!marketData.containsValue(idA)) {
         return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idA);
       }
-      if (!builtData.containsValue(idC)) {
+      if (!marketData.containsValue(idC)) {
         return Result.failure(FailureReason.MISSING_DATA, "No value for {}", idC);
       }
-      Double value = builtData.getValue(idA);
-      TestMarketDataC marketDataC = builtData.getValue(idC);
+      Double value = marketData.getValue(idA);
+      TestMarketDataC marketDataC = marketData.getValue(idC);
       return Result.success(new TestMarketDataB(value, marketDataC));
     }
 
@@ -1161,15 +1166,15 @@ public class DefaultMarketDataFactoryTest {
   private static final class TestMarketDataFunctionC implements MarketDataFunction<TestMarketDataC, TestIdC> {
 
     @Override
-    public MarketDataRequirements requirements(TestIdC id) {
+    public MarketDataRequirements requirements(TestIdC id, MarketDataConfig marketDataConfig) {
       return MarketDataRequirements.builder()
           .addTimeSeries(new TestIdA(id.str))
           .build();
     }
 
     @Override
-    public Result<TestMarketDataC> build(TestIdC id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-      LocalDateDoubleTimeSeries timeSeries = builtData.getTimeSeries(new TestIdA(id.str));
+    public Result<TestMarketDataC> build(TestIdC id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+      LocalDateDoubleTimeSeries timeSeries = marketData.getTimeSeries(new TestIdA(id.str));
       return Result.success(new TestMarketDataC(timeSeries));
     }
 
@@ -1263,15 +1268,15 @@ public class DefaultMarketDataFactoryTest {
   private static final class NonObservableMarketDataFunction implements MarketDataFunction<String, NonObservableId> {
 
     @Override
-    public MarketDataRequirements requirements(NonObservableId id) {
+    public MarketDataRequirements requirements(NonObservableId id, MarketDataConfig marketDataConfig) {
       return MarketDataRequirements.builder()
           .addValues(TestObservableId.of(StandardId.of("reqs", id.str)))
           .build();
     }
 
     @Override
-    public Result<String> build(NonObservableId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-      Double value = builtData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));
+    public Result<String> build(NonObservableId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+      Double value = marketData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));
       return Result.success(Double.toString(value));
     }
 

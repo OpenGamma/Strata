@@ -26,13 +26,13 @@ public class ExampleForwardCurveFunction
     implements MarketDataFunction<YieldCurve, RateIndexCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(RateIndexCurveId id) {
-    return MarketDataRequirements.EMPTY;
+  public MarketDataRequirements requirements(RateIndexCurveId id, MarketDataConfig marketDataConfig) {
+    return MarketDataRequirements.empty();
   }
 
   @Override
-  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-    YieldCurve curve = ExampleMarketData.loadYieldCurve(builtData.getValuationDate(), id.getIndex().getName());
+  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    YieldCurve curve = ExampleMarketData.loadYieldCurve(marketData.getValuationDate(), id.getIndex().getName());
     return Result.success(curve);
   }
 

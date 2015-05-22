@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.market;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.id.StandardIdentifiable;
 
+// TODO Should this have a method ObservableKey getKey()?
 /**
  * A market data identifier that identifies observable data.
  * <p>
@@ -61,6 +62,13 @@ public interface ObservableId
    * @return the market data feed from which the market data should be retrieved
    */
   public abstract MarketDataFeed getMarketDataFeed();
+
+  /**
+   * Returns the key associated with this ID.
+   *
+   * @return the key associated with this ID
+   */
+  public abstract ObservableKey toObservableKey();
 
   @Override
   public default Class<Double> getMarketDataType() {

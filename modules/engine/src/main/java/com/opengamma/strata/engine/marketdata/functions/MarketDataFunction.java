@@ -25,9 +25,10 @@ public interface MarketDataFunction<T, I extends MarketDataId<? extends T>> {
    * Returns requirements representing the data needed to build the item of market data identified by the ID.
    *
    * @param id  an ID identifying an item of market data
+   * @param marketDataConfig  configuration specifying how market data values should be built
    * @return requirements representing the data needed to build the item of market data identified by the ID
    */
-  public abstract MarketDataRequirements requirements(I id);
+  public abstract MarketDataRequirements requirements(I id, MarketDataConfig marketDataConfig);
 
   /**
    * Builds and returns the market data identified by the ID.
@@ -35,11 +36,11 @@ public interface MarketDataFunction<T, I extends MarketDataId<? extends T>> {
    * If the data cannot be built the result contains details of the problem.
    *
    * @param id  ID of the market data that should be built
-   * @param builtData  a set of market data including any data required to build the requested data
+   * @param marketData  a set of market data including any data required to build the requested data
    * @param marketDataConfig  configuration specifying how the market data should be built
    * @return built market data, or details of the problems that prevented building
    */
-  public abstract Result<T> build(I id, MarketDataLookup builtData, MarketDataConfig marketDataConfig);
+  public abstract Result<T> build(I id, MarketDataLookup marketData, MarketDataConfig marketDataConfig);
 
   /**
    * Returns the type of market data ID this function can handle.

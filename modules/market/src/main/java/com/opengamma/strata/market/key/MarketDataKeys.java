@@ -5,15 +5,17 @@
  */
 package com.opengamma.strata.market.key;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
- * Contains factory methods for creating {@link MarketDataKey} instances for common market data types.
+ * Factory methods for creating {@link MarketDataKey} instances for common market data types.
  */
 public final class MarketDataKeys {
 
+  // Private constructor as this class only contains factory methods
   private MarketDataKeys() {
   }
 
@@ -23,7 +25,7 @@ public final class MarketDataKeys {
    * @param index  the index
    * @return a market data key for the forward curve for the index
    */
-  public static MarketDataKey<?> indexCurveKey(Index index) {
+  public static RateIndexCurveKey indexCurve(Index index) {
     if (index instanceof RateIndex) {
       return RateIndexCurveKey.of((RateIndex) index);
     } else {
@@ -32,5 +34,18 @@ public final class MarketDataKeys {
     }
   }
 
-  // TODO Add methods for the other standard market data types
+  /**
+   * Returns a market data key for a discounting curve.
+   *
+   * @param currency  the currency of the curve
+   * @return a market data key for a discounting curve
+   */
+  public static DiscountingCurveKey discountingCurve(Currency currency) {
+    return DiscountingCurveKey.of(currency);
+  }
+
+  // TODO fxRate(CurrencyPair)
+  // TODO fxRate(Currency, Currency)
+  // TODO quote(StandardId)
+  // TODO There must be others
 }

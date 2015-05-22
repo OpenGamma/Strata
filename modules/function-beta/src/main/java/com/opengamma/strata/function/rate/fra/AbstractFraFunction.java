@@ -65,10 +65,10 @@ public abstract class AbstractFraFunction<T>
 
     Set<MarketDataKey<?>> indexCurveKeys =
         indices.stream()
-            .map(MarketDataKeys::indexCurveKey)
+            .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
 
-    Set<DiscountingCurveKey> discountingCurveKeys = ImmutableSet.of(DiscountingCurveKey.of(fra.getCurrency()));
+    Set<DiscountingCurveKey> discountingCurveKeys = ImmutableSet.of(MarketDataKeys.discountingCurve(fra.getCurrency()));
 
     return CalculationRequirements.builder()
         .singleValueRequirements(Sets.union(indexCurveKeys, discountingCurveKeys))

@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 
 /**
@@ -62,15 +63,17 @@ class MarketDataNode {
    *
    * @param requirements  IDs of the market data that must be provided
    * @param suppliedData  data supplied by the user
+   * @param marketDataConfig  configuration specifying how market data values should be built
    * @param functions  functions for market data, keyed by the type of market data ID they handle
    * @return the root node of the market data dependency tree
    */
   static MarketDataNode buildDependencyTree(
       MarketDataRequirements requirements,
       BaseMarketData suppliedData,
+      MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
-    DependencyTreeBuilder treeBuilder = DependencyTreeBuilder.of(suppliedData, requirements, functions);
+    DependencyTreeBuilder treeBuilder = DependencyTreeBuilder.of(suppliedData, requirements, marketDataConfig, functions);
     return MarketDataNode.root(treeBuilder.childNodes());
   }
 
