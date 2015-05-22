@@ -5,11 +5,15 @@
  */
 package com.opengamma.strata.pricer.rate.fra;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
+import com.opengamma.strata.market.cashflow.CashFlow;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -135,6 +139,26 @@ public class DiscountingFraProductPricer {
    */
   public double parRate(FraProduct product, RatesProvider provider) {
     return forwardRate(product.expand(), provider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flow of the FRA product. 
+   * <p>
+   * There is only one cash flow on the payment date for the FRA product.
+   * The expected currency amount of the cash flow is the same as {@link #futureValue(FraProduct, RatesProvider)}. 
+   * 
+   * @param product  the FRA product for which the cash flow should be computed
+   * @param provider  the rates provider
+   * @return the cash flow
+   */
+  public CashFlows cashFlow(FraProduct product, RatesProvider provider) {
+    ExpandedFra fra = product.expand();
+    double futureValue = futureValue(fra, provider);
+    LocalDate paymentDate = fra.getPaymentDate();
+    double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    CashFlow cashFlow = CashFlow.of(paymentDate, fra.getCurrency(), futureValue, df);
+    return CashFlows.of(cashFlow);
   }
 
   //-------------------------------------------------------------------------

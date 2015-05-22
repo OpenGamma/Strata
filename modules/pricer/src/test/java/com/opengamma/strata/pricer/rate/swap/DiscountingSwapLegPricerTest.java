@@ -26,8 +26,10 @@ import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_FX_RESET
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_EXPANDED_SWAP_LEG_REC_GBP;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_EXPANDED_SWAP_LEG_REC_GBP_MULTI;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_RATE_OBSERVATION;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP;
+import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,6 +42,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
@@ -64,6 +67,7 @@ import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.InflationRateCalculation;
+import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
@@ -71,6 +75,8 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
+import com.opengamma.strata.market.cashflow.CashFlow;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -81,6 +87,7 @@ import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObservationFn;
 import com.opengamma.strata.pricer.impl.rate.ForwardInflationMonthlyRateObservationFn;
+import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -570,5 +577,35 @@ public class DiscountingSwapLegPricerTest {
     pvSensiExpected = pvSensiExpected.multipliedBy(fvExpected);
     assertTrue(pvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_cashFlow() {
+    RatesProvider mockProv = mock(RatesProvider.class);
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    DispatchingPaymentEventPricer eventPricer = DispatchingPaymentEventPricer.DEFAULT;
+    ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP_MULTI;
+    PaymentPeriod period1 = IBOR_RATE_PAYMENT_PERIOD_REC_GBP;
+    PaymentPeriod period2 = IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2;
+    NotionalExchange event = NOTIONAL_EXCHANGE_REC_GBP;
+    double fv1 = 520d;
+    double fv2 = 450d;
+    double df = 1.0d;
+    double df1 = 0.98;
+    double df2 = 0.93;
+    when(mockPeriod.futureValue(period1, mockProv)).thenReturn(fv1);
+    when(mockPeriod.futureValue(period2, mockProv)).thenReturn(fv2);
+    when(mockProv.getValuationDate()).thenReturn(LocalDate.of(2014, 7, 1));
+    when(mockProv.discountFactor(expSwapLeg.getCurrency(), period1.getPaymentDate())).thenReturn(df1);
+    when(mockProv.discountFactor(expSwapLeg.getCurrency(), period2.getPaymentDate())).thenReturn(df2);
+    when(mockProv.discountFactor(expSwapLeg.getCurrency(), event.getPaymentDate())).thenReturn(df);
+    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, eventPricer);
+    CashFlows computed = pricer.cashFlow(expSwapLeg, mockProv);
+    CashFlow flow1 = CashFlow.of(period1.getPaymentDate(), GBP, fv1, df1);
+    CashFlow flow2 = CashFlow.of(period2.getPaymentDate(), GBP, fv2, df2);
+    CashFlow flow3 = CashFlow.of(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
+    CashFlows expected = CashFlows.of(ImmutableList.of(flow1, flow2, flow3));
+    assertEquals(computed, expected);
+
   }
 }

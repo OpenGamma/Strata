@@ -111,10 +111,28 @@ public final class SwapDummyData {
       .yearFraction(0.25d)
       .build();
   /**
+   * RateAccuralPeriod (ibor).
+   */
+  public static final RateAccrualPeriod IBOR_RATE_ACCRUAL_PERIOD_2 = RateAccrualPeriod.builder()
+      .startDate(date(2014, 10, 2))
+      .endDate(date(2015, 1, 2))
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, date(2014, 9, 30)))
+      .yearFraction(0.25d)
+      .build();
+  /**
    * RatePaymentPeriod (ibor).
    */
   public static final RatePaymentPeriod IBOR_RATE_PAYMENT_PERIOD_REC_GBP = RatePaymentPeriod.builder()
-      .paymentDate(date(2014, 10, 4))
+      .paymentDate(date(2014, 10, 5))
+      .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD_2)
+      .currency(Currency.GBP)
+      .notional(NOTIONAL)
+      .build();
+  /**
+   * RatePaymentPeriod (ibor).
+   */
+  public static final RatePaymentPeriod IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2 = RatePaymentPeriod.builder()
+      .paymentDate(date(2015, 1, 4))
       .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD)
       .currency(Currency.GBP)
       .notional(NOTIONAL)
@@ -126,6 +144,15 @@ public final class SwapDummyData {
       .type(IBOR)
       .payReceive(RECEIVE)
       .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD_REC_GBP)
+      .paymentEvents(NOTIONAL_EXCHANGE_REC_GBP)
+      .build();
+  /**
+   * ExpandedSwapLeg (ibor).
+   */
+  public static final ExpandedSwapLeg IBOR_EXPANDED_SWAP_LEG_REC_GBP_MULTI = ExpandedSwapLeg.builder()
+      .type(IBOR)
+      .payReceive(RECEIVE)
+      .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2)
       .paymentEvents(NOTIONAL_EXCHANGE_REC_GBP)
       .build();
   /**
