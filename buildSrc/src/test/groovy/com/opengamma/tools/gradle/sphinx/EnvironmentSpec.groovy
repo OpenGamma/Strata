@@ -164,10 +164,10 @@ Version: 1.0.1
 		SphinxExtension ext = new SphinxExtension()
 		ext.requiredPackages = ["pip-one", "pip-two"].toSet()
 		ShellExecutor executor = Stub(ShellExecutor)
-		executor.execute({it.startsWith("python")}, _, _) >> { return new ShellResult(0, null, "Python 2.7") }
-		executor.execute("pip show pip-one", _, _) >> { return new ShellResult(0, "Version: 1.0.0", null) }
-		executor.execute("pip show pip-two", _, _) >> { return new ShellResult(0, "Version: 1.0.0", null) }
-		executor.execute({it.startsWith("make")}) >> { return new ShellResult(0, "GNU Make", null) }
+		executor.execute({it.contains("python ")}, _, _) >> { return new ShellResult(0, null, "Python 2.7") }
+		executor.execute({it.endsWith("pip show pip-one")}, _, _) >> { return new ShellResult(0, "Version: 1.0.0", null) }
+		executor.execute({it.endsWith("pip show pip-two")}, _, _) >> { return new ShellResult(0, "Version: 1.0.0", null) }
+		executor.execute({it.contains("make")}) >> { return new ShellResult(0, "GNU Make", null) }
 		Environment e = new Environment(executor)
 
 		when:
