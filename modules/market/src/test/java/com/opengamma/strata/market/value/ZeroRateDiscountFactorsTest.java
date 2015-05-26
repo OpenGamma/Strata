@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.value;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**

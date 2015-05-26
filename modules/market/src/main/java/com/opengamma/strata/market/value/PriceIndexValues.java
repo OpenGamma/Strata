@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.value;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -13,6 +13,7 @@ import java.util.function.DoubleUnaryOperator;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**

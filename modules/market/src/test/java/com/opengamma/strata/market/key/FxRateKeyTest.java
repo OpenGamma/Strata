@@ -13,6 +13,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;

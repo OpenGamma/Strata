@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.curve.FxIndexRates;
+import com.opengamma.strata.market.value.FxIndexRates;
 
 /**
  * Market data key identifying the rates for an FX index.

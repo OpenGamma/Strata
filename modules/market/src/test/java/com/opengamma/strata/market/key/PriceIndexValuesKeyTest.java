@@ -14,8 +14,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.PriceIndexValues;
 import com.opengamma.strata.market.key.PriceIndexValuesKey.Meta;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * Test {@link PriceIndexValuesKey}.

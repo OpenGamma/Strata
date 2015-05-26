@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.value;
 
 import static java.time.temporal.ChronoUnit.MONTHS;
 
@@ -37,6 +37,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 

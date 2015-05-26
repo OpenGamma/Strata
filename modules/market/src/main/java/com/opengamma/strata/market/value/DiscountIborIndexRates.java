@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -28,31 +28,31 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
- * An Overnight index curve providing rates from discount factors.
+ * An Ibor index curve providing rates from discount factors.
  * <p>
- * This provides historic and forward rates for a single {@link OvernightIndex}, such as 'EUR-EONIA'.
+ * This provides historic and forward rates for a single {@link IborIndex}, such as 'GBP-LIBOR-3M'.
  * <p>
  * This implementation is based on an underlying curve that is stored with maturities
  * and zero-coupon continuously-compounded rates.
  */
 @BeanDefinition(builderScope = "private")
-public final class DiscountOvernightIndexRates
-    implements OvernightIndexRates, ImmutableBean, Serializable {
+public final class DiscountIborIndexRates
+    implements IborIndexRates, ImmutableBean, Serializable {
 
   /**
    * The index that the rates are for.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final OvernightIndex index;
+  private final IborIndex index;
   /**
    * The time-series.
    * This covers known historical fixings and may be empty.
@@ -67,34 +67,34 @@ public final class DiscountOvernightIndexRates
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a new Overnight index rates instance with no historic fixings.
+   * Creates a new Ibor index rates instance with no historic fixings.
    * <p>
    * The forward curve is specified by an instance of {@link DiscountFactors}.
    * 
-   * @param index  the Overnight index
+   * @param index  the Ibor index
    * @param discountFactors  the underlying discount factor forward curve
    * @return the rates instance
    */
-  public static DiscountOvernightIndexRates of(OvernightIndex index, DiscountFactors discountFactors) {
+  public static DiscountIborIndexRates of(IborIndex index, DiscountFactors discountFactors) {
     return of(index, LocalDateDoubleTimeSeries.empty(), discountFactors);
   }
 
   /**
-   * Creates a new Overnight index rates instance.
+   * Creates a new Ibor index rates instance.
    * <p>
    * The forward curve is specified by an instance of {@link DiscountFactors}.
    * 
-   * @param index  the Overnight index
-   * @param knownFixings  the known historical fixings
+   * @param index  the Ibor index
+   * @param fixings  the known historical fixings
    * @param discountFactors  the underlying discount factor forward curve
    * @return the rates instance
    */
-  public static DiscountOvernightIndexRates of(
-      OvernightIndex index,
-      LocalDateDoubleTimeSeries knownFixings,
+  public static DiscountIborIndexRates of(
+      IborIndex index,
+      LocalDateDoubleTimeSeries fixings,
       DiscountFactors discountFactors) {
 
-    return new DiscountOvernightIndexRates(index, knownFixings, discountFactors);
+    return new DiscountIborIndexRates(index, fixings, discountFactors);
   }
 
   //-------------------------------------------------------------------------
@@ -122,19 +122,18 @@ public final class DiscountOvernightIndexRates
   //-------------------------------------------------------------------------
   @Override
   public double rate(LocalDate fixingDate) {
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (!publicationDate.isAfter(getValuationDate())) {
-      return historicRate(fixingDate, publicationDate);
+    if (!fixingDate.isAfter(getValuationDate())) {
+      return historicRate(fixingDate);
     }
     return forwardRate(fixingDate);
   }
 
   // historic rate
-  private double historicRate(LocalDate fixingDate, LocalDate publicationDate) {
+  private double historicRate(LocalDate fixingDate) {
     OptionalDouble fixedRate = timeSeries.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
-    } else if (publicationDate.isBefore(getValuationDate())) { // the fixing is required
+    } else if (fixingDate.isBefore(getValuationDate())) { // the fixing is required
       if (timeSeries.isEmpty()) {
         throw new IllegalArgumentException(
             Messages.format("Unable to get fixing for {} on date {}, no time-series supplied", index, fixingDate));
@@ -162,34 +161,13 @@ public final class DiscountOvernightIndexRates
   @Override
   public PointSensitivityBuilder pointSensitivity(LocalDate fixingDate) {
     LocalDate valuationDate = getValuationDate();
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (publicationDate.isBefore(valuationDate) ||
-        (publicationDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
+    if (fixingDate.isBefore(valuationDate) ||
+        (fixingDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixingDate, fixingEndDate, 1d);
+    return IborRateSensitivity.of(index, fixingDate, 1d);
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public double periodRate(LocalDate startDate, LocalDate endDate) {
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderOrEqual(getValuationDate(), startDate, "valuationDate", "startDate");
-    double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
-    return simplyCompoundForwardRate(startDate, endDate, fixingYearFraction);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate) {
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderOrEqual(getValuationDate(), startDate, "valuationDate", "startDate");
-    return OvernightRateSensitivity.of(index, index.getCurrency(), startDate, endDate, 1d);
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public double[] parameterSensitivity(LocalDate date) {
     return discountFactors.parameterSensitivity(date);
@@ -197,27 +175,27 @@ public final class DiscountOvernightIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public DiscountOvernightIndexRates shiftedBy(DoubleBinaryOperator operator) {
-    return new DiscountOvernightIndexRates(index, timeSeries, discountFactors.shiftedBy(operator));
+  public DiscountIborIndexRates shiftedBy(DoubleBinaryOperator operator) {
+    return new DiscountIborIndexRates(index, timeSeries, discountFactors.shiftedBy(operator));
   }
 
   @Override
-  public DiscountOvernightIndexRates shiftedBy(List<ValueAdjustment> adjustments) {
-    return new DiscountOvernightIndexRates(index, timeSeries, discountFactors.shiftedBy(adjustments));
+  public DiscountIborIndexRates shiftedBy(List<ValueAdjustment> adjustments) {
+    return new DiscountIborIndexRates(index, timeSeries, discountFactors.shiftedBy(adjustments));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code DiscountOvernightIndexRates}.
+   * The meta-bean for {@code DiscountIborIndexRates}.
    * @return the meta-bean, not null
    */
-  public static DiscountOvernightIndexRates.Meta meta() {
-    return DiscountOvernightIndexRates.Meta.INSTANCE;
+  public static DiscountIborIndexRates.Meta meta() {
+    return DiscountIborIndexRates.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(DiscountOvernightIndexRates.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(DiscountIborIndexRates.Meta.INSTANCE);
   }
 
   /**
@@ -225,8 +203,8 @@ public final class DiscountOvernightIndexRates
    */
   private static final long serialVersionUID = 1L;
 
-  private DiscountOvernightIndexRates(
-      OvernightIndex index,
+  private DiscountIborIndexRates(
+      IborIndex index,
       LocalDateDoubleTimeSeries timeSeries,
       DiscountFactors discountFactors) {
     JodaBeanUtils.notNull(index, "index");
@@ -238,8 +216,8 @@ public final class DiscountOvernightIndexRates
   }
 
   @Override
-  public DiscountOvernightIndexRates.Meta metaBean() {
-    return DiscountOvernightIndexRates.Meta.INSTANCE;
+  public DiscountIborIndexRates.Meta metaBean() {
+    return DiscountIborIndexRates.Meta.INSTANCE;
   }
 
   @Override
@@ -258,7 +236,7 @@ public final class DiscountOvernightIndexRates
    * @return the value of the property, not null
    */
   @Override
-  public OvernightIndex getIndex() {
+  public IborIndex getIndex() {
     return index;
   }
 
@@ -289,7 +267,7 @@ public final class DiscountOvernightIndexRates
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DiscountOvernightIndexRates other = (DiscountOvernightIndexRates) obj;
+      DiscountIborIndexRates other = (DiscountIborIndexRates) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
           JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors());
@@ -309,7 +287,7 @@ public final class DiscountOvernightIndexRates
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
-    buf.append("DiscountOvernightIndexRates{");
+    buf.append("DiscountIborIndexRates{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
     buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors()));
@@ -319,7 +297,7 @@ public final class DiscountOvernightIndexRates
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code DiscountOvernightIndexRates}.
+   * The meta-bean for {@code DiscountIborIndexRates}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -330,18 +308,18 @@ public final class DiscountOvernightIndexRates
     /**
      * The meta-property for the {@code index} property.
      */
-    private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", DiscountOvernightIndexRates.class, OvernightIndex.class);
+    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", DiscountIborIndexRates.class, IborIndex.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     private final MetaProperty<LocalDateDoubleTimeSeries> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", DiscountOvernightIndexRates.class, LocalDateDoubleTimeSeries.class);
+        this, "timeSeries", DiscountIborIndexRates.class, LocalDateDoubleTimeSeries.class);
     /**
      * The meta-property for the {@code discountFactors} property.
      */
     private final MetaProperty<DiscountFactors> discountFactors = DirectMetaProperty.ofImmutable(
-        this, "discountFactors", DiscountOvernightIndexRates.class, DiscountFactors.class);
+        this, "discountFactors", DiscountIborIndexRates.class, DiscountFactors.class);
     /**
      * The meta-properties.
      */
@@ -371,13 +349,13 @@ public final class DiscountOvernightIndexRates
     }
 
     @Override
-    public BeanBuilder<? extends DiscountOvernightIndexRates> builder() {
-      return new DiscountOvernightIndexRates.Builder();
+    public BeanBuilder<? extends DiscountIborIndexRates> builder() {
+      return new DiscountIborIndexRates.Builder();
     }
 
     @Override
-    public Class<? extends DiscountOvernightIndexRates> beanType() {
-      return DiscountOvernightIndexRates.class;
+    public Class<? extends DiscountIborIndexRates> beanType() {
+      return DiscountIborIndexRates.class;
     }
 
     @Override
@@ -390,7 +368,7 @@ public final class DiscountOvernightIndexRates
      * The meta-property for the {@code index} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<OvernightIndex> index() {
+    public MetaProperty<IborIndex> index() {
       return index;
     }
 
@@ -415,11 +393,11 @@ public final class DiscountOvernightIndexRates
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((DiscountOvernightIndexRates) bean).getIndex();
+          return ((DiscountIborIndexRates) bean).getIndex();
         case 779431844:  // timeSeries
-          return ((DiscountOvernightIndexRates) bean).getTimeSeries();
+          return ((DiscountIborIndexRates) bean).getTimeSeries();
         case -91613053:  // discountFactors
-          return ((DiscountOvernightIndexRates) bean).getDiscountFactors();
+          return ((DiscountIborIndexRates) bean).getDiscountFactors();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -437,11 +415,11 @@ public final class DiscountOvernightIndexRates
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code DiscountOvernightIndexRates}.
+   * The bean-builder for {@code DiscountIborIndexRates}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<DiscountOvernightIndexRates> {
+  private static final class Builder extends DirectFieldsBeanBuilder<DiscountIborIndexRates> {
 
-    private OvernightIndex index;
+    private IborIndex index;
     private LocalDateDoubleTimeSeries timeSeries;
     private DiscountFactors discountFactors;
 
@@ -471,7 +449,7 @@ public final class DiscountOvernightIndexRates
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          this.index = (OvernightIndex) newValue;
+          this.index = (IborIndex) newValue;
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (LocalDateDoubleTimeSeries) newValue;
@@ -510,8 +488,8 @@ public final class DiscountOvernightIndexRates
     }
 
     @Override
-    public DiscountOvernightIndexRates build() {
-      return new DiscountOvernightIndexRates(
+    public DiscountIborIndexRates build() {
+      return new DiscountIborIndexRates(
           index,
           timeSeries,
           discountFactors);
@@ -521,7 +499,7 @@ public final class DiscountOvernightIndexRates
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("DiscountOvernightIndexRates.Builder{");
+      buf.append("DiscountIborIndexRates.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
       buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors));

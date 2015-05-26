@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.curve.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountFactors;
 
 /**
  * Market data key identifying the discount factors for a currency.

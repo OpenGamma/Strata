@@ -14,8 +14,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.key.FxIndexRatesKey.Meta;
+import com.opengamma.strata.market.value.FxIndexRates;
 
 /**
  * Test {@link FxIndexRatesKey}.

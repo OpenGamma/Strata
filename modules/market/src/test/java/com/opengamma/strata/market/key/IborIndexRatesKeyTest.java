@@ -14,8 +14,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.key.IborIndexRatesKey.Meta;
+import com.opengamma.strata.market.value.IborIndexRates;
 
 /**
  * Test {@link IborIndexRatesKey}.
