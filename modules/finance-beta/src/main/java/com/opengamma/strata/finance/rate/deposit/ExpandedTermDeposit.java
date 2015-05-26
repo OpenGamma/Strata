@@ -34,6 +34,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * A term deposit is a financial instrument that provides a fixed rate of interest on
  * an amount for a specific term.
+ * The principal is signed based on the payment at the end date, when the interest is generated.
  * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
  * <p>
  * An {@code ExpandedTermDeposit} contains information based on holiday calendars.
@@ -75,12 +76,13 @@ public class ExpandedTermDeposit
    * <p>
    * The currency of the deposit.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
    * The principal amount.
    * <p>
-   * The amount that is deposited.
+   * The amount that is deposited, is a positive signed amount if the term deposit is 'buy',
+   * and a negative signed amount if the term deposit is 'sell'.
    */
   @PropertyDefinition
   private final double principal;
@@ -88,12 +90,14 @@ public class ExpandedTermDeposit
    * The fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double rate;
   /**
    * The accrued interest.
    * <p>
-   * The interest is {@code rate * principal * yearFraction}.
+   * The interest is {@code rate * principal * yearFraction}, 
+   * thus is a positive signed amount if the term deposit is 'buy',
+   * and a negative signed amount if the term deposit is 'sell'.
    */
   private final double interest;  // not a property
 
@@ -222,7 +226,7 @@ public class ExpandedTermDeposit
    * Gets the currency.
    * <p>
    * The currency of the deposit.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Currency getCurrency() {
     return currency;
@@ -232,7 +236,8 @@ public class ExpandedTermDeposit
   /**
    * Gets the principal amount.
    * <p>
-   * The amount that is deposited.
+   * The amount that is deposited, is a positive signed amount if the term deposit is 'buy',
+   * and a negative signed amount if the term deposit is 'sell'.
    * @return the value of the property
    */
   public double getPrincipal() {
@@ -243,7 +248,7 @@ public class ExpandedTermDeposit
   /**
    * Gets the fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getRate() {
     return rate;
@@ -626,10 +631,11 @@ public class ExpandedTermDeposit
 
     /**
      * Sets the {@code currency} property in the builder.
-     * @param currency  the new value
+     * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
       this.currency = currency;
       return this;
     }
@@ -646,11 +652,10 @@ public class ExpandedTermDeposit
 
     /**
      * Sets the {@code rate} property in the builder.
-     * @param rate  the new value, not null
+     * @param rate  the new value
      * @return this, for chaining, not null
      */
     public Builder rate(double rate) {
-      JodaBeanUtils.notNull(rate, "rate");
       this.rate = rate;
       return this;
     }

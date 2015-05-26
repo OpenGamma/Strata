@@ -86,7 +86,7 @@ public class DiscountingTermDepositProductPricerBeta {
   /**
    * Calculates the deposit fair rate given the start and end time and the accrual factor.
    * <p>
-   * When deposit has already start the number may not be meaning full as the remaining period
+   * When deposit has already start the number may not be meaningful as the remaining period
    * is not in line with the accrual factor.
    * 
    * @param product  the product to price
@@ -99,13 +99,14 @@ public class DiscountingTermDepositProductPricerBeta {
     double dfStart = provider.discountFactor(currency, deposit.getStartDate());
     double dfEnd = provider.discountFactor(currency, deposit.getEndDate());
     double accrualFactor = deposit.getYearFraction();
-    return (dfStart / dfEnd - 1) / accrualFactor;
+    return (dfStart / dfEnd - 1d) / accrualFactor;
   }
 
   /**
    * Calculates the spread to be added to the deposit rate to have a zero present value.
    * <p>
-   * When deposit has already started the number may not be meaningful as only the final
+   * The calculation is based on both the initial and final payments. 
+   * Accordingly, when deposit has already started, the resulting number may not be meaningful as only the final
    * payment remains (no initial payment).
    * 
    * @param product  the product to price
@@ -114,17 +115,20 @@ public class DiscountingTermDepositProductPricerBeta {
    */
   public double parSpread(TermDepositProduct product, RatesProvider provider) {
     ExpandedTermDeposit deposit = product.expand();
-    Currency currency = deposit.getCurrency();
-    double dfStart = provider.discountFactor(currency, deposit.getStartDate());
-    double dfEnd = provider.discountFactor(currency, deposit.getEndDate());
-    return (initialAmount(deposit, provider) * dfStart - (deposit.getPrincipal() + deposit.getInterest()) * dfEnd) /
-        (deposit.getPrincipal() * deposit.getYearFraction() * dfEnd);
+    double parRate = parRate(product, provider);
+    return parRate - deposit.getRate();
+    //    Currency currency = deposit.getCurrency();
+    //    double dfStart = provider.discountFactor(currency, deposit.getStartDate());
+    //    double dfEnd = provider.discountFactor(currency, deposit.getEndDate());
+    //    return (initialAmount(deposit, provider) * dfStart - (deposit.getPrincipal() + deposit.getInterest()) * dfEnd) /
+    //        (deposit.getPrincipal() * deposit.getYearFraction() * dfEnd);
   }
 
   /**
    * Calculates the par spread curve sensitivity.
    * <p>
-   * When deposit has already started the number may not be meaningful as only the final
+   * The calculation is based on both of initial and final payments.
+   * Accordingly, when deposit has already started, the number resulting may not be meaningful as only the final
    * payment remains (no initial payment).
    * 
    * @param product  the product to price
@@ -134,19 +138,26 @@ public class DiscountingTermDepositProductPricerBeta {
   public PointSensitivities parSpreadSensitivity(TermDepositProduct product, RatesProvider provider) {
     ExpandedTermDeposit deposit = product.expand();
     Currency currency = deposit.getCurrency();
+    double accrualFactorInv = 1.0 / deposit.getYearFraction();
     double dfStart = provider.discountFactor(currency, deposit.getStartDate());
-    double dfEnd = provider.discountFactor(currency, deposit.getEndDate());
-    // backward sweep
-    double accrualFactorPrincipal = deposit.getPrincipal() * deposit.getYearFraction();
-    double dfStartBar = (initialAmount(deposit, provider) / dfEnd) / accrualFactorPrincipal;
-    double dfEndBar = -(initialAmount(deposit, provider) * dfStart / (dfEnd * dfEnd)) / accrualFactorPrincipal;
-    // sensitivity
+    double dfEndInv = 1d / provider.discountFactor(currency, deposit.getEndDate());
     DiscountFactors discountFactors = provider.discountFactors(currency);
     PointSensitivityBuilder sensStart = discountFactors.pointSensitivity(deposit.getStartDate())
-        .multipliedBy(dfStartBar);
+        .multipliedBy(dfEndInv * accrualFactorInv);
     PointSensitivityBuilder sensEnd = discountFactors.pointSensitivity(deposit.getEndDate())
-        .multipliedBy(dfEndBar);
+        .multipliedBy(-dfStart * dfEndInv * dfEndInv * accrualFactorInv);
     return sensStart.combinedWith(sensEnd).build();
+    //    // backward sweep
+    //    double accrualFactorPrincipal = deposit.getPrincipal() * deposit.getYearFraction();
+    //    double dfStartBar = (initialAmount(deposit, provider) / dfEnd) / accrualFactorPrincipal;
+    //    double dfEndBar = -(initialAmount(deposit, provider) * dfStart / (dfEnd * dfEnd)) / accrualFactorPrincipal;
+    //    // sensitivity
+    //    DiscountFactors discountFactors = provider.discountFactors(currency);
+    //    PointSensitivityBuilder sensStart = discountFactors.pointSensitivity(deposit.getStartDate())
+    //        .multipliedBy(dfStartBar);
+    //    PointSensitivityBuilder sensEnd = discountFactors.pointSensitivity(deposit.getEndDate())
+    //        .multipliedBy(dfEndBar);
+    //    return sensStart.combinedWith(sensEnd).build();
   }
 
 }

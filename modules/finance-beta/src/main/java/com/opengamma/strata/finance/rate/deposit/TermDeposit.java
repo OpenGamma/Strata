@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,8 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -37,7 +40,6 @@ import com.opengamma.strata.collect.ArgChecker;
  * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
  * <p>
  * The instrument has two payments, one at the start date and one at the end date.
- * The principal is signed based on the payment at the end date, when the interest is generated.
  * For example, investing  GBP 1,000 for 3 months implies an initial payment to the counterparty
  * of GBP 1,000 and a final payment from the counterparty of GBP 1,000 plus interest.
  * The sign of the principal will be positive in this case, as the final payment is being received.
@@ -45,14 +47,22 @@ import com.opengamma.strata.collect.ArgChecker;
 @BeanDefinition
 public class TermDeposit
     implements TermDepositProduct, ImmutableBean, Serializable {
-  // TODO: who deposits and who pays interest?
-  // TODO: business day adjustment?
 
+  /**
+   * Whether the term deposit is 'Buy' or 'Sell'.
+   * <p>
+   * A value of 'Buy' implies that one pays the principal at the start date then receives the principal plus 
+   * fixed interest at the end date. A value of 'Sell' implies that the principal is paid to the counterparty 
+   * at the start date then the principal plus fixed interest is received from the counterparty at the end date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final BuySell buySell;
   /**
    * The start date of the deposit.
    * <p>
    * Interest accrues from this date.
-   * This date should be a valid business day.
+   * This date is typically set to be a valid business day.
+   * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
@@ -60,11 +70,21 @@ public class TermDeposit
    * The end date of the deposit.
    * <p>
    * Interest accrues until this date.
-   * This date should be a valid business day.
+   * This date is typically set to be a valid business day.
+   * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    * This date must be after the start date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
+  /**
+   * The business day adjustment to apply to the start and end date, optional.
+   * <p>
+   * The start and end date are typically defined as valid business days and thus
+   * do not need to be adjusted. If this optional property is present, then the
+   * start and end date will be adjusted as defined here.
+   */
+  @PropertyDefinition(get = "optional")
+  private final BusinessDayAdjustment businessDayAdjustment;
   /**
    * The day count convention.
    * <p>
@@ -83,13 +103,13 @@ public class TermDeposit
    * Note that a negative interest rate can mean that the end date payment is less than
    * the start date payment.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount principal;
   /**
    * The fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double rate;
 
   //-------------------------------------------------------------------------
@@ -116,13 +136,15 @@ public class TermDeposit
    */
   @Override
   public ExpandedTermDeposit expand() {
-    double yearFraction = dayCount.yearFraction(startDate, endDate);
+    LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
+    LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
+    double yearFraction = dayCount.yearFraction(start, end);
     return ExpandedTermDeposit.builder()
-        .startDate(startDate)
-        .endDate(endDate)
+        .startDate(start)
+        .endDate(end)
         .yearFraction(yearFraction)
         .currency(principal.getCurrency())
-        .principal(principal.getAmount())
+        .principal(buySell.normalize(principal.getAmount()))
         .rate(rate)
         .build();
   }
@@ -159,12 +181,15 @@ public class TermDeposit
    * @param builder  the builder to copy from, not null
    */
   protected TermDeposit(TermDeposit.Builder builder) {
+    JodaBeanUtils.notNull(builder.buySell, "buySell");
     JodaBeanUtils.notNull(builder.startDate, "startDate");
     JodaBeanUtils.notNull(builder.endDate, "endDate");
     JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    JodaBeanUtils.notNull(builder.rate, "rate");
+    JodaBeanUtils.notNull(builder.principal, "principal");
+    this.buySell = builder.buySell;
     this.startDate = builder.startDate;
     this.endDate = builder.endDate;
+    this.businessDayAdjustment = builder.businessDayAdjustment;
     this.dayCount = builder.dayCount;
     this.principal = builder.principal;
     this.rate = builder.rate;
@@ -188,10 +213,24 @@ public class TermDeposit
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether the term deposit is 'Buy' or 'Sell'.
+   * <p>
+   * A value of 'Buy' implies that one pays the principal at the start date then receives the principal plus
+   * fixed interest at the end date. A value of 'Sell' implies that the principal is paid to the counterparty
+   * at the start date then the principal plus fixed interest is received from the counterparty at the end date.
+   * @return the value of the property, not null
+   */
+  public BuySell getBuySell() {
+    return buySell;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the start date of the deposit.
    * <p>
    * Interest accrues from this date.
-   * This date should be a valid business day.
+   * This date is typically set to be a valid business day.
+   * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    * @return the value of the property, not null
    */
   public LocalDate getStartDate() {
@@ -203,12 +242,26 @@ public class TermDeposit
    * Gets the end date of the deposit.
    * <p>
    * Interest accrues until this date.
-   * This date should be a valid business day.
+   * This date is typically set to be a valid business day.
+   * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
    * This date must be after the start date.
    * @return the value of the property, not null
    */
   public LocalDate getEndDate() {
     return endDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day adjustment to apply to the start and end date, optional.
+   * <p>
+   * The start and end date are typically defined as valid business days and thus
+   * do not need to be adjusted. If this optional property is present, then the
+   * start and end date will be adjusted as defined here.
+   * @return the optional value of the property, not null
+   */
+  public Optional<BusinessDayAdjustment> getBusinessDayAdjustment() {
+    return Optional.ofNullable(businessDayAdjustment);
   }
 
   //-----------------------------------------------------------------------
@@ -233,7 +286,7 @@ public class TermDeposit
    * <p>
    * Note that a negative interest rate can mean that the end date payment is less than
    * the start date payment.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CurrencyAmount getPrincipal() {
     return principal;
@@ -243,7 +296,7 @@ public class TermDeposit
   /**
    * Gets the fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getRate() {
     return rate;
@@ -265,8 +318,10 @@ public class TermDeposit
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TermDeposit other = (TermDeposit) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getPrincipal(), other.getPrincipal()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
@@ -277,8 +332,10 @@ public class TermDeposit
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPrincipal());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
@@ -287,7 +344,7 @@ public class TermDeposit
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("TermDeposit{");
     int len = buf.length();
     toString(buf);
@@ -299,8 +356,10 @@ public class TermDeposit
   }
 
   protected void toString(StringBuilder buf) {
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
     buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
     buf.append("principal").append('=').append(JodaBeanUtils.toString(getPrincipal())).append(',').append(' ');
     buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
@@ -317,6 +376,11 @@ public class TermDeposit
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code buySell} property.
+     */
+    private final MetaProperty<BuySell> buySell = DirectMetaProperty.ofImmutable(
+        this, "buySell", TermDeposit.class, BuySell.class);
+    /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
@@ -326,6 +390,11 @@ public class TermDeposit
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", TermDeposit.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "businessDayAdjustment", TermDeposit.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -346,8 +415,10 @@ public class TermDeposit
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "buySell",
         "startDate",
         "endDate",
+        "businessDayAdjustment",
         "dayCount",
         "principal",
         "rate");
@@ -361,10 +432,14 @@ public class TermDeposit
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          return buySell;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case 1905311443:  // dayCount
           return dayCount;
         case -1812041682:  // principal
@@ -392,6 +467,14 @@ public class TermDeposit
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code buySell} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BuySell> buySell() {
+      return buySell;
+    }
+
+    /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
@@ -405,6 +488,14 @@ public class TermDeposit
      */
     public final MetaProperty<LocalDate> endDate() {
       return endDate;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+      return businessDayAdjustment;
     }
 
     /**
@@ -435,10 +526,14 @@ public class TermDeposit
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          return ((TermDeposit) bean).getBuySell();
         case -2129778896:  // startDate
           return ((TermDeposit) bean).getStartDate();
         case -1607727319:  // endDate
           return ((TermDeposit) bean).getEndDate();
+        case -1065319863:  // businessDayAdjustment
+          return ((TermDeposit) bean).businessDayAdjustment;
         case 1905311443:  // dayCount
           return ((TermDeposit) bean).getDayCount();
         case -1812041682:  // principal
@@ -466,8 +561,10 @@ public class TermDeposit
    */
   public static class Builder extends DirectFieldsBeanBuilder<TermDeposit> {
 
+    private BuySell buySell;
     private LocalDate startDate;
     private LocalDate endDate;
+    private BusinessDayAdjustment businessDayAdjustment;
     private DayCount dayCount;
     private CurrencyAmount principal;
     private double rate;
@@ -483,8 +580,10 @@ public class TermDeposit
      * @param beanToCopy  the bean to copy from, not null
      */
     protected Builder(TermDeposit beanToCopy) {
+      this.buySell = beanToCopy.getBuySell();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
+      this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
       this.dayCount = beanToCopy.getDayCount();
       this.principal = beanToCopy.getPrincipal();
       this.rate = beanToCopy.getRate();
@@ -494,10 +593,14 @@ public class TermDeposit
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          return buySell;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case 1905311443:  // dayCount
           return dayCount;
         case -1812041682:  // principal
@@ -512,11 +615,17 @@ public class TermDeposit
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          this.buySell = (BuySell) newValue;
+          break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
           break;
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
+          break;
+        case -1065319863:  // businessDayAdjustment
+          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -564,6 +673,17 @@ public class TermDeposit
 
     //-----------------------------------------------------------------------
     /**
+     * Sets the {@code buySell} property in the builder.
+     * @param buySell  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder buySell(BuySell buySell) {
+      JodaBeanUtils.notNull(buySell, "buySell");
+      this.buySell = buySell;
+      return this;
+    }
+
+    /**
      * Sets the {@code startDate} property in the builder.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
@@ -586,6 +706,16 @@ public class TermDeposit
     }
 
     /**
+     * Sets the {@code businessDayAdjustment} property in the builder.
+     * @param businessDayAdjustment  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      this.businessDayAdjustment = businessDayAdjustment;
+      return this;
+    }
+
+    /**
      * Sets the {@code dayCount} property in the builder.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
@@ -598,21 +728,21 @@ public class TermDeposit
 
     /**
      * Sets the {@code principal} property in the builder.
-     * @param principal  the new value
+     * @param principal  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder principal(CurrencyAmount principal) {
+      JodaBeanUtils.notNull(principal, "principal");
       this.principal = principal;
       return this;
     }
 
     /**
      * Sets the {@code rate} property in the builder.
-     * @param rate  the new value, not null
+     * @param rate  the new value
      * @return this, for chaining, not null
      */
     public Builder rate(double rate) {
-      JodaBeanUtils.notNull(rate, "rate");
       this.rate = rate;
       return this;
     }
@@ -620,7 +750,7 @@ public class TermDeposit
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("TermDeposit.Builder{");
       int len = buf.length();
       toString(buf);
@@ -632,8 +762,10 @@ public class TermDeposit
     }
 
     protected void toString(StringBuilder buf) {
+      buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("principal").append('=').append(JodaBeanUtils.toString(principal)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
