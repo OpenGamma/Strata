@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import com.opengamma.strata.market.curve.CurveName;
+
 /**
  * Configuration specifying how to calibrate a curve.
  * <p>
@@ -17,5 +19,5 @@ public interface CurveConfig {
    *
    * @return the curve name
    */
-  public abstract String getName();
+  public abstract CurveName getName();
 }

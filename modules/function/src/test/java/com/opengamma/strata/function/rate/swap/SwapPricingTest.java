@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -74,6 +73,7 @@ import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketData
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.pricer.rate.e2e.CalendarUSD;
 
@@ -130,7 +130,7 @@ public class SwapPricingTest {
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg)).build();
 
-    String curveGroupName = "The Curve Group";
+    CurveGroupName curveGroupName = CurveGroupName.of("The Curve Group");
     CurveGroup curveGroup = new CurveGroup(MULTICURVE_OIS, new CurveBuildingBlockBundle());
 
     BaseMarketData suppliedData =

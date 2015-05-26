@@ -14,6 +14,7 @@ import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * Contains utilities for using example market data from JSON resources.
@@ -25,7 +26,10 @@ public final class ExampleMarketData {
    */
   private static final MarketDataRules RULES =
       MarketDataRules.of(
-          MarketDataRule.anyTarget(MarketDataMappingsBuilder.create().curveGroup("Default").build()));
+          MarketDataRule.anyTarget(
+              MarketDataMappingsBuilder.create()
+                  .curveGroup(CurveGroupName.of("Default"))
+                  .build()));
 
   /**
    * Restricted constructor.

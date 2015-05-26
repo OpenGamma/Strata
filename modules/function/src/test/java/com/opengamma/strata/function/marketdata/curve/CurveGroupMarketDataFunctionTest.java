@@ -40,6 +40,8 @@ import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
 import com.opengamma.strata.market.curve.config.CurveNode;
 import com.opengamma.strata.market.curve.config.FraCurveNode;
@@ -69,8 +71,8 @@ public class CurveGroupMarketDataFunctionTest {
     FraCurveNode node18x21 = fraNodeFixed(18, 1.34);
 
     List<CurveNode> nodes = ImmutableList.of(node1x4, node2x5, node3x6, node6x9, node9x12, node12x15, node18x21);
-    String groupName = "Curve Group";
-    String curveName = "FRA Curve";
+    CurveGroupName groupName = CurveGroupName.of("Curve Group");
+    CurveName curveName = CurveName.of("FRA Curve");
 
     InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
         .name(curveName)
@@ -121,8 +123,8 @@ public class CurveGroupMarketDataFunctionTest {
     FraCurveNode node1x4   = fraNodeMarket(1, "foo");
 
     List<CurveNode> nodes = ImmutableList.of(node1x4);
-    String groupName = "Curve Group";
-    String curveName = "FRA Curve";
+    CurveGroupName groupName = CurveGroupName.of("Curve Group");
+    CurveName curveName = CurveName.of("FRA Curve");
     MarketDataFeed feed = MarketDataFeed.of("TestFeed");
 
     InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
@@ -155,8 +157,8 @@ public class CurveGroupMarketDataFunctionTest {
   public void noRequirementsIfCurveConfigContainsMarketData() {
     FraCurveNode node1x4   = fraNodeFixed(1, 0.3);
     List<CurveNode> nodes = ImmutableList.of(node1x4);
-    String groupName = "Curve Group";
-    String curveName = "FRA Curve";
+    CurveGroupName groupName = CurveGroupName.of("Curve Group");
+    CurveName curveName = CurveName.of("FRA Curve");
 
     InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
         .name(curveName)

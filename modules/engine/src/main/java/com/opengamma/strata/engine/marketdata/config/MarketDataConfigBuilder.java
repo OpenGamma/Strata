@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.type.TypedString;
 
 /**
  * A mutable builder for building an instance of {@link MarketDataConfig}.
@@ -39,6 +40,24 @@ public final class MarketDataConfigBuilder {
     Class<?> configType = value.getClass();
     SingleTypeMarketDataConfig configs = configsForType(configType);
     values.put(configType, configs.withConfig(name, value));
+    return this;
+  }
+
+  /**
+   * Adds an item of configuration under the specified name.
+   *
+   * @param name  the name of the configuration item
+   * @param value  the configuration item
+   * @return this builder
+   */
+  public MarketDataConfigBuilder add(TypedString<?> name, Object value) {
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(value, "value");
+
+
+    Class<?> configType = value.getClass();
+    SingleTypeMarketDataConfig configs = configsForType(configType);
+    values.put(configType, configs.withConfig(name.toString(), value));
     return this;
   }
 

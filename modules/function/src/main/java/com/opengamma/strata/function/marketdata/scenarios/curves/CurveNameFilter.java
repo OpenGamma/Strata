@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.engine.marketdata.scenarios.MarketDataFilter;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 
@@ -33,8 +34,8 @@ import com.opengamma.strata.market.id.RateCurveId;
 public final class CurveNameFilter implements MarketDataFilter<YieldCurve, CurveId>, ImmutableBean {
 
   /** The name of the curve matched by this filter. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String curveName;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveName curveName;
 
   /**
    * Returns a filter matching curves with the specified name.
@@ -42,13 +43,13 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
    * @param curveName  the name of the curve matched by this filter
    * @return a filter matching curves with the specified name
    */
-  public static CurveNameFilter of(String curveName) {
+  public static CurveNameFilter of(CurveName curveName) {
     return new CurveNameFilter(curveName);
   }
 
   @Override
   public boolean apply(CurveId curveId, YieldCurve curve) {
-    return curve.getName().equals(curveName);
+    return curve.getName().equals(curveName.toString());
   }
 
   @Override
@@ -79,8 +80,8 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
   }
 
   private CurveNameFilter(
-      String curveName) {
-    JodaBeanUtils.notEmpty(curveName, "curveName");
+      CurveName curveName) {
+    JodaBeanUtils.notNull(curveName, "curveName");
     this.curveName = curveName;
   }
 
@@ -102,9 +103,9 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve matched by this filter.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getCurveName() {
+  public CurveName getCurveName() {
     return curveName;
   }
 
@@ -158,8 +159,8 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
     /**
      * The meta-property for the {@code curveName} property.
      */
-    private final MetaProperty<String> curveName = DirectMetaProperty.ofImmutable(
-        this, "curveName", CurveNameFilter.class, String.class);
+    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
+        this, "curveName", CurveNameFilter.class, CurveName.class);
     /**
      * The meta-properties.
      */
@@ -202,7 +203,7 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
      * The meta-property for the {@code curveName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveName() {
+    public MetaProperty<CurveName> curveName() {
       return curveName;
     }
 
@@ -233,7 +234,7 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CurveNameFilter> {
 
-    private String curveName;
+    private CurveName curveName;
 
     /**
      * Restricted constructor.
@@ -264,7 +265,7 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 771153946:  // curveName
-          this.curveName = (String) newValue;
+          this.curveName = (CurveName) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -305,11 +306,11 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code curveName} property in the builder.
-     * @param curveName  the new value, not empty
+     * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveName(String curveName) {
-      JodaBeanUtils.notEmpty(curveName, "curveName");
+    public Builder curveName(CurveName curveName) {
+      JodaBeanUtils.notNull(curveName, "curveName");
       this.curveName = curveName;
       return this;
     }

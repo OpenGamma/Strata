@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * Market data ID identifying the discounting curve for a currency.
@@ -36,8 +37,8 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
   private final Currency currency;
 
   /** The name of the curve group containing the curve. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String curveGroupName;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveGroupName curveGroupName;
 
   /** The market data feed which provides quotes used to build the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -51,7 +52,7 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
    * @param marketDataFeed  the market data feed which provides quotes used to build the curve
    * @return an ID that identifies the discounting curve for the specified currency
    */
-  public static DiscountingCurveId of(Currency currency, String curveGroupName, MarketDataFeed marketDataFeed) {
+  public static DiscountingCurveId of(Currency currency, CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
     return new DiscountingCurveId(currency, curveGroupName, marketDataFeed);
   }
 
@@ -62,7 +63,7 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
    * @param curveGroupName  the name of the curve group containing the curve
    * @return an ID that identifies the discounting curve for the specified currency
    */
-  public static DiscountingCurveId of(Currency currency, String curveGroupName) {
+  public static DiscountingCurveId of(Currency currency, CurveGroupName curveGroupName) {
     return new DiscountingCurveId(currency, curveGroupName, MarketDataFeed.NONE);
   }
 
@@ -82,10 +83,10 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
 
   private DiscountingCurveId(
       Currency currency,
-      String curveGroupName,
+      CurveGroupName curveGroupName,
       MarketDataFeed marketDataFeed) {
     JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notEmpty(curveGroupName, "curveGroupName");
+    JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
     JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.currency = currency;
     this.curveGroupName = curveGroupName;
@@ -120,9 +121,9 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve group containing the curve.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getCurveGroupName() {
+  public CurveGroupName getCurveGroupName() {
     return curveGroupName;
   }
 
@@ -188,8 +189,8 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
     /**
      * The meta-property for the {@code curveGroupName} property.
      */
-    private final MetaProperty<String> curveGroupName = DirectMetaProperty.ofImmutable(
-        this, "curveGroupName", DiscountingCurveId.class, String.class);
+    private final MetaProperty<CurveGroupName> curveGroupName = DirectMetaProperty.ofImmutable(
+        this, "curveGroupName", DiscountingCurveId.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code marketDataFeed} property.
      */
@@ -251,7 +252,7 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
      * The meta-property for the {@code curveGroupName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveGroupName() {
+    public MetaProperty<CurveGroupName> curveGroupName() {
       return curveGroupName;
     }
 
@@ -295,7 +296,7 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
   private static final class Builder extends DirectFieldsBeanBuilder<DiscountingCurveId> {
 
     private Currency currency;
-    private String curveGroupName;
+    private CurveGroupName curveGroupName;
     private MarketDataFeed marketDataFeed;
 
     /**
@@ -326,7 +327,7 @@ public final class DiscountingCurveId implements RateCurveId, ImmutableBean {
           this.currency = (Currency) newValue;
           break;
         case -382645893:  // curveGroupName
-          this.curveGroupName = (String) newValue;
+          this.curveGroupName = (CurveGroupName) newValue;
           break;
         case 842621124:  // marketDataFeed
           this.marketDataFeed = (MarketDataFeed) newValue;

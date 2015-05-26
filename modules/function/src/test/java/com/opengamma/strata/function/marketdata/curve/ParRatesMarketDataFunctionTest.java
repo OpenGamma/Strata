@@ -26,6 +26,8 @@ import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveConfig;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
@@ -49,7 +51,7 @@ public class ParRatesMarketDataFunctionTest {
     FraCurveNode node3x6 = fraNode(3, "c");
 
     InterpolatedCurveConfig curve = InterpolatedCurveConfig.builder()
-        .name("curve")
+        .name(CurveName.of("curve"))
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)
         .rightExtrapolator(CurveExtrapolators.FLAT)
@@ -57,7 +59,7 @@ public class ParRatesMarketDataFunctionTest {
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
-        .name("curve group")
+        .name(CurveGroupName.of("curve group"))
         .addDiscountingCurve(curve, Currency.USD)
         .build();
 
@@ -80,7 +82,7 @@ public class ParRatesMarketDataFunctionTest {
    */
   public void requirementsMissingGroupConfig() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
-    ParRatesId parRatesId = ParRatesId.of("curve group", "curve", MarketDataFeed.NONE);
+    ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     MarketDataRequirements requirements = marketDataFunction.requirements(parRatesId, MarketDataConfig.empty());
     assertThat(requirements.getObservables()).isEmpty();
   }
@@ -90,8 +92,8 @@ public class ParRatesMarketDataFunctionTest {
    */
   public void requirementsMissingCurveConfig() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
-    ParRatesId parRatesId = ParRatesId.of("curve group", "curve", MarketDataFeed.NONE);
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder().name("curve group").build();
+    ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
+    CurveGroupConfig groupConfig = CurveGroupConfig.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
     MarketDataRequirements requirements = marketDataFunction.requirements(parRatesId, marketDataConfig);
     assertThat(requirements.getObservables()).isEmpty();
@@ -102,11 +104,11 @@ public class ParRatesMarketDataFunctionTest {
    */
   public void requirementsNotInterpolatedCurve() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
-    ParRatesId parRatesId = ParRatesId.of("curve group", "curve", MarketDataFeed.NONE);
+    ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     CurveConfig curve = mock(CurveConfig.class);
-    when(curve.getName()).thenReturn("curve");
+    when(curve.getName()).thenReturn(CurveName.of("curve"));
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
-        .name("curve group")
+        .name(CurveGroupName.of("curve group"))
         .addDiscountingCurve(curve, Currency.USD)
         .build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
@@ -123,7 +125,7 @@ public class ParRatesMarketDataFunctionTest {
     FraCurveNode node3x6 = fraNode(3, "c");
 
     InterpolatedCurveConfig curve = InterpolatedCurveConfig.builder()
-        .name("curve")
+        .name(CurveName.of("curve"))
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)
         .rightExtrapolator(CurveExtrapolators.FLAT)
@@ -131,7 +133,7 @@ public class ParRatesMarketDataFunctionTest {
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
-        .name("curve group")
+        .name(CurveGroupName.of("curve group"))
         .addDiscountingCurve(curve, Currency.USD)
         .build();
 
@@ -165,7 +167,7 @@ public class ParRatesMarketDataFunctionTest {
    */
   public void buildMissingGroupConfig() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
-    ParRatesId parRatesId = ParRatesId.of("curve group", "curve", MarketDataFeed.NONE);
+    ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     BaseMarketData emptyData = BaseMarketData.empty(VALUATION_DATE);
     Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, MarketDataConfig.empty());
     assertThat(result).hasFailureMessageMatching("No configuration found for curve group .*");
@@ -176,8 +178,8 @@ public class ParRatesMarketDataFunctionTest {
    */
   public void buildMissingCurveConfig() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
-    ParRatesId parRatesId = ParRatesId.of("curve group", "curve", MarketDataFeed.NONE);
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder().name("curve group").build();
+    ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
+    CurveGroupConfig groupConfig = CurveGroupConfig.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
     BaseMarketData emptyData = BaseMarketData.empty(VALUATION_DATE);
     Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
@@ -189,11 +191,11 @@ public class ParRatesMarketDataFunctionTest {
    */
   public void buildNotInterpolatedCurve() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
-    ParRatesId parRatesId = ParRatesId.of("curve group", "curve", MarketDataFeed.NONE);
+    ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     CurveConfig curve = mock(CurveConfig.class);
-    when(curve.getName()).thenReturn("curve");
+    when(curve.getName()).thenReturn(CurveName.of("curve"));
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
-        .name("curve group")
+        .name(CurveGroupName.of("curve group"))
         .addDiscountingCurve(curve, Currency.USD)
         .build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
@@ -211,7 +213,7 @@ public class ParRatesMarketDataFunctionTest {
     FraCurveNode node3x6 = fraNode(3, "c");
 
     InterpolatedCurveConfig curve = InterpolatedCurveConfig.builder()
-        .name("curve")
+        .name(CurveName.of("curve"))
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)
         .rightExtrapolator(CurveExtrapolators.FLAT)
@@ -219,7 +221,7 @@ public class ParRatesMarketDataFunctionTest {
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
-        .name("curve group")
+        .name(CurveGroupName.of("curve group"))
         .addDiscountingCurve(curve, Currency.USD)
         .build();
 

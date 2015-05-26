@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.key.DiscountingCurveKey;
@@ -29,7 +30,7 @@ public class MarketDataMappingsBuilderTest {
    * Tests mapping a key to an ID where there is a mapping available for the key type.
    */
   public void mappingsAvailable() {
-    String curveGroupName = "curve group";
+    CurveGroupName curveGroupName = CurveGroupName.of("curve group");
     MarketDataMappings mappings =
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
@@ -52,7 +53,7 @@ public class MarketDataMappingsBuilderTest {
    * Tests mapping multiple keys to IDs where there is a mapping available for one key type but not another.
    */
   public void mappingAvailableForSomeTypesButNotAll() {
-    String curveGroupName = "curve group";
+    CurveGroupName curveGroupName = CurveGroupName.of("curve group");
     MarketDataMappings mappings =
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
