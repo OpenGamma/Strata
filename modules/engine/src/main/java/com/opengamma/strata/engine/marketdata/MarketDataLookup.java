@@ -76,7 +76,7 @@ public interface MarketDataLookup {
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
-  public default <I extends ObservableId> Map<ObservableId, Double> getObservableValues(Set<I> ids) {
+  public default Map<ObservableId, Double> getObservableValues(Set<? extends ObservableId> ids) {
     return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
   }
 

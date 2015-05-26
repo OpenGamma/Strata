@@ -204,7 +204,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       for (Map.Entry<MarketDataId<?>, Result<?>> entry : nonObservableResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
-          dataBuilder.addValueChecked(entry.getKey(), entry.getValue().getValue());
+          dataBuilder.addValueUnsafe(entry.getKey(), entry.getValue().getValue());
         } else {
           failureBuilder.put(entry.getKey(), entry.getValue());
         }
@@ -259,7 +259,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
         Result<List<Object>> result = perturbNonObservableValue(id, value, scenarioDefinition);
 
         if (result.isSuccess()) {
-          dataBuilder.addValuesChecked(id, result.getValue());
+          dataBuilder.addValuesUnsafe(id, result.getValue());
         } else {
           failureBuilder.put(id, result);
         }
@@ -349,7 +349,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       for (Map.Entry<MarketDataId<?>, Result<List<?>>> entry : nonObservableScenarioResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
           // This local variable with a raw type is needed to keep the compiler happy
-          dataBuilder.addValuesChecked(entry.getKey(), entry.getValue().getValue());
+          dataBuilder.addValuesUnsafe(entry.getKey(), entry.getValue().getValue());
         } else {
           failureBuilder.put(entry.getKey(), entry.getValue());
         }

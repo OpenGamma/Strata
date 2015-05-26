@@ -186,7 +186,7 @@ public final class ScenarioMarketDataBuilder {
    * @param <T> the type of the market data values
    * @return this builder
    */
-  public <T, V> ScenarioMarketDataBuilder addValuesChecked(MarketDataId<T> id, List<V> values) {
+  <T, V> ScenarioMarketDataBuilder addValuesUnsafe(MarketDataId<T> id, List<V> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     checkLength(values.size(), "values");

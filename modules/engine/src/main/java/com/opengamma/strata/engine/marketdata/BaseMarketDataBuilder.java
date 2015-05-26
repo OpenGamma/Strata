@@ -80,7 +80,7 @@ public final class BaseMarketDataBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> BaseMarketDataBuilder addValueChecked(MarketDataId<T> id, Object value) {
+  <T> BaseMarketDataBuilder addValueUnsafe(MarketDataId<T> id, Object value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, id.getMarketDataType().cast(value));
