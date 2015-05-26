@@ -180,6 +180,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       discountingCurrency.ifPresent(currency -> discountingCurrenciesByCurveName.put(curveName, currency));
       singleCurveBundles.add(createSingleCurveBundle(curveConfig, derivatives));
     }
+    @SuppressWarnings("rawtypes")
     SingleCurveBundle[] singleBundleArray = singleCurveBundles.toArray(new SingleCurveBundle[singleCurveBundles.size()]);
     @SuppressWarnings("unchecked")
     List<MultiCurveBundle<GeneratorYDCurve>> curveBundles = ImmutableList.of(new MultiCurveBundle<>(singleBundleArray));

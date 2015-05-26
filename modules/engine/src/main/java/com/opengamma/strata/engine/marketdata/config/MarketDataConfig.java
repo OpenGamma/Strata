@@ -14,6 +14,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -63,6 +64,7 @@ public final class MarketDataConfig implements ImmutableBean {
    *
    * @param configs  sets of configuration keyed by their type
    */
+  @ImmutableConstructor
   MarketDataConfig(Map<Class<?>, SingleTypeMarketDataConfig> configs) {
     JodaBeanUtils.notNull(configs, "configs");
     this.configs = ImmutableMap.copyOf(configs);

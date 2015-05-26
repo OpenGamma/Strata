@@ -43,14 +43,12 @@ public interface MarketDataLookup {
    * <p>
    * The date of the market data is the same as the valuation date of the calculations.
    *
-   * @param id  ID of the market data
    * @param <T>  type of the market data
-   * @param <I>  type of the market data ID
+   * @param id  ID of the market data
    * @return a market data value
    * @throws IllegalArgumentException if there is no value for the specified ID
    */
-  @SuppressWarnings("unchecked")
-  public abstract <T, I extends MarketDataId<T>> T getValue(I id);
+  public abstract <T> T getValue(MarketDataId<T> id);
 
   /**
    * Returns a map of market data values for a set of IDs.
@@ -58,11 +56,13 @@ public interface MarketDataLookup {
    * The return value is guaranteed to contain a value for every ID. If any values are unavailable this
    * method throws {@code IllegalArgumentException}.
    *
+   * @param <T>  type of the market data
+   * @param <I>  type of the market data ID
    * @param ids  market data IDs
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
-  public default Map<MarketDataId<?>, Object> getValues(Set<? extends MarketDataId<?>> ids) {
+  public default <T, I extends MarketDataId<T>> Map<MarketDataId<?>, Object> getValues(Set<I> ids) {
     return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
   }
 
@@ -76,7 +76,7 @@ public interface MarketDataLookup {
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
-  public default Map<ObservableId, Double> getObservableValues(Set<? extends ObservableId> ids) {
+  public default <I extends ObservableId> Map<ObservableId, Double> getObservableValues(Set<I> ids) {
     return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
   }
 

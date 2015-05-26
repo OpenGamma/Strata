@@ -159,8 +159,8 @@ public final class ScenarioMarketDataBuilder {
   }
 
   /**
-   * Adds market data values for all scenarios. The number of values must be the same as the number
-   * of scenarios.
+   * Adds market data values for all scenarios.
+   * The number of values must be the same as the number of scenarios.
    *
    * @param id the ID of the market data values
    * @param values the market data values, one for each scenario
@@ -172,6 +172,27 @@ public final class ScenarioMarketDataBuilder {
     ArgChecker.notNull(values, "values");
     checkLength(values.size(), "values");
     this.values.putAll(id, values);
+    return this;
+  }
+
+  /**
+   * Adds market data values for all scenarios.
+   * The number of values must be the same as the number of scenarios.
+   * <p>
+   * The type of the values is checked to ensure it is compatible with the ID.
+   *
+   * @param id the ID of the market data values
+   * @param values the market data values, one for each scenario
+   * @param <T> the type of the market data values
+   * @return this builder
+   */
+  public <T, V> ScenarioMarketDataBuilder addValuesChecked(MarketDataId<T> id, List<V> values) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(values, "values");
+    checkLength(values.size(), "values");
+    for (V value : values) {
+      this.values.put(id, id.getMarketDataType().cast(value));
+    }
     return this;
   }
 

@@ -199,13 +199,12 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // Filter out IDs for the data that is already present in builtData and build the rest
       Map<MarketDataId<?>, Result<?>> nonObservableResults =
           leafRequirements.getNonObservables().stream()
-              .filter(not(builtData::containsValue))
+              .filter(not(tmpData::containsValue))
               .collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, tmpData, marketDataConfig)));
 
       for (Map.Entry<MarketDataId<?>, Result<?>> entry : nonObservableResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
-          MarketDataId id = entry.getKey();
-          dataBuilder.addValue(id, entry.getValue().getValue());
+          dataBuilder.addValueChecked(entry.getKey(), entry.getValue().getValue());
         } else {
           failureBuilder.put(entry.getKey(), entry.getValue());
         }
@@ -260,7 +259,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
         Result<List<Object>> result = perturbNonObservableValue(id, value, scenarioDefinition);
 
         if (result.isSuccess()) {
-          dataBuilder.addValues((MarketDataId) id, result.getValue());
+          dataBuilder.addValuesChecked(id, result.getValue());
         } else {
           failureBuilder.put(id, result);
         }
@@ -350,8 +349,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       for (Map.Entry<MarketDataId<?>, Result<List<?>>> entry : nonObservableScenarioResults.entrySet()) {
         if (entry.getValue().isSuccess()) {
           // This local variable with a raw type is needed to keep the compiler happy
-          MarketDataId id = entry.getKey();
-          dataBuilder.addValues(id, entry.getValue().getValue());
+          dataBuilder.addValuesChecked(entry.getKey(), entry.getValue().getValue());
         } else {
           failureBuilder.put(entry.getKey(), entry.getValue());
         }
