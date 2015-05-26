@@ -56,14 +56,13 @@ public interface MarketDataLookup {
    * The return value is guaranteed to contain a value for every ID. If any values are unavailable this
    * method throws {@code IllegalArgumentException}.
    *
-   * @param <T>  type of the market data
-   * @param <I>  type of the market data ID
    * @param ids  market data IDs
    * @return a map of market data values for the IDs
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
-  public default <T, I extends MarketDataId<T>> Map<MarketDataId<?>, Object> getValues(Set<I> ids) {
-    return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
+  public default Map<MarketDataId<?>, Object> getValues(Set<? extends MarketDataId<?>> ids) {
+    // additional type information for Eclipse
+    return ids.stream().collect(toImmutableMap(id -> id, (MarketDataId<?> id) -> getValue(id)));
   }
 
   /**
