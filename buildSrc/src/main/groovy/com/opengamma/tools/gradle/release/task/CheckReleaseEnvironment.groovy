@@ -141,8 +141,6 @@ class CheckReleaseEnvironment extends DefaultTask
 	{
 		if( ! dryRun) return
 
-		logger.warn "[!!!] DRY RUN IS GO!"
-
 		[S3Sync, Upload, GitWriteTask].each { Class<? extends DefaultTask> t ->
 			project.allprojects*.tasks*.withType(t) { Task it ->
 				if(it instanceof DeployLocal) return
