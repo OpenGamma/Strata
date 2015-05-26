@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * A mutable builder for building an instance of {@link MarketDataConfig}.
@@ -17,7 +16,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 public final class MarketDataConfigBuilder {
 
   /** The configuration objects, keyed by their type and name. */
-  private final Map<Pair<Class<?>, String>, Object> values = new HashMap<>();
+  private final Map<Class<?>, SingleTypeMarketDataConfig> values = new HashMap<>();
 
   /**
    * Package-private constructor used by {@link MarketDataConfig#builder()}.
@@ -36,7 +35,10 @@ public final class MarketDataConfigBuilder {
     ArgChecker.notEmpty(name, "name");
     ArgChecker.notNull(value, "value");
 
-    values.put(Pair.of(value.getClass(), name), value);
+
+    Class<?> configType = value.getClass();
+    SingleTypeMarketDataConfig configs = configsForType(configType);
+    values.put(configType, configs.withConfig(name, value));
     return this;
   }
 
@@ -47,5 +49,19 @@ public final class MarketDataConfigBuilder {
    */
   public MarketDataConfig build() {
     return new MarketDataConfig(values);
+  }
+
+  /**
+   * Returns a set of configuration object for the specified type, creating one and adding it to
+   * the map if not found.
+   */
+  private SingleTypeMarketDataConfig configsForType(Class<?> configType) {
+    SingleTypeMarketDataConfig configs = values.get(configType);
+    if (configs != null) {
+      return configs;
+    }
+    SingleTypeMarketDataConfig newConfigs = SingleTypeMarketDataConfig.builder().configType(configType).build();
+    values.put(configType, newConfigs);
+    return newConfigs;
   }
 }
