@@ -90,7 +90,7 @@ class CheckReleaseEnvironment extends DefaultTask
 		getOwnerBranches.execute()
 
 		ownerBranches = getOwnerBranches.output.stdOut.readLines().collect {
-			it.replaceAll(/(\*| )/, "")
+			it.replaceAll(/(\* | )/, "")
 		}
 	}
 
