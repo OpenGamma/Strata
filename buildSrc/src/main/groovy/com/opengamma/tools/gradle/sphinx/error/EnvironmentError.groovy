@@ -6,8 +6,13 @@
 
 package com.opengamma.tools.gradle.sphinx.error
 
-public interface EnvironmentError
+public trait EnvironmentError
 {
-	String getMessage()
-	String getHelp()
+	abstract String getMessage()
+	abstract String getHelp()
+
+	public String toString()
+	{
+		return getMessage()
+	}
 }
