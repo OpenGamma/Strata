@@ -15,6 +15,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 
@@ -64,6 +65,7 @@ class ReleasePlugin implements Plugin<Project>, ReleaseExtensionCreator, TaskNam
 		t.dependsOn project.tasks[CHECK_RELEASE_ENVIRONMENT_TASK_NAME]
 		t.dependsOn project.tasks[PACKAGE_TASK_NAME]
 		t.dependsOn project.tasks[GIT_PUSH_TASK_NAME]
+		t.dependsOn project.getTasksByName(BasePlugin.UPLOAD_ARCHIVES_TASK_NAME, true)
 		return t
 	}
 
