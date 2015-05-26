@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.key;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -22,26 +23,30 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.RateIndex;
 
 /**
- * A market data key identifying the forward curve of an {@link Index}.
+ * Market data key identifying the forward curve for an index.
  * <p>
+ * This is used when there is a need to obtain the forward curve.
  * Current and historical values for the index are identified with a {@link IndexRateKey}.
  */
 @BeanDefinition(builderScope = "private")
-public final class RateIndexCurveKey implements CurveKey, ImmutableBean {
+public final class RateIndexCurveKey
+    implements YieldCurveKey, ImmutableBean, Serializable {
 
-  /** The index of the curve. */
+  /**
+   * The index of the curve that is required.
+   */
   @PropertyDefinition(validate = "notNull")
   private final RateIndex index;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns an ID for the curve for the specified index.
+   * Creates a key to obtain the forward curve associated with an index.
    *
-   * @param index  the curve index
-   * @return an ID for the curve for the specified index
+   * @param index  the index
+   * @return a key for the forward curve of the index
    */
   public static RateIndexCurveKey of(RateIndex index) {
     return new RateIndexCurveKey(index);
@@ -60,6 +65,11 @@ public final class RateIndexCurveKey implements CurveKey, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(RateIndexCurveKey.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private RateIndexCurveKey(
       RateIndex index) {
@@ -84,7 +94,7 @@ public final class RateIndexCurveKey implements CurveKey, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the curve.
+   * Gets the index of the curve that is required.
    * @return the value of the property, not null
    */
   public RateIndex getIndex() {

@@ -10,11 +10,14 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * A market data key identifying a yield curve.
+ * <p>
+ * This is implemented by keys that return a {@link YieldCurve}.
  */
-public interface CurveKey extends MarketDataKey<YieldCurve> {
+public interface YieldCurveKey extends MarketDataKey<YieldCurve> {
 
   @Override
   public default Class<YieldCurve> getMarketDataType() {
     return YieldCurve.class;
   }
+
 }

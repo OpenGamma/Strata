@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.market.key;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -23,13 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.id.QuoteId;
 
 /**
- * A key identifying a market quote.
+ * Market data key identifying the current and historical values of a market identifier.
  * <p>
  * A quote key identifies a piece of data in an external data provider.
  * <p>
@@ -56,40 +57,53 @@ import com.opengamma.strata.market.id.QuoteId;
  * the market data source can change without affecting the calculation.
  *
  * @see FieldName
- */@BeanDefinition
-   public final class QuoteKey implements ObservableKey, ImmutableBean {
+ */
+@BeanDefinition(builderScope = "private")
+public final class QuoteKey
+    implements ObservableKey, ImmutableBean, Serializable {
 
-  /** The ID of the data, typically an ID from an external data provider. */
+  /**
+   * The ID of the market data that is required, typically an ID from an external data provider.
+   * For example, 'Bloomberg~AAPL'.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId standardId;
-
-  /** The field name in the market data record that contains the data. */
+  /**
+   * The field name in the market data record that is required.
+   * For example, {@link FieldName#MARKET_VALUE}.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FieldName fieldName;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a key identifying a market quote.
+   * Creates a key to obtain the market value associated with an identifier.
+   * <p>
+   * This obtains the {@link FieldName#MARKET_VALUE MARKET_VALUE} field.
    *
    * @param id  the ID of the data in the underlying data provider
-   * @param fieldName  the name of the field in the market data record holding the data
-   * @return a key identifying a market quote
-   */
-  public static QuoteKey of(StandardId id, FieldName fieldName) {
-    return new QuoteKey(id, fieldName);
-  }
-
-  /**
-   * Returns a key identifying a market quote with a field name of {@link FieldName#MARKET_VALUE}.
-   *
-   * @param id  the ID of the data in the underlying data provider
-   * @return a key identifying a market quote
+   * @return a key for the market quote of the identifier
    */
   public static QuoteKey of(StandardId id) {
     return new QuoteKey(id, FieldName.MARKET_VALUE);
   }
 
+  /**
+   * Creates a key to obtain a specific field associated with an identifier.
+   * <p>
+   * This obtains the specified {@linkplain FieldName field}.
+   *
+   * @param id  the ID of the data in the underlying data provider
+   * @param fieldName  the field name in the market data record to obtain
+   * @return a key for the market quote of the identifier
+   */
+  public static QuoteKey of(StandardId id, FieldName fieldName) {
+    return new QuoteKey(id, fieldName);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public ObservableId toObservableId(MarketDataFeed marketDataFeed) {
+  public QuoteId toObservableId(MarketDataFeed marketDataFeed) {
     return QuoteId.of(standardId, marketDataFeed, fieldName);
   }
 
@@ -108,12 +122,9 @@ import com.opengamma.strata.market.id.QuoteId;
   }
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * The serialization version id.
    */
-  public static QuoteKey.Builder builder() {
-    return new QuoteKey.Builder();
-  }
+  private static final long serialVersionUID = 1L;
 
   private QuoteKey(
       StandardId standardId,
@@ -141,7 +152,8 @@ import com.opengamma.strata.market.id.QuoteId;
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ID of the data, typically an ID from an external data provider.
+   * Gets the ID of the market data that is required, typically an ID from an external data provider.
+   * For example, 'Bloomberg~AAPL'.
    * @return the value of the property, not null
    */
   @Override
@@ -151,7 +163,8 @@ import com.opengamma.strata.market.id.QuoteId;
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the field name in the market data record that contains the data.
+   * Gets the field name in the market data record that is required.
+   * For example, {@link FieldName#MARKET_VALUE}.
    * @return the value of the property, not null
    */
   @Override
@@ -160,14 +173,6 @@ import com.opengamma.strata.market.id.QuoteId;
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -245,7 +250,7 @@ import com.opengamma.strata.market.id.QuoteId;
     }
 
     @Override
-    public QuoteKey.Builder builder() {
+    public BeanBuilder<? extends QuoteKey> builder() {
       return new QuoteKey.Builder();
     }
 
@@ -303,7 +308,7 @@ import com.opengamma.strata.market.id.QuoteId;
   /**
    * The bean-builder for {@code QuoteKey}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<QuoteKey> {
+  private static final class Builder extends DirectFieldsBeanBuilder<QuoteKey> {
 
     private StandardId standardId;
     private FieldName fieldName;
@@ -312,15 +317,6 @@ import com.opengamma.strata.market.id.QuoteId;
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(QuoteKey beanToCopy) {
-      this.standardId = beanToCopy.getStandardId();
-      this.fieldName = beanToCopy.getFieldName();
     }
 
     //-----------------------------------------------------------------------
@@ -380,29 +376,6 @@ import com.opengamma.strata.market.id.QuoteId;
       return new QuoteKey(
           standardId,
           fieldName);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code standardId} property in the builder.
-     * @param standardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder standardId(StandardId standardId) {
-      JodaBeanUtils.notNull(standardId, "standardId");
-      this.standardId = standardId;
-      return this;
-    }
-
-    /**
-     * Sets the {@code fieldName} property in the builder.
-     * @param fieldName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fieldName(FieldName fieldName) {
-      JodaBeanUtils.notNull(fieldName, "fieldName");
-      this.fieldName = fieldName;
-      return this;
     }
 
     //-----------------------------------------------------------------------
