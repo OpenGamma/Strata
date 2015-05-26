@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * A mutable builder for creating instances of {@link CurveGroupConfig}.
@@ -28,7 +29,7 @@ public final class CurveGroupConfigBuilder {
   private final List<CurveGroupEntry> entries = new ArrayList<>();
 
   /** The name of the curve group. */
-  private String name;
+  private CurveGroupName name;
 
   /**
    * Sets the name of the curve group configuration.
@@ -36,9 +37,8 @@ public final class CurveGroupConfigBuilder {
    * @param name  the name of the curve group, not empty
    * @return this builder
    */
-  public CurveGroupConfigBuilder name(String name) {
-    ArgChecker.notEmpty(name, "name");
-    this.name = name;
+  public CurveGroupConfigBuilder name(CurveGroupName name) {
+    this.name = ArgChecker.notNull(name, "name");
     return this;
   }
 

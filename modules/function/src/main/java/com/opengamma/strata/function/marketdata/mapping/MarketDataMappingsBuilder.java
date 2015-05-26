@@ -12,6 +12,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * Builder for {@link MarketDataMappings} that knows about the standard mappings (e.g. curve to curve group)
@@ -57,8 +58,8 @@ public class MarketDataMappingsBuilder {
    * @param curveGroupName  the curve group used as the source for curves
    * @return this builder
    */
-  public MarketDataMappingsBuilder curveGroup(String curveGroupName) {
-    ArgChecker.notEmpty(curveGroupName, "curveGroupName");
+  public MarketDataMappingsBuilder curveGroup(CurveGroupName curveGroupName) {
+    ArgChecker.notNull(curveGroupName, "curveGroupName");
     mappings.add(DiscountingCurveMapping.of(curveGroupName, marketDataFeed));
     mappings.add(RateIndexCurveMapping.of(curveGroupName, marketDataFeed));
     return this;

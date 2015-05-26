@@ -46,6 +46,8 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
 import com.opengamma.strata.market.curve.config.CurveGroupEntry;
@@ -115,7 +117,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
   @Override
   public Result<CurveGroup> build(CurveGroupId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
-    String groupName = id.getName();
+    CurveGroupName groupName = id.getName();
     Optional<CurveGroupConfig> optionalGroup = marketDataConfig.get(CurveGroupConfig.class, groupName);
 
     if (!optionalGroup.isPresent()) {
@@ -147,7 +149,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Multimap<String, IborIndex> iborIndicesByCurveName = ArrayListMultimap.create();
     Multimap<String, IndexON> onIndicesByCurveName = ArrayListMultimap.create();
     Map<String, Currency> discountingCurrenciesByCurveName = new HashMap<>();
-    String groupName = groupConfig.getName();
+    CurveGroupName groupName = groupConfig.getName();
 
     for (CurveGroupEntry curveEntry : groupConfig.getEntries()) {
       // We can only handle InterpolatedCurveConfig for now
@@ -160,7 +162,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
             curveEntry.getCurveConfig().getClass().getName());
       }
       InterpolatedCurveConfig curveConfig = (InterpolatedCurveConfig) curveEntry.getCurveConfig();
-      String curveName = curveConfig.getName();
+      CurveName curveName = curveConfig.getName();
       Result<ParRates> parRatesResult = parRates(curveConfig, marketData, groupName, feed);
 
       if (!parRatesResult.isSuccess()) {
@@ -175,9 +177,9 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       Set<OvernightIndex> overnightIndices = curveEntry.getOvernightIndices();
       Optional<Currency> discountingCurrency = curveEntry.getDiscountingCurrency();
 
-      iborIndices.stream().forEach(idx -> iborIndicesByCurveName.put(curveName, Legacy.iborIndex(idx)));
-      overnightIndices.stream().forEach(idx -> onIndicesByCurveName.put(curveName, Legacy.overnightIndex(idx)));
-      discountingCurrency.ifPresent(currency -> discountingCurrenciesByCurveName.put(curveName, currency));
+      iborIndices.stream().forEach(idx -> iborIndicesByCurveName.put(curveName.toString(), Legacy.iborIndex(idx)));
+      overnightIndices.stream().forEach(idx -> onIndicesByCurveName.put(curveName.toString(), Legacy.overnightIndex(idx)));
+      discountingCurrency.ifPresent(currency -> discountingCurrenciesByCurveName.put(curveName.toString(), currency));
       singleCurveBundles.add(createSingleCurveBundle(curveConfig, derivatives));
     }
     @SuppressWarnings("rawtypes")
@@ -216,7 +218,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   private Result<ParRates> parRates(
       InterpolatedCurveConfig curveConfig,
       MarketDataLookup marketData,
-      String groupName,
+      CurveGroupName groupName,
       MarketDataFeed feed) {
 
     // Only try to get par rates from the market data if the curve needs market data
@@ -242,7 +244,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     GeneratorYDCurve curveGenerator = createCurveGenerator(curveConfig);
     double[] startingPoint = curveGenerator.initialGuess(parameterGuessForCurves);
     InstrumentDerivative[] derivativeArray = derivatives.toArray(new InstrumentDerivative[derivatives.size()]);
-    return new SingleCurveBundle<>(curveConfig.getName(), derivativeArray, startingPoint, curveGenerator);
+    return new SingleCurveBundle<>(curveConfig.getName().toString(), derivativeArray, startingPoint, curveGenerator);
   }
 
   private List<InstrumentDerivative> createDerivatives(

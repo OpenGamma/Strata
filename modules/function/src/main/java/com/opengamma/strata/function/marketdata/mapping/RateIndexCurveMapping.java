@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 
@@ -37,8 +38,8 @@ public final class RateIndexCurveMapping
     implements MarketDataMapping<YieldCurve, RateIndexCurveKey>, ImmutableBean {
 
   /** The name of the curve group from which the curve should be taken. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String curveGroupName;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveGroupName curveGroupName;
 
   /** The market data feed used to source any quotes used to build the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -52,7 +53,7 @@ public final class RateIndexCurveMapping
    * @param marketDataFeed  the market data feed used to source any quotes used to build the curve
    * @return a curve ID with the name of the curve group which is the source of the curve
    */
-  public static RateIndexCurveMapping of(String curveGroupName, MarketDataFeed marketDataFeed) {
+  public static RateIndexCurveMapping of(CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
     return new RateIndexCurveMapping(curveGroupName, marketDataFeed);
   }
 
@@ -89,9 +90,9 @@ public final class RateIndexCurveMapping
   }
 
   private RateIndexCurveMapping(
-      String curveGroupName,
+      CurveGroupName curveGroupName,
       MarketDataFeed marketDataFeed) {
-    JodaBeanUtils.notEmpty(curveGroupName, "curveGroupName");
+    JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
     JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.curveGroupName = curveGroupName;
     this.marketDataFeed = marketDataFeed;
@@ -115,9 +116,9 @@ public final class RateIndexCurveMapping
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve group from which the curve should be taken.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getCurveGroupName() {
+  public CurveGroupName getCurveGroupName() {
     return curveGroupName;
   }
 
@@ -183,8 +184,8 @@ public final class RateIndexCurveMapping
     /**
      * The meta-property for the {@code curveGroupName} property.
      */
-    private final MetaProperty<String> curveGroupName = DirectMetaProperty.ofImmutable(
-        this, "curveGroupName", RateIndexCurveMapping.class, String.class);
+    private final MetaProperty<CurveGroupName> curveGroupName = DirectMetaProperty.ofImmutable(
+        this, "curveGroupName", RateIndexCurveMapping.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code marketDataFeed} property.
      */
@@ -235,7 +236,7 @@ public final class RateIndexCurveMapping
      * The meta-property for the {@code curveGroupName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveGroupName() {
+    public MetaProperty<CurveGroupName> curveGroupName() {
       return curveGroupName;
     }
 
@@ -276,7 +277,7 @@ public final class RateIndexCurveMapping
    */
   public static final class Builder extends DirectFieldsBeanBuilder<RateIndexCurveMapping> {
 
-    private String curveGroupName;
+    private CurveGroupName curveGroupName;
     private MarketDataFeed marketDataFeed;
 
     /**
@@ -311,7 +312,7 @@ public final class RateIndexCurveMapping
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -382645893:  // curveGroupName
-          this.curveGroupName = (String) newValue;
+          this.curveGroupName = (CurveGroupName) newValue;
           break;
         case 842621124:  // marketDataFeed
           this.marketDataFeed = (MarketDataFeed) newValue;
@@ -356,11 +357,11 @@ public final class RateIndexCurveMapping
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code curveGroupName} property in the builder.
-     * @param curveGroupName  the new value, not empty
+     * @param curveGroupName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveGroupName(String curveGroupName) {
-      JodaBeanUtils.notEmpty(curveGroupName, "curveGroupName");
+    public Builder curveGroupName(CurveGroupName curveGroupName) {
+      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
       this.curveGroupName = curveGroupName;
       return this;
     }

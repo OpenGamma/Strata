@@ -18,6 +18,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.function.marketdata.MarketDataTestUtils;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 
@@ -63,7 +64,7 @@ public class RateIndexCurveMarketDataFunctionTest {
    * Tests building curves from multiple curve groups
    */
   public void multipleBundles() {
-    String groupName1 = "group 1";
+    CurveGroupName groupName1 = CurveGroupName.of("group 1");
     CurveGroup curveGroup1 = MarketDataTestUtils.curveGroup();
     YieldCurve curve1 = MarketDataTestUtils.iborIndexCurve(1, IborIndices.EUR_EURIBOR_12M, curveGroup1);
     YieldCurve curve2 = MarketDataTestUtils.iborIndexCurve(2, IborIndices.CHF_LIBOR_1M, curveGroup1);
@@ -71,7 +72,7 @@ public class RateIndexCurveMarketDataFunctionTest {
     RateIndexCurveId curveId2 = RateIndexCurveId.of(IborIndices.CHF_LIBOR_1M, groupName1);
     CurveGroupId groupId1 = CurveGroupId.of(groupName1);
 
-    String groupName2 = "group 2";
+    CurveGroupName groupName2 = CurveGroupName.of("group 2");
     CurveGroup curveGroup2 = MarketDataTestUtils.curveGroup();
     YieldCurve curve3 = MarketDataTestUtils.overnightIndexCurve(3, OvernightIndices.EUR_EONIA, curveGroup2);
     YieldCurve curve4 = MarketDataTestUtils.overnightIndexCurve(4, OvernightIndices.GBP_SONIA, curveGroup2);

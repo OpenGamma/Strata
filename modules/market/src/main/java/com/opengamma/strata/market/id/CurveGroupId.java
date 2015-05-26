@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * Market data ID identifying a group of curves that are built together.
@@ -33,8 +34,8 @@ import com.opengamma.strata.market.curve.CurveGroup;
 public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBean {
 
   /** The name of the curve group. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String name;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveGroupName name;
 
   /** The market data feed which provides quotes used to build curves in the group. */
   @PropertyDefinition(validate = "notNull")
@@ -46,7 +47,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
    * @param curveGroupName  the name of the curve group
    * @return an ID identifying a curve group by name
    */
-  public static CurveGroupId of(String curveGroupName) {
+  public static CurveGroupId of(CurveGroupName curveGroupName) {
     return new CurveGroupId(curveGroupName, MarketDataFeed.NONE);
   }
 
@@ -57,7 +58,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
    * @param marketDataFeed  the market data feed which provides quotes used to build curves in the group
    * @return an ID identifying a curve group by name
    */
-  public static CurveGroupId of(String curveGroupName, MarketDataFeed marketDataFeed) {
+  public static CurveGroupId of(CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
     return new CurveGroupId(curveGroupName, marketDataFeed);
   }
 
@@ -81,9 +82,9 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   }
 
   private CurveGroupId(
-      String name,
+      CurveGroupName name,
       MarketDataFeed marketDataFeed) {
-    JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.name = name;
     this.marketDataFeed = marketDataFeed;
@@ -107,9 +108,9 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve group.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getName() {
+  public CurveGroupName getName() {
     return name;
   }
 
@@ -167,8 +168,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", CurveGroupId.class, String.class);
+    private final MetaProperty<CurveGroupName> name = DirectMetaProperty.ofImmutable(
+        this, "name", CurveGroupId.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code marketDataFeed} property.
      */
@@ -219,7 +220,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<CurveGroupName> name() {
       return name;
     }
 
@@ -260,7 +261,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
    */
   private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupId> {
 
-    private String name;
+    private CurveGroupName name;
     private MarketDataFeed marketDataFeed;
 
     /**
@@ -286,7 +287,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (CurveGroupName) newValue;
           break;
         case 842621124:  // marketDataFeed
           this.marketDataFeed = (MarketDataFeed) newValue;

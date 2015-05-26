@@ -16,6 +16,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.function.marketdata.MarketDataTestUtils;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 
@@ -61,7 +62,7 @@ public class DiscountingCurveMarketDataFunctionTest {
    * Tests building curves from multiple curve groups
    */
   public void multipleBundles() {
-    String groupName1 = "group 1";
+    CurveGroupName groupName1 = CurveGroupName.of("group 1");
     CurveGroup curveGroup1 = MarketDataTestUtils.curveGroup();
     YieldCurve curve1 = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup1);
     YieldCurve curve2 = MarketDataTestUtils.discountingCurve(2, Currency.GBP, curveGroup1);
@@ -69,7 +70,7 @@ public class DiscountingCurveMarketDataFunctionTest {
     DiscountingCurveId curveId2 = DiscountingCurveId.of(Currency.GBP, groupName1);
     CurveGroupId groupId1 = CurveGroupId.of(groupName1);
 
-    String groupName2 = "group 2";
+    CurveGroupName groupName2 = CurveGroupName.of("group 2");
     CurveGroup curveGroup2 = MarketDataTestUtils.curveGroup();
     YieldCurve curve3 = MarketDataTestUtils.discountingCurve(3, Currency.CHF, curveGroup2);
     YieldCurve curve4 = MarketDataTestUtils.discountingCurve(4, Currency.USD, curveGroup2);

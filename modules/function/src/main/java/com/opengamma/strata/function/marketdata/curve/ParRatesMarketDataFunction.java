@@ -20,6 +20,8 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
 import com.opengamma.strata.market.curve.config.CurveGroupEntry;
@@ -56,8 +58,8 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
 
   @Override
   public Result<ParRates> build(ParRatesId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
-    String groupName = id.getCurveGroupName();
-    String curveName = id.getCurveName();
+    CurveGroupName groupName = id.getCurveGroupName();
+    CurveName curveName = id.getCurveName();
     Optional<CurveGroupConfig> optionalGroup = marketDataConfig.get(CurveGroupConfig.class, groupName);
 
     if (!optionalGroup.isPresent()) {

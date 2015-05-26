@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Configuration specifying how to calibrate a curve.
@@ -37,8 +38,8 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean {
 
   /** The curve name. */
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
-  private final String name;
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final CurveName name;
 
   /** The nodes in the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -59,13 +60,13 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
   // Hand-written constructor allows wildcard parameter without a wildcard in the field type
   @ImmutableConstructor
   private InterpolatedCurveConfig(
-      String name,
+      CurveName name,
       List<? extends CurveNode> nodes,
       CurveInterpolator interpolator,
       CurveExtrapolator leftExtrapolator,
       CurveExtrapolator rightExtrapolator) {
 
-    this.name = ArgChecker.notEmpty(name, "name");
+    this.name = ArgChecker.notNull(name, "name");
     this.nodes = ImmutableList.copyOf(nodes);
     this.interpolator = ArgChecker.notNull(interpolator, "interpolator");
     this.leftExtrapolator = ArgChecker.notNull(leftExtrapolator, "leftExtrapolator");
@@ -112,10 +113,10 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
   //-----------------------------------------------------------------------
   /**
    * Gets the curve name.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   @Override
-  public String getName() {
+  public CurveName getName() {
     return name;
   }
 
@@ -217,8 +218,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", InterpolatedCurveConfig.class, String.class);
+    private final MetaProperty<CurveName> name = DirectMetaProperty.ofImmutable(
+        this, "name", InterpolatedCurveConfig.class, CurveName.class);
     /**
      * The meta-property for the {@code nodes} property.
      */
@@ -294,7 +295,7 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<CurveName> name() {
       return name;
     }
 
@@ -365,7 +366,7 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
    */
   public static final class Builder extends DirectFieldsBeanBuilder<InterpolatedCurveConfig> {
 
-    private String name;
+    private CurveName name;
     private List<CurveNode> nodes = ImmutableList.of();
     private CurveInterpolator interpolator;
     private CurveExtrapolator leftExtrapolator;
@@ -413,7 +414,7 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (CurveName) newValue;
           break;
         case 104993457:  // nodes
           this.nodes = (List<CurveNode>) newValue;
@@ -470,11 +471,11 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not empty
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder name(String name) {
-      JodaBeanUtils.notEmpty(name, "name");
+    public Builder name(CurveName name) {
+      JodaBeanUtils.notNull(name, "name");
       this.name = name;
       return this;
     }

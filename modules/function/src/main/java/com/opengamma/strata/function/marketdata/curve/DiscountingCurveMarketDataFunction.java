@@ -15,6 +15,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 
@@ -67,7 +68,7 @@ public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Yi
    */
   private static Result<YieldAndDiscountCurve> getCurve(
       CurveGroup curveGroup,
-      String curveGroupName,
+      CurveGroupName curveGroupName,
       Currency currency) {
 
     return Result.ofNullable(

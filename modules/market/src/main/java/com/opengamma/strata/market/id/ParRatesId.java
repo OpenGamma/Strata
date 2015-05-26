@@ -23,6 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
 
 /**
@@ -32,12 +34,12 @@ import com.opengamma.strata.market.curve.ParRates;
 public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
 
   /** The name of the curve group containing the curve. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String curveGroupName;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveGroupName curveGroupName;
 
   /** The name of the curve. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String curveName;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveName curveName;
 
   /** The market data feed providing the market quotes. */
   @PropertyDefinition(validate = "notNull")
@@ -51,7 +53,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
    * @param marketDataFeed  the market data feed providing the market quotes
    * @return an ID for the par rates used when calibrating the specified curve
    */
-  public static ParRatesId of(String curveGroupName, String curveName, MarketDataFeed marketDataFeed) {
+  public static ParRatesId of(CurveGroupName curveGroupName, CurveName curveName, MarketDataFeed marketDataFeed) {
     return new ParRatesId(curveGroupName, curveName, marketDataFeed);
   }
 
@@ -83,11 +85,11 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
   }
 
   private ParRatesId(
-      String curveGroupName,
-      String curveName,
+      CurveGroupName curveGroupName,
+      CurveName curveName,
       MarketDataFeed marketDataFeed) {
-    JodaBeanUtils.notEmpty(curveGroupName, "curveGroupName");
-    JodaBeanUtils.notEmpty(curveName, "curveName");
+    JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
+    JodaBeanUtils.notNull(curveName, "curveName");
     JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.curveGroupName = curveGroupName;
     this.curveName = curveName;
@@ -112,18 +114,18 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve group containing the curve.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getCurveGroupName() {
+  public CurveGroupName getCurveGroupName() {
     return curveGroupName;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getCurveName() {
+  public CurveName getCurveName() {
     return curveName;
   }
 
@@ -192,13 +194,13 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
     /**
      * The meta-property for the {@code curveGroupName} property.
      */
-    private final MetaProperty<String> curveGroupName = DirectMetaProperty.ofImmutable(
-        this, "curveGroupName", ParRatesId.class, String.class);
+    private final MetaProperty<CurveGroupName> curveGroupName = DirectMetaProperty.ofImmutable(
+        this, "curveGroupName", ParRatesId.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code curveName} property.
      */
-    private final MetaProperty<String> curveName = DirectMetaProperty.ofImmutable(
-        this, "curveName", ParRatesId.class, String.class);
+    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
+        this, "curveName", ParRatesId.class, CurveName.class);
     /**
      * The meta-property for the {@code marketDataFeed} property.
      */
@@ -252,7 +254,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
      * The meta-property for the {@code curveGroupName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveGroupName() {
+    public MetaProperty<CurveGroupName> curveGroupName() {
       return curveGroupName;
     }
 
@@ -260,7 +262,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
      * The meta-property for the {@code curveName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveName() {
+    public MetaProperty<CurveName> curveName() {
       return curveName;
     }
 
@@ -303,8 +305,8 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ParRatesId> {
 
-    private String curveGroupName;
-    private String curveName;
+    private CurveGroupName curveGroupName;
+    private CurveName curveName;
     private MarketDataFeed marketDataFeed;
 
     /**
@@ -342,10 +344,10 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -382645893:  // curveGroupName
-          this.curveGroupName = (String) newValue;
+          this.curveGroupName = (CurveGroupName) newValue;
           break;
         case 771153946:  // curveName
-          this.curveName = (String) newValue;
+          this.curveName = (CurveName) newValue;
           break;
         case 842621124:  // marketDataFeed
           this.marketDataFeed = (MarketDataFeed) newValue;
@@ -391,22 +393,22 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code curveGroupName} property in the builder.
-     * @param curveGroupName  the new value, not empty
+     * @param curveGroupName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveGroupName(String curveGroupName) {
-      JodaBeanUtils.notEmpty(curveGroupName, "curveGroupName");
+    public Builder curveGroupName(CurveGroupName curveGroupName) {
+      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
       this.curveGroupName = curveGroupName;
       return this;
     }
 
     /**
      * Sets the {@code curveName} property in the builder.
-     * @param curveName  the new value, not empty
+     * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveName(String curveName) {
-      JodaBeanUtils.notEmpty(curveName, "curveName");
+    public Builder curveName(CurveName curveName) {
+      JodaBeanUtils.notNull(curveName, "curveName");
       this.curveName = curveName;
       return this;
     }

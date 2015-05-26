@@ -30,6 +30,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Configuration for calibrating a group of related curves.
@@ -53,14 +55,14 @@ public final class CurveGroupConfig implements ImmutableBean {
 
   /** The name of the curve group. */
   @PropertyDefinition(validate = "notEmpty")
-  private final String name;
+  private final CurveGroupName name;
 
   /** The configuration for building the curves in the group. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<CurveGroupEntry> entries;
 
   /** Entries for the curves, keyed by the curve name. */
-  private final ImmutableMap<String, CurveGroupEntry> entriesByName;
+  private final ImmutableMap<CurveName, CurveGroupEntry> entriesByName;
 
   /**
    * Returns a mutable builder for building the configuration for a curve group.
@@ -78,8 +80,8 @@ public final class CurveGroupConfig implements ImmutableBean {
    * @param entries  details of the curves in the group
    */
   @ImmutableConstructor
-  CurveGroupConfig(String name, List<CurveGroupEntry> entries) {
-    this.name = ArgChecker.notEmpty(name, "name");
+  CurveGroupConfig(CurveGroupName name, List<CurveGroupEntry> entries) {
+    this.name = ArgChecker.notNull(name, "name");
     this.entries = ImmutableList.copyOf(entries);
     entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveConfig().getName(), entry -> entry));
   }
@@ -90,7 +92,7 @@ public final class CurveGroupConfig implements ImmutableBean {
    * @param curveName  the name of the curve
    * @return the entry for the curve group with the given name if there is a curve with the specified name
    */
-  public Optional<CurveGroupEntry> getEntry(String curveName) {
+  public Optional<CurveGroupEntry> getEntry(CurveName curveName) {
     return Optional.ofNullable(entriesByName.get(curveName));
   }
 
@@ -128,7 +130,7 @@ public final class CurveGroupConfig implements ImmutableBean {
    * Gets the name of the curve group.
    * @return the value of the property, not empty
    */
-  public String getName() {
+  public CurveGroupName getName() {
     return name;
   }
 
@@ -186,8 +188,8 @@ public final class CurveGroupConfig implements ImmutableBean {
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", CurveGroupConfig.class, String.class);
+    private final MetaProperty<CurveGroupName> name = DirectMetaProperty.ofImmutable(
+        this, "name", CurveGroupConfig.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code entries} property.
      */
@@ -239,7 +241,7 @@ public final class CurveGroupConfig implements ImmutableBean {
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<CurveGroupName> name() {
       return name;
     }
 
@@ -280,7 +282,7 @@ public final class CurveGroupConfig implements ImmutableBean {
    */
   private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupConfig> {
 
-    private String name;
+    private CurveGroupName name;
     private List<CurveGroupEntry> entries = ImmutableList.of();
 
     /**
@@ -307,7 +309,7 @@ public final class CurveGroupConfig implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (CurveGroupName) newValue;
           break;
         case -1591573360:  // entries
           this.entries = (List<CurveGroupEntry>) newValue;
