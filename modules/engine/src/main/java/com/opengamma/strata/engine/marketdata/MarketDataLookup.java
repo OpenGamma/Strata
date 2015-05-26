@@ -43,14 +43,12 @@ public interface MarketDataLookup {
    * <p>
    * The date of the market data is the same as the valuation date of the calculations.
    *
-   * @param id  ID of the market data
    * @param <T>  type of the market data
-   * @param <I>  type of the market data ID
+   * @param id  ID of the market data
    * @return a market data value
    * @throws IllegalArgumentException if there is no value for the specified ID
    */
-  @SuppressWarnings("unchecked")
-  public abstract <T, I extends MarketDataId<T>> T getValue(I id);
+  public abstract <T> T getValue(MarketDataId<T> id);
 
   /**
    * Returns a map of market data values for a set of IDs.
@@ -63,7 +61,8 @@ public interface MarketDataLookup {
    * @throws IllegalArgumentException if there is no value for any of the IDs
    */
   public default Map<MarketDataId<?>, Object> getValues(Set<? extends MarketDataId<?>> ids) {
-    return ids.stream().collect(toImmutableMap(id -> id, this::getValue));
+    // additional type information for Eclipse
+    return ids.stream().collect(toImmutableMap(id -> id, (MarketDataId<?> id) -> getValue(id)));
   }
 
   /**

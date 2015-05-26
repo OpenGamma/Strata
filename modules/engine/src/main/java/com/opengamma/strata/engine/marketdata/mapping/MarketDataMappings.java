@@ -60,6 +60,7 @@ public interface MarketDataMappings {
    *
    * @param key  a key identifying an item of market data
    * @param <K>  the type of the market data key accepted by this method
+   * @param <T>  the type of the data returned by the key
    * @return an ID uniquely identifying an item of market data
    */
   public abstract <T, K extends MarketDataKey<T>> MarketDataId<T> getIdForKey(K key);

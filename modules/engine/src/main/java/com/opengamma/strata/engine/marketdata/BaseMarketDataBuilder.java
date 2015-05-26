@@ -71,6 +71,23 @@ public final class BaseMarketDataBuilder {
   }
 
   /**
+   * Adds a single item of market data, replacing any existing value with the same ID.
+   * <p>
+   * The type of the value is checked to ensure it is compatible with the ID.
+   *
+   * @param id  the ID of the market data
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  <T> BaseMarketDataBuilder addValueUnsafe(MarketDataId<T> id, Object value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    values.put(id, id.getMarketDataType().cast(value));
+    return this;
+  }
+
+  /**
    * Adds multiple items of market data, replacing any existing values with the same IDs.
    *
    * @param values  the items of market data, keyed by ID
