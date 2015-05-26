@@ -15,6 +15,9 @@ import org.gradle.api.tasks.TaskAction
 
 class GitClone extends GitReadTask
 {
+	public final static String GIT_CLONE_BASE_TASK_NAME = "execGitClone"
+	public final static String GIT_CHECKOUT_BRANCH_BASE_TASK_NAME = "execGitCheckout"
+
 	@Input
 	String gitRepoURL
 
@@ -36,12 +39,12 @@ class GitClone extends GitReadTask
 		if(outputDirectory.isDirectory() && wipeExisting)
 			outputDirectory.deleteDir()
 
-		Task doClone = project.tasks.create("execGitClone", SimpleExec)
+		Task doClone = project.tasks.create(getUniqueTaskName(GIT_CLONE_BASE_TASK_NAME), SimpleExec)
 		doClone.configure {
 			command "git clone ${-> gitRepoURL} ${-> outputDirectory.canonicalPath}"
 		}
 
-		Task doCheckoutBranch = project.tasks.create("execGitCheckout", SimpleExec)
+		Task doCheckoutBranch = project.tasks.create(getUniqueTaskName(GIT_CHECKOUT_BRANCH_BASE_TASK_NAME), SimpleExec)
 		doCheckoutBranch.configure {
 			command "git checkout ${-> gitBranch}"
 			workingDirectory = outputDirectory
@@ -49,5 +52,10 @@ class GitClone extends GitReadTask
 
 		doClone.execute()
 		doCheckoutBranch.execute()
+	}
+
+	private String getUniqueTaskName(String baseName)
+	{
+		return "${baseName}-${gitRepoURL.substring(gitRepoURL.lastIndexOf("/") + 1).replaceAll("\\.git", "")}-${gitBranch}-${this.hashCode()}"
 	}
 }

@@ -8,8 +8,9 @@ import org.gradle.api.tasks.SourceTask
 
 class AnalyticsPlugin implements Plugin<Project>
 {
-//    private final static String ANALYTICS_REPO = "git@github.com:OpenGamma/Analytics.git"
-    private final static String ANALYTICS_REPO = "/home/poundex/workspaces/og/scratch/Analytics"
+    private final static String ANALYTICS_REPO = "git@github.com:OpenGamma/Analytics.git"
+//    private final static String ANALYTICS_REPO = "/home/poundex/workspaces/og/scratch/Analytics"
+//    private final static String ANALYTICS_REPO = "/home/poundera/workspaces/og/scratch/Analytics"
 
     Project project
     Project analytics
