@@ -31,7 +31,6 @@ import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
-import com.opengamma.strata.market.curve.PriceIndexValues;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
@@ -39,6 +38,7 @@ import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * A provider of price indexes. 

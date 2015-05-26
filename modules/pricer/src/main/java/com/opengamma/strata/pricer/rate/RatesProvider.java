@@ -10,11 +10,11 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.market.curve.FxIndexRates;
-import com.opengamma.strata.market.curve.IborIndexRates;
-import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.pricer.BaseProvider;
 
 /**

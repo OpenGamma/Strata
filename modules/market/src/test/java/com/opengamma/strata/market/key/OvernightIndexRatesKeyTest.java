@@ -14,8 +14,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.key.OvernightIndexRatesKey.Meta;
+import com.opengamma.strata.market.value.OvernightIndexRates;
 
 /**
  * Test {@link OvernightIndexRatesKey}.

@@ -39,14 +39,14 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.curve.DiscountFxIndexRates;
-import com.opengamma.strata.market.curve.DiscountIborIndexRates;
-import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
-import com.opengamma.strata.market.curve.FxIndexRates;
-import com.opengamma.strata.market.curve.IborIndexRates;
-import com.opengamma.strata.market.curve.OvernightIndexRates;
-import com.opengamma.strata.market.curve.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountFxIndexRates;
+import com.opengamma.strata.market.value.DiscountIborIndexRates;
+import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * The default immutable rates provider, used to calculate analytic measures.

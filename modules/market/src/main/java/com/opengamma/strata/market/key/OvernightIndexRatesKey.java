@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.curve.OvernightIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
 
 /**
  * Market data key identifying the rates for an Overnight index.

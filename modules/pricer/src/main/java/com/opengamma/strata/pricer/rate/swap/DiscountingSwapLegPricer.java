@@ -21,8 +21,8 @@ import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.market.cashflow.CashFlow;
 import com.opengamma.strata.market.cashflow.CashFlows;
-import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

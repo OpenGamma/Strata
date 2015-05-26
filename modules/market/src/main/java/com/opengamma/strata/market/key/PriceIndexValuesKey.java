@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.curve.PriceIndexValues;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * Market data key identifying the values for an Price index.

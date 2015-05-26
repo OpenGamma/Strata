@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.curve.IborIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
 
 /**
  * Market data key identifying the rates for an Ibor index.
