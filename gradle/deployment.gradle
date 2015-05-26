@@ -1,6 +1,6 @@
 ext {
-    SNAPSHOT_DEPLOY_REPO = "http://opengamma.artifactoryonline.com/opengamma/sandbox-snapshots-local"
-    RELEASE_DEPLOY_REPO  = "http://opengamma.artifactoryonline.com/opengamma/sandbox-releases-local"
+    SNAPSHOT_DEPLOY_REPO = "http://opengamma.artifactoryonline.com/opengamma/sandbox2-snapshots-local"
+    RELEASE_DEPLOY_REPO  = "http://opengamma.artifactoryonline.com/opengamma/sandbox2-releases-local"
 }
 
 uploadArchives {
@@ -11,7 +11,7 @@ uploadArchives {
 
     project.afterEvaluate {
         final String deploymentURL =
-                project.version.endsWith("-SNAPSHOT") ? SNAPSHOT_DEPLOY_REPO : RELEASE_DEPLOY_REPO
+                project.release.releaseBuild ? RELEASE_DEPLOY_REPO : SNAPSHOT_DEPLOY_REPO
 
         repositories {
             mavenDeployer {
