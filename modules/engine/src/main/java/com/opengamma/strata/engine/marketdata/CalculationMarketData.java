@@ -45,10 +45,9 @@ public interface CalculationMarketData {
    *
    * @param key  a key identifying the market data
    * @param <T>  type of the market data
-   * @param <K>  type of the market data key
    * @return a list of market data values, one from each scenario
    */
-  public abstract <T, K extends MarketDataKey<T>> List<T> getValues(K key);
+  public abstract <T> List<T> getValues(MarketDataKey<T> key);
 
   /**
    * Returns a time series of market data values.

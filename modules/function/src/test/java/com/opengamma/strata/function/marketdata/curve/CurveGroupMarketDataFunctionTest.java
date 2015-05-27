@@ -236,7 +236,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T, K extends MarketDataKey<T>> List<T> getValues(K key) {
+    public <T> List<T> getValues(MarketDataKey<T> key) {
       T value = (T) marketData.get(key);
 
       if (value != null) {
