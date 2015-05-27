@@ -76,6 +76,6 @@ class AnalyticsPlugin implements Plugin<Project>
             if(project.extensions.getByType(ReleaseExtension).releaseBuild)
                 throw new GradleException("Release builds cannot build Analytics")
         }
-        t.dependsOn ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME
+        t.mustRunAfter ReleasePlugin.CHECK_RELEASE_ENVIRONMENT_TASK_NAME
     }
 }
