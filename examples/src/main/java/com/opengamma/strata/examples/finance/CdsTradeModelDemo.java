@@ -6,6 +6,7 @@
 package com.opengamma.strata.examples.finance;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -18,11 +19,12 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.credit.CreditDefaultSwap;
 import com.opengamma.strata.finance.credit.CreditDefaultSwapTrade;
+import com.opengamma.strata.finance.credit.REDCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.general.BuyerConvention;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
 import org.joda.beans.ser.JodaBeanSer;
 
@@ -53,48 +55,36 @@ public class CdsTradeModelDemo {
     FeeLeg feeLeg = null;
     ProtectionTerms protectionTerms = null;
 
-    CreditDefaultSwapTrade trade = CreditDefaultSwapTrade
-        .builder()
-        .standardId(StandardId.of("trade", "673676"))
-        .tradeInfo(
-            TradeInfo
-                .builder()
-                .counterparty(StandardId.of("cpty", "Counterparty"))
-                .tradeDate(LocalDate.of(2014, 1, 1))
-                .settlementDate(LocalDate.of(2014, 1, 3))
-                .build()
-        )
-        .product(
-            CreditDefaultSwap
-                .builder()
-                .standardId(StandardId.of("product", "17616"))
-                .generalTerms(
-                    GeneralTerms
-                        .builder()
-                        .effectiveDate(LocalDate.of(2014, 6, 20))
-                        .scheduledTerminationDate(LocalDate.of(2019, 12, 20))
-                        .buyerConvention(BuyerConvention.PROTECTION)
-                        .dateAdjustments(
-                            BusinessDayAdjustment.of(
-                                BusinessDayConventions.FOLLOWING,
-                                HolidayCalendars.USNY.combineWith(HolidayCalendars.GBLO)
-                            )
-                        )
-                        .referenceInformation(
-                            SingleNameReferenceInformation
-                                .builder()
-                                .referenceEntityName("Ford Motor Company")
-                                .referenceEntityId(StandardId.of("http://www.ext.org/entity-id-RED-1-0", "H98A7"))
-                                .referenceObligationId(StandardId.of("http://www.ext.org/instrument-id-ISIN-1-0", "US345370BX76"))
-                                .build()
-                        )
-                        .build()
-                )
-                .feeLeg(feeLeg)
-                .protectionTerms(protectionTerms)
-                .build()
-        )
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .counterparty(StandardId.of("cpty", "Counterparty"))
+        .tradeDate(LocalDate.of(2014, 1, 1))
+        .settlementDate(LocalDate.of(2014, 1, 3))
         .build();
+
+    CreditDefaultSwap swap = CreditDefaultSwap.of(
+        StandardId.of("product", "17616"),
+        GeneralTerms.singleName(
+            LocalDate.of(2014, 6, 20),
+            LocalDate.of(2019, 12, 20),
+            BuyerConvention.PROTECTION,
+            BusinessDayAdjustment.of(
+                BusinessDayConventions.FOLLOWING,
+                HolidayCalendars.USNY.combineWith(HolidayCalendars.GBLO)
+            ),
+            REDCode.of("H98A7"),
+            "Ford Motor Company",
+            Currency.USD,
+            SeniorityLevel.SeniorUnSec
+        ),
+        feeLeg,
+        protectionTerms
+    );
+
+    CreditDefaultSwapTrade trade = CreditDefaultSwapTrade.of(
+        StandardId.of("trade", "673676"),
+        tradeInfo,
+        swap
+    );
 
     checkValues(trade);
 
@@ -142,7 +132,7 @@ public class CdsTradeModelDemo {
                             IndexReferenceInformation
                                 .builder()
                                 .indexName("CDX.NA.IG.15")
-                                .indexId(StandardId.of("http://www.ext.org/entity-id-RED-pair-1-0", "2I65BYCL7"))
+                                .indexId(REDCode.of("2I65BYCL7"))
                                 .indexSeries(15)
                                 .indexAnnexVersion(1)
                                 .build()

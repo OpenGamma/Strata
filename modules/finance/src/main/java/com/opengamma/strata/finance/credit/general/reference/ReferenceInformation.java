@@ -8,4 +8,6 @@ public interface ReferenceInformation {
 
   ReferenceInformationType getType();
 
+  String getMarketDataKey();
+
 }
