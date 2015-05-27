@@ -439,7 +439,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     List<LocalDate> dates2 = dates(DATE_2010_06_01, DATE_2011_06_01, DATE_2012_06_01, DATE_2013_06_01, DATE_2014_06_01);
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_10_14).build();
 
-    LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test, LocalDateDoubleTimeSeries.empty());
   }
 
@@ -449,7 +449,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     List<Double> values2 = values(1.0, 1.1, 1.2, 1.3, 1.4);
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
-    LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test.size(), 3);
     assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(11.0));
     assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(13.2));
@@ -464,7 +464,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     List<Double> values2 = values(1.0, 1.1, 1.2, 1.3, 1.4);
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
-    LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test.size(), 3);
     assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(11.0));
     assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(13.2));
@@ -479,7 +479,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     List<Double> values2 = values(1.0, 1.1, 1.2, 1.3, 1.4);
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
-    LocalDateDoubleTimeSeries combined = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries combined = series1.intersection(series2, Double::sum);
     assertEquals(combined.size(), 5);
     assertEquals(combined.getEarliestDate(), DATE_2010_01_01);
     assertEquals(combined.getLatestDate(), DATE_2014_01_01);
