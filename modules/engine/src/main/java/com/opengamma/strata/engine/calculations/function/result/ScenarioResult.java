@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.engine.calculations.function.result;
 
+import java.util.stream.Stream;
+
 import com.opengamma.strata.engine.calculations.function.CalculationMultiFunction;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 
@@ -19,7 +21,7 @@ import com.opengamma.strata.engine.calculations.function.CalculationSingleFuncti
  *
  * @param <T> the type of the individual results
  */
-public interface ScenarioResult<T> extends Iterable<T> {
+public interface ScenarioResult<T> {
 
   /**
    * Returns the number of results.
@@ -37,4 +39,11 @@ public interface ScenarioResult<T> extends Iterable<T> {
    * @return the result at the specified index
    */
   public abstract T get(int index);
+
+  /**
+   * Returns a stream of the results.
+   *
+   * @return a stream of the results
+   */
+  public abstract Stream<T> stream();
 }
