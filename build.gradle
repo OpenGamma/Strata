@@ -259,10 +259,6 @@ buildscript {
     dependencies {
         classpath "com.opengamma.tools:build-tools:1.2.2"
         classpath 'com.google.guava:guava:18.0'
-        classpath "com.opengamma.tools:gradle-simpleexec-plugin:${gradleSimpleExecPluginVersion}"
-        classpath "com.opengamma.tools:gradle-git-plugin:${gradleGitPluginVersion}"
-        classpath "com.opengamma.tools:gradle-sphinx-plugin:${gradleSphinxPluginVersion}"
-        classpath "com.opengamma.tools:gradle-og-release-plugin:${gradleOGReleasePluginVersion}"
         classpath "com.opengamma.tools:gradle-depreport-extension:0.1.0-SNAPSHOT" //TODO
         classpath group: 'org.joda', name: 'joda-beans', version: '1.4'
         classpath group: 'org.joda', name: 'joda-beans-plugin', version: '1.0.0'

@@ -14,8 +14,24 @@ group 'com.opengamma.tools'
 version '0.1.0-SNAPSHOT'
 
 repositories {
-    mavenLocal()
-    mavenCentral()
+	mavenLocal()
+	maven {
+		url "http://maven.opengamma.com/nexus/content/groups/public"
+	}
+	maven {
+		url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "http://opengamma.artifactoryonline.com/opengamma/ext-releases-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
 	maven {
 		url "http://opengamma.artifactoryonline.com/opengamma/ext-snapshots-local"
 		credentials {
@@ -24,7 +40,21 @@ repositories {
 		}
 	}
 	maven {
-		url "https://plugins.gradle.org/m2/"
+		url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-releases-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-snapshots-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "https://plugins.gradle.org/m2"
 	}
 }
 
@@ -37,23 +67,15 @@ dependencies {
 	compile 'com.google.guava:guava:18.0'
 	compile 'org.apache.commons:commons-csv:1.1'
 
+	compile "com.opengamma.tools:gradle-simpleexec-plugin:${gradleSimpleExecPluginVersion}"
+	compile "com.opengamma.tools:gradle-git-plugin:${gradleGitPluginVersion}"
+	compile "com.opengamma.tools:gradle-sphinx-plugin:${gradleSphinxPluginVersion}"
+	compile "com.opengamma.tools:gradle-og-release-plugin:${gradleOGReleasePluginVersion}"
+	compile "com.opengamma.tools:gradle-dist-repo-plugin:${gradleDistRepoPluginVersion}"
+	compile "com.opengamma.tools:gradle-depreport-extension:0.1.0-SNAPSHOT" //TODO
+
+
+
 	testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
     testRuntime 'cglib:cglib-nodep:3.1'
-}
-
-uploadArchives {
-	onlyIf {
-		project.hasProperty("ogArtifactoryUsername") &&
-				project.hasProperty("ogArtifactoryPassword")
-	}
-	repositories {
-		mavenDeployer {
-			String url = project.version.toString().endsWith("-SNAPSHOT") ?
-					"http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-snapshots-local" :
-					"http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-releases-local"
-			repository(url: url) {
-				authentication(userName: ogArtifactoryUsername, password: ogArtifactoryPassword)
-			}
-		}
-	}
 }
