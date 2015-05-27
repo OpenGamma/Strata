@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.function.rate.fra;
 
-import static java.util.stream.Collectors.toList;
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -26,6 +25,7 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
@@ -44,7 +44,7 @@ public class FraParRateAnalyticsFunction
   // Note that this does not handle interpolated index Fra, or non-ISDA discounting
 
   @Override
-  public List<Double> execute(FraTrade trade, CalculationMarketData marketData) {
+  public ScenarioResult<Double> execute(FraTrade trade, CalculationMarketData marketData) {
     if (trade.getProduct().getIndexInterpolated().isPresent()) {
       throw new UnsupportedOperationException("Fra with interpolated index not supported");
     }
@@ -57,7 +57,7 @@ public class FraParRateAnalyticsFunction
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(md -> createMulticurve(product, md))
         .map(pair -> execute(product, pair.getFirst(), pair.getSecond()))
-        .collect(toList());
+        .collect(toScenarioResult());
   }
 
   // create the multicurve

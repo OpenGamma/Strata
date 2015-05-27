@@ -5,12 +5,15 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
+import static java.util.stream.Collectors.toList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
+import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
@@ -20,7 +23,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
  * Returns the notional amount of a {@code SwapTrade}.
  */
 public class SwapTradeNotionalFunction
-    implements CalculationSingleFunction<SwapTrade, List<List<CurrencyAmount>>> {
+    implements CalculationSingleFunction<SwapTrade, ScenarioResult<List<CurrencyAmount>>> {
   // TODO: what is correct result?
   // which leg as they can differ?
   // what notional - current period, initial, final or max?
@@ -31,11 +34,11 @@ public class SwapTradeNotionalFunction
   }
 
   @Override
-  public List<List<CurrencyAmount>> execute(SwapTrade input, CalculationMarketData marketData) {
+  public ScenarioResult<List<CurrencyAmount>> execute(SwapTrade input, CalculationMarketData marketData) {
     List<CurrencyAmount> notional = getNotional(input);
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(i -> notional)
-        .collect(Collectors.toList());
+        .collect(toScenarioResult());
   }
 
   // Not a MultiCurrencyAmount as legs should be kept separate
@@ -45,7 +48,6 @@ public class SwapTradeNotionalFunction
         .map(RateCalculationSwapLeg.class::cast)
         .map(l -> CurrencyAmount.of(l.getNotionalSchedule().getCurrency(), l.getNotionalSchedule().getAmount().getInitialValue()))
         .distinct() // if legs have the same notional then represent these as a single item
-        .collect(Collectors.toList());
+        .collect(toList());
   }
-
 }
