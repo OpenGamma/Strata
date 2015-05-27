@@ -9,7 +9,7 @@ uploadArchives {
                 project.hasProperty("ogArtifactoryPassword")
     }
 
-    project.afterEvaluate {
+    doFirst {
         final String deploymentURL =
                 project.release.releaseBuild ? RELEASE_DEPLOY_REPO : SNAPSHOT_DEPLOY_REPO
 
