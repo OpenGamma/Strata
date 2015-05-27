@@ -123,7 +123,7 @@ public final class MultiCurrencyAmountList implements CurrencyConvertible<Curren
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the multi currency amounts.
+   * Gets the multi-currency amounts.
    * @return the value of the property, not null
    */
   public List<MultiCurrencyAmount> getAmounts() {
