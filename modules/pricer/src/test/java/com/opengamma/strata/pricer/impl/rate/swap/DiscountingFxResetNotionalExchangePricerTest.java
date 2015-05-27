@@ -21,15 +21,14 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.DiscountFactors;
@@ -48,20 +47,16 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   private static final LocalDateDoubleTimeSeries EMPTY_TIME_SERIES = LocalDateDoubleTimeSeries.empty();
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, 1.6d);
 
-  private static final YieldCurve DISCOUNT_CURVE_GBP;
-  private static final YieldCurve DISCOUNT_CURVE_USD;
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
+  private static final Curve DISCOUNT_CURVE_GBP;
+  private static final Curve DISCOUNT_CURVE_USD;
   static {
-    CombinedInterpolatorExtrapolator interp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     double[] time_gbp = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
     double[] rate_gbp = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210};
-    InterpolatedDoublesCurve curve_gbp = InterpolatedDoublesCurve.from(time_gbp, rate_gbp, interp);
-    DISCOUNT_CURVE_GBP = new YieldCurve("GBP-Discount", curve_gbp);
+    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of("GBP-Discount", time_gbp, rate_gbp, INTERPOLATOR);
     double[] time_usd = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
     double[] rate_usd = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
-    InterpolatedDoublesCurve curve_usd = InterpolatedDoublesCurve.from(time_usd, rate_usd, interp);
-    DISCOUNT_CURVE_USD = new YieldCurve("USD-Discount", curve_usd);
+    DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of("USD-Discount", time_usd, rate_usd, INTERPOLATOR);
   }
 
   private static final double EPS_FD = 1.0e-7;

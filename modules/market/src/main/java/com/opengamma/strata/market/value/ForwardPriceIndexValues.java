@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -34,10 +33,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -83,7 +82,7 @@ public final class ForwardPriceIndexValues
    * For example, zero represents the valuation month, one the next month and so on.
    */
   @PropertyDefinition(validate = "notNull")
-  private final InterpolatedDoublesCurve curve;
+  private final InterpolatedNodalCurve curve;
   /**
    * Describes the seasonal adjustments.
    * The array has a dimension of 12, one element for each month, starting from January.
@@ -96,7 +95,7 @@ public final class ForwardPriceIndexValues
    * The underlying extended curve.
    * This has an additional curve node at the start equal to the last point in the time-series.
    */
-  private final InterpolatedDoublesCurve extendedCurve;  // derived, not a property
+  private final InterpolatedNodalCurve extendedCurve;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -122,7 +121,7 @@ public final class ForwardPriceIndexValues
       PriceIndex index,
       YearMonth valuationMonth,
       LocalDateDoubleTimeSeries fixings,
-      InterpolatedDoublesCurve curve) {
+      InterpolatedNodalCurve curve) {
 
     return new ForwardPriceIndexValues(index, valuationMonth, fixings, curve, NO_SEASONALITY);
   }
@@ -152,7 +151,7 @@ public final class ForwardPriceIndexValues
       PriceIndex index,
       YearMonth valuationMonth,
       LocalDateDoubleTimeSeries fixings,
-      InterpolatedDoublesCurve curve,
+      InterpolatedNodalCurve curve,
       List<Double> seasonality) {
 
     return new ForwardPriceIndexValues(index, valuationMonth, fixings, curve, seasonality);
@@ -163,7 +162,7 @@ public final class ForwardPriceIndexValues
       PriceIndex index,
       YearMonth valuationMonth,
       LocalDateDoubleTimeSeries timeSeries,
-      InterpolatedDoublesCurve curve,
+      InterpolatedNodalCurve curve,
       List<Double> seasonality) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(valuationMonth, "valuationMonth");
@@ -180,27 +179,20 @@ public final class ForwardPriceIndexValues
     // add the latest element of the time series as the first node on the curve
     YearMonth lastMonth = YearMonth.from(timeSeries.getLatestDate());
     double nbMonth = valuationMonth.until(lastMonth, MONTHS);
-    double[] x = curve.getXDataAsPrimitive();
+    double[] x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x[0], "the first estimation month should be after the last known index fixing");
-    double[] y = curve.getYDataAsPrimitive();
-    double[] xExtended = new double[x.length + 1];
-    xExtended[0] = nbMonth;
-    System.arraycopy(x, 0, xExtended, 1, x.length);
-    double[] yExtended = new double[y.length + 1];
-    yExtended[0] = timeSeries.getLatestValue();
-    System.arraycopy(y, 0, yExtended, 1, y.length);
-    this.extendedCurve = new InterpolatedDoublesCurve(xExtended, yExtended, curve.getInterpolator(), true, curve.getName());
+    this.extendedCurve = curve.withNode(0, nbMonth, timeSeries.getLatestValue());
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurveName getCurveName() {
-    return CurveName.of(curve.getName());
+    return curve.getName();
   }
 
   @Override
   public int getParameterCount() {
-    return curve.size();
+    return curve.getParameterCount();
   }
 
   //-------------------------------------------------------------------------
@@ -213,7 +205,7 @@ public final class ForwardPriceIndexValues
     }
     // otherwise, return the estimate from the curve.
     double nbMonth = valuationMonth.until(month, MONTHS);
-    double value = extendedCurve.getYValue(nbMonth);
+    double value = extendedCurve.yValue(nbMonth);
     int month0 = month.getMonthValue() - 1; // seasonality list start at 0 and months start at 1
     double adjustment = seasonality.get(month0);
     return value * adjustment;
@@ -239,7 +231,7 @@ public final class ForwardPriceIndexValues
     double nbMonth = valuationMonth.until(month, MONTHS);
     int month0 = month.getMonthValue() - 1;
     double adjustment = seasonality.get(month0);
-    Double[] unadjustedSensitivity = extendedCurve.getYValueParameterSensitivity(nbMonth);
+    double[] unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth);
     double[] adjustedSensitivity = new double[unadjustedSensitivity.length - 1];
     // remove first element which is to the last fixing
     for (int i = 0; i < unadjustedSensitivity.length - 1; i++) {
@@ -249,31 +241,14 @@ public final class ForwardPriceIndexValues
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ForwardPriceIndexValues shiftedBy(DoubleBinaryOperator operator) {
-    double[] x = curve.getXDataAsPrimitive();
-    double[] y = curve.getYDataAsPrimitive();
-    double[] yShifted = new double[y.length];
-    for (int i = 0; i < y.length; i++) {
-      yShifted[i] = operator.applyAsDouble(x[i], y[i]);
-    }
-    InterpolatedDoublesCurve shifted = new InterpolatedDoublesCurve(
-        x, yShifted, curve.getInterpolator(), true, curve.getName());
-    return new ForwardPriceIndexValues(index, valuationMonth, timeSeries, shifted, seasonality);
-  }
-
-  @Override
-  public ForwardPriceIndexValues shiftedBy(List<ValueAdjustment> adjustments) {
-    double[] x = curve.getXDataAsPrimitive();
-    double[] y = curve.getYDataAsPrimitive();
-    double[] yShifted = new double[y.length];
-    int minSize = Math.min(y.length, adjustments.size());
-    for (int i = 0; i < minSize; i++) {
-      yShifted[i] = adjustments.get(i).adjust(y[i]);
-    }
-    InterpolatedDoublesCurve shifted = new InterpolatedDoublesCurve(
-        x, yShifted, curve.getInterpolator(), true, curve.getName());
-    return new ForwardPriceIndexValues(index, valuationMonth, timeSeries, shifted, seasonality);
+  /**
+   * Returns a new instance with a different curve.
+   * 
+   * @param curve  the new curve
+   * @return the new instance
+   */
+  public ForwardPriceIndexValues withCurve(InterpolatedNodalCurve curve) {
+    return new ForwardPriceIndexValues(index, valuationMonth, timeSeries, curve, seasonality);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -351,7 +326,7 @@ public final class ForwardPriceIndexValues
    * For example, zero represents the valuation month, one the next month and so on.
    * @return the value of the property, not null
    */
-  public InterpolatedDoublesCurve getCurve() {
+  public InterpolatedNodalCurve getCurve() {
     return curve;
   }
 
@@ -436,8 +411,8 @@ public final class ForwardPriceIndexValues
     /**
      * The meta-property for the {@code curve} property.
      */
-    private final MetaProperty<InterpolatedDoublesCurve> curve = DirectMetaProperty.ofImmutable(
-        this, "curve", ForwardPriceIndexValues.class, InterpolatedDoublesCurve.class);
+    private final MetaProperty<InterpolatedNodalCurve> curve = DirectMetaProperty.ofImmutable(
+        this, "curve", ForwardPriceIndexValues.class, InterpolatedNodalCurve.class);
     /**
      * The meta-property for the {@code seasonality} property.
      */
@@ -522,7 +497,7 @@ public final class ForwardPriceIndexValues
      * The meta-property for the {@code curve} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<InterpolatedDoublesCurve> curve() {
+    public MetaProperty<InterpolatedNodalCurve> curve() {
       return curve;
     }
 
@@ -572,7 +547,7 @@ public final class ForwardPriceIndexValues
     private PriceIndex index;
     private YearMonth valuationMonth;
     private LocalDateDoubleTimeSeries timeSeries;
-    private InterpolatedDoublesCurve curve;
+    private InterpolatedNodalCurve curve;
     private List<Double> seasonality = ImmutableList.of();
 
     /**
@@ -614,7 +589,7 @@ public final class ForwardPriceIndexValues
           this.timeSeries = (LocalDateDoubleTimeSeries) newValue;
           break;
         case 95027439:  // curve
-          this.curve = (InterpolatedDoublesCurve) newValue;
+          this.curve = (InterpolatedNodalCurve) newValue;
           break;
         case -857898080:  // seasonality
           this.seasonality = (List<Double>) newValue;

@@ -13,13 +13,12 @@ import java.util.Map.Entry;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
@@ -78,26 +77,26 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   private CurrencyAmount fn(ImmutableRatesProvider provider) {
     double result = 0.0;
     // Currency
-    ImmutableMap<Currency, YieldAndDiscountCurve> mapCurrency = provider.getDiscountCurves();
-    for (Entry<Currency, YieldAndDiscountCurve> entry : mapCurrency.entrySet()) {
-      InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
+    ImmutableMap<Currency, Curve> mapCurrency = provider.getDiscountCurves();
+    for (Entry<Currency, Curve> entry : mapCurrency.entrySet()) {
+      InterpolatedNodalCurve curveInt = checkInterpolated(entry.getValue());
       result += sumProduct(curveInt);
     }
     // Index
-    ImmutableMap<Index, YieldAndDiscountCurve> mapIndex = provider.getIndexCurves();
-    for (Entry<Index, YieldAndDiscountCurve> entry : mapIndex.entrySet()) {
-      InterpolatedDoublesCurve curveInt = checkInterpolated(entry.getValue());
+    ImmutableMap<Index, Curve> mapIndex = provider.getIndexCurves();
+    for (Entry<Index, Curve> entry : mapIndex.entrySet()) {
+      InterpolatedNodalCurve curveInt = checkInterpolated(entry.getValue());
       result += sumProduct(curveInt);
     }
     return CurrencyAmount.of(USD, result);
   }
 
   // compute the sum of the product of times and rates
-  private double sumProduct(InterpolatedDoublesCurve curveInt) {
+  private double sumProduct(InterpolatedNodalCurve curveInt) {
     double result = 0.0;
-    double[] x = curveInt.getXDataAsPrimitive();
-    double[] y = curveInt.getYDataAsPrimitive();
-    int nbNodePoint = curveInt.getXDataAsPrimitive().length;
+    double[] x = curveInt.getXValues();
+    double[] y = curveInt.getYValues();
+    int nbNodePoint = x.length;
     for (int i = 0; i < nbNodePoint; i++) {
       result += x[i] * y[i];
     }
@@ -105,12 +104,9 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   }
 
   // check that the curve is yield curve and the underlying is an InterpolatedDoublesCurve and returns the last
-  private InterpolatedDoublesCurve checkInterpolated(YieldAndDiscountCurve curve) {
-    ArgChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
-    YieldCurve curveYield = (YieldCurve) curve;
-    ArgChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve,
-        "Yield curve should be based on InterpolatedDoublesCurve");
-    return (InterpolatedDoublesCurve) curveYield.getCurve();
+  private InterpolatedNodalCurve checkInterpolated(Curve curve) {
+    ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "Curve should be a InterpolatedNodalCurve");
+    return (InterpolatedNodalCurve) curve;
   }
 
 }

@@ -12,15 +12,13 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -44,32 +42,30 @@ public class RatesProviderFxDataSets {
           .addRate(GBP, USD, GBP_USD)
           .build();
 
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140};
   private static final String USD_DSC_NAME = "USD Dsc";
-  private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME,
-      USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
+  private static final InterpolatedNodalCurve USD_DSC =
+      InterpolatedNodalCurve.of(USD_DSC_NAME, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
 
   private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
   private static final String EUR_DSC_NAME = "EUR Dsc";
-  private static final YieldAndDiscountCurve EUR_DSC = new YieldCurve(EUR_DSC_NAME, new InterpolatedDoublesCurve(EUR_DSC_TIME,
-      EUR_DSC_RATE, LINEAR_FLAT, true, EUR_DSC_NAME));
+  private static final InterpolatedNodalCurve EUR_DSC =
+      InterpolatedNodalCurve.of(EUR_DSC_NAME, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
 
   private static final double[] GBP_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] GBP_DSC_RATE = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0160};
   private static final String GBP_DSC_NAME = "GBP Dsc";
-  private static final YieldAndDiscountCurve GBP_DSC = new YieldCurve(GBP_DSC_NAME, new InterpolatedDoublesCurve(GBP_DSC_TIME,
-      GBP_DSC_RATE, LINEAR_FLAT, true, GBP_DSC_NAME));
+  private static final InterpolatedNodalCurve GBP_DSC =
+      InterpolatedNodalCurve.of(GBP_DSC_NAME, GBP_DSC_TIME, GBP_DSC_RATE, INTERPOLATOR);
 
   private static final double[] KRW_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] KRW_DSC_RATE = new double[] {0.0350, 0.0325, 0.0350, 0.0375, 0.0350};
   private static final String KRW_DSC_NAME = "KRW Dsc";
-  private static final YieldAndDiscountCurve KRW_DSC = new YieldCurve(KRW_DSC_NAME, new InterpolatedDoublesCurve(KRW_DSC_TIME,
-      KRW_DSC_RATE, LINEAR_FLAT, true, KRW_DSC_NAME));
+  private static final InterpolatedNodalCurve KRW_DSC =
+      InterpolatedNodalCurve.of(KRW_DSC_NAME, KRW_DSC_TIME, KRW_DSC_RATE, INTERPOLATOR);
 
   /**
    * Create a yield curve bundle with three curves.
@@ -83,7 +79,7 @@ public class RatesProviderFxDataSets {
     return ImmutableRatesProvider.builder()
         .dayCount(DayCounts.ACT_360)
         .valuationDate(LocalDate.of(2011, 11, 10))
-        .discountCurves(ImmutableMap.<Currency, YieldAndDiscountCurve>builder()
+        .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
             .put(GBP, GBP_DSC)
@@ -98,7 +94,7 @@ public class RatesProviderFxDataSets {
     return ImmutableRatesProvider.builder()
         .dayCount(DayCounts.ACT_360)
         .valuationDate(LocalDate.of(2011, 11, 10))
-        .discountCurves(ImmutableMap.<Currency, YieldAndDiscountCurve>builder()
+        .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
             .build())

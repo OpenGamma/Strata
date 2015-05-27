@@ -23,14 +23,13 @@ import java.util.OptionalDouble;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -39,12 +38,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  */
 @Test
 public class ForwardPriceIndexValuesTest {
-
-  private static final Interpolator1D INTERPOLATOR_EXPONENTIAL =
-      CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-          Interpolator1DFactory.EXPONENTIAL,
-          Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-          Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR);
 
   private static final YearMonth VAL_MONTH = YearMonth.of(2015, 5);
   // USD HICP, CPURNSA Index
@@ -68,9 +61,10 @@ public class ForwardPriceIndexValuesTest {
 
   private static final double[] TIMES = new double[] {9.0, 21.0, 57.0, 117.0};
   private static final double[] VALUES = new double[] {240.500, 245.000, 265.000, 286.000};
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final String NAME = "USD-HICP";
-  private static final InterpolatedDoublesCurve CURVE =
-      InterpolatedDoublesCurve.from(TIMES, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
+  private static final InterpolatedNodalCurve CURVE =
+      InterpolatedNodalCurve.of(NAME, TIMES, VALUES, INTERPOLATOR);
   private static final List<Double> SEASONALITY = ImmutableList.copyOf(
       new Double[] {0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d});
   private static final ForwardPriceIndexValues INSTANCE =
@@ -113,8 +107,7 @@ public class ForwardPriceIndexValuesTest {
 
   public void test_of_startDateBeforeFixing() {
     double[] monthWrong = new double[] {-10.0, 21.0, 57.0, 117.0};
-    InterpolatedDoublesCurve interpolated =
-        InterpolatedDoublesCurve.from(monthWrong, VALUES, INTERPOLATOR_EXPONENTIAL, NAME);
+    InterpolatedNodalCurve interpolated = CURVE.toBuilder().xValues(monthWrong).build();
     assertThrowsIllegalArg(() -> ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, interpolated, SEASONALITY));
   }
 
@@ -123,18 +116,11 @@ public class ForwardPriceIndexValuesTest {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       YearMonth lastMonth = YearMonth.from(USCPI_TS.getLatestDate());
       double nbMonthLast = VAL_MONTH.until(lastMonth, MONTHS);
-      double[] xExtended = new double[TIMES.length + 1];
-      xExtended[0] = nbMonthLast;
-      System.arraycopy(TIMES, 0, xExtended, 1, TIMES.length);
-      double[] yExtended = new double[VALUES.length + 1];
-      yExtended[0] = USCPI_TS.getLatestValue();
-      System.arraycopy(VALUES, 0, yExtended, 1, VALUES.length);
-      InterpolatedDoublesCurve finalCurve =
-          new InterpolatedDoublesCurve(xExtended, yExtended, INTERPOLATOR_EXPONENTIAL, true, NAME);
+      InterpolatedNodalCurve finalCurve = CURVE.withNode(0, nbMonthLast, USCPI_TS.getLatestValue());
       double nbMonth = VAL_MONTH.until(TEST_MONTHS[i], MONTHS);
       OptionalDouble valueTs = USCPI_TS.get(TEST_MONTHS[i].atEndOfMonth());
       double adj = SEASONALITY.get(TEST_MONTHS[i].getMonthValue() - 1);
-      double valueExpected = valueTs.isPresent() ? valueTs.getAsDouble() : finalCurve.getYValue(nbMonth) * adj;
+      double valueExpected = valueTs.isPresent() ? valueTs.getAsDouble() : finalCurve.yValue(nbMonth) * adj;
       double valueComputed = INSTANCE.value(TEST_MONTHS[i]);
       assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
     }
@@ -166,35 +152,12 @@ public class ForwardPriceIndexValuesTest {
           for (int l = 0; l < VALUES.length; l++) {
             adjustments.add(ValueAdjustment.ofDeltaAmount((l == j) ? ((k == 0) ? -shift : shift) : 0.0d));
           }
-          ForwardPriceIndexValues curveShifted = INSTANCE.shiftedBy(adjustments);
+          ForwardPriceIndexValues curveShifted = INSTANCE.withCurve(INSTANCE.getCurve().shiftedBy(adjustments));
           valueFd[k] = curveShifted.value(TEST_MONTHS[i]);
         }
         sensitivityExpected[j] = (valueFd[1] - valueFd[0]) / (2 * shift);
         assertEquals(sensitivityComputed[j], sensitivityExpected[j], TOLERANCE_DELTA, "Test: " + i + " - sensi: " + j);
       }
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_shifted_curve() {
-    double[] shiftsAbsolute = new double[VALUES.length];
-    shiftsAbsolute[1] += 1.00;
-    shiftsAbsolute[3] += -2.00;
-    List<ValueAdjustment> adjustments = new ArrayList<>();
-    double[] shiftedValues = VALUES.clone();
-    for (int i = 0; i < VALUES.length; i++) {
-      shiftedValues[i] += shiftsAbsolute[i];
-      adjustments.add(ValueAdjustment.ofDeltaAmount(shiftsAbsolute[i]));
-    }
-    InterpolatedDoublesCurve interpolatedShifted =
-        InterpolatedDoublesCurve.from(TIMES, shiftedValues, INTERPOLATOR_EXPONENTIAL, NAME);
-    ForwardPriceIndexValues curveShiftedExpected =
-        ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, interpolatedShifted, SEASONALITY);
-    ForwardPriceIndexValues curveShiftedComputed = INSTANCE.shiftedBy(adjustments);
-    for (int i = 0; i < TEST_MONTHS.length; i++) {
-      double valueExpected = curveShiftedExpected.value(TEST_MONTHS[i]);
-      double valueComputed = curveShiftedComputed.value(TEST_MONTHS[i]);
-      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
     }
   }
 
