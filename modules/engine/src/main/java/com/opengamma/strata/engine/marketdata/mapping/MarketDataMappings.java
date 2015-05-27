@@ -35,10 +35,20 @@ public interface MarketDataMappings {
    *   can be used to query the global set of market data
    * @return a set of mappings containing the specified feed and mapping instances
    */
-  public static MarketDataMappings of(
-      MarketDataFeed marketDataFeed,
-      List<? extends MarketDataMapping<?, ?>> mappings) {
+  public static MarketDataMappings of(MarketDataFeed marketDataFeed, List<? extends MarketDataMapping<?, ?>> mappings) {
+    return DefaultMarketDataMappings.of(marketDataFeed, mappings);
+  }
 
+  /**
+   * Returns a set of market data mappings with the specified source of observable data and made up
+   * of the specified individual mappings.
+   *
+   * @param marketDataFeed  the feed that is the source of the market data, for example Bloomberg or Reuters
+   * @param mappings  mappings for converting market data requests from calculations into requests that
+   *   can be used to query the global set of market data
+   * @return a set of mappings containing the specified feed and mapping instances
+   */
+  public static MarketDataMappings of(MarketDataFeed marketDataFeed, MarketDataMapping<?, ?>... mappings) {
     return DefaultMarketDataMappings.of(marketDataFeed, mappings);
   }
 

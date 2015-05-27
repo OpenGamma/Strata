@@ -5,12 +5,18 @@
  */
 package com.opengamma.strata.engine.calculations;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
+import com.opengamma.strata.engine.calculations.function.CurrencyConvertible;
 import com.opengamma.strata.engine.config.ReportingRules;
+import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
@@ -97,12 +103,52 @@ public class CalculationTask {
   /**
    * Performs calculations for the target using multiple sets of market data.
    *
-   * @param marketData  the market data used in the calculation
+   * @param scenarioData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
    */
-  public CalculationResult execute(ScenarioMarketData marketData) {
-    DefaultCalculationMarketData calculationData = new DefaultCalculationMarketData(marketData, marketDataMappings);
+  public CalculationResult execute(ScenarioMarketData scenarioData) {
+    CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
     Result<?> result = Result.of(() -> function.execute(target, calculationData));
-    return CalculationResult.of(target, rowIndex, columnIndex, result);
+    return CalculationResult.of(target, rowIndex, columnIndex, convertToReportingCurrency(result, calculationData));
+  }
+
+  /**
+   * Converts the value in a result to the reporting currency.
+   * <p>
+   * If the result is a failure or does not contain an value that can be converted it is returned unchanged.
+   * <p>
+   * The reporting rules are used to determine the reporting currency for the target. If the rules do
+   * not specify a reporting currency for the target the input result is returned.
+   * <p>
+   * If the rules specify a reporting currency but the conversion cannot be performed a failure is
+   * returned with details of the problem.
+   *
+   * @param result  the result of a calculation
+   * @param marketData  market data containing FX rates needed to perform currency conversion
+   * @return a result containing the value from the input result, converted to the reporting currency if possible
+   */
+  private Result<?> convertToReportingCurrency(Result<?> result, CalculationMarketData marketData) {
+    if (!result.isSuccess()) {
+      return result;
+    }
+    Object value = result.getValue();
+
+    if (!(value instanceof CurrencyConvertible)) {
+      return result;
+    }
+    Optional<Currency> optionalReportingCurrency = reportingRules.reportingCurrency(target);
+
+    if (!optionalReportingCurrency.isPresent()) {
+      return result;
+    }
+    Currency reportingCurrency = optionalReportingCurrency.get();
+    CurrencyConvertible<?> convertible = (CurrencyConvertible) value;
+
+    try {
+      Object convertedValue = convertible.convertedTo(reportingCurrency, marketData);
+      return Result.success(convertedValue);
+    } catch (RuntimeException e) {
+      return Result.failure(FailureReason.ERROR, "Failed to convert value {} to currency {}", value, reportingCurrency);
+    }
   }
 }

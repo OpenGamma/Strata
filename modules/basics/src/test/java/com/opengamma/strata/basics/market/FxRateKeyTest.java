@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.key;
+package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -17,7 +17,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.market.key.FxRateKey.Meta;
+import com.opengamma.strata.basics.market.FxRateKey.Meta;
 
 /**
  * Test {@link FxRateKey}.

@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
@@ -20,7 +21,6 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.key.DiscountingCurveKey;
-import com.opengamma.strata.market.key.FxRateKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 
 @Test
