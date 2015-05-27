@@ -55,7 +55,8 @@ public class DiscountingTermDepositProductPricerBetaTest {
       .endDate(END_DATE)
       .businessDayAdjustment(BD_ADJ)
       .dayCount(ACT_360)
-      .principal(CurrencyAmount.of(EUR, NOTIONAL))
+      .notional(NOTIONAL)
+      .currency(EUR)
       .rate(RATE)
       .build();
   private static final DiscountingTermDepositProductPricerBeta PRICER = DiscountingTermDepositProductPricerBeta.DEFAULT;
@@ -124,7 +125,8 @@ public class DiscountingTermDepositProductPricerBetaTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BD_ADJ)
         .dayCount(ACT_360)
-        .principal(CurrencyAmount.of(EUR, NOTIONAL))
+        .notional(NOTIONAL)
+        .currency(EUR)
         .rate(parRate)
         .build();
     double pvPar = PRICER.presentValue(depositPar, mockProv).getAmount();
@@ -145,7 +147,8 @@ public class DiscountingTermDepositProductPricerBetaTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BD_ADJ)
         .dayCount(ACT_360)
-        .principal(CurrencyAmount.of(EUR, NOTIONAL))
+        .notional(NOTIONAL)
+        .currency(EUR)
         .rate(RATE + parSpread)
         .build();
     double pvPar = PRICER.presentValue(depositPar, mockProv).getAmount();

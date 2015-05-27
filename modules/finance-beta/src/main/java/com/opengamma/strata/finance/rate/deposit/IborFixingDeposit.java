@@ -15,6 +15,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -29,43 +30,46 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A term deposit.
+ * An Ibor fixing deposit.
  * <p>
- * A term deposit is a financial instrument that provides a fixed rate of interest on
- * an amount for a specific term.
- * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
+ * An Ibor fixing deposit is a fictitious financial instrument that provides a floating rate of interest on
+ * notional amount for a specific term, which is effectively an exchange of a fixed rate and a floating rate 
+ * based on an Ibor-like index on the term end date. 
  * <p>
- * The instrument has two payments, one at the start date and one at the end date.
- * For example, investing  GBP 1,000 for 3 months implies an initial payment to the counterparty
- * of GBP 1,000 and a final payment from the counterparty of GBP 1,000 plus interest.
+ * For example, an Ibor fixing deposit involves the exchange of the difference between
+ * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.
  */
 @BeanDefinition
-public final class TermDeposit
-    implements TermDepositProduct, ImmutableBean, Serializable {
+public final class IborFixingDeposit
+    implements IborFixingDepositProduct, ImmutableBean, Serializable {
 
   /**
-   * Whether the term deposit is 'Buy' or 'Sell'.
+   * Whether the Ibor fixing deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that one pays the principal at the start date then receives the principal plus 
-   * fixed interest at the end date. A value of 'Sell' implies that the principal is paid to the counterparty 
-   * at the start date then the principal plus fixed interest is received from the counterparty at the end date.
+   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received. 
+   * A value of 'Sell' implies that the floating rate is received from the counterparty, with the fixed rate being paid.
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
   /**
-   * The primary currency.
+   * The primary currency, defaulted to the currency of the index.
    * <p>
-   * This is the currency of the term deposit and the currency that payment is made in.
+   * This is the currency of the deposit and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
+   * <p>
+   * When building, this will default to the currency of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
    * The notional amount.
    * <p>
-   * The notional represents the principal amount, and must be non-negative in this class.
+   * The notional expressed here must be non-negative.
    * The currency of the notional is specified by {@code currency}.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
@@ -99,12 +103,26 @@ public final class TermDeposit
   @PropertyDefinition(get = "optional")
   private final BusinessDayAdjustment businessDayAdjustment;
   /**
-   * The day count convention.
+   * The day count convention applicable, defaulted to the day count of the index.
    * <p>
    * This is used to convert dates to a numerical value.
+   * The data model permits the day count to differ from that of the index,
+   * however the two are typically the same.
+   * <p>
+   * When building, this will default to the day count of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
+  /**
+   * The IBOR-like index.
+   * <p>
+   * The floating rate to be paid or received is based on this index
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * <p>
+   * See {@code buySell} to determine whether this rate is paid or received.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final IborIndex index;
   /**
    * The fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
@@ -113,6 +131,17 @@ public final class TermDeposit
   private final double rate;
 
   //-------------------------------------------------------------------------
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.index != null) {
+      if (builder.dayCount == null) {
+        builder.dayCount = builder.index.getDayCount();
+      }
+      if (builder.currency == null) {
+        builder.currency = builder.index.getCurrency();
+      }
+    }
+  }
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
@@ -125,32 +154,22 @@ public final class TermDeposit
    * @return this
    */
   @Override
-  public ExpandedTermDeposit expand() {
-    LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
-    LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
-    double yearFraction = dayCount.yearFraction(start, end);
-    return ExpandedTermDeposit.builder()
-        .startDate(start)
-        .endDate(end)
-        .yearFraction(yearFraction)
-        .currency(getCurrency())
-        .principal(buySell.normalize(notional))
-        .rate(rate)
-        .build();
+  public ExpandedIborFixingDeposit expand() {
+    return null;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code TermDeposit}.
+   * The meta-bean for {@code IborFixingDeposit}.
    * @return the meta-bean, not null
    */
-  public static TermDeposit.Meta meta() {
-    return TermDeposit.Meta.INSTANCE;
+  public static IborFixingDeposit.Meta meta() {
+    return IborFixingDeposit.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(TermDeposit.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborFixingDeposit.Meta.INSTANCE);
   }
 
   /**
@@ -162,11 +181,11 @@ public final class TermDeposit
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static TermDeposit.Builder builder() {
-    return new TermDeposit.Builder();
+  public static IborFixingDeposit.Builder builder() {
+    return new IborFixingDeposit.Builder();
   }
 
-  private TermDeposit(
+  private IborFixingDeposit(
       BuySell buySell,
       Currency currency,
       double notional,
@@ -174,6 +193,7 @@ public final class TermDeposit
       LocalDate endDate,
       BusinessDayAdjustment businessDayAdjustment,
       DayCount dayCount,
+      IborIndex index,
       double rate) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(currency, "currency");
@@ -181,6 +201,7 @@ public final class TermDeposit
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(index, "index");
     this.buySell = buySell;
     this.currency = currency;
     this.notional = notional;
@@ -188,13 +209,14 @@ public final class TermDeposit
     this.endDate = endDate;
     this.businessDayAdjustment = businessDayAdjustment;
     this.dayCount = dayCount;
+    this.index = index;
     this.rate = rate;
     validate();
   }
 
   @Override
-  public TermDeposit.Meta metaBean() {
-    return TermDeposit.Meta.INSTANCE;
+  public IborFixingDeposit.Meta metaBean() {
+    return IborFixingDeposit.Meta.INSTANCE;
   }
 
   @Override
@@ -209,11 +231,10 @@ public final class TermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether the term deposit is 'Buy' or 'Sell'.
+   * Gets whether the Ibor fixing deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that one pays the principal at the start date then receives the principal plus
-   * fixed interest at the end date. A value of 'Sell' implies that the principal is paid to the counterparty
-   * at the start date then the principal plus fixed interest is received from the counterparty at the end date.
+   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received.
+   * A value of 'Sell' implies that the floating rate is received from the counterparty, with the fixed rate being paid.
    * @return the value of the property, not null
    */
   public BuySell getBuySell() {
@@ -222,9 +243,13 @@ public final class TermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary currency.
+   * Gets the primary currency, defaulted to the currency of the index.
    * <p>
-   * This is the currency of the term deposit and the currency that payment is made in.
+   * This is the currency of the deposit and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
+   * <p>
+   * When building, this will default to the currency of the index if not specified.
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -235,7 +260,7 @@ public final class TermDeposit
   /**
    * Gets the notional amount.
    * <p>
-   * The notional represents the principal amount, and must be non-negative in this class.
+   * The notional expressed here must be non-negative.
    * The currency of the notional is specified by {@code currency}.
    * @return the value of the property
    */
@@ -285,13 +310,31 @@ public final class TermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention.
+   * Gets the day count convention applicable, defaulted to the day count of the index.
    * <p>
    * This is used to convert dates to a numerical value.
+   * The data model permits the day count to differ from that of the index,
+   * however the two are typically the same.
+   * <p>
+   * When building, this will default to the day count of the index if not specified.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
     return dayCount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the IBOR-like index.
+   * <p>
+   * The floating rate to be paid or received is based on this index
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * <p>
+   * See {@code buySell} to determine whether this rate is paid or received.
+   * @return the value of the property, not null
+   */
+  public IborIndex getIndex() {
+    return index;
   }
 
   //-----------------------------------------------------------------------
@@ -319,7 +362,7 @@ public final class TermDeposit
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TermDeposit other = (TermDeposit) obj;
+      IborFixingDeposit other = (IborFixingDeposit) obj;
       return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
@@ -327,6 +370,7 @@ public final class TermDeposit
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
     }
     return false;
@@ -342,14 +386,15 @@ public final class TermDeposit
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
-    buf.append("TermDeposit{");
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("IborFixingDeposit{");
     buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
@@ -357,6 +402,7 @@ public final class TermDeposit
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
     return buf.toString();
@@ -364,7 +410,7 @@ public final class TermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code TermDeposit}.
+   * The meta-bean for {@code IborFixingDeposit}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -376,42 +422,47 @@ public final class TermDeposit
      * The meta-property for the {@code buySell} property.
      */
     private final MetaProperty<BuySell> buySell = DirectMetaProperty.ofImmutable(
-        this, "buySell", TermDeposit.class, BuySell.class);
+        this, "buySell", IborFixingDeposit.class, BuySell.class);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", TermDeposit.class, Currency.class);
+        this, "currency", IborFixingDeposit.class, Currency.class);
     /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", TermDeposit.class, Double.TYPE);
+        this, "notional", IborFixingDeposit.class, Double.TYPE);
     /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", TermDeposit.class, LocalDate.class);
+        this, "startDate", IborFixingDeposit.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", TermDeposit.class, LocalDate.class);
+        this, "endDate", IborFixingDeposit.class, LocalDate.class);
     /**
      * The meta-property for the {@code businessDayAdjustment} property.
      */
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", TermDeposit.class, BusinessDayAdjustment.class);
+        this, "businessDayAdjustment", IborFixingDeposit.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", TermDeposit.class, DayCount.class);
+        this, "dayCount", IborFixingDeposit.class, DayCount.class);
+    /**
+     * The meta-property for the {@code index} property.
+     */
+    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", IborFixingDeposit.class, IborIndex.class);
     /**
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Double> rate = DirectMetaProperty.ofImmutable(
-        this, "rate", TermDeposit.class, Double.TYPE);
+        this, "rate", IborFixingDeposit.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -424,6 +475,7 @@ public final class TermDeposit
         "endDate",
         "businessDayAdjustment",
         "dayCount",
+        "index",
         "rate");
 
     /**
@@ -449,6 +501,8 @@ public final class TermDeposit
           return businessDayAdjustment;
         case 1905311443:  // dayCount
           return dayCount;
+        case 100346066:  // index
+          return index;
         case 3493088:  // rate
           return rate;
       }
@@ -456,13 +510,13 @@ public final class TermDeposit
     }
 
     @Override
-    public TermDeposit.Builder builder() {
-      return new TermDeposit.Builder();
+    public IborFixingDeposit.Builder builder() {
+      return new IborFixingDeposit.Builder();
     }
 
     @Override
-    public Class<? extends TermDeposit> beanType() {
-      return TermDeposit.class;
+    public Class<? extends IborFixingDeposit> beanType() {
+      return IborFixingDeposit.class;
     }
 
     @Override
@@ -528,6 +582,14 @@ public final class TermDeposit
     }
 
     /**
+     * The meta-property for the {@code index} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<IborIndex> index() {
+      return index;
+    }
+
+    /**
      * The meta-property for the {@code rate} property.
      * @return the meta-property, not null
      */
@@ -540,21 +602,23 @@ public final class TermDeposit
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 244977400:  // buySell
-          return ((TermDeposit) bean).getBuySell();
+          return ((IborFixingDeposit) bean).getBuySell();
         case 575402001:  // currency
-          return ((TermDeposit) bean).getCurrency();
+          return ((IborFixingDeposit) bean).getCurrency();
         case 1585636160:  // notional
-          return ((TermDeposit) bean).getNotional();
+          return ((IborFixingDeposit) bean).getNotional();
         case -2129778896:  // startDate
-          return ((TermDeposit) bean).getStartDate();
+          return ((IborFixingDeposit) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((TermDeposit) bean).getEndDate();
+          return ((IborFixingDeposit) bean).getEndDate();
         case -1065319863:  // businessDayAdjustment
-          return ((TermDeposit) bean).businessDayAdjustment;
+          return ((IborFixingDeposit) bean).businessDayAdjustment;
         case 1905311443:  // dayCount
-          return ((TermDeposit) bean).getDayCount();
+          return ((IborFixingDeposit) bean).getDayCount();
+        case 100346066:  // index
+          return ((IborFixingDeposit) bean).getIndex();
         case 3493088:  // rate
-          return ((TermDeposit) bean).getRate();
+          return ((IborFixingDeposit) bean).getRate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -572,9 +636,9 @@ public final class TermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code TermDeposit}.
+   * The bean-builder for {@code IborFixingDeposit}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<TermDeposit> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborFixingDeposit> {
 
     private BuySell buySell;
     private Currency currency;
@@ -583,6 +647,7 @@ public final class TermDeposit
     private LocalDate endDate;
     private BusinessDayAdjustment businessDayAdjustment;
     private DayCount dayCount;
+    private IborIndex index;
     private double rate;
 
     /**
@@ -595,7 +660,7 @@ public final class TermDeposit
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(TermDeposit beanToCopy) {
+    private Builder(IborFixingDeposit beanToCopy) {
       this.buySell = beanToCopy.getBuySell();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
@@ -603,6 +668,7 @@ public final class TermDeposit
       this.endDate = beanToCopy.getEndDate();
       this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
       this.dayCount = beanToCopy.getDayCount();
+      this.index = beanToCopy.getIndex();
       this.rate = beanToCopy.getRate();
     }
 
@@ -624,6 +690,8 @@ public final class TermDeposit
           return businessDayAdjustment;
         case 1905311443:  // dayCount
           return dayCount;
+        case 100346066:  // index
+          return index;
         case 3493088:  // rate
           return rate;
         default:
@@ -654,6 +722,9 @@ public final class TermDeposit
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
+          break;
+        case 100346066:  // index
+          this.index = (IborIndex) newValue;
           break;
         case 3493088:  // rate
           this.rate = (Double) newValue;
@@ -689,8 +760,9 @@ public final class TermDeposit
     }
 
     @Override
-    public TermDeposit build() {
-      return new TermDeposit(
+    public IborFixingDeposit build() {
+      preBuild(this);
+      return new IborFixingDeposit(
           buySell,
           currency,
           notional,
@@ -698,6 +770,7 @@ public final class TermDeposit
           endDate,
           businessDayAdjustment,
           dayCount,
+          index,
           rate);
     }
 
@@ -779,6 +852,17 @@ public final class TermDeposit
     }
 
     /**
+     * Sets the {@code index} property in the builder.
+     * @param index  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder index(IborIndex index) {
+      JodaBeanUtils.notNull(index, "index");
+      this.index = index;
+      return this;
+    }
+
+    /**
      * Sets the {@code rate} property in the builder.
      * @param rate  the new value
      * @return this, for chaining, not null
@@ -791,8 +875,8 @@ public final class TermDeposit
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
-      buf.append("TermDeposit.Builder{");
+      StringBuilder buf = new StringBuilder(320);
+      buf.append("IborFixingDeposit.Builder{");
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
@@ -800,6 +884,7 @@ public final class TermDeposit
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
       buf.append('}');
       return buf.toString();

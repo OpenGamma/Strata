@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
 /**
@@ -35,7 +34,6 @@ public class TermDepositTest {
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 19);
   private static final double NOTIONAL = 100000000d;
-  private static final CurrencyAmount PRINCIPAL = CurrencyAmount.of(GBP, NOTIONAL);
   private static final double RATE = 0.0250;
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final double EPS = 1.0e-14;
@@ -48,7 +46,8 @@ public class TermDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .dayCount(ACT_365F)
-        .principal(PRINCIPAL)
+        .notional(NOTIONAL)
+        .currency(GBP)
         .rate(RATE)
         .build();
     assertEquals(test.getBuySell(), SELL);
@@ -56,7 +55,7 @@ public class TermDepositTest {
     assertEquals(test.getEndDate(), END_DATE);
     assertEquals(test.getBusinessDayAdjustment().get(), BDA_MOD_FOLLOW);
     assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getPrincipal(), PRINCIPAL);
+    assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getRate(), RATE);
     assertEquals(test.getCurrency(), GBP);
   }
@@ -68,7 +67,8 @@ public class TermDepositTest {
         .endDate(LocalDate.of(2014, 10, 19))
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .dayCount(ACT_365F)
-        .principal(PRINCIPAL)
+        .notional(NOTIONAL)
+        .currency(EUR)
         .rate(RATE)
         .build());
   }
@@ -80,7 +80,8 @@ public class TermDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .dayCount(ACT_365F)
-        .principal(PRINCIPAL)
+        .notional(NOTIONAL)
+        .currency(GBP)
         .rate(RATE)
         .build();
     ExpandedTermDeposit test = base.expand();
@@ -102,7 +103,8 @@ public class TermDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .dayCount(ACT_365F)
-        .principal(PRINCIPAL)
+        .notional(NOTIONAL)
+        .currency(GBP)
         .rate(RATE)
         .build();
     coverImmutableBean(test1);
@@ -111,7 +113,8 @@ public class TermDepositTest {
         .startDate(LocalDate.of(2015, 1, 21))
         .endDate(LocalDate.of(2015, 7, 21))
         .dayCount(ACT_360)
-        .principal(CurrencyAmount.of(EUR, NOTIONAL))
+        .notional(NOTIONAL)
+        .currency(EUR)
         .rate(RATE)
         .build();
     coverBeanEquals(test1, test2);
@@ -124,7 +127,8 @@ public class TermDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .dayCount(ACT_365F)
-        .principal(PRINCIPAL)
+        .notional(NOTIONAL)
+        .currency(GBP)
         .rate(RATE)
         .build();
     assertSerialization(test);

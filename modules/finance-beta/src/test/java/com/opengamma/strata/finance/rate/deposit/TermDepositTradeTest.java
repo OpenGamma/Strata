@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
@@ -37,7 +36,8 @@ public class TermDepositTradeTest {
       .endDate(LocalDate.of(2015, 7, 19))
       .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
       .dayCount(ACT_365F)
-      .principal(CurrencyAmount.of(GBP, 100000000d))
+      .notional(100000000d)
+      .currency(GBP)
       .rate(0.0250)
       .build();
   private static final StandardId STANDARD_ID = StandardId.of("OG-Trade", "1");
