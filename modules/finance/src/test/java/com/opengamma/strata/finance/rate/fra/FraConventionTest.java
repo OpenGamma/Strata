@@ -37,7 +37,6 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
-import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test {@link FraConvention}.
@@ -53,7 +52,6 @@ public class FraConventionTest {
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
   private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
   private static final DaysAdjustment MINUS_FIVE_DAYS = DaysAdjustment.ofBusinessDays(-5, GBLO);
-  private static final StandardId STANDARD_ID = StandardId.of("A", "B");
   private static final ImmutableIborIndex AUD_INDEX = ImmutableIborIndex.builder()
       .name("AUD_INDEX")
       .currency(AUD)
@@ -173,7 +171,7 @@ public class FraConventionTest {
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build();
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
-    FraTrade test = base.toTrade(STANDARD_ID, tradeDate, Period.ofMonths(3), Period.ofMonths(6), BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.toTrade(tradeDate, Period.ofMonths(3), Period.ofMonths(6), BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
@@ -183,7 +181,6 @@ public class FraConventionTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getStandardId(), STANDARD_ID);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
@@ -196,7 +193,7 @@ public class FraConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
     LocalDate endDate = date(2015, 11, 5);
-    FraTrade test = base.toTrade(STANDARD_ID, tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
@@ -206,7 +203,6 @@ public class FraConventionTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getStandardId(), STANDARD_ID);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
@@ -220,7 +216,7 @@ public class FraConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
     LocalDate endDate = date(2015, 11, 5);
-    FraTrade test = base.toTrade(STANDARD_ID, tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
@@ -231,7 +227,6 @@ public class FraConventionTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getStandardId(), STANDARD_ID);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
@@ -241,7 +236,7 @@ public class FraConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 4, 5);
     LocalDate endDate = date(2015, 7, 5);
-    assertThrowsIllegalArg(() -> base.toTrade(STANDARD_ID, tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d));
+    assertThrowsIllegalArg(() -> base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d));
   }
 
   //-------------------------------------------------------------------------

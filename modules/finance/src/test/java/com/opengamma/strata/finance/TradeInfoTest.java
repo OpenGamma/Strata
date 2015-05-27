@@ -27,7 +27,7 @@ import com.opengamma.strata.collect.id.StandardId;
 @Test
 public class TradeInfoTest {
 
-  public void test_of() {
+  public void test_builder() {
     TradeInfo test = TradeInfo.builder()
         .counterparty(StandardId.of("OG-Party", "Other"))
         .build();

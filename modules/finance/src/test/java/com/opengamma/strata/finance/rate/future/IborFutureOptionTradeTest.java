@@ -43,7 +43,6 @@ public class IborFutureOptionTradeTest {
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final long QUANTITY = 35;
   private static final double INITIAL_PRICE = 0.015;
-  private static final StandardId TRADE_ID = StandardId.of("OG-Trade", "1");
   private static final StandardId FUTURE_ID = StandardId.of("OG-Ticker", "Future1");
   private static final StandardId OPTION_ID = StandardId.of("OG-Ticker", "Option1");
 
@@ -90,13 +89,11 @@ public class IborFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder_resolvable() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(TRADE_ID)
         .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
         .securityLink(RESOLVABLE_OPTION_LINK)
         .quantity(QUANTITY)
         .initialPrice(INITIAL_PRICE)
         .build();
-    assertEquals(test.getStandardId(), TRADE_ID);
     assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
     assertEquals(test.getSecurityLink(), RESOLVABLE_OPTION_LINK);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -106,12 +103,10 @@ public class IborFutureOptionTradeTest {
 
   public void test_builder_resolved() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(TRADE_ID)
         .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(QUANTITY)
         .build();
-    assertEquals(test.getStandardId(), TRADE_ID);
     assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
     assertEquals(test.getSecurityLink(), PARTLY_RESOLVED_OPTION_LINK);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -122,13 +117,11 @@ public class IborFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolveLinks_resolvable() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVABLE_OPTION_LINK)
         .quantity(100)
         .initialPrice(INITIAL_PRICE)
         .build();
     IborFutureOptionTrade expected = IborFutureOptionTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .quantity(100)
         .initialPrice(INITIAL_PRICE)
@@ -149,13 +142,11 @@ public class IborFutureOptionTradeTest {
 
   public void test_resolveLinks_partlyResolved() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(100)
         .initialPrice(INITIAL_PRICE)
         .build();
     IborFutureOptionTrade expected = IborFutureOptionTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .quantity(100)
         .initialPrice(INITIAL_PRICE)
@@ -173,7 +164,6 @@ public class IborFutureOptionTradeTest {
 
   public void test_resolveLinks_fullyResolved() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .quantity(100)
         .initialPrice(INITIAL_PRICE)
@@ -191,7 +181,6 @@ public class IborFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(TRADE_ID)
         .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(QUANTITY)
@@ -199,7 +188,6 @@ public class IborFutureOptionTradeTest {
         .build();
     coverImmutableBean(test);
     IborFutureOptionTrade test2 = IborFutureOptionTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "2"))
         .securityLink(RESOLVABLE_OPTION_LINK)
         .quantity(100)
         .build();
@@ -208,7 +196,6 @@ public class IborFutureOptionTradeTest {
 
   public void test_serialization() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .standardId(TRADE_ID)
         .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(QUANTITY)

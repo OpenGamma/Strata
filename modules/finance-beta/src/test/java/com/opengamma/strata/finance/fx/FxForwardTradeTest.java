@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
@@ -38,10 +37,8 @@ public class FxForwardTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     FxForwardTrade test = FxForwardTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .product(FWD1)
         .build();
-    assertEquals(test.getStandardId(), StandardId.of("OG-Trade", "1"));
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), FWD1);
   }
@@ -49,13 +46,11 @@ public class FxForwardTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     FxForwardTrade test = FxForwardTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(FWD1)
         .build();
     coverImmutableBean(test);
     FxForwardTrade test2 = FxForwardTrade.builder()
-        .setString(FxForwardTrade.meta().standardId().name(), "OG-Trade~2")
         .product(FWD2)
         .build();
     coverBeanEquals(test, test2);
@@ -63,7 +58,6 @@ public class FxForwardTradeTest {
 
   public void test_serialization() {
     FxForwardTrade test = FxForwardTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(FWD1)
         .build();

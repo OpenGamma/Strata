@@ -24,7 +24,7 @@ public class TradeIdFunction
 
   @Override
   public StandardId execute(Trade input, CalculationMarketData marketData) {
-    return input.getStandardId();
+    return input.getTradeInfo().getId().orElse(null);
   }
 
 }
