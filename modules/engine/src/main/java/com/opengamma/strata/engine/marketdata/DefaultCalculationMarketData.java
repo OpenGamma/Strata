@@ -50,7 +50,7 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   }
 
   @Override
-  public <T, K extends MarketDataKey<T>> List<T> getValues(K key) {
+  public <T> List<T> getValues(MarketDataKey<T> key) {
     MarketDataId<T> id = marketDataMappings.getIdForKey(key);
     return marketData.getValues(id);
   }
