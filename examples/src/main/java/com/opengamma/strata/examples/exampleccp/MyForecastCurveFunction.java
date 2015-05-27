@@ -13,8 +13,8 @@ public class MyForecastCurveFunction {
   public static MarketDataFunction<?, ?> create() {
     return new MarketDataFunction<YieldAndDiscountCurve, RateIndexCurveId>() {
       @Override
-      public MarketDataRequirements requirements(RateIndexCurveId id) {
-        return MarketDataRequirements.EMPTY;
+      public MarketDataRequirements requirements(RateIndexCurveId id, MarketDataConfig marketDataConfig) {
+        return MarketDataRequirements.empty();
       }
 
       @Override
