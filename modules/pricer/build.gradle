@@ -1,3 +1,5 @@
+description = "Pricing APIs"
+
 dependencies {
 	compile project(":collect")
 	compile project(":basics")

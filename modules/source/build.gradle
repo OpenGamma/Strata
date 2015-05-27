@@ -1,3 +1,5 @@
+description = "Source, entity identifiers and links"
+
 dependencies {
 	compile project(":collect")
 	testCompile project(":collect-testutils")

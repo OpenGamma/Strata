@@ -63,6 +63,7 @@ class DistRepoPlugin implements Plugin<Project>
 
         repositories.mavenDeployer() {
             repository(url: m2RepoURL)
+            pom.project project.defaultPOM
         }
     }
 }

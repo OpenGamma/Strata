@@ -1,6 +1,7 @@
+description = "Curve API"
+
 dependencies {
 	compile project(":basics")
-//	compile "com.opengamma.analytics:og-analytics:${ogAnalyticsVersion}"
 	compile ogAnalytics()
 
 	testCompile project(":collect")

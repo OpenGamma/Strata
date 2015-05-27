@@ -1,3 +1,5 @@
+description = "Common collection implementations"
+
 dependencies {
 	testCompile project(":collect-testutils")
 }

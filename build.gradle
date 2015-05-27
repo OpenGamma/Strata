@@ -53,6 +53,7 @@ subprojects {
     apply plugin: JodaBeansPlugin
     apply plugin: DistRepoPlugin
     apply from: "${rootProject.projectDir}/gradle/deployment.gradle"
+    apply from: "${rootProject.projectDir}/gradle/metadata.gradle"
 
     compileJava {
         sourceCompatibility = 1.8

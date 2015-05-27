@@ -60,7 +60,8 @@ class UpdateVersion extends DefaultTask implements TaskNamer
 	    String newVersionString = newVersion.toString()
 	    logger.quiet "${project.name}: Project version is ${newVersionString}"
 
-		project.version = newVersionString
+	    config.fullVersion = newVersion
+	    project.version = newVersionString
 	    project.subprojects { p ->
 			if(p.plugins.hasPlugin(AutoVersionPlugin)) return
 			p.version = newVersionString

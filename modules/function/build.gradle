@@ -1,3 +1,5 @@
+description = "Function and Integration logic between the engine and pricing"
+
 dependencies {
 	compile project(":engine")
 	compile project(":market")

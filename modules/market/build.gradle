@@ -1,3 +1,5 @@
+description = "Entities describing the financial market"
+
 dependencies {
 	compile project(":basics")
 	compile project(":collect")

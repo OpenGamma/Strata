@@ -1,3 +1,5 @@
+description = "Calculation engine"
+
 dependencies {
 	compile project(":collect")
 	compile project(":market")

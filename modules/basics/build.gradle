@@ -1,3 +1,5 @@
+description = "Basic aspects of financial markets"
+
 dependencies {
 	compile project(":collect")
 

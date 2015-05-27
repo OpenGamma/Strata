@@ -18,6 +18,7 @@ uploadArchives {
                 repository(url: deploymentURL) {
                     authentication(userName: ogArtifactoryUsername, password: ogArtifactoryPassword)
                 }
+                pom.project project.defaultPOM
             }
         }
     }

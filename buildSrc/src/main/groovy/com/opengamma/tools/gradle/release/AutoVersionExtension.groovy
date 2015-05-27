@@ -1,5 +1,6 @@
 package com.opengamma.tools.gradle.release
 
+import com.github.zafarkhaja.semver.Version
 
 class AutoVersionExtension
 {
@@ -20,4 +21,6 @@ class AutoVersionExtension
      * The build number is sourced from a Jenkins environment variable, and will not be included if unavailable.
      */
     boolean includeBuildNumber = true
+
+    Version fullVersion
 }

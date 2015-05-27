@@ -1,0 +1,52 @@
+import com.opengamma.tools.gradle.release.AutoVersionPlugin
+
+ext {
+	defaultPOM = null
+}
+
+jar {
+	manifest {
+		attributes(
+				"Implementation-Vendor": "OpenGamma",
+				"Implementation-Title": "${project.name}",
+				"Implementation-Version":
+						"${-> project[AutoVersionPlugin.VERSIONING_EXTENSION_NAME].fullVersion.toString()}",
+				"Implementation-Vendor-Id": "com.opengamma",
+				"Built-By": System.properties['user.name'],
+				"Build-Jdk": System.properties['java.runtime.version'],
+				"Specification-Vendor": "OpenGamma",
+				"Specification-Title": "${project.name}",
+				"Created-By": "Gradle ${gradle.gradleVersion}",
+				"Specification-Version": "${-> project.version}"
+		)
+	}
+}
+
+defaultPOM = {
+	name "strata-${project.name}"
+	if(project.description)
+		description project.description
+	licenses {
+		license {
+			name 'The Apache Software License, Version 2.0'
+			url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+			distribution 'repo'
+		}
+	}
+	issueManagement {
+		system "GitHub"
+		url "https://github.com/OpenGamma/Strata/issues"
+	}
+	inceptionYear "2014"
+	mailingLists {
+		mailingList {
+			name "OpenGamma Forums"
+			archive "http://forums.opengamma.com"
+		}
+	}
+	scm {
+		connection "scm:git:https://github.com/OpenGamma/Strata.git"
+		developerConnection "scm:git:https://github.com/OpenGamma/Strata.git"
+		url "https://github.com/OpenGamma/Strata"
+	}
+}
