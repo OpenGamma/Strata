@@ -42,7 +42,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Care must be taken when placing the expanded form in a cache or persistence layer.
  */
 @BeanDefinition
-public class ExpandedTermDeposit
+public final class ExpandedTermDeposit
     implements TermDepositProduct, ImmutableBean, Serializable {
 
   /**
@@ -296,29 +296,21 @@ public class ExpandedTermDeposit
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ExpandedTermDeposit{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("principal").append('=').append(getPrincipal()).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(getYearFraction())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
-    buf.append("principal").append('=').append(JodaBeanUtils.toString(getPrincipal())).append(',').append(' ');
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ExpandedTermDeposit}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -369,7 +361,7 @@ public class ExpandedTermDeposit
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -411,7 +403,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> startDate() {
+    public MetaProperty<LocalDate> startDate() {
       return startDate;
     }
 
@@ -419,7 +411,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> endDate() {
+    public MetaProperty<LocalDate> endDate() {
       return endDate;
     }
 
@@ -427,7 +419,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code yearFraction} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> yearFraction() {
+    public MetaProperty<Double> yearFraction() {
       return yearFraction;
     }
 
@@ -435,7 +427,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
+    public MetaProperty<Currency> currency() {
       return currency;
     }
 
@@ -443,7 +435,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code principal} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> principal() {
+    public MetaProperty<Double> principal() {
       return principal;
     }
 
@@ -451,7 +443,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code rate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> rate() {
+    public MetaProperty<Double> rate() {
       return rate;
     }
 
@@ -490,7 +482,7 @@ public class ExpandedTermDeposit
   /**
    * The bean-builder for {@code ExpandedTermDeposit}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ExpandedTermDeposit> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedTermDeposit> {
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -502,14 +494,14 @@ public class ExpandedTermDeposit
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ExpandedTermDeposit beanToCopy) {
+    private Builder(ExpandedTermDeposit beanToCopy) {
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
@@ -665,22 +657,14 @@ public class ExpandedTermDeposit
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("ExpandedTermDeposit.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("principal").append('=').append(JodaBeanUtils.toString(principal)).append(',').append(' ');
-      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
+      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

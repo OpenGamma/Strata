@@ -45,7 +45,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * The sign of the principal will be positive in this case, as the final payment is being received.
  */
 @BeanDefinition
-public class TermDeposit
+public final class TermDeposit
     implements TermDepositProduct, ImmutableBean, Serializable {
 
   /**
@@ -176,23 +176,26 @@ public class TermDeposit
     return new TermDeposit.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected TermDeposit(TermDeposit.Builder builder) {
-    JodaBeanUtils.notNull(builder.buySell, "buySell");
-    JodaBeanUtils.notNull(builder.startDate, "startDate");
-    JodaBeanUtils.notNull(builder.endDate, "endDate");
-    JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    JodaBeanUtils.notNull(builder.principal, "principal");
-    this.buySell = builder.buySell;
-    this.startDate = builder.startDate;
-    this.endDate = builder.endDate;
-    this.businessDayAdjustment = builder.businessDayAdjustment;
-    this.dayCount = builder.dayCount;
-    this.principal = builder.principal;
-    this.rate = builder.rate;
+  private TermDeposit(
+      BuySell buySell,
+      LocalDate startDate,
+      LocalDate endDate,
+      BusinessDayAdjustment businessDayAdjustment,
+      DayCount dayCount,
+      CurrencyAmount principal,
+      double rate) {
+    JodaBeanUtils.notNull(buySell, "buySell");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(principal, "principal");
+    this.buySell = buySell;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.businessDayAdjustment = businessDayAdjustment;
+    this.dayCount = dayCount;
+    this.principal = principal;
+    this.rate = rate;
     validate();
   }
 
@@ -346,30 +349,22 @@ public class TermDeposit
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("TermDeposit{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("principal").append('=').append(getPrincipal()).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
-    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
-    buf.append("principal").append('=').append(JodaBeanUtils.toString(getPrincipal())).append(',').append(' ');
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TermDeposit}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -426,7 +421,7 @@ public class TermDeposit
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -470,7 +465,7 @@ public class TermDeposit
      * The meta-property for the {@code buySell} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BuySell> buySell() {
+    public MetaProperty<BuySell> buySell() {
       return buySell;
     }
 
@@ -478,7 +473,7 @@ public class TermDeposit
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> startDate() {
+    public MetaProperty<LocalDate> startDate() {
       return startDate;
     }
 
@@ -486,7 +481,7 @@ public class TermDeposit
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> endDate() {
+    public MetaProperty<LocalDate> endDate() {
       return endDate;
     }
 
@@ -494,7 +489,7 @@ public class TermDeposit
      * The meta-property for the {@code businessDayAdjustment} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
       return businessDayAdjustment;
     }
 
@@ -502,7 +497,7 @@ public class TermDeposit
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCount() {
+    public MetaProperty<DayCount> dayCount() {
       return dayCount;
     }
 
@@ -510,7 +505,7 @@ public class TermDeposit
      * The meta-property for the {@code principal} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount> principal() {
+    public MetaProperty<CurrencyAmount> principal() {
       return principal;
     }
 
@@ -518,7 +513,7 @@ public class TermDeposit
      * The meta-property for the {@code rate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> rate() {
+    public MetaProperty<Double> rate() {
       return rate;
     }
 
@@ -559,7 +554,7 @@ public class TermDeposit
   /**
    * The bean-builder for {@code TermDeposit}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<TermDeposit> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TermDeposit> {
 
     private BuySell buySell;
     private LocalDate startDate;
@@ -572,14 +567,14 @@ public class TermDeposit
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(TermDeposit beanToCopy) {
+    private Builder(TermDeposit beanToCopy) {
       this.buySell = beanToCopy.getBuySell();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
@@ -668,7 +663,14 @@ public class TermDeposit
 
     @Override
     public TermDeposit build() {
-      return new TermDeposit(this);
+      return new TermDeposit(
+          buySell,
+          startDate,
+          endDate,
+          businessDayAdjustment,
+          dayCount,
+          principal,
+          rate);
     }
 
     //-----------------------------------------------------------------------
@@ -752,23 +754,15 @@ public class TermDeposit
     public String toString() {
       StringBuilder buf = new StringBuilder(256);
       buf.append("TermDeposit.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("principal").append('=').append(JodaBeanUtils.toString(principal)).append(',').append(' ');
-      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
+      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

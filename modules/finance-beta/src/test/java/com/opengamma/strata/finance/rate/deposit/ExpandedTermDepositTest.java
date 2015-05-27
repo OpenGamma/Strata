@@ -25,7 +25,7 @@ public class ExpandedTermDepositTest {
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 20);
   private static final double YEAR_FRACTION = ACT_365F.yearFraction(START_DATE, END_DATE);
-  private static final double PRINCIPAL = 100000000;
+  private static final double PRINCIPAL = 100000000d;
   private static final double RATE = 0.0250;
   private static final double EPS = 1.0e-14;
 

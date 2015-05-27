@@ -37,7 +37,7 @@ public class TermDepositTradeTest {
       .endDate(LocalDate.of(2015, 7, 19))
       .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
       .dayCount(ACT_365F)
-      .principal(CurrencyAmount.of(GBP, 100000000))
+      .principal(CurrencyAmount.of(GBP, 100000000d))
       .rate(0.0250)
       .build();
   private static final StandardId STANDARD_ID = StandardId.of("OG-Trade", "1");

@@ -34,7 +34,7 @@ public class TermDepositTest {
   private static final BuySell SELL = BuySell.SELL;
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 19);
-  private static final double NOTIONAL = 100000000;
+  private static final double NOTIONAL = 100000000d;
   private static final CurrencyAmount PRINCIPAL = CurrencyAmount.of(GBP, NOTIONAL);
   private static final double RATE = 0.0250;
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
