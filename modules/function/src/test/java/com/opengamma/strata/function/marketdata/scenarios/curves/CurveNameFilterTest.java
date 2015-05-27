@@ -7,26 +7,29 @@ package com.opengamma.strata.function.marketdata.scenarios.curves;
 
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 
 @Test
 public class CurveNameFilterTest {
 
   public void match() {
-    CurveNameFilter filter = CurveNameFilter.of("curveName");
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.GBP, "curveName");
+    CurveNameFilter filter = CurveNameFilter.of(CurveName.of("curveName"));
+    DiscountingCurveId id = DiscountingCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
     YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
     assertThat(filter.apply(id, curve)).isTrue();
   }
 
   public void noMatch() {
-    CurveNameFilter filter = CurveNameFilter.of("curveName");
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.GBP, "notCurveName");
+    CurveNameFilter filter = CurveNameFilter.of(CurveName.of("curveName"));
+    DiscountingCurveId id = DiscountingCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
     YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "notCurveName"));
     assertThat(filter.apply(id, curve)).isFalse();
   }

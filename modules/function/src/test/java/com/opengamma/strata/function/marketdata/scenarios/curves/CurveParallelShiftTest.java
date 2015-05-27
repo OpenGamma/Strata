@@ -27,6 +27,8 @@ import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 
 @Test
@@ -45,9 +47,9 @@ public class CurveParallelShiftTest {
   }
 
   public void absoluteScenarios() {
-    String curveName = "curveName";
-    String curveGroupName = "curveGroupName";
-    YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(2d, curveName));
+    CurveName curveName = CurveName.of("curveName");
+    CurveGroupName curveGroupName = CurveGroupName.of("curveGroupName");
+    YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(2d, curveName.toString()));
     PerturbationMapping<YieldCurve> mapping =
         PerturbationMapping.of(
             YieldCurve.class,

@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.impl.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.IborRateObservation;
-import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -40,7 +40,8 @@ public class ForwardIborRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    return provider.iborIndexRate(observation.getIndex(), observation.getFixingDate());
+    IborIndexRates rates = provider.iborIndexRates(observation.getIndex());
+    return rates.rate(observation.getFixingDate());
   }
 
   @Override

@@ -12,6 +12,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * Builder for {@link MarketDataMappings} that knows about the standard mappings (e.g. curve to curve group)
@@ -20,7 +21,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 public class MarketDataMappingsBuilder {
 
   /** Market data feed that is the source for observable market data, for example Bloomberg or Reuters. */
-  private MarketDataFeed marketDataFeed = MarketDataFeed.NONE;
+  private final MarketDataFeed marketDataFeed;
 
   /**
    * Mappings that translate data requests from calculators into requests that can be used to look
@@ -28,16 +29,27 @@ public class MarketDataMappingsBuilder {
    */
   private List<MarketDataMapping<?, ?>> mappings = new ArrayList<>();
 
-  private MarketDataMappingsBuilder() {
+  private MarketDataMappingsBuilder(MarketDataFeed marketDataFeed) {
+    this.marketDataFeed = marketDataFeed;
   }
 
   /**
-   * Returns an empty builder.
+   * Returns an empty builder with a market data feed of {@link MarketDataFeed#NONE}.
    *
    * @return an empty builder
    */
   public static MarketDataMappingsBuilder create() {
-    return new MarketDataMappingsBuilder();
+    return new MarketDataMappingsBuilder(MarketDataFeed.NONE);
+  }
+
+  /**
+   * Returns an empty builder with the specified market data feed.
+   *
+   * @param marketDataFeed  the market data feed used in the mappings
+   * @return an empty builder
+   */
+  public static MarketDataMappingsBuilder create(MarketDataFeed marketDataFeed) {
+    return new MarketDataMappingsBuilder(marketDataFeed);
   }
 
   /**
@@ -46,21 +58,10 @@ public class MarketDataMappingsBuilder {
    * @param curveGroupName  the curve group used as the source for curves
    * @return this builder
    */
-  public MarketDataMappingsBuilder curveGroup(String curveGroupName) {
-    ArgChecker.notEmpty(curveGroupName, "curveGroupName");
-    mappings.add(DiscountingCurveMapping.of(curveGroupName));
-    mappings.add(RateIndexCurveMapping.of(curveGroupName));
-    return this;
-  }
-
-  /**
-   * Adds a mapping that sets the source of observable market data.
-   *
-   * @param feed  the feed that is the source of observable market data
-   * @return this builder
-   */
-  public MarketDataMappingsBuilder marketDataFeed(MarketDataFeed feed) {
-    marketDataFeed = ArgChecker.notNull(feed, "feed");
+  public MarketDataMappingsBuilder curveGroup(CurveGroupName curveGroupName) {
+    ArgChecker.notNull(curveGroupName, "curveGroupName");
+    mappings.add(DiscountingCurveMapping.of(curveGroupName, marketDataFeed));
+    mappings.add(RateIndexCurveMapping.of(curveGroupName, marketDataFeed));
     return this;
   }
 

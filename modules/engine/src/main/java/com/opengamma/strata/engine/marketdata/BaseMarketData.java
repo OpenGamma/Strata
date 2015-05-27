@@ -47,12 +47,12 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
   // TODO Do the values need to include the timestamp as well as the market data item?
   /** The individual items of market data, keyed by ID. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<? extends MarketDataId<?>, Object> values;
+  private final ImmutableMap<MarketDataId<?>, Object> values;
 
   // TODO Do the values need to include the timestamp as well as the time series?
   /** The time series of market data values, keyed by ID. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries;
+  private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   /**
    * Returns an empty mutable builder for building a new instance of {@code BaseMarketData}.
@@ -99,8 +99,7 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T, I extends MarketDataId<T>> T getValue(I id) {
+  public <T> T getValue(MarketDataId<T> id) {
     // Special handling of these special ID types to provide more helpful error messages
     if (id instanceof NoMatchingRuleId) {
       MarketDataKey<?> key = ((NoMatchingRuleId) id).getKey();
@@ -124,7 +123,7 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
               value.getClass().getName(),
               value));
     }
-    return (T) value;
+    return id.getMarketDataType().cast(value);
   }
 
   @Override
@@ -214,7 +213,7 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
    * Gets the individual items of market data, keyed by ID.
    * @return the value of the property, not null
    */
-  public ImmutableMap<? extends MarketDataId<?>, Object> getValues() {
+  public ImmutableMap<MarketDataId<?>, Object> getValues() {
     return values;
   }
 
@@ -223,7 +222,7 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
    * Gets the time series of market data values, keyed by ID.
    * @return the value of the property, not null
    */
-  public ImmutableMap<? extends ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
+  public ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -281,13 +280,13 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<? extends MarketDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
         this, "values", BaseMarketData.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<? extends ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
         this, "timeSeries", BaseMarketData.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -345,7 +344,7 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<? extends MarketDataId<?>, Object>> values() {
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Object>> values() {
       return values;
     }
 
@@ -353,7 +352,7 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<? extends ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
+    public MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
       return timeSeries;
     }
 
@@ -389,8 +388,8 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
   private static final class Builder extends DirectFieldsBeanBuilder<BaseMarketData> {
 
     private LocalDate valuationDate;
-    private Map<? extends MarketDataId<?>, Object> values = ImmutableMap.of();
-    private Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
+    private Map<MarketDataId<?>, Object> values = ImmutableMap.of();
+    private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -421,10 +420,10 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
           this.valuationDate = (LocalDate) newValue;
           break;
         case -823812830:  // values
-          this.values = (Map<? extends MarketDataId<?>, Object>) newValue;
+          this.values = (Map<MarketDataId<?>, Object>) newValue;
           break;
         case 779431844:  // timeSeries
-          this.timeSeries = (Map<? extends ObservableId, LocalDateDoubleTimeSeries>) newValue;
+          this.timeSeries = (Map<ObservableId, LocalDateDoubleTimeSeries>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

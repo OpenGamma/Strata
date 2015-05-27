@@ -6,19 +6,21 @@
 package com.opengamma.strata.function.marketdata.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.key.DiscountingCurveKey;
-import com.opengamma.strata.market.key.FxRateKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 
 @Test
@@ -28,7 +30,7 @@ public class MarketDataMappingsBuilderTest {
    * Tests mapping a key to an ID where there is a mapping available for the key type.
    */
   public void mappingsAvailable() {
-    String curveGroupName = "curve group";
+    CurveGroupName curveGroupName = CurveGroupName.of("curve group");
     MarketDataMappings mappings =
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
@@ -51,7 +53,7 @@ public class MarketDataMappingsBuilderTest {
    * Tests mapping multiple keys to IDs where there is a mapping available for one key type but not another.
    */
   public void mappingAvailableForSomeTypesButNotAll() {
-    String curveGroupName = "curve group";
+    CurveGroupName curveGroupName = CurveGroupName.of("curve group");
     MarketDataMappings mappings =
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
@@ -70,7 +72,7 @@ public class MarketDataMappingsBuilderTest {
    */
   public void observableMarketDataFeed() {
     MarketDataFeed feed = MarketDataFeed.of("FeedName");
-    MarketDataMappings mappings = MarketDataMappingsBuilder.create().marketDataFeed(feed).build();
+    MarketDataMappings mappings = MarketDataMappingsBuilder.create(feed).build();
     MarketDataId<Double> id = mappings.getIdForObservableKey(IndexRateKey.of(IborIndices.CHF_LIBOR_12M));
     assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, feed));
   }

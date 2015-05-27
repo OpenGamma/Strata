@@ -5,13 +5,19 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
  * A mutable builder for creating instances of {@link CurveGroupConfig}.
@@ -23,82 +29,102 @@ public final class CurveGroupConfigBuilder {
   private final List<CurveGroupEntry> entries = new ArrayList<>();
 
   /** The name of the curve group. */
-  private String name;
+  private CurveGroupName name;
 
   /**
-   * Sets the name of the curve group.
+   * Sets the name of the curve group configuration.
    *
    * @param name  the name of the curve group, not empty
    * @return this builder
    */
-  public CurveGroupConfigBuilder name(String name) {
-    ArgChecker.notEmpty(name, "name");
-    this.name = name;
+  public CurveGroupConfigBuilder name(CurveGroupName name) {
+    this.name = ArgChecker.notNull(name, "name");
     return this;
   }
 
   /**
-   * Adds an entry to the curve group containing the configuration for a curve and a key identifying
-   * how the curve is used.
-   * <p>
-   * A curve can be used for multiple purposes and therefore the curve itself contains no information about how
-   * it is used.
-   * <p>
-   * In the simple case a curve is only used for a single purpose. For example, if a curve is used for discounting
-   * it will have a key of type {@code DiscountingCurveKey}.
+   * Adds configuration for a discounting curve to the curve group configuration.
    *
-   * @param curveConfig  configuration of a curve
-   * @param key  market data key identifying how the curve is used in the group
+   * @param curveConfig  configuration of a discounting curve
+   * @param currency  the currency for which the curve provides discount rates
    * @return this builder
    */
-  public CurveGroupConfigBuilder addCurve(CurveConfig curveConfig, MarketDataKey<YieldCurve> key) {
+  public CurveGroupConfigBuilder addDiscountingCurve(CurveConfig curveConfig, Currency currency) {
     ArgChecker.notNull(curveConfig, "curveConfig");
-    ArgChecker.notNull(key, "key");
+    ArgChecker.notNull(currency, "currency");
 
-    CurveGroupEntry entry =
-        CurveGroupEntry.builder()
-            .curveConfig(curveConfig)
-            .curveKeys(ImmutableSet.<MarketDataKey<YieldCurve>>builder().add(key).build())
-            .build();
+    CurveGroupEntry entry = CurveGroupEntry.builder()
+        .curveConfig(curveConfig)
+        .discountingCurrency(currency)
+        .build();
     entries.add(entry);
     return this;
   }
 
   /**
-   * Adds an entry to the curve group containing the configuration for a curve and the keys identifying
-   * how the curve is used.
-   * <p>
-   * A curve can be used for multiple purposes and therefore the curve itself contains no information about how
-   * it is used.
-   * <p>
-   * In the simple case a curve is only used for a single purpose. For example, if a curve is used for discounting
-   * it will have one key of type {@code DiscountingCurveKey}.
-   * <p>
-   * A single curve can also be used as both a discounting curve and a forward curve.
-   * In that case its key set would contain a {@code DiscountingCurveKey} and a {@code RateIndexCurveKey}.
-   * <p>
-   * Every curve must be associated with at least once key.
+   * Adds configuration for a forward curve to the curve group configuration.
+   *
+   * @param curveConfig  configuration of a forward curve
+   * @param index  an index for which the curve provides forward rates
+   * @param otherIndices  indices for which the curve provides forward rates
+   * @return this builder
+   */
+  public CurveGroupConfigBuilder addForwardCurve(CurveConfig curveConfig, RateIndex index, RateIndex... otherIndices) {
+    ArgChecker.notNull(curveConfig, "curveConfig");
+    ArgChecker.notNull(index, "index");
+
+    CurveGroupEntry entry = CurveGroupEntry.builder()
+        .curveConfig(curveConfig)
+        .iborIndices(iborIndices(index, otherIndices))
+        .overnightIndices(overnightIndices(index, otherIndices))
+        .build();
+    entries.add(entry);
+    return this;
+  }
+
+  /**
+   * Adds configuration to the curve group for a curve used to provide discount rates and forward rates.
    *
    * @param curveConfig  configuration of a curve
-   * @param key  market data key identifying how the curve is used in the group
-   * @param otherKeys  additional market data keys identifying how the curve is used in the group
+   * @param currency  the currency for which the curve provides discount rates
+   * @param index  an index for which the curve provides forward rates
+   * @param otherIndices  indices for which the curve provides forward rates
    * @return this builder
    */
   public CurveGroupConfigBuilder addCurve(
       CurveConfig curveConfig,
-      MarketDataKey<YieldCurve> key,
-      MarketDataKey<YieldCurve>... otherKeys) {
+      Currency currency,
+      RateIndex index,
+      RateIndex... otherIndices) {
 
-    ArgChecker.notNull(curveConfig, "curveConfig");
-    ArgChecker.notNull(key, "key");
-
-    CurveGroupEntry entry =
-        CurveGroupEntry.builder()
-            .curveConfig(curveConfig)
-            .curveKeys(ImmutableSet.<MarketDataKey<YieldCurve>>builder().add(key).add(otherKeys).build())
-            .build();
+    CurveGroupEntry entry = CurveGroupEntry.builder()
+        .curveConfig(curveConfig)
+        .discountingCurrency(currency)
+        .iborIndices(iborIndices(index, otherIndices))
+        .overnightIndices(overnightIndices(index, otherIndices))
+        .build();
     entries.add(entry);
     return this;
+  }
+
+  /**
+   * Returns a set containing any IBOR indices in the arguments.
+   */
+  private static Set<IborIndex> iborIndices(RateIndex index, RateIndex... otherIndices) {
+    return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
+        .filter(IborIndex.class::isInstance)
+        .map(IborIndex.class::cast)
+        .collect(toImmutableSet());
+  }
+
+  /**
+   * Returns a set containing any overnight indices in the arguments.
+   */
+  private static Set<OvernightIndex> overnightIndices(RateIndex index, RateIndex... otherIndices) {
+    return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
+        .filter(OvernightIndex.class::isInstance)
+        .map(OvernightIndex.class::cast)
+        .collect(toImmutableSet());
   }
 
   /**

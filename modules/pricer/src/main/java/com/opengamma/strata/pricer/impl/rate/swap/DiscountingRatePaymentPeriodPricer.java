@@ -13,9 +13,9 @@ import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
@@ -72,7 +72,8 @@ public class DiscountingRatePaymentPeriodPricer
     // inefficient to use Optional.orElse because double primitive type would be boxed
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
-      return provider.fxIndexRate(fxReset.getIndex(), fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
+      return rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
     } else {
       return 1d;
     }

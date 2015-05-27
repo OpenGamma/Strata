@@ -14,6 +14,7 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
@@ -21,7 +22,7 @@ import com.opengamma.strata.pricer.impl.Legacy;
  */
 public class MarketDataTestUtils {
 
-  public static final String CURVE_GROUP_NAME = "group name";
+  public static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("group name");
 
   private MarketDataTestUtils() {
   }

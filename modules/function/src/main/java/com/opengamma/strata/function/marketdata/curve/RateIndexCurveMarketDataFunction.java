@@ -36,23 +36,22 @@ import com.opengamma.strata.pricer.impl.Legacy;
 public final class RateIndexCurveMarketDataFunction implements MarketDataFunction<YieldCurve, RateIndexCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(RateIndexCurveId id) {
-    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName());
+  public MarketDataRequirements requirements(RateIndexCurveId id, MarketDataConfig marketDataConfig) {
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
         .build();
   }
 
   @Override
-  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-    String curveGroupName = id.getCurveGroupName();
-    CurveGroupId curveGroupId = CurveGroupId.of(curveGroupName);
+  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
 
-    if (!builtData.containsValue(curveGroupId)) {
+    if (!marketData.containsValue(curveGroupId)) {
       return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", curveGroupId.getName());
     }
-    CurveGroup curveGroup = builtData.getValue(curveGroupId);
-    Result<YieldAndDiscountCurve> result = getCurve(curveGroup, curveGroupName, id.getIndex());
+    CurveGroup curveGroup = marketData.getValue(curveGroupId);
+    Result<YieldAndDiscountCurve> result = getCurve(curveGroup, id.getCurveGroupName(), id.getIndex());
     return result.flatMap(curve -> castCurve(curve, id));
   }
 

@@ -33,6 +33,11 @@ public class ObservableIdTest {
     public MarketDataFeed getMarketDataFeed() {
       return null;
     }
+
+    @Override
+    public ObservableKey toObservableKey() {
+      throw new UnsupportedOperationException();
+    }
   };
 
   //-----------------------------------------------------------------------

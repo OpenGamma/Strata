@@ -155,7 +155,7 @@ public class ScenarioMarketData implements ImmutableBean {
    * @return a list of market data values, one from each scenario
    * @throws IllegalArgumentException if there are no values for the specified ID
    */
-  public <T, I extends MarketDataId<T>> List<T> getValues(I id) {
+  public <T> List<T> getValues(MarketDataId<T> id) {
     // Special handling of these special ID types to provide more helpful error messages
     if (id instanceof NoMatchingRuleId) {
       MarketDataKey key = ((NoMatchingRuleId) id).getKey();
@@ -204,7 +204,7 @@ public class ScenarioMarketData implements ImmutableBean {
    * @return the market data value
    * @throws IllegalArgumentException if there is no value for the specified ID
    */
-  public <T, I extends MarketDataId<T>> T getGlobalValue(I id) {
+  public <T> T getGlobalValue(MarketDataId<T> id) {
     Object value = globalValues.get(id);
 
     if (value == null) {

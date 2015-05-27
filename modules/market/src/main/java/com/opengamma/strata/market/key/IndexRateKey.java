@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.key;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -30,42 +31,55 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.id.IndexRateId;
 
 /**
- * A market data key identifying the current and historical values for an {@link Index}.
+ * Market data key identifying the current and historical values for an index.
  * <p>
+ * This is used when there is a need to obtain the current or historical index value.
  * The forward curve of the index is identified with an {@link RateIndexCurveKey}.
  */
 @BeanDefinition(builderScope = "private")
-public final class IndexRateKey implements ObservableKey, ImmutableBean {
+public final class IndexRateKey
+    implements ObservableKey, ImmutableBean, Serializable {
 
-  /** The index whose market data is identified by this key. */
+  /**
+   * The index of the market data that is required.
+   * For example, 'GBP-LIBOR-3M'.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Index index;
-
-  /** The field name in the market data record that contains the market data item. */
+  /**
+   * The field name in the market data record that is required.
+   * For example, {@link FieldName#MARKET_VALUE}.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FieldName fieldName;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a market data key identifying the market data for the index.
+   * Creates a key to obtain the market value associated with an index.
+   * <p>
+   * This obtains the {@link FieldName#MARKET_VALUE MARKET_VALUE} field.
    *
-   * @param index  an index
-   * @return a market data key identifying the market data for the index
+   * @param index  the index
+   * @return a key for the market value of the index
    */
   public static IndexRateKey of(Index index) {
     return new IndexRateKey(index, FieldName.MARKET_VALUE);
   }
 
   /**
-   * Returns a market data key identifying the market data for the index.
+   * Creates a key to obtain a specific field associated with an index.
+   * <p>
+   * This obtains the specified {@linkplain FieldName field}.
    *
-   * @param index  an index
-   * @param fieldName  the field name in the market data record that contains the market data item
-   * @return a market data key identifying the market data for the index
+   * @param index  the index
+   * @param fieldName  the field name in the market data record to obtain
+   * @return a key for the field of the index
    */
   public static IndexRateKey of(Index index, FieldName fieldName) {
     return new IndexRateKey(index, fieldName);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<Double> getMarketDataType() {
     return Double.class;
@@ -95,6 +109,11 @@ public final class IndexRateKey implements ObservableKey, ImmutableBean {
     JodaBeanUtils.registerMetaBean(IndexRateKey.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private IndexRateKey(
       Index index,
       FieldName fieldName) {
@@ -121,7 +140,8 @@ public final class IndexRateKey implements ObservableKey, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index whose market data is identified by this key.
+   * Gets the index of the market data that is required.
+   * For example, 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
   public Index getIndex() {
@@ -130,7 +150,8 @@ public final class IndexRateKey implements ObservableKey, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the field name in the market data record that contains the market data item.
+   * Gets the field name in the market data record that is required.
+   * For example, {@link FieldName#MARKET_VALUE}.
    * @return the value of the property, not null
    */
   @Override

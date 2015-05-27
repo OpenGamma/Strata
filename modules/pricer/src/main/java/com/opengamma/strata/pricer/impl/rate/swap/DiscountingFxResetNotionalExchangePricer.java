@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
-import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.curve.FxIndexRates;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
 
@@ -55,7 +55,8 @@ public class DiscountingFxResetNotionalExchangePricer
   @Override
   public double futureValue(FxResetNotionalExchange event, RatesProvider provider) {
     // notional * fxRate
-    double fxRate = provider.fxIndexRate(event.getIndex(), event.getReferenceCurrency(), event.getFixingDate());
+    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
+    double fxRate = rates.rate(event.getReferenceCurrency(), event.getFixingDate());
     return event.getNotional() * fxRate;
   }
 

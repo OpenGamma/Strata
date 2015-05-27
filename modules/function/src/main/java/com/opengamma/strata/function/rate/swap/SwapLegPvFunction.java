@@ -70,10 +70,10 @@ public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, L
             .collect(toImmutableSet());
     Set<MarketDataKey<?>> forwardCurveKeys =
         indices.stream()
-            .map(MarketDataKeys::indexCurveKey)
+            .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
     Set<DiscountingCurveKey> discountingCurveKeys =
-        ImmutableSet.of(DiscountingCurveKey.of(leg.getCurrency()));
+        ImmutableSet.of(MarketDataKeys.discountingCurve(leg.getCurrency()));
 
     return CalculationRequirements.builder()
         .singleValueRequirements(Sets.union(forwardCurveKeys, discountingCurveKeys))

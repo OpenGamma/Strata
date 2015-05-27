@@ -19,9 +19,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
-import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.curve.DiscountIborIndexRates;
-import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -34,6 +31,9 @@ import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountIborIndexRates;
+import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
 
 /**
  * An abstract rates provider implementation.

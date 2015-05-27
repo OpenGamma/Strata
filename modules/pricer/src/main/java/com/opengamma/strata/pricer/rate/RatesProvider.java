@@ -7,17 +7,14 @@ package com.opengamma.strata.pricer.rate;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.FxIndexRates;
-import com.opengamma.strata.market.curve.IborIndexRates;
-import com.opengamma.strata.market.curve.OvernightIndexRates;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.pricer.BaseProvider;
 
 /**
@@ -51,17 +48,6 @@ public interface RatesProvider
    */
   public abstract <T> T data(Class<T> type);
 
-  /**
-   * Gets the time series of an index.
-   * <p>
-   * Each index has a history of previously observed values, which can be obtained by this method.
-   * 
-   * @param index  the index to find a time series for
-   * @return the time series of an index
-   * @throws IllegalArgumentException if the time-series is not available
-   */
-  public abstract LocalDateDoubleTimeSeries timeSeries(Index index);
-
   //-------------------------------------------------------------------------
   /**
    * Gets the rates for an FX index.
@@ -77,38 +63,6 @@ public interface RatesProvider
    */
   public abstract FxIndexRates fxIndexRates(FxIndex index);
 
-  /**
-   * Gets the historic or forward rate of an FX rate for a currency pair.
-   * <p>
-   * The rate of the FX index varies over time.
-   * This method obtains the actual or estimated rate for the fixing date.
-   * <p>
-   * This retrieves the actual rate if the fixing date is before the valuation date,
-   * or the estimated rate if the fixing date is after the valuation date.
-   * If the fixing date equals the valuation date, then the best available rate is returned.
-   * <p>
-   * The index defines the conversion rate for a specific currency pair.
-   * This method specifies which of the two currencies in the index is to be treated
-   * as the base currency for the purposes of the returned rate.
-   * If the specified base currency equals the base currency of the index, then
-   * the rate is simply returned. If the specified base currency equals the counter currency
-   * of the index, then the inverse rate is returned.
-   * As such, an amount in the specified base currency can be directly multiplied by the
-   * returned FX rate to perform FX conversion.
-   * <p>
-   * To convert an amount in the specified base currency to the other currency,
-   * multiply it by the returned FX rate.
-   * 
-   * @param index  the index to find the rate for
-   * @param baseCurrency  the base currency that the rate should be expressed against
-   * @param fixingDate  the fixing date to query the rate for
-   * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
-    return fxIndexRates(index).rate(baseCurrency, fixingDate);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the rates for an Ibor index.
@@ -122,25 +76,6 @@ public interface RatesProvider
    */
   public abstract IborIndexRates iborIndexRates(IborIndex index);
 
-  /**
-   * Gets the historic or forward rate of an Ibor index.
-   * <p>
-   * The rate of the IBOR-like index, such as 'GBP-LIBOR-3M', varies over time.
-   * This method obtains the actual or estimated rate for the fixing date.
-   * <p>
-   * This retrieves the actual rate if the fixing date is before the valuation date,
-   * or the estimated rate if the fixing date is after the valuation date.
-   * If the fixing date equals the valuation date, then the best available rate is returned.
-   * 
-   * @param index  the index to find the rate for
-   * @param fixingDate  the fixing date to query the rate for
-   * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default double iborIndexRate(IborIndex index, LocalDate fixingDate) {
-    return iborIndexRates(index).rate(fixingDate);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the rates for an Overnight index.
@@ -153,26 +88,6 @@ public interface RatesProvider
    * @throws IllegalArgumentException if the rates are not available
    */
   public abstract OvernightIndexRates overnightIndexRates(OvernightIndex index);
-
-  /**
-   * Gets the historic or forward rate of an Overnight index.
-   * <p>
-   * The rate of the overnight index, such as 'EUR-EONIA', varies over time.
-   * This method obtains the actual or estimated rate for the fixing date.
-   * <p>
-   * This retrieves the actual rate if the fixing date is before the valuation date,
-   * or the estimated rate if the fixing date is after the valuation date.
-   * If the fixing date equals the valuation date, then the best available rate is returned.
-   * The reference period for the underlying deposit is computed from the index conventions.
-   * 
-   * @param index  the index to find the rate for
-   * @param fixingDate  the fixing date to query the rate for
-   * @return the rate of the index, either historic or forward
-   * @throws IllegalArgumentException if the rates are not available
-   */
-  public default double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
-    return overnightIndexRates(index).rate(fixingDate);
-  }
 
   //-------------------------------------------------------------------------
   /**

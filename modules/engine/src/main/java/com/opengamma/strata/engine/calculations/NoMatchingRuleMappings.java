@@ -18,10 +18,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
  * This means there are no mappings available to choose the market data for the calculations.
  * If market data is requested, this mapping returns an ID which results in a failure in the
  * market data with an error message explaining the problem.
- * <p>
- * This class uses raw types because there is no other way for it do implement its interface.
  */
-@SuppressWarnings("unchecked")
 class NoMatchingRuleMappings implements MarketDataMappings {
 
   /** Singleton instance. */
@@ -31,12 +28,13 @@ class NoMatchingRuleMappings implements MarketDataMappings {
   private NoMatchingRuleMappings() {
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public MarketDataId getIdForKey(MarketDataKey key) {
+  public <T, K extends MarketDataKey<T>> MarketDataId<T> getIdForKey(K key) {
     if (key instanceof ObservableKey) {
-      return getIdForObservableKey((ObservableKey) key);
+      return (MarketDataId<T>) getIdForObservableKey((ObservableKey) key);
     }
-    return NoMatchingRuleId.of(key);
+    return (MarketDataId<T>) NoMatchingRuleId.of(key);
   }
 
   /**

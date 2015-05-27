@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.key;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -25,18 +26,26 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * Market data key identifying the discounting curve for a currency.
+ * Market data key identifying the discount curve for a currency.
+ * <p>
+ * This is used when there is a need to obtain the discount curve.
  */
 @BeanDefinition(builderScope = "private")
-public final class DiscountingCurveKey implements CurveKey, ImmutableBean {
+public final class DiscountingCurveKey
+    implements YieldCurveKey, ImmutableBean, Serializable {
 
-  /** The currency of the discounting curve. */
+  /**
+   * The currency of the discount curve that is required.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
 
+  //-------------------------------------------------------------------------
   /**
-   * @param currency  the currency of the discounting curve
-   * @return an ID that identifies the discounting curve for the specified currency
+   * Creates a key to obtain the discount curve associated with a currency.
+   *
+   * @param currency  the currency
+   * @return a key for the discount curve of the currency
    */
   public static DiscountingCurveKey of(Currency currency) {
     return new DiscountingCurveKey(currency);
@@ -55,6 +64,11 @@ public final class DiscountingCurveKey implements CurveKey, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(DiscountingCurveKey.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private DiscountingCurveKey(
       Currency currency) {
@@ -79,7 +93,7 @@ public final class DiscountingCurveKey implements CurveKey, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the discounting curve.
+   * Gets the currency of the discount curve that is required.
    * @return the value of the property, not null
    */
   public Currency getCurrency() {

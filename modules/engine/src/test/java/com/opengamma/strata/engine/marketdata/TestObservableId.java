@@ -10,6 +10,7 @@ import java.util.Objects;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -59,6 +60,11 @@ public class TestObservableId implements ObservableId {
   @Override
   public MarketDataFeed getMarketDataFeed() {
     return feed;
+  }
+
+  @Override
+  public ObservableKey toObservableKey() {
+    return TestObservableKey.of(id);
   }
 
   @Override

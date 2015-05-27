@@ -35,12 +35,13 @@ import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
-import com.opengamma.strata.market.curve.DiscountFactors;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -187,11 +188,14 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_single_fx() {
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(mockProv.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
+    FxIndexRates mockFxRates = mock(FxIndexRates.class);
+    when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
+
+    SimpleRatesProvider prov = new SimpleRatesProvider(VALUATION_DATE);
+    prov.setFxIndexRates(mockFxRates);
+
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX;
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_FX, mockProv);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_FX, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -223,14 +227,17 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundNone_fx() {
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(mockProv.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
+    FxIndexRates mockFxRates = mock(FxIndexRates.class);
+    when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
+
+    SimpleRatesProvider prov = new SimpleRatesProvider(VALUATION_DATE);
+    prov.setFxIndexRates(mockFxRates);
+
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
             ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * RATE_FX);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_FULL_GS_FX_USD, mockProv);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_FULL_GS_FX_USD, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -290,17 +297,20 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundSpreadExclusive_fx() {
+    FxIndexRates mockFxRates = mock(FxIndexRates.class);
+    when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
+
+    SimpleRatesProvider prov = new SimpleRatesProvider(VALUATION_DATE);
+    prov.setFxIndexRates(mockFxRates);
+
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX_USD.toBuilder()
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(mockProv.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = NOTIONAL_100 * RATE_FX * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
         (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
-    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period, mockProv);
+    double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(period, prov);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 

@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -115,6 +116,21 @@ public class DiscountingSwapTradePricer {
    */
   public PointSensitivities futureValueSensitivity(SwapTrade trade, RatesProvider provider) {
     return productPricer.futureValueSensitivity(trade.getProduct(), provider).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flows of the swap trade.
+   * <p>
+   * Each expected cash flow is added to the result.
+   * This is based on {@link #futureValue(SwapTrade, RatesProvider)}.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the cash flows
+   */
+  public CashFlows cashFlows(SwapTrade trade, RatesProvider provider) {
+    return productPricer.cashFlows(trade.getProduct(), provider);
   }
 
 }

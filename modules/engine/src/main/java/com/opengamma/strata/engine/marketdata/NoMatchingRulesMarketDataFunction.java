@@ -29,13 +29,13 @@ public final class NoMatchingRulesMarketDataFunction implements MarketDataFuncti
   }
 
   @Override
-  public MarketDataRequirements requirements(MarketDataId id) {
-    return MarketDataRequirements.EMPTY;
+  public MarketDataRequirements requirements(MarketDataId id, MarketDataConfig marketDataConfig) {
+    return MarketDataRequirements.empty();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Result build(MarketDataId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
+  public Result build(MarketDataId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     return Result.failure(
         FailureReason.MISSING_DATA,
         "No market data rules were available to build the market data for key {}",

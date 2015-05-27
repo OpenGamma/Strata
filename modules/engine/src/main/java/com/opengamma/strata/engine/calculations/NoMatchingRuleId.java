@@ -30,16 +30,13 @@ import com.opengamma.strata.basics.market.MarketDataKey;
  * market data can be built.
  * <p>
  * This ID is never used to identify an item of market data, it is only used with failures.
- * <p>
- * It uses raw types because there is no other way to make its builder and market data mappings
- * implement their respective interfaces.
  */
 @BeanDefinition(builderScope = "private")
-public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
+public final class NoMatchingRuleId implements MarketDataId<Void>, ImmutableBean {
 
   /** A market data key identifying market data required for a calculation. */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataKey key;
+  private final MarketDataKey<?> key;
 
   /**
    * Returns an ID wrapping a key requested by a calculation for a target with no market data rules.
@@ -47,12 +44,12 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
    * @param key  key identifying the market data
    * @return an ID for market data needed by calculation for a target with no market data rules
    */
-  public static  NoMatchingRuleId of(MarketDataKey key) {
+  public static NoMatchingRuleId of(MarketDataKey<?> key) {
     return new NoMatchingRuleId(key);
   }
 
   @Override
-  public Class getMarketDataType() {
+  public Class<Void> getMarketDataType() {
     return Void.class;
   }
 
@@ -71,7 +68,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
   }
 
   private NoMatchingRuleId(
-      MarketDataKey key) {
+      MarketDataKey<?> key) {
     JodaBeanUtils.notNull(key, "key");
     this.key = key;
   }
@@ -96,7 +93,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
    * Gets a market data key identifying market data required for a calculation.
    * @return the value of the property, not null
    */
-  public MarketDataKey getKey() {
+  public MarketDataKey<?> getKey() {
     return key;
   }
 
@@ -142,8 +139,9 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
     /**
      * The meta-property for the {@code key} property.
      */
-    private final MetaProperty<MarketDataKey> key = DirectMetaProperty.ofImmutable(
-        this, "key", NoMatchingRuleId.class, MarketDataKey.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<MarketDataKey<?>> key = DirectMetaProperty.ofImmutable(
+        this, "key", NoMatchingRuleId.class, (Class) MarketDataKey.class);
     /**
      * The meta-properties.
      */
@@ -186,7 +184,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
      * The meta-property for the {@code key} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataKey> key() {
+    public MetaProperty<MarketDataKey<?>> key() {
       return key;
     }
 
@@ -217,7 +215,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
    */
   private static final class Builder extends DirectFieldsBeanBuilder<NoMatchingRuleId> {
 
-    private MarketDataKey key;
+    private MarketDataKey<?> key;
 
     /**
      * Restricted constructor.
@@ -240,7 +238,7 @@ public final class NoMatchingRuleId implements MarketDataId, ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 106079:  // key
-          this.key = (MarketDataKey) newValue;
+          this.key = (MarketDataKey<?>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

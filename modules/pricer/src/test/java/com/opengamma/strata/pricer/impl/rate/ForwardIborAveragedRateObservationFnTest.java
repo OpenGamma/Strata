@@ -20,11 +20,11 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
-import com.opengamma.strata.market.curve.IborIndexRates;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 
 /**
 * Test.
@@ -48,7 +48,10 @@ public class ForwardIborAveragedRateObservationFnTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
 
   public void test_rate() {
-    RatesProvider mockProv = mock(RatesProvider.class);
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeightedRate = 0.0d;
     double totalWeight = 0.0d;
@@ -60,18 +63,21 @@ public class ForwardIborAveragedRateObservationFnTest {
       fixings.add(fixing);
       totalWeightedRate += FIXING_VALUES[i] * WEIGHTS[i];
       totalWeight += WEIGHTS[i];
-      when(mockProv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[i])).thenReturn(FIXING_VALUES[i]);
+      when(mockIbor.rate(FIXING_DATES[i])).thenReturn(FIXING_VALUES[i]);
     }
+
     double rateExpected = totalWeightedRate / totalWeight;
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
-    double rateComputed = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
+    double rateComputed = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
   }
 
   public void test_rateSensitivity() {
-    RatesProvider mockProv = mock(RatesProvider.class);
-    IborIndexRates mockRates = mock(IborIndexRates.class);
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeight = 0.0d;
     for (int i = 0; i < FIXING_DATES.length; i++) {
@@ -81,9 +87,9 @@ public class ForwardIborAveragedRateObservationFnTest {
           .build();
       fixings.add(fixing);
       totalWeight += WEIGHTS[i];
-      when(mockProv.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRates);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockIbor.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
     }
+
     PointSensitivities expected = PointSensitivities.of(ImmutableList.of(
         IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[0], WEIGHTS[0] / totalWeight),
         IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[1], WEIGHTS[1] / totalWeight),
@@ -91,16 +97,17 @@ public class ForwardIborAveragedRateObservationFnTest {
         IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[3], WEIGHTS[3] / totalWeight)));
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
-    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
+    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     assertEquals(test.build(), expected);
   }
 
   public void test_rateSensitivity_finiteDifference() {
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    SimpleRatesProvider prov = new SimpleRatesProvider();
+    prov.setIborRates(mockIbor);
+
     double eps = 1.0e-7;
     int nDates = FIXING_DATES.length;
-    RatesProvider mockProvBase = mock(RatesProvider.class);
-    IborIndexRates mockRatesBase = mock(IborIndexRates.class);
-
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < nDates; i++) {
       IborAveragedFixing fixing = IborAveragedFixing.builder()
@@ -108,26 +115,31 @@ public class ForwardIborAveragedRateObservationFnTest {
           .weight(WEIGHTS[i])
           .build();
       fixings.add(fixing);
-      when(mockProvBase.iborIndexRates(GBP_LIBOR_3M)).thenReturn(mockRatesBase);
-      when(mockRatesBase.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockIbor.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
     }
+
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
-    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvBase);
+    PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     for (int i = 0; i < nDates; ++i) {
-      RatesProvider mockProvUp = mock(RatesProvider.class);
-      RatesProvider mockProvDw = mock(RatesProvider.class);
+      IborIndexRates mockIborUp = mock(IborIndexRates.class);
+      SimpleRatesProvider provUp = new SimpleRatesProvider();
+      provUp.setIborRates(mockIborUp);
+      IborIndexRates mockIborDw = mock(IborIndexRates.class);
+      SimpleRatesProvider provDw = new SimpleRatesProvider();
+      provDw.setIborRates(mockIborDw);
+
       for (int j = 0; j < nDates; ++j) {
         if (i == j) {
-          when(mockProvUp.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] + eps);
-          when(mockProvDw.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] - eps);
+          when(mockIborUp.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] + eps);
+          when(mockIborDw.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] - eps);
         } else {
-          when(mockProvUp.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
-          when(mockProvDw.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
+          when(mockIborUp.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
+          when(mockIborDw.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
         }
       }
-      double rateUp = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvUp);
-      double rateDw = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProvDw);
+      double rateUp = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, provUp);
+      double rateDw = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, provDw);
       double resExpected = 0.5 * (rateUp - rateDw) / eps;
       assertEquals(test.build().getSensitivities().get(i).getSensitivity(), resExpected, eps);
     }

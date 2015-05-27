@@ -15,6 +15,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.DiscountingCurveId;
 
@@ -33,23 +34,22 @@ import com.opengamma.strata.market.id.DiscountingCurveId;
 public class DiscountingCurveMarketDataFunction implements MarketDataFunction<YieldCurve, DiscountingCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(DiscountingCurveId id) {
-    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName());
+  public MarketDataRequirements requirements(DiscountingCurveId id, MarketDataConfig marketDataConfig) {
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
         .build();
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-    String curveGroupName = id.getCurveGroupName();
-    CurveGroupId curveGroupId = CurveGroupId.of(curveGroupName);
+  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
 
-    if (!builtData.containsValue(curveGroupId)) {
+    if (!marketData.containsValue(curveGroupId)) {
       return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", curveGroupId.getName());
     }
-    CurveGroup curveGroup = builtData.getValue(curveGroupId);
-    Result<YieldAndDiscountCurve> result = getCurve(curveGroup, curveGroupName, id.getCurrency());
+    CurveGroup curveGroup = marketData.getValue(curveGroupId);
+    Result<YieldAndDiscountCurve> result = getCurve(curveGroup, id.getCurveGroupName(), id.getCurrency());
     return result.flatMap(curve -> castCurve(curve, id));
   }
 
@@ -68,7 +68,7 @@ public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Yi
    */
   private static Result<YieldAndDiscountCurve> getCurve(
       CurveGroup curveGroup,
-      String curveGroupName,
+      CurveGroupName curveGroupName,
       Currency currency) {
 
     return Result.ofNullable(

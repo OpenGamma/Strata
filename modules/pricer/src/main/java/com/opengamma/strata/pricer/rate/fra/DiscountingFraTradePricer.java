@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.market.cashflow.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -96,6 +97,21 @@ public class DiscountingFraTradePricer {
    */
   public PointSensitivities futureValueSensitivity(FraTrade trade, RatesProvider provider) {
     return productPricer.futureValueSensitivity(trade.getProduct(), provider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flow of the FRA trade.
+   * <p>
+   * There is only one cash flow on the payment date for the FRA trade.
+   * The expected currency amount of the cash flow is the same as {@link #futureValue(FraTrade, RatesProvider)}.
+   * 
+   * @param trade  the trade to price
+   * @param provider  the rates provider
+   * @return the cash flows
+   */
+  public CashFlows cashFlows(FraTrade trade, RatesProvider provider) {
+    return productPricer.cashFlows(trade.getProduct(), provider);
   }
 
 }

@@ -36,16 +36,17 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.curve.DiscountFxIndexRates;
-import com.opengamma.strata.market.curve.DiscountIborIndexRates;
-import com.opengamma.strata.market.curve.DiscountOvernightIndexRates;
-import com.opengamma.strata.market.curve.FxIndexRates;
-import com.opengamma.strata.market.curve.IborIndexRates;
-import com.opengamma.strata.market.curve.OvernightIndexRates;
-import com.opengamma.strata.market.curve.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountFxIndexRates;
+import com.opengamma.strata.market.value.DiscountIborIndexRates;
+import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * The default immutable rates provider, used to calculate analytic measures.
@@ -123,6 +124,11 @@ public final class ImmutableRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
+  public <T> T data(MarketDataKey<T> key) {
+    throw new IllegalArgumentException("Unknown key: " + key.toString());
+  }
+
+  @Override
   public <T> T data(Class<T> type) {
     ArgChecker.notNull(type, "type");
     // type safety checked in validate()
@@ -135,14 +141,23 @@ public final class ImmutableRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public LocalDateDoubleTimeSeries timeSeries(Index index) {
+  // finds the time-series
+  private LocalDateDoubleTimeSeries timeSeries(Index index) {
     ArgChecker.notNull(index, "index");
     LocalDateDoubleTimeSeries series = timeSeries.get(index);
     if (series == null) {
       throw new IllegalArgumentException("Unknown index: " + index.getName());
     }
     return series;
+  }
+
+  // finds the index curve
+  private YieldCurve indexCurve(Index index) {
+    YieldCurve curve = (YieldCurve) indexCurves.get(index);
+    if (curve == null) {
+      throw new IllegalArgumentException("Unable to find index curve: " + index);
+    }
+    return curve;
   }
 
   //-------------------------------------------------------------------------
@@ -189,15 +204,6 @@ public final class ImmutableRatesProvider
     YieldCurve curve = indexCurve(index);
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
-  }
-
-  // lookup the discount curve for the currency
-  private YieldCurve indexCurve(Index index) {
-    YieldCurve curve = (YieldCurve) indexCurves.get(index);
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find index curve: " + index);
-    }
-    return curve;
   }
 
   //-------------------------------------------------------------------------

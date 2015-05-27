@@ -36,16 +36,16 @@ import com.opengamma.strata.basics.market.ObservableId;
 @BeanDefinition(builderScope = "private")
 public final class MarketDataRequirements implements ImmutableBean {
 
-  /** A set of requirements that specifies that no market data is required. */
-  public static final MarketDataRequirements EMPTY = MarketDataRequirements.builder().build();
+  /** A set of requirements which specifies that no market data is required. */
+  private static final MarketDataRequirements EMPTY = MarketDataRequirements.builder().build();
 
   /** Keys identifying the market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<? extends ObservableId> observables;
+  private final ImmutableSet<ObservableId> observables;
 
   /** Keys identifying the market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<? extends MarketDataId<?>> nonObservables;
+  private final ImmutableSet<MarketDataId<?>> nonObservables;
 
   /** Keys identifying the time series of market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
@@ -68,6 +68,15 @@ public final class MarketDataRequirements implements ImmutableBean {
    */
   public static MarketDataRequirementsBuilder builder() {
     return new MarketDataRequirementsBuilder();
+  }
+
+  /**
+   * Returns a set of requirements specifying that no market data is required.
+   *
+   * @return a set of requirements specifying that no market data is required
+   */
+  public static MarketDataRequirements empty() {
+    return EMPTY;
   }
 
   /**
@@ -143,7 +152,7 @@ public final class MarketDataRequirements implements ImmutableBean {
    * Gets keys identifying the market data values required for the calculations.
    * @return the value of the property, not null
    */
-  public ImmutableSet<? extends ObservableId> getObservables() {
+  public ImmutableSet<ObservableId> getObservables() {
     return observables;
   }
 
@@ -152,7 +161,7 @@ public final class MarketDataRequirements implements ImmutableBean {
    * Gets keys identifying the market data values required for the calculations.
    * @return the value of the property, not null
    */
-  public ImmutableSet<? extends MarketDataId<?>> getNonObservables() {
+  public ImmutableSet<MarketDataId<?>> getNonObservables() {
     return nonObservables;
   }
 
@@ -228,13 +237,13 @@ public final class MarketDataRequirements implements ImmutableBean {
      * The meta-property for the {@code observables} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<? extends ObservableId>> observables = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableSet<ObservableId>> observables = DirectMetaProperty.ofImmutable(
         this, "observables", MarketDataRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code nonObservables} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<? extends MarketDataId<?>>> nonObservables = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableSet<MarketDataId<?>>> nonObservables = DirectMetaProperty.ofImmutable(
         this, "nonObservables", MarketDataRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code timeSeries} property.
@@ -299,7 +308,7 @@ public final class MarketDataRequirements implements ImmutableBean {
      * The meta-property for the {@code observables} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<? extends ObservableId>> observables() {
+    public MetaProperty<ImmutableSet<ObservableId>> observables() {
       return observables;
     }
 
@@ -307,7 +316,7 @@ public final class MarketDataRequirements implements ImmutableBean {
      * The meta-property for the {@code nonObservables} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<? extends MarketDataId<?>>> nonObservables() {
+    public MetaProperty<ImmutableSet<MarketDataId<?>>> nonObservables() {
       return nonObservables;
     }
 
@@ -360,8 +369,8 @@ public final class MarketDataRequirements implements ImmutableBean {
    */
   private static final class Builder extends DirectFieldsBeanBuilder<MarketDataRequirements> {
 
-    private Set<? extends ObservableId> observables = ImmutableSet.of();
-    private Set<? extends MarketDataId<?>> nonObservables = ImmutableSet.of();
+    private Set<ObservableId> observables = ImmutableSet.of();
+    private Set<MarketDataId<?>> nonObservables = ImmutableSet.of();
     private Set<ObservableId> timeSeries = ImmutableSet.of();
     private Set<Currency> outputCurrencies = ImmutableSet.of();
 
@@ -393,10 +402,10 @@ public final class MarketDataRequirements implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 121811856:  // observables
-          this.observables = (Set<? extends ObservableId>) newValue;
+          this.observables = (Set<ObservableId>) newValue;
           break;
         case 824041091:  // nonObservables
-          this.nonObservables = (Set<? extends MarketDataId<?>>) newValue;
+          this.nonObservables = (Set<MarketDataId<?>>) newValue;
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (Set<ObservableId>) newValue;

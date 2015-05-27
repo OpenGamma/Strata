@@ -7,8 +7,6 @@ package com.opengamma.strata.pricer.impl.rate;
 
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPIX;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -17,13 +15,19 @@ import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.value.ForwardPriceIndexValues;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.PriceIndexProvider;
-import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Test.
@@ -31,14 +35,18 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 @Test
 public class ForwardInflationInterpolatedRateObservationFnTest {
 
+  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LINEAR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final YearMonth VAL_MONTH = YearMonth.of(2014, 6);
+
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 4); // Accrual dates irrelevant for the rate
   private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2016, 1, 5); // Accrual dates irrelevant for the rate
-  private static final YearMonth REFERENCE_START_MONTH = YearMonth.of(2014, 10);
-  private static final YearMonth REFERENCE_END_MONTH = YearMonth.of(2015, 10);
-  private static final Double RELATIVE_START_TIME = 0.2; // used to pick up relevant index rate
-  private static final Double RELATIVE_START_TIME_INTERP = 0.3; // used to pick up relevant index rate
-  private static final Double RELATIVE_END_TIME = 1.2; // used to pick up relevant index rate
-  private static final Double RELATIVE_END_TIME_INTERP = 1.3; // used to pick up relevant index rate
+  private static final YearMonth REF_START_MONTH = YearMonth.of(2014, 10);
+  private static final YearMonth REF_START_MONTH_INTERP = YearMonth.of(2014, 11);
+  private static final YearMonth REF_END_MONTH = YearMonth.of(2015, 10);
+  private static final YearMonth REF_END_MONTH_INTERP = YearMonth.of(2015, 11);
   private static final double RATE_START = 317.0;
   private static final double RATE_START_INTERP = 325.0;
   private static final double RATE_END = 344.0;
@@ -48,84 +56,75 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
   private static final double EPS = 1.0e-12;
   private static final double EPS_FD = 1.0e-4;
 
+  //-------------------------------------------------------------------------
   public void test_rate() {
-    RatesProvider mockProv = mock(RatesProvider.class);
-    PriceIndexCurve mockCurve = mock(PriceIndexCurve.class);
-    when(mockProv.data(PriceIndexProvider.class)).thenReturn(PriceIndexProvider.of(GB_RPIX, mockCurve));
-    when(mockProv.timeSeries(GB_RPIX)).thenReturn(LocalDateDoubleTimeSeries.empty());
-    when(mockProv.relativeTime(REFERENCE_START_MONTH.atEndOfMonth())).thenReturn(RELATIVE_START_TIME);
-    when(mockProv.relativeTime(REFERENCE_END_MONTH.atEndOfMonth())).thenReturn(RELATIVE_END_TIME);
-    when(mockProv.relativeTime(
-        REFERENCE_START_MONTH.plusMonths(1).atEndOfMonth())).thenReturn(RELATIVE_START_TIME_INTERP);
-    when(mockProv.relativeTime(REFERENCE_END_MONTH.plusMonths(1).atEndOfMonth())).thenReturn(RELATIVE_END_TIME_INTERP);
-    when(mockCurve.getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START);
-    when(mockCurve.getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END);
-    when(mockCurve.getPriceIndex(RELATIVE_START_TIME_INTERP)).thenReturn(RATE_START_INTERP);
-    when(mockCurve.getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP);
+    ImmutableRatesProvider prov = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
+
     InflationInterpolatedRateObservation ro =
-        InflationInterpolatedRateObservation.of(GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH, WEIGHT);
+        InflationInterpolatedRateObservation.of(GB_RPIX, REF_START_MONTH, REF_END_MONTH, WEIGHT);
     ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
+
     double rateExpected = (WEIGHT * RATE_END + (1.0 - WEIGHT) * RATE_END_INTERP) /
         (WEIGHT * RATE_START + (1.0 - WEIGHT) * RATE_START_INTERP) - 1.0;
-    assertEquals(obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv), rateExpected, EPS);
+    assertEquals(obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov), rateExpected, EPS);
   }
 
+  //-------------------------------------------------------------------------
   public void test_rateSensitivity() {
-    InflationInterpolatedRateObservation ro = InflationInterpolatedRateObservation.of(
-        GB_RPIX, REFERENCE_START_MONTH, REFERENCE_END_MONTH, WEIGHT);
+    ImmutableRatesProvider prov = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
+    ImmutableRatesProvider provSrtUp = createProvider(RATE_START + EPS_FD, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
+    ImmutableRatesProvider provSrtDw = createProvider(RATE_START - EPS_FD, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
+    ImmutableRatesProvider provSrtIntUp = createProvider(RATE_START, RATE_START_INTERP + EPS_FD, RATE_END, RATE_END_INTERP);
+    ImmutableRatesProvider provSrtIntDw = createProvider(RATE_START, RATE_START_INTERP - EPS_FD, RATE_END, RATE_END_INTERP);
+    ImmutableRatesProvider provEndUp = createProvider(RATE_START, RATE_START_INTERP, RATE_END + EPS_FD, RATE_END_INTERP);
+    ImmutableRatesProvider provEndDw = createProvider(RATE_START, RATE_START_INTERP, RATE_END - EPS_FD, RATE_END_INTERP);
+    ImmutableRatesProvider provEndIntUp = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP + EPS_FD);
+    ImmutableRatesProvider provEndIntDw = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP - EPS_FD);
+
+    InflationInterpolatedRateObservation ro =
+        InflationInterpolatedRateObservation.of(GB_RPIX, REF_START_MONTH, REF_END_MONTH, WEIGHT);
     ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
 
-    YearMonth refStartMonthInterp = REFERENCE_START_MONTH.plusMonths(1);
-    YearMonth refEndMonthInterp = REFERENCE_END_MONTH.plusMonths(1);
-    RatesProvider[] mockProvs = new RatesProvider[8];
-    PriceIndexCurve[] mockCurves = new PriceIndexCurve[8];
-    setRateProvider(mockProvs, mockCurves);
-    when(mockCurves[0].getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START + EPS_FD);
-    when(mockCurves[1].getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START - EPS_FD);
-    when(mockCurves[2].getPriceIndex(RELATIVE_START_TIME_INTERP)).thenReturn(RATE_START_INTERP + EPS_FD);
-    when(mockCurves[3].getPriceIndex(RELATIVE_START_TIME_INTERP)).thenReturn(RATE_START_INTERP - EPS_FD);
-    when(mockCurves[4].getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END + EPS_FD);
-    when(mockCurves[5].getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END - EPS_FD);
-    when(mockCurves[6].getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP + EPS_FD);
-    when(mockCurves[7].getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP - EPS_FD);
-    YearMonth[] months = new YearMonth[] {
-        REFERENCE_START_MONTH, refStartMonthInterp, REFERENCE_END_MONTH, refEndMonthInterp};
-    PointSensitivityBuilder sensiExpected = PointSensitivityBuilder.none();
-    for (int i = 0; i < 4; ++i) {
-      double rateUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvs[2 * i]);
-      double rateDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProvs[2 * i + 1]);
-      double sensiVal = 0.5 * (rateUp - rateDw) / EPS_FD;
-      PointSensitivityBuilder sensi = InflationRateSensitivity.of(GB_RPIX, months[i], sensiVal);
-      sensiExpected = sensiExpected.combinedWith(sensi);
-    }
+    double rateSrtUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provSrtUp);
+    double rateSrtDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provSrtDw);
+    double rateSrtIntUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provSrtIntUp);
+    double rateSrtIntDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provSrtIntDw);
+    double rateEndUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndUp);
+    double rateEndDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndDw);
+    double rateEndIntUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndIntUp);
+    double rateEndIntDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndIntDw);
 
-    RatesProvider[] mockProv = new RatesProvider[1];
-    PriceIndexCurve[] mockCurve = new PriceIndexCurve[1];
-    setRateProvider(mockProv, mockCurve);
+    PointSensitivityBuilder sensSrt =
+        InflationRateSensitivity.of(GB_RPIX, REF_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
+    PointSensitivityBuilder sensSrtInt =
+        InflationRateSensitivity.of(GB_RPIX, REF_START_MONTH_INTERP, 0.5 * (rateSrtIntUp - rateSrtIntDw) / EPS_FD);
+    PointSensitivityBuilder sensEnd =
+        InflationRateSensitivity.of(GB_RPIX, REF_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
+    PointSensitivityBuilder sensEndInt =
+        InflationRateSensitivity.of(GB_RPIX, REF_END_MONTH_INTERP, 0.5 * (rateEndIntUp - rateEndIntDw) / EPS_FD);
+    PointSensitivityBuilder sensiExpected =
+        sensSrt.combinedWith(sensSrtInt).combinedWith(sensEnd).combinedWith(sensEndInt);
+
     PointSensitivityBuilder sensiComputed =
-        obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, mockProv[0]);
-
+        obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
     assertTrue(sensiComputed.build().normalized().equalWithTolerance(sensiExpected.build().normalized(), EPS_FD));
   }
 
-  private void setRateProvider(RatesProvider[] provs, PriceIndexCurve[] curves) {
-    int n = provs.length;
-    for (int i = 0; i < n; ++i) {
-      provs[i] = mock(RatesProvider.class);
-      curves[i] = mock(PriceIndexCurve.class);
-      when(provs[i].data(PriceIndexProvider.class)).thenReturn(PriceIndexProvider.of(GB_RPIX, curves[i]));
-      when(provs[i].timeSeries(GB_RPIX)).thenReturn(LocalDateDoubleTimeSeries.empty());
-      when(provs[i].relativeTime(REFERENCE_START_MONTH.atEndOfMonth())).thenReturn(RELATIVE_START_TIME);
-      when(provs[i].relativeTime(REFERENCE_END_MONTH.atEndOfMonth())).thenReturn(RELATIVE_END_TIME);
-      when(provs[i].relativeTime(
-          REFERENCE_START_MONTH.plusMonths(1).atEndOfMonth())).thenReturn(RELATIVE_START_TIME_INTERP);
-      when(provs[i].relativeTime(REFERENCE_END_MONTH.plusMonths(1).atEndOfMonth()))
-          .thenReturn(RELATIVE_END_TIME_INTERP);
-      when(curves[i].getPriceIndex(RELATIVE_START_TIME)).thenReturn(RATE_START);
-      when(curves[i].getPriceIndex(RELATIVE_END_TIME)).thenReturn(RATE_END);
-      when(curves[i].getPriceIndex(RELATIVE_START_TIME_INTERP)).thenReturn(RATE_START_INTERP);
-      when(curves[i].getPriceIndex(RELATIVE_END_TIME_INTERP)).thenReturn(RATE_END_INTERP);
-    }
+  private ImmutableRatesProvider createProvider(
+      double rateStart,
+      double rateStartInterp,
+      double rateEnd,
+      double rateEndInterp) {
+
+    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_MONTH.atEndOfMonth(), 300);
+    InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(
+        new double[] {4, 5, 16, 17}, new double[] {rateStart, rateStartInterp, rateEnd, rateEndInterp}, INTERPOLATOR);
+    ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_MONTH, timeSeries, curve);
+    return ImmutableRatesProvider.builder()
+        .valuationDate(DUMMY_ACCRUAL_END_DATE)
+        .dayCount(DayCounts.ACT_360)
+        .additionalData(ImmutableMap.of(PriceIndexProvider.class, PriceIndexProvider.of(GB_RPIX, values)))
+        .build();
   }
 
 }

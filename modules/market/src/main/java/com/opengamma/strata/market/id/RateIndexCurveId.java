@@ -25,7 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.RateIndex;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.market.curve.CurveGroupName;
 
+// TODO Would it be useful to make this an interface and have specific types for IBOR and overnight indices?
 /**
  * A market data ID identifying the forward curve for an {@link Index}.
  * <p>
@@ -39,8 +42,24 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
   private final RateIndex index;
 
   /** The name of the curve group containing the curve. */
-  @PropertyDefinition(validate = "notEmpty")
-  private final String curveGroupName;
+  @PropertyDefinition(validate = "notNull")
+  private final CurveGroupName curveGroupName;
+
+  /** The market data feed which provides quotes used to build the curve. */
+  @PropertyDefinition(validate = "notNull")
+  private final MarketDataFeed marketDataFeed;
+
+  /**
+   * Returns an ID for the curve for the specified index.
+   *
+   * @param index  the curve index
+   * @param curveGroupName  the group name
+   * @param marketDataFeed  the market data feed which provides quotes used to build the curve
+   * @return an ID for the curve for the specified index
+   */
+  public static RateIndexCurveId of(RateIndex index, CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
+    return new RateIndexCurveId(index, curveGroupName, marketDataFeed);
+  }
 
   /**
    * Returns an ID for the curve for the specified index.
@@ -49,8 +68,8 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
    * @param curveGroupName  the group name
    * @return an ID for the curve for the specified index
    */
-  public static RateIndexCurveId of(RateIndex index, String curveGroupName) {
-    return new RateIndexCurveId(index, curveGroupName);
+  public static RateIndexCurveId of(RateIndex index, CurveGroupName curveGroupName) {
+    return new RateIndexCurveId(index, curveGroupName, MarketDataFeed.NONE);
   }
 
   @Override
@@ -74,11 +93,14 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
 
   private RateIndexCurveId(
       RateIndex index,
-      String curveGroupName) {
+      CurveGroupName curveGroupName,
+      MarketDataFeed marketDataFeed) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notEmpty(curveGroupName, "curveGroupName");
+    JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
+    JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
     this.index = index;
     this.curveGroupName = curveGroupName;
+    this.marketDataFeed = marketDataFeed;
   }
 
   @Override
@@ -108,10 +130,19 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve group containing the curve.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
-  public String getCurveGroupName() {
+  public CurveGroupName getCurveGroupName() {
     return curveGroupName;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the market data feed which provides quotes used to build the curve.
+   * @return the value of the property, not null
+   */
+  public MarketDataFeed getMarketDataFeed() {
+    return marketDataFeed;
   }
 
   //-----------------------------------------------------------------------
@@ -123,7 +154,8 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       RateIndexCurveId other = (RateIndexCurveId) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getCurveGroupName(), other.getCurveGroupName());
+          JodaBeanUtils.equal(getCurveGroupName(), other.getCurveGroupName()) &&
+          JodaBeanUtils.equal(getMarketDataFeed(), other.getMarketDataFeed());
     }
     return false;
   }
@@ -133,15 +165,17 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurveGroupName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataFeed());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("RateIndexCurveId{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("curveGroupName").append('=').append(JodaBeanUtils.toString(getCurveGroupName()));
+    buf.append("curveGroupName").append('=').append(getCurveGroupName()).append(',').append(' ');
+    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(getMarketDataFeed()));
     buf.append('}');
     return buf.toString();
   }
@@ -164,15 +198,21 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
     /**
      * The meta-property for the {@code curveGroupName} property.
      */
-    private final MetaProperty<String> curveGroupName = DirectMetaProperty.ofImmutable(
-        this, "curveGroupName", RateIndexCurveId.class, String.class);
+    private final MetaProperty<CurveGroupName> curveGroupName = DirectMetaProperty.ofImmutable(
+        this, "curveGroupName", RateIndexCurveId.class, CurveGroupName.class);
+    /**
+     * The meta-property for the {@code marketDataFeed} property.
+     */
+    private final MetaProperty<MarketDataFeed> marketDataFeed = DirectMetaProperty.ofImmutable(
+        this, "marketDataFeed", RateIndexCurveId.class, MarketDataFeed.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "curveGroupName");
+        "curveGroupName",
+        "marketDataFeed");
 
     /**
      * Restricted constructor.
@@ -187,6 +227,8 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
           return index;
         case -382645893:  // curveGroupName
           return curveGroupName;
+        case 842621124:  // marketDataFeed
+          return marketDataFeed;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -219,8 +261,16 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
      * The meta-property for the {@code curveGroupName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> curveGroupName() {
+    public MetaProperty<CurveGroupName> curveGroupName() {
       return curveGroupName;
+    }
+
+    /**
+     * The meta-property for the {@code marketDataFeed} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<MarketDataFeed> marketDataFeed() {
+      return marketDataFeed;
     }
 
     //-----------------------------------------------------------------------
@@ -231,6 +281,8 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
           return ((RateIndexCurveId) bean).getIndex();
         case -382645893:  // curveGroupName
           return ((RateIndexCurveId) bean).getCurveGroupName();
+        case 842621124:  // marketDataFeed
+          return ((RateIndexCurveId) bean).getMarketDataFeed();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -253,7 +305,8 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
   private static final class Builder extends DirectFieldsBeanBuilder<RateIndexCurveId> {
 
     private RateIndex index;
-    private String curveGroupName;
+    private CurveGroupName curveGroupName;
+    private MarketDataFeed marketDataFeed;
 
     /**
      * Restricted constructor.
@@ -269,6 +322,8 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
           return index;
         case -382645893:  // curveGroupName
           return curveGroupName;
+        case 842621124:  // marketDataFeed
+          return marketDataFeed;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -281,7 +336,10 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
           this.index = (RateIndex) newValue;
           break;
         case -382645893:  // curveGroupName
-          this.curveGroupName = (String) newValue;
+          this.curveGroupName = (CurveGroupName) newValue;
+          break;
+        case 842621124:  // marketDataFeed
+          this.marketDataFeed = (MarketDataFeed) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -317,16 +375,18 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
     public RateIndexCurveId build() {
       return new RateIndexCurveId(
           index,
-          curveGroupName);
+          curveGroupName,
+          marketDataFeed);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("RateIndexCurveId.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("curveGroupName").append('=').append(JodaBeanUtils.toString(curveGroupName));
+      buf.append("curveGroupName").append('=').append(JodaBeanUtils.toString(curveGroupName)).append(',').append(' ');
+      buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
       buf.append('}');
       return buf.toString();
     }

@@ -25,15 +25,14 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.DiscountFactors;
-import com.opengamma.strata.market.curve.FxIndexRates;
-import com.opengamma.strata.market.curve.IborIndexRates;
-import com.opengamma.strata.market.curve.OvernightIndexRates;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
 
 /**
  * A simple rates provider for overnight rates.
@@ -82,12 +81,12 @@ public class SimpleRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T data(Class<T> type) {
+  public <T> T data(MarketDataKey<T> key) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public LocalDateDoubleTimeSeries timeSeries(Index index) {
+  public <T> T data(Class<T> type) {
     throw new UnsupportedOperationException();
   }
 

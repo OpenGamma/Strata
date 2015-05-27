@@ -28,13 +28,13 @@ public class ExampleDiscountingCurveFunction
     implements MarketDataFunction<YieldCurve, DiscountingCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(DiscountingCurveId id) {
-    return MarketDataRequirements.EMPTY;
+  public MarketDataRequirements requirements(DiscountingCurveId id, MarketDataConfig marketDataConfig) {
+    return MarketDataRequirements.empty();
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup builtData, MarketDataConfig marketDataConfig) {
-    LocalDate valuationDate = builtData.getValuationDate();
+  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+    LocalDate valuationDate = marketData.getValuationDate();
     YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, id.getCurrency() + "-discounting");
     return Result.success(curve);
   }

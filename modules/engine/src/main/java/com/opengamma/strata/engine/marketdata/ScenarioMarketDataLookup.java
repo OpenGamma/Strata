@@ -42,7 +42,7 @@ class ScenarioMarketDataLookup implements MarketDataLookup {
   }
 
   @Override
-  public <T, I extends MarketDataId<T>> T getValue(I id) {
+  public <T> T getValue(MarketDataId<T> id) {
     return marketData.getValues(id).get(scenarioNumber);
   }
 
