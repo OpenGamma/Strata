@@ -1,0 +1,12 @@
+import com.opengamma.tools.gradle.distrepo.DistRepoPlugin
+
+task zipDistRepo(type: Zip) {
+    from project.getTasksByName(DistRepoPlugin.DIST_LOCAL_TASK_NAME, true)
+    into "strata-${-> project.version}"
+
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+
+    doFirst {
+        archiveName "strata-${project.version}.zip"
+    }
+}

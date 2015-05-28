@@ -1,0 +1,11 @@
+description = "Source, entity identifiers and links"
+
+dependencies {
+	compile project(":collect")
+	testCompile project(":collect-testutils")
+}
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Source"
+	title = "OpenGamma Strata Source API Documentation"
+}

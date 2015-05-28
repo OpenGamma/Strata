@@ -1,0 +1,11 @@
+description = "Curve API"
+
+dependencies {
+	compile project(":basics")
+	compile ogAnalytics()
+}
+
+javadoc {
+	options.windowTitle = "OpenGamma Strata Curve"
+	title = "OpenGamma Strata Curve API Documentation"
+}

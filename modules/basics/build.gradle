@@ -1,0 +1,13 @@
+description = "Basic aspects of financial markets"
+
+dependencies {
+	compile project(":collect")
+
+	testCompile project(":basics-testutils")
+	testCompile project(":collect-testutils")
+}
+
+javadoc {
+    options.windowTitle = "OpenGamma Strata Basics"
+    title = "OpenGamma Strata Basics API"
+}

@@ -1,0 +1,7 @@
+dependencies {
+	compile project(":engine")
+	compile project(":finance")
+	compile project(":finance-beta")
+	compile project(":function")
+	compile project(":pricer-beta")
+}

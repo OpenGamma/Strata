@@ -1,0 +1,38 @@
+apply plugin: "jacoco"
+
+test {
+    if(System.properties['test.forkEvery'])
+        forkEvery = System.properties['test.forkEvery'] as Long
+
+    if(System.properties['test.maxForks'])
+        maxParallelForks = System.properties['test.maxForks'] as Integer
+
+    if(System.properties['test.maxHeap'])
+        maxHeapSize = System.properties['test.maxHeap']
+
+    useTestNG() {
+        excludeGroups = ["integration", "unitdb", "unitslow"]
+    }
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+        xml.enabled true
+        csv.enabled false
+    }
+}
+
+allprojects*.tasks*.withType(JacocoReport) { reportTask ->
+    reportTask.project.tasks.withType(Test) { testTask ->
+        reportTask.dependsOn testTask
+    }
+}
+
+dependencies {
+    testCompile "org.testng:testng:${testNGVersion}"
+    testCompile "org.assertj:assertj-core:${assertJVersion}"
+    testCompile "org.mockito:mockito-all:${mockitoVersion}"
+
+}
+
