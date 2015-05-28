@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 import com.github.jk1.license.LicenseReportPlugin
 import com.opengamma.tools.gradle.analytics.AnalyticsPlugin
 import com.opengamma.tools.gradle.depreport.InMemoryRenderer
@@ -9,23 +15,23 @@ import com.opengamma.tools.gradle.release.ReleasePlugin
 import org.joda.beans.gradle.JodaBeansPlugin
 
 ext {
-	guavaVersion = "18.0"
-	jodaConvertVersion = "1.7"
-	jodaBeansVersion = "1.5.1"
-	joolVersion = "0.9.6"
+    guavaVersion = "18.0"
+    jodaConvertVersion = "1.7"
+    jodaBeansVersion = "1.5.1"
+    joolVersion = "0.9.6"
     fastutilVersion = "6.5.6"
     commonsMath3Version = "3.5"
     coltVersion = "1.2.0"
     jtransformsVersion = "2.4.0"
     openCSVVersion = "2.3"
     poiVersion = "3.9"
-	slf4jVersion = "1.7.5"
-	ogAnalyticsVersion = "3.0.0-SNAPSHOT"
+    slf4jVersion = "1.7.5"
+    ogAnalyticsVersion = "3.0.0-SNAPSHOT"
 
-	testNGVersion = "6.8.21"
-	assertJVersion = "2.0.0"
-	mockitoVersion = "1.10.19"
-	jacocoVersion = "0.7.4.201502262128"
+    testNGVersion = "6.8.21"
+    assertJVersion = "2.0.0"
+    mockitoVersion = "1.10.19"
+    jacocoVersion = "0.7.4.201502262128"
 
     javadocFooterLicense = ""
 }
@@ -60,32 +66,32 @@ subprojects {
         targetCompatibility = 1.8
     }
 
-	tasks.withType(JavaCompile) {
-		options.compilerArgs << "-parameters"
-	}
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-parameters"
+    }
 
-	dependencies {
-		compile "com.google.guava:guava:${guavaVersion}"
-		compile "org.joda:joda-convert:${jodaConvertVersion}"
-		compile "org.joda:joda-beans:${jodaBeansVersion}"
-		compile "org.jooq:jool:${joolVersion}"
-		compile "org.slf4j:slf4j-api:${slf4jVersion}"
-	}
+    dependencies {
+        compile "com.google.guava:guava:${guavaVersion}"
+        compile "org.joda:joda-convert:${jodaConvertVersion}"
+        compile "org.joda:joda-beans:${jodaBeansVersion}"
+        compile "org.jooq:jool:${joolVersion}"
+        compile "org.slf4j:slf4j-api:${slf4jVersion}"
+    }
 
-	task sourcesJar(type: Jar, dependsOn: jar) {
-		classifier = 'sources'
-		from sourceSets.main.allSource
-	}
+    task sourcesJar(type: Jar, dependsOn: jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
         from javadoc.destinationDir
     }
 
-	artifacts {
-		archives sourcesJar
-		archives javadocJar
-	}
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
 
     checkstyle {
         String checkstyleConfiguration = this.class.getResource("/checkstyle/checkstyle.xml").text
@@ -182,19 +188,19 @@ allprojects {
         }
     }
 
-	repositories {
-		mavenLocal()
-		maven {
-			url "http://maven.opengamma.com/nexus/content/groups/public"
-		}
-		maven {
-			url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
-			credentials {
-				username ogNexusUsername
-				password ogNexusPassword
-			}
-		}
-	}
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/public"
+        }
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+    }
 }
 
 if(project.hasProperty("fast"))

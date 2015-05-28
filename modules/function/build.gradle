@@ -1,17 +1,23 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 description = "Function and Integration logic between the engine and pricing"
 
 dependencies {
-	compile project(":engine")
-	compile project(":market")
-	compile project(":basics")
-	compile project(":pricer")
-	compile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'
+    compile project(":engine")
+    compile project(":market")
+    compile project(":basics")
+    compile project(":pricer")
+    compile group: 'com.opengamma.analytics', name: 'og-analytics', version: ogAnalyticsVersion, classifier: 'tests'
 
-	testCompile project(":pricer-testutils")
-	testCompile project(":collect-testutils")
+    testCompile project(":pricer-testutils")
+    testCompile project(":collect-testutils")
 }
 
 javadoc {
-	options.windowTitle = "OpenGamma Strata Function"
-	title = "OpenGamma Strata Function API Documentation"
+    options.windowTitle = "OpenGamma Strata Function"
+    title = "OpenGamma Strata Function API Documentation"
 }

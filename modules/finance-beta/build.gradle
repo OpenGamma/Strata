@@ -1,8 +1,14 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 description = "Entities in financial markets - Beta code, subject to change"
 
 dependencies {
-	compile project(":collect")
-	compile project(":finance")
+    compile project(":collect")
+    compile project(":finance")
 
-	testCompile project(":collect-testutils")
+    testCompile project(":collect-testutils")
 }

@@ -1,15 +1,21 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 description = "Entities describing the financial market"
 
 dependencies {
-	compile project(":basics")
-	compile project(":collect")
-	compile project(":finance")
-	compile ogAnalytics()
+    compile project(":basics")
+    compile project(":collect")
+    compile project(":finance")
+    compile ogAnalytics()
 
-	testCompile project(":collect-testutils")
+    testCompile project(":collect-testutils")
 }
 
 javadoc {
-	options.windowTitle = "OpenGamma Strata Market Data"
-	title = "OpenGamma Strata Market Data API Documentation"
+    options.windowTitle = "OpenGamma Strata Market Data"
+    title = "OpenGamma Strata Market Data API Documentation"
 }

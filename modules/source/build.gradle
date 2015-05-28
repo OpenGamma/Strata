@@ -1,11 +1,17 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 description = "Source, entity identifiers and links"
 
 dependencies {
-	compile project(":collect")
-	testCompile project(":collect-testutils")
+    compile project(":collect")
+    testCompile project(":collect-testutils")
 }
 
 javadoc {
-	options.windowTitle = "OpenGamma Strata Source"
-	title = "OpenGamma Strata Source API Documentation"
+    options.windowTitle = "OpenGamma Strata Source"
+    title = "OpenGamma Strata Source API Documentation"
 }
