@@ -35,12 +35,13 @@ public final class FunctionUtils {
    *
    * @return a collector used to create a {@code MultiCurrencyAmountList} from a stream of {@code MultiCurrencyAmount}
    */
-  public static Collector<MultiCurrencyAmount, ImmutableList.Builder<MultiCurrencyAmount>,
-      MultiCurrencyAmountList> toMultiCurrencyAmountList() {
+  public static Collector<MultiCurrencyAmount, ImmutableList.Builder<MultiCurrencyAmount>, MultiCurrencyAmountList>
+      toMultiCurrencyAmountList() {
 
+    // edited to compile in Eclipse
     return Collector.of(
         ImmutableList.Builder<MultiCurrencyAmount>::new,
-        ImmutableList.Builder<MultiCurrencyAmount>::add,
+        (bld, v) -> bld.add(v),
         (l, r) -> l.addAll(r.build()),
         builder -> MultiCurrencyAmountList.of(builder.build()));
   }
@@ -54,9 +55,10 @@ public final class FunctionUtils {
   public static Collector<CurrencyAmount, ImmutableList.Builder<CurrencyAmount>, CurrencyAmountList>
       toCurrencyAmountList() {
 
+    // edited to compile in Eclipse
     return Collector.of(
         ImmutableList.Builder<CurrencyAmount>::new,
-        ImmutableList.Builder<CurrencyAmount>::add,
+        (bld, v) -> bld.add(v),
         (l, r) -> l.addAll(r.build()),
         builder -> CurrencyAmountList.of(builder.build()));
   }
@@ -102,9 +104,10 @@ public final class FunctionUtils {
    * @return a collector used to create a {@code CurrencyAmountList} from a stream of {@code CurrencyAmount}
    */
   public static <T> Collector<T, List<T>, ScenarioResult<T>> toScenarioResult(boolean convertCurrencies) {
+    // edited to compile in Eclipse
     return Collector.of(
         ArrayList<T>::new,
-        List<T>::add,
+        (a, b) -> a.add(b),
         (l, r) -> { l.addAll(r); return l; },
         list -> buildResult(list, convertCurrencies));
   }
