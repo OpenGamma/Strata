@@ -134,7 +134,7 @@ public final class TermDeposit
         .endDate(end)
         .yearFraction(yearFraction)
         .currency(getCurrency())
-        .principal(buySell.normalize(notional))
+        .notional(buySell.normalize(notional))
         .rate(rate)
         .build();
   }

@@ -9,7 +9,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -99,22 +98,6 @@ public final class ExpandedIborFixingDeposit
   private final double rate;
 
   //-------------------------------------------------------------------------
-  @ImmutableConstructor
-  private ExpandedIborFixingDeposit(ExpandedIborFixingDeposit.Builder builder) {
-    JodaBeanUtils.notNull(builder.startDate, "startDate");
-    JodaBeanUtils.notNull(builder.endDate, "endDate");
-    ArgChecker.inOrderNotEqual(builder.startDate, builder.endDate, "startDate", "endDate");
-    ArgChecker.notNegative(builder.yearFraction, "yearFraction");
-    JodaBeanUtils.notNull(builder.rate, "rate");
-    this.startDate = builder.startDate;
-    this.endDate = builder.endDate;
-    this.yearFraction = builder.yearFraction;
-    this.currency = builder.currency;
-    this.floatingRate = builder.floatingRate;
-    this.notional = builder.notional;
-    this.rate = builder.rate;
-  }
-
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
@@ -156,6 +139,29 @@ public final class ExpandedIborFixingDeposit
    */
   public static ExpandedIborFixingDeposit.Builder builder() {
     return new ExpandedIborFixingDeposit.Builder();
+  }
+
+  private ExpandedIborFixingDeposit(
+      LocalDate startDate,
+      LocalDate endDate,
+      double yearFraction,
+      Currency currency,
+      IborRateObservation floatingRate,
+      double notional,
+      double rate) {
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    ArgChecker.notNegative(yearFraction, "yearFraction");
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(floatingRate, "floatingRate");
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.yearFraction = yearFraction;
+    this.currency = currency;
+    this.floatingRate = floatingRate;
+    this.notional = notional;
+    this.rate = rate;
+    validate();
   }
 
   @Override
@@ -616,7 +622,14 @@ public final class ExpandedIborFixingDeposit
 
     @Override
     public ExpandedIborFixingDeposit build() {
-      return new ExpandedIborFixingDeposit(this);
+      return new ExpandedIborFixingDeposit(
+          startDate,
+          endDate,
+          yearFraction,
+          currency,
+          floatingRate,
+          notional,
+          rate);
     }
 
     //-----------------------------------------------------------------------

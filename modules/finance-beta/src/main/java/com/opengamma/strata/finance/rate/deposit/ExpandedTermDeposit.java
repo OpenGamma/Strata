@@ -80,13 +80,13 @@ public final class ExpandedTermDeposit
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-   * The principal amount.
+   * The notional amount.
    * <p>
    * The amount that is deposited, is a positive signed amount if the term deposit is 'buy',
    * and a negative signed amount if the term deposit is 'sell'.
    */
   @PropertyDefinition
-  private final double principal;
+  private final double notional;
   /**
    * The fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
@@ -114,9 +114,10 @@ public final class ExpandedTermDeposit
     this.endDate = builder.endDate;
     this.yearFraction = builder.yearFraction;
     this.currency = builder.currency;
-    this.principal = builder.principal;
+    this.notional = builder.notional;
     this.rate = builder.rate;
-    interest = (rate * principal * yearFraction);
+    interest = (rate * notional * yearFraction);
+    validate();
   }
 
   @ImmutableValidator
@@ -240,14 +241,14 @@ public final class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the principal amount.
+   * Gets the notional amount.
    * <p>
    * The amount that is deposited, is a positive signed amount if the term deposit is 'buy',
    * and a negative signed amount if the term deposit is 'sell'.
    * @return the value of the property
    */
-  public double getPrincipal() {
-    return principal;
+  public double getNotional() {
+    return notional;
   }
 
   //-----------------------------------------------------------------------
@@ -280,7 +281,7 @@ public final class ExpandedTermDeposit
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getPrincipal(), other.getPrincipal()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
     }
     return false;
@@ -293,7 +294,7 @@ public final class ExpandedTermDeposit
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPrincipal());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
   }
@@ -306,7 +307,7 @@ public final class ExpandedTermDeposit
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("principal").append('=').append(getPrincipal()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
     return buf.toString();
@@ -343,10 +344,10 @@ public final class ExpandedTermDeposit
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", ExpandedTermDeposit.class, Currency.class);
     /**
-     * The meta-property for the {@code principal} property.
+     * The meta-property for the {@code notional} property.
      */
-    private final MetaProperty<Double> principal = DirectMetaProperty.ofImmutable(
-        this, "principal", ExpandedTermDeposit.class, Double.TYPE);
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", ExpandedTermDeposit.class, Double.TYPE);
     /**
      * The meta-property for the {@code rate} property.
      */
@@ -361,7 +362,7 @@ public final class ExpandedTermDeposit
         "endDate",
         "yearFraction",
         "currency",
-        "principal",
+        "notional",
         "rate");
 
     /**
@@ -381,8 +382,8 @@ public final class ExpandedTermDeposit
           return yearFraction;
         case 575402001:  // currency
           return currency;
-        case -1812041682:  // principal
-          return principal;
+        case 1585636160:  // notional
+          return notional;
         case 3493088:  // rate
           return rate;
       }
@@ -438,11 +439,11 @@ public final class ExpandedTermDeposit
     }
 
     /**
-     * The meta-property for the {@code principal} property.
+     * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> principal() {
-      return principal;
+    public MetaProperty<Double> notional() {
+      return notional;
     }
 
     /**
@@ -465,8 +466,8 @@ public final class ExpandedTermDeposit
           return ((ExpandedTermDeposit) bean).getYearFraction();
         case 575402001:  // currency
           return ((ExpandedTermDeposit) bean).getCurrency();
-        case -1812041682:  // principal
-          return ((ExpandedTermDeposit) bean).getPrincipal();
+        case 1585636160:  // notional
+          return ((ExpandedTermDeposit) bean).getNotional();
         case 3493088:  // rate
           return ((ExpandedTermDeposit) bean).getRate();
       }
@@ -494,7 +495,7 @@ public final class ExpandedTermDeposit
     private LocalDate endDate;
     private double yearFraction;
     private Currency currency;
-    private double principal;
+    private double notional;
     private double rate;
 
     /**
@@ -512,7 +513,7 @@ public final class ExpandedTermDeposit
       this.endDate = beanToCopy.getEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
       this.currency = beanToCopy.getCurrency();
-      this.principal = beanToCopy.getPrincipal();
+      this.notional = beanToCopy.getNotional();
       this.rate = beanToCopy.getRate();
     }
 
@@ -528,8 +529,8 @@ public final class ExpandedTermDeposit
           return yearFraction;
         case 575402001:  // currency
           return currency;
-        case -1812041682:  // principal
-          return principal;
+        case 1585636160:  // notional
+          return notional;
         case 3493088:  // rate
           return rate;
         default:
@@ -552,8 +553,8 @@ public final class ExpandedTermDeposit
         case 575402001:  // currency
           this.currency = (Currency) newValue;
           break;
-        case -1812041682:  // principal
-          this.principal = (Double) newValue;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
           break;
         case 3493088:  // rate
           this.rate = (Double) newValue;
@@ -639,12 +640,12 @@ public final class ExpandedTermDeposit
     }
 
     /**
-     * Sets the {@code principal} property in the builder.
-     * @param principal  the new value
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value
      * @return this, for chaining, not null
      */
-    public Builder principal(double principal) {
-      this.principal = principal;
+    public Builder notional(double notional) {
+      this.notional = notional;
       return this;
     }
 
@@ -667,7 +668,7 @@ public final class ExpandedTermDeposit
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("principal").append('=').append(JodaBeanUtils.toString(principal)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
       buf.append('}');
       return buf.toString();

@@ -47,14 +47,14 @@ public class DiscountingTermDepositProductPricerBeta {
     Currency currency = deposit.getCurrency();
     double dfStart = provider.discountFactor(currency, deposit.getStartDate());
     double dfEnd = provider.discountFactor(currency, deposit.getEndDate());
-    double pv = (deposit.getPrincipal() + deposit.getInterest()) * dfEnd - initialAmount(deposit, provider) * dfStart;
+    double pv = (deposit.getNotional() + deposit.getInterest()) * dfEnd - initialAmount(deposit, provider) * dfStart;
     return CurrencyAmount.of(currency, pv);
   }
 
   // the initial amount is the same as the principal, but zero if the start date has passed
   // the caller must negate the result of this method if required
   private double initialAmount(ExpandedTermDeposit deposit, RatesProvider provider) {
-    return provider.getValuationDate().isAfter(deposit.getStartDate()) ? 0d : deposit.getPrincipal();
+    return provider.getValuationDate().isAfter(deposit.getStartDate()) ? 0d : deposit.getNotional();
   }
 
   /**
@@ -69,7 +69,7 @@ public class DiscountingTermDepositProductPricerBeta {
     ExpandedTermDeposit deposit = product.expand();
     Currency currency = deposit.getCurrency();
     // backward sweep
-    double dfEndBar = deposit.getPrincipal() + deposit.getInterest();
+    double dfEndBar = deposit.getNotional() + deposit.getInterest();
     double dfStartBar = -initialAmount(deposit, provider);
     // sensitivity
     DiscountFactors discountFactors = provider.discountFactors(currency);
