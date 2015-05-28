@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Stream;
 
 import com.opengamma.strata.collect.ArgChecker;
@@ -124,6 +125,39 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   public LocalDateDoubleTimeSeriesBuilder put(LocalDateDoublePoint point) {
     ArgChecker.notNull(point, "point");
     put(point.getDate(), point.getValue());
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Merges the specified date/value point into this builder.
+   * <p>
+   * The operator is invoked if the date already exists.
+   *
+   * @param date  the date to be added
+   * @param value  the value associated with the date
+   * @param operator  the operator to use for merging
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder merge(LocalDate date, double value, DoubleBinaryOperator operator) {
+    ArgChecker.notNull(date, "date");
+    ArgChecker.notNull(operator, "operator");
+    entries.merge(date, value, (a, b) -> operator.applyAsDouble(a, b));
+    return this;
+  }
+
+  /**
+   * Merges the specified date/value point into this builder.
+   * <p>
+   * The operator is invoked if the date already exists.
+   *
+   * @param point  the point to be added
+   * @param operator  the operator to use for merging
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder merge(LocalDateDoublePoint point, DoubleBinaryOperator operator) {
+    ArgChecker.notNull(point, "point");
+    entries.merge(point.getDate(), point.getValue(), (a, b) -> operator.applyAsDouble(a, b));
     return this;
   }
 

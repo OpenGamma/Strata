@@ -41,6 +41,23 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_merge_dateValue() {
+    LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
+    test.put(date(2013, 1, 1), 2d);
+    test.merge(date(2013, 1, 1), 3d, Double::sum);
+
+    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(5d));
+  }
+
+  public void test_merge_point() {
+    LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
+    test.put(date(2013, 1, 1), 2d);
+    test.merge(LocalDateDoublePoint.of(date(2013, 1, 1), 3d), Double::sum);
+
+    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(5d));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_putAll_collections() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);

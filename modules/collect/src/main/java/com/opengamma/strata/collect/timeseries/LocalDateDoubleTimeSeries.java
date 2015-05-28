@@ -285,16 +285,24 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
   public abstract LocalDateDoubleTimeSeries filter(ObjDoublePredicate<LocalDate> predicate);
 
   //-------------------------------------------------------------------------
+  // TODO: remove when analytics repo updated
+  @Deprecated
+  public default LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
+    return intersection(other, mapper);
+  }
+
   /**
-   * Combines a pair of time series, extracting the dates common to both and
-   * applying a function to combine the values.
+   * Obtains the intersection of a pair of time series.
+   * <p>
+   * This returns a time-series with the intersection of the dates of the two inputs.
+   * The operator is invoked to combine the values.
    *
    * @param other  the time-series to combine with
    * @param mapper  the function to be used to combine the values
    * @return a new time-series containing the dates in common between the
    *  input series with their values combined together using the function
    */
-  public default LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
+  public default LocalDateDoubleTimeSeries intersection(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
     ArgChecker.notNull(other, "other");
     ArgChecker.notNull(mapper, "mapper");
     return new LocalDateDoubleTimeSeriesBuilder(
@@ -304,6 +312,25 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
                 pt.getDate(),
                 mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
         .build();
+  }
+
+  /**
+   * Obtains the union of a pair of time series.
+   * <p>
+   * This returns a time-series with the union of the dates of the two inputs.
+   * When the same date occurs in both time-series, the operator is invoked to combine the values.
+   *
+   * @param other  the time-series to combine with
+   * @param mapper  the function to be used to combine the values
+   * @return a new time-series containing the dates in common between the
+   *  input series with their values combined together using the function
+   */
+  public default LocalDateDoubleTimeSeries union(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
+    ArgChecker.notNull(other, "other");
+    ArgChecker.notNull(mapper, "mapper");
+    LocalDateDoubleTimeSeriesBuilder builder = new LocalDateDoubleTimeSeriesBuilder(stream());
+    other.stream().forEach(pt -> builder.merge(pt, mapper));
+    return builder.build();
   }
 
   /**
