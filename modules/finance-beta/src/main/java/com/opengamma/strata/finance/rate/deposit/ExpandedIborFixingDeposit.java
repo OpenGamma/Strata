@@ -1,8 +1,3 @@
-/**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
- */
 package com.opengamma.strata.finance.rate.deposit;
 
 import java.io.Serializable;
@@ -14,7 +9,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -28,23 +22,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.IborRateObservation;
 
 /**
- * An expanded term deposit, with information calculated ready for pricing.
+ * An Ibor fixing deposit.
  * <p>
+ * An Ibor fixing deposit is a fictitious financial instrument that provides a floating rate of interest on the 
+ * principal for a specific term, which is effectively an exchange of a fixed rate and a floating rate 
+ * based on an Ibor-like index on the term end date. 
  * <p>
- * A term deposit is a financial instrument that provides a fixed rate of interest on
- * an amount for a specific term.
- * The principal is signed based on the payment at the end date, when the interest is generated.
- * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
- * <p>
- * An {@code ExpandedTermDeposit} contains information based on holiday calendars.
- * If a holiday calendar changes, the adjusted dates may no longer be correct.
- * Care must be taken when placing the expanded form in a cache or persistence layer.
+ * For example, an Ibor fixing deposit involves the exchange of the difference between
+ * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.
+ * The sign of the notional will be positive in this case, as the final payment is being received.
  */
 @BeanDefinition
-public final class ExpandedTermDeposit
-    implements TermDepositProduct, ImmutableBean, Serializable {
+public final class ExpandedIborFixingDeposit
+    implements IborFixingDepositProduct, ImmutableBean, Serializable {
 
   /**
    * The start date of the deposit.
@@ -75,15 +68,25 @@ public final class ExpandedTermDeposit
   /**
    * The currency.
    * <p>
-   * The currency of the deposit.
+   * This is the currency of the deposit and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
+   * The floating rate of interest 
+   * <p>
+   * The floating rate to be paid is based on an Ibor-like index.
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final IborRateObservation floatingRate;
+  /**
    * The notional amount.
    * <p>
-   * The amount that is deposited, is a positive signed amount if the term deposit is 'buy',
-   * and a negative signed amount if the term deposit is 'sell'.
+   * The amount that is deposited, is a positive signed amount if the deposit is 'buy',
+   * and a negative signed amount if the deposit is 'sell'.
    */
   @PropertyDefinition
   private final double notional;
@@ -93,48 +96,11 @@ public final class ExpandedTermDeposit
    */
   @PropertyDefinition
   private final double rate;
-  /**
-   * The accrued interest.
-   * <p>
-   * The interest is {@code rate * principal * yearFraction}, 
-   * thus is a positive signed amount if the term deposit is 'buy',
-   * and a negative signed amount if the term deposit is 'sell'.
-   */
-  private final double interest;  // not a property
 
   //-------------------------------------------------------------------------
-  @ImmutableConstructor
-  private ExpandedTermDeposit(ExpandedTermDeposit.Builder builder) {
-    JodaBeanUtils.notNull(builder.startDate, "startDate");
-    JodaBeanUtils.notNull(builder.endDate, "endDate");
-    ArgChecker.inOrderNotEqual(builder.startDate, builder.endDate, "startDate", "endDate");
-    ArgChecker.notNegative(builder.yearFraction, "yearFraction");
-    JodaBeanUtils.notNull(builder.rate, "rate");
-    this.startDate = builder.startDate;
-    this.endDate = builder.endDate;
-    this.yearFraction = builder.yearFraction;
-    this.currency = builder.currency;
-    this.notional = builder.notional;
-    this.rate = builder.rate;
-    interest = (rate * notional * yearFraction);
-    validate();
-  }
-
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the accrued interest.
-   * <p>
-   * The interest is {@code rate * principal * yearFraction}.
-   * 
-   * @return the accrued interest
-   */
-  public double getInterest() {
-    return interest;
   }
 
   //-------------------------------------------------------------------------
@@ -144,22 +110,22 @@ public final class ExpandedTermDeposit
    * @return this
    */
   @Override
-  public ExpandedTermDeposit expand() {
+  public ExpandedIborFixingDeposit expand() {
     return this;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExpandedTermDeposit}.
+   * The meta-bean for {@code ExpandedIborFixingDeposit}.
    * @return the meta-bean, not null
    */
-  public static ExpandedTermDeposit.Meta meta() {
-    return ExpandedTermDeposit.Meta.INSTANCE;
+  public static ExpandedIborFixingDeposit.Meta meta() {
+    return ExpandedIborFixingDeposit.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ExpandedTermDeposit.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ExpandedIborFixingDeposit.Meta.INSTANCE);
   }
 
   /**
@@ -171,13 +137,36 @@ public final class ExpandedTermDeposit
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static ExpandedTermDeposit.Builder builder() {
-    return new ExpandedTermDeposit.Builder();
+  public static ExpandedIborFixingDeposit.Builder builder() {
+    return new ExpandedIborFixingDeposit.Builder();
+  }
+
+  private ExpandedIborFixingDeposit(
+      LocalDate startDate,
+      LocalDate endDate,
+      double yearFraction,
+      Currency currency,
+      IborRateObservation floatingRate,
+      double notional,
+      double rate) {
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    ArgChecker.notNegative(yearFraction, "yearFraction");
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(floatingRate, "floatingRate");
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.yearFraction = yearFraction;
+    this.currency = currency;
+    this.floatingRate = floatingRate;
+    this.notional = notional;
+    this.rate = rate;
+    validate();
   }
 
   @Override
-  public ExpandedTermDeposit.Meta metaBean() {
-    return ExpandedTermDeposit.Meta.INSTANCE;
+  public ExpandedIborFixingDeposit.Meta metaBean() {
+    return ExpandedIborFixingDeposit.Meta.INSTANCE;
   }
 
   @Override
@@ -232,7 +221,9 @@ public final class ExpandedTermDeposit
   /**
    * Gets the currency.
    * <p>
-   * The currency of the deposit.
+   * This is the currency of the deposit and the currency that payment is made in.
+   * The data model permits this currency to differ from that of the index,
+   * however the two are typically the same.
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -241,10 +232,22 @@ public final class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the floating rate of interest
+   * <p>
+   * The floating rate to be paid is based on an Ibor-like index.
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * @return the value of the property, not null
+   */
+  public IborRateObservation getFloatingRate() {
+    return floatingRate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the notional amount.
    * <p>
-   * The amount that is deposited, is a positive signed amount if the term deposit is 'buy',
-   * and a negative signed amount if the term deposit is 'sell'.
+   * The amount that is deposited, is a positive signed amount if the deposit is 'buy',
+   * and a negative signed amount if the deposit is 'sell'.
    * @return the value of the property
    */
   public double getNotional() {
@@ -276,11 +279,12 @@ public final class ExpandedTermDeposit
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExpandedTermDeposit other = (ExpandedTermDeposit) obj;
+      ExpandedIborFixingDeposit other = (ExpandedIborFixingDeposit) obj;
       return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getFloatingRate(), other.getFloatingRate()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
     }
@@ -294,6 +298,7 @@ public final class ExpandedTermDeposit
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
@@ -301,12 +306,13 @@ public final class ExpandedTermDeposit
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
-    buf.append("ExpandedTermDeposit{");
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("ExpandedIborFixingDeposit{");
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("floatingRate").append('=').append(getFloatingRate()).append(',').append(' ');
     buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
@@ -315,7 +321,7 @@ public final class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ExpandedTermDeposit}.
+   * The meta-bean for {@code ExpandedIborFixingDeposit}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -327,32 +333,37 @@ public final class ExpandedTermDeposit
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", ExpandedTermDeposit.class, LocalDate.class);
+        this, "startDate", ExpandedIborFixingDeposit.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", ExpandedTermDeposit.class, LocalDate.class);
+        this, "endDate", ExpandedIborFixingDeposit.class, LocalDate.class);
     /**
      * The meta-property for the {@code yearFraction} property.
      */
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
-        this, "yearFraction", ExpandedTermDeposit.class, Double.TYPE);
+        this, "yearFraction", ExpandedIborFixingDeposit.class, Double.TYPE);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", ExpandedTermDeposit.class, Currency.class);
+        this, "currency", ExpandedIborFixingDeposit.class, Currency.class);
+    /**
+     * The meta-property for the {@code floatingRate} property.
+     */
+    private final MetaProperty<IborRateObservation> floatingRate = DirectMetaProperty.ofImmutable(
+        this, "floatingRate", ExpandedIborFixingDeposit.class, IborRateObservation.class);
     /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", ExpandedTermDeposit.class, Double.TYPE);
+        this, "notional", ExpandedIborFixingDeposit.class, Double.TYPE);
     /**
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Double> rate = DirectMetaProperty.ofImmutable(
-        this, "rate", ExpandedTermDeposit.class, Double.TYPE);
+        this, "rate", ExpandedIborFixingDeposit.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -362,6 +373,7 @@ public final class ExpandedTermDeposit
         "endDate",
         "yearFraction",
         "currency",
+        "floatingRate",
         "notional",
         "rate");
 
@@ -382,6 +394,8 @@ public final class ExpandedTermDeposit
           return yearFraction;
         case 575402001:  // currency
           return currency;
+        case -2130225658:  // floatingRate
+          return floatingRate;
         case 1585636160:  // notional
           return notional;
         case 3493088:  // rate
@@ -391,13 +405,13 @@ public final class ExpandedTermDeposit
     }
 
     @Override
-    public ExpandedTermDeposit.Builder builder() {
-      return new ExpandedTermDeposit.Builder();
+    public ExpandedIborFixingDeposit.Builder builder() {
+      return new ExpandedIborFixingDeposit.Builder();
     }
 
     @Override
-    public Class<? extends ExpandedTermDeposit> beanType() {
-      return ExpandedTermDeposit.class;
+    public Class<? extends ExpandedIborFixingDeposit> beanType() {
+      return ExpandedIborFixingDeposit.class;
     }
 
     @Override
@@ -439,6 +453,14 @@ public final class ExpandedTermDeposit
     }
 
     /**
+     * The meta-property for the {@code floatingRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<IborRateObservation> floatingRate() {
+      return floatingRate;
+    }
+
+    /**
      * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
      */
@@ -459,17 +481,19 @@ public final class ExpandedTermDeposit
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -2129778896:  // startDate
-          return ((ExpandedTermDeposit) bean).getStartDate();
+          return ((ExpandedIborFixingDeposit) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((ExpandedTermDeposit) bean).getEndDate();
+          return ((ExpandedIborFixingDeposit) bean).getEndDate();
         case -1731780257:  // yearFraction
-          return ((ExpandedTermDeposit) bean).getYearFraction();
+          return ((ExpandedIborFixingDeposit) bean).getYearFraction();
         case 575402001:  // currency
-          return ((ExpandedTermDeposit) bean).getCurrency();
+          return ((ExpandedIborFixingDeposit) bean).getCurrency();
+        case -2130225658:  // floatingRate
+          return ((ExpandedIborFixingDeposit) bean).getFloatingRate();
         case 1585636160:  // notional
-          return ((ExpandedTermDeposit) bean).getNotional();
+          return ((ExpandedIborFixingDeposit) bean).getNotional();
         case 3493088:  // rate
-          return ((ExpandedTermDeposit) bean).getRate();
+          return ((ExpandedIborFixingDeposit) bean).getRate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -487,14 +511,15 @@ public final class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ExpandedTermDeposit}.
+   * The bean-builder for {@code ExpandedIborFixingDeposit}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedTermDeposit> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedIborFixingDeposit> {
 
     private LocalDate startDate;
     private LocalDate endDate;
     private double yearFraction;
     private Currency currency;
+    private IborRateObservation floatingRate;
     private double notional;
     private double rate;
 
@@ -508,11 +533,12 @@ public final class ExpandedTermDeposit
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(ExpandedTermDeposit beanToCopy) {
+    private Builder(ExpandedIborFixingDeposit beanToCopy) {
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
       this.currency = beanToCopy.getCurrency();
+      this.floatingRate = beanToCopy.getFloatingRate();
       this.notional = beanToCopy.getNotional();
       this.rate = beanToCopy.getRate();
     }
@@ -529,6 +555,8 @@ public final class ExpandedTermDeposit
           return yearFraction;
         case 575402001:  // currency
           return currency;
+        case -2130225658:  // floatingRate
+          return floatingRate;
         case 1585636160:  // notional
           return notional;
         case 3493088:  // rate
@@ -552,6 +580,9 @@ public final class ExpandedTermDeposit
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
+          break;
+        case -2130225658:  // floatingRate
+          this.floatingRate = (IborRateObservation) newValue;
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
@@ -590,8 +621,15 @@ public final class ExpandedTermDeposit
     }
 
     @Override
-    public ExpandedTermDeposit build() {
-      return new ExpandedTermDeposit(this);
+    public ExpandedIborFixingDeposit build() {
+      return new ExpandedIborFixingDeposit(
+          startDate,
+          endDate,
+          yearFraction,
+          currency,
+          floatingRate,
+          notional,
+          rate);
     }
 
     //-----------------------------------------------------------------------
@@ -640,6 +678,17 @@ public final class ExpandedTermDeposit
     }
 
     /**
+     * Sets the {@code floatingRate} property in the builder.
+     * @param floatingRate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder floatingRate(IborRateObservation floatingRate) {
+      JodaBeanUtils.notNull(floatingRate, "floatingRate");
+      this.floatingRate = floatingRate;
+      return this;
+    }
+
+    /**
      * Sets the {@code notional} property in the builder.
      * @param notional  the new value
      * @return this, for chaining, not null
@@ -662,12 +711,13 @@ public final class ExpandedTermDeposit
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
-      buf.append("ExpandedTermDeposit.Builder{");
+      StringBuilder buf = new StringBuilder(256);
+      buf.append("ExpandedIborFixingDeposit.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("floatingRate").append('=').append(JodaBeanUtils.toString(floatingRate)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
       buf.append('}');
