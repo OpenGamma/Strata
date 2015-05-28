@@ -148,7 +148,7 @@ public class CalculationTask {
       Object convertedValue = convertible.convertedTo(reportingCurrency, marketData);
       return Result.success(convertedValue);
     } catch (RuntimeException e) {
-      return Result.failure(FailureReason.ERROR, "Failed to convert value {} to currency {}", value, reportingCurrency);
+      return Result.failure(FailureReason.ERROR, e, "Failed to convert value {} to currency {}", value, reportingCurrency);
     }
   }
 }

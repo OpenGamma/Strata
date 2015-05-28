@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsM
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
@@ -187,11 +187,8 @@ public class SwapPricingTest {
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();
 
-    List<?> scenarioResults = (List<?>) result.getValue();
-    assertThat(scenarioResults.size()).isEqualTo(1);
-
-    MultiCurrencyAmount pv = (MultiCurrencyAmount) scenarioResults.get(0);
-    assertThat(pv.getAmount(USD).getAmount()).isCloseTo(-1003684.8402, offset(TOLERANCE_PV));
+    CurrencyAmount pv = (CurrencyAmount) result.getValue();
+    assertThat(pv.getAmount()).isCloseTo(-1003684.8402, offset(TOLERANCE_PV));
   }
 
   private static RateCalculationSwapLeg fixedLeg(

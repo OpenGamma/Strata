@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -108,7 +109,10 @@ public class SwapPricingExample {
     // configured to load from JSON resources. We could alternatively populate the snapshot
     // with some or all of the required market data here.
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    BaseMarketData baseMarketData = BaseMarketData.empty(valuationDate);
+    // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
+    BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
+        .build();
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();

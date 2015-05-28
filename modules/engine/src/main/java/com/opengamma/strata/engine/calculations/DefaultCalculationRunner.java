@@ -20,8 +20,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.Column;
+import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -92,7 +94,16 @@ public class DefaultCalculationRunner implements CalculationRunner {
 
   @Override
   public Results calculate(CalculationTasks tasks, BaseMarketData marketData) {
-    return calculate(tasks, ScenarioMarketData.of(marketData));
+    // perform the calculations
+    Results results = calculate(tasks, ScenarioMarketData.of(marketData));
+
+    // Unwrap the results - there is only one scenario so there is no need to
+    // return a container with one result in each cell.
+    List<Result<?>> unwrappedResults = results.getItems().stream()
+        .map(DefaultCalculationRunner::unwrapScenarioResult)
+        .collect(toImmutableList());
+
+    return results.toBuilder().items(unwrappedResults).build();
   }
 
   @Override
@@ -104,7 +115,9 @@ public class DefaultCalculationRunner implements CalculationRunner {
 
   @Override
   public void calculateAsync(CalculationTasks tasks, BaseMarketData marketData, CalculationListener listener) {
-    calculateAsync(tasks, ScenarioMarketData.of(marketData), listener);
+    // The listener is decorated to unwrap ScenarioResults containing a single result
+    UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
+    calculateAsync(tasks, ScenarioMarketData.of(marketData), unwrappingListener);
   }
 
   @Override
@@ -117,6 +130,40 @@ public class DefaultCalculationRunner implements CalculationRunner {
   private void runTask(CalculationTask task, ScenarioMarketData marketData, Consumer<CalculationResult> consumer) {
     // Submits a task to the executor to be run. The result of the task is passed to consumer.accept()
     CompletableFuture.supplyAsync(() -> task.execute(marketData), executor).thenAccept(consumer::accept);
+  }
+
+  /**
+   * Unwraps the result from an instance of {@link ScenarioResult} containing a single result.
+   * <p>
+   * When the user executes a single scenario the functions are invoked with a set of scenario market data
+   * of size 1. This means the functions are simpler and always deal with scenarios. But if the user has
+   * asked for a single set of results they don't want to see a collection of size 1 so the scenario results
+   * need to be unwrapped.
+   * <p>
+   * If {@code result} is a failure or doesn't contain a {@code ScenarioResult} it is returned.
+   * <p>
+   * If this method is called with a {@code ScenarioResult} containing more than one value it throws
+   * an exception.
+   */
+  private static Result<?> unwrapScenarioResult(Result<?> result) {
+    if (result.isFailure()) {
+      return result;
+    }
+    Object value = result.getValue();
+
+    if (!(value instanceof ScenarioResult)) {
+      return result;
+    }
+    ScenarioResult<?> scenarioResult = (ScenarioResult) value;
+
+    if (scenarioResult.size() != 1) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Expected one result but found {} in {}",
+              scenarioResult.size(),
+              scenarioResult));
+    }
+    return Result.success(scenarioResult.get(0));
   }
 
   /**
@@ -276,5 +323,31 @@ public class DefaultCalculationRunner implements CalculationRunner {
      * @return a consumer to deliver messages to the listener
      */
     public abstract Consumer<CalculationResult> create(CalculationListener listener, int totalResultsCount);
+  }
+
+  /**
+   * Listener that decorates another listener and unwraps {@link ScenarioResult} instances
+   * containing a single value before passing the value to the delegate listener.
+   */
+  private static final class UnwrappingListener implements CalculationListener {
+
+    private final CalculationListener delegate;
+
+    private UnwrappingListener(CalculationListener delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void resultReceived(CalculationResult calculationResult) {
+      Result<?> result = calculationResult.getResult();
+      Result<?> unwrappedResult = unwrapScenarioResult(result);
+      CalculationResult unwrappedCalculationResult = calculationResult.toBuilder().result(unwrappedResult).build();
+      delegate.resultReceived(unwrappedCalculationResult);
+    }
+
+    @Override
+    public void calculationsComplete() {
+      delegate.calculationsComplete();
+    }
   }
 }
