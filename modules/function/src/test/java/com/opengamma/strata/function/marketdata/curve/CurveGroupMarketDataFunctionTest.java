@@ -8,6 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
@@ -67,10 +68,13 @@ import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
+import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
@@ -131,10 +135,11 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
     YieldAndDiscountCurve curve = curveGroup.getMulticurveProvider().getCurve(Currency.USD);
+    DiscountFactors df = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, ACT_ACT_ISDA, Legacy.curve(curve));
 
-    DiscountCurveKey discountingCurveKey = DiscountCurveKey.of(Currency.USD);
+    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
-    Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.of(discountingCurveKey, curve, forwardCurveKey, curve);
+    Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.of(discountFactorsKey, df, forwardCurveKey, curve);
     // TODO Is a time series actually necessary for FRAs? It's in the requirements so we have to provide it.
     Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =
         ImmutableMap.of(IndexRateKey.of(IborIndices.USD_LIBOR_3M), LocalDateDoubleTimeSeries.empty());
@@ -202,13 +207,14 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
     YieldAndDiscountCurve curve = curveGroup.getMulticurveProvider().getCurve(Currency.USD);
+    DiscountFactors df = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, ACT_ACT_ISDA, Legacy.curve(curve));
 
-    DiscountCurveKey discountCurveKey = DiscountCurveKey.of(Currency.USD);
+    DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
-        .put(discountCurveKey, curve)
+        .put(discountFactorsKey, df)
         .put(forwardCurveKey, curve)
         .build();
     Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =

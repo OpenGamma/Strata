@@ -21,7 +21,7 @@ import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxNonDeliverableForwardProductPricerBeta;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -73,8 +73,8 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
     Currency settleCurrency = fx.getSettlementCurrency();
     Currency otherCurrency = fx.getNonDeliverableCurrency();
 
-    Set<DiscountCurveKey> discountCurveKeys = ImmutableSet.of(
-        DiscountCurveKey.of(settleCurrency), DiscountCurveKey.of(otherCurrency));
+    Set<DiscountFactorsKey> discountCurveKeys =
+        ImmutableSet.of(DiscountFactorsKey.of(settleCurrency), DiscountFactorsKey.of(otherCurrency));
 
     return CalculationRequirements.builder()
         .singleValueRequirements(discountCurveKeys)

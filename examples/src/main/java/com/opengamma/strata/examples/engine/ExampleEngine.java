@@ -17,9 +17,10 @@ import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.examples.marketdata.ExampleDiscountingCurveFunction;
+import com.opengamma.strata.examples.marketdata.ExampleDiscountCurveFunction;
 import com.opengamma.strata.examples.marketdata.ExampleForwardCurveFunction;
 import com.opengamma.strata.examples.marketdata.ExampleTimeSeriesProvider;
+import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
 
 /**
  * Contains utility methods for obtaining a calculation engine configured for use
@@ -50,13 +51,15 @@ public final class ExampleEngine {
 
     // create the market data factory, that builds market data
     ExampleTimeSeriesProvider timeSeriesProvider = new ExampleTimeSeriesProvider();
-    ExampleDiscountingCurveFunction discountingCurveBuilder = new ExampleDiscountingCurveFunction();
+    ExampleDiscountCurveFunction discountCurveBuilder = new ExampleDiscountCurveFunction();
+    ZeroRateDiscountFactorsMarketDataFunction discountFactorsBuilder = new ZeroRateDiscountFactorsMarketDataFunction();
     ExampleForwardCurveFunction forwardCurveBuilder = new ExampleForwardCurveFunction();
     MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
         timeSeriesProvider,
         ObservableMarketDataFunction.none(),
         FeedIdMapping.identity(),
-        discountingCurveBuilder,
+        discountCurveBuilder,
+        discountFactorsBuilder,
         forwardCurveBuilder);
 
     // combine the runner and market data factory

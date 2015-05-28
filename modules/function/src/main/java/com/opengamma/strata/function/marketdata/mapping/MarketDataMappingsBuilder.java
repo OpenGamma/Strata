@@ -62,6 +62,7 @@ public class MarketDataMappingsBuilder {
     ArgChecker.notNull(curveGroupName, "curveGroupName");
     mappings.add(DiscountingCurveMapping.of(curveGroupName, marketDataFeed));
     mappings.add(RateIndexCurveMapping.of(curveGroupName, marketDataFeed));
+    mappings.add(ZeroRateDiscountFactorsMapping.of(curveGroupName, marketDataFeed));
     return this;
   }
 

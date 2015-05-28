@@ -71,6 +71,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -97,6 +98,7 @@ public class SwapPricingTest {
   // tolerance
   private static final double TOLERANCE_PV = 1.0E-4;
 
+  //-------------------------------------------------------------------------
   public void presentValueVanillaFixedVsLibor1mSwap() {
     RateCalculationSwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), Frequency.P6M, PayReceive.PAY, NOTIONAL, 0.0125, null);
@@ -164,6 +166,7 @@ public class SwapPricingTest {
             ObservableMarketDataFunction.none(),
             FeedIdMapping.identity(),
             new DiscountingCurveMarketDataFunction(),
+            new ZeroRateDiscountFactorsMarketDataFunction(),
             new RateIndexCurveMarketDataFunction());
 
     List<SwapTrade> trades = ImmutableList.of(trade);
@@ -218,6 +221,7 @@ public class SwapPricingTest {
         .build();
   }
 
+  //-------------------------------------------------------------------------
   // use a fixed known set of holiday dates to ensure tests produce same numbers
   private static IborIndex lockIndexCalendar(IborIndex index) {
     return ((ImmutableIborIndex) index).toBuilder()
