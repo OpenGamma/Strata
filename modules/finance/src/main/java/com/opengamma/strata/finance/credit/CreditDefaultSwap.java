@@ -1,11 +1,10 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.finance.credit;
 
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
@@ -40,12 +39,6 @@ import java.util.Set;
 @BeanDefinition
 public final class CreditDefaultSwap
     implements CreditDefaultSwapProduct, ImmutableBean, Serializable {
-
-  /**
-   * security identifier
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId standardId;
 
   /**
    * This element contains all the data that appears in the section entitled "1. General Terms"
@@ -87,13 +80,11 @@ public final class CreditDefaultSwap
   }
 
   public static CreditDefaultSwap of(
-      StandardId standardId,
       GeneralTerms generalTerms,
       FeeLeg feeLeg,
       ProtectionTerms protectionTerms
   ) {
     return builder()
-        .standardId(standardId)
         .generalTerms(generalTerms)
         .feeLeg(feeLeg)
         .protectionTerms(protectionTerms)
@@ -129,15 +120,12 @@ public final class CreditDefaultSwap
   }
 
   private CreditDefaultSwap(
-      StandardId standardId,
       GeneralTerms generalTerms,
       FeeLeg feeLeg,
       ProtectionTerms protectionTerms) {
-    JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(generalTerms, "generalTerms");
     JodaBeanUtils.notNull(feeLeg, "feeLeg");
     JodaBeanUtils.notNull(protectionTerms, "protectionTerms");
-    this.standardId = standardId;
     this.generalTerms = generalTerms;
     this.feeLeg = feeLeg;
     this.protectionTerms = protectionTerms;
@@ -156,15 +144,6 @@ public final class CreditDefaultSwap
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets security identifier
-   * @return the value of the property, not null
-   */
-  public StandardId getStandardId() {
-    return standardId;
   }
 
   //-----------------------------------------------------------------------
@@ -214,8 +193,7 @@ public final class CreditDefaultSwap
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CreditDefaultSwap other = (CreditDefaultSwap) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getGeneralTerms(), other.getGeneralTerms()) &&
+      return JodaBeanUtils.equal(getGeneralTerms(), other.getGeneralTerms()) &&
           JodaBeanUtils.equal(getFeeLeg(), other.getFeeLeg()) &&
           JodaBeanUtils.equal(getProtectionTerms(), other.getProtectionTerms());
     }
@@ -225,7 +203,6 @@ public final class CreditDefaultSwap
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getGeneralTerms());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFeeLeg());
     hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionTerms());
@@ -234,9 +211,8 @@ public final class CreditDefaultSwap
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CreditDefaultSwap{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
     buf.append("generalTerms").append('=').append(getGeneralTerms()).append(',').append(' ');
     buf.append("feeLeg").append('=').append(getFeeLeg()).append(',').append(' ');
     buf.append("protectionTerms").append('=').append(JodaBeanUtils.toString(getProtectionTerms()));
@@ -254,11 +230,6 @@ public final class CreditDefaultSwap
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code standardId} property.
-     */
-    private final MetaProperty<StandardId> standardId = DirectMetaProperty.ofImmutable(
-        this, "standardId", CreditDefaultSwap.class, StandardId.class);
     /**
      * The meta-property for the {@code generalTerms} property.
      */
@@ -279,7 +250,6 @@ public final class CreditDefaultSwap
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "standardId",
         "generalTerms",
         "feeLeg",
         "protectionTerms");
@@ -293,8 +263,6 @@ public final class CreditDefaultSwap
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return standardId;
         case 1474273663:  // generalTerms
           return generalTerms;
         case -1278433112:  // feeLeg
@@ -321,14 +289,6 @@ public final class CreditDefaultSwap
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code standardId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> standardId() {
-      return standardId;
-    }
-
     /**
      * The meta-property for the {@code generalTerms} property.
      * @return the meta-property, not null
@@ -357,8 +317,6 @@ public final class CreditDefaultSwap
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return ((CreditDefaultSwap) bean).getStandardId();
         case 1474273663:  // generalTerms
           return ((CreditDefaultSwap) bean).getGeneralTerms();
         case -1278433112:  // feeLeg
@@ -386,7 +344,6 @@ public final class CreditDefaultSwap
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CreditDefaultSwap> {
 
-    private StandardId standardId;
     private GeneralTerms generalTerms;
     private FeeLeg feeLeg;
     private ProtectionTerms protectionTerms;
@@ -402,7 +359,6 @@ public final class CreditDefaultSwap
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CreditDefaultSwap beanToCopy) {
-      this.standardId = beanToCopy.getStandardId();
       this.generalTerms = beanToCopy.getGeneralTerms();
       this.feeLeg = beanToCopy.getFeeLeg();
       this.protectionTerms = beanToCopy.getProtectionTerms();
@@ -412,8 +368,6 @@ public final class CreditDefaultSwap
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return standardId;
         case 1474273663:  // generalTerms
           return generalTerms;
         case -1278433112:  // feeLeg
@@ -428,9 +382,6 @@ public final class CreditDefaultSwap
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          this.standardId = (StandardId) newValue;
-          break;
         case 1474273663:  // generalTerms
           this.generalTerms = (GeneralTerms) newValue;
           break;
@@ -473,24 +424,12 @@ public final class CreditDefaultSwap
     @Override
     public CreditDefaultSwap build() {
       return new CreditDefaultSwap(
-          standardId,
           generalTerms,
           feeLeg,
           protectionTerms);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code standardId} property in the builder.
-     * @param standardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder standardId(StandardId standardId) {
-      JodaBeanUtils.notNull(standardId, "standardId");
-      this.standardId = standardId;
-      return this;
-    }
-
     /**
      * Sets the {@code generalTerms} property in the builder.
      * @param generalTerms  the new value, not null
@@ -527,9 +466,8 @@ public final class CreditDefaultSwap
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("CreditDefaultSwap.Builder{");
-      buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("generalTerms").append('=').append(JodaBeanUtils.toString(generalTerms)).append(',').append(' ');
       buf.append("feeLeg").append('=').append(JodaBeanUtils.toString(feeLeg)).append(',').append(' ');
       buf.append("protectionTerms").append('=').append(JodaBeanUtils.toString(protectionTerms));

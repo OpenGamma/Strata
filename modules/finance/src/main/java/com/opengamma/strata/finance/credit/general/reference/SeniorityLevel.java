@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p>
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.finance.credit.general.reference;
 
 /**
@@ -7,11 +12,30 @@ package com.opengamma.strata.finance.credit.general.reference;
  */
 public enum SeniorityLevel {
 
-  SeniorSec("SECDOM", true), // Senior domestic (RED Tier Code: SECDOM).
-  SeniorUnSec("SNRFOR", true), // Senior foreign (RED Tier Code: SNRFOR).
-  SubLowerTier2("SUBLT2", false), // Subordinate, Lower Tier 2 (RED Tier Code: SUBLT2).
-  SubTier1("PREFT1", false), // Subordinate Tier 1 (RED Tier Code: PREFT1).
-  SubUpperTier2("JRSUBUT2", false); // Subordinate, Upper Tier 2 (RED Tier Code: JRSUBUT2).
+  /**
+   * Senior domestic (RED Tier Code: SECDOM).
+   */
+  SeniorSec("SECDOM", true),
+
+  /**
+   * Senior foreign (RED Tier Code: SNRFOR).
+   */
+  SeniorUnSec("SNRFOR", true),
+
+  /**
+   * Subordinate, Lower Tier 2 (RED Tier Code: SUBLT2).
+   */
+  SubLowerTier2("SUBLT2", false),
+
+  /**
+   * Subordinate Tier 1 (RED Tier Code: PREFT1).
+   */
+  SubTier1("PREFT1", false),
+
+  /**
+   * Subordinate, Upper Tier 2 (RED Tier Code: JRSUBUT2).
+   */
+  SubUpperTier2("JRSUBUT2", false);
 
   private String redTierCode;
   private boolean isSenior;
@@ -21,11 +45,17 @@ public enum SeniorityLevel {
     this.isSenior = isSenior;
   }
 
-  String getRedTierCode() {
+  /**
+   * @return Common Markit/RED abbreviation
+   */
+  public String getRedTierCode() {
     return redTierCode;
   }
 
-  boolean isSenior() {
+  /**
+   * @return whether this is a senior issue or not, which will drive the recovery rate applied in pricing
+   */
+  public boolean isSenior() {
     return isSenior;
   }
 

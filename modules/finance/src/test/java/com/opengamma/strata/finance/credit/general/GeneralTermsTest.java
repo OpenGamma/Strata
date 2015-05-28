@@ -9,8 +9,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.REDCode;
+import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformationType;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import org.testng.annotations.Test;
@@ -31,7 +30,6 @@ public class GeneralTermsTest {
 
   private LocalDate start = LocalDate.of(2014, 6, 20);
   private LocalDate end = LocalDate.of(2019, 6, 20);
-  private BuyerConvention convention = BuyerConvention.PROTECTION;
   private BusinessDayAdjustment adjustment = BusinessDayAdjustment.of(
       BusinessDayConventions.FOLLOWING,
       HolidayCalendars.USNY.combineWith(HolidayCalendars.GBLO)
@@ -45,9 +43,8 @@ public class GeneralTermsTest {
     return GeneralTerms.singleName(
         start,
         end,
-        convention,
         adjustment,
-        REDCode.of("3H98A7"),
+        RedCode.of("3H98A7"),
         "Ford Motor Company",
         Currency.USD,
         SeniorityLevel.SeniorUnSec
@@ -58,9 +55,8 @@ public class GeneralTermsTest {
     return GeneralTerms.index(
         start,
         end,
-        convention,
         adjustment,
-        REDCode.of("2I65BYCL7"),
+        RedCode.of("2I65BYCL7"),
         "CDX.NA.IG.15",
         15,
         1
@@ -70,7 +66,6 @@ public class GeneralTermsTest {
   public void test_builder_singlename() {
     assertEquals(singleNameTest.getEffectiveDate(), start);
     assertEquals(singleNameTest.getScheduledTerminationDate(), end);
-    assertEquals(singleNameTest.getBuyerConvention(), convention);
     assertEquals(singleNameTest.getDateAdjustments(), adjustment);
     assertEquals(singleNameTest.getReferenceInformation().getType(), ReferenceInformationType.SINGLE_NAME);
   }
@@ -78,16 +73,15 @@ public class GeneralTermsTest {
   public void test_builder_index() {
     assertEquals(indexTest.getEffectiveDate(), start);
     assertEquals(indexTest.getScheduledTerminationDate(), end);
-    assertEquals(indexTest.getBuyerConvention(), convention);
     assertEquals(indexTest.getDateAdjustments(), adjustment);
     assertEquals(indexTest.getReferenceInformation().getType(), ReferenceInformationType.INDEX);
   }
 
   public void test_of_null() {
-    assertThrowsIllegalArg(() -> GeneralTerms.singleName(null, null, null, null, null, null, null, null));
-    assertThrowsIllegalArg(() -> GeneralTerms.singleName(start, end, convention, adjustment, null, null, null, null));
-    assertThrowsIllegalArg(() -> GeneralTerms.index(null, null, null, null, null, null, 0, 0));
-    assertThrowsIllegalArg(() -> GeneralTerms.index(start, end, convention, adjustment, null, null, 0, 0));
+    assertThrowsIllegalArg(() -> GeneralTerms.singleName(null, null, null, null, null, null, null));
+    assertThrowsIllegalArg(() -> GeneralTerms.singleName(start, end, adjustment, null, null, null, null));
+    assertThrowsIllegalArg(() -> GeneralTerms.index(null, null, null, null, null, 0, 0));
+    assertThrowsIllegalArg(() -> GeneralTerms.index(start, end, adjustment, null, null, 0, 0));
   }
 
   //-------------------------------------------------------------------------

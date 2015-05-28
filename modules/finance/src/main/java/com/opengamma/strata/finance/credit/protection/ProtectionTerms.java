@@ -1,26 +1,26 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.finance.credit.protection;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * This element contains all the terms relevant to defining the applicable floating rate payer
@@ -30,11 +30,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class ProtectionTerms
     implements ImmutableBean, Serializable {
 
-    /**
-     * The notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount
-     */
-    @PropertyDefinition(validate = "notNull")
-    final double calculationAmount;
+  /**
+   * The notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount
+   */
+  @PropertyDefinition(validate = "notNull")
+  final double calculationAmount;
 
   /**
    * Specifies the type of restructuring that is applicable.

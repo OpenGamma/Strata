@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p>
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.finance.credit.protection;
 
 /**
@@ -15,6 +20,7 @@ public enum RestructuringClause {
    */
 
   ModModR("MM"),
+  ModModR14("MM14"),
 
   /**
    * Restructuring (Section 4.7) and Restructuring Maturity Limitation and Fully
@@ -23,6 +29,7 @@ public enum RestructuringClause {
    */
 
   ModR("MR"),
+  ModR14("MR14"),
 
   /**
    * Restructuring as defined in the applicable ISDA Credit Derivatives Definitions. (2003 or 2014).
@@ -30,12 +37,15 @@ public enum RestructuringClause {
    */
 
   R("CR"),
+  R14("CR14"),
 
   /**
+   * No restructuring. (2003 or 2014).
    * Ex-Restructuring
    */
 
-  XR("XR");
+  XR("XR"),
+  XR14("XR14");
 
   private String markitNotation;
 
@@ -43,6 +53,9 @@ public enum RestructuringClause {
     this.markitNotation = markitNotation;
   }
 
+  /**
+   * @return common Markit/RED notation
+   */
   public String getMarkitNotation() {
     return markitNotation;
   }
