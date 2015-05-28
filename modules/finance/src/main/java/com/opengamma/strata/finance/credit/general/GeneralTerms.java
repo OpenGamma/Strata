@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.credit.general;
 
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.finance.credit.common.RedCode;
@@ -53,6 +54,14 @@ public final class GeneralTerms
   final LocalDate scheduledTerminationDate;
 
   /**
+   * Indicator of whether we are buying or selling protection
+   * Buy means we are paying the fee leg payments and buying the protection
+   * Sell means we are receiving the fee leg payments and selling the protection
+   */
+  @PropertyDefinition(validate = "notNull")
+  final BuySell buySellProtection;
+
+  /**
    * ISDA 2003 Terms: Business Day and Business Day Convention
    */
   @PropertyDefinition(validate = "notNull")
@@ -68,6 +77,7 @@ public final class GeneralTerms
   public static GeneralTerms singleName(
       LocalDate effectiveDate,
       LocalDate scheduledTerminationDate,
+      BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
       RedCode referenceEntityId,
       String referenceEntityName,
@@ -77,6 +87,7 @@ public final class GeneralTerms
     return new GeneralTerms(
         effectiveDate,
         scheduledTerminationDate,
+        buySellProtection,
         businessDayAdjustment,
         SingleNameReferenceInformation.of(
             referenceEntityName,
@@ -90,6 +101,7 @@ public final class GeneralTerms
   public static GeneralTerms index(
       LocalDate effectiveDate,
       LocalDate scheduledTerminationDate,
+      BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
       RedCode indexId,
       String indexName,
@@ -99,6 +111,7 @@ public final class GeneralTerms
     return new GeneralTerms(
         effectiveDate,
         scheduledTerminationDate,
+        buySellProtection,
         businessDayAdjustment,
         IndexReferenceInformation.of(
             indexName,
@@ -139,14 +152,17 @@ public final class GeneralTerms
   private GeneralTerms(
       LocalDate effectiveDate,
       LocalDate scheduledTerminationDate,
+      BuySell buySellProtection,
       BusinessDayAdjustment dateAdjustments,
       ReferenceInformation referenceInformation) {
     JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
     JodaBeanUtils.notNull(scheduledTerminationDate, "scheduledTerminationDate");
+    JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
     JodaBeanUtils.notNull(dateAdjustments, "dateAdjustments");
     JodaBeanUtils.notNull(referenceInformation, "referenceInformation");
     this.effectiveDate = effectiveDate;
     this.scheduledTerminationDate = scheduledTerminationDate;
+    this.buySellProtection = buySellProtection;
     this.dateAdjustments = dateAdjustments;
     this.referenceInformation = referenceInformation;
   }
@@ -188,6 +204,17 @@ public final class GeneralTerms
 
   //-----------------------------------------------------------------------
   /**
+   * Gets indicator of whether we are buying or selling protection
+   * Buy means we are paying the fee leg payments and buying the protection
+   * Sell means we are receiving the fee leg payments and selling the protection
+   * @return the value of the property, not null
+   */
+  public BuySell getBuySellProtection() {
+    return buySellProtection;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets iSDA 2003 Terms: Business Day and Business Day Convention
    * @return the value of the property, not null
    */
@@ -223,6 +250,7 @@ public final class GeneralTerms
       GeneralTerms other = (GeneralTerms) obj;
       return JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
           JodaBeanUtils.equal(getScheduledTerminationDate(), other.getScheduledTerminationDate()) &&
+          JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
           JodaBeanUtils.equal(getDateAdjustments(), other.getDateAdjustments()) &&
           JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation());
     }
@@ -234,6 +262,7 @@ public final class GeneralTerms
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getScheduledTerminationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDateAdjustments());
     hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
     return hash;
@@ -241,10 +270,11 @@ public final class GeneralTerms
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("GeneralTerms{");
     buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
     buf.append("scheduledTerminationDate").append('=').append(getScheduledTerminationDate()).append(',').append(' ');
+    buf.append("buySellProtection").append('=').append(getBuySellProtection()).append(',').append(' ');
     buf.append("dateAdjustments").append('=').append(getDateAdjustments()).append(',').append(' ');
     buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(getReferenceInformation()));
     buf.append('}');
@@ -272,6 +302,11 @@ public final class GeneralTerms
     private final MetaProperty<LocalDate> scheduledTerminationDate = DirectMetaProperty.ofImmutable(
         this, "scheduledTerminationDate", GeneralTerms.class, LocalDate.class);
     /**
+     * The meta-property for the {@code buySellProtection} property.
+     */
+    private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
+        this, "buySellProtection", GeneralTerms.class, BuySell.class);
+    /**
      * The meta-property for the {@code dateAdjustments} property.
      */
     private final MetaProperty<BusinessDayAdjustment> dateAdjustments = DirectMetaProperty.ofImmutable(
@@ -288,6 +323,7 @@ public final class GeneralTerms
         this, null,
         "effectiveDate",
         "scheduledTerminationDate",
+        "buySellProtection",
         "dateAdjustments",
         "referenceInformation");
 
@@ -304,6 +340,8 @@ public final class GeneralTerms
           return effectiveDate;
         case -1325141915:  // scheduledTerminationDate
           return scheduledTerminationDate;
+        case -405622799:  // buySellProtection
+          return buySellProtection;
         case 1942192152:  // dateAdjustments
           return dateAdjustments;
         case -2117930783:  // referenceInformation
@@ -345,6 +383,14 @@ public final class GeneralTerms
     }
 
     /**
+     * The meta-property for the {@code buySellProtection} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BuySell> buySellProtection() {
+      return buySellProtection;
+    }
+
+    /**
      * The meta-property for the {@code dateAdjustments} property.
      * @return the meta-property, not null
      */
@@ -368,6 +414,8 @@ public final class GeneralTerms
           return ((GeneralTerms) bean).getEffectiveDate();
         case -1325141915:  // scheduledTerminationDate
           return ((GeneralTerms) bean).getScheduledTerminationDate();
+        case -405622799:  // buySellProtection
+          return ((GeneralTerms) bean).getBuySellProtection();
         case 1942192152:  // dateAdjustments
           return ((GeneralTerms) bean).getDateAdjustments();
         case -2117930783:  // referenceInformation
@@ -395,6 +443,7 @@ public final class GeneralTerms
 
     private LocalDate effectiveDate;
     private LocalDate scheduledTerminationDate;
+    private BuySell buySellProtection;
     private BusinessDayAdjustment dateAdjustments;
     private ReferenceInformation referenceInformation;
 
@@ -411,6 +460,7 @@ public final class GeneralTerms
     private Builder(GeneralTerms beanToCopy) {
       this.effectiveDate = beanToCopy.getEffectiveDate();
       this.scheduledTerminationDate = beanToCopy.getScheduledTerminationDate();
+      this.buySellProtection = beanToCopy.getBuySellProtection();
       this.dateAdjustments = beanToCopy.getDateAdjustments();
       this.referenceInformation = beanToCopy.getReferenceInformation();
     }
@@ -423,6 +473,8 @@ public final class GeneralTerms
           return effectiveDate;
         case -1325141915:  // scheduledTerminationDate
           return scheduledTerminationDate;
+        case -405622799:  // buySellProtection
+          return buySellProtection;
         case 1942192152:  // dateAdjustments
           return dateAdjustments;
         case -2117930783:  // referenceInformation
@@ -440,6 +492,9 @@ public final class GeneralTerms
           break;
         case -1325141915:  // scheduledTerminationDate
           this.scheduledTerminationDate = (LocalDate) newValue;
+          break;
+        case -405622799:  // buySellProtection
+          this.buySellProtection = (BuySell) newValue;
           break;
         case 1942192152:  // dateAdjustments
           this.dateAdjustments = (BusinessDayAdjustment) newValue;
@@ -482,6 +537,7 @@ public final class GeneralTerms
       return new GeneralTerms(
           effectiveDate,
           scheduledTerminationDate,
+          buySellProtection,
           dateAdjustments,
           referenceInformation);
     }
@@ -510,6 +566,17 @@ public final class GeneralTerms
     }
 
     /**
+     * Sets the {@code buySellProtection} property in the builder.
+     * @param buySellProtection  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder buySellProtection(BuySell buySellProtection) {
+      JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
+      this.buySellProtection = buySellProtection;
+      return this;
+    }
+
+    /**
      * Sets the {@code dateAdjustments} property in the builder.
      * @param dateAdjustments  the new value, not null
      * @return this, for chaining, not null
@@ -534,10 +601,11 @@ public final class GeneralTerms
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("GeneralTerms.Builder{");
       buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(effectiveDate)).append(',').append(' ');
       buf.append("scheduledTerminationDate").append('=').append(JodaBeanUtils.toString(scheduledTerminationDate)).append(',').append(' ');
+      buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
       buf.append("dateAdjustments").append('=').append(JodaBeanUtils.toString(dateAdjustments)).append(',').append(' ');
       buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation));
       buf.append('}');

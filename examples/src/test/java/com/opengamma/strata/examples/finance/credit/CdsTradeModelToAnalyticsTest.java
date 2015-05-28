@@ -3,15 +3,17 @@ package com.opengamma.strata.examples.finance.credit;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
@@ -57,13 +59,14 @@ public class CdsTradeModelToAnalyticsTest {
     HolidayCalendar calendar = generalTerms.getDateAdjustments().getCalendar();
 
     FeeLeg feeLeg = cds.getFeeLeg();
-    LocalDate stepInDate = feeLeg.getStepInDate();
-    boolean payAccOnDefault = feeLeg.isPayAccOnDefault();
-    Frequency frequency = feeLeg.getFrequency();
+    LocalDate stepInDate = null;
+    boolean payAccOnDefault = false;
+    PeriodicSchedule periodicPayments = feeLeg.getPeriodicPayments();
+    Frequency frequency = periodicPayments.getFrequency();
 
     // Need to map these to analytics enums
-    StubConvention stubConvention = feeLeg.getStubConvention();
-    DayCount accrualDayCount = feeLeg.getDayCount();
+    StubConvention stubConvention = periodicPayments.getStubConvention().get();
+    DayCount accrualDayCount = null;
 
     boolean protectStart = true;
 
@@ -140,6 +143,7 @@ public class CdsTradeModelToAnalyticsTest {
                       .builder()
                       .effectiveDate(LocalDate.of(2014, 6, 20))
                       .scheduledTerminationDate(LocalDate.of(2019, 12, 20))
+                      .buySellProtection(BuySell.BUY)
                       .dateAdjustments(
                           BusinessDayAdjustment.of(
                               BusinessDayConventions.FOLLOWING,
@@ -158,15 +162,20 @@ public class CdsTradeModelToAnalyticsTest {
                       .build()
               )
               .feeLeg(
-                  FeeLeg
-                      .builder()
-                      .frequency(Frequency.P3M)
-                      .payAccOnDefault(true)
-                      .dayCount(DayCounts.ACT_360)
-                      .stubConvention(StubConvention.SHORT_FINAL)
-                      .calculationAmount(1_000_000D)
-                      .stepInDate(tradeDate.plusDays(1))
-                      .build()
+                  FeeLeg.of(
+                      1_000_000D,
+                      PeriodicSchedule.of(
+                          LocalDate.of(2014, 6, 20),
+                          LocalDate.of(2014, 6, 20),
+                          Frequency.P3M,
+                          BusinessDayAdjustment.of(
+                              BusinessDayConventions.FOLLOWING,
+                              HolidayCalendars.NO_HOLIDAYS
+                          ),
+                          StubConvention.SHORT_FINAL,
+                          RollConventions.DAY_20
+                      )
+                  )
               )
               .protectionTerms(
                   ProtectionTerms.of(

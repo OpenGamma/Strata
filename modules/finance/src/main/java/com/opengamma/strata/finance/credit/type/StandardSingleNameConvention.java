@@ -10,8 +10,11 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Convention;
@@ -61,6 +64,9 @@ public final class StandardSingleNameConvention
   private final Frequency paymentFrequency;
 
   @PropertyDefinition(validate = "notNull")
+  private final RollConvention rollConvention;
+
+  @PropertyDefinition(validate = "notNull")
   private final boolean payAccOnDefault;
 
   @PropertyDefinition(validate = "notNull")
@@ -79,7 +85,6 @@ public final class StandardSingleNameConvention
     //   ArgChecker.isTrue(fixedLeg.getCurrency().equals(floatingLeg.getCurrency()), "Conventions must have same currency");
   }
 
-
   //-------------------------------------------------------------------------
 
   public CreditDefaultSwapTrade toTrade(
@@ -95,10 +100,23 @@ public final class StandardSingleNameConvention
       RestructuringClause restructuringClause
   ) {
 //    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
-
-    LocalDate effectiveDate = tradeDate; // IMM roll
-    LocalDate maturityDate = tradeDate.plus(period);
-    LocalDate stepInDate = tradeDate.plusDays(stepIn);
+    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
+        dayConvention,
+        calendar
+    );
+    LocalDate unadjustedStartDate = tradeDate; // IMM roll
+    LocalDate unadjustedEndDate = unadjustedStartDate.plus(period);
+    LocalDate stepInDate = businessDayAdjustment.adjust(tradeDate.plusDays(stepIn));
+    PeriodicSchedule periodicPayments = PeriodicSchedule.of(
+        unadjustedStartDate,
+        unadjustedEndDate,
+        paymentFrequency,
+        businessDayAdjustment,
+        stubConvention,
+        rollConvention
+    );
+    LocalDate effectiveDate = periodicPayments.getAdjustedStartDate();
+    LocalDate maturityDate = periodicPayments.getAdjustedEndDate();
     return CreditDefaultSwapTrade.of(
         id,
         TradeInfo
@@ -109,10 +127,8 @@ public final class StandardSingleNameConvention
             GeneralTerms.singleName(
                 effectiveDate,
                 maturityDate,
-                BusinessDayAdjustment.of(
-                    dayConvention,
-                    calendar
-                ),
+                buySell,
+                businessDayAdjustment,
                 referenceEntityId,
                 referenceEntityName,
                 currency,
@@ -120,11 +136,7 @@ public final class StandardSingleNameConvention
             ),
             FeeLeg.of(
                 notional,
-                payAccOnDefault,
-                stepInDate,
-                dayCount,
-                paymentFrequency,
-                stubConvention
+                periodicPayments
             ),
             ProtectionTerms.of(
                 notional,
@@ -165,6 +177,7 @@ public final class StandardSingleNameConvention
       DayCount dayCount,
       BusinessDayConvention dayConvention,
       Frequency paymentFrequency,
+      RollConvention rollConvention,
       boolean payAccOnDefault,
       HolidayCalendar calendar,
       int stepIn,
@@ -173,6 +186,7 @@ public final class StandardSingleNameConvention
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(dayConvention, "dayConvention");
     JodaBeanUtils.notNull(paymentFrequency, "paymentFrequency");
+    JodaBeanUtils.notNull(rollConvention, "rollConvention");
     JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
     JodaBeanUtils.notNull(calendar, "calendar");
     JodaBeanUtils.notNull(stepIn, "stepIn");
@@ -180,6 +194,7 @@ public final class StandardSingleNameConvention
     this.dayCount = dayCount;
     this.dayConvention = dayConvention;
     this.paymentFrequency = paymentFrequency;
+    this.rollConvention = rollConvention;
     this.payAccOnDefault = payAccOnDefault;
     this.calendar = calendar;
     this.stepIn = stepIn;
@@ -240,6 +255,15 @@ public final class StandardSingleNameConvention
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the rollConvention.
+   * @return the value of the property, not null
+   */
+  public RollConvention getRollConvention() {
+    return rollConvention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the payAccOnDefault.
    * @return the value of the property, not null
    */
@@ -285,6 +309,7 @@ public final class StandardSingleNameConvention
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getDayConvention(), other.getDayConvention()) &&
           JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
+          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
           (isPayAccOnDefault() == other.isPayAccOnDefault()) &&
           JodaBeanUtils.equal(getCalendar(), other.getCalendar()) &&
           (getStepIn() == other.getStepIn()) &&
@@ -300,6 +325,7 @@ public final class StandardSingleNameConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCalendar());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStepIn());
@@ -309,12 +335,13 @@ public final class StandardSingleNameConvention
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("StandardSingleNameConvention{");
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("dayConvention").append('=').append(getDayConvention()).append(',').append(' ');
     buf.append("paymentFrequency").append('=').append(getPaymentFrequency()).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(getRollConvention()).append(',').append(' ');
     buf.append("payAccOnDefault").append('=').append(isPayAccOnDefault()).append(',').append(' ');
     buf.append("calendar").append('=').append(getCalendar()).append(',').append(' ');
     buf.append("stepIn").append('=').append(getStepIn()).append(',').append(' ');
@@ -354,6 +381,11 @@ public final class StandardSingleNameConvention
     private final MetaProperty<Frequency> paymentFrequency = DirectMetaProperty.ofImmutable(
         this, "paymentFrequency", StandardSingleNameConvention.class, Frequency.class);
     /**
+     * The meta-property for the {@code rollConvention} property.
+     */
+    private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
+        this, "rollConvention", StandardSingleNameConvention.class, RollConvention.class);
+    /**
      * The meta-property for the {@code payAccOnDefault} property.
      */
     private final MetaProperty<Boolean> payAccOnDefault = DirectMetaProperty.ofImmutable(
@@ -382,6 +414,7 @@ public final class StandardSingleNameConvention
         "dayCount",
         "dayConvention",
         "paymentFrequency",
+        "rollConvention",
         "payAccOnDefault",
         "calendar",
         "stepIn",
@@ -404,6 +437,8 @@ public final class StandardSingleNameConvention
           return dayConvention;
         case 863656438:  // paymentFrequency
           return paymentFrequency;
+        case -10223666:  // rollConvention
+          return rollConvention;
         case -988493655:  // payAccOnDefault
           return payAccOnDefault;
         case -178324674:  // calendar
@@ -465,6 +500,14 @@ public final class StandardSingleNameConvention
     }
 
     /**
+     * The meta-property for the {@code rollConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<RollConvention> rollConvention() {
+      return rollConvention;
+    }
+
+    /**
      * The meta-property for the {@code payAccOnDefault} property.
      * @return the meta-property, not null
      */
@@ -508,6 +551,8 @@ public final class StandardSingleNameConvention
           return ((StandardSingleNameConvention) bean).getDayConvention();
         case 863656438:  // paymentFrequency
           return ((StandardSingleNameConvention) bean).getPaymentFrequency();
+        case -10223666:  // rollConvention
+          return ((StandardSingleNameConvention) bean).getRollConvention();
         case -988493655:  // payAccOnDefault
           return ((StandardSingleNameConvention) bean).isPayAccOnDefault();
         case -178324674:  // calendar
@@ -541,6 +586,7 @@ public final class StandardSingleNameConvention
     private DayCount dayCount;
     private BusinessDayConvention dayConvention;
     private Frequency paymentFrequency;
+    private RollConvention rollConvention;
     private boolean payAccOnDefault;
     private HolidayCalendar calendar;
     private int stepIn;
@@ -561,6 +607,7 @@ public final class StandardSingleNameConvention
       this.dayCount = beanToCopy.getDayCount();
       this.dayConvention = beanToCopy.getDayConvention();
       this.paymentFrequency = beanToCopy.getPaymentFrequency();
+      this.rollConvention = beanToCopy.getRollConvention();
       this.payAccOnDefault = beanToCopy.isPayAccOnDefault();
       this.calendar = beanToCopy.getCalendar();
       this.stepIn = beanToCopy.getStepIn();
@@ -579,6 +626,8 @@ public final class StandardSingleNameConvention
           return dayConvention;
         case 863656438:  // paymentFrequency
           return paymentFrequency;
+        case -10223666:  // rollConvention
+          return rollConvention;
         case -988493655:  // payAccOnDefault
           return payAccOnDefault;
         case -178324674:  // calendar
@@ -606,6 +655,9 @@ public final class StandardSingleNameConvention
           break;
         case 863656438:  // paymentFrequency
           this.paymentFrequency = (Frequency) newValue;
+          break;
+        case -10223666:  // rollConvention
+          this.rollConvention = (RollConvention) newValue;
           break;
         case -988493655:  // payAccOnDefault
           this.payAccOnDefault = (Boolean) newValue;
@@ -656,6 +708,7 @@ public final class StandardSingleNameConvention
           dayCount,
           dayConvention,
           paymentFrequency,
+          rollConvention,
           payAccOnDefault,
           calendar,
           stepIn,
@@ -708,6 +761,17 @@ public final class StandardSingleNameConvention
     }
 
     /**
+     * Sets the {@code rollConvention} property in the builder.
+     * @param rollConvention  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rollConvention(RollConvention rollConvention) {
+      JodaBeanUtils.notNull(rollConvention, "rollConvention");
+      this.rollConvention = rollConvention;
+      return this;
+    }
+
+    /**
      * Sets the {@code payAccOnDefault} property in the builder.
      * @param payAccOnDefault  the new value, not null
      * @return this, for chaining, not null
@@ -753,12 +817,13 @@ public final class StandardSingleNameConvention
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("StandardSingleNameConvention.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("dayConvention").append('=').append(JodaBeanUtils.toString(dayConvention)).append(',').append(' ');
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
+      buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
       buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(payAccOnDefault)).append(',').append(' ');
       buf.append("calendar").append('=').append(JodaBeanUtils.toString(calendar)).append(',').append(' ');
       buf.append("stepIn").append('=').append(JodaBeanUtils.toString(stepIn)).append(',').append(' ');

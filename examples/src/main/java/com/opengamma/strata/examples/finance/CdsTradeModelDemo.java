@@ -8,25 +8,19 @@ package com.opengamma.strata.examples.finance;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.credit.CreditDefaultSwap;
 import com.opengamma.strata.finance.credit.CreditDefaultSwapTrade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
-import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
 import com.opengamma.strata.finance.credit.type.StandardSingleNameConventions;
 import com.opengamma.strata.finance.credit.type.StandardSingleNameTemplate;
@@ -50,13 +44,13 @@ public class CdsTradeModelDemo {
    */
   public static void main(String[] args) {
     CdsTradeModelDemo demo = new CdsTradeModelDemo();
-    demo.simpleSingleName();
-    demo.explicitSingleName();
+    demo.simpleSingleNameUsd();
+    demo.simpleSingleNameEur();
     demo.simpleIndex();
   }
 
   //-----------------------------------------------------------------------
-  public void simpleSingleName() {
+  public void simpleSingleNameUsd() {
     CreditDefaultSwapTrade swapTrade = StandardSingleNameTemplate
         .of(StandardSingleNameConventions.northAmerican())
         .toTrade(
@@ -73,45 +67,21 @@ public class CdsTradeModelDemo {
         );
   }
 
-  public void explicitSingleName() {
-
-    TradeInfo tradeInfo = TradeInfo.builder()
-        .counterparty(StandardId.of("cpty", "Counterparty"))
-        .tradeDate(LocalDate.of(2014, 1, 1))
-        .build();
-
-    CreditDefaultSwap swap = CreditDefaultSwap.of(
-        GeneralTerms.singleName(
-            LocalDate.of(2014, 6, 20),
-            LocalDate.of(2019, 12, 20),
-            BusinessDayAdjustment.of(
-                BusinessDayConventions.FOLLOWING,
-                HolidayCalendars.USNY.combineWith(HolidayCalendars.GBLO)
-            ),
-            RedCode.of("H98A7"),
-            "Ford Motor Company",
-            Currency.USD,
-            SeniorityLevel.SeniorUnSec
-        ),
-        FeeLeg.of(
+  public void simpleSingleNameEur() {
+    CreditDefaultSwapTrade trade = StandardSingleNameTemplate
+        .of(StandardSingleNameConventions.europeanEUR())
+        .toTrade(
+            StandardId.of("tradeid", "62726762"),
+            LocalDate.of(2014, 1, 1),
+            Period.ofYears(5),
+            BuySell.BUY,
             1_000_000D,
-            true,
-            LocalDate.of(2014, 1, 1).plusDays(1),
-            DayCounts.ACT_360,
-            Frequency.P3M,
-            StubConvention.SHORT_FINAL
-        ),
-        ProtectionTerms.of(
-            1_000_000D,
+            0.0050,
+            RedCode.of("D28123"),
+            "Addidas",
+            SeniorityLevel.SeniorUnSec,
             RestructuringClause.XR
-        )
-    );
-
-    CreditDefaultSwapTrade trade = CreditDefaultSwapTrade.of(
-        StandardId.of("trade", "673676"),
-        tradeInfo,
-        swap
-    );
+        );
 
     checkValues(trade);
 
@@ -123,53 +93,58 @@ public class CdsTradeModelDemo {
     System.out.println();
   }
 
-
   public void simpleIndex() {
-    CreditDefaultSwapTrade trade = CreditDefaultSwapTrade.of(
-        StandardId.of("trade", "673676"),
-        TradeInfo
-            .builder()
-            .counterparty(StandardId.of("cpty", "Counterparty"))
-            .tradeDate(LocalDate.of(2014, 1, 1))
-            .settlementDate(LocalDate.of(2014, 1, 3))
-            .build(),
-        CreditDefaultSwap.of(
-            GeneralTerms.index(
-                LocalDate.of(2014, 6, 20),
-                LocalDate.of(2019, 12, 20),
-                BusinessDayAdjustment.of(
-                    BusinessDayConventions.FOLLOWING,
-                    HolidayCalendars.NO_HOLIDAYS
-                ),
-                RedCode.of("2I65BYCL7"),
-                "CDX.NA.IG.15",
-                15,
-                1
-            ),
-            FeeLeg.of(
-                1_000_000D,
-                true,
-                LocalDate.of(2014, 1, 1).plusDays(1),
-                DayCounts.ACT_360,
-                Frequency.P3M,
-                StubConvention.SHORT_FINAL
-            ),
-            ProtectionTerms.of(
-                1_000_000D,
-                RestructuringClause.XR
-            )
-        )
-    );
-
-
-    checkValues(trade);
-
-    System.out.println("===== Trade =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade));
-    System.out.println();
-    System.out.println("===== Expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade.getProduct().expand()));
-    System.out.println();
+//    LocalDate tradeDate = LocalDate.of(2014, 1, 1);
+//    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
+//        BusinessDayConventions.FOLLOWING,
+//        HolidayCalendars.NO_HOLIDAYS
+//    );
+//    CreditDefaultSwapTrade trade = CreditDefaultSwapTrade.of(
+//        StandardId.of("trade", "673676"),
+//        TradeInfo
+//            .builder()
+//            .counterparty(StandardId.of("cpty", "Counterparty"))
+//            .tradeDate(LocalDate.of(2014, 1, 1))
+//            .build(),
+//        CreditDefaultSwap.of(
+//            GeneralTerms.index(
+//                LocalDate.of(2014, 6, 20),
+//                LocalDate.of(2019, 12, 20),
+//                BuySell.BUY,
+//                businessDayAdjustment,
+//                RedCode.of("2I65BYCL7"),
+//                "CDX.NA.IG.15",
+//                15,
+//                1
+//            ),
+//            FeeLeg.of(
+//                1_000_000D,
+//                PeriodicSchedule.of(
+//                    tradeDate,
+//                    tradeDate.plusYears(5)
+//                )
+//    true,
+//                LocalDate.of(2014, 1, 1).plusDays(1),
+//                DayCounts.ACT_360,
+//                Frequency.P3M,
+//                StubConvention.SHORT_FINAL
+//            ),
+//            ProtectionTerms.of(
+//                1_000_000D,
+//                RestructuringClause.XR
+//            )
+//        )
+//    );
+//
+//
+//    checkValues(trade);
+//
+//    System.out.println("===== Trade =====");
+//    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade));
+//    System.out.println();
+//    System.out.println("===== Expanded =====");
+//    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade.getProduct().expand()));
+//    System.out.println();
   }
 
   private void checkValues(CreditDefaultSwapTrade trade) {
@@ -187,13 +162,13 @@ public class CdsTradeModelDemo {
     HolidayCalendar calendar = generalTerms.getDateAdjustments().getCalendar();
 
     FeeLeg feeLeg = cds.getFeeLeg();
-    boolean payAccOnDefault = feeLeg.isPayAccOnDefault();
-    Frequency frequency = feeLeg.getFrequency();
-    StubConvention stubType = feeLeg.getStubConvention();
-    DayCount accrualDayCount = feeLeg.getDayCount();
+    PeriodicSchedule periodicPayments = feeLeg.getPeriodicPayments();
+    Frequency frequency = periodicPayments.getFrequency();
+    StubConvention stubType = periodicPayments.getStubConvention().get();
 
+    boolean payAccOnDefault = true;
+    DayCount accrualDayCount = null;
     boolean protectStart = true;
-
     double recoveryRate = 0.40D;
 
     assert (trade.getTradeInfo().getTradeDate().equals(tradeDate));
