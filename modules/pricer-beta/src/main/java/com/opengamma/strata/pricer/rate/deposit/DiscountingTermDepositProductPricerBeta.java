@@ -16,7 +16,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Pricer for for foreign exchange transaction products.
+ * The methods associated to the pricing of term deposit by discounting.
  * <p>
  * This function provides the ability to price a {@link TermDeposit}.
  */
