@@ -199,7 +199,7 @@ public final class InterpolatedNodalCurve
     CombinedInterpolatorExtrapolator interpolatorExtrapolator =
         CombinedInterpolatorExtrapolator.of(interpolator, extrapolatorLeft, extrapolatorRight);
     String name = metadata.getCurveName().toString();
-    this.underlying = InterpolatedDoublesCurve.from(xValues, yValues, interpolatorExtrapolator, name);
+    this.underlying = InterpolatedDoublesCurve.from(this.xValues, this.yValues, interpolatorExtrapolator, name);
   }
 
   @ImmutableDefaults

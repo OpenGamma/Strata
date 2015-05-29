@@ -6,12 +6,8 @@
 package com.opengamma.strata.market.value;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -110,33 +106,5 @@ public interface IborIndexRates {
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double[] parameterSensitivity(LocalDate fixingDate);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a new instance for which each of the parameters in the curve have been shifted.
-   * <p>
-   * The desired adjustment is specified using {@link DoubleUnaryOperator}.
-   * <p>
-   * The operator will be called once for each point on the curve.
-   * The input will be the x and y values of the point.
-   * The output will be the new y value.
-   * 
-   * @param operator  the operator that provides the change
-   * @return the new curve
-   */
-  public abstract IborIndexRates shiftedBy(DoubleBinaryOperator operator);
-
-  /**
-   * Returns a new instance for which each of the parameters in the curve have been shifted.
-   * <p>
-   * The desired adjustment is specified using {@link ValueAdjustment}.
-   * The size of the list of adjustments is expected to match the number of parameters.
-   * If there are too many adjustments, no error will occur and the excess will be ignored.
-   * If there are too few adjustments, no error will occur and the remaining points will not be adjusted.
-   * 
-   * @param adjustments  the adjustments to make
-   * @return the new curve
-   */
-  public abstract IborIndexRates shiftedBy(List<ValueAdjustment> adjustments);
 
 }

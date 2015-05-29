@@ -21,16 +21,15 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -1083,15 +1082,13 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     }
   }
 
-  private static final YieldCurve FED_FUND_CURVE;
+  //-------------------------------------------------------------------------
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
+  private static final Curve FED_FUND_CURVE;
   static {
-    CombinedInterpolatorExtrapolator interp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     double[] time_usd = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
     double[] rate_usd = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
-    InterpolatedDoublesCurve curve_usd = InterpolatedDoublesCurve.from(time_usd, rate_usd, interp);
-    FED_FUND_CURVE = new YieldCurve("USD-Fed-Fund", curve_usd);
+    FED_FUND_CURVE = InterpolatedNodalCurve.of("USD-Fed-Fund", time_usd, rate_usd, INTERPOLATOR);
   }
   private static LocalDateDoubleTimeSeriesBuilder TIME_SERIES_BUILDER = LocalDateDoubleTimeSeries.builder();
   static {

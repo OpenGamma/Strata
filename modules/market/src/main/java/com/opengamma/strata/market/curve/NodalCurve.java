@@ -31,7 +31,7 @@ public interface NodalCurve
    * This method returns the fixed x-values used to define the curve.
    * This will be of the same size as the y-values.
    * <p>
-   * The result must not be mutated.
+   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the x-values
    */
@@ -43,7 +43,7 @@ public interface NodalCurve
    * This method returns the fixed y-values used to define the curve.
    * This will be of the same size as the x-values.
    * <p>
-   * The result must not be mutated.
+   * The implementation will clone any internal data, thus the result may be mutated.
    * 
    * @return the y-values
    */
@@ -54,7 +54,7 @@ public interface NodalCurve
    * <p>
    * This allows the y-values of the curve to be changed while retaining the same x-values.
    * <p>
-   * The input must not be mutated after calling this method.
+   * The implementation will clone the input array.
    * 
    * @param values  the new y-values for the curve
    * @return the new curve

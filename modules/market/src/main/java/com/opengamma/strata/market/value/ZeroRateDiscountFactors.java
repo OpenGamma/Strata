@@ -7,11 +7,9 @@ package com.opengamma.strata.market.value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -26,12 +24,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
@@ -66,25 +63,26 @@ public final class ZeroRateDiscountFactors
    * The underlying curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YieldCurve curve;
+  private final Curve curve;
 
   //-------------------------------------------------------------------------
   /**
    * Creates a new discount factors instance.
    * <p>
-   * The curve is specified by an instance of {@link YieldCurve}.
+   * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
+   * The curve is stored with maturities and zero-coupon continuously-compounded rates.
    * 
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid
    * @param dayCount  the day count
-   * @param underlyingCurve  the underlying forward curve
+   * @param underlyingCurve  the underlying curve
    * @return the curve
    */
   public static ZeroRateDiscountFactors of(
       Currency currency,
       LocalDate valuationDate,
       DayCount dayCount,
-      YieldCurve underlyingCurve) {
+      Curve underlyingCurve) {
 
     return new ZeroRateDiscountFactors(currency, valuationDate, dayCount, underlyingCurve);
   }
@@ -92,12 +90,12 @@ public final class ZeroRateDiscountFactors
   //-------------------------------------------------------------------------
   @Override
   public CurveName getCurveName() {
-    return CurveName.of(curve.getName());
+    return curve.getName();
   }
 
   @Override
   public int getParameterCount() {
-    return curve.getNumberOfParameters();
+    return curve.getParameterCount();
   }
 
   //-------------------------------------------------------------------------
@@ -108,7 +106,11 @@ public final class ZeroRateDiscountFactors
 
   // calculates the discount factor at a given time
   private double discountFactor(double relativeTime) {
-    return curve.getDiscountFactor(relativeTime);
+    // short cut rate lookup
+    if (relativeTime == 0) {
+      return 1.0;
+    }
+    return Math.exp(-relativeTime * curve.yValue(relativeTime));
   }
 
   // calculate the relative time between the valuation date and the specified date
@@ -127,37 +129,18 @@ public final class ZeroRateDiscountFactors
   @Override
   public double[] parameterSensitivity(LocalDate date) {
     double relativeTime = relativeTime(date);
-    return curve.getInterestRateParameterSensitivity(relativeTime);
+    return curve.yValueParameterSensitivity(relativeTime);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ZeroRateDiscountFactors shiftedBy(DoubleBinaryOperator operator) {
-    InterpolatedDoublesCurve underlying = (InterpolatedDoublesCurve) ((YieldCurve) curve).getCurve();
-    double[] x = underlying.getXDataAsPrimitive();
-    double[] y = underlying.getYDataAsPrimitive();
-    double[] yShifted = new double[y.length];
-    for (int i = 0; i < y.length; i++) {
-      yShifted[i] = operator.applyAsDouble(x[i], y[i]);
-    }
-    InterpolatedDoublesCurve shifted = new InterpolatedDoublesCurve(
-        x, yShifted, underlying.getInterpolator(), true, curve.getName());
-    return new ZeroRateDiscountFactors(currency, valuationDate, dayCount, YieldCurve.from(shifted));
-  }
-
-  @Override
-  public ZeroRateDiscountFactors shiftedBy(List<ValueAdjustment> adjustments) {
-    InterpolatedDoublesCurve underlying = (InterpolatedDoublesCurve) ((YieldCurve) curve).getCurve();
-    double[] x = underlying.getXDataAsPrimitive();
-    double[] y = underlying.getYDataAsPrimitive();
-    double[] yShifted = new double[y.length];
-    int minSize = Math.min(y.length, adjustments.size());
-    for (int i = 0; i < minSize; i++) {
-      yShifted[i] = adjustments.get(i).adjust(y[i]);
-    }
-    InterpolatedDoublesCurve shifted = new InterpolatedDoublesCurve(
-        x, yShifted, underlying.getInterpolator(), true, curve.getName());
-    return new ZeroRateDiscountFactors(currency, valuationDate, dayCount, YieldCurve.from(shifted));
+  /**
+   * Returns a new instance with a different curve.
+   * 
+   * @param curve  the new curve
+   * @return the new instance
+   */
+  public ZeroRateDiscountFactors withCurve(Curve curve) {
+    return new ZeroRateDiscountFactors(currency, valuationDate, dayCount, curve);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -183,7 +166,7 @@ public final class ZeroRateDiscountFactors
       Currency currency,
       LocalDate valuationDate,
       DayCount dayCount,
-      YieldCurve curve) {
+      Curve curve) {
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(dayCount, "dayCount");
@@ -243,7 +226,7 @@ public final class ZeroRateDiscountFactors
    * Gets the underlying curve.
    * @return the value of the property, not null
    */
-  public YieldCurve getCurve() {
+  public Curve getCurve() {
     return curve;
   }
 
@@ -313,8 +296,8 @@ public final class ZeroRateDiscountFactors
     /**
      * The meta-property for the {@code curve} property.
      */
-    private final MetaProperty<YieldCurve> curve = DirectMetaProperty.ofImmutable(
-        this, "curve", ZeroRateDiscountFactors.class, YieldCurve.class);
+    private final MetaProperty<Curve> curve = DirectMetaProperty.ofImmutable(
+        this, "curve", ZeroRateDiscountFactors.class, Curve.class);
     /**
      * The meta-properties.
      */
@@ -390,7 +373,7 @@ public final class ZeroRateDiscountFactors
      * The meta-property for the {@code curve} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YieldCurve> curve() {
+    public MetaProperty<Curve> curve() {
       return curve;
     }
 
@@ -430,7 +413,7 @@ public final class ZeroRateDiscountFactors
     private Currency currency;
     private LocalDate valuationDate;
     private DayCount dayCount;
-    private YieldCurve curve;
+    private Curve curve;
 
     /**
      * Restricted constructor.
@@ -468,7 +451,7 @@ public final class ZeroRateDiscountFactors
           this.dayCount = (DayCount) newValue;
           break;
         case 95027439:  // curve
-          this.curve = (YieldCurve) newValue;
+          this.curve = (Curve) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

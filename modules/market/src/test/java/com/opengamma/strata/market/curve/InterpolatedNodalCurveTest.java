@@ -115,8 +115,9 @@ public class InterpolatedNodalCurveTest {
 
   //-------------------------------------------------------------------------
   public void test_withYValues() {
+    double[] yBumped = YVALUES_BUMPED.clone();
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(CURVE_NAME, XVALUES, YVALUES, INTERPOLATOR);
-    InterpolatedNodalCurve test = base.withYValues(YVALUES_BUMPED);
+    InterpolatedNodalCurve test = base.withYValues(yBumped);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getMetadata()).isEqualTo(META_DATA);
@@ -124,6 +125,10 @@ public class InterpolatedNodalCurveTest {
         InterpolatedDoublesCurve.from(XVALUES, YVALUES_BUMPED, COMBINED, NAME));
     assertThat(test.getXValues()).containsExactly(XVALUES);
     assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
+    yBumped[0] = -110d;
+    assertThat(test.getYValues()).containsExactly(YVALUES_BUMPED);
+    assertThat(test.getUnderlyingCurve()).isEqualTo(
+        InterpolatedDoublesCurve.from(XVALUES, YVALUES_BUMPED, COMBINED, NAME));
   }
 
   public void test_withYValues_badSize() {
