@@ -20,17 +20,17 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * This function provides the ability to price a {@link TermDeposit}.
  */
-public class DiscountingTermDepositProductPricerBeta {
+public class DiscountingTermDepositProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingTermDepositProductPricerBeta DEFAULT = new DiscountingTermDepositProductPricerBeta();
+  public static final DiscountingTermDepositProductPricer DEFAULT = new DiscountingTermDepositProductPricer();
 
   /**
    * Creates an instance.
    */
-  public DiscountingTermDepositProductPricerBeta() {
+  public DiscountingTermDepositProductPricer() {
   }
 
   //-------------------------------------------------------------------------
@@ -45,6 +45,9 @@ public class DiscountingTermDepositProductPricerBeta {
   public CurrencyAmount presentValue(TermDepositProduct product, RatesProvider provider) {
     ExpandedTermDeposit deposit = product.expand();
     Currency currency = deposit.getCurrency();
+    if (provider.getValuationDate().isAfter(deposit.getEndDate())) {
+      return CurrencyAmount.of(currency, 0.0d);
+    }
     double dfStart = provider.discountFactor(currency, deposit.getStartDate());
     double dfEnd = provider.discountFactor(currency, deposit.getEndDate());
     double pv = (deposit.getNotional() + deposit.getInterest()) * dfEnd - initialAmount(deposit, provider) * dfStart;

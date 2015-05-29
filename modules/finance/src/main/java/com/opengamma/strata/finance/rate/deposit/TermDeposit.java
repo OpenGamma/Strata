@@ -120,9 +120,13 @@ public final class TermDeposit
 
   //-------------------------------------------------------------------------
   /**
-   * Expands this term deposit, trivially returning {@code this}.
+   * Expands this term deposit.
+   * <p>
+   * Expanding a term deposit causes the dates to be adjusted according to the relevant
+   * holiday calendar. Other one-off calculations may also be performed.
    * 
-   * @return this
+   * @return the equivalent expanded term deposit
+   * @throws RuntimeException if unable to expand due to an invalid definition
    */
   @Override
   public ExpandedTermDeposit expand() {

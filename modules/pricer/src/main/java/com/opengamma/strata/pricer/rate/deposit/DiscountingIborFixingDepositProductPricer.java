@@ -21,13 +21,13 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * This function provides the ability to price a {@link IborFixingDeposit}.
  */
-public class DiscountingIborFixingDepositProductPricerBeta {
+public class DiscountingIborFixingDepositProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingIborFixingDepositProductPricerBeta DEFAULT =
-      new DiscountingIborFixingDepositProductPricerBeta(ForwardIborRateObservationFn.DEFAULT);
+  public static final DiscountingIborFixingDepositProductPricer DEFAULT =
+      new DiscountingIborFixingDepositProductPricer(ForwardIborRateObservationFn.DEFAULT);
 
   /**
    * Rate observation function.
@@ -38,7 +38,7 @@ public class DiscountingIborFixingDepositProductPricerBeta {
    * Creates an instance.
    * @param rateObservationFn the rate obsevation function
    */
-  public DiscountingIborFixingDepositProductPricerBeta(ForwardIborRateObservationFn rateObservationFn) {
+  public DiscountingIborFixingDepositProductPricer(ForwardIborRateObservationFn rateObservationFn) {
     this.rateObservationFn = ArgChecker.notNull(rateObservationFn, "rateObservationFn");
   }
 

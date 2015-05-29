@@ -94,11 +94,11 @@ public final class ExpandedTermDeposit
   @PropertyDefinition
   private final double rate;
   /**
-   * The accrued interest.
+   * The interest to be paid on the deposit.
    * <p>
-   * The interest is {@code rate * principal * yearFraction}, 
-   * thus is a positive signed amount if the term deposit is 'buy',
-   * and a negative signed amount if the term deposit is 'sell'.
+   * The interest is {@code rate * principal * yearFraction} and is a signed amount. 
+   * When the rate is positive, a 'buy' term deposit has a positive signed interest amount 
+   * and a 'sell' term deposit has a negative signed interest amount.
    */
   private final double interest;  // not a property
 

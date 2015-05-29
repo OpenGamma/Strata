@@ -165,9 +165,13 @@ public final class IborFixingDeposit
 
   //-------------------------------------------------------------------------
   /**
-   * Expands this term deposit, trivially returning {@code this}.
+   * Expands this Ibor fixing deposit.
+   * <p>
+   * Expanding an Ibor fixing deposit causes the dates to be adjusted according to the relevant
+   * holiday calendar. Other one-off calculations may also be performed.
    * 
-   * @return this
+   * @return the equivalent expanded Ibor fixing deposit
+   * @throws RuntimeException if unable to expand due to an invalid definition
    */
   @Override
   public ExpandedIborFixingDeposit expand() {

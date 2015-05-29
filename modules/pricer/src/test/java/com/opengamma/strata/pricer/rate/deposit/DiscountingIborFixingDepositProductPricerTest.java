@@ -32,7 +32,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
-import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.rate.ForwardIborRateObservationFn;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -40,10 +39,10 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
 /**
- * Test {@link DiscountingIborFixingDepositProductPricerBeta}.
+ * Test {@link DiscountingIborFixingDepositProductPricer}.
  */
 @Test
-public class DiscountingIborFixingDepositProductPricerBetaTest {
+public class DiscountingIborFixingDepositProductPricerTest {
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 16);
   private static final LocalDate START_DATE = LocalDate.of(2014, 1, 24);
   private static final LocalDate END_DATE = LocalDate.of(2014, 7, 24);
@@ -60,12 +59,37 @@ public class DiscountingIborFixingDepositProductPricerBetaTest {
       .rate(RATE)
       .build();
   private static final double TOLERANCE = 1E-13;
+
   private static final double EPS_FD = 1E-7;
+  private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
+      new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
+  private static final ImmutableRatesProvider IMM_PROV;
+  static {
+    CombinedInterpolatorExtrapolator interp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+        Interpolator1DFactory.DOUBLE_QUADRATIC,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    double[] time_eur = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0 };
+    double[] rate_eur = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014 };
+    InterpolatedDoublesCurve curve_eur = InterpolatedDoublesCurve.from(time_eur, rate_eur, interp);
+    YieldCurve dscCurve = new YieldCurve("EUR-Discount", curve_eur);
+    double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0 };
+    double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165 };
+    InterpolatedDoublesCurve curve_index = InterpolatedDoublesCurve.from(time_index, rate_index, interp);
+    YieldCurve indexCurve = new YieldCurve("EUR-EURIBOR6M", curve_index);
+    IMM_PROV = ImmutableRatesProvider.builder()
+        .valuationDate(VALUATION_DATE)
+        .discountCurves(ImmutableMap.of(EUR, dscCurve))
+        .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
+        .dayCount(ACT_ACT_ISDA)
+        .timeSeries(ImmutableMap.of(EUR_EURIBOR_6M, LocalDateDoubleTimeSeries.empty()))
+        .build();
+  }
 
   public void test_presentValue() {
     ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
-    DiscountingIborFixingDepositProductPricerBeta test = new DiscountingIborFixingDepositProductPricerBeta(mockObs);
+    DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double discountFactor = 0.95;
@@ -80,37 +104,17 @@ public class DiscountingIborFixingDepositProductPricerBetaTest {
   }
 
   public void test_presentValueSensitivity() {
-    RatesFiniteDifferenceSensitivityCalculator fdCal = new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
-    CombinedInterpolatorExtrapolator interp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    double[] time_eur = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0 };
-    double[] rate_eur = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014 };
-    InterpolatedDoublesCurve curve_eur = InterpolatedDoublesCurve.from(time_eur, rate_eur, interp);
-    YieldCurve dscCurve = new YieldCurve("EUR-Discount", curve_eur);
-    double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0 };
-    double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165 };
-    InterpolatedDoublesCurve curve_index = InterpolatedDoublesCurve.from(time_index, rate_index, interp);
-    YieldCurve indexCurve = new YieldCurve("EUR-EURIBOR6M", curve_index);
-    ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VALUATION_DATE)
-        .discountCurves(ImmutableMap.of(EUR, dscCurve))
-        .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
-        .dayCount(ACT_ACT_ISDA)
-        .timeSeries(ImmutableMap.of(EUR_EURIBOR_6M, LocalDateDoubleTimeSeries.empty()))
-        .build();
-    DiscountingIborFixingDepositProductPricerBeta test = DiscountingIborFixingDepositProductPricerBeta.DEFAULT;
-    PointSensitivities computed = test.presentValueSensitivity(DEPOSIT, prov);
-    CurveParameterSensitivity sensiComputed = prov.parameterSensitivity(computed);
-    CurveParameterSensitivity sensiExpected = fdCal.sensitivity(prov, (p) -> test.presentValue(DEPOSIT, (p)));
+    DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
+    PointSensitivities computed = test.presentValueSensitivity(DEPOSIT, IMM_PROV);
+    CurveParameterSensitivity sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveParameterSensitivity sensiExpected = CAL_FD.sensitivity(IMM_PROV, (p) -> test.presentValue(DEPOSIT, (p)));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
 
   public void test_parRate() {
     ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
-    DiscountingIborFixingDepositProductPricerBeta test = new DiscountingIborFixingDepositProductPricerBeta(mockObs);
+    DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double discountFactor = 0.95;
@@ -136,7 +140,7 @@ public class DiscountingIborFixingDepositProductPricerBetaTest {
   public void test_parSpread() {
     ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
-    DiscountingIborFixingDepositProductPricerBeta test = new DiscountingIborFixingDepositProductPricerBeta(mockObs);
+    DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
     double discountFactor = 0.95;
@@ -159,23 +163,11 @@ public class DiscountingIborFixingDepositProductPricerBetaTest {
   }
 
   public void test_parSpreadSensitivity() {
-    ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
-    ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
-    DiscountingIborFixingDepositProductPricerBeta test = new DiscountingIborFixingDepositProductPricerBeta(mockObs);
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(mockObs.rateSensitivity(deposit.getFloatingRate(), deposit.getStartDate(), deposit.getEndDate(), mockProv))
-        .thenReturn(IborRateSensitivity.of(EUR_EURIBOR_6M, deposit.getFloatingRate().getFixingDate(), 1.0));
-    PointSensitivities computed = test.parSpreadSensitivity(deposit, mockProv);
-    double forwardRateUp = 0.02 + EPS_FD;
-    when(mockObs.rate(deposit.getFloatingRate(), deposit.getStartDate(), deposit.getEndDate(), mockProv))
-        .thenReturn(forwardRateUp);
-    double pvUp = test.parSpread(DEPOSIT, mockProv);
-    double forwardRateDw = 0.02 - EPS_FD;
-    when(mockObs.rate(deposit.getFloatingRate(), deposit.getStartDate(), deposit.getEndDate(), mockProv))
-        .thenReturn(forwardRateDw);
-    double pvDw = test.parSpread(DEPOSIT, mockProv);
-    double expected = 0.5 * (pvUp - pvDw) / EPS_FD;
-    assertEquals(computed.getSensitivities().get(0).getSensitivity(), expected, EPS_FD);
+    DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
+    PointSensitivities computed = test.parSpreadSensitivity(DEPOSIT, IMM_PROV);
+    CurveParameterSensitivity sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveParameterSensitivity sensiExpected =
+        CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, test.parSpread(DEPOSIT, (p))));
+    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
 }
