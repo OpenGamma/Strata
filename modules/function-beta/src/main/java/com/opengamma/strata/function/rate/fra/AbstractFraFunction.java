@@ -26,7 +26,7 @@ import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -92,10 +92,10 @@ public abstract class AbstractFraFunction<T>
             .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
 
-    Set<DiscountingCurveKey> discountingCurveKeys = ImmutableSet.of(MarketDataKeys.discountingCurve(fra.getCurrency()));
+    Set<DiscountCurveKey> discountCurveKeys = ImmutableSet.of(MarketDataKeys.discountingCurve(fra.getCurrency()));
 
     return CalculationRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveKeys, discountingCurveKeys))
+        .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
         .timeSeriesRequirements(indexRateKeys)
         .outputCurrencies(fra.getCurrency())
         .build();

@@ -17,7 +17,7 @@ import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountCurveId;
 
 /**
  * Market data function that builds a {@link YieldCurve} representing the discounting curve for a currency.
@@ -31,10 +31,10 @@ import com.opengamma.strata.market.id.DiscountingCurveId;
  * it is possible that it will change, but there are many other changes needed before other curve types
  * can be used.
  */
-public class DiscountingCurveMarketDataFunction implements MarketDataFunction<YieldCurve, DiscountingCurveId> {
+public class DiscountingCurveMarketDataFunction implements MarketDataFunction<YieldCurve, DiscountCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(DiscountingCurveId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(DiscountCurveId id, MarketDataConfig marketDataConfig) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
@@ -42,7 +42,7 @@ public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Yi
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public Result<YieldCurve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
 
     if (!marketData.containsValue(curveGroupId)) {
@@ -54,8 +54,8 @@ public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Yi
   }
 
   @Override
-  public Class<DiscountingCurveId> getMarketDataIdType() {
-    return DiscountingCurveId.class;
+  public Class<DiscountCurveId> getMarketDataIdType() {
+    return DiscountCurveId.class;
   }
 
   /**
@@ -86,7 +86,7 @@ public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Yi
    * @param id  the curve ID
    * @return a success result containing the curve if it is a {@link YieldCurve}, else a failure
    */
-  private Result<YieldCurve> castCurve(YieldAndDiscountCurve curve, DiscountingCurveId id) {
+  private Result<YieldCurve> castCurve(YieldAndDiscountCurve curve, DiscountCurveId id) {
     return (curve instanceof YieldCurve) ?
         Result.success(((YieldCurve) curve)) :
         Result.failure(

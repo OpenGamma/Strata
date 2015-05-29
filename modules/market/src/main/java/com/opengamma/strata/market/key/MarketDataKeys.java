@@ -40,8 +40,8 @@ public final class MarketDataKeys {
    * @param currency  the currency of the curve
    * @return a market data key for a discounting curve
    */
-  public static DiscountingCurveKey discountingCurve(Currency currency) {
-    return DiscountingCurveKey.of(currency);
+  public static DiscountCurveKey discountingCurve(Currency currency) {
+    return DiscountCurveKey.of(currency);
   }
 
   // TODO fxRate(CurrencyPair)

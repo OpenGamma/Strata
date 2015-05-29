@@ -43,10 +43,10 @@ import com.opengamma.strata.market.curve.CurveName;
  * it is used.
  * <p>
  * In the simple case a curve is only used for a single purpose. For example, if a curve is used for discounting
- * it will be associated with one key of type {@code DiscountingCurveKey}.
+ * it will be associated with one key of type {@code DiscountCurveKey}.
  * <p>
  * A single curve can also be used as both a discounting curve and a forward curve.
- * In that case its key set would contain a {@code DiscountingCurveKey} and a {@code RateIndexCurveKey}.
+ * In that case its key set would contain a {@code DiscountCurveKey} and a {@code RateIndexCurveKey}.
  * <p>
  * Every curve must be associated with at least once key.
  */
