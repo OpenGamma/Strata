@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.convention.daycount.DayCountFactory;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -18,6 +19,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
@@ -37,6 +39,17 @@ public final class Legacy {
    * Restricted constructor.
    */
   private Legacy() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts a day count to the equivalent legacy day count.
+   *
+   * @param dayCount  a day count
+   * @return a legacy day count with the same name as the argument
+   */
+  public static com.opengamma.analytics.convention.daycount.DayCount dayCount(DayCount dayCount) {
+    return DayCountFactory.of(dayCount.getName());
   }
 
   //-------------------------------------------------------------------------
