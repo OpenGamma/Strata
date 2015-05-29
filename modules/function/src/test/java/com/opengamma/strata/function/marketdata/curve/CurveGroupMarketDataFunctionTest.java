@@ -88,6 +88,9 @@ public class CurveGroupMarketDataFunctionTest {
   private static final FixedIborSwapConvention SWAP_CONVENTION =
       FixedIborSwapConvention.of(FIXED_CONVENTION, FLOATING_CONVENTION);
 
+  /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
+  private static final double PV_TOLERANCE = 5e-10;
+
 
   /**
    * Tests calibration a curve containing FRAs and pricing the curve instruments using the curve.
@@ -302,7 +305,7 @@ public class CurveGroupMarketDataFunctionTest {
     Trade trade = node.buildTrade(valuationDate, marketDataMap);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue((FraTrade) trade, ratesProvider);
     double pv = currencyAmount.getAmount();
-    assertThat(pv).isCloseTo(0, offset(1e-10));
+    assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
   }
 
   private void checkSwapPvIsZero(
@@ -314,7 +317,7 @@ public class CurveGroupMarketDataFunctionTest {
     Trade trade = node.buildTrade(valuationDate, marketDataMap);
     MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue((SwapTrade) trade, ratesProvider);
     double pv = amount.getAmount(USD).getAmount();
-    assertThat(pv).isCloseTo(0, offset(1e-10));
+    assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
   }
 
   private static FraCurveNode fraNodeFixed(int startTenor, double rate) {

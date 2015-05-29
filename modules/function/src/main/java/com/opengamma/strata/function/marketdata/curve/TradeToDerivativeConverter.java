@@ -14,6 +14,7 @@ import java.util.List;
 import com.google.common.collect.Ordering;
 import com.opengamma.analytics.convention.daycount.DayCount;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.util.timeseries.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
@@ -125,41 +126,44 @@ class TradeToDerivativeConverter {
     LocalDate settlement = Ordering.natural().min(
         floatingAccrualSchedule.getAdjustedStartDate(),
         fixedAccrualSchedule.getAdjustedStartDate());
-    LocalDate maturity = Ordering.natural().max(fixedSwapLeg.getEndDate(), floatingSwapLeg.getEndDate());
 
     ZonedDateTime settlementDate = settlement.atStartOfDay(ZoneOffset.UTC);
-    ZonedDateTime maturityDate = maturity.atStartOfDay(ZoneOffset.UTC);
     Period fixedLegPeriod = fixedLeg.getPaymentSchedule().getPaymentFrequency().getPeriod();
     DayCount fixedLegDayCount = Legacy.dayCount(fixedCalculation.getDayCount());
-    BusinessDayConvention fixedLegBusinessDayConvention = fixedAccrualSchedule.getBusinessDayAdjustment().getConvention();
-    boolean fixedLegEom = fixedAccrualSchedule.getRollConvention().map(RollConventions.EOM::equals).orElse(false);
-    double fixedLegNotional = fixedLeg.getNotionalSchedule().getAmount().getInitialValue();
+    boolean eom = fixedAccrualSchedule.getRollConvention().map(RollConventions.EOM::equals).orElse(false);
+    double notional = fixedLeg.getNotionalSchedule().getAmount().getInitialValue();
     double fixedLegRate = fixedCalculation.getRate().getInitialValue();
-    Period iborLegPeriod = floatingLeg.getPaymentSchedule().getPaymentFrequency().getPeriod();
-    DayCount iborLegDayCount = iborIndex.getDayCount();
     BusinessDayConvention iborLegBusinessDayConvention = iborIndex.getBusinessDayConvention();
-    boolean iborLegEom = floatingAccrualSchedule.getRollConvention().map(RollConventions.EOM::equals).orElse(false);
-    double iborLegNotional = floatingLeg.getNotionalSchedule().getAmount().getInitialValue();
-    boolean isPayer = fixedSwapLeg.getPayReceive().isPay();
+    boolean payer = fixedSwapLeg.getPayReceive().isPay();
     HolidayCalendar calendar = floatingAccrualSchedule.getBusinessDayAdjustment().getCalendar();
+    int spotLag = iborIndex.getSpotLag();
+
+    LocalDate floatingStart = floatingAccrualSchedule.getStartDate();
+    LocalDate fixedStart = fixedAccrualSchedule.getStartDate();
+    LocalDate floatingEnd = floatingAccrualSchedule.getEndDate();
+    LocalDate fixedEnd = fixedAccrualSchedule.getEndDate();
+    LocalDate start = Ordering.natural().min(floatingStart, fixedStart);
+    LocalDate end = Ordering.natural().max(floatingEnd, fixedEnd);
+
+    Period tenor = Period.between(start, end);
+
+    GeneratorSwapFixedIbor generator = new GeneratorSwapFixedIbor(
+        "Swap Generator",
+        fixedLegPeriod,
+        fixedLegDayCount,
+        iborIndex,
+        iborLegBusinessDayConvention,
+        eom,
+        spotLag,
+        calendar);
 
     SwapFixedIborDefinition definition = SwapFixedIborDefinition.from(
         settlementDate,
-        maturityDate,
-        fixedLegPeriod,
-        fixedLegDayCount,
-        fixedLegBusinessDayConvention,
-        fixedLegEom,
-        fixedLegNotional,
+        tenor,
+        generator,
+        notional,
         fixedLegRate,
-        iborLegPeriod,
-        iborLegDayCount,
-        iborLegBusinessDayConvention,
-        iborLegEom,
-        iborLegNotional,
-        iborIndex,
-        isPayer,
-        calendar);
+        payer);
 
     return definition.toDerivative(valuationDate.atStartOfDay(ZoneOffset.UTC));
   }
