@@ -22,7 +22,7 @@ import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountingCurveKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricerBeta;
+import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
 
 /**
  * Calculates a result for a {@code TermDepositTrade} for each of a set of scenarios.
@@ -61,8 +61,8 @@ public abstract class AbstractTermDepositFunction<T>
    * 
    * @return the pricer
    */
-  protected DiscountingTermDepositProductPricerBeta pricer() {
-    return DiscountingTermDepositProductPricerBeta.DEFAULT;
+  protected DiscountingTermDepositProductPricer pricer() {
+    return DiscountingTermDepositProductPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------

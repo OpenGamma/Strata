@@ -38,7 +38,7 @@ public class TermDepositTest {
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final double EPS = 1.0e-14;
 
-  @Test
+  //-------------------------------------------------------------------------
   public void test_builder() {
     TermDeposit test = TermDeposit.builder()
         .buySell(SELL)
@@ -73,6 +73,7 @@ public class TermDepositTest {
         .build());
   }
 
+  //-------------------------------------------------------------------------
   public void test_expand() {
     TermDeposit base = TermDeposit.builder()
         .buySell(SELL)
@@ -96,6 +97,7 @@ public class TermDepositTest {
     assertEquals(test.getCurrency(), GBP);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     TermDeposit test1 = TermDeposit.builder()
         .buySell(SELL)
@@ -133,4 +135,5 @@ public class TermDepositTest {
         .build();
     assertSerialization(test);
   }
+
 }

@@ -20,17 +20,15 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.rate.ForwardIborRateObservationFn;
@@ -43,6 +41,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingIborFixingDepositProductPricerTest {
+
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 16);
   private static final LocalDate START_DATE = LocalDate.of(2014, 1, 24);
   private static final LocalDate END_DATE = LocalDate.of(2014, 7, 24);
@@ -50,13 +49,13 @@ public class DiscountingIborFixingDepositProductPricerTest {
   private static final double RATE = 0.0150;
   private static final BusinessDayAdjustment BD_ADJ = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final IborFixingDeposit DEPOSIT = IborFixingDeposit.builder()
-      .businessDayAdjustment(BD_ADJ)
       .buySell(BuySell.BUY)
+      .notional(NOTIONAL)
       .startDate(START_DATE)
       .endDate(END_DATE)
+      .businessDayAdjustment(BD_ADJ)
       .index(EUR_EURIBOR_6M)
-      .notional(NOTIONAL)
-      .rate(RATE)
+      .fixedRate(RATE)
       .build();
   private static final double TOLERANCE = 1E-13;
 
@@ -65,18 +64,13 @@ public class DiscountingIborFixingDepositProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
   private static final ImmutableRatesProvider IMM_PROV;
   static {
-    CombinedInterpolatorExtrapolator interp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    double[] time_eur = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0 };
-    double[] rate_eur = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014 };
-    InterpolatedDoublesCurve curve_eur = InterpolatedDoublesCurve.from(time_eur, rate_eur, interp);
-    YieldCurve dscCurve = new YieldCurve("EUR-Discount", curve_eur);
-    double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0 };
-    double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165 };
-    InterpolatedDoublesCurve curve_index = InterpolatedDoublesCurve.from(time_index, rate_index, interp);
-    YieldCurve indexCurve = new YieldCurve("EUR-EURIBOR6M", curve_index);
+    CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
+    double[] time_eur = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0};
+    double[] rate_eur = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014};
+    InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of("EUR-Discount", time_eur, rate_eur, interp);
+    double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0};
+    double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165};
+    InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of("EUR-EURIBOR6M", time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
@@ -86,6 +80,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
         .build();
   }
 
+  //-------------------------------------------------------------------------
   public void test_presentValue() {
     ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
@@ -119,6 +114,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
     assertEquals(computed.getAmount(), 0.0d, NOTIONAL * TOLERANCE);
   }
 
+  //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
     PointSensitivities computed = test.presentValueSensitivity(DEPOSIT, IMM_PROV);
@@ -127,6 +123,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
 
+  //-------------------------------------------------------------------------
   public void test_parRate() {
     ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
@@ -141,18 +138,19 @@ public class DiscountingIborFixingDepositProductPricerTest {
     double parRate = test.parRate(DEPOSIT, mockProv);
     assertEquals(parRate, forwardRate, TOLERANCE);
     IborFixingDeposit depositPar = IborFixingDeposit.builder()
-        .businessDayAdjustment(BD_ADJ)
         .buySell(BuySell.BUY)
+        .notional(NOTIONAL)
         .startDate(START_DATE)
         .endDate(END_DATE)
+        .businessDayAdjustment(BD_ADJ)
         .index(EUR_EURIBOR_6M)
-        .notional(NOTIONAL)
-        .rate(parRate)
+        .fixedRate(parRate)
         .build();
     CurrencyAmount computedPar = test.presentValue(depositPar, mockProv);
     assertEquals(computedPar.getAmount(), 0.0, NOTIONAL * TOLERANCE);
   }
 
+  //-------------------------------------------------------------------------
   public void test_parSpread() {
     ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
@@ -166,18 +164,19 @@ public class DiscountingIborFixingDepositProductPricerTest {
         .thenReturn(forwardRate);
     double parRate = test.parSpread(DEPOSIT, mockProv);
     IborFixingDeposit depositPar = IborFixingDeposit.builder()
-        .businessDayAdjustment(BD_ADJ)
         .buySell(BuySell.BUY)
+        .notional(NOTIONAL)
         .startDate(START_DATE)
         .endDate(END_DATE)
+        .businessDayAdjustment(BD_ADJ)
         .index(EUR_EURIBOR_6M)
-        .notional(NOTIONAL)
-        .rate(RATE + parRate)
+        .fixedRate(RATE + parRate)
         .build();
     CurrencyAmount computedPar = test.presentValue(depositPar, mockProv);
     assertEquals(computedPar.getAmount(), 0.0, NOTIONAL * TOLERANCE);
   }
 
+  //-------------------------------------------------------------------------
   public void test_parSpreadSensitivity() {
     DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
     PointSensitivities computed = test.parSpreadSensitivity(DEPOSIT, IMM_PROV);
@@ -186,4 +185,5 @@ public class DiscountingIborFixingDepositProductPricerTest {
         CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, test.parSpread(DEPOSIT, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
+
 }

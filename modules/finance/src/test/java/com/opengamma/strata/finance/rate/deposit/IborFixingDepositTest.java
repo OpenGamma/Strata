@@ -39,8 +39,8 @@ public class IborFixingDepositTest {
   private static final double RATE = 0.0250;
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final DaysAdjustment DAY_ADJ = DaysAdjustment.ofBusinessDays(1, GBLO);
-  private static final double EPS = 1.0e-14;
 
+  //-------------------------------------------------------------------------
   public void test_builder_full() {
     IborFixingDeposit test = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -52,7 +52,7 @@ public class IborFixingDepositTest {
         .fixingDateOffset(DAY_ADJ)
         .dayCount(ACT_365F)
         .index(GBP_LIBOR_6M)
-        .rate(RATE)
+        .fixedRate(RATE)
         .build();
     assertEquals(test.getBusinessDayAdjustment().get(), BDA_MOD_FOLLOW);
     assertEquals(test.getBuySell(), SELL);
@@ -63,7 +63,7 @@ public class IborFixingDepositTest {
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), END_DATE);
     assertEquals(test.getIndex(), GBP_LIBOR_6M);
-    assertEquals(test.getRate(), RATE);
+    assertEquals(test.getFixedRate(), RATE);
   }
 
   public void test_builder_minimum() {
@@ -74,7 +74,7 @@ public class IborFixingDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_6M)
-        .rate(RATE)
+        .fixedRate(RATE)
         .build();
     assertEquals(test.getBusinessDayAdjustment().get(), BDA_MOD_FOLLOW);
     assertEquals(test.getBuySell(), SELL);
@@ -85,7 +85,7 @@ public class IborFixingDepositTest {
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), END_DATE);
     assertEquals(test.getIndex(), GBP_LIBOR_6M);
-    assertEquals(test.getRate(), RATE);
+    assertEquals(test.getFixedRate(), RATE);
   }
 
   public void test_builder_wrongDates() {
@@ -96,10 +96,11 @@ public class IborFixingDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_6M)
-        .rate(RATE)
+        .fixedRate(RATE)
         .build());
   }
 
+  //-------------------------------------------------------------------------
   public void test_expand() {
     IborFixingDeposit base = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -108,7 +109,7 @@ public class IborFixingDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_6M)
-        .rate(RATE)
+        .fixedRate(RATE)
         .build();
     ExpandedIborFixingDeposit test = base.expand();
     LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE);
@@ -120,10 +121,11 @@ public class IborFixingDepositTest {
     assertEquals(test.getEndDate(), expectedEndDate);
     assertEquals(test.getFloatingRate(), expectedObservation);
     assertEquals(test.getNotional(), -NOTIONAL);
-    assertEquals(test.getRate(), RATE);
+    assertEquals(test.getFixedRate(), RATE);
     assertEquals(test.getYearFraction(), expectedYearFraction);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     IborFixingDeposit test1 = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -132,7 +134,7 @@ public class IborFixingDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_6M)
-        .rate(RATE)
+        .fixedRate(RATE)
         .build();
     coverImmutableBean(test1);
     IborFixingDeposit test2 = IborFixingDeposit.builder()
@@ -142,7 +144,7 @@ public class IborFixingDepositTest {
         .endDate(LocalDate.of(2015, 4, 19))
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_3M)
-        .rate(0.015)
+        .fixedRate(0.015)
         .build();
     coverBeanEquals(test1, test2);
   }
@@ -155,8 +157,9 @@ public class IborFixingDepositTest {
         .endDate(END_DATE)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .index(GBP_LIBOR_6M)
-        .rate(RATE)
+        .fixedRate(RATE)
         .build();
     assertSerialization(test);
   }
+
 }

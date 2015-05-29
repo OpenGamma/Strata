@@ -15,6 +15,7 @@ import com.opengamma.strata.finance.Product;
  * <p>
  * A term deposit is a financial instrument that provides a fixed rate of interest on
  * an amount for a specific term.
+ * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */

@@ -40,7 +40,7 @@ import com.opengamma.strata.finance.rate.IborRateObservation;
  * <p>
  * An Ibor fixing deposit is a fictitious financial instrument that provides a floating rate of interest on
  * notional amount for a specific term, which is effectively an exchange of a fixed rate and a floating rate 
- * based on an Ibor-like index on the term end date. 
+ * based on an Ibor-like index on the term end date.
  * <p>
  * For example, an Ibor fixing deposit involves the exchange of the difference between
  * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.
@@ -105,6 +105,16 @@ public final class IborFixingDeposit
   @PropertyDefinition(get = "optional")
   private final BusinessDayAdjustment businessDayAdjustment;
   /**
+   * The Ibor index.
+   * <p>
+   * The floating rate to be paid or received is based on this index
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * <p>
+   * See {@code buySell} to determine whether this rate is paid or received.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final IborIndex index;
+  /**
    * The offset of the fixing date from the start date.
    * <p>
    * The offset is applied to the start date and is typically minus 2 business days.
@@ -127,21 +137,11 @@ public final class IborFixingDeposit
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
   /**
-   * The IBOR-like index.
-   * <p>
-   * The floating rate to be paid or received is based on this index
-   * It will be a well known market index such as 'GBP-LIBOR-3M'.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final IborIndex index;
-  /**
    * The fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
    */
   @PropertyDefinition
-  private final double rate;
+  private final double fixedRate;
 
   //-------------------------------------------------------------------------
   @ImmutablePreBuild
@@ -158,6 +158,7 @@ public final class IborFixingDeposit
       }
     }
   }
+
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
@@ -186,7 +187,7 @@ public final class IborFixingDeposit
         .currency(getCurrency())
         .notional(buySell.normalize(notional))
         .floatingRate(IborRateObservation.of(index, fixingDate))
-        .rate(rate)
+        .fixedRate(fixedRate)
         .build();
   }
 
@@ -224,28 +225,28 @@ public final class IborFixingDeposit
       LocalDate startDate,
       LocalDate endDate,
       BusinessDayAdjustment businessDayAdjustment,
+      IborIndex index,
       DaysAdjustment fixingDateOffset,
       DayCount dayCount,
-      IborIndex index,
-      double rate) {
+      double fixedRate) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(currency, "currency");
     ArgChecker.notNegative(notional, "notional");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
     JodaBeanUtils.notNull(dayCount, "dayCount");
-    JodaBeanUtils.notNull(index, "index");
     this.buySell = buySell;
     this.currency = currency;
     this.notional = notional;
     this.startDate = startDate;
     this.endDate = endDate;
     this.businessDayAdjustment = businessDayAdjustment;
+    this.index = index;
     this.fixingDateOffset = fixingDateOffset;
     this.dayCount = dayCount;
-    this.index = index;
-    this.rate = rate;
+    this.fixedRate = fixedRate;
     validate();
   }
 
@@ -345,6 +346,20 @@ public final class IborFixingDeposit
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the Ibor index.
+   * <p>
+   * The floating rate to be paid or received is based on this index
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * <p>
+   * See {@code buySell} to determine whether this rate is paid or received.
+   * @return the value of the property, not null
+   */
+  public IborIndex getIndex() {
+    return index;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the offset of the fixing date from the start date.
    * <p>
    * The offset is applied to the start date and is typically minus 2 business days.
@@ -375,26 +390,12 @@ public final class IborFixingDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR-like index.
-   * <p>
-   * The floating rate to be paid or received is based on this index
-   * It will be a well known market index such as 'GBP-LIBOR-3M'.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
-   * @return the value of the property, not null
-   */
-  public IborIndex getIndex() {
-    return index;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the fixed interest rate to be paid.
    * A 5% rate will be expressed as 0.05.
    * @return the value of the property
    */
-  public double getRate() {
-    return rate;
+  public double getFixedRate() {
+    return fixedRate;
   }
 
   //-----------------------------------------------------------------------
@@ -419,10 +420,10 @@ public final class IborFixingDeposit
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getFixingDateOffset(), other.getFixingDateOffset()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate());
+          JodaBeanUtils.equal(getFixedRate(), other.getFixedRate());
     }
     return false;
   }
@@ -436,10 +437,10 @@ public final class IborFixingDeposit
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
     return hash;
   }
 
@@ -453,10 +454,10 @@ public final class IborFixingDeposit
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("fixingDateOffset").append('=').append(getFixingDateOffset()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(getFixedRate()));
     buf.append('}');
     return buf.toString();
   }
@@ -502,6 +503,11 @@ public final class IborFixingDeposit
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "businessDayAdjustment", IborFixingDeposit.class, BusinessDayAdjustment.class);
     /**
+     * The meta-property for the {@code index} property.
+     */
+    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", IborFixingDeposit.class, IborIndex.class);
+    /**
      * The meta-property for the {@code fixingDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> fixingDateOffset = DirectMetaProperty.ofImmutable(
@@ -512,15 +518,10 @@ public final class IborFixingDeposit
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", IborFixingDeposit.class, DayCount.class);
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code fixedRate} property.
      */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IborFixingDeposit.class, IborIndex.class);
-    /**
-     * The meta-property for the {@code rate} property.
-     */
-    private final MetaProperty<Double> rate = DirectMetaProperty.ofImmutable(
-        this, "rate", IborFixingDeposit.class, Double.TYPE);
+    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
+        this, "fixedRate", IborFixingDeposit.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -532,10 +533,10 @@ public final class IborFixingDeposit
         "startDate",
         "endDate",
         "businessDayAdjustment",
+        "index",
         "fixingDateOffset",
         "dayCount",
-        "index",
-        "rate");
+        "fixedRate");
 
     /**
      * Restricted constructor.
@@ -558,14 +559,14 @@ public final class IborFixingDeposit
           return endDate;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
+        case 100346066:  // index
+          return index;
         case 873743726:  // fixingDateOffset
           return fixingDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
-        case 100346066:  // index
-          return index;
-        case 3493088:  // rate
-          return rate;
+        case 747425396:  // fixedRate
+          return fixedRate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -635,6 +636,14 @@ public final class IborFixingDeposit
     }
 
     /**
+     * The meta-property for the {@code index} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<IborIndex> index() {
+      return index;
+    }
+
+    /**
      * The meta-property for the {@code fixingDateOffset} property.
      * @return the meta-property, not null
      */
@@ -651,19 +660,11 @@ public final class IborFixingDeposit
     }
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code fixedRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code rate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> rate() {
-      return rate;
+    public MetaProperty<Double> fixedRate() {
+      return fixedRate;
     }
 
     //-----------------------------------------------------------------------
@@ -682,14 +683,14 @@ public final class IborFixingDeposit
           return ((IborFixingDeposit) bean).getEndDate();
         case -1065319863:  // businessDayAdjustment
           return ((IborFixingDeposit) bean).businessDayAdjustment;
+        case 100346066:  // index
+          return ((IborFixingDeposit) bean).getIndex();
         case 873743726:  // fixingDateOffset
           return ((IborFixingDeposit) bean).getFixingDateOffset();
         case 1905311443:  // dayCount
           return ((IborFixingDeposit) bean).getDayCount();
-        case 100346066:  // index
-          return ((IborFixingDeposit) bean).getIndex();
-        case 3493088:  // rate
-          return ((IborFixingDeposit) bean).getRate();
+        case 747425396:  // fixedRate
+          return ((IborFixingDeposit) bean).getFixedRate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -717,10 +718,10 @@ public final class IborFixingDeposit
     private LocalDate startDate;
     private LocalDate endDate;
     private BusinessDayAdjustment businessDayAdjustment;
+    private IborIndex index;
     private DaysAdjustment fixingDateOffset;
     private DayCount dayCount;
-    private IborIndex index;
-    private double rate;
+    private double fixedRate;
 
     /**
      * Restricted constructor.
@@ -739,10 +740,10 @@ public final class IborFixingDeposit
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
+      this.index = beanToCopy.getIndex();
       this.fixingDateOffset = beanToCopy.getFixingDateOffset();
       this.dayCount = beanToCopy.getDayCount();
-      this.index = beanToCopy.getIndex();
-      this.rate = beanToCopy.getRate();
+      this.fixedRate = beanToCopy.getFixedRate();
     }
 
     //-----------------------------------------------------------------------
@@ -761,14 +762,14 @@ public final class IborFixingDeposit
           return endDate;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
+        case 100346066:  // index
+          return index;
         case 873743726:  // fixingDateOffset
           return fixingDateOffset;
         case 1905311443:  // dayCount
           return dayCount;
-        case 100346066:  // index
-          return index;
-        case 3493088:  // rate
-          return rate;
+        case 747425396:  // fixedRate
+          return fixedRate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -795,17 +796,17 @@ public final class IborFixingDeposit
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
+        case 100346066:  // index
+          this.index = (IborIndex) newValue;
+          break;
         case 873743726:  // fixingDateOffset
           this.fixingDateOffset = (DaysAdjustment) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
-        case 100346066:  // index
-          this.index = (IborIndex) newValue;
-          break;
-        case 3493088:  // rate
-          this.rate = (Double) newValue;
+        case 747425396:  // fixedRate
+          this.fixedRate = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -847,10 +848,10 @@ public final class IborFixingDeposit
           startDate,
           endDate,
           businessDayAdjustment,
+          index,
           fixingDateOffset,
           dayCount,
-          index,
-          rate);
+          fixedRate);
     }
 
     //-----------------------------------------------------------------------
@@ -920,6 +921,17 @@ public final class IborFixingDeposit
     }
 
     /**
+     * Sets the {@code index} property in the builder.
+     * @param index  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder index(IborIndex index) {
+      JodaBeanUtils.notNull(index, "index");
+      this.index = index;
+      return this;
+    }
+
+    /**
      * Sets the {@code fixingDateOffset} property in the builder.
      * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
@@ -942,23 +954,12 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code index} property in the builder.
-     * @param index  the new value, not null
+     * Sets the {@code fixedRate} property in the builder.
+     * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
-    public Builder index(IborIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the {@code rate} property in the builder.
-     * @param rate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder rate(double rate) {
-      this.rate = rate;
+    public Builder fixedRate(double fixedRate) {
+      this.fixedRate = fixedRate;
       return this;
     }
 
@@ -973,10 +974,10 @@ public final class IborFixingDeposit
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
+      buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
       buf.append('}');
       return buf.toString();
     }

@@ -49,9 +49,8 @@ public final class TermDeposit
   /**
    * Whether the term deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that one pays the principal at the start date then receives the principal plus 
-   * fixed interest at the end date. A value of 'Sell' implies that the principal is paid to the counterparty 
-   * at the start date then the principal plus fixed interest is received from the counterparty at the end date.
+   * A value of 'Buy' implies payment of the principal at the start date and receipt of the
+   * principal plus interest at the end date. A value of 'Sell' implies the opposite.
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
@@ -65,7 +64,7 @@ public final class TermDeposit
   /**
    * The notional amount.
    * <p>
-   * The notional represents the principal amount, and must be non-negative in this class.
+   * The notional represents the principal amount, and must be non-negative.
    * The currency of the notional is specified by {@code currency}.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
@@ -215,9 +214,8 @@ public final class TermDeposit
   /**
    * Gets whether the term deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that one pays the principal at the start date then receives the principal plus
-   * fixed interest at the end date. A value of 'Sell' implies that the principal is paid to the counterparty
-   * at the start date then the principal plus fixed interest is received from the counterparty at the end date.
+   * A value of 'Buy' implies payment of the principal at the start date and receipt of the
+   * principal plus interest at the end date. A value of 'Sell' implies the opposite.
    * @return the value of the property, not null
    */
   public BuySell getBuySell() {
@@ -239,7 +237,7 @@ public final class TermDeposit
   /**
    * Gets the notional amount.
    * <p>
-   * The notional represents the principal amount, and must be non-negative in this class.
+   * The notional represents the principal amount, and must be non-negative.
    * The currency of the notional is specified by {@code currency}.
    * @return the value of the property
    */

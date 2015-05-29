@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate.deposit;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
@@ -54,13 +55,15 @@ public class DiscountingIborFixingDepositProductPricer {
    */
   public CurrencyAmount presentValue(IborFixingDepositProduct product, RatesProvider provider) {
     ExpandedIborFixingDeposit deposit = product.expand();
+    Currency currency = deposit.getCurrency();
     if (provider.getValuationDate().isAfter(deposit.getEndDate())) {
-      return CurrencyAmount.of(deposit.getCurrency(), 0.0d);
+      return CurrencyAmount.of(currency, 0.0d);
     }
     double forwardRate = forwardRate(deposit, provider);
-    double discountFactor = provider.discountFactor(deposit.getCurrency(), deposit.getEndDate());
-    double pv = discountFactor * deposit.getNotional() * deposit.getYearFraction() * (deposit.getRate() - forwardRate);
-    return CurrencyAmount.of(deposit.getCurrency(), pv);
+    double discountFactor = provider.discountFactor(currency, deposit.getEndDate());
+    double fv = deposit.getNotional() * deposit.getYearFraction() * (deposit.getFixedRate() - forwardRate);
+    double pv = discountFactor * fv;
+    return CurrencyAmount.of(currency, pv);
   }
 
   /**
@@ -78,10 +81,11 @@ public class DiscountingIborFixingDepositProductPricer {
     double forwardRate = forwardRate(deposit, provider);
     DiscountFactors discountFactors = provider.discountFactors(deposit.getCurrency());
     double discountFactor = discountFactors.discountFactor(deposit.getEndDate());
+    // sensitivity
     PointSensitivityBuilder sensiFwd = forwardRateSensitivity(deposit, provider)
         .multipliedBy(-discountFactor * deposit.getNotional() * deposit.getYearFraction());
     PointSensitivityBuilder sensiDsc = discountFactors.pointSensitivity(deposit.getEndDate())
-        .multipliedBy(deposit.getNotional() * deposit.getYearFraction() * (deposit.getRate() - forwardRate));
+        .multipliedBy(deposit.getNotional() * deposit.getYearFraction() * (deposit.getFixedRate() - forwardRate));
     return sensiFwd.combinedWith(sensiDsc).build();
   }
 
@@ -98,6 +102,7 @@ public class DiscountingIborFixingDepositProductPricer {
     return forwardRate(deposit, provider);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the spread to be added to the deposit rate to have a zero present value.
    * 
@@ -107,7 +112,7 @@ public class DiscountingIborFixingDepositProductPricer {
    */
   public double parSpread(IborFixingDepositProduct product, RatesProvider provider) {
     ExpandedIborFixingDeposit deposit = product.expand();
-    return forwardRate(deposit, provider) - deposit.getRate();
+    return forwardRate(deposit, provider) - deposit.getFixedRate();
   }
 
   /**
@@ -130,7 +135,8 @@ public class DiscountingIborFixingDepositProductPricer {
 
   // query the forward rate sensitivity
   private PointSensitivityBuilder forwardRateSensitivity(ExpandedIborFixingDeposit product, RatesProvider provider) {
-    return rateObservationFn.rateSensitivity(product.getFloatingRate(), product.getStartDate(), product.getEndDate(),
-        provider);
+    return rateObservationFn.rateSensitivity(
+        product.getFloatingRate(), product.getStartDate(), product.getEndDate(), provider);
   }
+
 }

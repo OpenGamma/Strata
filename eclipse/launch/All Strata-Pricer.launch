@@ -20,6 +20,7 @@
 <listEntry value="com.opengamma.strata.pricer.impl.rate"/>
 <listEntry value="com.opengamma.strata.pricer.impl.rate.swap"/>
 <listEntry value="com.opengamma.strata.pricer.rate"/>
+<listEntry value="com.opengamma.strata.pricer.rate.deposit"/>
 <listEntry value="com.opengamma.strata.pricer.rate.e2e"/>
 <listEntry value="com.opengamma.strata.pricer.rate.fra"/>
 <listEntry value="com.opengamma.strata.pricer.rate.future"/>
