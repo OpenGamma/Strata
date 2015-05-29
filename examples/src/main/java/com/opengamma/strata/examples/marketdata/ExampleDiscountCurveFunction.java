@@ -24,7 +24,7 @@ import com.opengamma.strata.market.id.DiscountCurveId;
  * <code>[currency]</code> is the curve currency and <code>[yyyy-mm-dd]</code> is
  * the valuation date.
  */
-public class ExampleDiscountingCurveFunction
+public class ExampleDiscountCurveFunction
     implements MarketDataFunction<YieldCurve, DiscountCurveId> {
 
   @Override

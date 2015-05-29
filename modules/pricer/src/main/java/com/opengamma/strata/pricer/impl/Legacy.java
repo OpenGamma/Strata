@@ -52,6 +52,20 @@ public final class Legacy {
     return DayCountFactory.of(dayCount.getName());
   }
 
+  /**
+   * Converts a legacy day count object to the new object.
+   * 
+   * @param dayCount  the day count
+   * @return the equivalent new day count
+   */
+  public static DayCount dayCount(com.opengamma.analytics.convention.daycount.DayCount dayCount) {
+    String name = dayCount.getName();
+    name = name.replace("Actual", "Act");
+    name = name.replace("Act/365", "Act/365F");
+    name = name.replace(" Normal", "");
+    return DayCount.of(name);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Converts an IBOR-like index to the legacy object.

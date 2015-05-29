@@ -5,8 +5,7 @@
  */
 package com.opengamma.strata.function.marketdata.scenarios.curves;
 
-
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
