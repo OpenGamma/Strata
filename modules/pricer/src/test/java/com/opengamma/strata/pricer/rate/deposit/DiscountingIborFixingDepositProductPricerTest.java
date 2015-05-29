@@ -103,6 +103,22 @@ public class DiscountingIborFixingDepositProductPricerTest {
     assertEquals(computed.getAmount(), expected, NOTIONAL * TOLERANCE);
   }
 
+  public void test_presentValue_ended() {
+    ExpandedIborFixingDeposit deposit = DEPOSIT.expand();
+    ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
+    DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
+    RatesProvider mockProv = mock(RatesProvider.class);
+    when(mockProv.getValuationDate()).thenReturn(LocalDate.of(2014, 8, 24));
+    double discountFactor = 0.95;
+    double forwardRate = 0.02;
+    when(mockProv.discountFactor(EUR, END_DATE)).thenReturn(discountFactor);
+    when(mockObs.rate(deposit.getFloatingRate(), deposit.getStartDate(), deposit.getEndDate(), mockProv))
+        .thenReturn(forwardRate);
+    CurrencyAmount computed = test.presentValue(DEPOSIT, mockProv);
+    assertEquals(computed.getCurrency(), EUR);
+    assertEquals(computed.getAmount(), 0.0d, NOTIONAL * TOLERANCE);
+  }
+
   public void test_presentValueSensitivity() {
     DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
     PointSensitivities computed = test.presentValueSensitivity(DEPOSIT, IMM_PROV);
