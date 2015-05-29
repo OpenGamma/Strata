@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
@@ -107,7 +107,7 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    YieldCurve yieldCurve = marketData.getValue(DiscountingCurveKey.of(currency));
+    YieldCurve yieldCurve = marketData.getValue(DiscountCurveKey.of(currency));
     Curve curve = Legacy.curve(yieldCurve);
     return ZeroRateDiscountFactors.of(currency, getValuationDate(), dayCount, curve);
   }

@@ -17,28 +17,28 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 
 /**
- * Test {@link DiscountingCurveKey}.
+ * Test {@link DiscountCurveKey}.
  */
 @Test
-public class DiscountingCurveKeyTest {
+public class DiscountCurveKeyTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    DiscountingCurveKey test = DiscountingCurveKey.of(GBP);
+    DiscountCurveKey test = DiscountCurveKey.of(GBP);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getMarketDataType(), YieldCurve.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DiscountingCurveKey test = DiscountingCurveKey.of(GBP);
+    DiscountCurveKey test = DiscountCurveKey.of(GBP);
     coverImmutableBean(test);
-    DiscountingCurveKey test2 = DiscountingCurveKey.of(USD);
+    DiscountCurveKey test2 = DiscountCurveKey.of(USD);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    DiscountingCurveKey test = DiscountingCurveKey.of(GBP);
+    DiscountCurveKey test = DiscountCurveKey.of(GBP);
     assertSerialization(test);
   }
 

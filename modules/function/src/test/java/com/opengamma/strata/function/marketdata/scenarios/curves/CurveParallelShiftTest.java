@@ -29,7 +29,7 @@ import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountCurveId;
 
 @Test
 public class CurveParallelShiftTest {
@@ -57,7 +57,7 @@ public class CurveParallelShiftTest {
             CurveParallelShift.absolute(0.1),
             CurveParallelShift.absolute(0.2),
             CurveParallelShift.absolute(0.3));
-    DiscountingCurveId curveId = DiscountingCurveId.of(Currency.GBP, curveGroupName);
+    DiscountCurveId curveId = DiscountCurveId.of(Currency.GBP, curveGroupName);
     BaseMarketData marketData =
         BaseMarketData.builder(TestHelper.date(2011, 3, 8))
             .addValue(curveId, curve)

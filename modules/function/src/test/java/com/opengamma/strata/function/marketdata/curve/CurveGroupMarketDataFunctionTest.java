@@ -48,7 +48,7 @@ import com.opengamma.strata.market.curve.config.FraCurveNode;
 import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
-import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
@@ -96,7 +96,7 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroup curveGroup = result.getValue();
     YieldAndDiscountCurve curve = curveGroup.getMulticurveProvider().getCurve(Currency.USD);
 
-    DiscountingCurveKey discountingCurveKey = DiscountingCurveKey.of(Currency.USD);
+    DiscountCurveKey discountingCurveKey = DiscountCurveKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.of(discountingCurveKey, curve, forwardCurveKey, curve);
     // TODO Is a time series actually necessary for FRAs? It's in the requirements so we have to provide it.

@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 
 @Test
@@ -36,14 +36,14 @@ public class RateCurveCurrencyFilterTest {
 
   public void matchDiscountingCurve() {
     RateCurveCurrencyFilter filter = RateCurveCurrencyFilter.of(Currency.USD);
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
+    DiscountCurveId id = DiscountCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
     YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
     assertThat(filter.apply(id, curve)).isTrue();
   }
 
   public void noMatchDiscountingCurve() {
     RateCurveCurrencyFilter filter = RateCurveCurrencyFilter.of(Currency.GBP);
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
+    DiscountCurveId id = DiscountCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
     YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
     assertThat(filter.apply(id, curve)).isFalse();
   }

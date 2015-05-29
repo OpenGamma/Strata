@@ -18,7 +18,7 @@ import com.opengamma.strata.function.marketdata.MarketDataTestUtils;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountCurveId;
 
 @Test
 public class DiscountingCurveMarketDataFunctionTest {
@@ -29,7 +29,7 @@ public class DiscountingCurveMarketDataFunctionTest {
   public void singleCurve() {
     CurveGroup curveGroup = MarketDataTestUtils.curveGroup();
     YieldCurve curve = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup);
-    DiscountingCurveId curveId = DiscountingCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
+    DiscountCurveId curveId = DiscountCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
     CurveGroupId groupId = CurveGroupId.of(MarketDataTestUtils.CURVE_GROUP_NAME);
     BaseMarketData marketData = BaseMarketData.builder(TestHelper.date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
@@ -45,8 +45,8 @@ public class DiscountingCurveMarketDataFunctionTest {
     CurveGroup curveGroup = MarketDataTestUtils.curveGroup();
     YieldCurve curve1 = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup);
     YieldCurve curve2 = MarketDataTestUtils.discountingCurve(2, Currency.GBP, curveGroup);
-    DiscountingCurveId curveId1 = DiscountingCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
-    DiscountingCurveId curveId2 = DiscountingCurveId.of(Currency.GBP, MarketDataTestUtils.CURVE_GROUP_NAME);
+    DiscountCurveId curveId1 = DiscountCurveId.of(Currency.AUD, MarketDataTestUtils.CURVE_GROUP_NAME);
+    DiscountCurveId curveId2 = DiscountCurveId.of(Currency.GBP, MarketDataTestUtils.CURVE_GROUP_NAME);
     CurveGroupId groupId = CurveGroupId.of(MarketDataTestUtils.CURVE_GROUP_NAME);
     BaseMarketData marketData = BaseMarketData.builder(TestHelper.date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
@@ -66,16 +66,16 @@ public class DiscountingCurveMarketDataFunctionTest {
     CurveGroup curveGroup1 = MarketDataTestUtils.curveGroup();
     YieldCurve curve1 = MarketDataTestUtils.discountingCurve(1, Currency.AUD, curveGroup1);
     YieldCurve curve2 = MarketDataTestUtils.discountingCurve(2, Currency.GBP, curveGroup1);
-    DiscountingCurveId curveId1 = DiscountingCurveId.of(Currency.AUD, groupName1);
-    DiscountingCurveId curveId2 = DiscountingCurveId.of(Currency.GBP, groupName1);
+    DiscountCurveId curveId1 = DiscountCurveId.of(Currency.AUD, groupName1);
+    DiscountCurveId curveId2 = DiscountCurveId.of(Currency.GBP, groupName1);
     CurveGroupId groupId1 = CurveGroupId.of(groupName1);
 
     CurveGroupName groupName2 = CurveGroupName.of("group 2");
     CurveGroup curveGroup2 = MarketDataTestUtils.curveGroup();
     YieldCurve curve3 = MarketDataTestUtils.discountingCurve(3, Currency.CHF, curveGroup2);
     YieldCurve curve4 = MarketDataTestUtils.discountingCurve(4, Currency.USD, curveGroup2);
-    DiscountingCurveId curveId3 = DiscountingCurveId.of(Currency.CHF, groupName2);
-    DiscountingCurveId curveId4 = DiscountingCurveId.of(Currency.USD, groupName2);
+    DiscountCurveId curveId3 = DiscountCurveId.of(Currency.CHF, groupName2);
+    DiscountCurveId curveId4 = DiscountCurveId.of(Currency.USD, groupName2);
     CurveGroupId groupId2 = CurveGroupId.of(groupName2);
 
     BaseMarketData marketData =

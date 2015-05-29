@@ -15,21 +15,21 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountCurveId;
 
 @Test
 public class CurveNameFilterTest {
 
   public void match() {
     CurveNameFilter filter = CurveNameFilter.of(CurveName.of("curveName"));
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
+    DiscountCurveId id = DiscountCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
     YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
     assertThat(filter.apply(id, curve)).isTrue();
   }
 
   public void noMatch() {
     CurveNameFilter filter = CurveNameFilter.of(CurveName.of("curveName"));
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
+    DiscountCurveId id = DiscountCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
     YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "notCurveName"));
     assertThat(filter.apply(id, curve)).isFalse();
   }
