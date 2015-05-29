@@ -36,7 +36,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.TradeInfo;
@@ -144,7 +143,6 @@ public class SwapCrossCurrencyEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -218,7 +216,6 @@ public class SwapCrossCurrencyEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();

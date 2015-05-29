@@ -45,11 +45,9 @@ public class EquityTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder_resolvable() {
     EquityTrade test = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVABLE_LINK)
         .quantity(100)
         .build();
-    assertEquals(test.getStandardId(), StandardId.of("OG-Trade", "1"));
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
     assertEquals(test.getSecurityLink(), RESOLVABLE_LINK);
     assertEquals(test.getQuantity(), 100);
@@ -60,13 +58,11 @@ public class EquityTradeTest {
 
   public void test_builder_resolved() {
     EquityTrade test = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVED_LINK)
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .quantity(100)
         .premium(CurrencyAmount.of(GBP, 1200))
         .build();
-    assertEquals(test.getStandardId(), StandardId.of("OG-Trade", "1"));
     assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(date(2014, 6, 30)).build());
     assertEquals(test.getSecurityLink(), RESOLVED_LINK);
     assertEquals(test.getQuantity(), 100);
@@ -78,12 +74,10 @@ public class EquityTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolveLinks_resolvable() {
     EquityTrade test = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVABLE_LINK)
         .quantity(100)
         .build();
     EquityTrade expected = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVED_LINK)
         .quantity(100)
         .build();
@@ -100,7 +94,6 @@ public class EquityTradeTest {
 
   public void test_resolveLinks_resolved() {
     EquityTrade test = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVED_LINK)
         .quantity(100)
         .build();
@@ -117,13 +110,11 @@ public class EquityTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     EquityTrade test = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVABLE_LINK)
         .quantity(100)
         .build();
     coverImmutableBean(test);
     EquityTrade test2 = EquityTrade.builder()
-        .setString(EquityTrade.meta().standardId().name(), "OG-Trade~2")
         .securityLink(RESOLVED_LINK)
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .quantity(200)
@@ -134,7 +125,6 @@ public class EquityTradeTest {
 
   public void test_serialization() {
     EquityTrade test = EquityTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .securityLink(RESOLVABLE_LINK)
         .quantity(100)
         .build();

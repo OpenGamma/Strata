@@ -34,12 +34,10 @@ public class IborFutureOptionMarginedTradePricerTest {
   private static final StandardId OPTION_SECURITY_ID = StandardId.of("OG-Ticker", "OptionSec");
   private static final Security<IborFutureOption> IBOR_FUTURE_OPTION_SECURITY =
       UnitSecurity.builder(FUTURE_OPTION_PRODUCT).standardId(OPTION_SECURITY_ID).build();
-  private static final StandardId OPTION_TRADE_ID = StandardId.of("OG-Ticker", "123");
   private static final LocalDate TRADE_DATE = date(2015, 2, 16);
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final IborFutureOptionTrade FUTURE_OPTION_TRADE_TD = IborFutureOptionTrade.builder()
-      .standardId(OPTION_TRADE_ID)
       .tradeInfo(TradeInfo.builder()
           .tradeDate(VALUATION_DATE)
           .build())
@@ -48,7 +46,6 @@ public class IborFutureOptionMarginedTradePricerTest {
       .initialPrice(TRADE_PRICE)
       .build();
   private static final IborFutureOptionTrade FUTURE_OPTION_TRADE = IborFutureOptionTrade.builder()
-      .standardId(OPTION_TRADE_ID)
       .tradeInfo(TradeInfo.builder()
           .tradeDate(TRADE_DATE)
           .build())
@@ -70,9 +67,11 @@ public class IborFutureOptionMarginedTradePricerTest {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     IborFutureOptionTrade trade = IborFutureOptionTrade.builder()
-        .standardId(OPTION_TRADE_ID).tradeInfo(TradeInfo.builder().build())
-        .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY)).quantity(OPTION_QUANTITY)
-        .initialPrice(TRADE_PRICE).build();
+        .tradeInfo(TradeInfo.builder().build())
+        .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY))
+        .quantity(OPTION_QUANTITY)
+        .initialPrice(TRADE_PRICE)
+        .build();
     assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice));
   }
 
@@ -80,8 +79,9 @@ public class IborFutureOptionMarginedTradePricerTest {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
     IborFutureOptionTrade trade = IborFutureOptionTrade.builder()
-        .standardId(OPTION_TRADE_ID).tradeInfo(TradeInfo.builder().tradeDate(VALUATION_DATE).build())
-        .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY)).quantity(OPTION_QUANTITY)
+        .tradeInfo(TradeInfo.builder().tradeDate(VALUATION_DATE).build())
+        .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY))
+        .quantity(OPTION_QUANTITY)
         .build();
     assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VALUATION_DATE, optionPrice, lastClosingPrice));
   }

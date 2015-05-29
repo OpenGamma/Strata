@@ -91,9 +91,9 @@ public class FraPricingExample {
         .build();
 
     return FraTrade.builder()
-        .standardId(StandardId.of("example", "1"))
         .product(fra)
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "1"))
             .counterparty(StandardId.of("mn", "Dealer B"))
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())

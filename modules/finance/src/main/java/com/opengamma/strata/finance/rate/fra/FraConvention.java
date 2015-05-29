@@ -38,7 +38,6 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
 
@@ -330,7 +329,6 @@ public final class FraConvention
    * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
-   * @param id  the identifier of the trade
    * @param tradeDate  the date of the trade
    * @param periodToStart  the period between the spot date and the start date
    * @param periodToEnd  the period between the spot date and the end date
@@ -340,7 +338,6 @@ public final class FraConvention
    * @return the trade
    */
   public FraTrade toTrade(
-      StandardId id,
       LocalDate tradeDate,
       Period periodToStart,
       Period periodToEnd,
@@ -351,7 +348,7 @@ public final class FraConvention
     LocalDate spotValue = getSpotDateOffset().adjust(tradeDate);
     LocalDate startDate = spotValue.plus(periodToStart);
     LocalDate endDate = spotValue.plus(periodToEnd);
-    return toTrade(id, tradeDate, startDate, endDate, buySell, notional, fixedRate);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }
 
   /**
@@ -362,7 +359,6 @@ public final class FraConvention
    * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
    * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
-   * @param id  the identifier of the trade
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
@@ -372,7 +368,6 @@ public final class FraConvention
    * @return the trade
    */
   public FraTrade toTrade(
-      StandardId id,
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
@@ -382,7 +377,6 @@ public final class FraConvention
 
     ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
     return FraTrade.builder()
-        .standardId(id)
         .tradeInfo(TradeInfo.builder()
             .tradeDate(tradeDate)
             .build())

@@ -68,12 +68,10 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final StandardId OPTION_SECURITY_ID = StandardId.of("OG-Ticker", "OptionSec");
   private static final Security<IborFutureOption> IBOR_FUTURE_OPTION_SECURITY =
       UnitSecurity.builder(FUTURE_OPTION_PRODUCT).standardId(OPTION_SECURITY_ID).build();
-  private static final StandardId OPTION_TRADE_ID = StandardId.of("OG-Ticker", "123");
   private static final LocalDate TRADE_DATE = date(2015, 2, 16);
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final IborFutureOptionTrade FUTURE_OPTION_TRADE_TD = IborFutureOptionTrade.builder()
-      .standardId(OPTION_TRADE_ID)
       .tradeInfo(TradeInfo.builder()
           .tradeDate(VALUATION_DATE)
           .build())
@@ -82,7 +80,6 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
       .initialPrice(TRADE_PRICE)
       .build();
   private static final IborFutureOptionTrade FUTURE_OPTION_TRADE = IborFutureOptionTrade.builder()
-      .standardId(OPTION_TRADE_ID)
       .tradeInfo(TradeInfo.builder()
           .tradeDate(TRADE_DATE)
           .build())

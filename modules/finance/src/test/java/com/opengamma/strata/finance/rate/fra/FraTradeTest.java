@@ -15,7 +15,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
@@ -39,10 +38,8 @@ public class FraTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     FraTrade test = FraTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .product(FRA1)
         .build();
-    assertEquals(test.getStandardId(), StandardId.of("OG-Trade", "1"));
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), FRA1);
   }
@@ -50,13 +47,11 @@ public class FraTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     FraTrade test = FraTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(FRA1)
         .build();
     coverImmutableBean(test);
     FraTrade test2 = FraTrade.builder()
-        .setString(FraTrade.meta().standardId().name(), "OG-Trade~2")
         .product(FRA2)
         .build();
     coverBeanEquals(test, test2);
@@ -64,7 +59,6 @@ public class FraTradeTest {
 
   public void test_serialization() {
     FraTrade test = FraTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(FRA1)
         .build();

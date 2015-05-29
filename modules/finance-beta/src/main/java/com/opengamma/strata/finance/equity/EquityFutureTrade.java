@@ -41,14 +41,6 @@ public final class EquityFutureTrade
     implements SecurityTrade<EquityFuture>, ImmutableBean, Serializable {
 
   /**
-   * The primary standard identifier for the trade.
-   * <p>
-   * The standard identifier is used to identify the trade.
-   * It will typically be an identifier in an external data system.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final StandardId standardId;
-  /**
    * The additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
@@ -119,14 +111,11 @@ public final class EquityFutureTrade
   }
 
   private EquityFutureTrade(
-      StandardId standardId,
       TradeInfo tradeInfo,
       SecurityLink<EquityFuture> securityLink,
       long quantity,
       double initialPrice) {
-    JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(securityLink, "securityLink");
-    this.standardId = standardId;
     this.tradeInfo = tradeInfo;
     this.securityLink = securityLink;
     this.quantity = quantity;
@@ -146,19 +135,6 @@ public final class EquityFutureTrade
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the primary standard identifier for the trade.
-   * <p>
-   * The standard identifier is used to identify the trade.
-   * It will typically be an identifier in an external data system.
-   * @return the value of the property, not null
-   */
-  @Override
-  public StandardId getStandardId() {
-    return standardId;
   }
 
   //-----------------------------------------------------------------------
@@ -224,8 +200,7 @@ public final class EquityFutureTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       EquityFutureTrade other = (EquityFutureTrade) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
+      return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           (getQuantity() == other.getQuantity()) &&
           JodaBeanUtils.equal(getInitialPrice(), other.getInitialPrice());
@@ -236,7 +211,6 @@ public final class EquityFutureTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
@@ -246,9 +220,8 @@ public final class EquityFutureTrade
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("EquityFutureTrade{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
     buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
     buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
     buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
@@ -267,11 +240,6 @@ public final class EquityFutureTrade
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code standardId} property.
-     */
-    private final MetaProperty<StandardId> standardId = DirectMetaProperty.ofImmutable(
-        this, "standardId", EquityFutureTrade.class, StandardId.class);
     /**
      * The meta-property for the {@code tradeInfo} property.
      */
@@ -298,7 +266,6 @@ public final class EquityFutureTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "standardId",
         "tradeInfo",
         "securityLink",
         "quantity",
@@ -313,8 +280,6 @@ public final class EquityFutureTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return standardId;
         case 752580658:  // tradeInfo
           return tradeInfo;
         case 807992154:  // securityLink
@@ -343,14 +308,6 @@ public final class EquityFutureTrade
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code standardId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> standardId() {
-      return standardId;
-    }
-
     /**
      * The meta-property for the {@code tradeInfo} property.
      * @return the meta-property, not null
@@ -387,8 +344,6 @@ public final class EquityFutureTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return ((EquityFutureTrade) bean).getStandardId();
         case 752580658:  // tradeInfo
           return ((EquityFutureTrade) bean).getTradeInfo();
         case 807992154:  // securityLink
@@ -418,7 +373,6 @@ public final class EquityFutureTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<EquityFutureTrade> {
 
-    private StandardId standardId;
     private TradeInfo tradeInfo;
     private SecurityLink<EquityFuture> securityLink;
     private long quantity;
@@ -436,7 +390,6 @@ public final class EquityFutureTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(EquityFutureTrade beanToCopy) {
-      this.standardId = beanToCopy.getStandardId();
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.securityLink = beanToCopy.getSecurityLink();
       this.quantity = beanToCopy.getQuantity();
@@ -447,8 +400,6 @@ public final class EquityFutureTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return standardId;
         case 752580658:  // tradeInfo
           return tradeInfo;
         case 807992154:  // securityLink
@@ -466,9 +417,6 @@ public final class EquityFutureTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          this.standardId = (StandardId) newValue;
-          break;
         case 752580658:  // tradeInfo
           this.tradeInfo = (TradeInfo) newValue;
           break;
@@ -514,7 +462,6 @@ public final class EquityFutureTrade
     @Override
     public EquityFutureTrade build() {
       return new EquityFutureTrade(
-          standardId,
           tradeInfo,
           securityLink,
           quantity,
@@ -522,17 +469,6 @@ public final class EquityFutureTrade
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code standardId} property in the builder.
-     * @param standardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder standardId(StandardId standardId) {
-      JodaBeanUtils.notNull(standardId, "standardId");
-      this.standardId = standardId;
-      return this;
-    }
-
     /**
      * Sets the {@code tradeInfo} property in the builder.
      * @param tradeInfo  the new value
@@ -577,9 +513,8 @@ public final class EquityFutureTrade
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("EquityFutureTrade.Builder{");
-      buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');

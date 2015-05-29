@@ -13,7 +13,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
@@ -27,10 +26,8 @@ public class SwapTradeTest {
 
   public void test_builder() {
     SwapTrade test = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .product(SWAP1)
         .build();
-    assertEquals(test.getStandardId(), StandardId.of("OG-Trade", "1"));
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), SWAP1);
   }
@@ -38,13 +35,11 @@ public class SwapTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     SwapTrade test = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(SWAP1)
         .build();
     coverImmutableBean(test);
     SwapTrade test2 = SwapTrade.builder()
-        .setString(SwapTrade.meta().standardId().name(), "OG-Trade~2")
         .product(SWAP2)
         .build();
     coverBeanEquals(test, test2);
@@ -52,7 +47,6 @@ public class SwapTradeTest {
 
   public void test_serialization() {
     SwapTrade test = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(SWAP1)
         .build();

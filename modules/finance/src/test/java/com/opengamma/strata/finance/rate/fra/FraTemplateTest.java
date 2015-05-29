@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Test {@link FraTemplate}.
@@ -37,7 +36,6 @@ public class FraTemplateTest {
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
-  private static final StandardId STANDARD_ID = StandardId.of("A", "B");
 
   //-------------------------------------------------------------------------
   public void test_of_PeriodIndex() {
@@ -73,7 +71,7 @@ public class FraTemplateTest {
   public void test_toTrade() {
     FraTemplate base = FraTemplate.of(Period.ofMonths(3), Period.ofMonths(6), FRA_GBP_LIBOR_3M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 4); // trade date is a holiday!
-    FraTrade test = base.toTrade(STANDARD_ID, tradeDate, BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
@@ -83,7 +81,6 @@ public class FraTemplateTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getStandardId(), STANDARD_ID);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
@@ -92,7 +89,7 @@ public class FraTemplateTest {
     FraConvention convention = FRA_GBP_LIBOR_3M.toBuilder().paymentDateOffset(PLUS_TWO_DAYS).build();
     FraTemplate base = FraTemplate.of(Period.ofMonths(3), Period.ofMonths(6), convention);
     LocalDate tradeDate = LocalDate.of(2015, 5, 4); // trade date is a holiday!
-    FraTrade test = base.toTrade(STANDARD_ID, tradeDate, BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
@@ -103,7 +100,6 @@ public class FraTemplateTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getStandardId(), STANDARD_ID);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }

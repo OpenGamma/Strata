@@ -23,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.fx.FxPayment;
@@ -40,14 +39,6 @@ import com.opengamma.strata.finance.fx.FxPayment;
 public final class SwaptionTrade
     implements ProductTrade<Swaption>, ImmutableBean, Serializable {
 
-  /**
-   * The primary standard identifier for the trade.
-   * <p>
-   * The standard identifier is used to identify the trade.
-   * It will typically be an identifier in an external data system.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final StandardId standardId;
   /**
    * The additional trade information, defaulted to an empty instance.
    * <p>
@@ -106,14 +97,11 @@ public final class SwaptionTrade
   }
 
   private SwaptionTrade(
-      StandardId standardId,
       TradeInfo tradeInfo,
       Swaption product,
       FxPayment premium) {
-    JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
-    this.standardId = standardId;
     this.tradeInfo = tradeInfo;
     this.product = product;
     this.premium = premium;
@@ -132,19 +120,6 @@ public final class SwaptionTrade
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the primary standard identifier for the trade.
-   * <p>
-   * The standard identifier is used to identify the trade.
-   * It will typically be an identifier in an external data system.
-   * @return the value of the property, not null
-   */
-  @Override
-  public StandardId getStandardId() {
-    return standardId;
   }
 
   //-----------------------------------------------------------------------
@@ -199,8 +174,7 @@ public final class SwaptionTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionTrade other = (SwaptionTrade) obj;
-      return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
-          JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
+      return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
           JodaBeanUtils.equal(getProduct(), other.getProduct()) &&
           JodaBeanUtils.equal(getPremium(), other.getPremium());
     }
@@ -210,7 +184,6 @@ public final class SwaptionTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
     hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
@@ -219,9 +192,8 @@ public final class SwaptionTrade
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("SwaptionTrade{");
-    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
     buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
     buf.append("product").append('=').append(getProduct()).append(',').append(' ');
     buf.append("premium").append('=').append(JodaBeanUtils.toString(getPremium()));
@@ -239,11 +211,6 @@ public final class SwaptionTrade
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code standardId} property.
-     */
-    private final MetaProperty<StandardId> standardId = DirectMetaProperty.ofImmutable(
-        this, "standardId", SwaptionTrade.class, StandardId.class);
     /**
      * The meta-property for the {@code tradeInfo} property.
      */
@@ -264,7 +231,6 @@ public final class SwaptionTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "standardId",
         "tradeInfo",
         "product",
         "premium");
@@ -278,8 +244,6 @@ public final class SwaptionTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return standardId;
         case 752580658:  // tradeInfo
           return tradeInfo;
         case -309474065:  // product
@@ -306,14 +270,6 @@ public final class SwaptionTrade
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code standardId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> standardId() {
-      return standardId;
-    }
-
     /**
      * The meta-property for the {@code tradeInfo} property.
      * @return the meta-property, not null
@@ -342,8 +298,6 @@ public final class SwaptionTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return ((SwaptionTrade) bean).getStandardId();
         case 752580658:  // tradeInfo
           return ((SwaptionTrade) bean).getTradeInfo();
         case -309474065:  // product
@@ -371,7 +325,6 @@ public final class SwaptionTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SwaptionTrade> {
 
-    private StandardId standardId;
     private TradeInfo tradeInfo;
     private Swaption product;
     private FxPayment premium;
@@ -388,7 +341,6 @@ public final class SwaptionTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SwaptionTrade beanToCopy) {
-      this.standardId = beanToCopy.getStandardId();
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.product = beanToCopy.getProduct();
       this.premium = beanToCopy.getPremium();
@@ -398,8 +350,6 @@ public final class SwaptionTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          return standardId;
         case 752580658:  // tradeInfo
           return tradeInfo;
         case -309474065:  // product
@@ -414,9 +364,6 @@ public final class SwaptionTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1284477768:  // standardId
-          this.standardId = (StandardId) newValue;
-          break;
         case 752580658:  // tradeInfo
           this.tradeInfo = (TradeInfo) newValue;
           break;
@@ -459,24 +406,12 @@ public final class SwaptionTrade
     @Override
     public SwaptionTrade build() {
       return new SwaptionTrade(
-          standardId,
           tradeInfo,
           product,
           premium);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code standardId} property in the builder.
-     * @param standardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder standardId(StandardId standardId) {
-      JodaBeanUtils.notNull(standardId, "standardId");
-      this.standardId = standardId;
-      return this;
-    }
-
     /**
      * Sets the {@code tradeInfo} property in the builder.
      * @param tradeInfo  the new value
@@ -512,9 +447,8 @@ public final class SwaptionTrade
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("SwaptionTrade.Builder{");
-      buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));

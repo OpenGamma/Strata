@@ -160,9 +160,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs Libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -209,9 +209,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Libor 3m + spread vs Libor 6m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Libor 3m + spread vs Libor 6m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -260,9 +260,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fed Funds averaged + spread vs Libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fed Funds averaged + spread vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -306,9 +306,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs libor 3m (with fixing)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs libor 3m (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2013, 9, 12))
             .build())
@@ -356,9 +356,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs ON (with fixing)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs ON (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 17))
             .build())
@@ -403,9 +403,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs Libor 3m (3m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs Libor 3m (3m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -451,9 +451,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs Libor 3m (1m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs Libor 3m (1m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -502,9 +502,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs Libor 6m (interpolated 3m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs Libor 6m (interpolated 3m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -553,9 +553,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs Libor 6m (interpolated 4m short initial stub)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs Libor 6m (interpolated 4m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -601,9 +601,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Zero-coupon fixed vs libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Zero-coupon fixed vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -648,9 +648,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Compounding fixed vs fed funds"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Compounding fixed vs fed funds"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 2, 5))
             .build())
@@ -697,9 +697,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Compounding fed funds vs libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Compounding fed funds vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -744,9 +744,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Compounding libor 6m vs libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Compounding libor 6m vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 8, 27))
             .build())
@@ -788,9 +788,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "GBP Libor 3m vs USD Libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "GBP Libor 3m vs USD Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
             .build())
@@ -832,9 +832,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "USD fixed vs GBP Libor 3m"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "USD fixed vs GBP Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
             .build())
@@ -886,9 +886,9 @@ public class SwapPricingExample {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "USD fixed vs GBP Libor 3m (notional exchange)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "USD fixed vs GBP Libor 3m (notional exchange)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
             .build())
