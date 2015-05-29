@@ -22,113 +22,108 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 
 /**
- * A curve node whose instrument is a forward rate agreement (FRA).
+ * A curve node whose instrument is a Fixed-Ibor interest rate swap.
  */
 @BeanDefinition
-public final class FraCurveNode implements CurveNode, ImmutableBean {
+public final class FixedIborSwapCurveNode implements CurveNode, ImmutableBean {
 
-  /** The template for the FRA associated with this node. */
+  /** The template for the swap associated with the node. */
   @PropertyDefinition(validate = "notNull")
-  private final FraTemplate template;
+  private final FixedIborSwapTemplate template;
 
-  /** The provider of the rate used for building a trade from the template. */
+  /** The key identifying the market data value which provides the rate. */
   @PropertyDefinition(validate = "notNull")
-  private final CurveNodeRateProvider rateProvider;
+  private final ObservableKey rateKey;
+
+  /** The spread added to the rate. */
+  @PropertyDefinition
+  private final double spread;
 
   /**
-   * Returns a node whose instrument is built from the template and whose rate is provided by the rate provider.
+   * Returns a curve node for a fixed-float interest rate swap using the specified instrument template and rate.
    *
-   * @param template  the template used for building the instrument for the node
-   * @param rateProvider  provides the rate used when building the instrument for the node
-   * @return a node whose instrument is built from the template and whose rate is provided by the rate provider
+   * @param template  template defining the node instrument
+   * @param rateKey  key identifying the market data providing the rate for the node instrument
+   * @return a curve node for a fixed-float interest rate swap using the specified instrument template and rate
    */
-  public static FraCurveNode of(FraTemplate template, CurveNodeRateProvider rateProvider) {
-    return FraCurveNode.builder().template(template).rateProvider(rateProvider).build();
+  public static FixedIborSwapCurveNode of(FixedIborSwapTemplate template, ObservableKey rateKey) {
+    return new FixedIborSwapCurveNode(template, rateKey, 0);
   }
 
   /**
-   * Returns a node whose instrument is built from the template using a market rate.
+   * Returns a curve node for a fixed-float interest rate swap using the specified instrument template and rate.
    *
-   * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node.
-   * @return a node whose instrument is built from the template using a market rate
+   * @param template  template defining the node instrument
+   * @param rateKey  key identifying the market data providing the rate for the node instrument
+   * @param spread  the spread amount added to the rate
+   * @return a curve node for a fixed-float interest rate swap using the specified instrument template and rate
    */
-  public static FraCurveNode ofMarketRate(FraTemplate template, ObservableKey rateKey) {
-    CurveNodeMarketRateProvider rateProvider = CurveNodeMarketRateProvider.of(rateKey);
-    return FraCurveNode.builder()
-        .template(template)
-        .rateProvider(rateProvider)
-        .build();
-  }
-
-  /**
-   * Returns a node whose instrument is built from the template using a fixed rate.
-   *
-   * @param template  the template used for building the instrument for the node
-   * @param fixedRate  the rate used when building the instrument
-   * @return a node whose instrument is built from the template using a fixed rate
-   */
-  public static FraCurveNode ofFixedRate(FraTemplate template, double fixedRate) {
-    CurveNodeFixedRateProvider rateProvider = CurveNodeFixedRateProvider.of(fixedRate);
-    return FraCurveNode.builder()
-        .template(template)
-        .rateProvider(rateProvider)
-        .build();
+  public static FixedIborSwapCurveNode of(FixedIborSwapTemplate template, ObservableKey rateKey, double spread) {
+    return new FixedIborSwapCurveNode(template, rateKey, spread);
   }
 
   @Override
   public Set<ObservableKey> requirements() {
-    return rateProvider.requirements();
+    return ImmutableSet.of(rateKey);
   }
 
   @Override
   public Trade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
-    BuySell buySell = BuySell.BUY;
-    double notional = 1;
-    double fixedRate = rateProvider.rate(marketData);
-    return template.toTrade(valuationDate, buySell, notional, fixedRate);
+    return template.toTrade(valuationDate, BuySell.BUY, 1, rate(marketData));
+  }
+
+  // returns the rate from the market data for the rate key or throws an exception if it isn't available
+  private double rate(Map<ObservableKey, Double> marketData) {
+    Double rate = marketData.get(rateKey);
+    if (rate == null) {
+      throw new IllegalArgumentException("No market data available for " + rateKey);
+    }
+    return rate + spread;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FraCurveNode}.
+   * The meta-bean for {@code FixedIborSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static FraCurveNode.Meta meta() {
-    return FraCurveNode.Meta.INSTANCE;
+  public static FixedIborSwapCurveNode.Meta meta() {
+    return FixedIborSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FraCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FixedIborSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FraCurveNode.Builder builder() {
-    return new FraCurveNode.Builder();
+  public static FixedIborSwapCurveNode.Builder builder() {
+    return new FixedIborSwapCurveNode.Builder();
   }
 
-  private FraCurveNode(
-      FraTemplate template,
-      CurveNodeRateProvider rateProvider) {
+  private FixedIborSwapCurveNode(
+      FixedIborSwapTemplate template,
+      ObservableKey rateKey,
+      double spread) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(rateProvider, "rateProvider");
+    JodaBeanUtils.notNull(rateKey, "rateKey");
     this.template = template;
-    this.rateProvider = rateProvider;
+    this.rateKey = rateKey;
+    this.spread = spread;
   }
 
   @Override
-  public FraCurveNode.Meta metaBean() {
-    return FraCurveNode.Meta.INSTANCE;
+  public FixedIborSwapCurveNode.Meta metaBean() {
+    return FixedIborSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -143,20 +138,29 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the FRA associated with this node.
+   * Gets the template for the swap associated with the node.
    * @return the value of the property, not null
    */
-  public FraTemplate getTemplate() {
+  public FixedIborSwapTemplate getTemplate() {
     return template;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the provider of the rate used for building a trade from the template.
+   * Gets the key identifying the market data value which provides the rate.
    * @return the value of the property, not null
    */
-  public CurveNodeRateProvider getRateProvider() {
-    return rateProvider;
+  public ObservableKey getRateKey() {
+    return rateKey;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the spread added to the rate.
+   * @return the value of the property
+   */
+  public double getSpread() {
+    return spread;
   }
 
   //-----------------------------------------------------------------------
@@ -174,9 +178,10 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FraCurveNode other = (FraCurveNode) obj;
+      FixedIborSwapCurveNode other = (FixedIborSwapCurveNode) obj;
       return JodaBeanUtils.equal(getTemplate(), other.getTemplate()) &&
-          JodaBeanUtils.equal(getRateProvider(), other.getRateProvider());
+          JodaBeanUtils.equal(getRateKey(), other.getRateKey()) &&
+          JodaBeanUtils.equal(getSpread(), other.getSpread());
     }
     return false;
   }
@@ -185,23 +190,25 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getTemplate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRateProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRateKey());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("FraCurveNode{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FixedIborSwapCurveNode{");
     buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
-    buf.append("rateProvider").append('=').append(JodaBeanUtils.toString(getRateProvider()));
+    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FraCurveNode}.
+   * The meta-bean for {@code FixedIborSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -212,20 +219,26 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FraTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", FraCurveNode.class, FraTemplate.class);
+    private final MetaProperty<FixedIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", FixedIborSwapCurveNode.class, FixedIborSwapTemplate.class);
     /**
-     * The meta-property for the {@code rateProvider} property.
+     * The meta-property for the {@code rateKey} property.
      */
-    private final MetaProperty<CurveNodeRateProvider> rateProvider = DirectMetaProperty.ofImmutable(
-        this, "rateProvider", FraCurveNode.class, CurveNodeRateProvider.class);
+    private final MetaProperty<ObservableKey> rateKey = DirectMetaProperty.ofImmutable(
+        this, "rateKey", FixedIborSwapCurveNode.class, ObservableKey.class);
+    /**
+     * The meta-property for the {@code spread} property.
+     */
+    private final MetaProperty<Double> spread = DirectMetaProperty.ofImmutable(
+        this, "spread", FixedIborSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "rateProvider");
+        "rateKey",
+        "spread");
 
     /**
      * Restricted constructor.
@@ -238,20 +251,22 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -787949839:  // rateProvider
-          return rateProvider;
+        case 983444831:  // rateKey
+          return rateKey;
+        case -895684237:  // spread
+          return spread;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public FraCurveNode.Builder builder() {
-      return new FraCurveNode.Builder();
+    public FixedIborSwapCurveNode.Builder builder() {
+      return new FixedIborSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends FraCurveNode> beanType() {
-      return FraCurveNode.class;
+    public Class<? extends FixedIborSwapCurveNode> beanType() {
+      return FixedIborSwapCurveNode.class;
     }
 
     @Override
@@ -264,16 +279,24 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FraTemplate> template() {
+    public MetaProperty<FixedIborSwapTemplate> template() {
       return template;
     }
 
     /**
-     * The meta-property for the {@code rateProvider} property.
+     * The meta-property for the {@code rateKey} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveNodeRateProvider> rateProvider() {
-      return rateProvider;
+    public MetaProperty<ObservableKey> rateKey() {
+      return rateKey;
+    }
+
+    /**
+     * The meta-property for the {@code spread} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> spread() {
+      return spread;
     }
 
     //-----------------------------------------------------------------------
@@ -281,9 +304,11 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((FraCurveNode) bean).getTemplate();
-        case -787949839:  // rateProvider
-          return ((FraCurveNode) bean).getRateProvider();
+          return ((FixedIborSwapCurveNode) bean).getTemplate();
+        case 983444831:  // rateKey
+          return ((FixedIborSwapCurveNode) bean).getRateKey();
+        case -895684237:  // spread
+          return ((FixedIborSwapCurveNode) bean).getSpread();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -301,12 +326,13 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FraCurveNode}.
+   * The bean-builder for {@code FixedIborSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FraCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FixedIborSwapCurveNode> {
 
-    private FraTemplate template;
-    private CurveNodeRateProvider rateProvider;
+    private FixedIborSwapTemplate template;
+    private ObservableKey rateKey;
+    private double spread;
 
     /**
      * Restricted constructor.
@@ -318,9 +344,10 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FraCurveNode beanToCopy) {
+    private Builder(FixedIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.rateProvider = beanToCopy.getRateProvider();
+      this.rateKey = beanToCopy.getRateKey();
+      this.spread = beanToCopy.getSpread();
     }
 
     //-----------------------------------------------------------------------
@@ -329,8 +356,10 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -787949839:  // rateProvider
-          return rateProvider;
+        case 983444831:  // rateKey
+          return rateKey;
+        case -895684237:  // spread
+          return spread;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -340,10 +369,13 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (FraTemplate) newValue;
+          this.template = (FixedIborSwapTemplate) newValue;
           break;
-        case -787949839:  // rateProvider
-          this.rateProvider = (CurveNodeRateProvider) newValue;
+        case 983444831:  // rateKey
+          this.rateKey = (ObservableKey) newValue;
+          break;
+        case -895684237:  // spread
+          this.spread = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -376,10 +408,11 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     }
 
     @Override
-    public FraCurveNode build() {
-      return new FraCurveNode(
+    public FixedIborSwapCurveNode build() {
+      return new FixedIborSwapCurveNode(
           template,
-          rateProvider);
+          rateKey,
+          spread);
     }
 
     //-----------------------------------------------------------------------
@@ -388,30 +421,41 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FraTemplate template) {
+    public Builder template(FixedIborSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
     }
 
     /**
-     * Sets the {@code rateProvider} property in the builder.
-     * @param rateProvider  the new value, not null
+     * Sets the {@code rateKey} property in the builder.
+     * @param rateKey  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateProvider(CurveNodeRateProvider rateProvider) {
-      JodaBeanUtils.notNull(rateProvider, "rateProvider");
-      this.rateProvider = rateProvider;
+    public Builder rateKey(ObservableKey rateKey) {
+      JodaBeanUtils.notNull(rateKey, "rateKey");
+      this.rateKey = rateKey;
+      return this;
+    }
+
+    /**
+     * Sets the {@code spread} property in the builder.
+     * @param spread  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder spread(double spread) {
+      this.spread = spread;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("FraCurveNode.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("FixedIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("rateProvider").append('=').append(JodaBeanUtils.toString(rateProvider));
+      buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
+      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
       buf.append('}');
       return buf.toString();
     }
