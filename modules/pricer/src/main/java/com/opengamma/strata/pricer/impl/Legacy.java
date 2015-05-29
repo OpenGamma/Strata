@@ -46,7 +46,7 @@ public final class Legacy {
    * Converts a day count to the equivalent legacy day count.
    *
    * @param dayCount  a day count
-   * @return a legacy day count with the same name as the argument
+   * @return the equivalent legacy day count
    */
   public static com.opengamma.analytics.convention.daycount.DayCount dayCount(DayCount dayCount) {
     return DayCountFactory.of(dayCount.getName());

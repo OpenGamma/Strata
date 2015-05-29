@@ -28,7 +28,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 
 /**
- * A curve node whose instrument is a forward rate agreement.
+ * A curve node whose instrument is a forward rate agreement (FRA).
  */
 @BeanDefinition
 public final class FraCurveNode implements CurveNode, ImmutableBean {

@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -65,6 +66,7 @@ import com.opengamma.strata.market.curve.config.FraCurveNode;
 import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
@@ -201,12 +203,12 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroup curveGroup = result.getValue();
     YieldAndDiscountCurve curve = curveGroup.getMulticurveProvider().getCurve(Currency.USD);
 
-    DiscountingCurveKey discountingCurveKey = DiscountingCurveKey.of(Currency.USD);
+    DiscountCurveKey discountCurveKey = DiscountCurveKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
-        .put(discountingCurveKey, curve)
+        .put(discountCurveKey, curve)
         .put(forwardCurveKey, curve)
         .build();
     Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =
