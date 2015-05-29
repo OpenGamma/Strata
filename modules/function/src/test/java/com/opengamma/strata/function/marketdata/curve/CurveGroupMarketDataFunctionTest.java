@@ -93,13 +93,13 @@ public class CurveGroupMarketDataFunctionTest {
    * Tests calibration a curve containing FRAs and pricing the curve instruments using the curve.
    */
   public void roundTripFra() {
-    FraCurveNode node1x4   = fraNodeFixed(1, 0.3);
-    FraCurveNode node2x5   = fraNodeFixed(2, 0.33);
-    FraCurveNode node3x6   = fraNodeFixed(3, 0.37);
-    FraCurveNode node6x9   = fraNodeFixed(6, 0.54);
-    FraCurveNode node9x12  = fraNodeFixed(9, 0.7);
-    FraCurveNode node12x15 = fraNodeFixed(12, 0.91);
-    FraCurveNode node18x21 = fraNodeFixed(18, 1.34);
+    FraCurveNode node1x4   = fraNodeFixed(1, 0.003);
+    FraCurveNode node2x5   = fraNodeFixed(2, 0.0033);
+    FraCurveNode node3x6   = fraNodeFixed(3, 0.0037);
+    FraCurveNode node6x9   = fraNodeFixed(6, 0.0054);
+    FraCurveNode node9x12  = fraNodeFixed(9, 0.007);
+    FraCurveNode node12x15 = fraNodeFixed(12, 0.0091);
+    FraCurveNode node18x21 = fraNodeFixed(18, 0.0134);
 
     List<CurveNode> nodes = ImmutableList.of(node1x4, node2x5, node3x6, node6x9, node9x12, node12x15, node18x21);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
@@ -148,21 +148,19 @@ public class CurveGroupMarketDataFunctionTest {
   }
 
   public void roundTripFraAndFixedFloatSwap() {
-    String fra1x4 = "fra1x4";
-    String fra2x5 = "fra2x5";
     String fra3x6 = "fra3x6";
-    String swap6m = "swap6m";
-    String swap9m = "swap9m";
+    String fra6x9 = "fra6x9";
     String swap1y = "swap1y";
+    String swap2y = "swap2y";
+    String swap3y = "swap3y";
 
-    FraCurveNode fra1x4Node = fraNode(1, fra1x4);
-    FraCurveNode fra2x5Node = fraNode(2, fra2x5);
     FraCurveNode fra3x6Node = fraNode(3, fra3x6);
-    FixedIborSwapCurveNode swap6mNode = fixedIborSwapNode(6, swap6m);
-    FixedIborSwapCurveNode swap9mNode = fixedIborSwapNode(9, swap9m);
-    FixedIborSwapCurveNode swap1yNode = fixedIborSwapNode(12, swap1y);
+    FraCurveNode fra6x9Node = fraNode(6, fra6x9);
+    FixedIborSwapCurveNode swap1yNode = fixedIborSwapNode(Tenor.TENOR_1Y, swap1y);
+    FixedIborSwapCurveNode swap2yNode = fixedIborSwapNode(Tenor.TENOR_2Y, swap2y);
+    FixedIborSwapCurveNode swap3yNode = fixedIborSwapNode(Tenor.TENOR_3Y, swap3y);
 
-    List<CurveNode> nodes = ImmutableList.of(fra1x4Node, fra2x5Node, fra3x6Node, swap6mNode, swap9mNode, swap1yNode);
+    List<CurveNode> nodes = ImmutableList.of(fra3x6Node, fra6x9Node, swap1yNode, swap2yNode, swap3yNode);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA and Fixed-Float Swap Curve");
 
@@ -183,12 +181,11 @@ public class CurveGroupMarketDataFunctionTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(id(fra1x4), 0.3)
-        .put(id(fra2x5), 0.33)
-        .put(id(fra3x6), 0.37)
-        .put(id(swap6m), 0.54)
-        .put(id(swap9m), 0.7)
-        .put(id(swap1y), 0.91)
+        .put(id(fra3x6), 0.0037)
+        .put(id(fra6x9), 0.0054)
+        .put(id(swap1y), 0.005)
+        .put(id(swap2y), 0.0087)
+        .put(id(swap3y), 0.012)
         .build();
 
     ParRates parRates = ParRates.of(parRateData);
@@ -215,12 +212,11 @@ public class CurveGroupMarketDataFunctionTest {
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 
-    checkFraPvIsZero(fra1x4Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra2x5Node, valuationDate, ratesProvider, quotesMap);
     checkFraPvIsZero(fra3x6Node, valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero(swap6mNode, valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero(swap9mNode, valuationDate, ratesProvider, quotesMap);
+    checkFraPvIsZero(fra6x9Node, valuationDate, ratesProvider, quotesMap);
     checkSwapPvIsZero(swap1yNode, valuationDate, ratesProvider, quotesMap);
+    checkSwapPvIsZero(swap2yNode, valuationDate, ratesProvider, quotesMap);
+    checkSwapPvIsZero(swap3yNode, valuationDate, ratesProvider, quotesMap);
   }
 
   private static ObservableId id(String idValue) {
@@ -306,7 +302,7 @@ public class CurveGroupMarketDataFunctionTest {
     Trade trade = node.buildTrade(valuationDate, marketDataMap);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue((FraTrade) trade, ratesProvider);
     double pv = currencyAmount.getAmount();
-    assertThat(pv).isCloseTo(0, offset(1e-6));
+    assertThat(pv).isCloseTo(0, offset(1e-10));
   }
 
   private void checkSwapPvIsZero(
@@ -318,7 +314,7 @@ public class CurveGroupMarketDataFunctionTest {
     Trade trade = node.buildTrade(valuationDate, marketDataMap);
     MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue((SwapTrade) trade, ratesProvider);
     double pv = amount.getAmount(USD).getAmount();
-    assertThat(pv).isCloseTo(0, offset(1e-6));
+    assertThat(pv).isCloseTo(0, offset(1e-10));
   }
 
   private static FraCurveNode fraNodeFixed(int startTenor, double rate) {
@@ -326,17 +322,15 @@ public class CurveGroupMarketDataFunctionTest {
     return FraCurveNode.ofFixedRate(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), rate / 100);
   }
 
-  private static FraCurveNode fraNode(int startTenor, String id) {
-    Period periodToStart = Period.ofMonths(startTenor);
+  private static FraCurveNode fraNode(int startMonths, String id) {
+    Period periodToStart = Period.ofMonths(startMonths);
     QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
     return FraCurveNode.ofMarketRate(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteKey);
   }
 
-  private static FixedIborSwapCurveNode fixedIborSwapNode(int startTenor, String id) {
-    Period periodToStart = Period.ofMonths(startTenor);
+  private static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
     QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    Tenor tenor = FLOATING_CONVENTION.getIndex().getTenor();
-    FixedIborSwapTemplate template = FixedIborSwapTemplate.of(periodToStart, tenor, SWAP_CONVENTION);
+    FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Period.ZERO, tenor, SWAP_CONVENTION);
     return FixedIborSwapCurveNode.of(template, quoteKey);
   }
 
