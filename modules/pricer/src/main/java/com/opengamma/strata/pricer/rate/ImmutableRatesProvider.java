@@ -27,8 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
@@ -39,6 +37,7 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
@@ -78,13 +77,13 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Currency, YieldAndDiscountCurve> discountCurves;
+  private final ImmutableMap<Currency, Curve> discountCurves;
   /**
    * The forward curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Index, YieldAndDiscountCurve> indexCurves;
+  private final ImmutableMap<Index, Curve> indexCurves;
   /**
    * The time-series, defaulted to an empty map.
    * The historic data associated with each index.
@@ -152,8 +151,8 @@ public final class ImmutableRatesProvider
   }
 
   // finds the index curve
-  private YieldCurve indexCurve(Index index) {
-    YieldCurve curve = (YieldCurve) indexCurves.get(index);
+  private Curve indexCurve(Index index) {
+    Curve curve = indexCurves.get(index);
     if (curve == null) {
       throw new IllegalArgumentException("Unable to find index curve: " + index);
     }
@@ -174,7 +173,7 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    YieldCurve curve = (YieldCurve) discountCurves.get(currency);
+    Curve curve = discountCurves.get(currency);
     if (curve == null) {
       throw new IllegalArgumentException("Unable to find discount curve: " + currency);
     }
@@ -193,7 +192,7 @@ public final class ImmutableRatesProvider
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
-    YieldCurve curve = indexCurve(index);
+    Curve curve = indexCurve(index);
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
@@ -201,7 +200,7 @@ public final class ImmutableRatesProvider
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
-    YieldCurve curve = indexCurve(index);
+    Curve curve = indexCurve(index);
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }
@@ -238,8 +237,8 @@ public final class ImmutableRatesProvider
   private ImmutableRatesProvider(
       LocalDate valuationDate,
       FxMatrix fxMatrix,
-      Map<Currency, YieldAndDiscountCurve> discountCurves,
-      Map<Index, YieldAndDiscountCurve> indexCurves,
+      Map<Currency, Curve> discountCurves,
+      Map<Index, Curve> indexCurves,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries,
       Map<Class<?>, Object> additionalData,
       DayCount dayCount) {
@@ -301,7 +300,7 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Currency, YieldAndDiscountCurve> getDiscountCurves() {
+  public ImmutableMap<Currency, Curve> getDiscountCurves() {
     return discountCurves;
   }
 
@@ -311,7 +310,7 @@ public final class ImmutableRatesProvider
    * The curve data, predicting the future, associated with each index.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Index, YieldAndDiscountCurve> getIndexCurves() {
+  public ImmutableMap<Index, Curve> getIndexCurves() {
     return indexCurves;
   }
 
@@ -423,13 +422,13 @@ public final class ImmutableRatesProvider
      * The meta-property for the {@code discountCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Currency, YieldAndDiscountCurve>> discountCurves = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<Currency, Curve>> discountCurves = DirectMetaProperty.ofImmutable(
         this, "discountCurves", ImmutableRatesProvider.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code indexCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Index, YieldAndDiscountCurve>> indexCurves = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<Index, Curve>> indexCurves = DirectMetaProperty.ofImmutable(
         this, "indexCurves", ImmutableRatesProvider.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeries} property.
@@ -524,7 +523,7 @@ public final class ImmutableRatesProvider
      * The meta-property for the {@code discountCurves} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Currency, YieldAndDiscountCurve>> discountCurves() {
+    public MetaProperty<ImmutableMap<Currency, Curve>> discountCurves() {
       return discountCurves;
     }
 
@@ -532,7 +531,7 @@ public final class ImmutableRatesProvider
      * The meta-property for the {@code indexCurves} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Index, YieldAndDiscountCurve>> indexCurves() {
+    public MetaProperty<ImmutableMap<Index, Curve>> indexCurves() {
       return indexCurves;
     }
 
@@ -601,8 +600,8 @@ public final class ImmutableRatesProvider
 
     private LocalDate valuationDate;
     private FxMatrix fxMatrix;
-    private Map<Currency, YieldAndDiscountCurve> discountCurves = ImmutableMap.of();
-    private Map<Index, YieldAndDiscountCurve> indexCurves = ImmutableMap.of();
+    private Map<Currency, Curve> discountCurves = ImmutableMap.of();
+    private Map<Index, Curve> indexCurves = ImmutableMap.of();
     private Map<Index, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
     private Map<Class<?>, Object> additionalData = ImmutableMap.of();
     private DayCount dayCount;
@@ -662,10 +661,10 @@ public final class ImmutableRatesProvider
           this.fxMatrix = (FxMatrix) newValue;
           break;
         case -624113147:  // discountCurves
-          this.discountCurves = (Map<Currency, YieldAndDiscountCurve>) newValue;
+          this.discountCurves = (Map<Currency, Curve>) newValue;
           break;
         case 886361302:  // indexCurves
-          this.indexCurves = (Map<Index, YieldAndDiscountCurve>) newValue;
+          this.indexCurves = (Map<Index, Curve>) newValue;
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (Map<Index, LocalDateDoubleTimeSeries>) newValue;
@@ -746,7 +745,7 @@ public final class ImmutableRatesProvider
      * @param discountCurves  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder discountCurves(Map<Currency, YieldAndDiscountCurve> discountCurves) {
+    public Builder discountCurves(Map<Currency, Curve> discountCurves) {
       JodaBeanUtils.notNull(discountCurves, "discountCurves");
       this.discountCurves = discountCurves;
       return this;
@@ -757,7 +756,7 @@ public final class ImmutableRatesProvider
      * @param indexCurves  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder indexCurves(Map<Index, YieldAndDiscountCurve> indexCurves) {
+    public Builder indexCurves(Map<Index, Curve> indexCurves) {
       JodaBeanUtils.notNull(indexCurves, "indexCurves");
       this.indexCurves = indexCurves;
       return this;

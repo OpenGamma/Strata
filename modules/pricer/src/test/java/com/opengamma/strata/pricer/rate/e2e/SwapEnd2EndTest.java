@@ -813,7 +813,7 @@ public class SwapEnd2EndTest {
     return ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 1, 22))
         .fxMatrix(MULTICURVE_OIS.getFxRates())
-        .discountCurves(MULTICURVE_OIS.getDiscountingCurves())
+        .discountCurves(Legacy.discountCurves(MULTICURVE_OIS))
         .indexCurves(Legacy.indexCurves(MULTICURVE_OIS))
         .timeSeries(ImmutableMap.of(
             USD_LIBOR_1M, TS_USDLIBOR1M,

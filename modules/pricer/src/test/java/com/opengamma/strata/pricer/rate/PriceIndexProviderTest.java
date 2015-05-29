@@ -19,13 +19,12 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
@@ -39,25 +38,24 @@ import com.opengamma.strata.market.value.PriceIndexValues;
 @Test
 public class PriceIndexProviderTest {
 
-  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final YearMonth VAL_MONTH = YearMonth.of(2014, 6);
 
   private static final PriceIndexValues USCPIU_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
       VAL_MONTH,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
-      InterpolatedDoublesCurve.from(new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
+      InterpolatedNodalCurve.of("GB-RPI", new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
       VAL_MONTH,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
-      InterpolatedDoublesCurve.from(new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
+      InterpolatedNodalCurve.of("GB-RPI", new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
   private static final PriceIndexValues JPCPIEXF_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
       VAL_MONTH,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 194d),
-      InterpolatedDoublesCurve.from(new double[] {1d, 10d}, new double[] {194d, 194d}, INTERPOLATOR));
+      InterpolatedNodalCurve.of("GB-RPI", new double[] {1d, 10d}, new double[] {194d, 194d}, INTERPOLATOR));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -93,13 +91,9 @@ public class PriceIndexProviderTest {
     YearMonth valuationMonth = YearMonth.of(2014, 1);
     double[] x = new double[] {0.5, 1.0, 2.0};
     double[] y = new double[] {224.2, 262.6, 277.5};
-    CombinedInterpolatorExtrapolator interp =
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-            Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
-            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    NaturalCubicSplineInterpolator1D interp = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
     String curveName = "GB_RPI_CURVE";
-    InterpolatedDoublesCurve interpCurve = InterpolatedDoublesCurve.from(x, y, interp, curveName);
+    InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(curveName, x, y, interp);
     PriceIndexValues values = ForwardPriceIndexValues.of(
         GB_RPI,
         valuationMonth,

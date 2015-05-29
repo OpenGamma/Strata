@@ -21,16 +21,16 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -51,20 +51,13 @@ public class DiscountFxIndexRatesTest {
       .maturityDateOffset(DaysAdjustment.ofCalendarDays(1))
       .build();
 
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME1 = CurveName.of("TestCurve");
   private static final CurveName NAME2 = CurveName.of("TestCurveUSD");
-  private static final YieldCurve CURVE1 = YieldCurve.from(
-      InterpolatedDoublesCurve.fromSorted(
-          new double[] {0, 10},
-          new double[] {0.01, 0.02},
-          Interpolator1DFactory.LINEAR_INSTANCE,
-          NAME1.toString()));
-  private static final YieldCurve CURVE2 = YieldCurve.from(
-      InterpolatedDoublesCurve.fromSorted(
-          new double[] {0, 10},
-          new double[] {0.015, 0.025},
-          Interpolator1DFactory.LINEAR_INSTANCE,
-          NAME2.toString()));
+  private static final InterpolatedNodalCurve CURVE1 =
+      InterpolatedNodalCurve.of(NAME1, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE2 =
+      InterpolatedNodalCurve.of(NAME2, new double[] {0, 10}, new double[] {0.015, 0.025}, INTERPOLATOR);
   private static final ZeroRateDiscountFactors DFCURVE_GBP =
       ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE1);
   private static final ZeroRateDiscountFactors DFCURVE_GBP2 =
@@ -110,6 +103,17 @@ public class DiscountFxIndexRatesTest {
   public void test_of_nonMatchingValuationDates() {
     DiscountFactors curve2 = ZeroRateDiscountFactors.of(USD, DATE_AFTER, ACT_360, CURVE2);
     assertThrowsIllegalArg(() -> DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, curve2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withDiscountFactors() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    test = test.withDiscountFactors(DFCURVE_GBP2, DFCURVE_USD2);
+    assertEquals(test.getIndex(), WM_GBP_USD);
+    assertEquals(test.getValuationDate(), DATE_VAL);
+    assertEquals(test.getTimeSeries(), SERIES);
+    assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP2);
+    assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD2);
   }
 
   //-------------------------------------------------------------------------

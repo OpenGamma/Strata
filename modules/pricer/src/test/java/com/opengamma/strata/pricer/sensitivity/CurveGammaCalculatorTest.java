@@ -23,9 +23,6 @@ import java.util.Map.Entry;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
@@ -43,6 +40,8 @@ import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
@@ -72,13 +71,12 @@ public class CurveGammaCalculatorTest {
   //-------------------------------------------------------------------------
   @Test
   public void semiParallelGammaValue() {
-    ImmutableMap<Currency, YieldAndDiscountCurve> dsc = SINGLE.getDiscountCurves();
-    ImmutableMap<Index, YieldAndDiscountCurve> fwd = SINGLE.getIndexCurves();
+    ImmutableMap<Currency, Curve> dsc = SINGLE.getDiscountCurves();
+    ImmutableMap<Index, Curve> fwd = SINGLE.getIndexCurves();
     // Check all curves are the same
-    YieldAndDiscountCurve single = dsc.entrySet().iterator().next().getValue();
-    InterpolatedDoublesCurve curve = CurveGammaCalculator.checkInterpolated(single);
-    double[] y = curve.getYDataAsPrimitive();
-    double[] x = curve.getXDataAsPrimitive();
+    Curve single = dsc.entrySet().iterator().next().getValue();
+    NodalCurve curve = CurveGammaCalculator.checkInterpolated(single);
+    double[] y = curve.getYValues();
     int nbNode = y.length;
     double[] gammaExpected = new double[nbNode];
     for (int i = 0; i < nbNode; i++) {
@@ -91,14 +89,13 @@ public class CurveGammaCalculatorTest {
           for (int j = 0; j < nbNode; j++) {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
-          YieldAndDiscountCurve curveBumped = new YieldCurve(curve.getName(),
-              new InterpolatedDoublesCurve(x, yBumped[pmi][pmP], curve.getInterpolator(), true));
-          Map<Currency, YieldAndDiscountCurve> dscBumped = new HashMap<>();
-          for (Entry<Currency, YieldAndDiscountCurve> entry : dsc.entrySet()) {
+          Curve curveBumped = curve.withYValues(yBumped[pmi][pmP]);
+          Map<Currency, Curve> dscBumped = new HashMap<>();
+          for (Entry<Currency, Curve> entry : dsc.entrySet()) {
             dscBumped.put(entry.getKey(), curveBumped);
           }
-          Map<Index, YieldAndDiscountCurve> fwdBumped = new HashMap<>(fwd);
-          for (Entry<Index, YieldAndDiscountCurve> entry : fwd.entrySet()) {
+          Map<Index, Curve> fwdBumped = new HashMap<>(fwd);
+          for (Entry<Index, Curve> entry : fwd.entrySet()) {
             fwdBumped.put(entry.getKey(), curveBumped);
           }
           ImmutableRatesProvider providerBumped = SINGLE.toBuilder().discountCurves(dscBumped).indexCurves(fwdBumped).build();

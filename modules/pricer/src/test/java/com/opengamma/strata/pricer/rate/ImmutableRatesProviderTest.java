@@ -23,12 +23,11 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
 
 /**
  * Test {@link ImmutableRatesProvider}.
@@ -38,48 +37,15 @@ public class ImmutableRatesProviderTest {
 
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
-  private static final LocalDate NEXT_DATE = LocalDate.of(2014, 7, 1);
   private static final double FX_GBP_USD = 1.6d;
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, FX_GBP_USD);
 
   private static final double GBP_DSC = 0.99d;
   private static final double USD_DSC = 0.95d;
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_GBP =
-      new YieldCurve("GBP-Discount", new ConstantDoublesCurve(GBP_DSC)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return GBP_DSC;
-        }
-      };
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_USD =
-      new YieldCurve("USD-Discount", new ConstantDoublesCurve(USD_DSC)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return USD_DSC;
-        }
-      };
-  private static final YieldAndDiscountCurve USD_LIBOR_CURVE =
-      new YieldCurve("USD-LIBOR-3M", new ConstantDoublesCurve(0.97d)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          // reverse engineer discount factor from desired interest rate
-          LocalDate fixingStartDate = USD_LIBOR_3M.calculateEffectiveFromFixing(NEXT_DATE);
-          double time = USD_LIBOR_3M.getDayCount().relativeYearFraction(VAL_DATE, fixingStartDate);
-          if (t >= 0 && t <= time) {
-            LocalDate fixingEndDate = USD_LIBOR_3M.calculateMaturityFromEffective(fixingStartDate);
-            double fixingYearFraction = USD_LIBOR_3M.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-            return (0.0123d * fixingYearFraction + 1) * 0.96d;
-          }
-          return 0.96d;
-        }
-      };
-  private static final YieldAndDiscountCurve FED_FUND_CURVE =
-      new YieldCurve("USD-FED-FUND", new ConstantDoublesCurve(0.97d)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          throw new UnsupportedOperationException();
-        }
-      };
+  private static final Curve DISCOUNT_CURVE_GBP = ConstantNodalCurve.of("GBP-Discount", GBP_DSC);
+  private static final Curve DISCOUNT_CURVE_USD = ConstantNodalCurve.of("USD-Discount", USD_DSC);
+  private static final Curve USD_LIBOR_CURVE = ConstantNodalCurve.of("USD-Discount", 0.96d);
+  private static final Curve FED_FUND_CURVE = ConstantNodalCurve.of("USD-Discount", 0.97d);
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -124,21 +90,12 @@ public class ImmutableRatesProviderTest {
     assertEquals(test.discountFactors(GBP).getCurrency(), GBP);
   }
 
-  //-------------------------------------------------------------------------
-  public void test_discountFactor() {
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
-        .dayCount(ACT_ACT_ISDA)
-        .build();
-    assertEquals(test.discountFactor(GBP, LocalDate.of(2014, 7, 30)), GBP_DSC, 0d);
-  }
-
-  public void test_discountFactor_notKnown() {
+  public void test_discountFactors_notKnown() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .dayCount(ACT_ACT_ISDA)
         .build();
+    assertThrowsIllegalArg(() -> test.discountFactors(GBP));
     assertThrowsIllegalArg(() -> test.discountFactor(GBP, LocalDate.of(2014, 7, 30)));
   }
 

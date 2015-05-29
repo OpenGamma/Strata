@@ -245,7 +245,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     return ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 1, 22))
         .fxMatrix(FX_MATRIX)
-        .discountCurves(ImmutableMap.copyOf(MULTICURVE.getDiscountingCurves()))
+        .discountCurves(Legacy.discountCurves(MULTICURVE))
         .indexCurves(Legacy.indexCurves(MULTICURVE))
         .timeSeries(ImmutableMap.of(
             USD_LIBOR_3M, TS_EMTPY,
