@@ -5,19 +5,19 @@
  */
 package com.opengamma.strata.market.key;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.market.curve.Curve;
 
 /**
  * A market data key identifying a yield curve.
  * <p>
- * This is implemented by keys that return a {@link YieldCurve}.
+ * This is implemented by keys that return a {@link Curve}.
  */
-public interface YieldCurveKey extends MarketDataKey<YieldCurve> {
+public interface CurveKey extends MarketDataKey<Curve> {
 
   @Override
-  public default Class<YieldCurve> getMarketDataType() {
-    return YieldCurve.class;
+  public default Class<Curve> getMarketDataType() {
+    return Curve.class;
   }
 
 }

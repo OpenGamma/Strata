@@ -11,7 +11,9 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
  * Market data function that satisfies requests for forward curves by loading the
@@ -23,7 +25,7 @@ import com.opengamma.strata.market.id.RateIndexCurveId;
  * the valuation date.
  */
 public class ExampleForwardCurveFunction
-    implements MarketDataFunction<YieldCurve, RateIndexCurveId> {
+    implements MarketDataFunction<Curve, RateIndexCurveId> {
 
   @Override
   public MarketDataRequirements requirements(RateIndexCurveId id, MarketDataConfig marketDataConfig) {
@@ -31,9 +33,9 @@ public class ExampleForwardCurveFunction
   }
 
   @Override
-  public Result<YieldCurve> build(RateIndexCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public Result<Curve> build(RateIndexCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     YieldCurve curve = ExampleMarketData.loadYieldCurve(marketData.getValuationDate(), id.getIndex().getName());
-    return Result.success(curve);
+    return Result.success(Legacy.curve(curve));
   }
 
   @Override

@@ -8,8 +8,6 @@ package com.opengamma.strata.function.marketdata.curve;
 import java.time.LocalDate;
 
 import com.opengamma.analytics.env.AnalyticsEnvironment;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -19,7 +17,6 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
 import com.opengamma.strata.market.value.DiscountFactors;
@@ -30,13 +27,8 @@ import com.opengamma.strata.pricer.impl.Legacy;
  * Market data function that builds discount factors.
  * <p>
  * This function creates an instance of {@link ZeroRateDiscountFactors} based on an underlying curve.
- * The curve is not built in this class. Instead, it is extracted from an existing {@link CurveGroup}.
- * The curve group must be available in the {@code MarketDataLookup} passed to the
+ * The curve is not built in this class and must be available in the {@code MarketDataLookup} passed to the
  * {@link #build} method.
- * <p>
- * This builder assumes that the underlying discount curves are of type {@link YieldCurve}.
- * Note that the signature of {@code CurveGroup} allows them to be {@link YieldAndDiscountCurve},
- * but any other types would throw an exception.
  */
 public class ZeroRateDiscountFactorsMarketDataFunction
     implements MarketDataFunction<DiscountFactors, ZeroRateDiscountFactorsId> {
@@ -59,10 +51,10 @@ public class ZeroRateDiscountFactorsMarketDataFunction
     if (!marketData.containsValue(curveId)) {
       return Result.failure(FailureReason.MISSING_DATA, "No curve found: {}", id);
     }
-    YieldCurve yieldCurve = marketData.getValue(curveId);
+    Curve curve = marketData.getValue(curveId);
 
     // create discount factors
-    return Result.of(() -> createDiscountFactors(id.getCurrency(), marketData.getValuationDate(), yieldCurve));
+    return Result.of(() -> createDiscountFactors(id.getCurrency(), marketData.getValuationDate(), curve));
   }
 
   @Override
@@ -75,9 +67,8 @@ public class ZeroRateDiscountFactorsMarketDataFunction
   private DiscountFactors createDiscountFactors(
       Currency currency, 
       LocalDate valuationDate, 
-      YieldAndDiscountCurve yieldCurve) {
+      Curve curve) {
     
-    Curve curve = Legacy.curve(yieldCurve);
     DayCount modelDayCount = Legacy.dayCount(AnalyticsEnvironment.getInstance().getModelDayCount());
     return ZeroRateDiscountFactors.of(currency, valuationDate, modelDayCount, curve);
   }

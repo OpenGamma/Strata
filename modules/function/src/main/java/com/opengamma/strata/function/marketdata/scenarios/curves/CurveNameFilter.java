@@ -21,8 +21,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.engine.marketdata.scenarios.MarketDataFilter;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.RateCurveId;
@@ -31,7 +31,7 @@ import com.opengamma.strata.market.id.RateCurveId;
  * A market data filter which matches a curve by name.
  */
 @BeanDefinition
-public final class CurveNameFilter implements MarketDataFilter<YieldCurve, CurveId>, ImmutableBean {
+public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, ImmutableBean {
 
   /** The name of the curve matched by this filter. */
   @PropertyDefinition(validate = "notNull")
@@ -48,8 +48,8 @@ public final class CurveNameFilter implements MarketDataFilter<YieldCurve, Curve
   }
 
   @Override
-  public boolean apply(CurveId curveId, YieldCurve curve) {
-    return curve.getName().equals(curveName.toString());
+  public boolean apply(CurveId curveId, Curve curve) {
+    return curve.getName().equals(curveName);
   }
 
   @Override

@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.FxRateKey;
@@ -17,6 +16,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
@@ -35,7 +35,7 @@ public class MarketDataMappingsBuilderTest {
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
             .build();
-    MarketDataId<YieldCurve> id = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
+    MarketDataId<Curve> id = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
     assertThat(id).isEqualTo(DiscountCurveId.of(Currency.GBP, curveGroupName));
   }
 
@@ -45,7 +45,7 @@ public class MarketDataMappingsBuilderTest {
   public void noMappingAvailable() {
     MarketDataMappings mappings = MarketDataMappingsBuilder.create().build();
     DiscountCurveKey key = DiscountCurveKey.of(Currency.GBP);
-    MarketDataId<YieldCurve> id = mappings.getIdForKey(key);
+    MarketDataId<Curve> id = mappings.getIdForKey(key);
     assertThat(id).isEqualTo(MissingMappingId.of(key));
   }
 
@@ -60,7 +60,7 @@ public class MarketDataMappingsBuilderTest {
             .build();
     FxRateKey fxKey = FxRateKey.of(Currency.EUR, Currency.USD);
 
-    MarketDataId<YieldCurve> curveId = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
+    MarketDataId<Curve> curveId = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
     MarketDataId<Double> fxId = mappings.getIdForKey(fxKey);
 
     assertThat(curveId).isEqualTo(DiscountCurveId.of(Currency.GBP, curveGroupName));

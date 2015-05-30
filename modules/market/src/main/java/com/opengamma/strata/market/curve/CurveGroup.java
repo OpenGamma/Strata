@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.market.curve;
 
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.OptionalInt;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -24,10 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
 
 /**
  * Simple wrapper class holding the results of a multicurve calibration.
@@ -35,94 +32,48 @@ import com.opengamma.strata.collect.ArgChecker;
 @BeanDefinition
 public final class CurveGroup implements ImmutableBean {
 
-  /** The calibrated multicurves. */
+  /** The name of the curve group. */
   @PropertyDefinition(validate = "notNull")
-  private final MulticurveProviderDiscount multicurveProvider;
+  private final CurveGroupName name;
 
-  /** The curve building blocks used to calibrate the curves. */
+  /** The discount curves in the group, keyed by currency. */
   @PropertyDefinition(validate = "notNull")
-  private final CurveBuildingBlockBundle curveBuildingBlockBundle;
+  private final ImmutableMap<Currency, Curve> discountCurves;
+
+  /** The forward curves in the group, keyed by currency. */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<Index, Curve> forwardCurves;
 
   /**
-   * Curve node index maps keyed by curve name. This isn't guaranteed to contain an entry for every curve.
-   * The values are maps of curve node ID to curve node index.
+   * Returns the discount curve for the currency if there is one in the group.
+   *
+   * @param currency  the currency for which a discount curve is required
+   * @return the discount curve for the currency if there is one in the group
    */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<String, Map<CurveNodeId, Integer>> curveNodeIndices;
-
-  /**
-   * @param multicurveProvider  the calibrated multicurve
-   * @param curveBuildingBlockBundle  data about the multicurve
-   */
-  public CurveGroup(
-      MulticurveProviderDiscount multicurveProvider,
-      CurveBuildingBlockBundle curveBuildingBlockBundle) {
-
-    this(multicurveProvider, ImmutableMap.<String, List<? extends CurveNodeId>>of(), curveBuildingBlockBundle);
+  public Optional<Curve> getDiscountCurve(Currency currency) {
+    return Optional.ofNullable(discountCurves.get(currency));
   }
 
   /**
-   * Creates a new instance which includes the IDs of the nodes in the curves.
-   * <p>
-   * The first element in the list is the ID of the first node, the second element is the ID of the second node
-   * and so on. There can be fewer IDs in the list than nodes in the curve.
-   * <p>
-   * Node IDs are used by the scenario framework to select curve nodes when applying perturbations.
-   * If node IDs aren't provided for a curve it isn't possible to apply scenario perturbations that apply
-   * to individual points on the curve.
+   * Returns the forward curve for the index if there is one in the group.
    *
-   * @param multicurveProvider  the multicurve
-   * @param curveNodeIds   objects identifying the nodes in each curve, keyed by curve name. Nodes IDs are optional
-   * @param curveBuildingBlockBundle   data about the multicurve
+   * @param index  the index for which a forward curve is required
+   * @return the forward curve for the index if there is one in the group
    */
-  public CurveGroup(
-      MulticurveProviderDiscount multicurveProvider,
-      Map<String, List<? extends CurveNodeId>> curveNodeIds,
-      CurveBuildingBlockBundle curveBuildingBlockBundle) {
-
-    ArgChecker.notNull(multicurveProvider, "multicurveProvider");
-    ArgChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    ArgChecker.notNull(curveNodeIds, "curveNodeIds");
-
-    this.multicurveProvider = multicurveProvider;
-    this.curveBuildingBlockBundle = curveBuildingBlockBundle;
-
-    ImmutableMap.Builder<String, Map<CurveNodeId, Integer>> curvesBuilder = ImmutableMap.builder();
-
-    for (Map.Entry<String, List<? extends CurveNodeId>> entry : curveNodeIds.entrySet()) {
-      ImmutableMap.Builder<CurveNodeId, Integer> indexBuilder = ImmutableMap.builder();
-      List<? extends CurveNodeId> ids = entry.getValue();
-      ImmutableSet<? extends CurveNodeId> idSet = ImmutableSet.copyOf(ids);
-      String curveName = entry.getKey();
-
-      // If we silently convert to a set and there are duplicate IDs it could have unexpected results.
-      // The scenario perturbations could be applied to the wrong nodes.
-      if (ids.size() != idSet.size()) {
-        throw new IllegalArgumentException("Curve node IDs for curve " + curveName + " contains duplicates " + ids);
-      }
-      for (int i = 0; i < ids.size(); i++) {
-        indexBuilder.put(ids.get(i), i);
-      }
-      curvesBuilder.put(curveName, indexBuilder.build());
-    }
-    curveNodeIndices = curvesBuilder.build();
+  public Optional<Curve> getForwardCurve(Index index) {
+    return Optional.ofNullable(forwardCurves.get(index));
   }
 
   /**
-   * Returns the index of a node in a named curve or an empty optional if the curve name or node ID isn't known.
-   * <p>
-   * The node ID must correspond to one of the IDs in the {@code curveNodeIds} constructor arguments.
+   * Returns a curve group containing the specified curves.
    *
-   * @param curveName  the name of a curve in the curve group
-   * @param nodeId  the ID of a curve node
-   * @return the index of the curve node with the specified ID, empty if there is no curve in the group
-   *   with the specified name or there is no node in the named curve with the specified ID
+   * @param name  the name of the curve group
+   * @param discountCurves  the discount curves, keyed by currency
+   * @param forwardCurves  the forward curves, keyed by index
+   * @return a curve group containing the specified curves
    */
-  public OptionalInt curveNodeIndex(String curveName, CurveNodeId nodeId) {
-    Map<CurveNodeId, Integer> indices = curveNodeIndices.get(curveName);
-    return indices == null ?
-        OptionalInt.empty() :
-        OptionalInt.of(indices.get(nodeId));
+  public static CurveGroup of(CurveGroupName name, Map<Currency, Curve> discountCurves, Map<Index, Curve> forwardCurves) {
+    return new CurveGroup(name, discountCurves, forwardCurves);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -148,15 +99,15 @@ public final class CurveGroup implements ImmutableBean {
   }
 
   private CurveGroup(
-      MulticurveProviderDiscount multicurveProvider,
-      CurveBuildingBlockBundle curveBuildingBlockBundle,
-      Map<String, Map<CurveNodeId, Integer>> curveNodeIndices) {
-    JodaBeanUtils.notNull(multicurveProvider, "multicurveProvider");
-    JodaBeanUtils.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    JodaBeanUtils.notNull(curveNodeIndices, "curveNodeIndices");
-    this.multicurveProvider = multicurveProvider;
-    this.curveBuildingBlockBundle = curveBuildingBlockBundle;
-    this.curveNodeIndices = ImmutableMap.copyOf(curveNodeIndices);
+      CurveGroupName name,
+      Map<Currency, Curve> discountCurves,
+      Map<Index, Curve> forwardCurves) {
+    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(discountCurves, "discountCurves");
+    JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
+    this.name = name;
+    this.discountCurves = ImmutableMap.copyOf(discountCurves);
+    this.forwardCurves = ImmutableMap.copyOf(forwardCurves);
   }
 
   @Override
@@ -176,30 +127,29 @@ public final class CurveGroup implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calibrated multicurves.
+   * Gets the name of the curve group.
    * @return the value of the property, not null
    */
-  public MulticurveProviderDiscount getMulticurveProvider() {
-    return multicurveProvider;
+  public CurveGroupName getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve building blocks used to calibrate the curves.
+   * Gets the discount curves in the group, keyed by currency.
    * @return the value of the property, not null
    */
-  public CurveBuildingBlockBundle getCurveBuildingBlockBundle() {
-    return curveBuildingBlockBundle;
+  public ImmutableMap<Currency, Curve> getDiscountCurves() {
+    return discountCurves;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets curve node index maps keyed by curve name. This isn't guaranteed to contain an entry for every curve.
-   * The values are maps of curve node ID to curve node index.
+   * Gets the forward curves in the group, keyed by currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<String, Map<CurveNodeId, Integer>> getCurveNodeIndices() {
-    return curveNodeIndices;
+  public ImmutableMap<Index, Curve> getForwardCurves() {
+    return forwardCurves;
   }
 
   //-----------------------------------------------------------------------
@@ -218,9 +168,9 @@ public final class CurveGroup implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroup other = (CurveGroup) obj;
-      return JodaBeanUtils.equal(getMulticurveProvider(), other.getMulticurveProvider()) &&
-          JodaBeanUtils.equal(getCurveBuildingBlockBundle(), other.getCurveBuildingBlockBundle()) &&
-          JodaBeanUtils.equal(getCurveNodeIndices(), other.getCurveNodeIndices());
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getDiscountCurves(), other.getDiscountCurves()) &&
+          JodaBeanUtils.equal(getForwardCurves(), other.getForwardCurves());
     }
     return false;
   }
@@ -228,9 +178,9 @@ public final class CurveGroup implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMulticurveProvider());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveBuildingBlockBundle());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIndices());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardCurves());
     return hash;
   }
 
@@ -238,9 +188,9 @@ public final class CurveGroup implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CurveGroup{");
-    buf.append("multicurveProvider").append('=').append(getMulticurveProvider()).append(',').append(' ');
-    buf.append("curveBuildingBlockBundle").append('=').append(getCurveBuildingBlockBundle()).append(',').append(' ');
-    buf.append("curveNodeIndices").append('=').append(JodaBeanUtils.toString(getCurveNodeIndices()));
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(getDiscountCurves()).append(',').append(' ');
+    buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(getForwardCurves()));
     buf.append('}');
     return buf.toString();
   }
@@ -256,29 +206,30 @@ public final class CurveGroup implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code multicurveProvider} property.
+     * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<MulticurveProviderDiscount> multicurveProvider = DirectMetaProperty.ofImmutable(
-        this, "multicurveProvider", CurveGroup.class, MulticurveProviderDiscount.class);
+    private final MetaProperty<CurveGroupName> name = DirectMetaProperty.ofImmutable(
+        this, "name", CurveGroup.class, CurveGroupName.class);
     /**
-     * The meta-property for the {@code curveBuildingBlockBundle} property.
-     */
-    private final MetaProperty<CurveBuildingBlockBundle> curveBuildingBlockBundle = DirectMetaProperty.ofImmutable(
-        this, "curveBuildingBlockBundle", CurveGroup.class, CurveBuildingBlockBundle.class);
-    /**
-     * The meta-property for the {@code curveNodeIndices} property.
+     * The meta-property for the {@code discountCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<String, Map<CurveNodeId, Integer>>> curveNodeIndices = DirectMetaProperty.ofImmutable(
-        this, "curveNodeIndices", CurveGroup.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<Currency, Curve>> discountCurves = DirectMetaProperty.ofImmutable(
+        this, "discountCurves", CurveGroup.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code forwardCurves} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<Index, Curve>> forwardCurves = DirectMetaProperty.ofImmutable(
+        this, "forwardCurves", CurveGroup.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "multicurveProvider",
-        "curveBuildingBlockBundle",
-        "curveNodeIndices");
+        "name",
+        "discountCurves",
+        "forwardCurves");
 
     /**
      * Restricted constructor.
@@ -289,12 +240,12 @@ public final class CurveGroup implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 87636839:  // multicurveProvider
-          return multicurveProvider;
-        case 1604389548:  // curveBuildingBlockBundle
-          return curveBuildingBlockBundle;
-        case -501851434:  // curveNodeIndices
-          return curveNodeIndices;
+        case 3373707:  // name
+          return name;
+        case -624113147:  // discountCurves
+          return discountCurves;
+        case -850086775:  // forwardCurves
+          return forwardCurves;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -316,39 +267,39 @@ public final class CurveGroup implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code multicurveProvider} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MulticurveProviderDiscount> multicurveProvider() {
-      return multicurveProvider;
+    public MetaProperty<CurveGroupName> name() {
+      return name;
     }
 
     /**
-     * The meta-property for the {@code curveBuildingBlockBundle} property.
+     * The meta-property for the {@code discountCurves} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveBuildingBlockBundle> curveBuildingBlockBundle() {
-      return curveBuildingBlockBundle;
+    public MetaProperty<ImmutableMap<Currency, Curve>> discountCurves() {
+      return discountCurves;
     }
 
     /**
-     * The meta-property for the {@code curveNodeIndices} property.
+     * The meta-property for the {@code forwardCurves} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<String, Map<CurveNodeId, Integer>>> curveNodeIndices() {
-      return curveNodeIndices;
+    public MetaProperty<ImmutableMap<Index, Curve>> forwardCurves() {
+      return forwardCurves;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 87636839:  // multicurveProvider
-          return ((CurveGroup) bean).getMulticurveProvider();
-        case 1604389548:  // curveBuildingBlockBundle
-          return ((CurveGroup) bean).getCurveBuildingBlockBundle();
-        case -501851434:  // curveNodeIndices
-          return ((CurveGroup) bean).getCurveNodeIndices();
+        case 3373707:  // name
+          return ((CurveGroup) bean).getName();
+        case -624113147:  // discountCurves
+          return ((CurveGroup) bean).getDiscountCurves();
+        case -850086775:  // forwardCurves
+          return ((CurveGroup) bean).getForwardCurves();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -370,9 +321,9 @@ public final class CurveGroup implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CurveGroup> {
 
-    private MulticurveProviderDiscount multicurveProvider;
-    private CurveBuildingBlockBundle curveBuildingBlockBundle;
-    private Map<String, Map<CurveNodeId, Integer>> curveNodeIndices = ImmutableMap.of();
+    private CurveGroupName name;
+    private Map<Currency, Curve> discountCurves = ImmutableMap.of();
+    private Map<Index, Curve> forwardCurves = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -385,21 +336,21 @@ public final class CurveGroup implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CurveGroup beanToCopy) {
-      this.multicurveProvider = beanToCopy.getMulticurveProvider();
-      this.curveBuildingBlockBundle = beanToCopy.getCurveBuildingBlockBundle();
-      this.curveNodeIndices = beanToCopy.getCurveNodeIndices();
+      this.name = beanToCopy.getName();
+      this.discountCurves = beanToCopy.getDiscountCurves();
+      this.forwardCurves = beanToCopy.getForwardCurves();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 87636839:  // multicurveProvider
-          return multicurveProvider;
-        case 1604389548:  // curveBuildingBlockBundle
-          return curveBuildingBlockBundle;
-        case -501851434:  // curveNodeIndices
-          return curveNodeIndices;
+        case 3373707:  // name
+          return name;
+        case -624113147:  // discountCurves
+          return discountCurves;
+        case -850086775:  // forwardCurves
+          return forwardCurves;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -409,14 +360,14 @@ public final class CurveGroup implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 87636839:  // multicurveProvider
-          this.multicurveProvider = (MulticurveProviderDiscount) newValue;
+        case 3373707:  // name
+          this.name = (CurveGroupName) newValue;
           break;
-        case 1604389548:  // curveBuildingBlockBundle
-          this.curveBuildingBlockBundle = (CurveBuildingBlockBundle) newValue;
+        case -624113147:  // discountCurves
+          this.discountCurves = (Map<Currency, Curve>) newValue;
           break;
-        case -501851434:  // curveNodeIndices
-          this.curveNodeIndices = (Map<String, Map<CurveNodeId, Integer>>) newValue;
+        case -850086775:  // forwardCurves
+          this.forwardCurves = (Map<Index, Curve>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -451,42 +402,42 @@ public final class CurveGroup implements ImmutableBean {
     @Override
     public CurveGroup build() {
       return new CurveGroup(
-          multicurveProvider,
-          curveBuildingBlockBundle,
-          curveNodeIndices);
+          name,
+          discountCurves,
+          forwardCurves);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code multicurveProvider} property in the builder.
-     * @param multicurveProvider  the new value, not null
+     * Sets the {@code name} property in the builder.
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder multicurveProvider(MulticurveProviderDiscount multicurveProvider) {
-      JodaBeanUtils.notNull(multicurveProvider, "multicurveProvider");
-      this.multicurveProvider = multicurveProvider;
+    public Builder name(CurveGroupName name) {
+      JodaBeanUtils.notNull(name, "name");
+      this.name = name;
       return this;
     }
 
     /**
-     * Sets the {@code curveBuildingBlockBundle} property in the builder.
-     * @param curveBuildingBlockBundle  the new value, not null
+     * Sets the {@code discountCurves} property in the builder.
+     * @param discountCurves  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveBuildingBlockBundle(CurveBuildingBlockBundle curveBuildingBlockBundle) {
-      JodaBeanUtils.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-      this.curveBuildingBlockBundle = curveBuildingBlockBundle;
+    public Builder discountCurves(Map<Currency, Curve> discountCurves) {
+      JodaBeanUtils.notNull(discountCurves, "discountCurves");
+      this.discountCurves = discountCurves;
       return this;
     }
 
     /**
-     * Sets the {@code curveNodeIndices} property in the builder.
-     * @param curveNodeIndices  the new value, not null
+     * Sets the {@code forwardCurves} property in the builder.
+     * @param forwardCurves  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveNodeIndices(Map<String, Map<CurveNodeId, Integer>> curveNodeIndices) {
-      JodaBeanUtils.notNull(curveNodeIndices, "curveNodeIndices");
-      this.curveNodeIndices = curveNodeIndices;
+    public Builder forwardCurves(Map<Index, Curve> forwardCurves) {
+      JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
+      this.forwardCurves = forwardCurves;
       return this;
     }
 
@@ -495,9 +446,9 @@ public final class CurveGroup implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("CurveGroup.Builder{");
-      buf.append("multicurveProvider").append('=').append(JodaBeanUtils.toString(multicurveProvider)).append(',').append(' ');
-      buf.append("curveBuildingBlockBundle").append('=').append(JodaBeanUtils.toString(curveBuildingBlockBundle)).append(',').append(' ');
-      buf.append("curveNodeIndices").append('=').append(JodaBeanUtils.toString(curveNodeIndices));
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
+      buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(forwardCurves));
       buf.append('}');
       return buf.toString();
     }

@@ -21,10 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
@@ -35,7 +35,7 @@ import com.opengamma.strata.market.key.RateIndexCurveKey;
  */
 @BeanDefinition
 public final class RateIndexCurveMapping
-    implements MarketDataMapping<YieldCurve, RateIndexCurveKey>, ImmutableBean {
+    implements MarketDataMapping<Curve, RateIndexCurveKey>, ImmutableBean {
 
   /** The name of the curve group from which the curve should be taken. */
   @PropertyDefinition(validate = "notNull")
@@ -63,7 +63,7 @@ public final class RateIndexCurveMapping
   }
 
   @Override
-  public MarketDataId<YieldCurve> getIdForKey(RateIndexCurveKey key) {
+  public MarketDataId<Curve> getIdForKey(RateIndexCurveKey key) {
     return RateIndexCurveId.of(key.getIndex(), curveGroupName, marketDataFeed);
   }
 

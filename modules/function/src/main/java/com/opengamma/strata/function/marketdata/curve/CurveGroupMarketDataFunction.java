@@ -17,14 +17,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jooq.lambda.Seq;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -35,6 +39,7 @@ import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDis
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -45,6 +50,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -197,7 +203,27 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
             ParSpreadMarketQuoteDiscountingCalculator.getInstance(),
             ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance());
 
-    return Result.success(new CurveGroup(calibratedCurves.getFirst(), calibratedCurves.getSecond()));
+    MulticurveProviderDiscount multicurve = calibratedCurves.getFirst();
+    Map<Currency, YieldAndDiscountCurve> legacyDiscountCurves = multicurve.getDiscountingCurves();
+    Map<IborIndex, YieldAndDiscountCurve> legacyIborCurves = multicurve.getForwardIborCurves();
+    Map<IndexON, YieldAndDiscountCurve> legacyOvernightCurves = multicurve.getForwardONCurves();
+
+    Map<Currency, Curve> discountCurves =
+        Seq.seq(legacyDiscountCurves).toMap(tp -> tp.v1, tp -> Legacy.curve(tp.v2));
+
+    Map<Index, Curve> iborCurves =
+        Seq.seq(legacyIborCurves).toMap(tp -> Legacy.iborIndex(tp.v1), tp -> Legacy.curve(tp.v2));
+
+    Map<Index, Curve> overnightCurves =
+        Seq.seq(legacyOvernightCurves).toMap(tp -> Legacy.overnightIndex(tp.v1), tp -> Legacy.curve(tp.v2));
+
+    Map<Index, Curve> forwardCurves = ImmutableMap.<Index, Curve>builder()
+        .putAll(iborCurves)
+        .putAll(overnightCurves)
+        .build();
+
+    CurveGroup curveGroup = CurveGroup.of(groupConfig.getName(), discountCurves, forwardCurves);
+    return Result.success(curveGroup);
   }
 
   /**

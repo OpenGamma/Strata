@@ -12,7 +12,6 @@ import java.time.LocalDate;
 
 import org.joda.beans.JodaBeanUtils;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -37,7 +36,6 @@ import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
 /**
@@ -124,8 +122,7 @@ public final class MarketDataRatesProvider
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
-    YieldCurve yieldCurve = marketData.getValue(RateIndexCurveKey.of(index));
-    Curve curve = Legacy.curve(yieldCurve);
+    Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
@@ -134,8 +131,7 @@ public final class MarketDataRatesProvider
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
-    YieldCurve yieldCurve = marketData.getValue(RateIndexCurveKey.of(index));
-    Curve curve = Legacy.curve(yieldCurve);
+    Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }

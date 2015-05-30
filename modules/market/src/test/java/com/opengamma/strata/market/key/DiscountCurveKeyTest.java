@@ -14,7 +14,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.strata.market.curve.Curve;
 
 /**
  * Test {@link DiscountCurveKey}.
@@ -26,7 +26,7 @@ public class DiscountCurveKeyTest {
   public void test_of() {
     DiscountCurveKey test = DiscountCurveKey.of(GBP);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getMarketDataType(), YieldCurve.class);
+    assertEquals(test.getMarketDataType(), Curve.class);
   }
 
   //-------------------------------------------------------------------------
