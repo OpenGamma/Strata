@@ -28,8 +28,6 @@ import com.opengamma.strata.market.amount.SwapLegAmount;
  */
 public class SwapLegNotionalFunction
     implements CalculationSingleFunction<SwapTrade, ScenarioResult<LegAmounts>> {
-  // TODO: what is correct result?
-  // what notional - current period, initial, final or max?
 
   @Override
   public CalculationRequirements requirements(SwapTrade target) {
@@ -48,7 +46,7 @@ public class SwapLegNotionalFunction
     List<LegAmount> legAmounts = input.getProduct().getLegs().stream()
         .filter(RateCalculationSwapLeg.class::isInstance)
         .map(RateCalculationSwapLeg.class::cast)
-        .map(l -> getLegAmount(l))
+        .map(this::getLegAmount)
         .collect(toList());
     return LegAmounts.of(legAmounts);
   }

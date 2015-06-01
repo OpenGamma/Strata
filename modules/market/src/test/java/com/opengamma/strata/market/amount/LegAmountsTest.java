@@ -9,9 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -56,15 +54,6 @@ public class LegAmountsTest {
     assertEquals(la.getAmounts().size(), 2);
     assertEquals(la.getAmounts().get(0), LEG_AMOUNT_1);
     assertEquals(la.getAmounts().get(1), LEG_AMOUNT_2);
-  }
-  
-  //-------------------------------------------------------------------------
-  public void test_iterable() {
-    LegAmounts amounts = LegAmounts.of(LEG_AMOUNT_1, LEG_AMOUNT_2);
-    Iterator<LegAmount> it = amounts.iterator();
-    assertEquals(LEG_AMOUNT_1, it.next());
-    assertEquals(LEG_AMOUNT_2, it.next());
-    assertFalse(it.hasNext());
   }
   
   //-------------------------------------------------------------------------

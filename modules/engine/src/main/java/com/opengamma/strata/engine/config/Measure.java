@@ -46,8 +46,8 @@ public final class Measure
   /** Measure representing the maturity date of the calculation target. */
   public static final Measure MATURITY_DATE = Measure.of("MaturityDate");
 
-  /** Measure representing the notional amount of each leg of the calculation target. */
-  public static final Measure LEG_NOTIONAL = Measure.of("LegNotional");
+  /** Measure representing the initial notional amount of each leg of the calculation target. */
+  public static final Measure LEG_INITIAL_NOTIONAL = Measure.of("LegInitialNotional");
   
   /** Measure representing the par rate of the calculation target. */
   public static final Measure PAR_RATE = Measure.of("ParRate");

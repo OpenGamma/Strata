@@ -24,7 +24,7 @@ public final class SwapFunctionGroups {
   private static final FunctionGroup<SwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(SwapTrade.class).name("SwapDiscounting")
           .addFunction(Measure.MATURITY_DATE, SwapTradeMaturityDateFunction.class)
-          .addFunction(Measure.LEG_NOTIONAL, SwapLegNotionalFunction.class)
+          .addFunction(Measure.LEG_INITIAL_NOTIONAL, SwapLegNotionalFunction.class)
           .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
           .addFunction(Measure.LEG_PRESENT_VALUE, SwapLegPvFunction.class)
           .addFunction(Measure.PV01, SwapPv01Function.class)
@@ -46,7 +46,7 @@ public final class SwapFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measure#MATURITY_DATE Maturity date}
-   *   <li>{@linkplain Measure#LEG_NOTIONAL Leg notional}
+   *   <li>{@linkplain Measure#LEG_INITIAL_NOTIONAL Leg initial notional}
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
    *   <li>{@linkplain Measure#LEG_PRESENT_VALUE Leg present value}
    *   <li>{@linkplain Measure#PV01 PV01}

@@ -90,7 +90,7 @@ public class SwapPricingExample {
         Column.of(Measure.COUNTERPARTY),
         Column.of(Measure.SETTLEMENT_DATE),
         Column.of(Measure.MATURITY_DATE),
-        Column.of(Measure.LEG_NOTIONAL),
+        Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.LEG_PRESENT_VALUE),
         Column.of(Measure.PV01),
