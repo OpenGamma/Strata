@@ -31,7 +31,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 /**
  * Calculates the accrued interest for a {@code SwapTrade} for each of a set of scenarios.
  */
-public class SwapTradeAccruedInterestFunction
+public class SwapAccruedInterestFunction
     implements CalculationSingleFunction<SwapTrade, MultiCurrencyAmountList> {
   // TODO: implementation needs more work to handle edge cases
 

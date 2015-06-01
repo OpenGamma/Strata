@@ -86,9 +86,7 @@ public class SwapPricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.ID),
-        Column.of(Measure.COUNTERPARTY),
-        Column.of(Measure.SETTLEMENT_DATE),
+        Column.of(Measure.TRADE_INFO),
         Column.of(Measure.MATURITY_DATE),
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),

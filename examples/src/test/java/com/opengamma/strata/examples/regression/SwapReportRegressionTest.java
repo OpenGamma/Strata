@@ -59,9 +59,7 @@ public class SwapReportRegressionTest {
     List<Trade> trades = ImmutableList.of(createTrade1());
 
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.ID),
-        Column.of(Measure.COUNTERPARTY),
-        Column.of(Measure.SETTLEMENT_DATE),
+        Column.of(Measure.TRADE_INFO),
         Column.of(Measure.MATURITY_DATE),
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
@@ -79,6 +77,7 @@ public class SwapReportRegressionTest {
 
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
+    
     Results expectedResults = ExampleData.loadExpectedResults("swap-report");
     assertEquals(results, expectedResults);
   }

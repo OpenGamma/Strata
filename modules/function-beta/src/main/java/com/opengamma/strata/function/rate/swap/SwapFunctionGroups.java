@@ -23,13 +23,13 @@ public final class SwapFunctionGroups {
    */
   private static final FunctionGroup<SwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(SwapTrade.class).name("SwapDiscounting")
-          .addFunction(Measure.MATURITY_DATE, SwapTradeMaturityDateFunction.class)
+          .addFunction(Measure.MATURITY_DATE, SwapMaturityDateFunction.class)
           .addFunction(Measure.LEG_INITIAL_NOTIONAL, SwapLegNotionalFunction.class)
           .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
           .addFunction(Measure.LEG_PRESENT_VALUE, SwapLegPvFunction.class)
           .addFunction(Measure.PV01, SwapPv01Function.class)
           .addFunction(Measure.PAR_RATE, SwapParRateFunction.class)
-          .addFunction(Measure.ACCRUED_INTEREST, SwapTradeAccruedInterestFunction.class)
+          .addFunction(Measure.ACCRUED_INTEREST, SwapAccruedInterestFunction.class)
           .build();
 
   /**
