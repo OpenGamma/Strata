@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
@@ -18,14 +19,16 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.market.amount.LegAmount;
+import com.opengamma.strata.market.amount.LegAmounts;
+import com.opengamma.strata.market.amount.SwapLegAmount;
 
 /**
- * Returns the notional amount of a {@code SwapTrade}.
+ * Returns the notional amount of the legs of a {@code SwapTrade}.
  */
-public class SwapTradeNotionalFunction
-    implements CalculationSingleFunction<SwapTrade, ScenarioResult<List<CurrencyAmount>>> {
+public class SwapLegNotionalFunction
+    implements CalculationSingleFunction<SwapTrade, ScenarioResult<LegAmounts>> {
   // TODO: what is correct result?
-  // which leg as they can differ?
   // what notional - current period, initial, final or max?
 
   @Override
@@ -34,20 +37,31 @@ public class SwapTradeNotionalFunction
   }
 
   @Override
-  public ScenarioResult<List<CurrencyAmount>> execute(SwapTrade input, CalculationMarketData marketData) {
-    List<CurrencyAmount> notional = getNotional(input);
+  public ScenarioResult<LegAmounts> execute(SwapTrade input, CalculationMarketData marketData) {
+    LegAmounts notional = getNotional(input);
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(i -> notional)
         .collect(toScenarioResult());
   }
 
-  // Not a MultiCurrencyAmount as legs should be kept separate
-  private List<CurrencyAmount> getNotional(SwapTrade input) {
-    return input.getProduct().getLegs().stream()
+  private LegAmounts getNotional(SwapTrade input) {
+    List<LegAmount> legAmounts = input.getProduct().getLegs().stream()
         .filter(RateCalculationSwapLeg.class::isInstance)
         .map(RateCalculationSwapLeg.class::cast)
-        .map(l -> CurrencyAmount.of(l.getNotionalSchedule().getCurrency(), l.getNotionalSchedule().getAmount().getInitialValue()))
-        .distinct() // if legs have the same notional then represent these as a single item
+        .map(l -> getLegAmount(l))
         .collect(toList());
+    return LegAmounts.of(legAmounts);
   }
+  
+  private SwapLegAmount getLegAmount(RateCalculationSwapLeg leg) {
+    Currency legCurrency = leg.getNotionalSchedule().getCurrency();
+    CurrencyAmount amount = CurrencyAmount.of(legCurrency, leg.getNotionalSchedule().getAmount().getInitialValue());
+    return SwapLegAmount.builder()
+        .amount(amount)
+        .payReceieve(leg.getPayReceive())
+        .legType(leg.getType())
+        .legCurrency(legCurrency)
+        .build();
+  }
+
 }
