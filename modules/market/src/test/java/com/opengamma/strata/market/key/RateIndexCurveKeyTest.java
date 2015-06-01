@@ -14,7 +14,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.strata.market.curve.Curve;
 
 /**
  * Test {@link RateIndexCurveKey}.
@@ -26,7 +26,7 @@ public class RateIndexCurveKeyTest {
   public void test_of() {
     RateIndexCurveKey test = RateIndexCurveKey.of(GBP_LIBOR_3M);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getMarketDataType(), YieldCurve.class);
+    assertEquals(test.getMarketDataType(), Curve.class);
   }
 
   //-------------------------------------------------------------------------

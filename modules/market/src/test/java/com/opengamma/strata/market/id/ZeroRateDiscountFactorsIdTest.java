@@ -14,8 +14,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.value.DiscountFactors;
 
@@ -45,7 +45,7 @@ public class ZeroRateDiscountFactorsIdTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getCurveGroupName(), GROUP);
     assertEquals(test.getMarketDataFeed(), FEED);
-    assertEquals(test.getMarketDataType(), YieldCurve.class);
+    assertEquals(test.getMarketDataType(), Curve.class);
   }
 
   //-------------------------------------------------------------------------

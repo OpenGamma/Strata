@@ -116,7 +116,7 @@ public final class Legacy {
    * @param index  the index
    * @return the same index
    */
-  public static OvernightIndex iborIndex(IndexON index) {
+  public static OvernightIndex overnightIndex(IndexON index) {
     String name = LegacyIndices.OVERNIGHT.inverse().get(index);
     if (name == null) {
       throw new IllegalArgumentException("Unknown index: " + index.getName());
@@ -137,7 +137,7 @@ public final class Legacy {
       map.put(iborIndex(index), curve(multicurve.getCurve(index)));
     }
     for (IndexON index : multicurve.getIndexesON()) {
-      map.put(iborIndex(index), curve(multicurve.getCurve(index)));
+      map.put(overnightIndex(index), curve(multicurve.getCurve(index)));
     }
     return map;
   }

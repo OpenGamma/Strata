@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.currency.Currency;
  */
 @BeanDefinition(builderScope = "private")
 public final class DiscountCurveKey
-    implements YieldCurveKey, ImmutableBean, Serializable {
+    implements CurveKey, ImmutableBean, Serializable {
 
   /**
    * The currency of the discount curve that is required.

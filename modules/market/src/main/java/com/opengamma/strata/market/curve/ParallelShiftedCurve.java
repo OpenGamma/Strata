@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.scenarios.curves;
+package com.opengamma.strata.market.curve;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -21,23 +22,24 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.ParallelShiftedCurve;
-import com.opengamma.strata.market.curve.ShiftType;
-
 /**
- * Perturbation which applies a parallel shift to a curve.
+ * A curve with a parallel shift applied to its Y values.
  * <p>
- * The shift can be absolute or relative.
- * An absolute shift adds the shift amount to each point on the curve.
- * A relative shift applies a scaling to each point on the curve.
+ * This class decorates another curve and applies an adjustment to the Y values when they are queried.
+ * The shift is either absolute or relative.
  * <p>
- * For example, a relative shift of 0.1 (10%) multiplies each value on the curve by 1.1, and a shift of -0.2 (-20%)
- * multiplies the rate by 0.8. So for relative shifts the shifted value is {@code (value x (1 + shift))}.
+ * When the shift is absolute the shift amount is added to the Y value.
+ * <p>
+ * When the shift is relative the Y value is scaled by the shift amount. The shift amount is interpreted
+ * as a percentage. For example, a shift amount of 0.1 is a shift of +10% which multiplies the value by 1.1.
+ * A shift amount of -0.2 is a shift of -20% which multiplies the value by 0.8
  */
-@BeanDefinition
-public final class CurveParallelShift implements Perturbation<Curve>, ImmutableBean {
+@BeanDefinition(builderScope = "private")
+public final class ParallelShiftedCurve implements Curve, ImmutableBean {
+
+  /** The underlying curve. */
+  @PropertyDefinition(validate = "notNull")
+  private final Curve curve;
 
   /** The type of shift to apply to the Y values of the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -48,68 +50,113 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   private final double shiftAmount;
 
   /**
-   * Creates a shift that adds a fixed amount to the value at every node in the curve.
+   * Returns a curve based on an underlying curve with a fixed amount added to the Y values.
    *
-   * @param shiftAmount the amount to add to each node value in the curve
-   * @return a shift that adds a fixed amount to the value at every node in the curve
+   * @param curve  the underlying curve
+   * @param shiftAmount  the amount added to the Y values of the curve
+   * @return a curve based on an underlying curve with a fixed amount added to the Y values.
    */
-  public static CurveParallelShift absolute(double shiftAmount) {
-    return new CurveParallelShift(ShiftType.ABSOLUTE, shiftAmount);
+  public static Curve absolute(Curve curve, double shiftAmount) {
+    return new ParallelShiftedCurve(curve, ShiftType.ABSOLUTE, shiftAmount);
   }
 
   /**
-   * Creates a shift that multiplies the values at each curve node by a scaling factor.
+   * Returns a curve based on an underlying curve with a scaling applied to the Y values.
    * <p>
-   * The shift amount is a decimal percentage. For example, a shift amount of 0.1 is a
+   * The shift amount is interpreted as a percentage. For example, a shift amount of 0.1 is a
    * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift of -20%
    * which multiplies the value by 0.8
    *
-   * @param shiftAmount the factor to multiply the value at each curve node by
-   * @return a shift that multiplies the values at each curve node by a percentage
+   * @param curve  the underlying curve
+   * @param shiftAmount  the percentage by which the Y values are scaled
+   * @return a curve based on an underlying curve with a scaling applied to the Y values.
    */
-  public static CurveParallelShift relative(double shiftAmount) {
-    return new CurveParallelShift(ShiftType.RELATIVE, shiftAmount);
+  public static Curve relative(Curve curve, double shiftAmount) {
+    return new ParallelShiftedCurve(curve, ShiftType.RELATIVE, shiftAmount);
+  }
+
+  /**
+   * Returns a curve based on an underlying curve with a parallel shift applied to the Y values.
+   *
+   * @param curve  the underlying curve
+   * @param shiftType  the type of shift which specifies how the shift amount is applied to the Y values
+   * @param shiftAmount  the magnitude of the shift
+   * @return a curve based on an underlying curve with a parallel shift applied to the Y values
+   */
+  public static ParallelShiftedCurve of(Curve curve, ShiftType shiftType, double shiftAmount) {
+    return new ParallelShiftedCurve(curve, shiftType, shiftAmount);
   }
 
   @Override
-  public Curve apply(Curve curve) {
-    return ParallelShiftedCurve.of(curve, shiftType, shiftAmount);
+  public CurveMetadata getMetadata() {
+    return curve.getMetadata();
+  }
+
+  @Override
+  public CurveName getName() {
+    return curve.getName();
+  }
+
+  @Override
+  public int getParameterCount() {
+    return curve.getParameterCount();
+  }
+
+  @Override
+  public double yValue(double x) {
+    return shiftType.applyShift(curve.yValue(x), shiftAmount);
+  }
+
+  @Override
+  public double[] yValueParameterSensitivity(double x) {
+    return curve.yValueParameterSensitivity(x);
+  }
+
+  @Override
+  public double firstDerivative(double x) {
+    double firstDerivative = curve.firstDerivative(x);
+
+    switch (shiftType) {
+      case ABSOLUTE:
+        // If all Y values have been shifted the same amount the derivative is unaffected
+        return firstDerivative;
+      case RELATIVE:
+        // If all Y values have been scaled by the same factor the first derivative is scaled in the same way
+        return shiftType.applyShift(firstDerivative, shiftAmount);
+      default:
+        throw new IllegalArgumentException("Unsupported shift type " + shiftType);
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurveParallelShift}.
+   * The meta-bean for {@code ParallelShiftedCurve}.
    * @return the meta-bean, not null
    */
-  public static CurveParallelShift.Meta meta() {
-    return CurveParallelShift.Meta.INSTANCE;
+  public static ParallelShiftedCurve.Meta meta() {
+    return ParallelShiftedCurve.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurveParallelShift.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ParallelShiftedCurve.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurveParallelShift.Builder builder() {
-    return new CurveParallelShift.Builder();
-  }
-
-  private CurveParallelShift(
+  private ParallelShiftedCurve(
+      Curve curve,
       ShiftType shiftType,
       double shiftAmount) {
+    JodaBeanUtils.notNull(curve, "curve");
     JodaBeanUtils.notNull(shiftType, "shiftType");
     JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
+    this.curve = curve;
     this.shiftType = shiftType;
     this.shiftAmount = shiftAmount;
   }
 
   @Override
-  public CurveParallelShift.Meta metaBean() {
-    return CurveParallelShift.Meta.INSTANCE;
+  public ParallelShiftedCurve.Meta metaBean() {
+    return ParallelShiftedCurve.Meta.INSTANCE;
   }
 
   @Override
@@ -120,6 +167,15 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying curve.
+   * @return the value of the property, not null
+   */
+  public Curve getCurve() {
+    return curve;
   }
 
   //-----------------------------------------------------------------------
@@ -141,22 +197,15 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveParallelShift other = (CurveParallelShift) obj;
-      return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
+      ParallelShiftedCurve other = (ParallelShiftedCurve) obj;
+      return JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
+          JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
           JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
     }
     return false;
@@ -165,6 +214,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
     return hash;
@@ -172,8 +222,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("CurveParallelShift{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ParallelShiftedCurve{");
+    buf.append("curve").append('=').append(getCurve()).append(',').append(' ');
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
     buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
     buf.append('}');
@@ -182,7 +233,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveParallelShift}.
+   * The meta-bean for {@code ParallelShiftedCurve}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -191,20 +242,26 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code curve} property.
+     */
+    private final MetaProperty<Curve> curve = DirectMetaProperty.ofImmutable(
+        this, "curve", ParallelShiftedCurve.class, Curve.class);
+    /**
      * The meta-property for the {@code shiftType} property.
      */
     private final MetaProperty<ShiftType> shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", CurveParallelShift.class, ShiftType.class);
+        this, "shiftType", ParallelShiftedCurve.class, ShiftType.class);
     /**
      * The meta-property for the {@code shiftAmount} property.
      */
     private final MetaProperty<Double> shiftAmount = DirectMetaProperty.ofImmutable(
-        this, "shiftAmount", CurveParallelShift.class, Double.TYPE);
+        this, "shiftAmount", ParallelShiftedCurve.class, Double.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "curve",
         "shiftType",
         "shiftAmount");
 
@@ -217,6 +274,8 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 95027439:  // curve
+          return curve;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -226,13 +285,13 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     @Override
-    public CurveParallelShift.Builder builder() {
-      return new CurveParallelShift.Builder();
+    public BeanBuilder<? extends ParallelShiftedCurve> builder() {
+      return new ParallelShiftedCurve.Builder();
     }
 
     @Override
-    public Class<? extends CurveParallelShift> beanType() {
-      return CurveParallelShift.class;
+    public Class<? extends ParallelShiftedCurve> beanType() {
+      return ParallelShiftedCurve.class;
     }
 
     @Override
@@ -241,6 +300,14 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code curve} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Curve> curve() {
+      return curve;
+    }
+
     /**
      * The meta-property for the {@code shiftType} property.
      * @return the meta-property, not null
@@ -261,10 +328,12 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 95027439:  // curve
+          return ((ParallelShiftedCurve) bean).getCurve();
         case 893345500:  // shiftType
-          return ((CurveParallelShift) bean).getShiftType();
+          return ((ParallelShiftedCurve) bean).getShiftType();
         case -1043480710:  // shiftAmount
-          return ((CurveParallelShift) bean).getShiftAmount();
+          return ((ParallelShiftedCurve) bean).getShiftAmount();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -282,10 +351,11 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveParallelShift}.
+   * The bean-builder for {@code ParallelShiftedCurve}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveParallelShift> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ParallelShiftedCurve> {
 
+    private Curve curve;
     private ShiftType shiftType;
     private double shiftAmount;
 
@@ -295,19 +365,12 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     private Builder() {
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveParallelShift beanToCopy) {
-      this.shiftType = beanToCopy.getShiftType();
-      this.shiftAmount = beanToCopy.getShiftAmount();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 95027439:  // curve
+          return curve;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -320,6 +383,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 95027439:  // curve
+          this.curve = (Curve) newValue;
+          break;
         case 893345500:  // shiftType
           this.shiftType = (ShiftType) newValue;
           break;
@@ -357,40 +423,19 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     @Override
-    public CurveParallelShift build() {
-      return new CurveParallelShift(
+    public ParallelShiftedCurve build() {
+      return new ParallelShiftedCurve(
+          curve,
           shiftType,
           shiftAmount);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code shiftType} property in the builder.
-     * @param shiftType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder shiftType(ShiftType shiftType) {
-      JodaBeanUtils.notNull(shiftType, "shiftType");
-      this.shiftType = shiftType;
-      return this;
-    }
-
-    /**
-     * Sets the {@code shiftAmount} property in the builder.
-     * @param shiftAmount  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder shiftAmount(double shiftAmount) {
-      JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
-      this.shiftAmount = shiftAmount;
-      return this;
-    }
-
-    //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("CurveParallelShift.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("ParallelShiftedCurve.Builder{");
+      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
       buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount));
       buf.append('}');

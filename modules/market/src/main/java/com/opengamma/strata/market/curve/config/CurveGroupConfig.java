@@ -54,7 +54,7 @@ import com.opengamma.strata.market.curve.CurveName;
 public final class CurveGroupConfig implements ImmutableBean {
 
   /** The name of the curve group. */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notNull")
   private final CurveGroupName name;
 
   /** The configuration for building the curves in the group. */
@@ -128,7 +128,7 @@ public final class CurveGroupConfig implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the curve group.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   public CurveGroupName getName() {
     return name;

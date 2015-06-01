@@ -5,16 +5,16 @@
  */
 package com.opengamma.strata.market.id;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.market.curve.Curve;
 
 /**
  * Market data ID identifying a curve.
  */
-public interface CurveId extends MarketDataId<YieldCurve> {
+public interface CurveId extends MarketDataId<Curve> {
 
   @Override
-  public default Class<YieldCurve> getMarketDataType() {
-    return YieldCurve.class;
+  public default Class<Curve> getMarketDataType() {
+    return Curve.class;
   }
 }

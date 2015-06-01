@@ -13,7 +13,6 @@ import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -26,7 +25,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -56,6 +54,7 @@ import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -74,7 +73,6 @@ import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
@@ -134,8 +132,8 @@ public class CurveGroupMarketDataFunctionTest {
 
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
-    YieldAndDiscountCurve curve = curveGroup.getMulticurveProvider().getCurve(Currency.USD);
-    DiscountFactors df = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, ACT_ACT_ISDA, Legacy.curve(curve));
+    Curve curve = curveGroup.getDiscountCurve(USD).get();
+    DiscountFactors df = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, ACT_ACT_ISDA, curve);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
@@ -206,8 +204,8 @@ public class CurveGroupMarketDataFunctionTest {
     Result<CurveGroup> result = function.buildCurveGroup(groupConfig, marketData, MarketDataFeed.NONE);
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
-    YieldAndDiscountCurve curve = curveGroup.getMulticurveProvider().getCurve(Currency.USD);
-    DiscountFactors df = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, ACT_ACT_ISDA, Legacy.curve(curve));
+    Curve curve = curveGroup.getDiscountCurve(USD).get();
+    DiscountFactors df = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, ACT_ACT_ISDA, curve);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);

@@ -13,7 +13,9 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
  * Market data function that satisfies requests for discounting curves by loading the
@@ -25,7 +27,7 @@ import com.opengamma.strata.market.id.DiscountCurveId;
  * the valuation date.
  */
 public class ExampleDiscountCurveFunction
-    implements MarketDataFunction<YieldCurve, DiscountCurveId> {
+    implements MarketDataFunction<Curve, DiscountCurveId> {
 
   @Override
   public MarketDataRequirements requirements(DiscountCurveId id, MarketDataConfig marketDataConfig) {
@@ -33,10 +35,10 @@ public class ExampleDiscountCurveFunction
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public Result<Curve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     LocalDate valuationDate = marketData.getValuationDate();
     YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, id.getCurrency() + "-discounting");
-    return Result.success(curve);
+    return Result.success(Legacy.curve(curve));
   }
 
   @Override

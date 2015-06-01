@@ -21,10 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.key.DiscountCurveKey;
@@ -35,7 +35,7 @@ import com.opengamma.strata.market.key.DiscountCurveKey;
  */
 @BeanDefinition
 public final class DiscountingCurveMapping
-    implements MarketDataMapping<YieldCurve, DiscountCurveKey>, ImmutableBean {
+    implements MarketDataMapping<Curve, DiscountCurveKey>, ImmutableBean {
 
   /** The name of the curve group from which discounting curves should be taken. */
   @PropertyDefinition(validate = "notNull")
@@ -63,7 +63,7 @@ public final class DiscountingCurveMapping
   }
 
   @Override
-  public MarketDataId<YieldCurve> getIdForKey(DiscountCurveKey key) {
+  public MarketDataId<Curve> getIdForKey(DiscountCurveKey key) {
     return DiscountCurveId.of(key.getCurrency(), curveGroupName, marketDataFeed);
   }
 
