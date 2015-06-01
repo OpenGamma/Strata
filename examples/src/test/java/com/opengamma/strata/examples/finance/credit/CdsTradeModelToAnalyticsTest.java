@@ -72,7 +72,7 @@ public class CdsTradeModelToAnalyticsTest {
 
     /**
      * tradeDate The trade date
-     * stepinDate (aka Protection Effective sate or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
+     * stepinDate (aka Protection Effective date or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
      * (and risk) starts in terms of the model. Note, this is sometimes just called the Effective Date, however this can cause
      * confusion with the legal effective date which is T-60 or T-90.
      * valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
@@ -109,10 +109,10 @@ public class CdsTradeModelToAnalyticsTest {
   }
 
   final static CDSAnalytic expected = new CDSAnalytic(
-      LocalDate.of(2014, 9, 20),
-      LocalDate.of(2014, 9, 21),
-      LocalDate.of(2014, 9, 24),
-      LocalDate.of(2014, 6, 20),
+      LocalDate.of(2014, 10, 16),
+      LocalDate.of(2014, 10, 17),
+      LocalDate.of(2014, 10, 19),
+      LocalDate.of(2014, 9, 22),
       LocalDate.of(2019, 12, 20),
       true,
       Period.ofMonths(3),
@@ -123,7 +123,7 @@ public class CdsTradeModelToAnalyticsTest {
       HolidayCalendars.NO_HOLIDAYS,
       com.opengamma.analytics.convention.daycount.DayCounts.ACT_360
   );
-  final static LocalDate tradeDate = LocalDate.of(2014, 9, 20);
+  final static LocalDate tradeDate = LocalDate.of(2014, 10, 16);
   final static CreditDefaultSwapTrade trade = CreditDefaultSwapTrade
       .builder()
       .standardId(StandardId.of("trade", "673676"))
@@ -141,7 +141,7 @@ public class CdsTradeModelToAnalyticsTest {
               .generalTerms(
                   GeneralTerms
                       .builder()
-                      .effectiveDate(LocalDate.of(2014, 6, 20))
+                      .effectiveDate(LocalDate.of(2014, 9, 22))
                       .scheduledTerminationDate(LocalDate.of(2019, 12, 20))
                       .buySellProtection(BuySell.BUY)
                       .dateAdjustments(
@@ -165,8 +165,8 @@ public class CdsTradeModelToAnalyticsTest {
                   FeeLeg.of(
                       1_000_000D,
                       PeriodicSchedule.of(
-                          LocalDate.of(2014, 6, 20),
-                          LocalDate.of(2014, 6, 20),
+                          LocalDate.of(2014, 9, 20),
+                          LocalDate.of(2019, 12, 20),
                           Frequency.P3M,
                           BusinessDayAdjustment.of(
                               BusinessDayConventions.FOLLOWING,
