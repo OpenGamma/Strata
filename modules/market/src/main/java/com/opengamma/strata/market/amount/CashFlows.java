@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.cashflow;
+package com.opengamma.strata.market.amount;
 
 import java.io.Serializable;
 import java.util.List;
