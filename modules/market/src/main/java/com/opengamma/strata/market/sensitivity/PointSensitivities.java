@@ -33,11 +33,21 @@ import com.opengamma.strata.collect.Guavate;
 /**
  * A collection of point sensitivities.
  * <p>
- * Contains a list of {@linkplain PointSensitivity point sensitivity} objects, each
- * referring to a specific point on a curve that was queried.
+ * Contains a list of {@linkplain PointSensitivity point sensitivity} objects,
+ * each referring to a specific point on a curve that was queried.
  * The order of the list has no specific meaning, but does allow duplicates.
  * <p>
+ * For example, the point sensitivity for present value on a FRA might contain
+ * two entries, one for the Ibor forward curve and one for the discount curve.
+ * Each entry identifies the date that the curve was queried and the resulting multiplier.
+ * <p>
  * When creating an instance, consider using {@link MutablePointSensitivities}.
+ * 
+ * @implNote
+ * One way of viewing this class is as a {@code Map} from a specific sensitivity
+ * key to a {@code double} sensitivity value. However, instead or being structured
+ * as a {@code Map}, the data is structured as a {@code List}, with the key and
+ * value in each entry.
  */
 @BeanDefinition(builderScope = "private")
 public final class PointSensitivities
@@ -51,16 +61,16 @@ public final class PointSensitivities
   /**
    * The point sensitivities.
    * <p>
-   * Each entry includes details of the curve it relates to.
+   * Each entry includes details of the market data query it relates to.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<PointSensitivity> sensitivities;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code PointSensitivities} from a single point sensitivity.
+   * Obtains a {@code PointSensitivities} from a single sensitivity entry.
    * 
-   * @param sensitivity  the sensitivity
+   * @param sensitivity  the sensitivity entry
    * @return the sensitivities instance
    */
   public static PointSensitivities of(PointSensitivity sensitivity) {
@@ -68,9 +78,9 @@ public final class PointSensitivities
   }
 
   /**
-   * Obtains a {@code PointSensitivities} from a list of point sensitivities.
+   * Obtains a {@code PointSensitivities} from a list of sensitivity entries.
    * 
-   * @param sensitivities  the list of sensitivities
+   * @param sensitivities  the list of sensitivity entries
    * @return the sensitivities instance
    */
   @SuppressWarnings("unchecked")
@@ -80,7 +90,7 @@ public final class PointSensitivities
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of point sensitivities.
+   * Gets the number of sensitivity entries.
    * 
    * @return the size of the internal list of point sensitivities
    */
@@ -90,7 +100,7 @@ public final class PointSensitivities
 
   //-------------------------------------------------------------------------
   /**
-   * Combines the point sensitivities with another instance.
+   * Combines this point sensitivities with another instance.
    * <p>
    * This returns a new sensitivity instance with a combined list of point sensitivities.
    * This instance is immutable and unaffected by this method.
@@ -108,9 +118,9 @@ public final class PointSensitivities
 
   //-------------------------------------------------------------------------
   /**
-   * Multiplies the point sensitivities by the specified factor.
+   * Multiplies the sensitivities in this instance by the specified factor.
    * <p>
-   * The result will consist of the same points, but with each sensitivity multiplied.
+   * The result will consist of the same entries, but with each sensitivity value multiplied.
    * This instance is immutable and unaffected by this method. 
    * 
    * @param factor  the multiplicative factor
@@ -121,23 +131,23 @@ public final class PointSensitivities
   }
 
   /**
-   * Applies an operation to the point sensitivities.
+   * Applies an operation to the sensitivities in this instance.
    * <p>
-   * The result will consist of the same points, but with the operator applied to each sensitivity.
+   * The result will consist of the same entries, but with the operator applied to each sensitivity value.
    * This instance is immutable and unaffected by this method. 
    * <p>
-   * This is used to apply a mathematical operation to the sensitivities.
+   * This is used to apply a mathematical operation to the sensitivity values.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
    * <pre>
    *   inverse = base.mapSensitivities(value -> 1 / value);
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
-   * @return a {@code PointSensitivities} based on this one, with the operator applied to the point sensitivities
+   * @return a {@code PointSensitivities} based on this one, with the operator applied to the sensitivity values
    */
   public PointSensitivities mapSensitivities(DoubleUnaryOperator operator) {
     return sensitivities.stream()
-        .map(cs -> cs.withSensitivity(operator.applyAsDouble(cs.getSensitivity())))
+        .map(s -> s.withSensitivity(operator.applyAsDouble(s.getSensitivity())))
         .collect(
             Collectors.collectingAndThen(
                 Guavate.toImmutableList(),
@@ -181,8 +191,8 @@ public final class PointSensitivities
   /**
    * Returns a mutable version of this object.
    * <p>
-   * The result is the mutable {@link MutablePointSensitivities} class.
-   * It will contain the same individual point sensitivities.
+   * The result is an instance of the mutable {@link MutablePointSensitivities}.
+   * It will contain the same individual sensitivity entries.
    * 
    * @return the mutable sensitivity instance, not null
    */
@@ -266,7 +276,7 @@ public final class PointSensitivities
   /**
    * Gets the point sensitivities.
    * <p>
-   * Each entry includes details of the curve it relates to.
+   * Each entry includes details of the market data query it relates to.
    * @return the value of the property, not null
    */
   public ImmutableList<PointSensitivity> getSensitivities() {

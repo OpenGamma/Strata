@@ -62,7 +62,7 @@ public final class MutablePointSensitivities
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of point sensitivities.
+   * Gets the number of sensitivity entries.
    * 
    * @return the size of the internal list of point sensitivities
    */
@@ -207,7 +207,7 @@ public final class MutablePointSensitivities
   /**
    * Returns an immutable version of this object.
    * <p>
-   * The result is the immutable {@link PointSensitivities} class.
+   * The result is an instance of the immutable {@link PointSensitivities}.
    * It will contain the same individual point sensitivities.
    * 
    * @return the immutable sensitivity instance, not null
