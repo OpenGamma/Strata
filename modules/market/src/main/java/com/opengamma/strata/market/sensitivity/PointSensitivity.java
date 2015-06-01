@@ -15,6 +15,13 @@ import com.opengamma.strata.basics.currency.Currency;
  * The sensitivity to a single point on a curve, surface or similar.
  * This is used within {@link PointSensitivities}.
  * <p>
+ * Each implementation of this interface will consist of two distinct parts.
+ * The first is a set of information that identifies the point.
+ * The second is the sensitivity value.
+ * <p>
+ * For example, when an Ibor index is queried, the implementation would typically contain
+ * the Ibor index, fixing date and the sensitivity value.
+ * <p>
  * Implementations must be immutable and thread-safe beans.
  */
 public interface PointSensitivity
