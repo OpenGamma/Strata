@@ -264,7 +264,7 @@ public class CurveEndToEndTest {
   private static FraCurveNode fraNode(int startMonths, String id) {
     Period periodToStart = Period.ofMonths(startMonths);
     QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    return FraCurveNode.ofMarketRate(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteKey);
+    return FraCurveNode.of(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteKey);
   }
 
   private static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
