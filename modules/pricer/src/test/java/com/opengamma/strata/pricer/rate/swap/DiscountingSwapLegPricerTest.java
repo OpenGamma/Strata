@@ -75,11 +75,11 @@ import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
@@ -291,21 +291,21 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_finiteDifference() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP).build();
-    CurveParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
-    CurveParameterSensitivities psFd =
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psFd =
         FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP, (p) -> PRICER_LEG.presentValue(expSwapLeg, p));
-    ImmutableMap<SensitivityKey, double[]> mapAd = psAd.getSensitivities();
-    ImmutableMap<SensitivityKey, double[]> mapFd = psFd.getSensitivities();
-    assertEquals(mapAd.size(), 2); // No Libor 6M sensitivity
-    assertEquals(mapFd.size(), 3); // Libor 6M sensitivity equal to 0 in Finite Difference
+    ImmutableList<CurveCurrencyParameterSensitivity> listAd = psAd.getSensitivities();
+    ImmutableList<CurveCurrencyParameterSensitivity> listFd = psFd.getSensitivities();
+    assertEquals(listAd.size(), 2); // No Libor 6M sensitivity
+    assertEquals(listFd.size(), 3); // Libor 6M sensitivity equal to 0 in Finite Difference
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
   }
 
   public void test_presentValueSensitivity_events() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivityEventsInternal(expSwapLeg, RATES_GBP).build();
-    CurveParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
-    CurveParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
         (p) -> CurrencyAmount.of(GBP, PRICER_LEG.presentValueEventsInternal(expSwapLeg, p)));
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
   }
@@ -313,8 +313,8 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_periods() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivityPeriodsInternal(expSwapLeg, RATES_GBP).build();
-    CurveParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
-    CurveParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
         (p) -> CurrencyAmount.of(GBP, PRICER_LEG.presentValuePeriodsInternal(expSwapLeg, p)));
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
   }
@@ -327,8 +327,8 @@ public class DiscountingSwapLegPricerTest {
         .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2)
         .build();
     PointSensitivities point = PRICER_LEG.pvbpSensitivity(leg, RATES_USD).build();
-    CurveParameterSensitivities pvbpsAd = RATES_USD.parameterSensitivity(point);
-    CurveParameterSensitivities pvbpsFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_USD,
+    CurveCurrencyParameterSensitivities pvbpsAd = RATES_USD.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities pvbpsFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_USD,
         (p) -> CurrencyAmount.of(USD, PRICER_LEG.pvbp(leg, p)));
     assertTrue(pvbpsAd.equalWithTolerance(pvbpsFd, TOLERANCE_DELTA));
   }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -14,10 +15,10 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This operates by algorithmic differentiation (AD).
  */
 public class SwapPv01Function
-    extends AbstractSwapFunction<Double> {
+    extends AbstractSwapFunction<MultiCurrencyAmount> {
 
   @Override
-  protected Double execute(ExpandedSwap product, RatesProvider provider) {
+  protected MultiCurrencyAmount execute(ExpandedSwap product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider).build();
     return provider.parameterSensitivity(pointSensitivity).total();
   }
