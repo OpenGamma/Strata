@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.credit.general;
 
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -43,6 +44,7 @@ public class GeneralTermsTest {
     return GeneralTerms.singleName(
         start,
         end,
+        BuySell.BUY,
         adjustment,
         RedCode.of("3H98A7"),
         "Ford Motor Company",
@@ -55,6 +57,7 @@ public class GeneralTermsTest {
     return GeneralTerms.index(
         start,
         end,
+        BuySell.BUY,
         adjustment,
         RedCode.of("2I65BYCL7"),
         "CDX.NA.IG.15",
@@ -78,10 +81,10 @@ public class GeneralTermsTest {
   }
 
   public void test_of_null() {
-    assertThrowsIllegalArg(() -> GeneralTerms.singleName(null, null, null, null, null, null, null));
-    assertThrowsIllegalArg(() -> GeneralTerms.singleName(start, end, adjustment, null, null, null, null));
-    assertThrowsIllegalArg(() -> GeneralTerms.index(null, null, null, null, null, 0, 0));
-    assertThrowsIllegalArg(() -> GeneralTerms.index(start, end, adjustment, null, null, 0, 0));
+    assertThrowsIllegalArg(() -> GeneralTerms.singleName(null, null, null, null, null, null, null, null));
+    assertThrowsIllegalArg(() -> GeneralTerms.singleName(start, end, BuySell.BUY, adjustment, null, null, null, null));
+    assertThrowsIllegalArg(() -> GeneralTerms.index(null, null, null, null, null, null, 0, 0));
+    assertThrowsIllegalArg(() -> GeneralTerms.index(start, end, BuySell.BUY, adjustment, null, null, 0, 0));
   }
 
   //-------------------------------------------------------------------------

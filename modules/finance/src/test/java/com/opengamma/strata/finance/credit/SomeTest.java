@@ -105,20 +105,20 @@ public class SomeTest {
             "key",
             true
         ),
-        "2015-05-26\n" +
-            "2015-05-29\n" +
-            "2015-05-27\n" +
-            "2015-05-26\n" +
-            "2020-05-26\n" +
-            "100\n" +
+        "2015-06-01\n" +
+            "2015-06-04\n" +
+            "2015-06-02\n" +
+            "2015-06-01\n" +
+            "2020-06-01\n" +
+            "100.000000\n" +
             "true\n" +
             "P3M\n" +
-            "NONE\n" +
-            "ACT/360\n" +
-            "FOLLOWING\n" +
-            "NO_HOLIDAYS\n" +
-            "key\n",
-        "true"
+            "None\n" +
+            "Act/360\n" +
+            "Following\n" +
+            "NoHolidays\n" +
+            "key\n" +
+            "true"
     );
   }
 
