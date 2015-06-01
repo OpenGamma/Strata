@@ -96,11 +96,16 @@ public interface PriceIndexValues {
   public abstract PointSensitivityBuilder pointSensitivity(YearMonth fixingMonth);
 
   /**
-   * Returns the sensitivities of the price index to the curve parameters at a given month.
+   * Returns the unit parameter sensitivity of the price index to the curve parameters at a given month.
+   * <p>
+   * This returns the unit sensitivity for each parameter on the underlying curve.
+   * If the year-month is before the valuation date an exception is thrown.
+   * The sensitivity refers to the result of {@link #value(YearMonth)}.
    * 
    * @param month  the month to query the sensitivity for
    * @return the sensitivity array
+   * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double[] parameterSensitivity(YearMonth month);
+  public abstract double[] unitParameterSensitivity(YearMonth month);
 
 }

@@ -45,7 +45,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.provider.NormalVolatilityExpiryTenorSwaptionProvider;
@@ -160,8 +160,8 @@ public class NormalSwaptionProductPricerTest {
   public void present_value_sensitivity_FD() {
     PointSensitivities pvpt = PRICER_SWAPTION_NORMAL
         .presentValueSensitivityStickyStrike(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT).build();
-    CurveParameterSensitivity pvpsAd = MULTI_USD.parameterSensitivity(pvpt);
-    CurveParameterSensitivity pvpsFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_USD,
+    CurveParameterSensitivities pvpsAd = MULTI_USD.parameterSensitivity(pvpt);
+    CurveParameterSensitivities pvpsFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(MULTI_USD,
         (p) -> PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_SHORT_REC, p, NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT));
     assertTrue(pvpsAd.equalWithTolerance(pvpsFd, TOLERANCE_PV_DELTA));
   }
@@ -172,8 +172,8 @@ public class NormalSwaptionProductPricerTest {
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD).build();
     PointSensitivities pvptShort = PRICER_SWAPTION_NORMAL
         .presentValueSensitivityStickyStrike(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD).build();
-    CurveParameterSensitivity pvpsLong = MULTI_USD.parameterSensitivity(pvptLong);
-    CurveParameterSensitivity pvpsShort = MULTI_USD.parameterSensitivity(pvptShort);
+    CurveParameterSensitivities pvpsLong = MULTI_USD.parameterSensitivity(pvptLong);
+    CurveParameterSensitivities pvpsShort = MULTI_USD.parameterSensitivity(pvptShort);
     assertTrue(pvpsLong.equalWithTolerance(pvpsShort.multipliedBy(-1.0), TOLERANCE_PV_DELTA));
   }
   
@@ -184,9 +184,9 @@ public class NormalSwaptionProductPricerTest {
     PointSensitivities pvptShortRec = PRICER_SWAPTION_NORMAL
         .presentValueSensitivityStickyStrike(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD).build();
     PointSensitivities pvptSwapRec = PRICER_SWAP.presentValueSensitivity(SWAP_PAY, MULTI_USD).build();
-    CurveParameterSensitivity pvpsLongPay = MULTI_USD.parameterSensitivity(pvptLongPay);
-    CurveParameterSensitivity pvpsShortRec = MULTI_USD.parameterSensitivity(pvptShortRec);
-    CurveParameterSensitivity pvpsSwapRec = MULTI_USD.parameterSensitivity(pvptSwapRec);
+    CurveParameterSensitivities pvpsLongPay = MULTI_USD.parameterSensitivity(pvptLongPay);
+    CurveParameterSensitivities pvpsShortRec = MULTI_USD.parameterSensitivity(pvptShortRec);
+    CurveParameterSensitivities pvpsSwapRec = MULTI_USD.parameterSensitivity(pvptSwapRec);
     assertTrue(pvpsLongPay.combinedWith(pvpsShortRec).equalWithTolerance(pvpsSwapRec, TOLERANCE_PV_DELTA));
   }
   

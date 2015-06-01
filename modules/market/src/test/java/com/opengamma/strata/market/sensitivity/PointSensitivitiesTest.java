@@ -30,10 +30,10 @@ public class PointSensitivitiesTest {
   private static final PointSensitivity CS3 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 32d);
   private static final PointSensitivity CS3B = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 3d);
 
-  public void test_of_single() {
-    PointSensitivities test = PointSensitivities.of(CS1);
-    assertEquals(test.getSensitivities(), ImmutableList.of(CS1));
-    assertEquals(test.size(), 1);
+  public void test_of_array() {
+    PointSensitivities test = PointSensitivities.of(CS1, CS2);
+    assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2));
+    assertEquals(test.size(), 2);
   }
 
   public void test_of_List() {
@@ -76,7 +76,7 @@ public class PointSensitivitiesTest {
   }
 
   public void test_normalized_empty() {
-    assertEquals(PointSensitivities.NONE.normalized(), PointSensitivities.NONE);
+    assertEquals(PointSensitivities.empty().normalized(), PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------

@@ -27,7 +27,7 @@ import com.opengamma.strata.market.curve.CurveName;
 /**
  * A key used for sensitivity to a curve.
  * <p>
- * This is a {@link SensitivityKey} implementation used by {@link CurveParameterSensitivity}.
+ * This is a {@link SensitivityKey} implementation used by {@link CurveParameterSensitivities}.
  */
 @BeanDefinition(builderScope = "private")
 public final class NameSensitivityKey

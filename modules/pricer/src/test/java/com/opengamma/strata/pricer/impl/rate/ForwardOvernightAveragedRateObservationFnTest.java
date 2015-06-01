@@ -32,7 +32,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -334,10 +334,10 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
       PointSensitivityBuilder sensitivityBuilderComputed =
           obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivity parameterSensitivityComputed =
+      CurveParameterSensitivities parameterSensitivityComputed =
           prov.parameterSensitivity(sensitivityBuilderComputed.build());
 
-      CurveParameterSensitivity parameterSensitivityExpected =
+      CurveParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
@@ -361,10 +361,10 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
       PointSensitivityBuilder sensitivityBuilderComputed =
           obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivity parameterSensitivityComputed =
+      CurveParameterSensitivities parameterSensitivityComputed =
           prov.parameterSensitivity(sensitivityBuilderComputed.build());
 
-      CurveParameterSensitivity parameterSensitivityExpected =
+      CurveParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(CHF_TOIS.getCurrency(),
               obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));

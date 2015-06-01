@@ -88,7 +88,7 @@ public class ZeroRateDiscountFactorsTest {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double[] expected = YIELD_CURVE.getInterestRateParameterSensitivity(relativeTime);
-    assertEquals(test.parameterSensitivity(DATE_AFTER), expected);
+    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------

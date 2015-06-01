@@ -166,8 +166,8 @@ public final class DiscountIborIndexRates
   }
 
   @Override
-  public double[] parameterSensitivity(LocalDate date) {
-    return discountFactors.parameterSensitivity(date);
+  public double[] unitParameterSensitivity(LocalDate date) {
+    return discountFactors.unitParameterSensitivity(date);
   }
 
   //-------------------------------------------------------------------------

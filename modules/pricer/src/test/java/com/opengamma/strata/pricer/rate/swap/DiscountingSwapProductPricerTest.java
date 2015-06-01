@@ -70,7 +70,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -438,8 +438,8 @@ public class DiscountingSwapProductPricerTest {
   public void test_parRateSensitivity_singleCurrency() {
     ExpandedSwap expanded = SWAP.expand();
     PointSensitivities point = PRICER_SWAP.parRateSensitivity(expanded, RATES_GBP).build();
-    CurveParameterSensitivity prAd = RATES_GBP.parameterSensitivity(point);
-    CurveParameterSensitivity prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
+    CurveParameterSensitivities prAd = RATES_GBP.parameterSensitivity(point);
+    CurveParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
         RATES_GBP, p -> CurrencyAmount.of(GBP, PRICER_SWAP.parRate(expanded, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
@@ -447,8 +447,8 @@ public class DiscountingSwapProductPricerTest {
   public void test_parRateSensitivity_crossCurrency() {
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
     PointSensitivities point = PRICER_SWAP.parRateSensitivity(expanded, RATES_GBP_USD).build();
-    CurveParameterSensitivity prAd = RATES_GBP_USD.parameterSensitivity(point);
-    CurveParameterSensitivity prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
+    CurveParameterSensitivities prAd = RATES_GBP_USD.parameterSensitivity(point);
+    CurveParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
         RATES_GBP_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parRate(expanded, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }

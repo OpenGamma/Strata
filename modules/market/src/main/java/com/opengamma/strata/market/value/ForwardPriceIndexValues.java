@@ -222,7 +222,7 @@ public final class ForwardPriceIndexValues
 
   //-------------------------------------------------------------------------
   @Override
-  public double[] parameterSensitivity(YearMonth month) {
+  public double[] unitParameterSensitivity(YearMonth month) {
     // no sensitivity if historic month price index present in the time series
     OptionalDouble fixing = timeSeries.get(month.atEndOfMonth());
     if (fixing.isPresent()) {

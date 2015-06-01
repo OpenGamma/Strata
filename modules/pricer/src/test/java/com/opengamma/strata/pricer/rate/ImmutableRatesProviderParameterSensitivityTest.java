@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
@@ -134,29 +134,29 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final double TOLERANCE_SENSI = 1.0E-8;
 
   public void pointToParameterOnePointZero() {
-    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_ZERO_1);
+    CurveParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_ZERO_1);
     DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(USD), list);
     NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(MULTICURVE.getName(USD), USD);
-    CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
+    CurveParameterSensitivities psExpected = CurveParameterSensitivities.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
   public void pointToParameterOnePointZeroTwoCurrency() {
-    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_ZERO_4);
+    CurveParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_ZERO_4);
     DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(EUR), list);
     NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(MULTICURVE.getName(EUR), USD);
-    CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
+    CurveParameterSensitivities psExpected = CurveParameterSensitivities.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
   public void pointToParameterOnePointIbor() {
-    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_IBOR_1);
+    CurveParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_IBOR_1);
     LocalDate startDate = USD_LIBOR_3M.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double startTime = PROVIDER.relativeTime(startDate);
@@ -168,12 +168,12 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.iborIndex(USD_LIBOR_3M));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(curveName, USD);
-    CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
+    CurveParameterSensitivities psExpected = CurveParameterSensitivities.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
   public void pointToParameterOnePointOnOneDate() {
-    CurveParameterSensitivity ps = PROVIDER.parameterSensitivity(POINT_ON_1);
+    CurveParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_ON_1);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(startDate);
     double startTime = PROVIDER.relativeTime(startDate);
@@ -185,12 +185,12 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.overnightIndex(USD_FED_FUND));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(curveName, USD);
-    CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
+    CurveParameterSensitivities psExpected = CurveParameterSensitivities.of(key, vectorExpected);
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
   public void pointToParameterOnePointOnTwoDates() {
-    CurveParameterSensitivity psComputed = PROVIDER.parameterSensitivity(POINT_ON_2);
+    CurveParameterSensitivities psComputed = PROVIDER.parameterSensitivity(POINT_ON_2);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
     double startTime = PROVIDER.relativeTime(startDate);
     double endTime = PROVIDER.relativeTime(DATE_2);
@@ -201,14 +201,14 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.overnightIndex(USD_FED_FUND));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     NameCurrencySensitivityKey key = NameCurrencySensitivityKey.of(curveName, USD);
-    CurveParameterSensitivity psExpected = CurveParameterSensitivity.of(key, vectorExpected);
+    CurveParameterSensitivities psExpected = CurveParameterSensitivities.of(key, vectorExpected);
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
   public void pointToParameterMultiple() {
-    CurveParameterSensitivity psComputed = PROVIDER.parameterSensitivity(POINT);
+    CurveParameterSensitivities psComputed = PROVIDER.parameterSensitivity(POINT);
     assertEquals(psComputed.getSensitivities().size(), 6);
-    CurveParameterSensitivity psExpected = CurveParameterSensitivity.empty();
+    CurveParameterSensitivities psExpected = CurveParameterSensitivities.empty();
     for (int i = 0; i < POINTS.length; i++) {
       psExpected = psExpected.combinedWith(PROVIDER.parameterSensitivity(POINTS[i]));
     }
@@ -275,8 +275,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         test_usd_dw.fxIndexRates(WM_GBP_USD).rate(GBP, DATE_VAL)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecGBP = ZeroRateSensitivity.of(GBP, USD, matuirtyDate, sense_gbp1);
     sensiBuildDecGBP = sensiBuildDecGBP.combinedWith(ZeroRateSensitivity.of(USD, USD, matuirtyDate, sense_usd1));
-    CurveParameterSensitivity paramSensiCmpGBP = test.parameterSensitivity(sensiBuildCmpGBP.build().normalized());
-    CurveParameterSensitivity paramSensiExpGBP = test.parameterSensitivity(sensiBuildDecGBP.build().normalized());
+    CurveParameterSensitivities paramSensiCmpGBP = test.parameterSensitivity(sensiBuildCmpGBP.build().normalized());
+    CurveParameterSensitivities paramSensiExpGBP = test.parameterSensitivity(sensiBuildDecGBP.build().normalized());
     assertTrue(paramSensiCmpGBP.equalWithTolerance(paramSensiExpGBP, EPS_FD));
     // USD based
     PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(WM_GBP_USD).pointSensitivity(USD, DATE_VAL);
@@ -288,8 +288,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         test_usd_dw.fxIndexRates(WM_GBP_USD).rate(USD, DATE_VAL)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecUSD = ZeroRateSensitivity.of(GBP, GBP, matuirtyDate, sense_gbp2);
     sensiBuildDecUSD = sensiBuildDecUSD.combinedWith(ZeroRateSensitivity.of(USD, GBP, matuirtyDate, sense_usd2));
-    CurveParameterSensitivity paramSensiCmpUSD = test.parameterSensitivity(sensiBuildCmpUSD.build().normalized());
-    CurveParameterSensitivity paramSensiExpUSD = test.parameterSensitivity(sensiBuildDecUSD.build().normalized());
+    CurveParameterSensitivities paramSensiCmpUSD = test.parameterSensitivity(sensiBuildCmpUSD.build().normalized());
+    CurveParameterSensitivities paramSensiExpUSD = test.parameterSensitivity(sensiBuildDecUSD.build().normalized());
     assertTrue(paramSensiCmpUSD.equalWithTolerance(paramSensiExpUSD, EPS_FD));
   }
 
