@@ -21,7 +21,9 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -33,8 +35,12 @@ public class ZeroRateDiscountFactorsTest {
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
   private static final LocalDate DATE_AFTER = date(2015, 7, 30);
 
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("TestCurve");
-  private static final YieldCurve CURVE = YieldCurve.from(
+  private static final InterpolatedNodalCurve CURVE =
+      InterpolatedNodalCurve.of(NAME, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+  // equivalent curve to test against
+  private static final YieldCurve YIELD_CURVE = YieldCurve.from(
       InterpolatedDoublesCurve.fromSorted(
           new double[] {0, 10},
           new double[] {1, 2},
@@ -56,7 +62,7 @@ public class ZeroRateDiscountFactorsTest {
   public void test_discountFactor() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double expected = CURVE.getDiscountFactor(relativeTime);
+    double expected = YIELD_CURVE.getDiscountFactor(relativeTime);
     assertEquals(test.discountFactor(DATE_AFTER), expected);
   }
 
@@ -64,7 +70,7 @@ public class ZeroRateDiscountFactorsTest {
   public void test_pointSensitivity() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double df = CURVE.getDiscountFactor(relativeTime);
+    double df = YIELD_CURVE.getDiscountFactor(relativeTime);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, -df * relativeTime);
     assertEquals(test.pointSensitivity(DATE_AFTER), expected);
   }
@@ -72,7 +78,7 @@ public class ZeroRateDiscountFactorsTest {
   public void test_pointSensitivity_sensitivityCurrency() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double df = CURVE.getDiscountFactor(relativeTime);
+    double df = YIELD_CURVE.getDiscountFactor(relativeTime);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, USD, DATE_AFTER, -df * relativeTime);
     assertEquals(test.pointSensitivity(DATE_AFTER, USD), expected);
   }
@@ -81,7 +87,7 @@ public class ZeroRateDiscountFactorsTest {
   public void test_parameterSensitivity() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double[] expected = CURVE.getInterestRateParameterSensitivity(relativeTime);
+    double[] expected = YIELD_CURVE.getInterestRateParameterSensitivity(relativeTime);
     assertEquals(test.parameterSensitivity(DATE_AFTER), expected);
   }
 

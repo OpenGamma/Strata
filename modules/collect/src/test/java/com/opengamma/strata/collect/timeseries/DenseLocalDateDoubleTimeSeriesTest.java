@@ -77,6 +77,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   private static final ImmutableList<LocalDate> DATES_2010_12 = dates(
       DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01);
   private static final ImmutableList<Double> VALUES_10_12 = values(10, 11, 12);
+  private static final ImmutableList<Double> VALUES_1_3 = values(1, 2, 3);
+  private static final ImmutableList<Double> VALUES_4_7 = values(4, 5, 6, 7);
 
   //-------------------------------------------------------------------------
   public void test_of_singleton() {
@@ -181,7 +183,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries s1 = LocalDateDoubleTimeSeries.of(DATE_2015_01_02, 1d);
     LocalDateDoubleTimeSeries s2 = LocalDateDoubleTimeSeries.of(DATE_2015_01_02, 2d);
 
-    assertThrowsIllegalArg(() -> s1.combineWith(s2, (d1, d2) -> Double.NaN));
+    assertThrowsIllegalArg(() -> s1.intersection(s2, (d1, d2) -> Double.NaN));
 
     assertThrowsIllegalArg(() -> s1.mapValues(d -> Double.NaN));
   }
@@ -559,7 +561,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_combineWith_intersectionWithNoMatchingElements() {
+  public void test_intersection_withNoMatchingElements() {
 
     LocalDateDoubleTimeSeries series1 =
         LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
@@ -569,11 +571,11 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries series2 =
         LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_WEEK).build();
 
-    LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test, LocalDateDoubleTimeSeries.empty());
   }
 
-  public void test_combineWith_intersectionWithSomeMatchingElements() {
+  public void test_intersection_withSomeMatchingElements() {
 
     LocalDateDoubleTimeSeries series1 =
         LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
@@ -590,14 +592,14 @@ public class DenseLocalDateDoubleTimeSeriesTest {
             .putAll(updates)
             .build();
 
-    LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test.size(), 3);
     assertEquals(test.get(DATE_2015_01_05), OptionalDouble.of(11.1));
     assertEquals(test.get(DATE_2015_01_08), OptionalDouble.of(14.2));
     assertEquals(test.get(DATE_2015_01_09), OptionalDouble.of(15.3));
   }
 
-  public void test_combineWith_intersectionWithSomeMatchingElements2() {
+  public void test_intersection_withSomeMatchingElements2() {
     List<LocalDate> dates1 = dates(DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01, DATE_2014_01_01, DATE_2015_06_01);
     List<Double> values1 = values(10, 11, 12, 13, 14);
 
@@ -608,14 +610,14 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
-    LocalDateDoubleTimeSeries test = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test.size(), 3);
     assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(11.0));
     assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(13.2));
     assertEquals(test.get(DATE_2014_01_01), OptionalDouble.of(14.4));
   }
 
-  public void test_combineWith_intersectionWithAllMatchingElements() {
+  public void test_intersection_withAllMatchingElements() {
     List<LocalDate> dates1 = DATES_2015_1_WEEK;
     List<Double> values1 = values(10, 11, 12, 13, 14);
 
@@ -627,7 +629,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries series2 =
         LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
-    LocalDateDoubleTimeSeries combined = series1.combineWith(series2, (l, r) -> l + r);
+    LocalDateDoubleTimeSeries combined = series1.intersection(series2, Double::sum);
     assertEquals(combined.size(), 5);
     assertEquals(combined.getEarliestDate(), DATE_2015_01_05);
     assertEquals(combined.getLatestDate(), DATE_2015_01_09);
@@ -636,6 +638,48 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     assertEquals(combined.get(DATE_2015_01_07), OptionalDouble.of(13.2));
     assertEquals(combined.get(DATE_2015_01_08), OptionalDouble.of(14.3));
     assertEquals(combined.get(DATE_2015_01_09), OptionalDouble.of(15.4));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_union_withMatchingElements() {
+
+    List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_06);
+    List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_08);
+    LocalDateDoubleTimeSeries series1 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries series2 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_4_7).build();
+
+    LocalDateDoubleTimeSeries test = series1.union(series2, Double::sum);
+    assertEquals(test.size(), 5);
+    assertEquals(test.getEarliestDate(), DATE_2015_01_02);
+    assertEquals(test.getLatestDate(), DATE_2015_01_08);
+    assertEquals(test.get(DATE_2015_01_02), OptionalDouble.of(4d));
+    assertEquals(test.get(DATE_2015_01_03), OptionalDouble.of(10d + 5d));
+    assertEquals(test.get(DATE_2015_01_05), OptionalDouble.of(11d + 6d));
+    assertEquals(test.get(DATE_2015_01_06), OptionalDouble.of(12d));
+    assertEquals(test.get(DATE_2015_01_08), OptionalDouble.of(7d));
+  }
+
+  public void test_union_withNoMatchingElements() {
+
+    List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_06);
+    List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_04, DATE_2015_01_08);
+    LocalDateDoubleTimeSeries series1 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries series2 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_3).build();
+
+    LocalDateDoubleTimeSeries test = series1.union(series2, Double::sum);
+    assertEquals(test.size(), 6);
+    assertEquals(test.getEarliestDate(), DATE_2015_01_02);
+    assertEquals(test.getLatestDate(), DATE_2015_01_08);
+    assertEquals(test.get(DATE_2015_01_02), OptionalDouble.of(1d));
+    assertEquals(test.get(DATE_2015_01_03), OptionalDouble.of(10d));
+    assertEquals(test.get(DATE_2015_01_04), OptionalDouble.of(2d));
+    assertEquals(test.get(DATE_2015_01_05), OptionalDouble.of(11d));
+    assertEquals(test.get(DATE_2015_01_06), OptionalDouble.of(12d));
+    assertEquals(test.get(DATE_2015_01_08), OptionalDouble.of(3d));
   }
 
   //-------------------------------------------------------------------------

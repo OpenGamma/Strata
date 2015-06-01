@@ -43,7 +43,6 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
@@ -134,7 +133,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -151,7 +149,6 @@ public class SwapEnd2EndTest {
     RateCalculationSwapLeg receiveLeg = iborLeg(LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12),
         USD_LIBOR_3M, RECEIVE, NOTIONAL, null);
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -196,7 +193,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2013, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -250,7 +246,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -304,7 +299,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
@@ -341,7 +335,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
@@ -378,7 +371,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
@@ -416,7 +408,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
@@ -454,7 +445,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
@@ -509,7 +499,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -568,7 +557,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
@@ -620,7 +608,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 2, 3)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -672,7 +659,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -728,7 +714,6 @@ public class SwapEnd2EndTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
@@ -813,7 +798,7 @@ public class SwapEnd2EndTest {
     return ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 1, 22))
         .fxMatrix(MULTICURVE_OIS.getFxRates())
-        .discountCurves(MULTICURVE_OIS.getDiscountingCurves())
+        .discountCurves(Legacy.discountCurves(MULTICURVE_OIS))
         .indexCurves(Legacy.indexCurves(MULTICURVE_OIS))
         .timeSeries(ImmutableMap.of(
             USD_LIBOR_1M, TS_USDLIBOR1M,

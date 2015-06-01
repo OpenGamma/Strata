@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 
@@ -31,6 +32,20 @@ public class CalculationTasks {
     this.columns = ImmutableList.copyOf(columns);
     List<MarketDataRequirements> reqs = calculationTasks.stream().map(CalculationTask::requirements).collect(toList());
     marketDataRequirements = MarketDataRequirements.combine(reqs);
+
+    // Validate the number of tasks and number of columns tally
+    if (calculationTasks.size() != 0) {
+      if (columns.size() == 0) {
+        throw new IllegalArgumentException("There must be at least one column");
+      }
+      if (calculationTasks.size() % columns.size() != 0) {
+        throw new IllegalArgumentException(
+            Messages.format(
+                "Number of tasks ({}) must be exactly divisible by the number of columns ({})",
+                calculationTasks.size(),
+                columns.size()));
+      }
+    }
   }
 
   /**

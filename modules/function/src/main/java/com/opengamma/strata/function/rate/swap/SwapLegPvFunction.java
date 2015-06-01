@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toCurrencyAmountList;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -16,20 +15,20 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
+import com.opengamma.strata.engine.calculations.function.result.CurrencyAmountList;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountingCurveKey;
+import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
@@ -39,7 +38,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
  * <p>
  * The result consists of a list of present values, one for each scenario.
  */
-public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, List<CurrencyAmount>> {
+public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, CurrencyAmountList> {
 
   /**
    * Whether to get calculate for the pay leg or the receive leg.
@@ -72,18 +71,18 @@ public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, L
         indices.stream()
             .map(MarketDataKeys::indexCurve)
             .collect(toImmutableSet());
-    Set<DiscountingCurveKey> discountingCurveKeys =
-        ImmutableSet.of(MarketDataKeys.discountingCurve(leg.getCurrency()));
+    Set<DiscountFactorsKey> discountCurveKeys =
+        ImmutableSet.of(DiscountFactorsKey.of(leg.getCurrency()));
 
     return CalculationRequirements.builder()
-        .singleValueRequirements(Sets.union(forwardCurveKeys, discountingCurveKeys))
+        .singleValueRequirements(Sets.union(forwardCurveKeys, discountCurveKeys))
         .timeSeriesRequirements(indexRateKeys)
         .outputCurrencies(leg.getCurrency())
         .build();
   }
 
   @Override
-  public List<CurrencyAmount> execute(SwapTrade trade, CalculationMarketData marketData) {
+  public CurrencyAmountList execute(SwapTrade trade, CalculationMarketData marketData) {
     Optional<SwapLeg> optionalLeg = trade.getProduct().getLeg(payReceive);
 
     if (!optionalLeg.isPresent()) {
@@ -98,7 +97,7 @@ public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, L
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> DiscountingSwapLegPricer.DEFAULT.presentValue(leg, provider))
-        .collect(toImmutableList());
+        .collect(toCurrencyAmountList());
   }
 
 }

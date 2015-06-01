@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraDiscountingMethod;
@@ -72,7 +71,6 @@ public class FraDummyData {
    * Fra trade.
    */
   public static final FraTrade FRA_TRADE = FraTrade.builder()
-      .standardId(StandardId.of("OG-Trade", "1"))
       .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(FRA)
       .build();

@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.marketdata.scenarios.MarketDataFilter;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.RateCurveId;
 
 /**
@@ -33,14 +34,14 @@ import com.opengamma.strata.market.id.RateCurveId;
  * the index.
  */
 @BeanDefinition
-public final class RateCurveCurrencyFilter implements MarketDataFilter<YieldCurve, RateCurveId>, ImmutableBean {
+public final class RateCurveCurrencyFilter implements MarketDataFilter<Curve, RateCurveId>, ImmutableBean {
 
   /** The currency matched by this filter. */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
 
   @Override
-  public boolean apply(RateCurveId curveId, YieldCurve marketData) {
+  public boolean apply(RateCurveId curveId, Curve curve) {
     return currency.equals(curveId.getCurrency());
   }
 

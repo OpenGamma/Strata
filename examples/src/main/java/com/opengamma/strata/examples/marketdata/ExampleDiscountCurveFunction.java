@@ -13,7 +13,9 @@ import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
  * Market data function that satisfies requests for discounting curves by loading the
@@ -24,24 +26,24 @@ import com.opengamma.strata.market.id.DiscountingCurveId;
  * <code>[currency]</code> is the curve currency and <code>[yyyy-mm-dd]</code> is
  * the valuation date.
  */
-public class ExampleDiscountingCurveFunction
-    implements MarketDataFunction<YieldCurve, DiscountingCurveId> {
+public class ExampleDiscountCurveFunction
+    implements MarketDataFunction<Curve, DiscountCurveId> {
 
   @Override
-  public MarketDataRequirements requirements(DiscountingCurveId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(DiscountCurveId id, MarketDataConfig marketDataConfig) {
     return MarketDataRequirements.empty();
   }
 
   @Override
-  public Result<YieldCurve> build(DiscountingCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
+  public Result<Curve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     LocalDate valuationDate = marketData.getValuationDate();
     YieldCurve curve = ExampleMarketData.loadYieldCurve(valuationDate, id.getCurrency() + "-discounting");
-    return Result.success(curve);
+    return Result.success(Legacy.curve(curve));
   }
 
   @Override
-  public Class<DiscountingCurveId> getMarketDataIdType() {
-    return DiscountingCurveId.class;
+  public Class<DiscountCurveId> getMarketDataIdType() {
+    return DiscountCurveId.class;
   }
 
 }

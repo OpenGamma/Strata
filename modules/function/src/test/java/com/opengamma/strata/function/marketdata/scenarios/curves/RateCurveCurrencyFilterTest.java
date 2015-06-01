@@ -9,12 +9,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.DiscountingCurveId;
+import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 
 @Test
@@ -23,28 +23,28 @@ public class RateCurveCurrencyFilterTest {
   public void matchIndexCurve() {
     RateCurveCurrencyFilter filter = RateCurveCurrencyFilter.of(Currency.USD);
     RateIndexCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
-    YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
+    Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(filter.apply(id, curve)).isTrue();
   }
 
   public void noMatchIndexCurve() {
     RateCurveCurrencyFilter filter = RateCurveCurrencyFilter.of(Currency.GBP);
     RateIndexCurveId id = RateIndexCurveId.of(IborIndices.USD_LIBOR_1M, CurveGroupName.of("curveName"));
-    YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
+    Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(filter.apply(id, curve)).isFalse();
   }
 
   public void matchDiscountingCurve() {
     RateCurveCurrencyFilter filter = RateCurveCurrencyFilter.of(Currency.USD);
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
-    YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
+    DiscountCurveId id = DiscountCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
+    Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(filter.apply(id, curve)).isTrue();
   }
 
   public void noMatchDiscountingCurve() {
     RateCurveCurrencyFilter filter = RateCurveCurrencyFilter.of(Currency.GBP);
-    DiscountingCurveId id = DiscountingCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
-    YieldCurve curve = YieldCurve.from(ConstantDoublesCurve.from(1d, "curveName"));
+    DiscountCurveId id = DiscountCurveId.of(Currency.USD, CurveGroupName.of("curveName"));
+    Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(filter.apply(id, curve)).isFalse();
   }
 }

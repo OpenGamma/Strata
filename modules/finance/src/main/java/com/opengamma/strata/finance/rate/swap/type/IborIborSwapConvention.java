@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.Swap;
@@ -147,7 +146,6 @@ public final class IborIborSwapConvention
    * If buying the swap, the rate of the flat leg is received from the counterparty,
    * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
    * 
-   * @param id  the identifier of the trade
    * @param tradeDate  the date of the trade
    * @param tenor  the tenor of the swap
    * @param buySell  the buy/sell flag
@@ -156,14 +154,13 @@ public final class IborIborSwapConvention
    * @return the trade
    */
   public SwapTrade toTrade(
-      StandardId id,
       LocalDate tradeDate,
       Tenor tenor,
       BuySell buySell,
       double notional,
       double spread) {
 
-    return toTrade(id, tradeDate, Period.ZERO, tenor, buySell, notional, spread);
+    return toTrade(tradeDate, Period.ZERO, tenor, buySell, notional, spread);
   }
 
   /**
@@ -177,7 +174,6 @@ public final class IborIborSwapConvention
    * If buying the swap, the rate of the flat leg is received from the counterparty,
    * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
    * 
-   * @param id  the identifier of the trade
    * @param tradeDate  the date of the trade
    * @param periodToStart  the period between the spot date and the start date
    * @param tenor  the tenor of the swap
@@ -187,7 +183,6 @@ public final class IborIborSwapConvention
    * @return the trade
    */
   public SwapTrade toTrade(
-      StandardId id,
       LocalDate tradeDate,
       Period periodToStart,
       Tenor tenor,
@@ -198,7 +193,7 @@ public final class IborIborSwapConvention
     LocalDate spotValue = getSpotDateOffset().adjust(tradeDate);
     LocalDate startDate = spotValue.plus(periodToStart);
     LocalDate endDate = startDate.plus(tenor.getPeriod());
-    return toTrade(id, tradeDate, startDate, endDate, buySell, notional, spread);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, spread);
   }
 
   /**
@@ -210,7 +205,6 @@ public final class IborIborSwapConvention
    * If buying the swap, the rate of the flat leg is received from the counterparty,
    * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
    * 
-   * @param id  the identifier of the trade
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
@@ -220,7 +214,6 @@ public final class IborIborSwapConvention
    * @return the trade
    */
   public SwapTrade toTrade(
-      StandardId id,
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
@@ -232,7 +225,6 @@ public final class IborIborSwapConvention
     SwapLeg leg1 = spreadLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional, spread);
     SwapLeg leg2 = flatLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notional);
     return SwapTrade.builder()
-        .standardId(id)
         .tradeInfo(TradeInfo.builder()
             .tradeDate(tradeDate)
             .build())

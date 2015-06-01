@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.index.RateIndex;
  */
 @BeanDefinition(builderScope = "private")
 public final class RateIndexCurveKey
-    implements YieldCurveKey, ImmutableBean, Serializable {
+    implements CurveKey, ImmutableBean, Serializable {
 
   /**
    * The index of the curve that is required.

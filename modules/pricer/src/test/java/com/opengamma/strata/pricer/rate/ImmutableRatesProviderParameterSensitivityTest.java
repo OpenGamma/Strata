@@ -19,24 +19,26 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveEUR;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -118,7 +120,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static RatesProvider PROVIDER = ImmutableRatesProvider.builder()
       .valuationDate(DATE_VAL)
       .fxMatrix(FX_MATRIX)
-      .discountCurves(MULTICURVE.getDiscountingCurves())
+      .discountCurves(Legacy.discountCurves(MULTICURVE))
       .indexCurves(Legacy.indexCurves(MULTICURVE))
       .timeSeries(ImmutableMap.of(
           EUR_EURIBOR_3M, TS_EMTPY,
@@ -217,48 +219,12 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final double GBP_DSC = 0.99d;
   private static final double USD_DSC = 0.95d;
   private static final double EPS_FD = 1.0e-7;
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_GBP =
-      new YieldCurve("GBP-Discount", new ConstantDoublesCurve(0.99d)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return GBP_DSC;
-        }
-      };
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_GBP_UP =
-      new YieldCurve("GBP-DiscountUp", new ConstantDoublesCurve(GBP_DSC + EPS_FD)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return GBP_DSC + EPS_FD;
-        }
-      };
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_GBP_DOWN =
-      new YieldCurve("GBP-DiscountDown", new ConstantDoublesCurve(GBP_DSC - EPS_FD)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return GBP_DSC - EPS_FD;
-        }
-      };
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_USD =
-      new YieldCurve("USD-Discount", new ConstantDoublesCurve(USD_DSC)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return USD_DSC;
-        }
-      };
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_USD_UP =
-      new YieldCurve("USD-DiscountUp", new ConstantDoublesCurve(USD_DSC + EPS_FD)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return USD_DSC + EPS_FD;
-        }
-      };
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE_USD_DOWN =
-      new YieldCurve("USD-DiscountDown", new ConstantDoublesCurve(USD_DSC - EPS_FD)) {
-        @Override
-        public double getDiscountFactor(double t) {
-          return USD_DSC - EPS_FD;
-        }
-      };
+  private static final Curve DISCOUNT_CURVE_GBP = new ConstantDiscountFactorCurve("GBP-Discount", GBP_DSC);
+  private static final Curve DISCOUNT_CURVE_GBP_UP = new ConstantDiscountFactorCurve("GBP-DiscountUp", GBP_DSC + EPS_FD);
+  private static final Curve DISCOUNT_CURVE_GBP_DOWN = new ConstantDiscountFactorCurve("GBP-DiscountDown", GBP_DSC - EPS_FD);
+  private static final Curve DISCOUNT_CURVE_USD = new ConstantDiscountFactorCurve("USD-Discount", USD_DSC);
+  private static final Curve DISCOUNT_CURVE_USD_UP = new ConstantDiscountFactorCurve("USD-DiscountUp", USD_DSC + EPS_FD);
+  private static final Curve DISCOUNT_CURVE_USD_DOWN = new ConstantDiscountFactorCurve("USD-DiscountDown", USD_DSC - EPS_FD);
 
   public void pointAndParameterFx() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
@@ -327,4 +293,57 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     assertTrue(paramSensiCmpUSD.equalWithTolerance(paramSensiExpUSD, EPS_FD));
   }
 
+  // a curve that produces a constant discount factor
+  static class ConstantDiscountFactorCurve implements Curve {
+
+    private CurveMetadata metadata;
+    private double discountFactor;
+
+    public ConstantDiscountFactorCurve(String name, double discountFactor) {
+      this.metadata = CurveMetadata.of(name);
+      this.discountFactor = discountFactor;
+    }
+
+    @Override
+    public CurveMetadata getMetadata() {
+      return metadata;
+    }
+
+    @Override
+    public int getParameterCount() {
+      return 1;
+    }
+
+    @Override
+    public double yValue(double x) {
+      return -Math.log(discountFactor) / x;
+    }
+
+    @Override
+    public double[] yValueParameterSensitivity(double x) {
+      return new double[] {1d};
+    }
+
+    @Override
+    public double firstDerivative(double x) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MetaBean metaBean() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <R> Property<R> property(String arg0) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<String> propertyNames() {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+  
 }

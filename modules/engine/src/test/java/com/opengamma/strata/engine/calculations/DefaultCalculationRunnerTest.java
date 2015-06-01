@@ -5,8 +5,10 @@
  */
 package com.opengamma.strata.engine.calculations;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.date;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -20,8 +22,11 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
+import com.opengamma.strata.engine.calculations.function.result.DefaultScenarioResult;
+import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.config.CalculationTaskConfig;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -32,9 +37,11 @@ import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
+import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestObservableKey;
 import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
@@ -143,6 +150,61 @@ public class DefaultCalculationRunnerTest {
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }
 
+  /**
+   * Test that ScenarioResults containing a single value are unwrapped when calling calculate() with BaseMarketData.
+   */
+  public void unwrapScenarioResults() {
+    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
+    ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
+    TestTarget target = new TestTarget();
+    CalculationTask task = new CalculationTask(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    Column column = Column.of(Measure.PRESENT_VALUE);
+    CalculationTasks tasks = new CalculationTasks(ImmutableList.of(task), ImmutableList.of(column));
+    DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
+    LocalDate valuationDate = date(2011, 3, 8);
+
+    Results results1 = runner.calculate(tasks, BaseMarketData.empty(valuationDate));
+    Result<?> result1 = results1.get(0, 0);
+    // Check the result contains the string directly, not the result wrapping the string
+    assertThat(result1).hasValue("foo");
+
+    ScenarioMarketData scenarioMarketData = ScenarioMarketData.builder(2, valuationDate).build();
+    Results results2 = runner.calculate(tasks, scenarioMarketData);
+    Result<?> result2 = results2.get(0, 0);
+    // Check the result contains the scenario result wrapping the string
+    assertThat(result2).hasValue(scenarioResult);
+  }
+
+  /**
+   * Test that ScenarioResults containing a single value are unwrapped when calling calculateAsync() with BaseMarketData.
+   */
+  public void unwrapScenarioResultsAsync() {
+    DefaultScenarioResult<String> scenarioResult = DefaultScenarioResult.of("foo");
+    ScenarioResultFunction fn = new ScenarioResultFunction(scenarioResult);
+    TestTarget target = new TestTarget();
+    CalculationTask task = new CalculationTask(target, 0, 0, fn, MarketDataMappings.empty(), ReportingRules.empty());
+    Column column = Column.of(Measure.PRESENT_VALUE);
+    CalculationTasks tasks = new CalculationTasks(ImmutableList.of(task), ImmutableList.of(column));
+    DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
+    LocalDate valuationDate = date(2011, 3, 8);
+    Listener listener = new Listener();
+
+    runner.calculateAsync(tasks, BaseMarketData.empty(valuationDate), listener);
+    CalculationResult calculationResult1 = listener.result;
+    Result<?> result1 = calculationResult1.getResult();
+    // Check the result contains the string directly, not the result wrapping the string
+    assertThat(result1).hasValue("foo");
+
+    ScenarioMarketData scenarioMarketData = ScenarioMarketData.builder(2, valuationDate).build();
+    runner.calculateAsync(tasks, scenarioMarketData, listener);
+    CalculationResult calculationResult2 = listener.result;
+    Result<?> result2 = calculationResult2.getResult();
+    // Check the result contains the scenario result wrapping the string
+    assertThat(result2).hasValue(scenarioResult);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
   private static class TestTarget implements CalculationTarget { }
 
   public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
@@ -161,6 +223,41 @@ public class DefaultCalculationRunnerTest {
     @Override
     public Object execute(TestTarget target, CalculationMarketData marketData) {
       return "bar";
+    }
+  }
+
+  private static final class ScenarioResultFunction
+      implements CalculationSingleFunction<TestTarget, ScenarioResult<String>> {
+
+    private final ScenarioResult<String> result;
+
+    private ScenarioResultFunction(ScenarioResult<String> result) {
+      this.result = result;
+    }
+
+    @Override
+    public ScenarioResult<String> execute(TestTarget target, CalculationMarketData marketData) {
+      return result;
+    }
+
+    @Override
+    public CalculationRequirements requirements(TestTarget target) {
+      return CalculationRequirements.empty();
+    }
+  }
+
+  private static final class Listener implements CalculationListener {
+
+    private CalculationResult result;
+
+    @Override
+    public void resultReceived(CalculationResult result) {
+      this.result = result;
+    }
+
+    @Override
+    public void calculationsComplete() {
+      // Do nothing
     }
   }
 }

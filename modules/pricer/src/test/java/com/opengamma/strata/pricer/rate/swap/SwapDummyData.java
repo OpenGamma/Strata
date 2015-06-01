@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
@@ -400,7 +399,6 @@ public final class SwapDummyData {
    * Swap trade.
    */
   public static final SwapTrade SWAP_TRADE = SwapTrade.builder()
-      .standardId(StandardId.of("OG-Trade", "1"))
       .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(SWAP)
       .build();
@@ -409,7 +407,6 @@ public final class SwapDummyData {
    * Swap trade.
    */
   public static final SwapTrade SWAP_TRADE_CROSS_CURRENCY = SwapTrade.builder()
-      .standardId(StandardId.of("OG-Trade", "1"))
       .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(SWAP_CROSS_CURRENCY)
       .build();

@@ -242,6 +242,6 @@ public class ParRatesMarketDataFunctionTest {
   private static FraCurveNode fraNode(int startTenor, String marketDataId) {
     Period periodToStart = Period.ofMonths(startTenor);
     FraTemplate template = FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M);
-    return FraCurveNode.ofMarketRate(template, QuoteKey.of(StandardId.of("test", marketDataId)));
+    return FraCurveNode.of(template, QuoteKey.of(StandardId.of("test", marketDataId)));
   }
 }

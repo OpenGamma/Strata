@@ -116,11 +116,11 @@ public class SwapReportRegressionTest {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("mn", "14248"))
         .product(Swap.builder()
             .legs(payLeg, receiveLeg)
             .build())
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("mn", "14248"))
             .counterparty(StandardId.of("mn", "Dealer A"))
             .settlementDate(LocalDate.of(2006, 2, 24))
             .build())
