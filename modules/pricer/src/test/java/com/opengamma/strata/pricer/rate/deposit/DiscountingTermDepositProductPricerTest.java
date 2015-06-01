@@ -75,44 +75,44 @@ public class DiscountingTermDepositProductPricerTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
   }
-  double dfStart = 0.99;
-  double dfEnd = 0.94;
+  private static final double DF_START = 0.99;
+  double DF_END = 0.94;
 
   //-------------------------------------------------------------------------
   public void test_presentValue_notStarted() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE);
+    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
-    double expected = ((1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * dfEnd - dfStart) * NOTIONAL;
+    double expected = ((1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * DF_END - DF_START) * NOTIONAL;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
   }
 
   public void test_presentValue_onStart() {
-    SimpleRatesProvider prov = provider(START_DATE);
+    SimpleRatesProvider prov = provider(START_DATE, 1.0d, DF_END);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
-    double expected = ((1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * dfEnd - dfStart) * NOTIONAL;
+    double expected = ((1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * DF_END - 1.0d) * NOTIONAL;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
   }
 
   public void test_presentValue_started() {
-    SimpleRatesProvider prov = provider(date(2014, 2, 22));
+    SimpleRatesProvider prov = provider(date(2014, 2, 22), 1.2d, DF_END);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
-    double expected = (1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * dfEnd * NOTIONAL;
+    double expected = (1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * DF_END * NOTIONAL;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
   }
 
   public void test_presentValue_onEnd() {
-    SimpleRatesProvider prov = provider(END_DATE);
+    SimpleRatesProvider prov = provider(END_DATE, 1.2d, 1.0d);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
-    double expected = (1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * dfEnd * NOTIONAL;
+    double expected = (1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * 1.0d * NOTIONAL;
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
   }
 
   public void test_presentValue_ended() {
-    SimpleRatesProvider prov = provider(date(2014, 9, 22));
+    SimpleRatesProvider prov = provider(date(2014, 9, 22), 1.2d, 1.1d);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
     assertEquals(computed.getCurrency(), EUR);
     assertEquals(computed.getAmount(), 0.0d, TOLERANCE * NOTIONAL);
@@ -127,7 +127,7 @@ public class DiscountingTermDepositProductPricerTest {
   }
 
   public void test_parRate() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE);
+    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
     double parRate = PRICER.parRate(TERM_DEPOSIT, prov);
     TermDeposit depositPar = TermDeposit.builder()
         .buySell(BuySell.BUY)
@@ -144,7 +144,7 @@ public class DiscountingTermDepositProductPricerTest {
   }
 
   public void test_parSpread() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE);
+    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
     double parSpread = PRICER.parSpread(TERM_DEPOSIT, prov);
     TermDeposit depositPar = TermDeposit.builder()
         .buySell(BuySell.BUY)
@@ -168,7 +168,7 @@ public class DiscountingTermDepositProductPricerTest {
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
 
-  private SimpleRatesProvider provider(LocalDate valuationDate) {
+  private SimpleRatesProvider provider(LocalDate valuationDate, double dfStart, double dfEnd) {
     DiscountFactors mockDf = mock(DiscountFactors.class);
     when(mockDf.discountFactor(START_DATE)).thenReturn(dfStart);
     when(mockDf.discountFactor(END_DATE)).thenReturn(dfEnd);
