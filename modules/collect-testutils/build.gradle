@@ -1,0 +1,5 @@
+dependencies {
+	compile project(":collect")
+	compile "org.testng:testng:${testNGVersion}"
+	compile "org.assertj:assertj-core:${assertJVersion}"
+}

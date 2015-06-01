@@ -1,0 +1,277 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+import com.github.jk1.license.LicenseReportPlugin
+import com.opengamma.tools.gradle.analytics.AnalyticsPlugin
+import com.opengamma.tools.gradle.depreport.InMemoryRenderer
+import com.opengamma.tools.gradle.depreport.task.AggregatedCSVDependencyReport
+import com.opengamma.tools.gradle.distrepo.DistRepoPlugin
+import com.opengamma.tools.gradle.sphinx.SphinxPlugin
+import com.opengamma.tools.gradle.release.AutoVersionPlugin
+import com.opengamma.tools.gradle.release.ReleasePlugin
+import org.joda.beans.gradle.JodaBeansPlugin
+
+ext {
+    guavaVersion = "18.0"
+    jodaConvertVersion = "1.7"
+    jodaBeansVersion = "1.5.1"
+    joolVersion = "0.9.6"
+    fastutilVersion = "6.5.6"
+    commonsMath3Version = "3.5"
+    coltVersion = "1.2.0"
+    jtransformsVersion = "2.4.0"
+    openCSVVersion = "2.3"
+    poiVersion = "3.9"
+    slf4jVersion = "1.7.5"
+    ogAnalyticsVersion = "3.0.0-SNAPSHOT"
+
+    testNGVersion = "6.8.21"
+    assertJVersion = "2.0.0"
+    mockitoVersion = "1.10.19"
+    jacocoVersion = "0.7.4.201502262128"
+
+    javadocFooterLicense = ""
+}
+
+apply plugin: AnalyticsPlugin
+
+allprojects {
+    version "0.7.0-SNAPSHOT"
+    group "com.opengamma.strata"
+}
+
+apply plugin: "base"
+apply plugin: SphinxPlugin
+apply plugin: "maven"
+
+sphinx {
+    userGuideArchiveName = "strata-@project.version@-guide.zip"
+}
+
+subprojects {
+    apply plugin: "java"
+    apply from: "${rootProject.projectDir}/gradle/testConfig.gradle"
+    apply plugin: "checkstyle"
+    apply plugin: "findbugs"
+    apply plugin: JodaBeansPlugin
+    apply plugin: DistRepoPlugin
+    apply from: "${rootProject.projectDir}/gradle/deployment.gradle"
+    apply from: "${rootProject.projectDir}/gradle/metadata.gradle"
+
+    compileJava {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-parameters"
+    }
+
+    dependencies {
+        compile "com.google.guava:guava:${guavaVersion}"
+        compile "org.joda:joda-convert:${jodaConvertVersion}"
+        compile "org.joda:joda-beans:${jodaBeansVersion}"
+        compile "org.jooq:jool:${joolVersion}"
+        compile "org.slf4j:slf4j-api:${slf4jVersion}"
+    }
+
+    task sourcesJar(type: Jar, dependsOn: jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    checkstyle {
+        String checkstyleConfiguration = this.class.getResource("/checkstyle/checkstyle.xml").text
+        config = resources.text.fromString(checkstyleConfiguration)
+        ignoreFailures = true
+        showViolations = false
+    }
+    checkstyleMain.exclude('**/org/fpml/**')
+    checkstyleMain.exclude('**/org/w3/**')
+
+    jacoco {
+        toolVersion = jacocoVersion
+    }
+
+    findbugs {
+        ignoreFailures = true
+    }
+
+    jodabeans {
+        sourceDir = file('src/main/java').getAbsolutePath()
+        indent = 2
+        prefix = "_"
+    }
+
+    distRepo {
+        deployInto project.rootProject
+    }
+}
+
+task fullJavadoc(type: Javadoc) {
+    group = "Documentation"
+    description = "Produce combined Javadoc from all projects"
+
+    failOnError = false
+    verbose = false
+    destinationDir = file("${buildDir}/docs/javadoc")
+    options.windowTitle = "OpenGamma Strata"
+    title = "OpenGamma Strata API Documentation"
+
+    options.header = """<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ["\$","\$"], ["\\\\\\\\(","\\\\\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>"""
+    options.footer = """<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadocFooterLicense}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-12092825-5"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true; ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s); })(); </script>"""
+}
+
+task packageJavadoc(type: Zip) {
+    from fullJavadoc
+    doFirst {
+        String pkgName = "${project.name}-${project.version}-javadoc"
+        into pkgName
+        archiveName "${pkgName}.zip"
+    }
+}
+
+task testReport(type: TestReport) { testReport ->
+    description = "Merges test result reports from all projects into a single report"
+
+    project.allprojects*.tasks*.withType(Test) { test ->
+        testReport.dependsOn test
+        test.finalizedBy testReport
+    }
+
+    destinationDir = file("${buildDir}/reports/tests")
+    reportOn subprojects*.test.binResultsDir
+
+    project.allprojects*.tasks*.withType(JacocoReport) { jr ->
+        if(jr.enabled)
+            testReport.finalizedBy jr
+    }
+}
+
+allprojects {
+    apply plugin: "eclipse"
+    apply plugin: LicenseReportPlugin
+    licenseReport {
+        renderer = new InMemoryRenderer()
+    }
+}
+
+task dependencyReport(type: AggregatedCSVDependencyReport)
+
+apply plugin: ReleasePlugin
+apply plugin: AutoVersionPlugin
+apply from: "${project.rootProject.projectDir}/gradle/packaging.gradle"
+
+allprojects {
+    afterEvaluate {
+        rootProject.getTasksByName("javadoc", true).each { Javadoc t ->
+            if(
+            ! t.enabled) return
+            t.failOnError = false
+            rootProject.tasks.fullJavadoc {
+                source += files(t.project.sourceSets.collect { srcSet -> srcSet.allJava })
+                classpath += files(t.project.sourceSets*.compileClasspath)
+            }
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/public"
+        }
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+    }
+}
+
+if(project.hasProperty("fast"))
+{
+    [
+            "javadoc",
+            "fullJavadoc",
+            "findbugsMain",
+            "findbugsTest",
+            "checkstyleMain",
+            "checkstyleTest",
+            "jacocoAgent",
+    ].each { tn ->
+        project.getTasksByName(tn, true)*.enabled = false
+    }
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/public"
+        }
+        maven {
+            url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/ext-releases-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/ext-snapshots-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-releases-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-snapshots-local"
+            credentials {
+                username ogNexusUsername
+                password ogNexusPassword
+            }
+        }
+        maven {
+            url "https://plugins.gradle.org/m2"
+        }
+    }
+    dependencies {
+        classpath "com.opengamma.tools:build-tools:1.2.2"
+        classpath 'com.google.guava:guava:18.0'
+        classpath "com.opengamma.tools:gradle-depreport-extension:0.1.0-SNAPSHOT" //TODO
+        classpath group: 'org.joda', name: 'joda-beans', version: '1.4'
+        classpath group: 'org.joda', name: 'joda-beans-plugin', version: '1.0.0'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.4"
+}

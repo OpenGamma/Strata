@@ -1,0 +1,19 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+description = "Pricing APIs - Beta code, subject to change"
+
+dependencies {
+    compile project(":collect")
+    compile project(":basics")
+    compile project(":finance")
+    compile project(":finance-beta")
+    compile project(":pricer")
+    compile ogAnalytics()
+
+    testCompile project(":collect-testutils")
+    testCompile project(":pricer-testutils")
+}

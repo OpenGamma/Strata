@@ -1,0 +1,10 @@
+description = "Common collection implementations"
+
+dependencies {
+	testCompile project(":collect-testutils")
+}
+
+javadoc {
+    options.windowTitle = "OpenGamma Strata Collect"
+    title = "OpenGamma Strata Collect API Documentation"
+}

@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.8
+
+group 'com.opengamma.tools'
+version '0.1.0-SNAPSHOT'
+
+repositories {
+	mavenLocal()
+	maven {
+		url "http://maven.opengamma.com/nexus/content/groups/public"
+	}
+	maven {
+		url "http://maven.opengamma.com/nexus/content/groups/opengamma-developer"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "http://opengamma.artifactoryonline.com/opengamma/ext-releases-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "http://opengamma.artifactoryonline.com/opengamma/ext-snapshots-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-releases-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "http://opengamma.artifactoryonline.com/opengamma/gradle-plugins-snapshots-local"
+		credentials {
+			username ogNexusUsername
+			password ogNexusPassword
+		}
+	}
+	maven {
+		url "https://plugins.gradle.org/m2"
+	}
+}
+
+dependencies {
+    compile gradleApi()
+    compile 'org.codehaus.groovy:groovy-all:2.3.10'
+	compile 'com.github.zafarkhaja:java-semver:0.9.0'
+	compile "com.monochromeroad.gradle-plugins:gradle-aws-s3-sync:0.9-SNAPSHOT"
+	compile "gradle.plugin.com.github.jk1:gradle-license-report:0.2"
+	compile 'com.google.guava:guava:18.0'
+	compile 'org.apache.commons:commons-csv:1.1'
+
+	compile "com.opengamma.tools:gradle-simpleexec-plugin:${gradleSimpleExecPluginVersion}"
+	compile "com.opengamma.tools:gradle-git-plugin:${gradleGitPluginVersion}"
+	compile "com.opengamma.tools:gradle-sphinx-plugin:${gradleSphinxPluginVersion}"
+	compile "com.opengamma.tools:gradle-og-release-plugin:${gradleOGReleasePluginVersion}"
+	compile "com.opengamma.tools:gradle-dist-repo-plugin:${gradleDistRepoPluginVersion}"
+	compile "com.opengamma.tools:gradle-depreport-extension:0.1.0-SNAPSHOT" //TODO
+
+
+
+	testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
+    testRuntime 'cglib:cglib-nodep:3.1'
+}
