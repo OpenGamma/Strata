@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
  * Represents an amount of a currency associated with one leg of an instrument.
  */
 public interface LegAmount {
-  
+
   /**
    * Gets the amount associated with the leg.
    * 

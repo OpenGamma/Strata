@@ -37,10 +37,12 @@ import com.google.common.collect.ImmutableList;
 public final class LegAmounts
     implements ImmutableBean, Serializable {
 
-  /** The leg amounts. **/
+  /**
+   * The leg amounts.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<LegAmount> amounts;
- 
+
   //-------------------------------------------------------------------------
   /**
    * Returns an instance containing the specified leg amounts.
@@ -104,7 +106,7 @@ public final class LegAmounts
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the leg amounts. *
+   * Gets the leg amounts.
    * @return the value of the property, not null
    */
   public ImmutableList<LegAmount> getAmounts() {
