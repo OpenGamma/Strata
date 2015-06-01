@@ -32,7 +32,7 @@ import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
  * A curve node whose instrument is a term deposit.
  */
 @BeanDefinition
-public class TermDepositCurveNode implements CurveNode, ImmutableBean {
+public final class TermDepositCurveNode implements CurveNode, ImmutableBean {
 
   /** The template for the term deposit associated with this node. */
   @PropertyDefinition(validate = "notNull")
@@ -93,16 +93,15 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
     return new TermDepositCurveNode.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected TermDepositCurveNode(TermDepositCurveNode.Builder builder) {
-    JodaBeanUtils.notNull(builder.template, "template");
-    JodaBeanUtils.notNull(builder.rateKey, "rateKey");
-    this.template = builder.template;
-    this.rateKey = builder.rateKey;
-    this.spread = builder.spread;
+  private TermDepositCurveNode(
+      TermDepositTemplate template,
+      ObservableKey rateKey,
+      double spread) {
+    JodaBeanUtils.notNull(template, "template");
+    JodaBeanUtils.notNull(rateKey, "rateKey");
+    this.template = template;
+    this.rateKey = rateKey;
+    this.spread = spread;
   }
 
   @Override
@@ -183,26 +182,18 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TermDepositCurveNode{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("template").append('=').append(getTemplate()).append(',').append(' ');
+    buf.append("rateKey").append('=').append(getRateKey()).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("template").append('=').append(JodaBeanUtils.toString(getTemplate())).append(',').append(' ');
-    buf.append("rateKey").append('=').append(JodaBeanUtils.toString(getRateKey())).append(',').append(' ');
-    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TermDepositCurveNode}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -235,7 +226,7 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -271,7 +262,7 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TermDepositTemplate> template() {
+    public MetaProperty<TermDepositTemplate> template() {
       return template;
     }
 
@@ -279,7 +270,7 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
      * The meta-property for the {@code rateKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ObservableKey> rateKey() {
+    public MetaProperty<ObservableKey> rateKey() {
       return rateKey;
     }
 
@@ -287,7 +278,7 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
      * The meta-property for the {@code spread} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> spread() {
+    public MetaProperty<Double> spread() {
       return spread;
     }
 
@@ -320,7 +311,7 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
   /**
    * The bean-builder for {@code TermDepositCurveNode}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<TermDepositCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TermDepositCurveNode> {
 
     private TermDepositTemplate template;
     private ObservableKey rateKey;
@@ -329,14 +320,14 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(TermDepositCurveNode beanToCopy) {
+    private Builder(TermDepositCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateKey = beanToCopy.getRateKey();
       this.spread = beanToCopy.getSpread();
@@ -401,7 +392,10 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
 
     @Override
     public TermDepositCurveNode build() {
-      return new TermDepositCurveNode(this);
+      return new TermDepositCurveNode(
+          template,
+          rateKey,
+          spread);
     }
 
     //-----------------------------------------------------------------------
@@ -442,19 +436,11 @@ public class TermDepositCurveNode implements CurveNode, ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("TermDepositCurveNode.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
-      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread)).append(',').append(' ');
+      buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

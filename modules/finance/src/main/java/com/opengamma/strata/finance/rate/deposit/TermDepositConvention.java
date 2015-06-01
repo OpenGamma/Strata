@@ -49,7 +49,7 @@ import com.opengamma.strata.finance.TradeInfo;
  * not by this convention.
  */
 @BeanDefinition
-public class TermDepositConvention
+public final class TermDepositConvention
     implements Convention, ImmutableBean, Serializable {
 
   /**
@@ -222,18 +222,18 @@ public class TermDepositConvention
     return new TermDepositConvention.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected TermDepositConvention(TermDepositConvention.Builder builder) {
-    JodaBeanUtils.notNull(builder.currency, "currency");
-    JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    JodaBeanUtils.notNull(builder.spotDateOffset, "spotDateOffset");
-    this.currency = builder.currency;
-    this.businessDayAdjustment = builder.businessDayAdjustment;
-    this.dayCount = builder.dayCount;
-    this.spotDateOffset = builder.spotDateOffset;
+  private TermDepositConvention(
+      Currency currency,
+      BusinessDayAdjustment businessDayAdjustment,
+      DayCount dayCount,
+      DaysAdjustment spotDateOffset) {
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
+    this.currency = currency;
+    this.businessDayAdjustment = businessDayAdjustment;
+    this.dayCount = dayCount;
+    this.spotDateOffset = spotDateOffset;
   }
 
   @Override
@@ -324,27 +324,19 @@ public class TermDepositConvention
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("TermDepositConvention{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(getSpotDateOffset()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(getSpotDateOffset())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TermDepositConvention}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -383,7 +375,7 @@ public class TermDepositConvention
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -421,7 +413,7 @@ public class TermDepositConvention
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
+    public MetaProperty<Currency> currency() {
       return currency;
     }
 
@@ -429,7 +421,7 @@ public class TermDepositConvention
      * The meta-property for the {@code businessDayAdjustment} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
       return businessDayAdjustment;
     }
 
@@ -437,7 +429,7 @@ public class TermDepositConvention
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCount() {
+    public MetaProperty<DayCount> dayCount() {
       return dayCount;
     }
 
@@ -445,7 +437,7 @@ public class TermDepositConvention
      * The meta-property for the {@code spotDateOffset} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DaysAdjustment> spotDateOffset() {
+    public MetaProperty<DaysAdjustment> spotDateOffset() {
       return spotDateOffset;
     }
 
@@ -480,7 +472,7 @@ public class TermDepositConvention
   /**
    * The bean-builder for {@code TermDepositConvention}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<TermDepositConvention> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TermDepositConvention> {
 
     private Currency currency;
     private BusinessDayAdjustment businessDayAdjustment;
@@ -490,14 +482,14 @@ public class TermDepositConvention
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(TermDepositConvention beanToCopy) {
+    private Builder(TermDepositConvention beanToCopy) {
       this.currency = beanToCopy.getCurrency();
       this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
       this.dayCount = beanToCopy.getDayCount();
@@ -568,7 +560,11 @@ public class TermDepositConvention
 
     @Override
     public TermDepositConvention build() {
-      return new TermDepositConvention(this);
+      return new TermDepositConvention(
+          currency,
+          businessDayAdjustment,
+          dayCount,
+          spotDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -620,20 +616,12 @@ public class TermDepositConvention
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("TermDepositConvention.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');
+      buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset));
+      buf.append('}');
+      return buf.toString();
     }
 
   }
