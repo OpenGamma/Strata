@@ -281,7 +281,7 @@ public class CurveGroupMarketDataFunctionTest {
         .collect(toImmutableList());
 
     List<Tenor> expectedDiscountTenors =
-        ImmutableList.of(Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y);
+        ImmutableList.of(Tenor.TENOR_6M, Tenor.TENOR_9M, Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y);
 
     assertThat(discountTenors).isEqualTo(expectedDiscountTenors);
 
@@ -301,13 +301,13 @@ public class CurveGroupMarketDataFunctionTest {
 
     List<Tenor> expectedForwardTenors =
         ImmutableList.of(
-            Tenor.TENOR_1M,
-            Tenor.TENOR_2M,
-            Tenor.TENOR_3M,
+            Tenor.TENOR_4M,
+            Tenor.TENOR_5M,
             Tenor.TENOR_6M,
             Tenor.TENOR_9M,
             Tenor.TENOR_12M,
-            Tenor.ofMonths(18));
+            Tenor.ofMonths(15),
+            Tenor.ofMonths(21));
 
     assertThat(forwardTenors).isEqualTo(expectedForwardTenors);
 
