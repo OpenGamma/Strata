@@ -15,16 +15,16 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.CreditDefaultSwap;
-import com.opengamma.strata.finance.credit.CreditDefaultSwapTrade;
+import com.opengamma.strata.finance.credit.Cds;
+import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
-import com.opengamma.strata.finance.credit.type.StandardSingleNameConventions;
-import com.opengamma.strata.finance.credit.type.StandardSingleNameTemplate;
+import com.opengamma.strata.finance.credit.type.StandardSingleNameCdsConventions;
+import com.opengamma.strata.finance.credit.type.StandardSingleNameCdsTemplate;
 import org.joda.beans.ser.JodaBeanSer;
 
 import java.time.LocalDate;
@@ -52,8 +52,8 @@ public class CdsTradeModelDemo {
 
   //-----------------------------------------------------------------------
   public void simpleSingleNameUsd() {
-    CreditDefaultSwapTrade trade = StandardSingleNameTemplate
-        .of(StandardSingleNameConventions.northAmerican())
+    CdsTrade trade = StandardSingleNameCdsTemplate
+        .of(StandardSingleNameCdsConventions.northAmerican())
         .toTrade(
             StandardId.of("tradeid", "62726762"),
             LocalDate.of(2014, 1, 1),
@@ -75,8 +75,8 @@ public class CdsTradeModelDemo {
   }
 
   public void simpleSingleNameEur() {
-    CreditDefaultSwapTrade trade = StandardSingleNameTemplate
-        .of(StandardSingleNameConventions.europeanEUR())
+    CdsTrade trade = StandardSingleNameCdsTemplate
+        .of(StandardSingleNameCdsConventions.europeanEUR())
         .toTrade(
             StandardId.of("tradeid", "62726762"),
             LocalDate.of(2014, 1, 1),
@@ -151,13 +151,13 @@ public class CdsTradeModelDemo {
 //    System.out.println();
   }
 
-  private void checkValues(CreditDefaultSwapTrade trade) {
+  private void checkValues(CdsTrade trade) {
     // some of these values come from trade, some from curve?
     LocalDate tradeDate = trade.getTradeInfo().getTradeDate().get();
     LocalDate valueDate = tradeDate;
     LocalDate stepInDate = tradeDate.plusDays(1);
 
-    CreditDefaultSwap cds = trade.getProduct();
+    Cds cds = trade.getProduct();
 
     GeneralTerms generalTerms = cds.getGeneralTerms();
     LocalDate startDate = generalTerms.getEffectiveDate();

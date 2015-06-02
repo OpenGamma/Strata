@@ -18,8 +18,8 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.credit.CreditDefaultSwap;
-import com.opengamma.strata.finance.credit.CreditDefaultSwapTrade;
+import com.opengamma.strata.finance.credit.Cds;
+import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
@@ -47,12 +47,12 @@ public class CdsTradeModelToAnalyticsTest {
     compare(result, anticipated);
   }
 
-  private CDSAnalytic toAnalytic(CreditDefaultSwapTrade trade) {
+  private CDSAnalytic toAnalytic(CdsTrade trade) {
     LocalDate tradeDate = trade.getTradeInfo().getTradeDate().get();
     LocalDate valueDate = trade.getTradeInfo().getSettlementDate().get();
     LocalDate stepInDate = trade.getTradeInfo().getTradeDate().get().plusDays(1);
 
-    CreditDefaultSwap cds = trade.getProduct();
+    Cds cds = trade.getProduct();
 
     GeneralTerms generalTerms = cds.getGeneralTerms();
     LocalDate startDate = generalTerms.getEffectiveDate();
@@ -126,7 +126,7 @@ public class CdsTradeModelToAnalyticsTest {
       com.opengamma.analytics.convention.daycount.DayCounts.ACT_360
   );
   final static LocalDate tradeDate = LocalDate.of(2014, 10, 16);
-  final static CreditDefaultSwapTrade trade = CreditDefaultSwapTrade
+  final static CdsTrade trade = CdsTrade
       .builder()
       .tradeInfo(
           TradeInfo
@@ -138,7 +138,7 @@ public class CdsTradeModelToAnalyticsTest {
               .build()
       )
       .product(
-          CreditDefaultSwap
+          Cds
               .builder()
               .generalTerms(
                   GeneralTerms
