@@ -28,8 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.google.common.math.DoubleMath;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.DoubleArrayMath;
 
 /**
  * Curve parameter sensitivity.
@@ -118,7 +117,7 @@ public final class CurveParameterSensitivities
    */
   public CurveParameterSensitivities combinedWith(SensitivityKey key, double[] sensitivityArray) {
     Map<SensitivityKey, double[]> combined = new LinkedHashMap<>(sensitivities);
-    combined.merge(key, sensitivityArray, this::combineArrays);
+    combined.merge(key, sensitivityArray, DoubleArrayMath::combineByAddition);
     return new CurveParameterSensitivities(combined);
   }
 
@@ -145,19 +144,9 @@ public final class CurveParameterSensitivities
     }
     Map<SensitivityKey, double[]> combined = new LinkedHashMap<>(sensitivities);
     for (Entry<SensitivityKey, double[]> entry : other.sensitivities.entrySet()) {
-      combined.merge(entry.getKey(), entry.getValue(), this::combineArrays);
+      combined.merge(entry.getKey(), entry.getValue(), DoubleArrayMath::combineByAddition);
     }
     return new CurveParameterSensitivities(combined);
-  }
-
-  // add two arrays
-  private double[] combineArrays(double[] a, double[] b) {
-    ArgChecker.isTrue(a.length == b.length, "Sensitivity array must have same length");
-    double[] result = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      result[i] = a[i] + b[i];
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -267,10 +256,8 @@ public final class CurveParameterSensitivities
   private boolean checkSmall(Set<SensitivityKey> kSet, ImmutableMap<SensitivityKey, double[]> s, double tolerance) {
     for (SensitivityKey k : kSet) {
       double[] v = s.get(k);
-      for (int i = 0; i < v.length; i++) {
-        if (!DoubleMath.fuzzyEquals(v[i], 0, tolerance)) {
-          return false;
-        }
+      if (!DoubleArrayMath.fuzzyEqualsZero(v, tolerance)) {
+        return false;
       }
     }
     return true;
@@ -286,13 +273,8 @@ public final class CurveParameterSensitivities
     for (SensitivityKey key : common) {
       double[] vector1 = s1.get(key);
       double[] vector2 = s2.get(key);
-      if (vector1.length != vector2.length) {
+      if (!DoubleArrayMath.fuzzyEquals(vector1, vector2, tolerance)) {
         return false;
-      }
-      for (int i = 0; i < vector1.length; i++) {
-        if (!DoubleMath.fuzzyEquals(vector1[i], vector2[i], tolerance)) {
-          return false;
-        }
       }
     }
     return true;
