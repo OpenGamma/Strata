@@ -87,9 +87,8 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
 
   @Override
   public CurveParameterMetadata metadata(LocalDate valuationDate) {
-    // The tenor of a FRA node is the start of the FRA
-    Tenor startTenor = Tenor.of(template.getPeriodToStart());
-    return TenorCurveNodeMetadata.of(valuationDate.plus(startTenor), startTenor);
+    Tenor endTenor = Tenor.of(template.getPeriodToEnd());
+    return TenorCurveNodeMetadata.of(valuationDate.plus(endTenor), endTenor);
   }
 
   /**

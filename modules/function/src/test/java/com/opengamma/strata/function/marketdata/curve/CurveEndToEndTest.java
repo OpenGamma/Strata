@@ -6,11 +6,13 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toCurrencyAmountList;
+import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
+import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
+import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
@@ -70,12 +73,17 @@ import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.function.interpolator.CurveExtrapolators;
+import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.function.marketdata.mapping.FxRateMapping;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.function.rate.swap.SwapPvFunction;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
 import com.opengamma.strata.market.curve.config.CurveNode;
+import com.opengamma.strata.market.curve.config.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.config.FraCurveNode;
 import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
@@ -99,27 +107,52 @@ public class CurveEndToEndTest {
    *   - Discount factors
    */
   public void roundTripFraAndFixedFloatSwap() {
-    InterpolatedCurveConfig curveConfig = CurveTestUtils.fraSwapCurveConfig();
-    List<CurveNode> nodes = curveConfig.getNodes();
+
+    // Configuration and market data for the curve ---------------------------------
+
+    String fra3x6 = "fra3x6";
+    String fra6x9 = "fra6x9";
+    String swap1y = "swap1y";
+    String swap2y = "swap2y";
+    String swap3y = "swap3y";
+
+    FraCurveNode fra3x6Node = fraNode(3, fra3x6);
+    FraCurveNode fra6x9Node = fraNode(6, fra6x9);
+    FixedIborSwapCurveNode swap1yNode = fixedIborSwapNode(Tenor.TENOR_1Y, swap1y);
+    FixedIborSwapCurveNode swap2yNode = fixedIborSwapNode(Tenor.TENOR_2Y, swap2y);
+    FixedIborSwapCurveNode swap3yNode = fixedIborSwapNode(Tenor.TENOR_3Y, swap3y);
 
     Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(CurveTestUtils.id(nodes.get(0)), 0.0037)
-        .put(CurveTestUtils.id(nodes.get(1)), 0.0054)
-        .put(CurveTestUtils.id(nodes.get(2)), 0.005)
-        .put(CurveTestUtils.id(nodes.get(3)), 0.0087)
-        .put(CurveTestUtils.id(nodes.get(4)), 0.012)
+        .put(id(fra3x6), 0.0037)
+        .put(id(fra6x9), 0.0054)
+        .put(id(swap1y), 0.005)
+        .put(id(swap2y), 0.0087)
+        .put(id(swap3y), 0.012)
         .build();
 
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
+    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotesMap);
+    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotesMap);
+    Trade swap1yTrade = swap1yNode.trade(valuationDate, quotesMap);
+    Trade swap2yTrade = swap2yNode.trade(valuationDate, quotesMap);
+    Trade swap3yTrade = swap3yNode.trade(valuationDate, quotesMap);
 
-    List<Trade> trades = nodes.stream()
-        .map(node -> node.trade(valuationDate, quotesMap))
-        .collect(toImmutableList());
+    List<Trade> trades = ImmutableList.of(fra3x6Trade, fra6x9Trade, swap1yTrade, swap2yTrade, swap3yTrade);
 
+    List<CurveNode> nodes = ImmutableList.of(fra3x6Node, fra6x9Node, swap1yNode, swap2yNode, swap3yNode);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
+    CurveName curveName = CurveName.of("FRA and Fixed-Float Swap Curve");
+
+    InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
+        .name(curveName)
+        .nodes(nodes)
+        .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
+        .leftExtrapolator(CurveExtrapolators.FLAT)
+        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(groupName)

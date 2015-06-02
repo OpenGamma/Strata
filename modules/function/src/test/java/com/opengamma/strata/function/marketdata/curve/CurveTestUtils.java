@@ -32,6 +32,7 @@ import com.opengamma.strata.market.curve.config.CurveNode;
 import com.opengamma.strata.market.curve.config.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.config.FraCurveNode;
 import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
@@ -124,6 +125,10 @@ final class CurveTestUtils {
     QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
     FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Period.ZERO, tenor, SWAP_CONVENTION);
     return FixedIborSwapCurveNode.of(template, quoteKey);
+  }
+
+  static ObservableId id(String nodeName) {
+    return QuoteId.of(StandardId.of(TEST_SCHEME, nodeName));
   }
 
   static ObservableId id(CurveNode node) {
