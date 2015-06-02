@@ -21,6 +21,7 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
@@ -91,7 +92,8 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
       return Result.failure(FailureReason.MISSING_DATA, "No market data available for '{}'", missingRequirements);
     }
     Map<ObservableId, Double> rates = marketData.getObservableValues(requirements);
-    ParRates parRates = ParRates.of(rates);
+    CurveMetadata curveMetadata = curveConfig.metadata(marketData.getValuationDate());
+    ParRates parRates = ParRates.of(rates, curveMetadata);
     return Result.success(parRates);
   }
 

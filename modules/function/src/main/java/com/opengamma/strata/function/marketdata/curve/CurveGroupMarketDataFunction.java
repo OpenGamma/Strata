@@ -53,6 +53,7 @@ import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
@@ -155,7 +156,9 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Multimap<String, IborIndex> iborIndicesByCurveName = ArrayListMultimap.create();
     Multimap<String, IndexON> onIndicesByCurveName = ArrayListMultimap.create();
     Map<String, Currency> discountingCurrenciesByCurveName = new HashMap<>();
+    Map<String, CurveMetadata> curveMetadata = new HashMap<>();
     CurveGroupName groupName = groupConfig.getName();
+    LocalDate valuationDate = marketData.getValuationDate();
 
     for (CurveGroupEntry curveEntry : groupConfig.getEntries()) {
       // We can only handle InterpolatedCurveConfig for now
@@ -169,13 +172,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       }
       InterpolatedCurveConfig curveConfig = (InterpolatedCurveConfig) curveEntry.getCurveConfig();
       CurveName curveName = curveConfig.getName();
+      CurveMetadata metadata = curveConfig.metadata(valuationDate);
+      curveMetadata.put(curveName.toString(), metadata);
       Result<ParRates> parRatesResult = parRates(curveConfig, marketData, groupName, feed);
 
       if (!parRatesResult.isSuccess()) {
         return Result.failure(parRatesResult);
       }
       ParRates parRates = parRatesResult.getValue();
-      LocalDate valuationDate = marketData.getValuationDate();
       List<CurveNode> curveNodes = curveConfig.getNodes();
       List<InstrumentDerivative> derivatives = createDerivatives(curveNodes, parRates, valuationDate);
 
@@ -209,13 +213,13 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Map<IndexON, YieldAndDiscountCurve> legacyOvernightCurves = multicurve.getForwardONCurves();
 
     Map<Currency, Curve> discountCurves =
-        Seq.seq(legacyDiscountCurves).toMap(tp -> tp.v1, tp -> Legacy.curve(tp.v2));
+        Seq.seq(legacyDiscountCurves).toMap(tp -> tp.v1, tp -> createCurve(tp.v2, curveMetadata));
 
     Map<Index, Curve> iborCurves =
-        Seq.seq(legacyIborCurves).toMap(tp -> Legacy.iborIndex(tp.v1), tp -> Legacy.curve(tp.v2));
+        Seq.seq(legacyIborCurves).toMap(tp -> Legacy.iborIndex(tp.v1), tp -> createCurve(tp.v2, curveMetadata));
 
     Map<Index, Curve> overnightCurves =
-        Seq.seq(legacyOvernightCurves).toMap(tp -> Legacy.overnightIndex(tp.v1), tp -> Legacy.curve(tp.v2));
+        Seq.seq(legacyOvernightCurves).toMap(tp -> Legacy.overnightIndex(tp.v1), tp -> createCurve(tp.v2, curveMetadata));
 
     Map<Index, Curve> forwardCurves = ImmutableMap.<Index, Curve>builder()
         .putAll(iborCurves)
@@ -224,6 +228,13 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
     CurveGroup curveGroup = CurveGroup.of(groupConfig.getName(), discountCurves, forwardCurves);
     return Result.success(curveGroup);
+  }
+
+  /**
+   * Creates a new-style curve from a legacy curve and a set of curve metadata.
+   */
+  private static Curve createCurve(YieldAndDiscountCurve curve, Map<String, CurveMetadata> curveMetadata) {
+    return Legacy.curve(curve, curveMetadata.get(curve.getName()));
   }
 
   /**
@@ -264,7 +275,6 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       InterpolatedCurveConfig curveConfig,
       List<InstrumentDerivative> derivatives) {
 
-    // TODO Confirm that the number of derivatives should always match the number of nodes
     double[] parameterGuessForCurves = new double[derivatives.size()];
     Arrays.fill(parameterGuessForCurves, 0.02);
     GeneratorYDCurve curveGenerator = createCurveGenerator(curveConfig);
@@ -282,7 +292,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         .collect(toImmutableMap(entry -> entry.getKey().toObservableKey(), Map.Entry::getValue));
 
     return nodes.stream()
-        .map(node -> node.buildTrade(valuationDate, parRateValues))
+        .map(node -> node.trade(valuationDate, parRateValues))
         .map(trade -> TradeToDerivativeConverter.convert(trade, valuationDate))
         .collect(toImmutableList());
   }
