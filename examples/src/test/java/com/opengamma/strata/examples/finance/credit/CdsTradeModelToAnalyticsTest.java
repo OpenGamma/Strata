@@ -5,6 +5,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -177,7 +178,7 @@ public class CdsTradeModelToAnalyticsTest {
                               StubConvention.SHORT_FINAL,
                               RollConventions.DAY_20
                           ),
-                          1_000_000D,
+                          CurrencyAmount.of(Currency.USD, 1_000_000D),
                           0.0100D,
                           DayCounts.ACT_360
                       )
@@ -185,7 +186,7 @@ public class CdsTradeModelToAnalyticsTest {
               )
               .protectionTerms(
                   ProtectionTerms.of(
-                      1_000_000D,
+                      CurrencyAmount.of(Currency.USD, 1_000_000D),
                       RestructuringClause.XR
                   )
               )

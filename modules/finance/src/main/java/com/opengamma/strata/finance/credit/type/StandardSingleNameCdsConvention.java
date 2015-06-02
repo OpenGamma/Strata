@@ -112,9 +112,10 @@ public final class StandardSingleNameCdsConvention
     LocalDate unadjustedStartDate = calcUnadjustedAccrualStartDate(tradeDate);
 
     // Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
-    LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(tradeDate, period);
+    LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(unadjustedStartDate, period);
 
     LocalDate stepInDate = businessDayAdjustment.adjust(tradeDate.plusDays(stepIn));
+    LocalDate settleDate = businessDayAdjustment.adjust(tradeDate.plusDays(settleLag));
 
     PeriodicSchedule periodicSchedule = PeriodicSchedule.builder()
         .startDate(unadjustedStartDate)
@@ -123,7 +124,6 @@ public final class StandardSingleNameCdsConvention
         .businessDayAdjustment(businessDayAdjustment)
         .stubConvention(stubConvention)
         .rollConvention(rollConvention)
-        .firstRegularStartDate(stepInDate)
         .build();
 
     LocalDate adjustedStartDate = periodicSchedule.getAdjustedStartDate();
@@ -134,7 +134,7 @@ public final class StandardSingleNameCdsConvention
             .builder()
             .id(id)
             .tradeDate(tradeDate)
-            .settlementDate(stepInDate)
+            .settlementDate(settleDate)
             .build(),
         Cds.of(
             GeneralTerms.singleName(

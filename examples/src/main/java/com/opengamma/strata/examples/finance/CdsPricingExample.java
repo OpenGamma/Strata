@@ -56,7 +56,7 @@ public class CdsPricingExample {
     // The engine will attempt to source the data for us, which the example engine is
     // configured to load from JSON resources. We could alternatively populate the snapshot
     // with some or all of the required market data here.
-    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
+    LocalDate valuationDate = LocalDate.of(2014, 10, 16);
     // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
     BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
@@ -77,7 +77,7 @@ public class CdsPricingExample {
         .of(StandardSingleNameCdsConventions.northAmerican())
         .toTrade(
             StandardId.of("tradeid", "62726762"),
-            LocalDate.of(2014, 1, 1),
+            LocalDate.of(2014, 10, 16),
             Period.ofYears(5),
             BuySell.BUY,
             10_000_000D,
