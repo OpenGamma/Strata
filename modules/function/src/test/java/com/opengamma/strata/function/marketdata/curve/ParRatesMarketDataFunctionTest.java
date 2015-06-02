@@ -12,9 +12,11 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -28,6 +30,7 @@ import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveConfig;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
@@ -160,6 +163,12 @@ public class ParRatesMarketDataFunctionTest {
     assertThat(parRates.getRates().get(idA)).isEqualTo(1d);
     assertThat(parRates.getRates().get(idB)).isEqualTo(2d);
     assertThat(parRates.getRates().get(idC)).isEqualTo(3d);
+
+    List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
+        node1x4.metadata(VALUATION_DATE),
+        node2x5.metadata(VALUATION_DATE),
+        node3x6.metadata(VALUATION_DATE));
+    assertThat(parRates.getCurveMetadata().getParameters()).hasValue(expectedMetadata);
   }
 
   /**

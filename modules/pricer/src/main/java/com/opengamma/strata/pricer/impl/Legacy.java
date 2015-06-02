@@ -163,6 +163,17 @@ public final class Legacy {
    * @return the curve
    */
   public static Curve curve(YieldAndDiscountCurve legacyCurve) {
+    return curve(legacyCurve, CurveMetadata.of(legacyCurve.getName()));
+  }
+
+  /**
+   * Converts a legacy curve to a new curve.
+   *
+   * @param legacyCurve  the legacy curve
+   * @param curveMetadata  the curve metadata
+   * @return the curve
+   */
+  public static Curve curve(YieldAndDiscountCurve legacyCurve, CurveMetadata curveMetadata) {
     if (legacyCurve instanceof YieldCurve) {
       YieldCurve yieldCurve = (YieldCurve) legacyCurve;
       DoublesCurve underlying = yieldCurve.getCurve();
@@ -172,7 +183,7 @@ public final class Legacy {
         if (interpolator instanceof CombinedInterpolatorExtrapolator) {
           CombinedInterpolatorExtrapolator cie = (CombinedInterpolatorExtrapolator) interpolator;
           return InterpolatedNodalCurve.builder()
-              .metadata(CurveMetadata.of(idc.getName()))
+              .metadata(curveMetadata)
               .xValues(idc.getXDataAsPrimitive())
               .yValues(idc.getYDataAsPrimitive())
               .extrapolatorLeft((CurveExtrapolator) cie.getLeftExtrapolator())
@@ -181,7 +192,7 @@ public final class Legacy {
               .build();
         } else {
           return InterpolatedNodalCurve.builder()
-              .metadata(CurveMetadata.of(idc.getName()))
+              .metadata(curveMetadata)
               .xValues(idc.getXDataAsPrimitive())
               .yValues(idc.getYDataAsPrimitive())
               .interpolator((CurveInterpolator) interpolator)
@@ -199,5 +210,4 @@ public final class Legacy {
       throw new IllegalArgumentException("Unknown curve type: " + legacyCurve.getClass());
     }
   }
-
 }

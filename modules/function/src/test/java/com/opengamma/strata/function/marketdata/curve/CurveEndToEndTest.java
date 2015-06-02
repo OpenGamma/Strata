@@ -10,10 +10,12 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toCurrencyAmountList;
+import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
+import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
+import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,19 +32,13 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.CalculationEngine;
@@ -74,13 +70,8 @@ import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
@@ -94,29 +85,13 @@ import com.opengamma.strata.market.curve.config.CurveNode;
 import com.opengamma.strata.market.curve.config.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.config.FraCurveNode;
 import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
-import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
 @Test
 public class CurveEndToEndTest {
-
-  private static final String TEST_SCHEME = "test";
-
-  private static final BusinessDayAdjustment BDA_FOLLOW =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.GBLO);
-
-  private static final IborRateSwapLegConvention FLOATING_CONVENTION =
-      IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M);
-
-  private static final FixedRateSwapLegConvention FIXED_CONVENTION =
-      FixedRateSwapLegConvention.of(Currency.USD, DayCounts.ACT_360, Frequency.P6M, BDA_FOLLOW);
-
-  private static final FixedIborSwapConvention SWAP_CONVENTION =
-      FixedIborSwapConvention.of(FIXED_CONVENTION, FLOATING_CONVENTION);
 
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
   private static final double PV_TOLERANCE = 5e-10;
@@ -159,11 +134,11 @@ public class CurveEndToEndTest {
 
     // Build the trades from the node instruments
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
-    Trade fra3x6Trade = fra3x6Node.buildTrade(valuationDate, quotesMap);
-    Trade fra6x9Trade = fra6x9Node.buildTrade(valuationDate, quotesMap);
-    Trade swap1yTrade = swap1yNode.buildTrade(valuationDate, quotesMap);
-    Trade swap2yTrade = swap2yNode.buildTrade(valuationDate, quotesMap);
-    Trade swap3yTrade = swap3yNode.buildTrade(valuationDate, quotesMap);
+    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotesMap);
+    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotesMap);
+    Trade swap1yTrade = swap1yNode.trade(valuationDate, quotesMap);
+    Trade swap2yTrade = swap2yNode.trade(valuationDate, quotesMap);
+    Trade swap3yTrade = swap3yNode.trade(valuationDate, quotesMap);
 
     List<Trade> trades = ImmutableList.of(fra3x6Trade, fra6x9Trade, swap1yTrade, swap2yTrade, swap3yTrade);
 
@@ -255,22 +230,6 @@ public class CurveEndToEndTest {
     return DefaultPricingRules.of(
         PricingRule.builder(FraTrade.class).functionGroup(fraGroup).build(),
         PricingRule.builder(SwapTrade.class).functionGroup(swapGroup).build());
-  }
-
-  private static ObservableId id(String idValue) {
-    return QuoteId.of(StandardId.of(TEST_SCHEME, idValue));
-  }
-
-  private static FraCurveNode fraNode(int startMonths, String id) {
-    Period periodToStart = Period.ofMonths(startMonths);
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    return FraCurveNode.of(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteKey);
-  }
-
-  private static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Period.ZERO, tenor, SWAP_CONVENTION);
-    return FixedIborSwapCurveNode.of(template, quoteKey);
   }
 
   /**
