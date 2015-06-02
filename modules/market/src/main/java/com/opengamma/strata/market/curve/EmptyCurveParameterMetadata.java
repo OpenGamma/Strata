@@ -22,17 +22,19 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Curve node metadata used when there is no applicable metadata.
- * <p>
- * This is primarily needed to ensure that the artificial node in {@link ConstantNodalCurve} has metadata.
  */
 @BeanDefinition(builderScope = "private")
 final class EmptyCurveParameterMetadata
     implements CurveParameterMetadata, ImmutableBean, Serializable {
 
-  /** The singleton instance. */
+  /**
+   * The singleton instance.
+   */
   private static final EmptyCurveParameterMetadata INSTANCE = new EmptyCurveParameterMetadata();
 
-  /** The description and identifier. */
+  /**
+   * The description and identifier.
+   */
   private static final String EMPTY = "Empty";
 
   /**
@@ -44,15 +46,16 @@ final class EmptyCurveParameterMetadata
     return INSTANCE;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String getDescription() {
     return EMPTY;
   }
 
   /**
-   * Returns {@link #EMPTY}.
+   * Returns 'Empty'.
    *
-   * @return {@link #EMPTY}
+   * @return a simple identifier
    */
   @Override
   public String getIdentifier() {

@@ -20,6 +20,7 @@ public class EmptyCurveParameterMetadataTest {
   public void test_empty() {
     EmptyCurveParameterMetadata test = EmptyCurveParameterMetadata.empty();
     assertThat(test.getDescription()).isEqualTo("Empty");
+    assertThat(test.getIdentifier()).isEqualTo("Empty");
   }
 
   //-------------------------------------------------------------------------

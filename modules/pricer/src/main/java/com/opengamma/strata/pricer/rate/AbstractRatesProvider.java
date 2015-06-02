@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
@@ -155,7 +155,7 @@ public abstract class AbstractRatesProvider
       DiscountFactors factors = rates.getDiscountFactors();
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(factors.getCurveName(), key.getCurrency());
       double[] sensiParam = parameterSensitivityIndex(factors, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, AbstractRatesProvider::combineArrays);
+      mutableMap.merge(keyParam, sensiParam, DoubleArrayMath::combineByAddition);
     }
   }
 
@@ -183,7 +183,7 @@ public abstract class AbstractRatesProvider
       DiscountFactors factors = rates.getDiscountFactors();
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(factors.getCurveName(), key.getCurrency());
       double[] sensiParam = parameterSensitivityIndex(factors, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, AbstractRatesProvider::combineArrays);
+      mutableMap.merge(keyParam, sensiParam, DoubleArrayMath::combineByAddition);
     }
   }
 
@@ -205,16 +205,6 @@ public abstract class AbstractRatesProvider
         result[i] += dFwddyStart * unitSensStart[i] * forwardBar;
         result[i] += dFwddyEnd * unitSensEnd[i] * forwardBar;
       }
-    }
-    return result;
-  }
-
-  // add two arrays
-  private static double[] combineArrays(double[] a, double[] b) {
-    ArgChecker.isTrue(a.length == b.length, "Sensitivity arrays must have same length");
-    double[] result = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      result[i] = a[i] + b[i];
     }
     return result;
   }

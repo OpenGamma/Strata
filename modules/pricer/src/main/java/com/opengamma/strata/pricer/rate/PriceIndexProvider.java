@@ -29,7 +29,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
 import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
@@ -146,7 +146,7 @@ public final class PriceIndexProvider
       PriceIndexValues values = priceIndexValues.get(index);
       SensitivityKey keyParam = NameCurrencySensitivityKey.of(values.getCurveName(), key.getCurrency());
       double[] sensiParam = parameterSensitivityIndex(values, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, PriceIndexProvider::combineArrays);
+      mutableMap.merge(keyParam, sensiParam, DoubleArrayMath::combineByAddition);
     }
     return CurveParameterSensitivities.of(mutableMap);
   }
@@ -161,16 +161,6 @@ public final class PriceIndexProvider
       for (int i = 0; i < nbParameters; i++) {
         result[i] += unitSens[i] * forwardBar;
       }
-    }
-    return result;
-  }
-
-  // add two arrays - copy form ImmutableRatesProvider
-  private static double[] combineArrays(double[] a, double[] b) {
-    ArgChecker.isTrue(a.length == b.length, "Sensitivity arrays must have same length");
-    double[] result = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      result[i] = a[i] + b[i];
     }
     return result;
   }

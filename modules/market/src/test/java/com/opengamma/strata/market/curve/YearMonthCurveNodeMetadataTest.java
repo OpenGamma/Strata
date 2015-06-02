@@ -32,6 +32,7 @@ public class YearMonthCurveNodeMetadataTest {
     assertThat(test.getDate()).isEqualTo(DATE);
     assertThat(test.getYearMonth()).isEqualTo(JAN2015);
     assertThat(test.getDescription()).isEqualTo("Jan15");
+    assertThat(test.getIdentifier()).isEqualTo(JAN2015);
   }
 
   //-------------------------------------------------------------------------

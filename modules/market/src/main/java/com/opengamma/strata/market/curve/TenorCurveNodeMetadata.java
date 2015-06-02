@@ -61,7 +61,7 @@ public final class TenorCurveNodeMetadata
 
   @Override
   public String getDescription() {
-    return tenor.getPeriod().toString().substring(1);
+    return tenor.toString();
   }
 
   /**
