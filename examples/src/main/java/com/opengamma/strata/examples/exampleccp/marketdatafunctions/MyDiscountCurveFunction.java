@@ -1,10 +1,11 @@
-package com.opengamma.strata.examples.exampleccp;
+package com.opengamma.strata.examples.exampleccp.marketdatafunctions;
 
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.examples.exampleccp.curves.MyCurves;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.DiscountCurveId;
 

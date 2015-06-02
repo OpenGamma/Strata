@@ -14,6 +14,9 @@ import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.examples.engine.ResultsFormatter;
+import com.opengamma.strata.examples.exampleccp.marketdatarules.MyMarketDataRules;
+import com.opengamma.strata.examples.exampleccp.trades.MyTrades;
+import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessBaseMarketData;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,8 +42,8 @@ public class ReproduceExampleCcp {
 
     // produce an ASCII table of the results
     ResultsFormatter.print(results, columns);
-    Result<List<MultiCurrencyAmount>> npvResult = (Result<List<MultiCurrencyAmount>>) results.get(0, 5);
-    double npv = npvResult.getValue().get(0).getAmount(Currency.USD).getAmount();
+    Result<CurrencyAmount> npvResult = (Result<CurrencyAmount>) results.get(0, 5);
+    double npv = npvResult.getValue().getAmount();
     almostEquals(npv, -513.0392228654528);
   }
 

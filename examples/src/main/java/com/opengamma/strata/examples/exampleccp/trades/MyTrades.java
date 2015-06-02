@@ -1,4 +1,4 @@
-package com.opengamma.strata.examples.exampleccp;
+package com.opengamma.strata.examples.exampleccp.trades;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;

@@ -1,4 +1,4 @@
-package com.opengamma.strata.examples.exampleccp;
+package com.opengamma.strata.examples.exampleccp.marketdatarules;
 
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;

@@ -1,4 +1,4 @@
-package com.opengamma.strata.examples.exampleccp;
+package com.opengamma.strata.examples.exampleccp.curves;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.market.curve.Curve;

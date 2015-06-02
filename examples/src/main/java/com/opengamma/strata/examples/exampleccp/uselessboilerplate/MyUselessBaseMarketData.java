@@ -1,4 +1,4 @@
-package com.opengamma.strata.examples.exampleccp;
+package com.opengamma.strata.examples.exampleccp.uselessboilerplate;
 
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 
