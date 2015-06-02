@@ -1,20 +1,20 @@
 package com.opengamma.strata.examples.exampleccp;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 
 public class MyCurves {
 
-  public static YieldCurve oisCurveDiscount() {
+  public static Curve oisCurveDiscount() {
     return ois("ois-discount");
   }
 
-  public static YieldCurve oisCurve() {
+  public static Curve oisCurve() {
     return ois("ois");
   }
 
-  private static YieldCurve ois(String name) {
+  private static Curve ois(String name) {
     double nodePoints[] = {
         0.0027397260273972603,
         0.09863013698630137,
@@ -33,13 +33,11 @@ public class MyCurves {
         0.0300564184949819,
         0.0321912791614938
     };
-    return YieldCurve.from(
-        InterpolatedDoublesCurve.from(
-            nodePoints,
-            zeroRates,
-            Interpolator1DFactory.LINEAR_INSTANCE,
-            name
-        )
+    return InterpolatedNodalCurve.of(
+        name,
+        nodePoints,
+        zeroRates,
+        Interpolator1DFactory.LINEAR_INSTANCE
     );
   }
 }

@@ -51,6 +51,8 @@ public class StandardSingleNameConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.NO_HOLIDAYS)
         .stubConvention(StubConvention.SHORT_FINAL)
+        .stepIn(1)
+        .settleLag(3)
         .build();
   }
 
@@ -109,6 +111,8 @@ public class StandardSingleNameConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.EUTA))
         .stubConvention(StubConvention.SHORT_FINAL)
+        .stepIn(1)
+        .settleLag(3)
         .build();
   }
 
@@ -122,6 +126,8 @@ public class StandardSingleNameConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO)
         .stubConvention(StubConvention.SHORT_FINAL)
+        .stepIn(1)
+        .settleLag(3)
         .build();
   }
 
@@ -135,6 +141,8 @@ public class StandardSingleNameConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.CHZU))
         .stubConvention(StubConvention.SHORT_FINAL)
+        .stepIn(1)
+        .settleLag(3)
         .build();
   }
 
@@ -148,6 +156,8 @@ public class StandardSingleNameConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.USNY))
         .stubConvention(StubConvention.SHORT_FINAL)
+        .stepIn(1)
+        .settleLag(3)
         .build();
   }
 

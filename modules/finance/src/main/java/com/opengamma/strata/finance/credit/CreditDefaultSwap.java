@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.credit;
 
+import com.opengamma.strata.finance.Product;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
@@ -38,7 +39,7 @@ import java.util.Set;
  */
 @BeanDefinition
 public final class CreditDefaultSwap
-    implements CreditDefaultSwapProduct, ImmutableBean, Serializable {
+    implements Product, ImmutableBean, Serializable {
 
   /**
    * This element contains all the data that appears in the section entitled "1. General Terms"
@@ -63,21 +64,6 @@ public final class CreditDefaultSwap
   private final ProtectionTerms protectionTerms;
 
   //-------------------------------------------------------------------------
-
-  /**
-   * Expands this credit default swap.
-   * <p>
-   * Expanding a credit default swap causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   *
-   * @return the expended credit default swap
-   * @throws RuntimeException if unable to expand due to an invalid schedule or definition
-   */
-  @Override
-  public ExpandedCreditDefaultSwap expand() {
-    return ExpandedCreditDefaultSwap.builder()
-        .build();
-  }
 
   public static CreditDefaultSwap of(
       GeneralTerms generalTerms,

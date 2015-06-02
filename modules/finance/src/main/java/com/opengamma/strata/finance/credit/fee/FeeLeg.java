@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.finance.credit.fee;
 
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -32,12 +31,6 @@ public final class FeeLeg
     implements ImmutableBean, Serializable {
 
   /**
-   * The notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount
-   */
-  @PropertyDefinition(validate = "notNull")
-  final double calculationAmount;
-
-  /**
    * Specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller on
    * the fixed rate payer payment dates. The fixed amount to be paid on each payment date can be
    * specified in terms of a known currency amount or as an amount calculated on a formula basis
@@ -47,14 +40,12 @@ public final class FeeLeg
    * generalTerms component.
    */
   @PropertyDefinition(validate = "notNull")
-  final PeriodicSchedule periodicPayments;
+  final PeriodicPayments periodicPayments;
 
   public static FeeLeg of(
-      double calculationAmount,
-      PeriodicSchedule periodicPayments
+      PeriodicPayments periodicPayments
   ) {
     return new FeeLeg(
-        calculationAmount,
         periodicPayments
     );
   }
@@ -87,11 +78,8 @@ public final class FeeLeg
   }
 
   private FeeLeg(
-      double calculationAmount,
-      PeriodicSchedule periodicPayments) {
-    JodaBeanUtils.notNull(calculationAmount, "calculationAmount");
+      PeriodicPayments periodicPayments) {
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
-    this.calculationAmount = calculationAmount;
     this.periodicPayments = periodicPayments;
   }
 
@@ -112,15 +100,6 @@ public final class FeeLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount
-   * @return the value of the property, not null
-   */
-  public double getCalculationAmount() {
-    return calculationAmount;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller on
    * the fixed rate payer payment dates. The fixed amount to be paid on each payment date can be
    * specified in terms of a known currency amount or as an amount calculated on a formula basis
@@ -130,7 +109,7 @@ public final class FeeLeg
    * generalTerms component.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getPeriodicPayments() {
+  public PeriodicPayments getPeriodicPayments() {
     return periodicPayments;
   }
 
@@ -150,8 +129,7 @@ public final class FeeLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FeeLeg other = (FeeLeg) obj;
-      return JodaBeanUtils.equal(getCalculationAmount(), other.getCalculationAmount()) &&
-          JodaBeanUtils.equal(getPeriodicPayments(), other.getPeriodicPayments());
+      return JodaBeanUtils.equal(getPeriodicPayments(), other.getPeriodicPayments());
     }
     return false;
   }
@@ -159,16 +137,14 @@ public final class FeeLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationAmount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodicPayments());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("FeeLeg{");
-    buf.append("calculationAmount").append('=').append(getCalculationAmount()).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(getPeriodicPayments()));
     buf.append('}');
     return buf.toString();
@@ -185,21 +161,15 @@ public final class FeeLeg
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code calculationAmount} property.
-     */
-    private final MetaProperty<Double> calculationAmount = DirectMetaProperty.ofImmutable(
-        this, "calculationAmount", FeeLeg.class, Double.TYPE);
-    /**
      * The meta-property for the {@code periodicPayments} property.
      */
-    private final MetaProperty<PeriodicSchedule> periodicPayments = DirectMetaProperty.ofImmutable(
-        this, "periodicPayments", FeeLeg.class, PeriodicSchedule.class);
+    private final MetaProperty<PeriodicPayments> periodicPayments = DirectMetaProperty.ofImmutable(
+        this, "periodicPayments", FeeLeg.class, PeriodicPayments.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "calculationAmount",
         "periodicPayments");
 
     /**
@@ -211,8 +181,6 @@ public final class FeeLeg
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1389305985:  // calculationAmount
-          return calculationAmount;
         case -367345944:  // periodicPayments
           return periodicPayments;
       }
@@ -236,18 +204,10 @@ public final class FeeLeg
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code calculationAmount} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> calculationAmount() {
-      return calculationAmount;
-    }
-
-    /**
      * The meta-property for the {@code periodicPayments} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> periodicPayments() {
+    public MetaProperty<PeriodicPayments> periodicPayments() {
       return periodicPayments;
     }
 
@@ -255,8 +215,6 @@ public final class FeeLeg
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1389305985:  // calculationAmount
-          return ((FeeLeg) bean).getCalculationAmount();
         case -367345944:  // periodicPayments
           return ((FeeLeg) bean).getPeriodicPayments();
       }
@@ -280,8 +238,7 @@ public final class FeeLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FeeLeg> {
 
-    private double calculationAmount;
-    private PeriodicSchedule periodicPayments;
+    private PeriodicPayments periodicPayments;
 
     /**
      * Restricted constructor.
@@ -294,7 +251,6 @@ public final class FeeLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FeeLeg beanToCopy) {
-      this.calculationAmount = beanToCopy.getCalculationAmount();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
     }
 
@@ -302,8 +258,6 @@ public final class FeeLeg
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1389305985:  // calculationAmount
-          return calculationAmount;
         case -367345944:  // periodicPayments
           return periodicPayments;
         default:
@@ -314,11 +268,8 @@ public final class FeeLeg
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1389305985:  // calculationAmount
-          this.calculationAmount = (Double) newValue;
-          break;
         case -367345944:  // periodicPayments
-          this.periodicPayments = (PeriodicSchedule) newValue;
+          this.periodicPayments = (PeriodicPayments) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -353,28 +304,16 @@ public final class FeeLeg
     @Override
     public FeeLeg build() {
       return new FeeLeg(
-          calculationAmount,
           periodicPayments);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code calculationAmount} property in the builder.
-     * @param calculationAmount  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder calculationAmount(double calculationAmount) {
-      JodaBeanUtils.notNull(calculationAmount, "calculationAmount");
-      this.calculationAmount = calculationAmount;
-      return this;
-    }
-
-    /**
      * Sets the {@code periodicPayments} property in the builder.
      * @param periodicPayments  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder periodicPayments(PeriodicSchedule periodicPayments) {
+    public Builder periodicPayments(PeriodicPayments periodicPayments) {
       JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
       this.periodicPayments = periodicPayments;
       return this;
@@ -383,9 +322,8 @@ public final class FeeLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(64);
       buf.append("FeeLeg.Builder{");
-      buf.append("calculationAmount").append('=').append(JodaBeanUtils.toString(calculationAmount)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments));
       buf.append('}');
       return buf.toString();

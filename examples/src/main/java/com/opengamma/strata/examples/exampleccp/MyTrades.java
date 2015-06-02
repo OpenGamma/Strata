@@ -77,9 +77,9 @@ public class MyTrades {
         .build();
 
     return SwapTrade.builder()
-        .standardId(StandardId.of("swap", "Fixed vs ON (with fixing)"))
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("swap", "Fixed vs ON (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2015, 4, 27))
             .build())

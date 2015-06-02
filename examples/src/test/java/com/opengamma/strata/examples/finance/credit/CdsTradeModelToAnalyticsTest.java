@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -21,6 +22,7 @@ import com.opengamma.strata.finance.credit.CreditDefaultSwap;
 import com.opengamma.strata.finance.credit.CreditDefaultSwapTrade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
+import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
@@ -42,13 +44,13 @@ public class CdsTradeModelToAnalyticsTest {
   public void test_Raytheon() {
     CDSAnalytic result = toAnalytic(trade);
     CDSAnalytic anticipated = expected;
-    Assert.assertEquals(result, anticipated);
+    compare(result, anticipated);
   }
 
   private CDSAnalytic toAnalytic(CreditDefaultSwapTrade trade) {
-    // some of these values come from trade, some from curve?
     LocalDate tradeDate = trade.getTradeInfo().getTradeDate().get();
-    LocalDate valueDate = tradeDate;
+    LocalDate valueDate = trade.getTradeInfo().getSettlementDate().get();
+    LocalDate stepInDate = trade.getTradeInfo().getTradeDate().get().plusDays(1);
 
     CreditDefaultSwap cds = trade.getProduct();
 
@@ -59,14 +61,14 @@ public class CdsTradeModelToAnalyticsTest {
     HolidayCalendar calendar = generalTerms.getDateAdjustments().getCalendar();
 
     FeeLeg feeLeg = cds.getFeeLeg();
-    LocalDate stepInDate = null;
     boolean payAccOnDefault = false;
-    PeriodicSchedule periodicPayments = feeLeg.getPeriodicPayments();
-    Frequency frequency = periodicPayments.getFrequency();
 
-    // Need to map these to analytics enums
-    StubConvention stubConvention = periodicPayments.getStubConvention().get();
-    DayCount accrualDayCount = null;
+    PeriodicPayments periodicPayments = feeLeg.getPeriodicPayments();
+    DayCount accrualDayCount = periodicPayments.getDayCountFraction();
+
+    PeriodicSchedule periodicSchedule = periodicPayments.getPeriodicSchedule();
+    Frequency frequency = periodicSchedule.getFrequency();
+    StubConvention stubConvention = periodicSchedule.getStubConvention().get();
 
     boolean protectStart = true;
 
@@ -126,13 +128,13 @@ public class CdsTradeModelToAnalyticsTest {
   final static LocalDate tradeDate = LocalDate.of(2014, 10, 16);
   final static CreditDefaultSwapTrade trade = CreditDefaultSwapTrade
       .builder()
-      .standardId(StandardId.of("trade", "673676"))
       .tradeInfo(
           TradeInfo
               .builder()
+              .id(StandardId.of("trade", "673676"))
               .counterparty(StandardId.of("cpty", "Counterparty"))
               .tradeDate(tradeDate)
-              .settlementDate(tradeDate.plusDays(3))
+              .settlementDate(tradeDate.plusDays(1))
               .build()
       )
       .product(
@@ -141,7 +143,7 @@ public class CdsTradeModelToAnalyticsTest {
               .generalTerms(
                   GeneralTerms
                       .builder()
-                      .effectiveDate(LocalDate.of(2014, 9, 22))
+                      .effectiveDate(LocalDate.of(2014, 9, 20))
                       .scheduledTerminationDate(LocalDate.of(2019, 12, 20))
                       .buySellProtection(BuySell.BUY)
                       .dateAdjustments(
@@ -163,17 +165,21 @@ public class CdsTradeModelToAnalyticsTest {
               )
               .feeLeg(
                   FeeLeg.of(
-                      1_000_000D,
-                      PeriodicSchedule.of(
-                          LocalDate.of(2014, 9, 20),
-                          LocalDate.of(2019, 12, 20),
-                          Frequency.P3M,
-                          BusinessDayAdjustment.of(
-                              BusinessDayConventions.FOLLOWING,
-                              HolidayCalendars.NO_HOLIDAYS
+                      PeriodicPayments.of(
+                          PeriodicSchedule.of(
+                              LocalDate.of(2014, 9, 20),
+                              LocalDate.of(2019, 12, 20),
+                              Frequency.P3M,
+                              BusinessDayAdjustment.of(
+                                  BusinessDayConventions.FOLLOWING,
+                                  HolidayCalendars.NO_HOLIDAYS
+                              ),
+                              StubConvention.SHORT_FINAL,
+                              RollConventions.DAY_20
                           ),
-                          StubConvention.SHORT_FINAL,
-                          RollConventions.DAY_20
+                          1_000_000D,
+                          0.0100D,
+                          DayCounts.ACT_360
                       )
                   )
               )
@@ -186,5 +192,10 @@ public class CdsTradeModelToAnalyticsTest {
               .build()
       )
       .build();
+
+  public static void compare(CDSAnalytic result, CDSAnalytic expected) {
+    Assert.assertEquals(result.getProtectionEnd(), expected.getProtectionEnd());
+    Assert.assertEquals(result.getNumPayments(), expected.getNumPayments());
+  }
 
 }

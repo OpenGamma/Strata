@@ -19,6 +19,7 @@ import com.opengamma.strata.finance.credit.CreditDefaultSwap;
 import com.opengamma.strata.finance.credit.CreditDefaultSwapTrade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
+import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
@@ -51,7 +52,7 @@ public class CdsTradeModelDemo {
 
   //-----------------------------------------------------------------------
   public void simpleSingleNameUsd() {
-    CreditDefaultSwapTrade swapTrade = StandardSingleNameTemplate
+    CreditDefaultSwapTrade trade = StandardSingleNameTemplate
         .of(StandardSingleNameConventions.northAmerican())
         .toTrade(
             StandardId.of("tradeid", "62726762"),
@@ -65,6 +66,12 @@ public class CdsTradeModelDemo {
             SeniorityLevel.SeniorUnSec,
             RestructuringClause.XR
         );
+
+    checkValues(trade);
+
+    System.out.println("===== Trade =====");
+    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade));
+    System.out.println();
   }
 
   public void simpleSingleNameEur() {
@@ -87,9 +94,6 @@ public class CdsTradeModelDemo {
 
     System.out.println("===== Trade =====");
     System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade));
-    System.out.println();
-    System.out.println("===== Expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade.getProduct().expand()));
     System.out.println();
   }
 
@@ -162,12 +166,13 @@ public class CdsTradeModelDemo {
     HolidayCalendar calendar = generalTerms.getDateAdjustments().getCalendar();
 
     FeeLeg feeLeg = cds.getFeeLeg();
-    PeriodicSchedule periodicPayments = feeLeg.getPeriodicPayments();
-    Frequency frequency = periodicPayments.getFrequency();
-    StubConvention stubType = periodicPayments.getStubConvention().get();
+    PeriodicPayments periodicPayments = feeLeg.getPeriodicPayments();
+    PeriodicSchedule periodicSchedule = periodicPayments.getPeriodicSchedule();
+    Frequency frequency = periodicSchedule.getFrequency();
+    StubConvention stubType = periodicSchedule.getStubConvention().get();
 
     boolean payAccOnDefault = true;
-    DayCount accrualDayCount = null;
+    DayCount accrualDayCount = periodicPayments.getDayCountFraction();
     boolean protectStart = true;
     double recoveryRate = 0.40D;
 
@@ -181,7 +186,7 @@ public class CdsTradeModelDemo {
         maturityDate,
         payAccOnDefault,
         frequency.getPeriod(),
-        StubType.NONE,
+        StubType.FRONTSHORT,
         protectStart,
         recoveryRate,
         businessdayAdjustmentConvention,
