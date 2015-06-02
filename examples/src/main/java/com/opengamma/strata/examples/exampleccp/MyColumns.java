@@ -14,10 +14,9 @@ public class MyColumns {
         Column.of(Measure.COUNTERPARTY),
         Column.of(Measure.SETTLEMENT_DATE),
         Column.of(Measure.MATURITY_DATE),
-        Column.of(Measure.NOTIONAL),
+        Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
-        Column.of(Measure.PRESENT_VALUE_PAY_LEG),
-        Column.of(Measure.PRESENT_VALUE_RECEIVE_LEG),
+        Column.of(Measure.LEG_PRESENT_VALUE),
         Column.of(Measure.ACCRUED_INTEREST));
   }
 

@@ -87,7 +87,7 @@ public class SomeTest {
 
   @Test
   public void test_something() {
-    LocalDate tradeDate = LocalDate.now();
+    LocalDate tradeDate = LocalDate.of(2015, 6, 1);
     Assert.assertEquals(
         CdsModelPriceInputs(
             tradeDate,
