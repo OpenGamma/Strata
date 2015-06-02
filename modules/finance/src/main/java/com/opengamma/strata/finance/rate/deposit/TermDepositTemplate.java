@@ -51,14 +51,13 @@ public final class TermDepositTemplate
 
   /**
    * The period between the start date and the end date.
-   * 
    */
   @PropertyDefinition(validate = "notNull")
   private final Period depositPeriod;
   /**
    * The underlying term deposit convention.
    * <p>
-   * This specifies the market convention of the term deposit to be created.
+   * This specifies the standard convention of the term deposit to be created.
    */
   @PropertyDefinition(validate = "notNull")
   private final TermDepositConvention convention;
@@ -66,7 +65,7 @@ public final class TermDepositTemplate
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isFalse(depositPeriod.isNegative(), "Deposit Ppriod must not be negative");
+    ArgChecker.isFalse(depositPeriod.isNegative(), "Deposit Period must not be negative");
   }
 
   //-------------------------------------------------------------------------
@@ -162,7 +161,6 @@ public final class TermDepositTemplate
   //-----------------------------------------------------------------------
   /**
    * Gets the period between the start date and the end date.
-   * 
    * @return the value of the property, not null
    */
   public Period getDepositPeriod() {
@@ -173,7 +171,7 @@ public final class TermDepositTemplate
   /**
    * Gets the underlying term deposit convention.
    * <p>
-   * This specifies the market convention of the term deposit to be created.
+   * This specifies the standard convention of the term deposit to be created.
    * @return the value of the property, not null
    */
   public TermDepositConvention getConvention() {

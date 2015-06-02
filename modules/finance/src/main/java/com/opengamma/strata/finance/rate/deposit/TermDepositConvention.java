@@ -43,7 +43,7 @@ import com.opengamma.strata.finance.TradeInfo;
  * <li>Trade date, the date that the trade is agreed
  * <li>Start date, the date on which the implied deposit starts, same as the spot date for the trade date,
  * typically 2 business days after the trade date
- * <li>End date, the date on which the implied deposit ends, typically a number of months after the spot date
+ * <li>End date, the date on which the implied deposit ends, typically a number of months after the start date
  * </ul>
  * The period between the start date and the end date is specified by {@link TermDepositTemplate}, 
  * not by this convention.
