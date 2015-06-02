@@ -31,6 +31,7 @@ public class TenorCurveNodeMetadataTest {
     assertThat(test.getDate()).isEqualTo(DATE);
     assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
     assertThat(test.getDescription()).isEqualTo("10Y");
+    assertThat(test.getIdentifier()).isEqualTo(TENOR_10Y);
   }
 
   //-------------------------------------------------------------------------
