@@ -89,6 +89,27 @@ public final class TermDepositConvention
 
   //-----------------------------------------------------------------------
   /**
+   * Creates a convention based on the specified currency, day count convention and spot date offset.
+   * <p>
+   * The business day adjustment is not set and the {@linkplain #getBusinessDayAdjustment() getter} will return 
+   * the default.
+   * Use the {@linkplain #builder() builder} for specifying the business day convention.
+   * 
+   * @param currency  the currency, in which the payments are made
+   * @param dayCount the day count convention, used to convert dates to a numerical value
+   * @param spotDateOffset the offset of the spot value date from the trade date
+   * @return the convention
+   */
+  public static TermDepositConvention of(Currency currency, DayCount dayCount, DaysAdjustment spotDateOffset) {
+    return TermDepositConvention.builder()
+        .currency(currency)
+        .dayCount(dayCount)
+        .spotDateOffset(spotDateOffset)
+        .build();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the business day adjustment to apply to the start and end date,
    * providing a default result if no override specified.
    * <p>

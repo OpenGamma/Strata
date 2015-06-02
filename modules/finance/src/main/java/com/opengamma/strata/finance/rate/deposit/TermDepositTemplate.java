@@ -66,7 +66,7 @@ public final class TermDepositTemplate
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isFalse(depositPeriod.isNegative(), "Period to end must not be negative");
+    ArgChecker.isFalse(depositPeriod.isNegative(), "Deposit Ppriod must not be negative");
   }
 
   //-------------------------------------------------------------------------
