@@ -5,6 +5,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 
 public class StandardSingleNameCdsConventions {
@@ -51,6 +52,7 @@ public class StandardSingleNameCdsConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.NO_HOLIDAYS)
         .stubConvention(StubConvention.SHORT_FINAL)
+        .rollConvention(RollConventions.DAY_20)
         .stepIn(1)
         .settleLag(3)
         .build();
@@ -111,6 +113,7 @@ public class StandardSingleNameCdsConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.EUTA))
         .stubConvention(StubConvention.SHORT_FINAL)
+        .rollConvention(RollConventions.DAY_20)
         .stepIn(1)
         .settleLag(3)
         .build();
@@ -126,6 +129,7 @@ public class StandardSingleNameCdsConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO)
         .stubConvention(StubConvention.SHORT_FINAL)
+        .rollConvention(RollConventions.DAY_20)
         .stepIn(1)
         .settleLag(3)
         .build();
@@ -141,6 +145,7 @@ public class StandardSingleNameCdsConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.CHZU))
         .stubConvention(StubConvention.SHORT_FINAL)
+        .rollConvention(RollConventions.DAY_20)
         .stepIn(1)
         .settleLag(3)
         .build();
@@ -156,6 +161,7 @@ public class StandardSingleNameCdsConventions {
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.USNY))
         .stubConvention(StubConvention.SHORT_FINAL)
+        .rollConvention(RollConventions.DAY_20)
         .stepIn(1)
         .settleLag(3)
         .build();

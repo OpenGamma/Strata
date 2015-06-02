@@ -7,6 +7,7 @@ package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
@@ -149,13 +150,13 @@ public final class StandardSingleNameCdsConvention
             FeeLeg.of(
                 PeriodicPayments.of(
                     periodicSchedule,
-                    notional,
+                    CurrencyAmount.of(currency, notional),
                     coupon,
                     dayCount
                 )
             ),
             ProtectionTerms.of(
-                notional,
+                CurrencyAmount.of(currency, notional),
                 restructuringClause
             )
         )

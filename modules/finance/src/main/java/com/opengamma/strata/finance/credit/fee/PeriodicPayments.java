@@ -5,8 +5,10 @@
  */
 package com.opengamma.strata.finance.credit.fee;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -51,7 +53,7 @@ public final class PeriodicPayments
    * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
    */
   @PropertyDefinition(validate = "notNull")
-  final double calculationAmount;
+  final CurrencyAmount calculationAmount;
 
   /**
    * The calculation period fixed rate. A per annum rate, expressed as a decimal.
@@ -68,7 +70,7 @@ public final class PeriodicPayments
 
   public static PeriodicPayments of(
       PeriodicSchedule periodicSchedule,
-      double calculationAmount,
+      CurrencyAmount calculationAmount,
       double fixedRate,
       DayCount dayCount
   ) {
@@ -109,7 +111,7 @@ public final class PeriodicPayments
 
   private PeriodicPayments(
       PeriodicSchedule periodicSchedule,
-      double calculationAmount,
+      CurrencyAmount calculationAmount,
       double fixedRate,
       DayCount dayCountFraction) {
     JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
@@ -159,7 +161,7 @@ public final class PeriodicPayments
    * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
    * @return the value of the property, not null
    */
-  public double getCalculationAmount() {
+  public CurrencyAmount getCalculationAmount() {
     return calculationAmount;
   }
 
@@ -246,8 +248,8 @@ public final class PeriodicPayments
     /**
      * The meta-property for the {@code calculationAmount} property.
      */
-    private final MetaProperty<Double> calculationAmount = DirectMetaProperty.ofImmutable(
-        this, "calculationAmount", PeriodicPayments.class, Double.TYPE);
+    private final MetaProperty<CurrencyAmount> calculationAmount = DirectMetaProperty.ofImmutable(
+        this, "calculationAmount", PeriodicPayments.class, CurrencyAmount.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -317,7 +319,7 @@ public final class PeriodicPayments
      * The meta-property for the {@code calculationAmount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> calculationAmount() {
+    public MetaProperty<CurrencyAmount> calculationAmount() {
       return calculationAmount;
     }
 
@@ -371,7 +373,7 @@ public final class PeriodicPayments
   public static final class Builder extends DirectFieldsBeanBuilder<PeriodicPayments> {
 
     private PeriodicSchedule periodicSchedule;
-    private double calculationAmount;
+    private CurrencyAmount calculationAmount;
     private double fixedRate;
     private DayCount dayCountFraction;
 
@@ -416,7 +418,7 @@ public final class PeriodicPayments
           this.periodicSchedule = (PeriodicSchedule) newValue;
           break;
         case 1389305985:  // calculationAmount
-          this.calculationAmount = (Double) newValue;
+          this.calculationAmount = (CurrencyAmount) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -480,7 +482,7 @@ public final class PeriodicPayments
      * @param calculationAmount  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder calculationAmount(double calculationAmount) {
+    public Builder calculationAmount(CurrencyAmount calculationAmount) {
       JodaBeanUtils.notNull(calculationAmount, "calculationAmount");
       this.calculationAmount = calculationAmount;
       return this;

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.credit.protection;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -34,7 +35,7 @@ public final class ProtectionTerms
    * The notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount
    */
   @PropertyDefinition(validate = "notNull")
-  final double calculationAmount;
+  final CurrencyAmount calculationAmount;
 
   /**
    * Specifies the type of restructuring that is applicable.
@@ -44,7 +45,7 @@ public final class ProtectionTerms
   @PropertyDefinition(validate = "notNull")
   final RestructuringClause restructuringType;
 
-  public static ProtectionTerms of(double calculationAmount, RestructuringClause restructuringType) {
+  public static ProtectionTerms of(CurrencyAmount calculationAmount, RestructuringClause restructuringType) {
     return ProtectionTerms
         .builder()
         .calculationAmount(calculationAmount)
@@ -80,7 +81,7 @@ public final class ProtectionTerms
   }
 
   private ProtectionTerms(
-      double calculationAmount,
+      CurrencyAmount calculationAmount,
       RestructuringClause restructuringType) {
     JodaBeanUtils.notNull(calculationAmount, "calculationAmount");
     JodaBeanUtils.notNull(restructuringType, "restructuringType");
@@ -108,7 +109,7 @@ public final class ProtectionTerms
    * Gets the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount
    * @return the value of the property, not null
    */
-  public double getCalculationAmount() {
+  public CurrencyAmount getCalculationAmount() {
     return calculationAmount;
   }
 
@@ -176,8 +177,8 @@ public final class ProtectionTerms
     /**
      * The meta-property for the {@code calculationAmount} property.
      */
-    private final MetaProperty<Double> calculationAmount = DirectMetaProperty.ofImmutable(
-        this, "calculationAmount", ProtectionTerms.class, Double.TYPE);
+    private final MetaProperty<CurrencyAmount> calculationAmount = DirectMetaProperty.ofImmutable(
+        this, "calculationAmount", ProtectionTerms.class, CurrencyAmount.class);
     /**
      * The meta-property for the {@code restructuringType} property.
      */
@@ -228,7 +229,7 @@ public final class ProtectionTerms
      * The meta-property for the {@code calculationAmount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> calculationAmount() {
+    public MetaProperty<CurrencyAmount> calculationAmount() {
       return calculationAmount;
     }
 
@@ -269,7 +270,7 @@ public final class ProtectionTerms
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ProtectionTerms> {
 
-    private double calculationAmount;
+    private CurrencyAmount calculationAmount;
     private RestructuringClause restructuringType;
 
     /**
@@ -304,7 +305,7 @@ public final class ProtectionTerms
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1389305985:  // calculationAmount
-          this.calculationAmount = (Double) newValue;
+          this.calculationAmount = (CurrencyAmount) newValue;
           break;
         case 436660791:  // restructuringType
           this.restructuringType = (RestructuringClause) newValue;
@@ -352,7 +353,7 @@ public final class ProtectionTerms
      * @param calculationAmount  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder calculationAmount(double calculationAmount) {
+    public Builder calculationAmount(CurrencyAmount calculationAmount) {
       JodaBeanUtils.notNull(calculationAmount, "calculationAmount");
       this.calculationAmount = calculationAmount;
       return this;
