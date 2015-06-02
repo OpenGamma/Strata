@@ -143,7 +143,7 @@ public class ForwardPriceIndexValuesTest {
   public void test_curve_sensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      double[] sensitivityComputed = INSTANCE.parameterSensitivity(TEST_MONTHS[i]);
+      double[] sensitivityComputed = INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]);
       double[] sensitivityExpected = new double[VALUES.length];
       for (int j = 0; j < VALUES.length; j++) {
         double[] valueFd = new double[2];

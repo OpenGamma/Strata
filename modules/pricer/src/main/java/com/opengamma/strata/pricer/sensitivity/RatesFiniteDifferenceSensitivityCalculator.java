@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -62,27 +62,27 @@ public class RatesFiniteDifferenceSensitivityCalculator {
    * @param valueFn  the function from a rate provider to a currency amount for which the sensitivity should be computed
    * @return the sensitivity with the {@link SensitivityKey} containing the curves names.
    */
-  public CurveParameterSensitivity sensitivity(
+  public CurveParameterSensitivities sensitivity(
       ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn) {
 
     CurrencyAmount valueInit = valueFn.apply(provider);
-    CurveParameterSensitivity discounting = sensitivity(
+    CurveParameterSensitivities discounting = sensitivity(
         provider, valueFn, ImmutableRatesProvider.meta().discountCurves(), valueInit);
-    CurveParameterSensitivity forward = sensitivity(
+    CurveParameterSensitivities forward = sensitivity(
         provider, valueFn, ImmutableRatesProvider.meta().indexCurves(), valueInit);
     return discounting.combinedWith(forward);
   }
 
   // computes the sensitivity with respect to the curves
-  private <T> CurveParameterSensitivity sensitivity(
+  private <T> CurveParameterSensitivities sensitivity(
       ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
       MetaProperty<? extends Map<T, Curve>> metaProperty,
       CurrencyAmount valueInit) {
 
     Map<T, Curve> baseCurves = metaProperty.get(provider);
-    CurveParameterSensitivity result = CurveParameterSensitivity.empty();
+    CurveParameterSensitivities result = CurveParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
       NodalCurve curveInt = checkNodal(entry.getValue());
       int nbNodePoint = curveInt.getXValues().length;

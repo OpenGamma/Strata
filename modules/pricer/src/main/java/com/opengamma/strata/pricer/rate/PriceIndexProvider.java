@@ -31,7 +31,7 @@ import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
@@ -119,13 +119,13 @@ public final class PriceIndexProvider
   /**
    * Computes the parameter sensitivity.
    * <p>
-   * This computes the {@link CurveParameterSensitivity} associated with the {@link PointSensitivities}.
+   * This computes the {@link CurveParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * 
    * @param pointSensitivities the point sensitivity
    * @return  the sensitivity to the curve parameters
    */
-  public CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities) {
+  public CurveParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
 
     Map<SensitivityKey, double[]> mutableMap = new HashMap<>();
     // group by currency
@@ -148,7 +148,7 @@ public final class PriceIndexProvider
       double[] sensiParam = parameterSensitivityIndex(values, grouped.get(key));
       mutableMap.merge(keyParam, sensiParam, PriceIndexProvider::combineArrays);
     }
-    return CurveParameterSensitivity.of(mutableMap);
+    return CurveParameterSensitivities.of(mutableMap);
   }
 
   // DoublesPair should contain a pair of reference time and point sensitivity value
@@ -156,10 +156,10 @@ public final class PriceIndexProvider
     int nbParameters = values.getParameterCount();
     double[] result = new double[nbParameters];
     for (ObjectDoublePair<YearMonth> timeAndS : pointSensitivity) {
-      double[] sensiPt = values.parameterSensitivity(timeAndS.getFirst());
+      double[] unitSens = values.unitParameterSensitivity(timeAndS.getFirst());
       double forwardBar = timeAndS.getSecond();
       for (int i = 0; i < nbParameters; i++) {
-        result[i] += sensiPt[i] * forwardBar;
+        result[i] += unitSens[i] * forwardBar;
       }
     }
     return result;

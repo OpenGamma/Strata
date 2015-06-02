@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -37,7 +37,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_single_curve() {
-    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, this::fn);
+    CurveParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, this::fn);
     double[] times = RatesProviderDataSets.TIMES_1;
     ImmutableMap<SensitivityKey, double[]> sensi = sensiComputed.getSensitivities();
     assertEquals(sensi.size(), 1);
@@ -50,7 +50,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_multi_curve() {
-    CurveParameterSensitivity sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.MULTI_USD, this::fn);
+    CurveParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.MULTI_USD, this::fn);
     double[] times1 = RatesProviderDataSets.TIMES_1;
     double[] times2 = RatesProviderDataSets.TIMES_2;
     double[] times3 = RatesProviderDataSets.TIMES_3;

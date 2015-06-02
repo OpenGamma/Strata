@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
@@ -93,7 +93,7 @@ public interface RatesProvider
   /**
    * Computes the parameter sensitivity.
    * <p>
-   * This computes the {@link CurveParameterSensitivity} associated with the {@link PointSensitivities}.
+   * This computes the {@link CurveParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * <p>
    * For example, the point sensitivities could represent the sensitivity to a date on the first
@@ -104,7 +104,7 @@ public interface RatesProvider
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters
    */
-  CurveParameterSensitivity parameterSensitivity(PointSensitivities pointSensitivities);
+  CurveParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
   /**

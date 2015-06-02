@@ -127,7 +127,7 @@ public final class ZeroRateDiscountFactors
   }
 
   @Override
-  public double[] parameterSensitivity(LocalDate date) {
+  public double[] unitParameterSensitivity(LocalDate date) {
     double relativeTime = relativeTime(date);
     return curve.yValueParameterSensitivity(relativeTime);
   }

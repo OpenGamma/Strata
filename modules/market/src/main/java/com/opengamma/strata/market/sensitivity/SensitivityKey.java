@@ -10,7 +10,7 @@ import org.joda.beans.ImmutableBean;
 /**
  * A key used to identify a specific sensitivity.
  * <p>
- * This is used within {@link CurveParameterSensitivity}.
+ * This is used within {@link CurveParameterSensitivities}.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */

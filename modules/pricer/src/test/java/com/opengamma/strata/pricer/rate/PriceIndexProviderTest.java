@@ -25,7 +25,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -81,8 +81,8 @@ public class PriceIndexProviderTest {
   public void test_parameterSensitivity_empty() {
     PointSensitivityBuilder pointSensi = PointSensitivityBuilder.none();
     PriceIndexProvider priceIndexProvider = PriceIndexProvider.empty();
-    CurveParameterSensitivity computed = priceIndexProvider.parameterSensitivity(pointSensi.build());
-    assertEquals(computed, CurveParameterSensitivity.empty());
+    CurveParameterSensitivities computed = priceIndexProvider.parameterSensitivity(pointSensi.build());
+    assertEquals(computed, CurveParameterSensitivities.empty());
   }
 
   public void test_parameterSensitivity() {
@@ -104,12 +104,12 @@ public class PriceIndexProviderTest {
     double pointSensiValue = 2.5;
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
     InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
-    CurveParameterSensitivity computed = priceIndexProvider.parameterSensitivity(pointSensi.build());
+    CurveParameterSensitivities computed = priceIndexProvider.parameterSensitivity(pointSensi.build());
     double[] sensiComputed =
         computed.getSensitivities().get(NameCurrencySensitivityKey.of(curveName, pointSensi.getCurrency()));
 
     double[] sensiExpectedUnit =
-        priceIndexProvider.getPriceIndexValues().get(GB_RPI).parameterSensitivity(refMonth);
+        priceIndexProvider.getPriceIndexValues().get(GB_RPI).unitParameterSensitivity(refMonth);
     assertEquals(sensiComputed.length, sensiExpectedUnit.length);
     for (int i = 0; i < sensiComputed.length; ++i) {
       assertEquals(sensiComputed[i], sensiExpectedUnit[i] * pointSensiValue, eps);

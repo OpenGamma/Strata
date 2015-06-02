@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.index.Index;
 /**
  * A key used for sensitivity to a curve in a specific currency, identified by the index.
  * <p>
- * This is a {@link SensitivityKey} implementation used by {@link CurveParameterSensitivity}.
+ * This is a {@link SensitivityKey} implementation used by {@link CurveParameterSensitivities}.
  * This type of key is used for present value sensitivity.
  */
 @BeanDefinition(builderScope = "private")

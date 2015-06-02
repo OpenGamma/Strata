@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -120,8 +120,8 @@ public class DiscountingTermDepositProductPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER.presentValueSensitivity(TERM_DEPOSIT, IMM_PROV);
-    CurveParameterSensitivity sensiComputed = IMM_PROV.parameterSensitivity(computed);
-    CurveParameterSensitivity sensiExpected =
+    CurveParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> PRICER.presentValue(TERM_DEPOSIT, (p)));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
@@ -162,8 +162,8 @@ public class DiscountingTermDepositProductPricerTest {
 
   public void test_parSpreadSensitivity() {
     PointSensitivities computed = PRICER.parSpreadSensitivity(TERM_DEPOSIT, IMM_PROV);
-    CurveParameterSensitivity sensiComputed = IMM_PROV.parameterSensitivity(computed);
-    CurveParameterSensitivity sensiExpected =
+    CurveParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, PRICER.parSpread(TERM_DEPOSIT, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }

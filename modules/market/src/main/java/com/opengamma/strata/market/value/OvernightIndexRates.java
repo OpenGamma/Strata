@@ -127,11 +127,10 @@ public interface OvernightIndexRates {
    */
   public abstract PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate);
 
-  //-------------------------------------------------------------------------
   /**
-   * Returns the parameter sensitivity of the forward rate at the specified fixing date.
+   * Returns the unit parameter sensitivity of the forward rate at the specified fixing date.
    * <p>
-   * This returns the raw sensitivity for each parameter on the underlying curve.
+   * This returns the unit sensitivity for each parameter on the underlying curve.
    * If the fixing date is before the valuation date an exception is thrown.
    * The sensitivity refers to the result of {@link #rate(LocalDate)}.
    * 
@@ -139,6 +138,6 @@ public interface OvernightIndexRates {
    * @return the parameter sensitivity
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double[] parameterSensitivity(LocalDate fixingDate);
+  public abstract double[] unitParameterSensitivity(LocalDate fixingDate);
 
 }

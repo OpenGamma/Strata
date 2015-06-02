@@ -87,7 +87,7 @@ public class DiscountingNotionalExchangePricerTest {
     PointSensitivities senseComputed = pricer.futureValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, mockProv).build();
 
     double eps = 1.0e-12;
-    PointSensitivities senseExpected = PointSensitivities.NONE;
+    PointSensitivities senseExpected = PointSensitivities.empty();
     assertTrue(senseComputed.equalWithTolerance(
         senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
   }

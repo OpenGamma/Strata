@@ -54,9 +54,9 @@ public final class PointSensitivities
     implements ImmutableBean, Serializable {
 
   /**
-   * A sensitivities instance to be used when there is no sensitivity.
+   * An empty instance.
    */
-  public static final PointSensitivities NONE = new PointSensitivities(ImmutableList.of());
+  private static final PointSensitivities EMPTY = new PointSensitivities(ImmutableList.of());
 
   /**
    * The point sensitivities.
@@ -68,13 +68,22 @@ public final class PointSensitivities
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code PointSensitivities} from a single sensitivity entry.
+   * An empty sensitivity instance.
+   * 
+   * @return the empty instance
+   */
+  public static PointSensitivities empty() {
+    return EMPTY;
+  }
+
+  /**
+   * Obtains a {@code PointSensitivities} from an array of sensitivity entries.
    * 
    * @param sensitivity  the sensitivity entry
    * @return the sensitivities instance
    */
-  public static PointSensitivities of(PointSensitivity sensitivity) {
-    return PointSensitivities.of(ImmutableList.of(sensitivity));
+  public static PointSensitivities of(PointSensitivity... sensitivity) {
+    return PointSensitivities.of(ImmutableList.copyOf(sensitivity));
   }
 
   /**
