@@ -6,11 +6,11 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Map;
 
@@ -22,18 +22,13 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
@@ -42,20 +37,17 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.ParRates;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
 import com.opengamma.strata.market.curve.config.CurveNode;
@@ -64,10 +56,8 @@ import com.opengamma.strata.market.curve.config.FraCurveNode;
 import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
-import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
@@ -78,69 +68,33 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 @Test
 public class CurveGroupMarketDataFunctionTest {
 
-  private static final String TEST_SCHEME = "test";
-  private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(
-      BusinessDayConventions.FOLLOWING,
-      HolidayCalendars.GBLO);
-
-  private static final IborRateSwapLegConvention FLOATING_CONVENTION =
-      IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M);
-
-  private static final FixedRateSwapLegConvention FIXED_CONVENTION =
-      FixedRateSwapLegConvention.of(Currency.USD, DayCounts.ACT_360, Frequency.P6M, BDA_FOLLOW);
-
-  private static final FixedIborSwapConvention SWAP_CONVENTION =
-      FixedIborSwapConvention.of(FIXED_CONVENTION, FLOATING_CONVENTION);
-
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
   private static final double PV_TOLERANCE = 5e-10;
-
 
   /**
    * Tests calibration a curve containing FRAs and pricing the curve instruments using the curve.
    */
   public void roundTripFra() {
-    String fra1x4 = "fra1x4";
-    String fra2x5 = "fra2x5";
-    String fra3x6 = "fra3x6";
-    String fra6x9 = "fra6x9";
-    String fra9x12 = "fra9x12";
-    String fra12x15 = "fra12x15";
-    String fra18x21 = "fra18x21";
+    InterpolatedCurveConfig curveConfig = CurveTestUtils.fraCurveConfig();
 
-    FraCurveNode fra1x4Node   = fraNode(1, fra1x4);
-    FraCurveNode fra2x5Node   = fraNode(2, fra2x5);
-    FraCurveNode fra3x6Node   = fraNode(3, fra3x6);
-    FraCurveNode fra6x9Node   = fraNode(6, fra6x9);
-    FraCurveNode fra9x12Node  = fraNode(9, fra9x12);
-    FraCurveNode fra12x15Node = fraNode(12, fra12x15);
-    FraCurveNode fra18x21Node = fraNode(18, fra18x21);
+    List<FraCurveNode> nodes = curveConfig.getNodes().stream()
+        .map(FraCurveNode.class::cast)
+        .collect(toImmutableList());
 
+    List<ObservableId> ids = nodes.stream().map(CurveTestUtils::id).collect(toImmutableList());
     Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(id(fra1x4),   0.003)
-        .put(id(fra2x5),   0.0033)
-        .put(id(fra3x6),   0.0037)
-        .put(id(fra6x9),   0.0054)
-        .put(id(fra9x12),  0.007)
-        .put(id(fra12x15), 0.0091)
-        .put(id(fra18x21), 0.0134)
+        .put(ids.get(0), 0.003)
+        .put(ids.get(1), 0.0033)
+        .put(ids.get(2), 0.0037)
+        .put(ids.get(3), 0.0054)
+        .put(ids.get(4), 0.007)
+        .put(ids.get(5), 0.0091)
+        .put(ids.get(6), 0.0134)
         .build();
-
-    ParRates parRates = ParRates.of(parRateData);
-
-    List<CurveNode> nodes =
-        ImmutableList.of(fra1x4Node, fra2x5Node, fra3x6Node, fra6x9Node, fra9x12Node, fra12x15Node, fra18x21Node);
 
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA Curve");
-
-    InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
-        .name(curveName)
-        .nodes(nodes)
-        .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
-        .build();
+    ParRates parRates = ParRates.of(parRateData, CurveMetadata.of(curveName));
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(groupName)
@@ -175,39 +129,14 @@ public class CurveGroupMarketDataFunctionTest {
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 
     // The PV should be zero for an instrument used to build the curve
-    checkFraPvIsZero(fra1x4Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra2x5Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra3x6Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra6x9Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra9x12Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra12x15Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra18x21Node, valuationDate, ratesProvider, quotesMap);
+    nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, quotesMap));
   }
 
   public void roundTripFraAndFixedFloatSwap() {
-    String fra3x6 = "fra3x6";
-    String fra6x9 = "fra6x9";
-    String swap1y = "swap1y";
-    String swap2y = "swap2y";
-    String swap3y = "swap3y";
-
-    FraCurveNode fra3x6Node = fraNode(3, fra3x6);
-    FraCurveNode fra6x9Node = fraNode(6, fra6x9);
-    FixedIborSwapCurveNode swap1yNode = fixedIborSwapNode(Tenor.TENOR_1Y, swap1y);
-    FixedIborSwapCurveNode swap2yNode = fixedIborSwapNode(Tenor.TENOR_2Y, swap2y);
-    FixedIborSwapCurveNode swap3yNode = fixedIborSwapNode(Tenor.TENOR_3Y, swap3y);
-
-    List<CurveNode> nodes = ImmutableList.of(fra3x6Node, fra6x9Node, swap1yNode, swap2yNode, swap3yNode);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
-    CurveName curveName = CurveName.of("FRA and Fixed-Float Swap Curve");
-
-    InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
-        .name(curveName)
-        .nodes(nodes)
-        .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
-        .build();
+    InterpolatedCurveConfig curveConfig = CurveTestUtils.fraSwapCurveConfig();
+    CurveName curveName = curveConfig.getName();
+    List<CurveNode> nodes = curveConfig.getNodes();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(groupName)
@@ -218,14 +147,14 @@ public class CurveGroupMarketDataFunctionTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     Map<ObservableId, Double> parRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(id(fra3x6), 0.0037)
-        .put(id(fra6x9), 0.0054)
-        .put(id(swap1y), 0.005)
-        .put(id(swap2y), 0.0087)
-        .put(id(swap3y), 0.012)
+        .put(CurveTestUtils.id(nodes.get(0)), 0.0037)
+        .put(CurveTestUtils.id(nodes.get(1)), 0.0054)
+        .put(CurveTestUtils.id(nodes.get(2)), 0.005)
+        .put(CurveTestUtils.id(nodes.get(3)), 0.0087)
+        .put(CurveTestUtils.id(nodes.get(4)), 0.012)
         .build();
 
-    ParRates parRates = ParRates.of(parRateData);
+    ParRates parRates = ParRates.of(parRateData, CurveMetadata.of(curveName));
     BaseMarketData marketData = BaseMarketData.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
@@ -251,23 +180,18 @@ public class CurveGroupMarketDataFunctionTest {
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 
-    checkFraPvIsZero(fra3x6Node, valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero(fra6x9Node, valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero(swap1yNode, valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero(swap2yNode, valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero(swap3yNode, valuationDate, ratesProvider, quotesMap);
-  }
-
-  private static ObservableId id(String idValue) {
-    return QuoteId.of(StandardId.of(TEST_SCHEME, idValue));
+    checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, quotesMap);
+    checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, quotesMap);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(2), valuationDate, ratesProvider, quotesMap);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(3), valuationDate, ratesProvider, quotesMap);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(4), valuationDate, ratesProvider, quotesMap);
   }
 
   /**
    * Tests that par rates are required for curves.
    */
   public void requirements() {
-    FraCurveNode node1x4   = fraNode(1, "foo");
-
+    FraCurveNode node1x4   = CurveTestUtils.fraNode(1, "foo");
     List<CurveNode> nodes = ImmutableList.of(node1x4);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA Curve");
@@ -297,6 +221,103 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(requirements.getNonObservables()).contains(ParRatesId.of(groupName, curveName, feed));
   }
 
+  public void metadata() {
+    CurveGroupName groupName = CurveGroupName.of("Curve Group");
+
+    InterpolatedCurveConfig fraSwapCurveConfig = CurveTestUtils.fraSwapCurveConfig();
+    List<CurveNode> fraSwapNodes = fraSwapCurveConfig.getNodes();
+
+    InterpolatedCurveConfig fraCurveConfig = CurveTestUtils.fraCurveConfig();
+    List<CurveNode> fraNodes = fraCurveConfig.getNodes();
+
+    CurveGroupConfig groupConfig = CurveGroupConfig.builder()
+        .name(groupName)
+        .addDiscountingCurve(fraSwapCurveConfig, Currency.USD)
+        .addForwardCurve(fraCurveConfig, IborIndices.USD_LIBOR_3M)
+        .build();
+
+    MarketDataConfig marketDataConfig = MarketDataConfig.builder()
+        .add(groupName, groupConfig)
+        .build();
+
+    CurveGroupId curveGroupId = CurveGroupId.of(groupName);
+
+    Map<ObservableId, Double> fraParRateData = ImmutableMap.<ObservableId, Double>builder()
+        .put(CurveTestUtils.id(fraNodes.get(0)), 0.003)
+        .put(CurveTestUtils.id(fraNodes.get(1)), 0.0033)
+        .put(CurveTestUtils.id(fraNodes.get(2)), 0.0037)
+        .put(CurveTestUtils.id(fraNodes.get(3)), 0.0054)
+        .put(CurveTestUtils.id(fraNodes.get(4)), 0.007)
+        .put(CurveTestUtils.id(fraNodes.get(5)), 0.0091)
+        .put(CurveTestUtils.id(fraNodes.get(6)), 0.0134).build();
+
+    Map<ObservableId, Double> fraSwapParRateData = ImmutableMap.<ObservableId, Double>builder()
+        .put(CurveTestUtils.id(fraSwapNodes.get(0)), 0.0037)
+        .put(CurveTestUtils.id(fraSwapNodes.get(1)), 0.0054)
+        .put(CurveTestUtils.id(fraSwapNodes.get(2)), 0.005)
+        .put(CurveTestUtils.id(fraSwapNodes.get(3)), 0.0087)
+        .put(CurveTestUtils.id(fraSwapNodes.get(4)), 0.012).build();
+
+    LocalDate valuationDate = date(2011, 3, 8);
+    ParRates fraParRates = ParRates.of(fraParRateData, fraCurveConfig.metadata(valuationDate));
+    ParRates fraSwapParRates = ParRates.of(fraSwapParRateData, fraCurveConfig.metadata(valuationDate));
+    BaseMarketData marketData = BaseMarketData.builder(valuationDate)
+        .addValue(ParRatesId.of(groupName, fraCurveConfig.getName(), MarketDataFeed.NONE), fraParRates)
+        .addValue(ParRatesId.of(groupName, fraSwapCurveConfig.getName(), MarketDataFeed.NONE), fraSwapParRates)
+        .build();
+
+    CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
+    Result<CurveGroup> result = function.build(curveGroupId, marketData, marketDataConfig);
+
+    assertThat(result).isSuccess();
+    CurveGroup curveGroup = result.getValue();
+
+    // Check the FRA/Swap curve identifiers are the expected tenors
+    Curve discountCurve = curveGroup.getDiscountCurve(Currency.USD).get();
+    List<CurveParameterMetadata> discountMetadata = discountCurve.getMetadata().getParameters().get();
+
+    List<Object> discountTenors = discountMetadata.stream()
+        .map(CurveParameterMetadata::getIdentifier)
+        .collect(toImmutableList());
+
+    List<Tenor> expectedDiscountTenors =
+        ImmutableList.of(Tenor.TENOR_6M, Tenor.TENOR_9M, Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y);
+
+    assertThat(discountTenors).isEqualTo(expectedDiscountTenors);
+
+    List<CurveParameterMetadata> expectedDiscountMetadata = fraSwapNodes.stream()
+        .map(node -> node.metadata(valuationDate))
+        .collect(toImmutableList());
+
+    assertThat(discountMetadata).isEqualTo(expectedDiscountMetadata);
+
+    // Check the FRA curve identifiers are the expected tenors
+    Curve forwardCurve = curveGroup.getForwardCurve(IborIndices.USD_LIBOR_3M).get();
+    List<CurveParameterMetadata> forwardMetadata = forwardCurve.getMetadata().getParameters().get();
+
+    List<Object> forwardTenors = forwardMetadata.stream()
+        .map(CurveParameterMetadata::getIdentifier)
+        .collect(toImmutableList());
+
+    List<Tenor> expectedForwardTenors =
+        ImmutableList.of(
+            Tenor.TENOR_4M,
+            Tenor.TENOR_5M,
+            Tenor.TENOR_6M,
+            Tenor.TENOR_9M,
+            Tenor.TENOR_12M,
+            Tenor.ofMonths(15),
+            Tenor.ofMonths(21));
+
+    assertThat(forwardTenors).isEqualTo(expectedForwardTenors);
+
+    List<CurveParameterMetadata> expectedForwardMetadata = fraNodes.stream()
+        .map(node -> node.metadata(valuationDate))
+        .collect(toImmutableList());
+
+    assertThat(forwardMetadata).isEqualTo(expectedForwardMetadata);
+  }
+
   //-----------------------------------------------------------------------------------------------------------
 
   private void checkFraPvIsZero(
@@ -305,7 +326,7 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       Map<ObservableKey, Double> marketDataMap) {
 
-    Trade trade = node.buildTrade(valuationDate, marketDataMap);
+    Trade trade = node.trade(valuationDate, marketDataMap);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue((FraTrade) trade, ratesProvider);
     double pv = currencyAmount.getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
@@ -317,80 +338,9 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       Map<ObservableKey, Double> marketDataMap) {
 
-    Trade trade = node.buildTrade(valuationDate, marketDataMap);
+    Trade trade = node.trade(valuationDate, marketDataMap);
     MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue((SwapTrade) trade, ratesProvider);
     double pv = amount.getAmount(Currency.USD).getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
-  }
-
-  private static FraCurveNode fraNode(int startMonths, String id) {
-    Period periodToStart = Period.ofMonths(startMonths);
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    return FraCurveNode.of(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteKey);
-  }
-
-  private static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Period.ZERO, tenor, SWAP_CONVENTION);
-    return FixedIborSwapCurveNode.of(template, quoteKey);
-  }
-
-  //-----------------------------------------------------------------------------------------------------------
-
-  private static final class MarketDataMap implements CalculationMarketData {
-
-    private final LocalDate valuationDate;
-
-    private final Map<MarketDataKey<?>, Object> marketData;
-
-    private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap;
-
-    private MarketDataMap(
-        LocalDate valuationDate,
-        Map<MarketDataKey<?>, Object> marketData,
-        Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
-
-      this.valuationDate = valuationDate;
-      this.marketData = marketData;
-      this.timeSeriesMap = timeSeriesMap;
-    }
-
-    @Override
-    public List<LocalDate> getValuationDates() {
-      return ImmutableList.of(valuationDate);
-    }
-
-    @Override
-    public int getScenarioCount() {
-      return 1;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> List<T> getValues(MarketDataKey<T> key) {
-      T value = (T) marketData.get(key);
-
-      if (value != null) {
-        return ImmutableList.of(value);
-      } else {
-        throw new IllegalArgumentException("No market data for " + key);
-      }
-    }
-
-    @Override
-    public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-      LocalDateDoubleTimeSeries timeSeries = timeSeriesMap.get(key);
-
-      if (timeSeries != null) {
-        return timeSeries;
-      } else {
-        throw new IllegalArgumentException("No time series for " + key);
-      }
-    }
-
-    @Override
-    public <T, K extends MarketDataKey<T>> T getGlobalValue(K key) {
-      throw new UnsupportedOperationException("getGlobalValue not implemented");
-    }
   }
 }

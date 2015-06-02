@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
@@ -45,13 +45,13 @@ public abstract class AbstractRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveParameterSensitivity parameterSensitivity(PointSensitivities sensitivities) {
+  public CurveParameterSensitivities parameterSensitivity(PointSensitivities sensitivities) {
     PointSensitivities sensiFxDecomposed = resolveFxRateSensitivities(sensitivities);
     Map<SensitivityKey, double[]> map = new HashMap<>();
     paramSensitivityZeroRate(sensiFxDecomposed, map);
     parameterSensitivityIbor(sensiFxDecomposed, map);
     parameterSensitivityOvernight(sensiFxDecomposed, map);
-    return CurveParameterSensitivity.of(map);
+    return CurveParameterSensitivities.of(map);
   }
 
   // resolve any FX Index sensitivity into zero-rate sensitivities
@@ -124,9 +124,9 @@ public abstract class AbstractRatesProvider
     int nbParameters = factors.getParameterCount();
     double[] result = new double[nbParameters];
     for (ObjectDoublePair<LocalDate> dateAndPointSens : grouped) {
-      double[] sensi1Point = factors.parameterSensitivity(dateAndPointSens.getFirst());
+      double[] unitSens = factors.unitParameterSensitivity(dateAndPointSens.getFirst());
       for (int i = 0; i < nbParameters; i++) {
-        result[i] += dateAndPointSens.getSecond() * sensi1Point[i];
+        result[i] += dateAndPointSens.getSecond() * unitSens[i];
       }
     }
     return result;
@@ -199,11 +199,11 @@ public abstract class AbstractRatesProvider
       double dfForwardEnd = factors.discountFactor(group.endDate);
       double dFwddyStart = group.derivativeToYieldStart(dfForwardStart, dfForwardEnd);
       double dFwddyEnd = group.derivativeToYieldEnd(dfForwardStart, dfForwardEnd);
-      double[] sensiPtStart = factors.parameterSensitivity(group.startDate);
-      double[] sensiPtEnd = factors.parameterSensitivity(group.endDate);
+      double[] unitSensStart = factors.unitParameterSensitivity(group.startDate);
+      double[] unitSensEnd = factors.unitParameterSensitivity(group.endDate);
       for (int i = 0; i < nbParameters; i++) {
-        result[i] += dFwddyStart * sensiPtStart[i] * forwardBar;
-        result[i] += dFwddyEnd * sensiPtEnd[i] * forwardBar;
+        result[i] += dFwddyStart * unitSensStart[i] * forwardBar;
+        result[i] += dFwddyEnd * unitSensEnd[i] * forwardBar;
       }
     }
     return result;

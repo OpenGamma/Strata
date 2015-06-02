@@ -27,6 +27,8 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
 /**
  * A curve node whose instrument is a Fixed-Ibor interest rate swap.
@@ -75,8 +77,14 @@ public final class FixedIborSwapCurveNode implements CurveNode, ImmutableBean {
   }
 
   @Override
-  public Trade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
+  public Trade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
     return template.toTrade(valuationDate, BuySell.BUY, 1, rate(marketData));
+  }
+
+  @Override
+  public CurveParameterMetadata metadata(LocalDate valuationDate) {
+    // The swaps start at spot and the tenor of the swap is the tenor of the curve node.
+    return TenorCurveNodeMetadata.of(valuationDate.plus(template.getTenor()), template.getTenor());
   }
 
   // returns the rate from the market data for the rate key or throws an exception if it isn't available

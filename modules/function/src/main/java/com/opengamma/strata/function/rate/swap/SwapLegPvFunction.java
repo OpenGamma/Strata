@@ -5,99 +5,42 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toCurrencyAmountList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
-import com.opengamma.strata.engine.calculations.function.result.CurrencyAmountList;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
-import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.function.MarketDataRatesProvider;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.MarketDataKeys;
+import com.opengamma.strata.market.amount.LegAmount;
+import com.opengamma.strata.market.amount.LegAmounts;
+import com.opengamma.strata.market.amount.SwapLegAmount;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 
 /**
- * Calculates the present value of one leg of an interest rate swap for each of a set of scenarios.
+ * Calculates the present value of each leg of an interest rate swap.
  * <p>
- * The result consists of a list of present values, one for each scenario.
+ * The resulting {@linkpain LegAmounts leg amounts} contains of a value for each leg,
+ * each expressed as a {@linkplain SwapLegAmount swap leg amount} with leg details.
  */
-public class SwapLegPvFunction implements CalculationSingleFunction<SwapTrade, CurrencyAmountList> {
+public class SwapLegPvFunction extends AbstractSwapFunction<LegAmounts> {
 
-  /**
-   * Whether to get calculate for the pay leg or the receive leg.
-   */
-  private final PayReceive payReceive;
-
-  /**
-   * Creates an instance.
-   * 
-   * @param payReceive  whether to get the present value of the first pay or receive leg
-   */
-  public SwapLegPvFunction(PayReceive payReceive) {
-    this.payReceive = payReceive;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
-  public CalculationRequirements requirements(SwapTrade trade) {
-    Optional<SwapLeg> optionalLeg = trade.getProduct().getLeg(payReceive);
-    if (!optionalLeg.isPresent()) {
-      return CalculationRequirements.empty();
-    }
-    SwapLeg leg = optionalLeg.get();
-    Set<Index> indices = leg.allIndices();
-    Set<ObservableKey> indexRateKeys =
-        indices.stream()
-            .map(IndexRateKey::of)
-            .collect(toImmutableSet());
-    Set<MarketDataKey<?>> forwardCurveKeys =
-        indices.stream()
-            .map(MarketDataKeys::indexCurve)
-            .collect(toImmutableSet());
-    Set<DiscountFactorsKey> discountCurveKeys =
-        ImmutableSet.of(DiscountFactorsKey.of(leg.getCurrency()));
-
-    return CalculationRequirements.builder()
-        .singleValueRequirements(Sets.union(forwardCurveKeys, discountCurveKeys))
-        .timeSeriesRequirements(indexRateKeys)
-        .outputCurrencies(leg.getCurrency())
+  protected LegAmounts execute(ExpandedSwap product, RatesProvider provider) {
+    List<LegAmount> legAmounts = product.getLegs().stream()
+        .map(leg -> legAmount(leg, provider))
+        .collect(Collectors.toList());
+    return LegAmounts.of(legAmounts);
+  }
+  
+  private SwapLegAmount legAmount(ExpandedSwapLeg leg, RatesProvider provider) {
+    CurrencyAmount amount = DiscountingSwapLegPricer.DEFAULT.presentValue(leg, provider);
+    return SwapLegAmount.builder()
+        .amount(amount)
+        .payReceieve(leg.getPayReceive())
+        .legType(leg.getType())
+        .legCurrency(leg.getCurrency())
         .build();
-  }
-
-  @Override
-  public CurrencyAmountList execute(SwapTrade trade, CalculationMarketData marketData) {
-    Optional<SwapLeg> optionalLeg = trade.getProduct().getLeg(payReceive);
-
-    if (!optionalLeg.isPresent()) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "No {} leg found on {}",
-              payReceive,
-              trade.getProduct()));
-    }
-    ExpandedSwapLeg leg = optionalLeg.get().expand();
-    return IntStream.range(0, marketData.getScenarioCount())
-        .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
-        .map(MarketDataRatesProvider::new)
-        .map(provider -> DiscountingSwapLegPricer.DEFAULT.presentValue(leg, provider))
-        .collect(toCurrencyAmountList());
   }
 
 }

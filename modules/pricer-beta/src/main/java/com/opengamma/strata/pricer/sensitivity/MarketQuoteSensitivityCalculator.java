@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.NameSensitivityKey;
 import com.opengamma.strata.market.sensitivity.SensitivityKey;
@@ -38,12 +38,12 @@ public class MarketQuoteSensitivityCalculator {
   private static final MatrixAlgebra MATRIX_ALGEBRA = new OGMatrixAlgebra();
   //TODO: The method internally uses DoubleMatrix1D and DoubleMatrix2D. This should be reviewed.
   
-  public CurveParameterSensitivity fromParameterSensitivity(CurveParameterSensitivity parameterSensitivity,
+  public CurveParameterSensitivities fromParameterSensitivity(CurveParameterSensitivities parameterSensitivity,
       CurveBuildingBlockBundle blocks) {
     ArgChecker.notNull(parameterSensitivity, "Sensitivity");
     ArgChecker.notNull(blocks, "Units");
     ImmutableMap<SensitivityKey, double[]> sensitivityMap = parameterSensitivity.getSensitivities();
-    CurveParameterSensitivity result = CurveParameterSensitivity.empty();
+    CurveParameterSensitivities result = CurveParameterSensitivities.empty();
     for(Entry<SensitivityKey, double[]> entry: sensitivityMap.entrySet()) {
       SensitivityKey key = entry.getKey();
       // TODO: improve types of sensitivity key

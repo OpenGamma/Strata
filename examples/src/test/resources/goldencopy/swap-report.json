@@ -1,66 +1,70 @@
 {
-  "@bean": "com.opengamma.strata.engine.calculations.Results",
-  "rowCount": 1,
-  "columnCount": 9,
-  "items": [
-    {
-      "value": {
-        "@type": "com.opengamma.strata.collect.id.StandardId",
-        "value": "mn~14248"
-      }
-    },
-    {
-      "value": {
-        "@type": "StandardId",
-        "value": "mn~Dealer A"
-      }
-    },
-    {
-      "value": {
-        "@type": "java.time.LocalDate",
-        "value": "2006-02-24"
-      }
-    },
-    {
-      "value": {
-        "@type": "LocalDate",
-        "value": "2011-02-24"
-      }
-    },
-    {
-      "value": {
-        "@meta": "List",
-        "value": [
-          {
-            "@type": "com.opengamma.strata.basics.currency.CurrencyAmount",
-            "value": "USD 12000000"
-          }
-        ]
-      }
-    },
-    {
-      "value": {
-        "@type": "CurrencyAmount",
-        "value": "USD -802895.6489440684"
-      }
-    },
-    {
-      "value": {
-        "@type": "CurrencyAmount",
-        "value": "USD -1060934.907410547"
-      }
-    },
-    {
-      "value": {
-        "@type": "CurrencyAmount",
-        "value": "USD 258039.25846647858"
-      }
-    },
-    {
-      "value": {
-        "@type": "CurrencyAmount",
-        "value": "USD -82588"
-      }
-    }
-  ]
+ "@bean": "com.opengamma.strata.engine.calculations.Results",
+ "rowCount": 1,
+ "columnCount": 8,
+ "items": [{
+  "value": {
+   "@type": "com.opengamma.strata.collect.id.StandardId",
+   "value": "mn~14248"
+  }
+ }, {
+  "value": {
+   "@type": "StandardId",
+   "value": "mn~Dealer A"
+  }
+ }, {
+  "value": {
+   "@type": "java.time.LocalDate",
+   "value": "2006-02-24"
+  }
+ }, {
+  "value": {
+   "@type": "LocalDate",
+   "value": "2011-02-24"
+  }
+ }, {
+  "value": {
+   "@bean": "com.opengamma.strata.market.amount.LegAmounts",
+   "amounts": [{
+    "@bean": "com.opengamma.strata.market.amount.SwapLegAmount",
+    "amount": "USD 12000000",
+    "payReceieve": "Pay",
+    "legType": "Fixed",
+    "legCurrency": "USD"
+   }, {
+    "@bean": "SwapLegAmount",
+    "amount": "USD 12000000",
+    "payReceieve": "Receive",
+    "legType": "Ibor",
+    "legCurrency": "USD"
+   }]
+  }
+ }, {
+  "value": {
+   "@type": "com.opengamma.strata.basics.currency.CurrencyAmount",
+   "value": "USD -802895.6489440684"
+  }
+ }, {
+  "value": {
+   "@bean": "LegAmounts",
+   "amounts": [{
+    "@bean": "SwapLegAmount",
+    "amount": "USD -1060934.907410547",
+    "payReceieve": "Pay",
+    "legType": "Fixed",
+    "legCurrency": "USD"
+   }, {
+    "@bean": "SwapLegAmount",
+    "amount": "USD 258039.25846647858",
+    "payReceieve": "Receive",
+    "legType": "Ibor",
+    "legCurrency": "USD"
+   }]
+  }
+ }, {
+  "value": {
+   "@type": "CurrencyAmount",
+   "value": "USD -82588"
+  }
+ }]
 }

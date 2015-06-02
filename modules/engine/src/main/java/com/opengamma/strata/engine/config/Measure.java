@@ -46,8 +46,8 @@ public final class Measure
   /** Measure representing the maturity date of the calculation target. */
   public static final Measure MATURITY_DATE = Measure.of("MaturityDate");
 
-  /** Measure representing the notional amount of the calculation target. */
-  public static final Measure NOTIONAL = Measure.of("Notional");
+  /** Measure representing the initial notional amount of each leg of the calculation target. */
+  public static final Measure LEG_INITIAL_NOTIONAL = Measure.of("LegInitialNotional");
   
   /** Measure representing the par rate of the calculation target. */
   public static final Measure PAR_RATE = Measure.of("ParRate");
@@ -58,11 +58,8 @@ public final class Measure
   /** Measure representing the present value of the calculation target. */
   public static final Measure PRESENT_VALUE = Measure.of("PresentValue");
 
-  /** Measure representing the present value of the pay leg of the calculation target. */
-  public static final Measure PRESENT_VALUE_PAY_LEG = Measure.of("PresentValuePayLeg");
-
-  /** Measure representing the present value of the receive leg of the calculation target. */
-  public static final Measure PRESENT_VALUE_RECEIVE_LEG = Measure.of("PresentValueReceiveLeg");
+  /** Measure representing the present value of each leg of the calculation target. */
+  public static final Measure LEG_PRESENT_VALUE = Measure.of("LegPresentValue");
 
   /** Measure representing the PV01 of the calculation target. */
   public static final Measure PV01 = Measure.of("PV01");

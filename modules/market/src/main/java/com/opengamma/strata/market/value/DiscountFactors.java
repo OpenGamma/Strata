@@ -102,16 +102,16 @@ public interface DiscountFactors {
   public abstract PointSensitivityBuilder pointSensitivity(LocalDate date, Currency sensitivityCurrency);
 
   /**
-   * Returns the parameter sensitivity of the forward rate at the specified fixing date.
+   * Returns the unit parameter sensitivity of the forward rate at the specified fixing date.
    * <p>
-   * This returns the raw sensitivity for each parameter on the underlying curve.
+   * This returns the unit sensitivity for each parameter on the underlying curve.
    * If the fixing date is before the valuation date an exception is thrown.
    * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * 
-   * @param date  the fixing date to find the sensitivity for
+   * @param date  the date to find the sensitivity for
    * @return the parameter sensitivity
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double[] parameterSensitivity(LocalDate date);
+  public abstract double[] unitParameterSensitivity(LocalDate date);
 
 }

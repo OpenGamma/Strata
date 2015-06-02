@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
-import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
@@ -26,12 +24,9 @@ public final class SwapFunctionGroups {
   private static final FunctionGroup<SwapTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(SwapTrade.class).name("SwapDiscounting")
           .addFunction(Measure.MATURITY_DATE, SwapTradeMaturityDateFunction.class)
-          .addFunction(Measure.NOTIONAL, SwapTradeNotionalFunction.class)
+          .addFunction(Measure.LEG_INITIAL_NOTIONAL, SwapLegNotionalFunction.class)
           .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
-          .addFunction(Measure.PRESENT_VALUE_PAY_LEG,
-              FunctionConfig.builder(SwapLegPvFunction.class).addArgument("payReceive", PayReceive.PAY).build())
-          .addFunction(Measure.PRESENT_VALUE_RECEIVE_LEG,
-              FunctionConfig.builder(SwapLegPvFunction.class).addArgument("payReceive", PayReceive.RECEIVE).build())
+          .addFunction(Measure.LEG_PRESENT_VALUE, SwapLegPvFunction.class)
           .addFunction(Measure.PV01, SwapPv01Function.class)
           .addFunction(Measure.PAR_RATE, SwapParRateFunction.class)
           .addFunction(Measure.ACCRUED_INTEREST, SwapTradeAccruedInterestFunction.class)
@@ -51,11 +46,10 @@ public final class SwapFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measure#MATURITY_DATE Maturity date}
-   *   <li>{@linkplain Measure#NOTIONAL Notional}
+   *   <li>{@linkplain Measure#LEG_INITIAL_NOTIONAL Leg initial notional}
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
+   *   <li>{@linkplain Measure#LEG_PRESENT_VALUE Leg present value}
    *   <li>{@linkplain Measure#PV01 PV01}
-   *   <li>{@linkplain Measure#PRESENT_VALUE_PAY_LEG Pay leg present value}
-   *   <li>{@linkplain Measure#PRESENT_VALUE_RECEIVE_LEG Receive leg present value}
    *   <li>{@linkplain Measure#PAR_RATE Par rate}
    *   <li>{@linkplain Measure#ACCRUED_INTEREST Accrued interest}
    * </ul>

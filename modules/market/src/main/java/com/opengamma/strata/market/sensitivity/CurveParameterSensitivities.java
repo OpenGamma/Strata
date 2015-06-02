@@ -42,13 +42,13 @@ import com.opengamma.strata.collect.ArgChecker;
  * and {@linkplain NameCurrencySensitivityKey by curve and currency}.
  */
 @BeanDefinition
-public final class CurveParameterSensitivity
+public final class CurveParameterSensitivities
     implements ImmutableBean {
 
   /**
    * An empty instance.
    */
-  private static final CurveParameterSensitivity EMPTY = new CurveParameterSensitivity(ImmutableMap.of());
+  private static final CurveParameterSensitivities EMPTY = new CurveParameterSensitivities(ImmutableMap.of());
 
   /**
    * The map containing the sensitivities. 
@@ -66,7 +66,7 @@ public final class CurveParameterSensitivity
    * 
    * @return the empty instance
    */
-  public static CurveParameterSensitivity empty() {
+  public static CurveParameterSensitivities empty() {
     return EMPTY;
   }
 
@@ -80,8 +80,8 @@ public final class CurveParameterSensitivity
    * @param sensitivityArray  the sensitivity to the key, not cloned
    * @return the sensitivity instance
    */
-  public static CurveParameterSensitivity of(SensitivityKey key, double[] sensitivityArray) {
-    return new CurveParameterSensitivity(ImmutableMap.of(key, sensitivityArray));
+  public static CurveParameterSensitivities of(SensitivityKey key, double[] sensitivityArray) {
+    return new CurveParameterSensitivities(ImmutableMap.of(key, sensitivityArray));
   }
 
   /**
@@ -93,8 +93,8 @@ public final class CurveParameterSensitivity
    * @param map  the map of sensitivities
    * @return the sensitivity instance
    */
-  public static CurveParameterSensitivity of(Map<SensitivityKey, double[]> map) {
-    return new CurveParameterSensitivity(map);
+  public static CurveParameterSensitivities of(Map<SensitivityKey, double[]> map) {
+    return new CurveParameterSensitivities(map);
   }
 
   //-------------------------------------------------------------------------
@@ -116,10 +116,10 @@ public final class CurveParameterSensitivity
    * @return a sensitivity instance based on this one, with the key added
    * @throws IllegalArgumentException if the other sensitivity cannot be combined
    */
-  public CurveParameterSensitivity combinedWith(SensitivityKey key, double[] sensitivityArray) {
+  public CurveParameterSensitivities combinedWith(SensitivityKey key, double[] sensitivityArray) {
     Map<SensitivityKey, double[]> combined = new LinkedHashMap<>(sensitivities);
     combined.merge(key, sensitivityArray, this::combineArrays);
-    return new CurveParameterSensitivity(combined);
+    return new CurveParameterSensitivities(combined);
   }
 
   /**
@@ -136,7 +136,7 @@ public final class CurveParameterSensitivity
    * @return a sensitivity instance based on this one, with the other instance added
    * @throws IllegalArgumentException if the other sensitivity cannot be combined
    */
-  public CurveParameterSensitivity combinedWith(CurveParameterSensitivity other) {
+  public CurveParameterSensitivities combinedWith(CurveParameterSensitivities other) {
     if (other.sensitivities.isEmpty()) {
       return this;
     }
@@ -147,7 +147,7 @@ public final class CurveParameterSensitivity
     for (Entry<SensitivityKey, double[]> entry : other.sensitivities.entrySet()) {
       combined.merge(entry.getKey(), entry.getValue(), this::combineArrays);
     }
-    return new CurveParameterSensitivity(combined);
+    return new CurveParameterSensitivities(combined);
   }
 
   // add two arrays
@@ -171,7 +171,7 @@ public final class CurveParameterSensitivity
    * @param factor  the multiplicative factor
    * @return a sensitivity instance based on this one, with all vectors multiplied by the factor
    */
-  public CurveParameterSensitivity multipliedBy(double factor) {
+  public CurveParameterSensitivities multipliedBy(double factor) {
     return mapSensitivity(s -> s * factor);
   }
 
@@ -191,12 +191,12 @@ public final class CurveParameterSensitivity
    * @param operator  the operator to be applied to the sensitivities
    * @return the resulting builder, replacing this builder
    */
-  public CurveParameterSensitivity mapSensitivity(DoubleUnaryOperator operator) {
+  public CurveParameterSensitivities mapSensitivity(DoubleUnaryOperator operator) {
     Map<SensitivityKey, double[]> result = new LinkedHashMap<>();
     for (Entry<SensitivityKey, double[]> entry : sensitivities.entrySet()) {
       result.put(entry.getKey(), operateOnArray(operator, entry.getValue()));
     }
-    return new CurveParameterSensitivity(ImmutableMap.copyOf(result));
+    return new CurveParameterSensitivities(ImmutableMap.copyOf(result));
   }
 
   // operate on an array
@@ -245,7 +245,7 @@ public final class CurveParameterSensitivity
    * @param tolerance  the tolerance
    * @return true if equal up to the tolerance
    */
-  public boolean equalWithTolerance(CurveParameterSensitivity other, double tolerance) {
+  public boolean equalWithTolerance(CurveParameterSensitivities other, double tolerance) {
     if (!sensitivities.keySet().equals(other.sensitivities.keySet())) {
       // check that the element outside the intersection have a sensitivity below the tolerance
       Set<SensitivityKey> amb = Sets.difference(sensitivities.keySet(), other.sensitivities.keySet());
@@ -305,7 +305,7 @@ public final class CurveParameterSensitivity
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveParameterSensitivity other = (CurveParameterSensitivity) obj;
+      CurveParameterSensitivities other = (CurveParameterSensitivities) obj;
       if (!sensitivities.keySet().equals(other.sensitivities.keySet())) {
         return false;
       }
@@ -350,34 +350,34 @@ public final class CurveParameterSensitivity
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurveParameterSensitivity}.
+   * The meta-bean for {@code CurveParameterSensitivities}.
    * @return the meta-bean, not null
    */
-  public static CurveParameterSensitivity.Meta meta() {
-    return CurveParameterSensitivity.Meta.INSTANCE;
+  public static CurveParameterSensitivities.Meta meta() {
+    return CurveParameterSensitivities.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurveParameterSensitivity.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CurveParameterSensitivities.Meta.INSTANCE);
   }
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static CurveParameterSensitivity.Builder builder() {
-    return new CurveParameterSensitivity.Builder();
+  public static CurveParameterSensitivities.Builder builder() {
+    return new CurveParameterSensitivities.Builder();
   }
 
-  private CurveParameterSensitivity(
+  private CurveParameterSensitivities(
       Map<SensitivityKey, double[]> sensitivities) {
     JodaBeanUtils.notNull(sensitivities, "sensitivities");
     this.sensitivities = ImmutableMap.copyOf(sensitivities);
   }
 
   @Override
-  public CurveParameterSensitivity.Meta metaBean() {
-    return CurveParameterSensitivity.Meta.INSTANCE;
+  public CurveParameterSensitivities.Meta metaBean() {
+    return CurveParameterSensitivities.Meta.INSTANCE;
   }
 
   @Override
@@ -414,7 +414,7 @@ public final class CurveParameterSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveParameterSensitivity}.
+   * The meta-bean for {@code CurveParameterSensitivities}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -427,7 +427,7 @@ public final class CurveParameterSensitivity
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<SensitivityKey, double[]>> sensitivities = DirectMetaProperty.ofImmutable(
-        this, "sensitivities", CurveParameterSensitivity.class, (Class) ImmutableMap.class);
+        this, "sensitivities", CurveParameterSensitivities.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -451,13 +451,13 @@ public final class CurveParameterSensitivity
     }
 
     @Override
-    public CurveParameterSensitivity.Builder builder() {
-      return new CurveParameterSensitivity.Builder();
+    public CurveParameterSensitivities.Builder builder() {
+      return new CurveParameterSensitivities.Builder();
     }
 
     @Override
-    public Class<? extends CurveParameterSensitivity> beanType() {
-      return CurveParameterSensitivity.class;
+    public Class<? extends CurveParameterSensitivities> beanType() {
+      return CurveParameterSensitivities.class;
     }
 
     @Override
@@ -479,7 +479,7 @@ public final class CurveParameterSensitivity
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1226228605:  // sensitivities
-          return ((CurveParameterSensitivity) bean).getSensitivities();
+          return ((CurveParameterSensitivities) bean).getSensitivities();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -497,9 +497,9 @@ public final class CurveParameterSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveParameterSensitivity}.
+   * The bean-builder for {@code CurveParameterSensitivities}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveParameterSensitivity> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CurveParameterSensitivities> {
 
     private Map<SensitivityKey, double[]> sensitivities = ImmutableMap.of();
 
@@ -513,7 +513,7 @@ public final class CurveParameterSensitivity
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(CurveParameterSensitivity beanToCopy) {
+    private Builder(CurveParameterSensitivities beanToCopy) {
       this.sensitivities = beanToCopy.getSensitivities();
     }
 
@@ -566,8 +566,8 @@ public final class CurveParameterSensitivity
     }
 
     @Override
-    public CurveParameterSensitivity build() {
-      return new CurveParameterSensitivity(
+    public CurveParameterSensitivities build() {
+      return new CurveParameterSensitivities(
           sensitivities);
     }
 
@@ -587,7 +587,7 @@ public final class CurveParameterSensitivity
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("CurveParameterSensitivity.Builder{");
+      buf.append("CurveParameterSensitivities.Builder{");
       buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
       buf.append('}');
       return buf.toString();

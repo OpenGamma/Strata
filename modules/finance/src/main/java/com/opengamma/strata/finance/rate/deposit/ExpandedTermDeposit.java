@@ -15,6 +15,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -34,6 +35,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * A term deposit is a financial instrument that provides a fixed rate of interest on
  * an amount for a specific term.
+ * The principal is signed based on the payment at the end date, when the interest is generated.
  * For example, investing GBP 1,000 for 3 months at a 1% interest rate.
  * <p>
  * An {@code ExpandedTermDeposit} contains information based on holiday calendars.
@@ -41,28 +43,47 @@ import com.opengamma.strata.collect.ArgChecker;
  * Care must be taken when placing the expanded form in a cache or persistence layer.
  */
 @BeanDefinition
-public class ExpandedTermDeposit
+public final class ExpandedTermDeposit
     implements TermDepositProduct, ImmutableBean, Serializable {
 
   /**
+   * The primary currency.
+   * <p>
+   * This is the currency of the deposit and the currency that payment is made in.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Currency currency;
+  /**
+   * The notional amount.
+   * <p>
+   * The amount that is deposited. It is a positive signed amount if the deposit is 'Buy',
+   * and a negative signed amount if the deposit is 'Sell'.
+   * <p>
+   * The currency of the notional is specified by {@code currency}.
+   */
+  @PropertyDefinition
+  private final double notional;
+  /**
    * The start date of the deposit.
    * <p>
-   * Interest accrues from this date.
-   * This date should be a valid business day.
+   * This is the first date that interest accrues.
+   * <p>
+   * This is an adjusted date, which should be a valid business day
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
   /**
    * The end date of the deposit.
    * <p>
-   * Interest accrues until this date.
-   * This date should be a valid business day.
+   * This is the last day that interest accrues.
    * This date must be after the start date.
+   * <p>
+   * This is an adjusted date, which should be a valid business day
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
   /**
-   * The year fraction that the period represents.
+   * The year fraction between the start and end date.
    * <p>
    * The value is usually calculated using a {@link DayCount}.
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
@@ -71,29 +92,17 @@ public class ExpandedTermDeposit
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double yearFraction;
   /**
-   * The currency.
-   * <p>
-   * The currency of the deposit.
-   */
-  @PropertyDefinition
-  private final Currency currency;
-  /**
-   * The principal amount.
-   * <p>
-   * The amount that is deposited.
-   */
-  @PropertyDefinition
-  private final double principal;
-  /**
-   * The fixed interest rate to be paid.
+   * The fixed rate of interest.
    * A 5% rate will be expressed as 0.05.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double rate;
   /**
-   * The accrued interest.
+   * The interest to be paid on the deposit.
    * <p>
-   * The interest is {@code rate * principal * yearFraction}.
+   * The interest is {@code rate * principal * yearFraction} and is a signed amount. 
+   * When the rate is positive, a 'buy' term deposit has a positive signed interest amount 
+   * and a 'sell' term deposit has a negative signed interest amount.
    */
   private final double interest;  // not a property
 
@@ -109,9 +118,15 @@ public class ExpandedTermDeposit
     this.endDate = builder.endDate;
     this.yearFraction = builder.yearFraction;
     this.currency = builder.currency;
-    this.principal = builder.principal;
+    this.notional = builder.notional;
     this.rate = builder.rate;
-    interest = (rate * principal * yearFraction);
+    interest = (rate * notional * yearFraction);
+    validate();
+  }
+
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
   }
 
   //-------------------------------------------------------------------------
@@ -181,10 +196,36 @@ public class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the primary currency.
+   * <p>
+   * This is the currency of the deposit and the currency that payment is made in.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount.
+   * <p>
+   * The amount that is deposited. It is a positive signed amount if the deposit is 'Buy',
+   * and a negative signed amount if the deposit is 'Sell'.
+   * <p>
+   * The currency of the notional is specified by {@code currency}.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the start date of the deposit.
    * <p>
-   * Interest accrues from this date.
-   * This date should be a valid business day.
+   * This is the first date that interest accrues.
+   * <p>
+   * This is an adjusted date, which should be a valid business day
    * @return the value of the property, not null
    */
   public LocalDate getStartDate() {
@@ -195,9 +236,10 @@ public class ExpandedTermDeposit
   /**
    * Gets the end date of the deposit.
    * <p>
-   * Interest accrues until this date.
-   * This date should be a valid business day.
+   * This is the last day that interest accrues.
    * This date must be after the start date.
+   * <p>
+   * This is an adjusted date, which should be a valid business day
    * @return the value of the property, not null
    */
   public LocalDate getEndDate() {
@@ -206,7 +248,7 @@ public class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the year fraction that the period represents.
+   * Gets the year fraction between the start and end date.
    * <p>
    * The value is usually calculated using a {@link DayCount}.
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
@@ -219,31 +261,9 @@ public class ExpandedTermDeposit
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency.
-   * <p>
-   * The currency of the deposit.
-   * @return the value of the property
-   */
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the principal amount.
-   * <p>
-   * The amount that is deposited.
-   * @return the value of the property
-   */
-  public double getPrincipal() {
-    return principal;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the fixed interest rate to be paid.
+   * Gets the fixed rate of interest.
    * A 5% rate will be expressed as 0.05.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getRate() {
     return rate;
@@ -265,11 +285,11 @@ public class ExpandedTermDeposit
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedTermDeposit other = (ExpandedTermDeposit) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getPrincipal(), other.getPrincipal()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
     }
     return false;
@@ -278,11 +298,11 @@ public class ExpandedTermDeposit
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPrincipal());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
   }
@@ -291,34 +311,36 @@ public class ExpandedTermDeposit
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ExpandedTermDeposit{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(getYearFraction())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
-    buf.append("principal").append('=').append(JodaBeanUtils.toString(getPrincipal())).append(',').append(' ');
-    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ExpandedTermDeposit}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", ExpandedTermDeposit.class, Currency.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", ExpandedTermDeposit.class, Double.TYPE);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -335,16 +357,6 @@ public class ExpandedTermDeposit
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
         this, "yearFraction", ExpandedTermDeposit.class, Double.TYPE);
     /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", ExpandedTermDeposit.class, Currency.class);
-    /**
-     * The meta-property for the {@code principal} property.
-     */
-    private final MetaProperty<Double> principal = DirectMetaProperty.ofImmutable(
-        this, "principal", ExpandedTermDeposit.class, Double.TYPE);
-    /**
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Double> rate = DirectMetaProperty.ofImmutable(
@@ -354,32 +366,32 @@ public class ExpandedTermDeposit
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "currency",
+        "notional",
         "startDate",
         "endDate",
         "yearFraction",
-        "currency",
-        "principal",
         "rate");
 
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 575402001:  // currency
-          return currency;
-        case -1812041682:  // principal
-          return principal;
         case 3493088:  // rate
           return rate;
       }
@@ -403,10 +415,26 @@ public class ExpandedTermDeposit
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> notional() {
+      return notional;
+    }
+
+    /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> startDate() {
+    public MetaProperty<LocalDate> startDate() {
       return startDate;
     }
 
@@ -414,7 +442,7 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> endDate() {
+    public MetaProperty<LocalDate> endDate() {
       return endDate;
     }
 
@@ -422,31 +450,15 @@ public class ExpandedTermDeposit
      * The meta-property for the {@code yearFraction} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> yearFraction() {
+    public MetaProperty<Double> yearFraction() {
       return yearFraction;
-    }
-
-    /**
-     * The meta-property for the {@code currency} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
-     * The meta-property for the {@code principal} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> principal() {
-      return principal;
     }
 
     /**
      * The meta-property for the {@code rate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> rate() {
+    public MetaProperty<Double> rate() {
       return rate;
     }
 
@@ -454,16 +466,16 @@ public class ExpandedTermDeposit
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((ExpandedTermDeposit) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((ExpandedTermDeposit) bean).getNotional();
         case -2129778896:  // startDate
           return ((ExpandedTermDeposit) bean).getStartDate();
         case -1607727319:  // endDate
           return ((ExpandedTermDeposit) bean).getEndDate();
         case -1731780257:  // yearFraction
           return ((ExpandedTermDeposit) bean).getYearFraction();
-        case 575402001:  // currency
-          return ((ExpandedTermDeposit) bean).getCurrency();
-        case -1812041682:  // principal
-          return ((ExpandedTermDeposit) bean).getPrincipal();
         case 3493088:  // rate
           return ((ExpandedTermDeposit) bean).getRate();
       }
@@ -485,31 +497,31 @@ public class ExpandedTermDeposit
   /**
    * The bean-builder for {@code ExpandedTermDeposit}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ExpandedTermDeposit> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedTermDeposit> {
 
+    private Currency currency;
+    private double notional;
     private LocalDate startDate;
     private LocalDate endDate;
     private double yearFraction;
-    private Currency currency;
-    private double principal;
     private double rate;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ExpandedTermDeposit beanToCopy) {
+    private Builder(ExpandedTermDeposit beanToCopy) {
+      this.currency = beanToCopy.getCurrency();
+      this.notional = beanToCopy.getNotional();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
-      this.currency = beanToCopy.getCurrency();
-      this.principal = beanToCopy.getPrincipal();
       this.rate = beanToCopy.getRate();
     }
 
@@ -517,16 +529,16 @@ public class ExpandedTermDeposit
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 575402001:  // currency
-          return currency;
-        case -1812041682:  // principal
-          return principal;
         case 3493088:  // rate
           return rate;
         default:
@@ -537,6 +549,12 @@ public class ExpandedTermDeposit
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
+          break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
           break;
@@ -545,12 +563,6 @@ public class ExpandedTermDeposit
           break;
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
-          break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
-        case -1812041682:  // principal
-          this.principal = (Double) newValue;
           break;
         case 3493088:  // rate
           this.rate = (Double) newValue;
@@ -592,6 +604,27 @@ public class ExpandedTermDeposit
 
     //-----------------------------------------------------------------------
     /**
+     * Sets the {@code currency} property in the builder.
+     * @param currency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      this.notional = notional;
+      return this;
+    }
+
+    /**
      * Sets the {@code startDate} property in the builder.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
@@ -625,32 +658,11 @@ public class ExpandedTermDeposit
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      this.currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code principal} property in the builder.
-     * @param principal  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder principal(double principal) {
-      this.principal = principal;
-      return this;
-    }
-
-    /**
      * Sets the {@code rate} property in the builder.
-     * @param rate  the new value, not null
+     * @param rate  the new value
      * @return this, for chaining, not null
      */
     public Builder rate(double rate) {
-      JodaBeanUtils.notNull(rate, "rate");
       this.rate = rate;
       return this;
     }
@@ -660,22 +672,14 @@ public class ExpandedTermDeposit
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("ExpandedTermDeposit.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("principal").append('=').append(JodaBeanUtils.toString(principal)).append(',').append(' ');
-      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
+      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

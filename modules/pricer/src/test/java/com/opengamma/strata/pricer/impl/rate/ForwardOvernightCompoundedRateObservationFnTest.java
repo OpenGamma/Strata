@@ -29,7 +29,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -989,9 +989,9 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FWD_ONCMP.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivity parameterSensitivityComputed =
+      CurveParameterSensitivities parameterSensitivityComputed =
           prov.parameterSensitivity(sensitivityBuilderComputed.build());
-      CurveParameterSensitivity parameterSensitivityExpected =
+      CurveParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
@@ -1013,9 +1013,9 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FWD_ONCMP.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivity parameterSensitivityComputed =
+      CurveParameterSensitivities parameterSensitivityComputed =
           prov.parameterSensitivity(sensitivityBuilderComputed.build());
-      CurveParameterSensitivity parameterSensitivityExpected =
+      CurveParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));

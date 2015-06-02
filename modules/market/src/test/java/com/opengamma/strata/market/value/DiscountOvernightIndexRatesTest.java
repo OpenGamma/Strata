@@ -180,7 +180,7 @@ public class DiscountOvernightIndexRatesTest {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, SERIES, DFCURVE);
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double[] expected = CURVE.yValueParameterSensitivity(relativeTime);
-    assertEquals(test.parameterSensitivity(DATE_AFTER), expected);
+    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------

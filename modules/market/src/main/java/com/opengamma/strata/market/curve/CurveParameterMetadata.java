@@ -53,4 +53,22 @@ public interface CurveParameterMetadata
    */
   public abstract String getDescription();
 
+  /**
+   * Returns an object used to identify the parameter so it can be referenced when creating scenarios.
+   * <p>
+   * A good choice of identifier is one that makes sense to the user and can easily be created as part of a
+   * scenario definition. For example, many nodes types are naturally identified by a tenor.
+   * <p>
+   * The identifier must satisfy the following criteria:
+   * <ul>
+   *   <li>It must be non-null</li>
+   *   <li>It should be unique within a single curve</li>
+   *   <li>It should have a sensible implementation of {@code hashCode()} and {@code equals()}.</li>
+   * </ul>
+   * Otherwise the choice of identifier is free and the system makes no assumptions about it.
+   *
+   * @return an object used to uniquely identify the parameter within the curve so it can be referenced when
+   *   creating scenarios
+   */
+  public abstract Object getIdentifier();
 }

@@ -24,9 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
 /**
  * A curve node whose instrument is a forward rate agreement (FRA).
@@ -75,11 +78,17 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
   }
 
   @Override
-  public Trade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
+  public Trade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
     BuySell buySell = BuySell.BUY;
     double notional = 1;
     double fixedRate = rate(marketData);
     return template.toTrade(valuationDate, buySell, notional, fixedRate);
+  }
+
+  @Override
+  public CurveParameterMetadata metadata(LocalDate valuationDate) {
+    Tenor endTenor = Tenor.of(template.getPeriodToEnd());
+    return TenorCurveNodeMetadata.of(valuationDate.plus(endTenor), endTenor);
   }
 
   /**

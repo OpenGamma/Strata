@@ -12,6 +12,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 
 import org.testng.annotations.Test;
@@ -46,4 +47,8 @@ public class YearMonthCurveNodeMetadataTest {
     assertSerialization(test);
   }
 
+  public void test_identifier() {
+    YearMonthCurveNodeMetadata test = YearMonthCurveNodeMetadata.of(DATE, JAN2015);
+    assertThat(test.getIdentifier()).isEqualTo(YearMonth.of(2015, Month.JANUARY));
+  }
 }

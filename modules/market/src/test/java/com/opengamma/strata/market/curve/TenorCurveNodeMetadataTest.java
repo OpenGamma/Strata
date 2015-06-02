@@ -46,4 +46,8 @@ public class TenorCurveNodeMetadataTest {
     assertSerialization(test);
   }
 
+  public void test_identifier() {
+    TenorCurveNodeMetadata test = TenorCurveNodeMetadata.of(DATE, TENOR_10Y);
+    assertThat(test.getIdentifier()).isEqualTo(TENOR_10Y);
+  }
 }
