@@ -116,7 +116,7 @@ public class SwapPricingExample {
     tradeReport.writeAsciiTable(System.out);
   }
 
-  public static List<Trade> createSwapTrades() {
+  private static List<Trade> createSwapTrades() {
     return ImmutableList.of(
         createVanillaFixedVsLibor3mSwap(),
         createBasisLibor3mVsLibor6mWithSpreadSwap(),
