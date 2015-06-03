@@ -30,13 +30,14 @@ public class CurveCurrencyParameterSensitivitiesTest {
   private static final double FACTOR1 = 3.14;
   private static final double[] VECTOR_USD1 = new double[] {100, 200, 300, 123};
   private static final double[] VECTOR_USD2 = new double[] {1000, 250, 321, 123};
+  private static final double[] VECTOR_USD2_IN_EUR = new double[] {1000 / 1.6, 250 / 1.6, 321 / 1.6, 123 / 1.6};
   private static final double[] VECTOR_ZERO = new double[] {0, 0, 0, 0};
   private static final double[] TOTAL_USD = new double[] {1100, 450, 621, 246};
   private static final double[] VECTOR_EUR1 = new double[] {1000, 250, 321, 123, 321};
-  private static final double[] VECTOR_EUR1_IN_USD = new double[] {1000 * 1.5, 250 * 1.5, 321 * 1.5, 123 * 1.5, 321 * 1.5};
+  private static final double[] VECTOR_EUR1_IN_USD = new double[] {1000 * 1.6, 250 * 1.6, 321 * 1.6, 123 * 1.6, 321 * 1.6};
   private static final Currency USD = Currency.USD;
   private static final Currency EUR = Currency.EUR;
-  private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.5d);
+  private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.6d);
   private static final CurveName NAME0 = CurveName.of("NAME-0");
   private static final CurveName NAME1 = CurveName.of("NAME-1");
   private static final CurveName NAME2 = CurveName.of("NAME-2");
@@ -50,6 +51,8 @@ public class CurveCurrencyParameterSensitivitiesTest {
       CurveCurrencyParameterSensitivity.of(NAME1, USD, TOTAL_USD);
   private static final CurveCurrencyParameterSensitivity ENTRY_USD_SMALL =
       CurveCurrencyParameterSensitivity.of(NAME1, USD, new double[] {100d});
+  private static final CurveCurrencyParameterSensitivity ENTRY_USD2_IN_EUR =
+      CurveCurrencyParameterSensitivity.of(NAME1, EUR, VECTOR_USD2_IN_EUR);
   private static final CurveCurrencyParameterSensitivity ENTRY_EUR =
       CurveCurrencyParameterSensitivity.of(NAME2, EUR, VECTOR_EUR1);
   private static final CurveCurrencyParameterSensitivity ENTRY_EUR_IN_USD =
@@ -148,6 +151,12 @@ public class CurveCurrencyParameterSensitivitiesTest {
     assertThat(test.getSensitivities()).containsOnly(ENTRY_USD2, ENTRY_EUR_IN_USD);
   }
 
+  public void test_convertedTo_multipleCurrency_mergeWhenSameCurveName() {
+    CurveCurrencyParameterSensitivities test = SENSI_1.combinedWith(ENTRY_USD2_IN_EUR).convertedTo(USD, FX_RATE);
+    assertThat(test.getSensitivities()).containsOnly(ENTRY_USD_TOTAL);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_total_singleCurrency() {
     assertThat(SENSI_1.total(USD, FxMatrix.empty()))
         .hasAmount(sum(VECTOR_USD1), within(1E-8));
@@ -155,7 +164,7 @@ public class CurveCurrencyParameterSensitivitiesTest {
 
   public void test_total_multipleCurrency() {
     assertThat(SENSI_2.total(USD, FX_RATE))
-        .hasAmount(sum(VECTOR_USD2) + sum(VECTOR_EUR1) * 1.5d, within(1E-8));
+        .hasAmount(sum(VECTOR_USD2) + sum(VECTOR_EUR1) * 1.6d, within(1E-8));
   }
 
   public void test_totalMulti_singleCurrency() {

@@ -121,7 +121,7 @@ public class DiscountingFxProductPricerBeta {
   // from PaymentFixedDiscountingMethod
   public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
-    return discountFactors.pointSensitivity(payment.getDate())
+    return discountFactors.zeroRatePointSensitivity(payment.getDate())
         .multipliedBy(payment.getAmount());
   }
 

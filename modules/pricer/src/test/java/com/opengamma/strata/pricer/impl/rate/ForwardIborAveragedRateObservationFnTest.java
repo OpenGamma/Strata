@@ -87,7 +87,7 @@ public class ForwardIborAveragedRateObservationFnTest {
           .build();
       fixings.add(fixing);
       totalWeight += WEIGHTS[i];
-      when(mockIbor.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockIbor.ratePointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
     }
 
     PointSensitivities expected = PointSensitivities.of(ImmutableList.of(
@@ -115,7 +115,7 @@ public class ForwardIborAveragedRateObservationFnTest {
           .weight(WEIGHTS[i])
           .build();
       fixings.add(fixing);
-      when(mockIbor.pointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockIbor.ratePointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
     }
 
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);

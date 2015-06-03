@@ -238,7 +238,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -429,7 +429,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < 2; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(PointSensitivityBuilder.none());
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(PointSensitivityBuilder.none());
     }
     for (int i = 2; i < nRates; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
@@ -437,7 +437,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -591,7 +591,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(
           PointSensitivityBuilder.none());
     }
     for (int i = lastFixing; i < FIXING_DATES.length; i++) {
@@ -600,7 +600,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -751,7 +751,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(
           PointSensitivityBuilder.none());
     }
     for (int i = lastFixing; i < FIXING_DATES.length; i++) {
@@ -760,7 +760,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -906,7 +906,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(
           PointSensitivityBuilder.none());
     }
     for (int i = lastFixing; i < FIXING_DATES.length; i++) {
@@ -915,7 +915,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;

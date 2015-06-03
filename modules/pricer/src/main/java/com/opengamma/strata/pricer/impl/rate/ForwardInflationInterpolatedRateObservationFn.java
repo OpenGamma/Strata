@@ -111,9 +111,9 @@ public class ForwardInflationInterpolatedRateObservationFn
       RatesProvider provider) {
 
     PriceIndexValues values = provider.priceIndexValues(index);
-    PointSensitivityBuilder sensi1 = values.pointSensitivity(month1);
+    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(month1);
     sensi1 = sensi1.multipliedBy(weight1);
-    PointSensitivityBuilder sensi2 = values.pointSensitivity(month2);
+    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(month2);
     sensi2 = sensi2.multipliedBy(weight2);
     return sensi1.combinedWith(sensi2);
   }

@@ -87,7 +87,7 @@ public class DiscountingFraProductPricer {
     double derivative = derivative(fra, provider);
     PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
         .multipliedBy(derivative * df * notional);
-    PointSensitivityBuilder discSens = discountFactors.pointSensitivity(fra.getPaymentDate())
+    PointSensitivityBuilder discSens = discountFactors.zeroRatePointSensitivity(fra.getPaymentDate())
         .multipliedBy(unitAmount * notional);
     return iborSens.withCurrency(fra.getCurrency()).combinedWith(discSens).build();
   }

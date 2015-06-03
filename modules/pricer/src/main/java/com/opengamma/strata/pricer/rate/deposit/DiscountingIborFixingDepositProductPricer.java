@@ -84,7 +84,7 @@ public class DiscountingIborFixingDepositProductPricer {
     // sensitivity
     PointSensitivityBuilder sensiFwd = forwardRateSensitivity(deposit, provider)
         .multipliedBy(-discountFactor * deposit.getNotional() * deposit.getYearFraction());
-    PointSensitivityBuilder sensiDsc = discountFactors.pointSensitivity(deposit.getEndDate())
+    PointSensitivityBuilder sensiDsc = discountFactors.zeroRatePointSensitivity(deposit.getEndDate())
         .multipliedBy(deposit.getNotional() * deposit.getYearFraction() * (deposit.getFixedRate() - forwardRate));
     return sensiFwd.combinedWith(sensiDsc).build();
   }
