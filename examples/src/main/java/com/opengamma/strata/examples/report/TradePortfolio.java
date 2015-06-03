@@ -29,10 +29,11 @@ import com.opengamma.strata.finance.Trade;
 /**
  * Represents a portfolio of trades.
  */
-// TODO - temporary representation of a portfolio
 @BeanDefinition(builderScope = "private")
 public final class TradePortfolio implements ImmutableBean {
 
+  // TODO - temporary representation of a portfolio
+  
   /** The trades. */
   @PropertyDefinition(validate = "notNull")
   private final List<Trade> trades;
@@ -43,7 +44,7 @@ public final class TradePortfolio implements ImmutableBean {
    * @param trades  the list of trades
    * @return the portfolio
    */
-  public static TradePortfolio of (List<Trade> trades) {
+  public static TradePortfolio of(List<Trade> trades) {
     return new TradePortfolio(trades);
   }
   

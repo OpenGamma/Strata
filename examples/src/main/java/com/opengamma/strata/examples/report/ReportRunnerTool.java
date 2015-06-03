@@ -53,6 +53,11 @@ public class ReportRunnerTool {
   @Parameter(names = { "--help", "-h" }, description = "Displays this message", help = true)
   private boolean help;
   
+  /**
+   * Runs the tool.
+   * 
+   * @param args  the command-line arguments
+   */
   public static void main(String[] args) {
     ReportRunnerTool reportRunner = new ReportRunnerTool();
     JCommander commander = new JCommander(reportRunner);
@@ -111,11 +116,11 @@ public class ReportRunnerTool {
         .build();
   }
   
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private ReportRunner<ReportTemplate> getReportRunner(ReportTemplate reportTemplate) {
     if (reportTemplate instanceof TradeReportTemplate) {
-      ReportRunner<? extends ReportTemplate> runner = new TradeReportRunner();
-      return (ReportRunner<ReportTemplate>) runner;
+      // double-cast to achieve result type, allowing report runner to be used without external knowledge of template type
+      return (ReportRunner) new TradeReportRunner();
     }
     throw new IllegalArgumentException(Messages.format("Unsupported report type: {}", reportTemplate.getClass().getSimpleName()));
   }
