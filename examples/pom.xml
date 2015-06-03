@@ -16,6 +16,33 @@
   <name>Strata-Examples</name>
   <description>Example code to demonstrate use of Strata</description>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.opengamma.strata.examples.report.ReportRunnerTool</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma, relying on transitive dependencies -->
@@ -32,6 +59,12 @@
       <artifactId>strata-function-beta</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-report-beta</artifactId>
+    </dependency>
+    
+    <!-- External dependencies -->
+    <dependency>
       <groupId>javafx</groupId>
       <artifactId>javafx</artifactId>
       <version>8.0</version>
@@ -39,14 +72,14 @@
       <systemPath>${javafx.jar.path}</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.chaschev</groupId>
-      <artifactId>chutils</artifactId>
-      <version>1.4</version>
-    </dependency>
-    <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
         <version>1.6.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>1.48</version>
     </dependency>
   </dependencies>
 
