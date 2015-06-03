@@ -50,6 +50,26 @@ public class TradeReportTemplateIniLoaderTest {
     assertEquals(template.getColumns().get(0), payLegCcyColumn);
   }
   
+  public void test_ignore_failure() {
+    TradeReportTemplate template = parseIni("trade-report-test-ignore-failure.ini");
+    
+    TradeReportColumn payLegCcyColumn = TradeReportColumn.builder()
+        .measure(Measure.LEG_INITIAL_NOTIONAL)
+        .path("pay", "currency")
+        .header("Pay Leg Ccy")
+        .build();
+    
+    TradeReportColumn pvColumn = TradeReportColumn.builder()
+        .measure(Measure.PRESENT_VALUE)
+        .header("Present Value")
+        .ignoreFailure(true)
+        .build();
+    
+    assertEquals(template.getColumns().size(), 2);
+    assertEquals(template.getColumns().get(0), payLegCcyColumn);
+    assertEquals(template.getColumns().get(1), pvColumn);
+  }
+  
   private TradeReportTemplate parseIni(String resourceName) {
     ResourceLocator locator = ResourceLocator.of("classpath:" + resourceName);
     IniFile ini = IniFile.of(locator.getCharSource());
