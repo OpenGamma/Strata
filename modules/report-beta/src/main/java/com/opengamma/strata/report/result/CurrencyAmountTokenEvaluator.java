@@ -35,7 +35,7 @@ public class CurrencyAmountTokenEvaluator implements TokenEvaluator<CurrencyAmou
       // Can be rendered directly - retains the currency for formatting purposes
       return amount;
     }
-    throw new InvalidTokenException(token, getTargetType());
+    throw new TokenException(token, TokenError.INVALID, tokens(amount));
   }
 
 }

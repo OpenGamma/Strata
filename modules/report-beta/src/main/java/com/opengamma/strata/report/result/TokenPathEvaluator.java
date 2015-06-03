@@ -5,10 +5,12 @@
  */
 package com.opengamma.strata.report.result;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 
@@ -27,7 +29,7 @@ public class TokenPathEvaluator {
       new CurrencyAmountTokenEvaluator(),
       new MapTokenEvaluator(),
       beanTokenEvaluator,
-      new IterableTraverser());
+      new IterableTokenEvaluator());
 
   /**
    * Evaluates a token path against an object.
@@ -44,6 +46,31 @@ public class TokenPathEvaluator {
     }
     return resultObject;
   }
+  
+  /**
+   * Gets the supported tokens on the given object.
+   * 
+   * @param object  the object for which to return the valid tokens
+   * @return the tokens
+   */
+  public Set<String> tokens(Object object) {
+    // This must mirror the main evaluate method implementation
+    Object evalObject = object;
+    Set<String> tokens = new HashSet<String>();
+    if (evalObject instanceof Bean) {
+      Bean bean = (Bean) evalObject;
+      if (bean.propertyNames().size() == 1) {
+        String onlyProperty = Iterables.getOnlyElement(bean.propertyNames());
+        tokens.add(onlyProperty);
+        evalObject = bean.property(onlyProperty).get();
+      }
+    }
+    Optional<TokenEvaluator<Object>> evaluator = getEvaluator(evalObject.getClass());
+    if (evaluator.isPresent()) {
+      tokens.addAll(evaluator.get().tokens(evalObject));
+    }
+    return tokens;
+  }
 
   //-------------------------------------------------------------------------
   private Object evaluate(Object object, Queue<String> tokenPath) {
@@ -58,10 +85,6 @@ public class TokenPathEvaluator {
     Optional<TokenEvaluator<Object>> evaluator = getEvaluator(object.getClass());
     if (evaluator.isPresent()) {
       return evaluator.get().evaluate(object, tokenPath.remove().toLowerCase());
-    }
-    if (object instanceof Iterable) {
-      // Expose bean values on the items as tokens
-
     }
     throw new UnsupportedOperationException(
         Messages.format("Unable to traverse type {}", object.getClass().getSimpleName()));

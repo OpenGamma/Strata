@@ -33,7 +33,7 @@ public class MapTokenEvaluator implements TokenEvaluator<Map<?, ?>> {
         return map.get(key);
       }
     }
-    throw new InvalidTokenException(token, map.getClass());
+    throw new TokenException(token, TokenError.INVALID, tokens(map));
   }
 
 }
