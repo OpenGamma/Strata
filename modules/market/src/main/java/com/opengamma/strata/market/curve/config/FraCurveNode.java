@@ -27,7 +27,9 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
+import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
@@ -87,8 +89,9 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
 
   @Override
   public CurveParameterMetadata metadata(LocalDate valuationDate) {
-    Tenor endTenor = Tenor.of(template.getPeriodToEnd());
-    return TenorCurveNodeMetadata.of(valuationDate.plus(endTenor), endTenor);
+    FraTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
+    ExpandedFra expandedFra = trade.getProduct().expand();
+    return TenorCurveNodeMetadata.of(expandedFra.getEndDate(), Tenor.of(template.getPeriodToEnd()));
   }
 
   /**
