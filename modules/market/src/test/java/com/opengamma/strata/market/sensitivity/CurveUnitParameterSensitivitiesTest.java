@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.market.sensitivity;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -32,24 +32,24 @@ public class CurveUnitParameterSensitivitiesTest {
   private static final CurveName NAME2 = CurveName.of("NAME-2");
   private static final CurveName NAME3 = CurveName.of("NAME-3");
 
-  private static final CurveUnitParameterSensitivity ENTRY_USD =
+  private static final CurveUnitParameterSensitivity ENTRY1 =
       CurveUnitParameterSensitivity.of(NAME1, VECTOR1);
-  private static final CurveUnitParameterSensitivity ENTRY_USD2 =
+  private static final CurveUnitParameterSensitivity ENTRY2 =
       CurveUnitParameterSensitivity.of(NAME1, VECTOR2);
-  private static final CurveUnitParameterSensitivity ENTRY_USD_TOTAL =
+  private static final CurveUnitParameterSensitivity ENTRY_TOTAL_1_2 =
       CurveUnitParameterSensitivity.of(NAME1, TOTAL_USD);
-  private static final CurveUnitParameterSensitivity ENTRY_USD_SMALL =
+  private static final CurveUnitParameterSensitivity ENTRY_SMALL =
       CurveUnitParameterSensitivity.of(NAME1, new double[] {100d});
-  private static final CurveUnitParameterSensitivity ENTRY_EUR =
+  private static final CurveUnitParameterSensitivity ENTRY3 =
       CurveUnitParameterSensitivity.of(NAME2, VECTOR3);
   private static final CurveUnitParameterSensitivity ENTRY_ZERO0 =
       CurveUnitParameterSensitivity.of(NAME0, VECTOR_ZERO);
   private static final CurveUnitParameterSensitivity ENTRY_ZERO3 =
       CurveUnitParameterSensitivity.of(NAME3, VECTOR_ZERO);
 
-  private static final CurveUnitParameterSensitivities SENSI_1 = CurveUnitParameterSensitivities.of(ENTRY_USD);
+  private static final CurveUnitParameterSensitivities SENSI_1 = CurveUnitParameterSensitivities.of(ENTRY1);
   private static final CurveUnitParameterSensitivities SENSI_2 =
-      CurveUnitParameterSensitivities.of(ImmutableList.of(ENTRY_USD2, ENTRY_EUR));
+      CurveUnitParameterSensitivities.of(ImmutableList.of(ENTRY2, ENTRY3));
 
   private static final double TOLERENCE_CMP = 1.0E-8;
 
@@ -61,9 +61,9 @@ public class CurveUnitParameterSensitivitiesTest {
   }
 
   public void test_of_single() {
-    CurveUnitParameterSensitivities test = CurveUnitParameterSensitivities.of(ENTRY_USD);
+    CurveUnitParameterSensitivities test = CurveUnitParameterSensitivities.of(ENTRY1);
     assertThat(test.size()).isEqualTo(1);
-    assertThat(test.getSensitivities()).containsOnly(ENTRY_USD);
+    assertThat(test.getSensitivities()).containsOnly(ENTRY1);
   }
 
   public void test_of_list_none() {
@@ -73,44 +73,44 @@ public class CurveUnitParameterSensitivitiesTest {
   }
 
   public void test_of_list_notNormalized() {
-    ImmutableList<CurveUnitParameterSensitivity> list = ImmutableList.of(ENTRY_USD, ENTRY_EUR);
+    ImmutableList<CurveUnitParameterSensitivity> list = ImmutableList.of(ENTRY1, ENTRY3);
     CurveUnitParameterSensitivities test = CurveUnitParameterSensitivities.of(list);
     assertThat(test.size()).isEqualTo(2);
-    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD, ENTRY_EUR);
+    assertThat(test.getSensitivities()).containsExactly(ENTRY1, ENTRY3);
   }
 
   public void test_of_list_normalized() {
-    ImmutableList<CurveUnitParameterSensitivity> list = ImmutableList.of(ENTRY_USD, ENTRY_USD2);
+    ImmutableList<CurveUnitParameterSensitivity> list = ImmutableList.of(ENTRY1, ENTRY2);
     CurveUnitParameterSensitivities test = CurveUnitParameterSensitivities.of(list);
     assertThat(test.size()).isEqualTo(1);
-    assertThat(test.getSensitivities()).containsOnly(ENTRY_USD_TOTAL);
+    assertThat(test.getSensitivities()).containsOnly(ENTRY_TOTAL_1_2);
   }
 
   //-------------------------------------------------------------------------
   public void test_getSensitivity() {
-    CurveUnitParameterSensitivities test = CurveUnitParameterSensitivities.of(ENTRY_USD);
-    assertThat(test.getSensitivity(NAME1)).isEqualTo(ENTRY_USD);
+    CurveUnitParameterSensitivities test = CurveUnitParameterSensitivities.of(ENTRY1);
+    assertThat(test.getSensitivity(NAME1)).isEqualTo(ENTRY1);
     assertThrowsIllegalArg(() -> test.getSensitivity(NAME0));
   }
 
   //-------------------------------------------------------------------------
   public void test_combinedWith_one_notNormalized() {
-    CurveUnitParameterSensitivities test = SENSI_1.combinedWith(ENTRY_EUR);
-    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD, ENTRY_EUR);
+    CurveUnitParameterSensitivities test = SENSI_1.combinedWith(ENTRY3);
+    assertThat(test.getSensitivities()).containsExactly(ENTRY1, ENTRY3);
   }
 
   public void test_combinedWith_one_normalized() {
-    CurveUnitParameterSensitivities test = SENSI_1.combinedWith(ENTRY_USD2);
-    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD_TOTAL);
+    CurveUnitParameterSensitivities test = SENSI_1.combinedWith(ENTRY2);
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_TOTAL_1_2);
   }
 
   public void test_combinedWith_one_sizeMismatch() {
-    assertThrowsIllegalArg(() -> SENSI_1.combinedWith(ENTRY_USD_SMALL));
+    assertThrowsIllegalArg(() -> SENSI_1.combinedWith(ENTRY_SMALL));
   }
 
   public void test_combinedWith_other() {
     CurveUnitParameterSensitivities test = SENSI_1.combinedWith(SENSI_2);
-    assertThat(test.getSensitivities()).containsOnly(ENTRY_USD_TOTAL, ENTRY_EUR);
+    assertThat(test.getSensitivities()).containsOnly(ENTRY_TOTAL_1_2, ENTRY3);
   }
 
   public void test_combinedWith_otherEmpty() {
@@ -124,6 +124,19 @@ public class CurveUnitParameterSensitivitiesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_multipliedBy_currency() {
+    CurveCurrencyParameterSensitivities multiplied = SENSI_2.multipliedBy(USD, FACTOR1);
+    assertThat(multiplied.size()).isEqualTo(2);
+    double[] test1 = multiplied.getSensitivity(NAME1, USD).getSensitivity();
+    for (int i = 0; i < VECTOR1.length; i++) {
+      assertThat(test1[i]).isEqualTo(VECTOR2[i] * FACTOR1);
+    }
+    double[] test2 = multiplied.getSensitivity(NAME2, USD).getSensitivity();
+    for (int i = 0; i < VECTOR1.length; i++) {
+      assertThat(test2[i]).isEqualTo(VECTOR3[i] * FACTOR1);
+    }
+  }
+
   public void test_multipliedBy() {
     CurveUnitParameterSensitivities multiplied = SENSI_1.multipliedBy(FACTOR1);
     double[] test = multiplied.getSensitivities().get(0).getSensitivity();
@@ -148,15 +161,15 @@ public class CurveUnitParameterSensitivitiesTest {
 
   //-------------------------------------------------------------------------
   public void test_equalWithTolerance() {
-    CurveUnitParameterSensitivities sensUsdTotal = CurveUnitParameterSensitivities.of(ENTRY_USD_TOTAL);
-    CurveUnitParameterSensitivities sensEur = CurveUnitParameterSensitivities.of(ENTRY_EUR);
-    CurveUnitParameterSensitivities sens1plus2 = SENSI_1.combinedWith(ENTRY_USD2);
+    CurveUnitParameterSensitivities sensUsdTotal = CurveUnitParameterSensitivities.of(ENTRY_TOTAL_1_2);
+    CurveUnitParameterSensitivities sensEur = CurveUnitParameterSensitivities.of(ENTRY3);
+    CurveUnitParameterSensitivities sens1plus2 = SENSI_1.combinedWith(ENTRY2);
     CurveUnitParameterSensitivities sensZeroA = CurveUnitParameterSensitivities.of(ENTRY_ZERO3);
     CurveUnitParameterSensitivities sensZeroB = CurveUnitParameterSensitivities.of(ENTRY_ZERO0);
-    CurveUnitParameterSensitivities sens1plus2plus0a = SENSI_1.combinedWith(ENTRY_USD2).combinedWith(ENTRY_ZERO0);
-    CurveUnitParameterSensitivities sens1plus2plus0b = SENSI_1.combinedWith(ENTRY_USD2).combinedWith(ENTRY_ZERO3);
+    CurveUnitParameterSensitivities sens1plus2plus0a = SENSI_1.combinedWith(ENTRY2).combinedWith(ENTRY_ZERO0);
+    CurveUnitParameterSensitivities sens1plus2plus0b = SENSI_1.combinedWith(ENTRY2).combinedWith(ENTRY_ZERO3);
     CurveUnitParameterSensitivities sens1plus2plus0 = SENSI_1
-        .combinedWith(ENTRY_USD2).combinedWith(ENTRY_ZERO0).combinedWith(ENTRY_ZERO3);
+        .combinedWith(ENTRY2).combinedWith(ENTRY_ZERO0).combinedWith(ENTRY_ZERO3);
     CurveUnitParameterSensitivities sens2plus0 = SENSI_2.combinedWith(sensZeroA);
     assertThat(SENSI_1.equalWithTolerance(sensZeroA, TOLERENCE_CMP)).isFalse();
     assertThat(SENSI_1.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isTrue();

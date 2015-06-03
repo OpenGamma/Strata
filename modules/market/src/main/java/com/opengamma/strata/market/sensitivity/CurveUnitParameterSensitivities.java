@@ -30,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.market.curve.CurveName;
@@ -194,6 +195,25 @@ public final class CurveUnitParameterSensitivities
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns an instance in the specified currency with the sensitivity values multiplied by the specified factor.
+   * <p>
+   * The result will consist of the entries based on the entries of this instance.
+   * Each entry in the result will be in the specified currency and multiplied by the specified amount.
+   * 
+   * @param currency  the currency of the amount
+   * @param amount  the amount to multiply by
+   * @return the resulting sensitivity object
+   */
+  public CurveCurrencyParameterSensitivities multipliedBy(Currency currency, double amount) {
+    return sensitivities.stream()
+        .map(s -> s.multipliedBy(currency, amount))
+        .collect(
+            Collectors.collectingAndThen(
+                Guavate.toImmutableList(),
+                CurveCurrencyParameterSensitivities::of));
+  }
+
   /**
    * Returns an instance with the sensitivity values multiplied by the specified factor.
    * <p>

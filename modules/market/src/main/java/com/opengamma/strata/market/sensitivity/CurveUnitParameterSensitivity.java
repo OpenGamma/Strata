@@ -141,7 +141,7 @@ public final class CurveUnitParameterSensitivity
    * Each value in the sensitivity array will be multiplied by the specified factor.
    * 
    * @param currency  the currency of the amount
-   * @param amount  the amount of the currency to multiply by
+   * @param amount  the amount to multiply by
    * @return the resulting sensitivity object
    */
   public CurveCurrencyParameterSensitivity multipliedBy(Currency currency, double amount) {
