@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.curve;
 
+import com.opengamma.strata.basics.value.ValueAdjustment;
+
 /**
  * Enum representing alternative ways to apply a shift which modifies the value of a piece of market data.
  */
@@ -13,7 +15,7 @@ public enum ShiftType {
   /**
    * A relative shift where the value is scaled by the shift amount.
    * <p>
-   * The shift amount is interpreted as a percentage. For example, a shift amount of 0.1 is a
+   * The shift amount is interpreted as a decimal percentage. For example, a shift amount of 0.1 is a
    * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift of -20%
    * which multiplies the value by 0.8
    * <p>
@@ -23,6 +25,11 @@ public enum ShiftType {
     @Override
     public double applyShift(double value, double shiftAmount) {
       return value * (1 + shiftAmount);
+    }
+
+    @Override
+    public ValueAdjustment toValueAdjustment(double shiftAmount) {
+      return ValueAdjustment.ofDeltaMultiplier(shiftAmount);
     }
   },
 
@@ -36,6 +43,11 @@ public enum ShiftType {
     public double applyShift(double value, double shiftAmount) {
       return value + shiftAmount;
     }
+
+    @Override
+    public ValueAdjustment toValueAdjustment(double shiftAmount) {
+      return ValueAdjustment.ofDeltaAmount(shiftAmount);
+    }
   };
 
   /**
@@ -46,6 +58,14 @@ public enum ShiftType {
    * @return the shifted value
    */
   public abstract double applyShift(double value, double shiftAmount);
+
+  /**
+   * Returns a value adjustment that applies the shift amount using appropriate logic for the shift type.
+   *
+   * @param shiftAmount  the shift to apply
+   * @return a value adjustment that applies the shift amount using appropriate logic for the shift type
+   */
+  public abstract ValueAdjustment toValueAdjustment(double shiftAmount);
 
   /** The name of the shift type. */
   private String name;

@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.examples.regression;
 
-import static org.testng.Assert.assertEquals;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -45,6 +43,9 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.report.ReportCalculationResults;
+import com.opengamma.strata.report.trade.TradeReport;
+import com.opengamma.strata.report.trade.TradeReportTemplate;
 
 /**
  * Regression test for an example swap report.
@@ -64,6 +65,7 @@ public class SwapReportRegressionTest {
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.LEG_PRESENT_VALUE),
+        Column.of(Measure.PV01),
         Column.of(Measure.ACCRUED_INTEREST));
 
     CalculationRules rules = CalculationRules.builder()
@@ -78,8 +80,17 @@ public class SwapReportRegressionTest {
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
     
-    Results expectedResults = ExampleData.loadExpectedResults("swap-report");
-    assertEquals(results, expectedResults);
+    ReportCalculationResults calculationResults = ReportCalculationResults.of(
+        valuationDate,
+        columns,
+        results);
+    
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-regression-test-template");
+    TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
+
+    String expectedResults = ExampleData.loadExpectedResults("swap-report");
+    
+    TradeReportRegressionTestUtils.assertAsciiTableEquals(tradeReport.getAsciiTable(), expectedResults);
   }
 
   private static Trade createTrade1() {

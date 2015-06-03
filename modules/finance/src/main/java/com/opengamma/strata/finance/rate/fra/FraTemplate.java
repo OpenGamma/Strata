@@ -62,7 +62,7 @@ public final class FraTemplate
   @PropertyDefinition(validate = "notNull")
   private final Period periodToStart;
   /**
-   * The period between the spot value date and the start date.
+   * The period between the spot value date and the end date.
    * <p>
    * In a FRA described as '2 x 5', the period to the end date is 5 months.
    * The difference between the start date and the end date typically matches the tenor of the index,
@@ -225,7 +225,7 @@ public final class FraTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the period between the spot value date and the start date.
+   * Gets the period between the spot value date and the end date.
    * <p>
    * In a FRA described as '2 x 5', the period to the end date is 5 months.
    * The difference between the start date and the end date typically matches the tenor of the index,
