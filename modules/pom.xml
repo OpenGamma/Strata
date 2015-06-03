@@ -76,6 +76,7 @@
     <module>market</module>
     <module>pricer</module>
     <module>pricer-beta</module>
+    <module>report-beta</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -248,6 +249,11 @@
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-pricer-beta</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-report-beta</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
