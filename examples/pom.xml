@@ -72,9 +72,9 @@
       <systemPath>${javafx.jar.path}</systemPath>
     </dependency>
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.6.4</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.6.4</version>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
