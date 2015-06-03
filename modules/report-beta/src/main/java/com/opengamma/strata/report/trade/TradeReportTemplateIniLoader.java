@@ -22,7 +22,7 @@ import com.opengamma.strata.report.ReportTemplateIniLoader;
 public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<TradeReportTemplate> {
 
   private static final String VALUE_PROPERTY = "value";
-  private static final String IGNORE_FAILURE_PROPERTY = "ignoreFailure";
+  private static final String IGNORE_FAILURES_PROPERTY = "ignoreFailures";
   private static final String PATH_SEPARATOR = "\\.";
 
   @Override
@@ -64,8 +64,8 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
     if (!measurePath.isEmpty()) {
       columnBuilder.path(measurePath);
     }
-    if (properties.contains(IGNORE_FAILURE_PROPERTY)) {
-      String ignoreFailureValue = properties.getValue(IGNORE_FAILURE_PROPERTY);
+    if (properties.contains(IGNORE_FAILURES_PROPERTY)) {
+      String ignoreFailureValue = properties.getValue(IGNORE_FAILURES_PROPERTY);
       boolean ignoreFailure = Boolean.valueOf(ignoreFailureValue);
       columnBuilder.ignoreFailure(ignoreFailure);
     }

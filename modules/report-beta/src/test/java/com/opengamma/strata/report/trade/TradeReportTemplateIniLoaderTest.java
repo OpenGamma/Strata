@@ -50,8 +50,8 @@ public class TradeReportTemplateIniLoaderTest {
     assertEquals(template.getColumns().get(0), payLegCcyColumn);
   }
   
-  public void test_ignore_failure() {
-    TradeReportTemplate template = parseIni("trade-report-test-ignore-failure.ini");
+  public void test_ignore_failures() {
+    TradeReportTemplate template = parseIni("trade-report-test-ignore-failures.ini");
     
     TradeReportColumn payLegCcyColumn = TradeReportColumn.builder()
         .measure(Measure.LEG_INITIAL_NOTIONAL)
