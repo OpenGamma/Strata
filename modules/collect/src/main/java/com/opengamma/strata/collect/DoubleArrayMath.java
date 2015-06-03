@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect;
 
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import com.google.common.math.DoubleMath;
 
@@ -33,6 +34,66 @@ public final class DoubleArrayMath {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the sum total of all the elements in the array.
+   * <p>
+   * The input array is not mutated.
+   * 
+   * @param array  the array to sum
+   * @return the sum total of all the elements
+   */
+  public static double sum(double[] array) {
+    double total = 0d;
+    for (int i = 0; i < array.length; i++) {
+      total += array[i];
+    }
+    return total;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a constant value to each element in the array.
+   * <p>
+   * The input array is mutated.
+   * 
+   * @param array  the array to mutate
+   * @param valueToAdd  the value to add
+   */
+  public static void mutateByAddition(double[] array, double valueToAdd) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] += valueToAdd;
+    }
+  }
+
+  /**
+   * Multiplies each element in the array by a value.
+   * <p>
+   * The input array is mutated.
+   * 
+   * @param array  the array to mutate
+   * @param valueToMultiplyBy  the value to multiply by
+   */
+  public static void mutateByMultiplication(double[] array, double valueToMultiplyBy) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] *= valueToMultiplyBy;
+    }
+  }
+
+  /**
+   * Mutates each element in the array using an operator.
+   * <p>
+   * The input array is mutated.
+   * 
+   * @param array  the array to mutate
+   * @param operator  the operator to use to perform the mutation
+   */
+  public static void mutate(double[] array, DoubleUnaryOperator operator) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] = operator.applyAsDouble(array[i]);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Combines two arrays, returning an array where each element is the sum of the two matching inputs.
    * <p>
    * Each element in the result will be the sum of the matching index in the two input arrays.
@@ -45,6 +106,8 @@ public final class DoubleArrayMath {
    *  double[] result = DoubleArrayMath.combineByAddition(array1, array2);
    *  // result contains {3, 8, 11}
    * </pre>
+   * <p>
+   * The result is always a new array. The input arrays are not mutated.
    * 
    * @param array1  the first array
    * @param array2  the second array
@@ -67,6 +130,8 @@ public final class DoubleArrayMath {
    *  double[] result = DoubleArrayMath.combineByMultiplication(array1, array2);
    *  // result contains {2, 15, 36}
    * </pre>
+   * <p>
+   * The result is always a new array. The input arrays are not mutated.
    * 
    * @param array1  the first array
    * @param array2  the second array
@@ -81,6 +146,8 @@ public final class DoubleArrayMath {
    * <p>
    * Each element in the result will be the combination of the matching index in the two
    * input arrays using the operator. The two input arrays must have the same length.
+   * <p>
+   * The result is always a new array. The input arrays are not mutated.
    * 
    * @param array1  the first array
    * @param array2  the second array
@@ -107,6 +174,8 @@ public final class DoubleArrayMath {
    * input arrays using the operator.
    * The result will have the length of the longest of the two inputs.
    * Where one array is longer than the other, the values from the longer array will be used.
+   * <p>
+   * The result is always a new array. The input arrays are not mutated.
    * 
    * @param array1  the first array
    * @param array2  the second array
@@ -140,6 +209,8 @@ public final class DoubleArrayMath {
    * Compares each element in the array to zero within a tolerance.
    * <p>
    * An empty array returns true;
+   * <p>
+   * The input array is not mutated.
    * 
    * @param array  the array to check
    * @param tolerance  the tolerance to use
@@ -158,6 +229,8 @@ public final class DoubleArrayMath {
    * Compares each element in the first array to the matching index in the second array within a tolerance.
    * <p>
    * If the arrays differ in length, false is returned.
+   * <p>
+   * The input arrays are not mutated.
    * 
    * @param array1  the first array to check
    * @param array2  the second array to check
