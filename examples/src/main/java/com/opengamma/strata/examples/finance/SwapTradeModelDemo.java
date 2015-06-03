@@ -107,10 +107,10 @@ public class SwapTradeModelDemo {
     ExpandedSwapLeg expandedLeg = swapLeg.expand();
 
     System.out.println("===== Fixed =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(swapLeg));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(swapLeg));
     System.out.println();
     System.out.println("===== Fixed expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(expandedLeg));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(expandedLeg));
     System.out.println();
   }
 
