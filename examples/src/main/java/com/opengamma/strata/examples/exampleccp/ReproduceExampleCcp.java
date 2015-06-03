@@ -6,17 +6,18 @@
 package com.opengamma.strata.examples.exampleccp;
 
 import com.google.common.base.Preconditions;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
-import com.opengamma.strata.examples.engine.ResultsFormatter;
+import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.exampleccp.marketdatarules.MyMarketDataRules;
 import com.opengamma.strata.examples.exampleccp.trades.MyTrades;
 import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessBaseMarketData;
+import com.opengamma.strata.report.ReportCalculationResults;
+import com.opengamma.strata.report.trade.TradeReport;
+import com.opengamma.strata.report.trade.TradeReportTemplate;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,10 +39,20 @@ public class ReproduceExampleCcp {
         MyTrades.create(),
         columns,
         MyCalculationRules.create(MyMarketDataRules.create()),
-        MyUselessBaseMarketData.create(valuationDate));
+        MyUselessBaseMarketData.create(valuationDate)
+    );
 
-    // produce an ASCII table of the results
-    ResultsFormatter.print(results, columns);
+    // use the report runner to transform the engine results into a trade report
+    ReportCalculationResults calculationResults = ReportCalculationResults.of(
+        valuationDate,
+        columns,
+        results
+    );
+
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
+    TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
+    tradeReport.writeAsciiTable(System.out);
+
     Result<CurrencyAmount> npvResult = (Result<CurrencyAmount>) results.get(0, 5);
     double npv = npvResult.getValue().getAmount();
     almostEquals(npv, -513.0392228654528);
