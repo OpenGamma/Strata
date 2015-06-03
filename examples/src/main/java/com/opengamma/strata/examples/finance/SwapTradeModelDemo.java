@@ -163,10 +163,10 @@ public class SwapTradeModelDemo {
     ExpandedSwapLeg expandedLeg = swapLeg.expand();
 
     System.out.println("===== Floating =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(swapLeg));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(swapLeg));
     System.out.println();
     System.out.println("===== Floating expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(expandedLeg));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(expandedLeg));
     System.out.println();
   }
 
@@ -229,13 +229,13 @@ public class SwapTradeModelDemo {
         .build();
 
     System.out.println("===== Vanilla fixed vs Libor3m =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(trade));
     System.out.println();
     System.out.println("===== Vanilla fixed vs Libor3m pay leg =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(payLeg.expand()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(payLeg.expand()));
     System.out.println();
     System.out.println("===== Vanilla fixed vs Libor3m receive leg =====");
-    System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(receiveLeg.expand()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(receiveLeg.expand()));
     System.out.println();
   }
 
