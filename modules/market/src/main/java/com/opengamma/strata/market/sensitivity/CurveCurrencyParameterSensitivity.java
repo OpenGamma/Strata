@@ -173,7 +173,7 @@ public final class CurveCurrencyParameterSensitivity
    * Each value in the sensitivity array will be multiplied by the factor.
    * 
    * @param factor  the multiplicative factor
-   * @return the resulting sensitivity object
+   * @return an instance based on this one, with each sensitivity multiplied by the factor
    */
   public CurveCurrencyParameterSensitivity multipliedBy(double factor) {
     return mapSensitivity(s -> s * factor);
@@ -189,7 +189,7 @@ public final class CurveCurrencyParameterSensitivity
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
-   * @return the resulting sensitivity object
+   * @return an instance based on this one, with the operator applied to the sensitivity values
    */
   public CurveCurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return mapSensitivity(operator, currency);
@@ -197,11 +197,7 @@ public final class CurveCurrencyParameterSensitivity
 
   // maps the sensitivities and potentially changes the currency
   private CurveCurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator, Currency currency) {
-    double[] updated = new double[sensitivity.length];
-    for (int i = 0; i < sensitivity.length; i++) {
-      updated[i] = operator.applyAsDouble(sensitivity[i]);
-    }
-    return new CurveCurrencyParameterSensitivity(metadata, currency, updated);
+    return new CurveCurrencyParameterSensitivity(metadata, currency, DoubleArrayMath.apply(sensitivity, operator));
   }
 
   /**
@@ -210,7 +206,7 @@ public final class CurveCurrencyParameterSensitivity
    * The implementation will clone the input array.
    * 
    * @param sensitivity  the new sensitivity values
-   * @return an instance based on this sensitivity with the specified sensitivity values
+   * @return an instance based on this one, with the specified sensitivity values
    */
   public CurveCurrencyParameterSensitivity withSensitivity(double[] sensitivity) {
     if (sensitivity.length != this.sensitivity.length) {

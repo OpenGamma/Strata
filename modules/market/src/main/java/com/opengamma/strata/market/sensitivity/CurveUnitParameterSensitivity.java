@@ -145,11 +145,7 @@ public final class CurveUnitParameterSensitivity
    * @return the resulting sensitivity object
    */
   public CurveCurrencyParameterSensitivity multipliedBy(Currency currency, double amount) {
-    double[] updated = new double[sensitivity.length];
-    for (int i = 0; i < sensitivity.length; i++) {
-      updated[i] = sensitivity[i] * amount;
-    }
-    return CurveCurrencyParameterSensitivity.of(metadata, currency, updated);
+    return CurveCurrencyParameterSensitivity.of(metadata, currency, DoubleArrayMath.applyMultiplication(sensitivity, amount));
   }
 
   /**
@@ -158,7 +154,7 @@ public final class CurveUnitParameterSensitivity
    * Each value in the sensitivity array will be multiplied by the factor.
    * 
    * @param factor  the multiplicative factor
-   * @return the resulting sensitivity object
+   * @return an instance based on this one, with each sensitivity multiplied by the factor
    */
   public CurveUnitParameterSensitivity multipliedBy(double factor) {
     return mapSensitivity(s -> s * factor);
@@ -174,14 +170,10 @@ public final class CurveUnitParameterSensitivity
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
-   * @return the resulting sensitivity object
+   * @return an instance based on this one, with the operator applied to the sensitivity values
    */
   public CurveUnitParameterSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    double[] updated = new double[sensitivity.length];
-    for (int i = 0; i < sensitivity.length; i++) {
-      updated[i] = operator.applyAsDouble(sensitivity[i]);
-    }
-    return new CurveUnitParameterSensitivity(metadata, updated);
+    return new CurveUnitParameterSensitivity(metadata, DoubleArrayMath.apply(sensitivity, operator));
   }
 
   /**
@@ -190,7 +182,7 @@ public final class CurveUnitParameterSensitivity
    * The implementation will clone the input array.
    * 
    * @param sensitivity  the new sensitivity values
-   * @return an instance based on this sensitivity with the specified sensitivity values
+   * @return an instance based on this one, with the specified sensitivity values
    */
   public CurveUnitParameterSensitivity withSensitivity(double[] sensitivity) {
     if (sensitivity.length != this.sensitivity.length) {

@@ -51,7 +51,59 @@ public final class DoubleArrayMath {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a constant value to each element in the array.
+   * Applies an addition to each element in the array, returning a new array.
+   * <p>
+   * The result is always a new array. The input array is not mutated.
+   * 
+   * @param array  the input array, not mutated
+   * @param valueToAdd  the value to add
+   * @return the resulting array
+   */
+  public static double[] applyAddition(double[] array, double valueToAdd) {
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] + valueToAdd;
+    }
+    return result;
+  }
+
+  /**
+   * Applies a multiplication to each element in the array, returning a new array.
+   * <p>
+   * The result is always a new array. The input array is not mutated.
+   * 
+   * @param array  the input array, not mutated
+   * @param valueToMultiplyBy  the value to multiply by
+   * @return the resulting array
+   */
+  public static double[] applyMultiplication(double[] array, double valueToMultiplyBy) {
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i] * valueToMultiplyBy;
+    }
+    return result;
+  }
+
+  /**
+   * Applies an operator to each element in the array, returning a new array.
+   * <p>
+   * The result is always a new array. The input array is not mutated.
+   * 
+   * @param array  the input array, not mutated
+   * @param operator  the operator to use
+   * @return the resulting array
+   */
+  public static double[] apply(double[] array, DoubleUnaryOperator operator) {
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = operator.applyAsDouble(array[i]);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a constant value to each element in the array by mutation.
    * <p>
    * The input array is mutated.
    * 
@@ -65,7 +117,7 @@ public final class DoubleArrayMath {
   }
 
   /**
-   * Multiplies each element in the array by a value.
+   * Multiplies each element in the array by a value by mutation.
    * <p>
    * The input array is mutated.
    * 
@@ -79,7 +131,7 @@ public final class DoubleArrayMath {
   }
 
   /**
-   * Mutates each element in the array using an operator.
+   * Mutates each element in the array using an operator by mutation.
    * <p>
    * The input array is mutated.
    * 

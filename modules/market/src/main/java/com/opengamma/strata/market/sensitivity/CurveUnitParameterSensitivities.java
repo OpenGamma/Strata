@@ -153,7 +153,7 @@ public final class CurveUnitParameterSensitivities
    * The result may contain duplicate parameter sensitivities.
    * 
    * @param other  the other parameter sensitivity
-   * @return a {@code CurveParameterSensitivities} based on this one, with the other instance added
+   * @return an instance based on this one, with the other instance added
    */
   public CurveUnitParameterSensitivities combinedWith(CurveUnitParameterSensitivity other) {
     List<CurveUnitParameterSensitivity> mutable = new ArrayList<>(sensitivities);
@@ -169,7 +169,7 @@ public final class CurveUnitParameterSensitivities
    * The result may contain duplicate parameter sensitivities.
    * 
    * @param other  the other parameter sensitivities
-   * @return a {@code CurveParameterSensitivities} based on this one, with the other instance added
+   * @return an instance based on this one, with the other instance added
    */
   public CurveUnitParameterSensitivities combinedWith(CurveUnitParameterSensitivities other) {
     List<CurveUnitParameterSensitivity> mutable = new ArrayList<>(sensitivities);
@@ -221,7 +221,7 @@ public final class CurveUnitParameterSensitivities
    * This instance is immutable and unaffected by this method. 
    * 
    * @param factor  the multiplicative factor
-   * @return a {@code CurveParameterSensitivities} based on this one, with each sensitivity multiplied by the factor
+   * @return an instance based on this one, with each sensitivity multiplied by the factor
    */
   public CurveUnitParameterSensitivities multipliedBy(double factor) {
     return mapSensitivities(s -> s * factor);
@@ -240,7 +240,7 @@ public final class CurveUnitParameterSensitivities
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
-   * @return a {@code CurveParameterSensitivities} based on this one, with the operator applied to the sensitivity values
+   * @return an instance based on this one, with the operator applied to the sensitivity values
    */
   public CurveUnitParameterSensitivities mapSensitivities(DoubleUnaryOperator operator) {
     return sensitivities.stream()
