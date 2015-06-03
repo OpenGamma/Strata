@@ -36,7 +36,7 @@ public class CdsAnalyticsWrapper {
         yieldCurveAnalytics,
         creditCurveAnalytics,
         coupon,
-        PriceType.CLEAN
+        PriceType.DIRTY
     );
 
     int sign = trade.getProduct().getGeneralTerms().getBuySellProtection().isBuy() ? 1 : -1;
@@ -69,7 +69,7 @@ public class CdsAnalyticsWrapper {
       return new CDSAnalytic(
           trade.modelTradeDate(),
           trade.modelStepInDate(),
-          trade.modelValueDate(),
+          trade.modelTradeDate(),
           trade.modelAccStartDate(),
           trade.modelEndDate(),
           trade.modelPayAccOnDefault(),

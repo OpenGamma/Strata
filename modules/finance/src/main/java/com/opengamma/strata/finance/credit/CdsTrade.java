@@ -125,7 +125,7 @@ public final class CdsTrade
    * payAccOnDefault Is the accrued premium paid in the event of a default
    */
   public boolean modelPayAccOnDefault() {
-    return false;
+    return true;
   }
 
   /**

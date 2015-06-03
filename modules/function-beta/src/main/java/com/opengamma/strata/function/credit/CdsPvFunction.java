@@ -43,13 +43,14 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
 
     // Credit Curve
 
+    // Recovery Rate
+
     ReferenceInformationType cdsType = cds.getGeneralTerms().getReferenceInformation().getType();
     switch (cdsType) {
       case SINGLE_NAME:
-        // Recovery Rate
         break;
       case INDEX:
-        // Other Thingy
+        // Index Factor?
         break;
       default:
         throw new IllegalStateException("unknown reference information type: " + cdsType);

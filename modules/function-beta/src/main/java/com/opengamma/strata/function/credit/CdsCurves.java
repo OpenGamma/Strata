@@ -17,6 +17,8 @@ import com.opengamma.strata.finance.credit.CdsTrade;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.function.credit.Converters.translateDayCount;
@@ -89,10 +91,11 @@ public class CdsCurves {
 
   public static ISDACompliantCreditCurve creditCurve(CdsTrade trade, ISDACompliantYieldCurve yieldCurve, double recoveryRate) {
 
-    LocalDate[] endDates = trade.getProduct().getFeeLeg().getPeriodicPayments().getPeriodicSchedule().createAdjustedDates().stream().toArray(LocalDate[]::new);
+    List<LocalDate> curvepoints = ImmutableList.of(trade.modelEndDate());
+    LocalDate[] endDates = curvepoints.stream().toArray(LocalDate[]::new);
 
     double[] fractionalParSpreads =
-        trade.getProduct().getFeeLeg().getPeriodicPayments().getPeriodicSchedule().createAdjustedDates().stream().mapToDouble(x->23D).toArray();
+        curvepoints.stream().mapToDouble(x -> 0.0110).toArray();
 
     return new FastCreditCurveBuilder(AccrualOnDefaultFormulae.OrignalISDA, ISDACompliantCreditCurveBuilder.ArbitrageHandling.Fail)
         .calibrateCreditCurve(

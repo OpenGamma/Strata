@@ -37,7 +37,8 @@ public class CdsPricingExample {
   public static void main(String[] args) {
     // the trades that will have measures calculated
     List<Trade> trades = ImmutableList.of(
-        singleName());
+        singleName()
+    );
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
