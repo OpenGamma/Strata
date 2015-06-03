@@ -5,17 +5,19 @@
  */
 package com.opengamma.strata.function;
 
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.finance.Product;
+import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.Trade;
 
 /**
- * Returns the counterparty of a trade.
+ * Returns the product from a trade.
  */
-public class TradeCounterpartyFunction
-    implements CalculationSingleFunction<Trade, StandardId> {
+public class TradeProductFunction
+    implements CalculationSingleFunction<Trade, Product> {
 
   @Override
   public CalculationRequirements requirements(Trade target) {
@@ -23,8 +25,12 @@ public class TradeCounterpartyFunction
   }
 
   @Override
-  public StandardId execute(Trade input, CalculationMarketData marketData) {
-    return input.getTradeInfo().getCounterparty().orElse(null);
+  public Product execute(Trade target, CalculationMarketData marketData) {
+    if (target instanceof ProductTrade) {
+      return ((ProductTrade<?>) target).getProduct();
+    }
+    throw new UnsupportedOperationException(
+        Messages.format("Unable to retrieve product from trade of type {}", target.getClass()));
   }
 
 }

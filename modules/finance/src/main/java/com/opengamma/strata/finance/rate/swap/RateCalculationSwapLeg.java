@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -99,6 +100,7 @@ public final class RateCalculationSwapLeg
 
   //-------------------------------------------------------------------------
   @Override
+  @DerivedProperty
   public SwapLegType getType() {
     return calculation.getType();
   }
@@ -331,13 +333,14 @@ public final class RateCalculationSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("RateCalculationSwapLeg{");
     buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(getAccrualSchedule()).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(getPaymentSchedule()).append(',').append(' ');
     buf.append("notionalSchedule").append('=').append(getNotionalSchedule()).append(',').append(' ');
-    buf.append("calculation").append('=').append(JodaBeanUtils.toString(getCalculation()));
+    buf.append("calculation").append('=').append(getCalculation()).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType()));
     buf.append('}');
     return buf.toString();
   }
@@ -378,6 +381,11 @@ public final class RateCalculationSwapLeg
     private final MetaProperty<RateCalculation> calculation = DirectMetaProperty.ofImmutable(
         this, "calculation", RateCalculationSwapLeg.class, RateCalculation.class);
     /**
+     * The meta-property for the {@code type} property.
+     */
+    private final MetaProperty<SwapLegType> type = DirectMetaProperty.ofDerived(
+        this, "type", RateCalculationSwapLeg.class, SwapLegType.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -386,7 +394,8 @@ public final class RateCalculationSwapLeg
         "accrualSchedule",
         "paymentSchedule",
         "notionalSchedule",
-        "calculation");
+        "calculation",
+        "type");
 
     /**
      * Restricted constructor.
@@ -407,6 +416,8 @@ public final class RateCalculationSwapLeg
           return notionalSchedule;
         case -934682935:  // calculation
           return calculation;
+        case 3575610:  // type
+          return type;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -467,6 +478,14 @@ public final class RateCalculationSwapLeg
       return calculation;
     }
 
+    /**
+     * The meta-property for the {@code type} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SwapLegType> type() {
+      return type;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -481,6 +500,8 @@ public final class RateCalculationSwapLeg
           return ((RateCalculationSwapLeg) bean).getNotionalSchedule();
         case -934682935:  // calculation
           return ((RateCalculationSwapLeg) bean).getCalculation();
+        case 3575610:  // type
+          return ((RateCalculationSwapLeg) bean).getType();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

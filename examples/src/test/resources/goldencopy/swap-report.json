@@ -1,25 +1,18 @@
 {
  "@bean": "com.opengamma.strata.engine.calculations.Results",
  "rowCount": 1,
- "columnCount": 8,
+ "columnCount": 6,
  "items": [{
   "value": {
-   "@type": "com.opengamma.strata.collect.id.StandardId",
-   "value": "mn~14248"
-  }
- }, {
-  "value": {
-   "@type": "StandardId",
-   "value": "mn~Dealer A"
+   "@bean": "com.opengamma.strata.finance.TradeInfo",
+   "id": "mn~14248",
+   "counterparty": "mn~Dealer A",
+   "settlementDate": "2006-02-24",
+   "attributes": {}
   }
  }, {
   "value": {
    "@type": "java.time.LocalDate",
-   "value": "2006-02-24"
-  }
- }, {
-  "value": {
-   "@type": "LocalDate",
    "value": "2011-02-24"
   }
  }, {
