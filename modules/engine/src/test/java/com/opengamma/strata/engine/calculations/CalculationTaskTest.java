@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.CurrencyValuesArray;
@@ -151,10 +152,65 @@ public class CalculationTaskTest {
     assertThat(result).hasFailureMessageMatching("Failed to convert value .* to currency USD");
   }
 
+  /**
+   * Tests that executing a function wraps its return value in a success result.
+   */
+  public void execute() {
+    SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).hasValue("foo");
+  }
+
+  /**
+   * Tests that executing a function that throws an exception wraps the exception in a failure result.
+   */
+  public void executeException() {
+    SupplierFunction<String> fn = SupplierFunction.of(() -> { throw new IllegalArgumentException("foo"); });
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).isFailure(FailureReason.ERROR).hasFailureMessageMatching("foo");
+  }
+
+  /**
+   * Tests that executing a function that returns a success result returns the underlying result without wrapping it.
+   */
+  public void executeSuccessResultValue() {
+    SupplierFunction<Result<String>> fn = SupplierFunction.of(() -> Result.success("foo"));
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).hasValue("foo");
+  }
+
+  /**
+   * Tests that executing a function that returns a failure result returns the underlying result without wrapping it.
+   */
+  public void executeFailureResultValue() {
+    SupplierFunction<Result<String>> fn = SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
+
+    CalculationResult calculationResult = task.execute(marketData);
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).isFailure(FailureReason.NOT_APPLICABLE).hasFailureMessageMatching("bar");
+  }
+
   //--------------------------------------------------------------------------------------------------------------------
 
   private static class TestTarget implements CalculationTarget { }
 
+  /**
+   * Function that returns a value that is not currency convertible.
+   */
   public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
 
     @Override
@@ -174,6 +230,9 @@ public class CalculationTaskTest {
     }
   }
 
+  /**
+   * Function that returns a value that is currency convertible.
+   */
   private static final class ConvertibleFunction
       implements CalculationSingleFunction<TestTarget, CurrencyValuesArray> {
 
@@ -189,6 +248,32 @@ public class CalculationTaskTest {
 
     @Override
     public CurrencyValuesArray execute(TestTarget target, CalculationMarketData marketData) {
+      return supplier.get();
+    }
+
+    @Override
+    public CalculationRequirements requirements(TestTarget target) {
+      return CalculationRequirements.empty();
+    }
+  }
+
+  /**
+   * Function that returns a value from a Supplier.
+   */
+  private static final class SupplierFunction<T> implements CalculationSingleFunction<TestTarget, T> {
+
+    private final Supplier<T> supplier;
+
+    public static <T> SupplierFunction<T> of(Supplier<T> supplier) {
+      return new SupplierFunction<>(supplier);
+    }
+
+    private SupplierFunction(Supplier<T> supplier) {
+      this.supplier = supplier;
+    }
+
+    @Override
+    public T execute(TestTarget target, CalculationMarketData marketData) {
       return supplier.get();
     }
 
