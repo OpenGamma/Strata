@@ -52,7 +52,7 @@ import com.opengamma.strata.market.curve.CurveName;
  * <p>
  * For example, the parameter sensitivity for present value on a FRA might contain
  * two entries, one for the Ibor forward curve and one for the discount curve.
- * Each entry identifies the curve was queried and the resulting sensitivity values,
+ * Each entry identifies the curve that was queried and the resulting sensitivity values,
  * one for each node on the curve.
  * 
  * @implNote
@@ -144,6 +144,7 @@ public final class CurveCurrencyParameterSensitivities
    * @param name  the curve name to find
    * @param currency  the currency to find
    * @return the matching sensitivity
+   * @throws IllegalArgumentException if the name and currency do not match an entry
    */
   public CurveCurrencyParameterSensitivity getSensitivity(CurveName name, Currency currency) {
     return sensitivities.stream()

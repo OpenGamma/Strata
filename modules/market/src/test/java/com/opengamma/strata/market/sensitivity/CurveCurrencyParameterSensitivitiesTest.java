@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.sensitivity;
 
 import static com.opengamma.strata.basics.BasicProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.DoubleArrayMath.sum;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -166,14 +167,6 @@ public class CurveCurrencyParameterSensitivitiesTest {
     assertThat(SENSI_2.total().size()).isEqualTo(2);
     assertThat(SENSI_2.total().getAmount(USD).getAmount()).isCloseTo(sum(VECTOR_USD2), within(1E-8));
     assertThat(SENSI_2.total().getAmount(EUR).getAmount()).isCloseTo(sum(VECTOR_EUR1), within(1E-8));
-  }
-
-  private static double sum(double[] array) {
-    double total = 0d;
-    for (int i = 0; i < array.length; i++) {
-      total += array[i];
-    }
-    return total;
   }
 
   //-------------------------------------------------------------------------

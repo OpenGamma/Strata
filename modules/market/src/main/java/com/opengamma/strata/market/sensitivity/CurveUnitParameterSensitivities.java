@@ -134,6 +134,7 @@ public final class CurveUnitParameterSensitivities
    * 
    * @param name  the curve name to find
    * @return the matching sensitivity
+   * @throws IllegalArgumentException if the name and currency do not match an entry
    */
   public CurveUnitParameterSensitivity getSensitivity(CurveName name) {
     return sensitivities.stream()
