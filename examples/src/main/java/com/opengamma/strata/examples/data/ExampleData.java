@@ -28,7 +28,7 @@ public final class ExampleData {
 
   //-------------------------------------------------------------------------
   /**
-   * Loads a golden copy of expected results from a JSON resource.
+   * Loads a golden copy of expected results from a text file.
    * 
    * @param name  the name of the results
    * @return the loaded results
@@ -43,7 +43,13 @@ public final class ExampleData {
     }
   }
 
-  // loads a resource from JSON
+  /**
+   * Loads an bean from a JSON representation.
+   * 
+   * @param resourceName  the name of the JSON resource
+   * @param clazz  the expected type
+   * @return the loaded bean
+   */
   public static <T> T loadFromJson(String resourceName, Class<T> clazz) {
     String classpathResourceName = String.format("classpath:%s", resourceName);
     ResourceLocator resourceLocator = ResourceLocator.of(classpathResourceName);
@@ -55,6 +61,12 @@ public final class ExampleData {
     }
   }
   
+  /**
+   * Loads a trade report template from the standard INI format.
+   * 
+   * @param templateName  the name of the template
+   * @return the loaded report template
+   */
   public static TradeReportTemplate loadTradeReportTemplate(String templateName) {
     String resourceName = String.format("classpath:reports/%s.ini", templateName);
     ResourceLocator resourceLocator = ResourceLocator.of(resourceName);
