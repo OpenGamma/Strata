@@ -60,11 +60,9 @@ public final class TermDepositConvention
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-   * The business day adjustment to apply to the start and end date, optional with defaulting getter.
+   * The business day adjustment to apply to the start and end date.
    * <p>
-   * The start and end date are typically defined as valid business days and thus
-   * do not need to be adjusted. If this optional property is present, then the
-   * start and end date will be adjusted as defined here.
+   * The start and end date are will be adjusted as defined here.
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
@@ -87,11 +85,8 @@ public final class TermDepositConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Creates a convention based on the specified currency, day count convention and spot date offset.
-   * <p>
-   * The business day adjustment is not set and the {@linkplain #getBusinessDayAdjustment() getter} will return 
-   * the default.
-   * Use the {@linkplain #builder() builder} for specifying the business day convention.
+   * Creates a convention based on the specified currency, business day adjustment, day count convention 
+   * and spot date offset.
    * 
    * @param currency  the currency, in which the payments are made
    * @param businessDayAdjustment the business day adjustment to apply to the start and end date
@@ -273,11 +268,9 @@ public final class TermDepositConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjustment to apply to the start and end date, optional with defaulting getter.
+   * Gets the business day adjustment to apply to the start and end date.
    * <p>
-   * The start and end date are typically defined as valid business days and thus
-   * do not need to be adjusted. If this optional property is present, then the
-   * start and end date will be adjusted as defined here.
+   * The start and end date are will be adjusted as defined here.
    * @return the value of the property, not null
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
