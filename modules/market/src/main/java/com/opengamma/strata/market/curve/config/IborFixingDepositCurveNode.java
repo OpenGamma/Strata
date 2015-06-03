@@ -38,23 +38,28 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 @BeanDefinition
 public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBean {
 
-  /** The template for the Ibor fixing deposit associated with this node. */
+  /**
+   * The template for the Ibor fixing deposit associated with this node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final IborFixingDepositTemplate template;
-
-  /** The key identifying the market data value which provides the rate. */
+  /**
+   * The key identifying the market data value which provides the rate.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
-
-  /** The spread added to the rate. */
+  /**
+   * The spread added to the rate.
+   */
   @PropertyDefinition
   private final double spread;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a node whose instrument is built from the template using a market rate.
+   * Returns a curve node for an Ibor deposit using the specified template and rate key.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node.
+   * @param rateKey  the key identifying the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborFixingDepositCurveNode of(IborFixingDepositTemplate template, ObservableKey rateKey) {
@@ -62,10 +67,10 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
   }
 
   /**
-   * Returns a node whose instrument is built from the template using a market rate.
+   * Returns a curve node for an Ibor deposit using the specified template, rate key and spread.
    *
-   * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node.
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
    * @param spread  the spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
@@ -73,6 +78,7 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
     return new IborFixingDepositCurveNode(template, rateKey, spread);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
     return ImmutableSet.of(rateKey);
@@ -98,7 +104,6 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
    */
   private double rate(Map<ObservableKey, Double> marketData) {
     Double rate = marketData.get(rateKey);
-
     if (rate == null) {
       throw new IllegalArgumentException("No market data available for " + rateKey);
     }

@@ -41,8 +41,7 @@ import com.opengamma.strata.finance.Template;
  * The convention is defined by four dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
- * <li>Start date, the date on which the deposit starts, same as the spot date for the trade date,
- * typically 2 business days after the trade date
+ * <li>Start date or spot date, the date on which the deposit starts, typically 2 business days after the trade date
  * <li>End date, the date on which deposit ends, typically a number of months after the start date
  * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * </ul>
@@ -57,8 +56,6 @@ public final class IborFixingDepositTemplate
    * <p>
    * The difference between the start date and the end date typically matches the tenor of the index,
    * however this is not validated.
-   * <p>
-   * When building, this will default to the period to start plus the tenor of the index if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final Period depositPeriod;
@@ -204,8 +201,6 @@ public final class IborFixingDepositTemplate
    * <p>
    * The difference between the start date and the end date typically matches the tenor of the index,
    * however this is not validated.
-   * <p>
-   * When building, this will default to the period to start plus the tenor of the index if not specified.
    * @return the value of the property, not null
    */
   public Period getDepositPeriod() {

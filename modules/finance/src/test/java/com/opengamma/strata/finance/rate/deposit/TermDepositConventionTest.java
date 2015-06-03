@@ -99,6 +99,7 @@ public class TermDepositConventionTest {
     assertEquals(trade.getTradeInfo(), tradeInfoExpected);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     TermDepositConvention test1 = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     coverImmutableBean(test1);
@@ -111,4 +112,5 @@ public class TermDepositConventionTest {
     TermDepositConvention test = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     assertSerialization(test);
   }
+
 }

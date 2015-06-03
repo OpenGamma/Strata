@@ -38,24 +38,29 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 @BeanDefinition
 public final class TermDepositCurveNode implements CurveNode, ImmutableBean {
 
-  /** The template for the term deposit associated with this node. */
+  /**
+   * The template for the term deposit associated with this node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final TermDepositTemplate template;
-
-  /** The key identifying the market data value which provides the rate. */
+  /**
+   * The key identifying the market data value which provides the rate.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
-
-  /** The spread added to the rate. */
+  /**
+   * The spread added to the rate.
+   */
   @PropertyDefinition
   private final double spread;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a curve node for a term deposit using the specified instrument template and rate key.
    *
-   * @param template  template defining the node instrument
-   * @param rateKey  key identifying the market data providing the rate for the node instrument
-   * @return the curve node
+   * @param template  the template used for building the instrument for the node
+   * @param rateKey  the key identifying the market rate used when building the instrument for the node
+   * @return a node whose instrument is built from the template using a market rate
    */
   public static TermDepositCurveNode of(TermDepositTemplate template, ObservableKey rateKey) {
     return new TermDepositCurveNode(template, rateKey, 0d);
@@ -64,15 +69,16 @@ public final class TermDepositCurveNode implements CurveNode, ImmutableBean {
   /**
    * Returns a curve node for a term deposit using the specified instrument template, rate key and spread.
    *
-   * @param template  template defining the node instrument
-   * @param rateKey  key identifying the market data providing the rate for the node instrument
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
    * @param spread  the spread amount added to the rate
-   * @return the curve node
+   * @return a node whose instrument is built from the template using a market rate
    */
   public static TermDepositCurveNode of(TermDepositTemplate template, ObservableKey rateKey, double spread) {
     return new TermDepositCurveNode(template, rateKey, spread);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
     return ImmutableSet.of(rateKey);
@@ -81,7 +87,7 @@ public final class TermDepositCurveNode implements CurveNode, ImmutableBean {
   @Override
   public TermDepositTrade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
     BuySell buySell = BuySell.BUY;
-    double notional = 1.0d;
+    double notional = 1d;
     double fixedRate = rate(marketData);
     return template.toTrade(valuationDate, buySell, notional, fixedRate);
   }
@@ -98,7 +104,6 @@ public final class TermDepositCurveNode implements CurveNode, ImmutableBean {
    */
   private double rate(Map<ObservableKey, Double> marketData) {
     Double rate = marketData.get(rateKey);
-
     if (rate == null) {
       throw new IllegalArgumentException("No market data available for " + rateKey);
     }

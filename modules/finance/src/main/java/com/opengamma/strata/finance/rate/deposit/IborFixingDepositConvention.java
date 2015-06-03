@@ -48,12 +48,11 @@ import com.opengamma.strata.finance.TradeInfo;
  * The convention is defined by four dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
- * <li>Start date, the date on which the deposit starts, same as the spot date for the trade date,
- * typically 2 business days after the trade date
+ * <li>Start date or spot date, the date on which the deposit starts, typically 2 business days after the trade date
  * <li>End date, the date on which deposit ends, typically a number of months after the start date
  * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * </ul>
- * The period between the start date and end date is specified by {@link IborFixingDepositTemplate}, 
+ * The period between the start date and end date is specified by {@link IborFixingDepositTemplate},
  * not by this convention. However, the period is typically equal to the tenor of the index. 
  */
 @BeanDefinition
@@ -140,7 +139,7 @@ public final class IborFixingDepositConvention
         .build();
   }
 
-  //-------------------------------------------------------------------------
+  //-----------------------------------------------------------------------
   /**
    * Gets the primary currency,
    * providing a default result if no override specified.
@@ -270,7 +269,7 @@ public final class IborFixingDepositConvention
   /**
    * Creates a trade based on this convention.
    * <p>
-   * This returns a trade based on the specified periods.
+   * This returns a trade based on the specified deposit period.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the Ibor fixing deposit, the floating rate is paid from the counterparty, with the fixed rate being received.

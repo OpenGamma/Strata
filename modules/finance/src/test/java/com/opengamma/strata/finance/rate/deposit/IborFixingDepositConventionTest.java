@@ -136,6 +136,7 @@ public class IborFixingDepositConventionTest {
     assertEquals(trade.getTradeInfo(), tradeInfoExpected);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     IborFixingDepositConvention test1 = IborFixingDepositConvention.of(GBP_LIBOR_6M);
     coverImmutableBean(test1);
@@ -147,4 +148,5 @@ public class IborFixingDepositConventionTest {
     IborFixingDepositConvention test = IborFixingDepositConvention.of(GBP_LIBOR_6M);
     assertSerialization(test);
   }
+
 }

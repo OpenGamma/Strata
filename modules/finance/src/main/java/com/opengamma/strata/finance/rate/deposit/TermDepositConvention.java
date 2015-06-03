@@ -41,11 +41,10 @@ import com.opengamma.strata.finance.TradeInfo;
  * The convention is defined by three dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
- * <li>Start date, the date on which the implied deposit starts, same as the spot date for the trade date,
- * typically 2 business days after the trade date
- * <li>End date, the date on which the implied deposit ends, typically a number of months after the start date
+ * <li>Start date or spot date, the date on which the deposit starts, typically 2 business days after the trade date
+ * <li>End date, the date on which the deposit ends, typically a number of months after the start date
  * </ul>
- * The period between the start date and the end date is specified by {@link TermDepositTemplate}, 
+ * The period between the start date and the end date is specified by {@link TermDepositTemplate},
  * not by this convention.
  */
 @BeanDefinition
@@ -62,7 +61,7 @@ public final class TermDepositConvention
   /**
    * The business day adjustment to apply to the start and end date.
    * <p>
-   * The start and end date are will be adjusted as defined here.
+   * The start and end date will be adjusted as defined here.
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
@@ -99,6 +98,7 @@ public final class TermDepositConvention
       BusinessDayAdjustment businessDayAdjustment,
       DayCount dayCount,
       DaysAdjustment spotDateOffset) {
+    
     return TermDepositConvention.builder()
         .currency(currency)
         .businessDayAdjustment(businessDayAdjustment)
@@ -112,11 +112,9 @@ public final class TermDepositConvention
    * Creates a template based on this convention, specifying the period from start to end.
    * <p>
    * This returns a template based on this convention.
-   * The period from the spot date to the start date is specified.
-   * The period from the spot date to the end date will be the period to start
-   * plus the tenor of the index.
+   * The period from the start date to the end date is specified.
    * 
-   * @param depositPeriod  the period from the spot date to the start date
+   * @param depositPeriod  the period from the start date to the end date
    * @return the template
    */
   public TermDepositTemplate toTemplate(Period depositPeriod) {
@@ -130,10 +128,10 @@ public final class TermDepositConvention
    * This returns a trade based on the specified deposit period.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the term deposit, the principal is paid at the start date and the principal plus interest is received 
-   * at the end date.
-   * If selling the term deposit, the principal is received at the start date and the principal plus interest is paid 
-   * at the end date.
+   * If buying the term deposit, the principal is paid at the start date and the
+   * principal plus interest is received at the end date.
+   * If selling the term deposit, the principal is received at the start date and the
+   * principal plus interest is paid at the end date.
    * 
    * @param tradeDate  the date of the trade
    * @param depositPeriod  the period between the start date and the end date
@@ -159,10 +157,10 @@ public final class TermDepositConvention
    * <p>
    * This returns a trade based on the specified dates.
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the term deposit, the principal is paid at the start date and the principal plus interest is received 
-   * at the end date.
-   * If selling the term deposit, the principal is received at the start date and the principal plus interest is paid 
-   * at the end date.
+   * If buying the term deposit, the principal is paid at the start date and the
+   * principal plus interest is received at the end date.
+   * If selling the term deposit, the principal is received at the start date and the
+   * principal plus interest is paid at the end date.
    * 
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
@@ -270,7 +268,7 @@ public final class TermDepositConvention
   /**
    * Gets the business day adjustment to apply to the start and end date.
    * <p>
-   * The start and end date are will be adjusted as defined here.
+   * The start and end date will be adjusted as defined here.
    * @return the value of the property, not null
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {

@@ -40,9 +40,8 @@ import com.opengamma.strata.finance.Template;
  * The template is defined by three dates.
  * <ul>
  * <li>Trade date, the date that the trade is agreed
- * <li>Start date, the date on which the implied deposit starts, same as the spot date for the trade date, 
- * typically 2 business days after the trade date
- * <li>End date, the date on which the implied deposit ends, typically a number of months after the spot value date
+ * <li>Start date or spot date, the date on which the deposit starts, typically 2 business days after the trade date
+ * <li>End date, the date on which the implied deposit ends, typically a number of months after the start date
  * </ul>
  */
 @BeanDefinition
@@ -70,7 +69,7 @@ public final class TermDepositTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified end period and convention.
+   * Creates a template based on the specified period and convention.
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param convention  the market convention
@@ -91,10 +90,10 @@ public final class TermDepositTemplate
    * <p>
    * This returns a trade based on the specified date.
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the term deposit, the principal is paid at the start date and the principal plus interest is received 
-   * at the end date.
-   * If selling the term deposit, the principal is received at the start date and the principal plus interest is paid 
-   * at the end date.
+   * If buying the term deposit, the principal is paid at the start date and the
+   * principal plus interest is received at the end date.
+   * If selling the term deposit, the principal is received at the start date and the
+   * principal plus interest is paid at the end date.
    * 
    * @param tradeDate  the date of the trade
    * @param buySell  the buy/sell flag, see {@link TermDeposit#getBuySell()}

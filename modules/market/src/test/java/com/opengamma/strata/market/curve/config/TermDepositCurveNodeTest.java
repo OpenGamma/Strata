@@ -43,6 +43,7 @@ import com.opengamma.strata.market.key.QuoteKey;
  */
 @Test
 public class TermDepositCurveNodeTest {
+
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
   private static final TermDepositConvention CONVENTION =
@@ -126,6 +127,7 @@ public class TermDepositCurveNodeTest {
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     TermDepositCurveNode test1 = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     coverImmutableBean(test1);
@@ -133,4 +135,5 @@ public class TermDepositCurveNodeTest {
         TermDepositTemplate.of(Period.ofMonths(1), CONVENTION), QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
     coverBeanEquals(test1, test2);
   }
+
 }

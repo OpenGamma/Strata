@@ -88,6 +88,7 @@ public class IborFixingDepositTemplateTest {
     assertEquals(trade.getProduct(), productExpected);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     IborFixingDepositTemplate test1 = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
     coverImmutableBean(test1);
@@ -99,4 +100,5 @@ public class IborFixingDepositTemplateTest {
     IborFixingDepositTemplate test = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
     assertSerialization(test);
   }
+
 }

@@ -86,6 +86,7 @@ public class TermDepositTemplateTest {
     assertEquals(trade.getProduct(), productExpected);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     TermDepositTemplate test1 = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     coverImmutableBean(test1);
@@ -98,4 +99,5 @@ public class TermDepositTemplateTest {
     TermDepositTemplate test = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     assertSerialization(test);
   }
+
 }

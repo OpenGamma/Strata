@@ -39,6 +39,7 @@ import com.opengamma.strata.market.key.QuoteKey;
  */
 @Test
 public class IborFixingDepositCurveNodeTest {
+
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
   private static final IborFixingDepositTemplate TEMPLATE = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
@@ -115,6 +116,7 @@ public class IborFixingDepositCurveNodeTest {
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
     IborFixingDepositCurveNode test1 = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     coverImmutableBean(test1);
@@ -122,4 +124,5 @@ public class IborFixingDepositCurveNodeTest {
         IborFixingDepositTemplate.of(GBP_LIBOR_6M), QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
     coverBeanEquals(test1, test2);
   }
+
 }
