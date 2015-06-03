@@ -64,7 +64,7 @@ public final class ExampleMarketData {
    * @return the loaded time-series
    */
   public static LocalDateDoubleTimeSeries loadTimeSeries(StandardIdentifiable identifiable) {
-    String resourceName = String.format("/timeseries/%s.json", identifiable.getStandardId().toString().toLowerCase());
+    String resourceName = String.format("timeseries/%s.json", identifiable.getStandardId().toString().toLowerCase());
     return ExampleData.loadFromJson(resourceName, LocalDateDoubleTimeSeries.class);
   }
 
@@ -81,7 +81,7 @@ public final class ExampleMarketData {
    * @return the loaded yield curve
    */
   public static YieldCurve loadYieldCurve(LocalDate curveDate, String curveName) {
-    String resourceName = String.format("/yieldcurve/%s_%s.json", curveName.toLowerCase(), curveDate);
+    String resourceName = String.format("yieldcurve/%s_%s.json", curveName.toLowerCase(), curveDate);
     InterpolatedCurve curve = ExampleData.loadFromJson(resourceName, InterpolatedCurve.class);
     return curve.toYieldCurve();
   }

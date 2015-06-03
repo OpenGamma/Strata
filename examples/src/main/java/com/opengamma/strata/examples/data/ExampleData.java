@@ -5,14 +5,15 @@
  */
 package com.opengamma.strata.examples.data;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.Reader;
 
 import org.joda.beans.ser.JodaBeanSer;
 
-import com.opengamma.strata.engine.calculations.Results;
-import com.opengamma.strata.examples.finance.SwapPricingExample;
+import com.google.common.io.CharSource;
+import com.opengamma.strata.collect.io.IniFile;
+import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.report.trade.TradeReportTemplate;
 
 /**
  * Contains utilities for working with data in the examples environment.
@@ -32,18 +33,33 @@ public final class ExampleData {
    * @param name  the name of the results
    * @return the loaded results
    */
-  public static Results loadExpectedResults(String name) {
-    return loadFromJson(String.format("/goldencopy/%s.json", name), Results.class);
+  public static String loadExpectedResults(String name) {
+    String classpathResourceName = String.format("classpath:goldencopy/%s.txt", name);
+    ResourceLocator resourceLocator = ResourceLocator.of(classpathResourceName);
+    try {
+      return resourceLocator.getCharSource().read().trim();
+    } catch (IOException ex) {
+      throw new MissingExampleDataException(name);
+    }
   }
 
   // loads a resource from JSON
   public static <T> T loadFromJson(String resourceName, Class<T> clazz) {
-    InputStream tsResource = SwapPricingExample.class.getResourceAsStream(resourceName);
-    if (tsResource == null) {
+    String classpathResourceName = String.format("classpath:%s", resourceName);
+    ResourceLocator resourceLocator = ResourceLocator.of(classpathResourceName);
+    CharSource charSource = resourceLocator.getCharSource();
+    try (Reader reader = charSource.openBufferedStream()) {
+      return JodaBeanSer.COMPACT.jsonReader().read(reader, clazz);
+    } catch (IOException e) {
       throw new MissingExampleDataException(resourceName);
     }
-    Reader tsReader = new InputStreamReader(tsResource);
-    return JodaBeanSer.COMPACT.jsonReader().read(tsReader, clazz);
+  }
+  
+  public static TradeReportTemplate loadTradeReportTemplate(String templateName) {
+    String resourceName = String.format("classpath:reports/%s.ini", templateName);
+    ResourceLocator resourceLocator = ResourceLocator.of(resourceName);
+    IniFile ini = IniFile.of(resourceLocator.getCharSource());
+    return TradeReportTemplate.ofIni(ini);
   }
 
 }
