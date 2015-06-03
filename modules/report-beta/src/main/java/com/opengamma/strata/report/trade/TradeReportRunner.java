@@ -29,29 +29,30 @@ import com.opengamma.strata.report.result.TokenPathEvaluator;
  * showing a value for that trade.
  */
 public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
-  
+
   private final TokenPathEvaluator pathEvaluator = new TokenPathEvaluator();
-  
+
   @Override
   public ReportRequirements requirements(TradeReportTemplate reportTemplate) {
     List<Column> tradeMeasureColumns = reportTemplate.getColumns().stream()
-    .map(this::toColumn)
-    .collect(Collectors.toList());
-    
+        .map(this::toColumn)
+        .collect(Collectors.toList());
+
     return ReportRequirements.builder()
         .tradeMeasureRequirements(tradeMeasureColumns)
         .build();
   }
-  
+
   @Override
   public TradeReport runReport(ReportCalculationResults calculationResults, TradeReportTemplate reportTemplate) {
     String[] columnHeaders = reportTemplate.getColumns().stream()
         .map(c -> c.getHeader())
         .toArray(i -> new String[i]);
-    
+
     Results results = calculationResults.getCalculationResults();
-    Result<?>[][] resultsTable = new Result<?>[calculationResults.getCalculationResults().getRowCount()][reportTemplate.getColumns().size()];
-    
+    Result<?>[][] resultsTable = new Result<?>[calculationResults.getCalculationResults().getRowCount()][reportTemplate
+        .getColumns().size()];
+
     for (int reportColumnIdx = 0; reportColumnIdx < reportTemplate.getColumns().size(); reportColumnIdx++) {
       TradeReportColumn reportColumn = reportTemplate.getColumns().get(reportColumnIdx);
       IntFunction<Result<?>> resultFn;
@@ -74,12 +75,12 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
       } else {
         throw new IllegalArgumentException("Unsupported report column type: " + reportColumn.getClass());
       }
-      
+
       for (int i = 0; i < results.getRowCount(); i++) {
         resultsTable[i][reportColumnIdx] = resultFn.apply(i);
       }
     }
-    
+
     return TradeReport.builder()
         .runInstant(Instant.now())
         .valuationDate(calculationResults.getValuationDate())
@@ -94,7 +95,7 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
         .reportingRules(ReportingRules.empty())
         .build();
   }
-  
+
   private Result<?> evaluatePath(Object resultValue, List<String> path) {
     Object resultObject = resultValue;
     try {
@@ -103,5 +104,5 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
       return Result.failure(e);
     }
   }
-  
+
 }

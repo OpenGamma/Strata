@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.report;
 
-
 /**
  * Runs a report for a specific template type.
  * <p>
@@ -24,7 +23,7 @@ public interface ReportRunner<T extends ReportTemplate> {
    * @return the requirements to run the report
    */
   ReportRequirements requirements(T reportTemplate);
-  
+
   /**
    * Runs a report from a set of calculation results.
    * The contents of the report are dictated by the template provided.
@@ -35,5 +34,5 @@ public interface ReportRunner<T extends ReportTemplate> {
    * @return  the report
    */
   Report runReport(ReportCalculationResults calculationResults, T reportTemplate);
-  
+
 }

@@ -28,12 +28,12 @@ public class IterableTraverser implements TokenEvaluator<Iterable<?>> {
       Currency.class,
       SwapLegType.class,
       PayReceive.class);
-  
+
   @Override
   public Class<?> getTargetType() {
     return Iterable.class;
   }
-  
+
   @Override
   public Set<String> tokens(Iterable<?> iterable) {
     Stream<String> listIndexStream = IntStream.range(0, Iterables.size(iterable)).mapToObj(i -> String.valueOf(i));
@@ -51,7 +51,7 @@ public class IterableTraverser implements TokenEvaluator<Iterable<?>> {
     }
     throw new InvalidTokenException(token, iterable.getClass());
   }
-  
+
   //-------------------------------------------------------------------------
   private Set<String> fieldValues(Object object) {
     if (!(object instanceof Bean)) {

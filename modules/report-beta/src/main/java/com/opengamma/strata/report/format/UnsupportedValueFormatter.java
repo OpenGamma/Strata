@@ -15,7 +15,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
 
   /** Singleton instance. */
   public static final UnsupportedValueFormatter INSTANCE = new UnsupportedValueFormatter();
-  
+
   @Override
   public String formatForCsv(Object object) {
     return Messages.format("<{}>", object.getClass().getSimpleName());

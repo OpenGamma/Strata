@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.report;
 
-
 /**
  * Marker interface for report templates.
  */
 public interface ReportTemplate {
-  
+
 }

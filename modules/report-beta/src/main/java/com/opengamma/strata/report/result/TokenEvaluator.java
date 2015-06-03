@@ -20,7 +20,7 @@ public interface TokenEvaluator<T> {
    * @return the evaluation type
    */
   Class<?> getTargetType();
-  
+
   /**
    * Gets the set of supported token for the given object.
    * 
@@ -28,7 +28,7 @@ public interface TokenEvaluator<T> {
    * @return  the set of supported tokens
    */
   Set<String> tokens(T object);
-  
+
   /**
    * Evaluates a token against a given object.
    * 
@@ -37,5 +37,5 @@ public interface TokenEvaluator<T> {
    * @return the result of the evaluation
    */
   Object evaluate(T object, String token);
-  
+
 }

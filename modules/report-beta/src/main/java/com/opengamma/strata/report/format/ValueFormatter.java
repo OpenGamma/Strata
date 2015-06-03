@@ -9,7 +9,7 @@ package com.opengamma.strata.report.format;
  * Formats a value into a string.
  */
 public interface ValueFormatter<T> {
-  
+
   /**
    * Formats a value for use in a CSV file.
    * <p>
@@ -19,7 +19,7 @@ public interface ValueFormatter<T> {
    * @return the object formatted into a string
    */
   String formatForCsv(T object);
-  
+
   /**
    * Formats a value for display.
    * <p>
@@ -30,7 +30,7 @@ public interface ValueFormatter<T> {
    * @return the object formatted into a string
    */
   String formatForDisplay(T object);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets a formatter which returns the value of the object's {@code toString()} method.
@@ -40,7 +40,7 @@ public interface ValueFormatter<T> {
   public static ValueFormatter<Object> defaultToString() {
     return ToStringValueFormatter.INSTANCE;
   }
-  
+
   /**
    * Gets a formatter to be used when no specific formatter exists for the object.
    * 
@@ -49,5 +49,5 @@ public interface ValueFormatter<T> {
   public static ValueFormatter<Object> unsupported() {
     return UnsupportedValueFormatter.INSTANCE;
   }
-  
+
 }

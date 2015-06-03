@@ -16,33 +16,33 @@ import java.time.LocalDate;
  * a trade report on a list of trades, or a cashflow report on a single trade.
  */
 public interface Report {
-  
+
   /**
    * Gets the valuation date of the results driving the report.
    * 
    * @return the valuation date
    */
   LocalDate getValuationDate();
-  
+
   /**
    * Gets the instant at which the report was run, which may be independent of the valuation date.
    * 
    * @return the run instant
    */
   Instant getRunInstant();
-  
+
   /**
    * Writes this report out in a CSV format.
    * 
    * @param out  the output stream to write to
    */
   void writeCsv(OutputStream out);
-  
+
   /**
    * Writes this report out as an ASCII table.
    * 
    * @param out  the output stream to write to
    */
   void writeAsciiTable(OutputStream out);
-  
+
 }

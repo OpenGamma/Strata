@@ -28,7 +28,7 @@ import com.opengamma.strata.report.format.ValueFormatter;
  * Contains the logic required to format a trade report into CSV or an ASCII table.
  */
 public class TradeReportFormatter {
-  
+
   private final FormatSettingsProvider formatSettingsProvider = new FormatSettingsProvider();
 
   @SuppressWarnings("resource")
@@ -45,7 +45,7 @@ public class TradeReportFormatter {
       // do nothing
     }
   }
-  
+
   public void writeAsciiTable(TradeReport report, OutputStream out) {
     List<Class<?>> columnTypes = getColumnTypes(report);
     ASCIITableHeader[] headers = IntStream.range(0, columnTypes.size())
@@ -75,14 +75,15 @@ public class TradeReportFormatter {
     }
     return columnTypes;
   }
-  
+
   private ASCIITableHeader toAsciiTableHeader(String header, Class<?> columnType) {
     FormatSettings formatSettings = formatSettingsProvider.getSettings(columnType);
-    boolean isNumeric = formatSettings.getCategory() == FormatCategory.NUMERIC || formatSettings.getCategory() == FormatCategory.DATE;
+    boolean isNumeric = formatSettings.getCategory() == FormatCategory.NUMERIC ||
+        formatSettings.getCategory() == FormatCategory.DATE;
     int align = isNumeric ? AsciiTable.ALIGN_RIGHT : AsciiTable.ALIGN_LEFT;
     return ASCIITableHeader.h(header, align, align);
   }
-  
+
   private String[][] getFormattedTable(Result<?>[][] results, boolean forCsv) {
     String[][] table = new String[results.length][];
     for (int r = 0; r < results.length; r++) {
@@ -100,7 +101,7 @@ public class TradeReportFormatter {
     }
     return tableRow;
   }
-  
+
   @SuppressWarnings("unchecked")
   private String formatResult(Result<?> result, boolean forCsv) {
     if (result.isFailure()) {
@@ -114,7 +115,5 @@ public class TradeReportFormatter {
     ValueFormatter<Object> formatter = (ValueFormatter<Object>) formatSettings.getFormatter();
     return forCsv ? formatter.formatForCsv(value) : formatter.formatForDisplay(value);
   }
-  
 
-  
 }

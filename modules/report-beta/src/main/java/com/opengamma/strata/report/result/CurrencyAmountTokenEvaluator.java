@@ -15,7 +15,7 @@ public class CurrencyAmountTokenEvaluator implements TokenEvaluator<CurrencyAmou
 
   private final String CURRENCY_FIELD = "currency";
   private final String AMOUNT_FIELD = "amount";
-  
+
   @Override
   public Class<CurrencyAmount> getTargetType() {
     return CurrencyAmount.class;

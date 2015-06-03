@@ -23,7 +23,7 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
 
   private static final String VALUE_PROPERTY = "value";
   private static final String PATH_SEPARATOR = "\\.";
-  
+
   @Override
   public TradeReportTemplate load(IniFile iniFile) {
     List<TradeReportColumn> reportColumns = new ArrayList<TradeReportColumn>();
@@ -38,11 +38,11 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
         .columns(reportColumns)
         .build();
   }
-  
+
   private TradeReportColumn parseColumn(String columnName, PropertySet properties) {
     TradeReportColumn.Builder columnBuilder = TradeReportColumn.builder();
     columnBuilder.header(columnName);
-    
+
     String measureText;
     try {
       measureText = properties.getValue(VALUE_PROPERTY);

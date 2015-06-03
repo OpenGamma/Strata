@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.report.format;
 
-
 /**
  * Default formatter which returns the value of {@code toString()} on the object.
  */
@@ -13,7 +12,7 @@ public class ToStringValueFormatter implements ValueFormatter<Object> {
 
   /** Singleton instance. */
   public static final ToStringValueFormatter INSTANCE = new ToStringValueFormatter();
-  
+
   @Override
   public String formatForCsv(Object object) {
     return object.toString();

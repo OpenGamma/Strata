@@ -22,13 +22,13 @@ import com.opengamma.strata.collect.Messages;
 public class TokenPathEvaluator {
 
   private final BeanTokenEvaluator beanTokenEvaluator = new BeanTokenEvaluator();
-  
+
   private final ImmutableList<TokenEvaluator<?>> tokenEvaluators = ImmutableList.of(
       new CurrencyAmountTokenEvaluator(),
       new MapTokenEvaluator(),
       beanTokenEvaluator,
       new IterableTraverser());
-  
+
   /**
    * Evaluates a token path against an object.
    * 
@@ -44,7 +44,7 @@ public class TokenPathEvaluator {
     }
     return resultObject;
   }
-  
+
   //-------------------------------------------------------------------------
   private Object evaluate(Object object, Queue<String> tokenPath) {
     if (object instanceof Bean) {
@@ -61,12 +61,12 @@ public class TokenPathEvaluator {
     }
     if (object instanceof Iterable) {
       // Expose bean values on the items as tokens
-      
+
     }
     throw new UnsupportedOperationException(
         Messages.format("Unable to traverse type {}", object.getClass().getSimpleName()));
   }
-  
+
   @SuppressWarnings("unchecked")
   private Optional<TokenEvaluator<Object>> getEvaluator(Class<?> targetClazz) {
     return tokenEvaluators.stream()
@@ -74,5 +74,5 @@ public class TokenPathEvaluator {
         .map(e -> (TokenEvaluator<Object>) e)
         .findFirst();
   }
-  
+
 }

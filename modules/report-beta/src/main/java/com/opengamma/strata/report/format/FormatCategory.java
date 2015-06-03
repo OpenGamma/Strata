@@ -12,11 +12,11 @@ public enum FormatCategory {
 
   /** Date */
   DATE,
-  
+
   /** Numeric */
   NUMERIC,
-  
+
   /** General text */
   TEXT
-  
+
 }

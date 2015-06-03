@@ -30,11 +30,11 @@ public class FormatSettings implements ImmutableBean {
   /** The category of this type. */
   @PropertyDefinition(validate = "notNull")
   private final FormatCategory category;
-  
+
   /** The formatter to use to convert this type into a string. */
   @PropertyDefinition
   private final ValueFormatter<?> formatter;
-  
+
   /**
    * Constructs an instance.
    * 

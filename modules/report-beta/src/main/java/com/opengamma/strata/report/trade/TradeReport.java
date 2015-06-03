@@ -34,40 +34,40 @@ import com.opengamma.strata.report.ReportCalculationResults;
  */
 @BeanDefinition
 public class TradeReport implements Report, ImmutableBean {
-  
+
   /** The valuation date. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
-  
+
   /** The instant at which the report was run. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Instant runInstant;
-  
+
   /** The column headers. */
   @PropertyDefinition(validate = "notNull")
   private final String[] columnHeaders;
-  
+
   /** The results table. */
   @PropertyDefinition(validate = "notNull")
   private final Result<?>[][] results;
-  
+
   public static TradeReport of(ReportCalculationResults calculationResults, TradeReportTemplate reportTemplate) {
     TradeReportRunner reportRunner = new TradeReportRunner();
     return reportRunner.runReport(calculationResults, reportTemplate);
   }
-  
+
   @Override
   public void writeCsv(OutputStream out) {
     TradeReportFormatter formatter = new TradeReportFormatter();
     formatter.writeCsv(this, out);
   }
-  
+
   @Override
   public void writeAsciiTable(OutputStream out) {
     TradeReportFormatter formatter = new TradeReportFormatter();
     formatter.writeAsciiTable(this, out);
   }
-  
+
   public String getAsciiTable() {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     writeAsciiTable(os);

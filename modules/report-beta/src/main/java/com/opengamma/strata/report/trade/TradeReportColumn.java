@@ -39,11 +39,11 @@ public class TradeReportColumn implements ImmutableBean {
   /** The path to evalute against the measure in order to traverse the object graph.  */
   @PropertyDefinition(get = "optional")
   private final ImmutableList<String> path;
-  
+
   /** The column header. */
   @PropertyDefinition(get = "field")
   private final String header;
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the report column header, for display purposes.
@@ -53,7 +53,7 @@ public class TradeReportColumn implements ImmutableBean {
   public String getHeader() {
     return header != null ? header : measure.toString();
   }
-  
+
   //-------------------------------------------------------------------------
   public static TradeReportColumn of(Measure measure) {
     return TradeReportColumn.builder().measure(measure).build();

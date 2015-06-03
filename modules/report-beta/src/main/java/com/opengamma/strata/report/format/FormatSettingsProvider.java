@@ -28,10 +28,10 @@ public class FormatSettingsProvider {
       .put(CurrencyAmount.class, FormatSettings.of(FormatCategory.NUMERIC, new CurrencyAmountValueFormatter()))
       .put(Double.class, FormatSettings.of(FormatCategory.NUMERIC, new DoubleValueFormatter()))
       .build();
-  
+
   private static final FormatSettings FALLBACK_SETTINGS =
       FormatSettings.of(FormatCategory.TEXT, ValueFormatter.unsupported());
-  
+
   private final Map<Class<?>, FormatSettings> settingsCache = new HashMap<Class<?>, FormatSettings>();
 
   /**
@@ -51,5 +51,5 @@ public class FormatSettingsProvider {
     }
     return settings;
   }
-  
+
 }

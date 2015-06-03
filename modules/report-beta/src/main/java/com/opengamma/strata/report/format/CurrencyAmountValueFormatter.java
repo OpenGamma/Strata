@@ -11,9 +11,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
  * Formatter for currency amounts.
  */
 public class CurrencyAmountValueFormatter implements ValueFormatter<CurrencyAmount> {
-  
+
   private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
-  
+
   @Override
   public String formatForCsv(CurrencyAmount amount) {
     return doubleFormatter.formatForCsv(amount.getAmount());

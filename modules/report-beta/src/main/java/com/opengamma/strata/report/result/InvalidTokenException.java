@@ -23,5 +23,5 @@ public class InvalidTokenException extends RuntimeException {
   public InvalidTokenException(String token, Class<?> targetType) {
     super(Messages.format("Invalid field '{}' on {}", token, targetType.getSimpleName()));
   }
-  
+
 }

@@ -35,7 +35,7 @@ public class TradeReportTemplate implements ReportTemplate, ImmutableBean {
   /** The columns in the report */
   @PropertyDefinition(validate = "notNull")
   private final List<TradeReportColumn> columns;
-  
+
   public static TradeReportTemplate ofIni(IniFile ini) {
     TradeReportTemplateIniLoader loader = new TradeReportTemplateIniLoader();
     return loader.load(ini);
