@@ -104,7 +104,7 @@ public interface RatesProvider
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters
    */
-  CurveCurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities);
+  CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
   /**

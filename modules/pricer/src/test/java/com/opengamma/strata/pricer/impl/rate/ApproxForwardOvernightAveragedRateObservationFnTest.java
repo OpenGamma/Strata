@@ -1115,7 +1115,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
@@ -1139,7 +1139,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));

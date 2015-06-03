@@ -335,7 +335,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed =
           obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
 
       CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
@@ -362,7 +362,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed =
           obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
 
       CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(CHF_TOIS.getCurrency(),

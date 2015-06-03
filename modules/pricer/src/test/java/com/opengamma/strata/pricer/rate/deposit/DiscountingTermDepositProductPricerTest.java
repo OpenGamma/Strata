@@ -120,7 +120,7 @@ public class DiscountingTermDepositProductPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER.presentValueSensitivity(TERM_DEPOSIT, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(computed);
     CurveCurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> PRICER.presentValue(TERM_DEPOSIT, (p)));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
@@ -162,7 +162,7 @@ public class DiscountingTermDepositProductPricerTest {
 
   public void test_parSpreadSensitivity() {
     PointSensitivities computed = PRICER.parSpreadSensitivity(TERM_DEPOSIT, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(computed);
     CurveCurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, PRICER.parSpread(TERM_DEPOSIT, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));

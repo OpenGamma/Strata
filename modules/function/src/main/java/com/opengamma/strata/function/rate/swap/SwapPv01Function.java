@@ -20,7 +20,7 @@ public class SwapPv01Function
   @Override
   protected MultiCurrencyAmount execute(ExpandedSwap product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider).build();
-    return provider.parameterSensitivity(pointSensitivity).total();
+    return provider.curveParameterSensitivity(pointSensitivity).total();
   }
 
 }

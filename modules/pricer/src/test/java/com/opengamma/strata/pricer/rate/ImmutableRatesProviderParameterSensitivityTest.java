@@ -134,7 +134,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final double TOLERANCE_SENSI = 1.0E-8;
 
   public void pointToParameterOnePointZero() {
-    CurveCurrencyParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_ZERO_1);
+    CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_ZERO_1);
     DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
@@ -145,7 +145,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   }
 
   public void pointToParameterOnePointZeroTwoCurrency() {
-    CurveCurrencyParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_ZERO_4);
+    CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_ZERO_4);
     DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
@@ -156,7 +156,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   }
 
   public void pointToParameterOnePointIbor() {
-    CurveCurrencyParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_IBOR_1);
+    CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_IBOR_1);
     LocalDate startDate = USD_LIBOR_3M.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_LIBOR_3M.calculateMaturityFromEffective(startDate);
     double startTime = PROVIDER.relativeTime(startDate);
@@ -173,7 +173,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   }
 
   public void pointToParameterOnePointOnOneDate() {
-    CurveCurrencyParameterSensitivities ps = PROVIDER.parameterSensitivity(POINT_ON_1);
+    CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_ON_1);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(startDate);
     double startTime = PROVIDER.relativeTime(startDate);
@@ -190,7 +190,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   }
 
   public void pointToParameterOnePointOnTwoDates() {
-    CurveCurrencyParameterSensitivities psComputed = PROVIDER.parameterSensitivity(POINT_ON_2);
+    CurveCurrencyParameterSensitivities psComputed = PROVIDER.curveParameterSensitivity(POINT_ON_2);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
     double startTime = PROVIDER.relativeTime(startDate);
     double endTime = PROVIDER.relativeTime(DATE_2);
@@ -206,11 +206,11 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   }
 
   public void pointToParameterMultiple() {
-    CurveCurrencyParameterSensitivities psComputed = PROVIDER.parameterSensitivity(POINT);
+    CurveCurrencyParameterSensitivities psComputed = PROVIDER.curveParameterSensitivity(POINT);
     assertEquals(psComputed.getSensitivities().size(), 6);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.empty();
     for (int i = 0; i < POINTS.length; i++) {
-      psExpected = psExpected.combinedWith(PROVIDER.parameterSensitivity(POINTS[i]));
+      psExpected = psExpected.combinedWith(PROVIDER.curveParameterSensitivity(POINTS[i]));
     }
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
@@ -275,8 +275,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         test_usd_dw.fxIndexRates(WM_GBP_USD).rate(GBP, DATE_VAL)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecGBP = ZeroRateSensitivity.of(GBP, USD, matuirtyDate, sense_gbp1);
     sensiBuildDecGBP = sensiBuildDecGBP.combinedWith(ZeroRateSensitivity.of(USD, USD, matuirtyDate, sense_usd1));
-    CurveCurrencyParameterSensitivities paramSensiCmpGBP = test.parameterSensitivity(sensiBuildCmpGBP.build().normalized());
-    CurveCurrencyParameterSensitivities paramSensiExpGBP = test.parameterSensitivity(sensiBuildDecGBP.build().normalized());
+    CurveCurrencyParameterSensitivities paramSensiCmpGBP = test.curveParameterSensitivity(sensiBuildCmpGBP.build().normalized());
+    CurveCurrencyParameterSensitivities paramSensiExpGBP = test.curveParameterSensitivity(sensiBuildDecGBP.build().normalized());
     assertTrue(paramSensiCmpGBP.equalWithTolerance(paramSensiExpGBP, EPS_FD));
     // USD based
     PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(WM_GBP_USD).pointSensitivity(USD, DATE_VAL);
@@ -288,8 +288,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         test_usd_dw.fxIndexRates(WM_GBP_USD).rate(USD, DATE_VAL)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecUSD = ZeroRateSensitivity.of(GBP, GBP, matuirtyDate, sense_gbp2);
     sensiBuildDecUSD = sensiBuildDecUSD.combinedWith(ZeroRateSensitivity.of(USD, GBP, matuirtyDate, sense_usd2));
-    CurveCurrencyParameterSensitivities paramSensiCmpUSD = test.parameterSensitivity(sensiBuildCmpUSD.build().normalized());
-    CurveCurrencyParameterSensitivities paramSensiExpUSD = test.parameterSensitivity(sensiBuildDecUSD.build().normalized());
+    CurveCurrencyParameterSensitivities paramSensiCmpUSD = test.curveParameterSensitivity(sensiBuildCmpUSD.build().normalized());
+    CurveCurrencyParameterSensitivities paramSensiExpUSD = test.curveParameterSensitivity(sensiBuildDecUSD.build().normalized());
     assertTrue(paramSensiCmpUSD.equalWithTolerance(paramSensiExpUSD, EPS_FD));
   }
 
