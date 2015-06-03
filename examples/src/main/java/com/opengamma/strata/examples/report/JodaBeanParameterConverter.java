@@ -18,7 +18,7 @@ import com.beust.jcommander.IStringConverter;
  */
 public abstract class JodaBeanParameterConverter<T> implements IStringConverter<T> {
 
-  abstract Class<T> getExpectedType();
+  protected abstract Class<T> getExpectedType();
   
   @Override
   public T convert(String fileName) {

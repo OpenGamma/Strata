@@ -12,7 +12,7 @@ package com.opengamma.strata.examples.report;
 public class PortfolioParameterConverter extends JodaBeanParameterConverter<TradePortfolio> {
 
   @Override
-  Class<TradePortfolio> getExpectedType() {
+  protected Class<TradePortfolio> getExpectedType() {
     return TradePortfolio.class;
   }
 
