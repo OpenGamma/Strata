@@ -24,9 +24,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
 /**
  * A curve node whose instrument is an Ibor fixing deposit.
@@ -75,11 +79,18 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
   }
 
   @Override
-  public IborFixingDepositTrade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
+  public IborFixingDepositTrade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
     BuySell buySell = BuySell.BUY;
     double notional = 1d;
     double fixedRate = rate(marketData);
     return template.toTrade(valuationDate, buySell, notional, fixedRate);
+  }
+
+  @Override
+  public CurveParameterMetadata metadata(LocalDate valuationDate) {
+    Tenor endTenor = Tenor.of(template.getDepositPeriod());
+    ExpandedIborFixingDeposit deposit = template.toTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+    return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor);
   }
 
   /**

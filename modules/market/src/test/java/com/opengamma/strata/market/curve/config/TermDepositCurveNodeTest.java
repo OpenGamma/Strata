@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.config;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -23,7 +24,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
@@ -31,6 +34,8 @@ import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositConvention;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
@@ -38,8 +43,10 @@ import com.opengamma.strata.market.key.QuoteKey;
  */
 @Test
 public class TermDepositCurveNodeTest {
+  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
-  private static final TermDepositConvention CONVENTION = TermDepositConvention.of(EUR, ACT_360, PLUS_TWO_DAYS);
+  private static final TermDepositConvention CONVENTION =
+      TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
   private static final TermDepositTemplate TEMPLATE = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
@@ -79,11 +86,11 @@ public class TermDepositCurveNodeTest {
     assertFalse(itr.hasNext());
   }
 
-  public void test_buildTrade() {
+  public void test_trade() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    TermDepositTrade trade = node.buildTrade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
+    TermDepositTrade trade = node.trade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit depositExpected = TermDeposit.builder()
@@ -93,6 +100,7 @@ public class TermDepositCurveNodeTest {
         .startDate(startDateExpected)
         .endDate(endDateExpected)
         .notional(1.0d)
+        .businessDayAdjustment(BDA_MOD_FOLLOW)
         .rate(rate + SPREAD)
         .build();
     TradeInfo tradeInfoExpected = TradeInfo.builder()
@@ -102,12 +110,20 @@ public class TermDepositCurveNodeTest {
     assertEquals(trade.getTradeInfo(), tradeInfoExpected);
   }
 
-  public void test_buildTrade_differentKey() {
+  public void test_trade_differentKey() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertThrowsIllegalArg(() -> node.buildTrade(
+    assertThrowsIllegalArg(() -> node.trade(
         valuationDate, ImmutableMap.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+  }
+
+  public void test_metadata() {
+    TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    CurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
+    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
   public void coverage() {

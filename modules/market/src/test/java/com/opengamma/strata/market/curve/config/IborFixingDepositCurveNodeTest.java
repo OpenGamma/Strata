@@ -23,12 +23,15 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
@@ -73,11 +76,11 @@ public class IborFixingDepositCurveNodeTest {
     assertFalse(itr.hasNext());
   }
 
-  public void test_buildTrade() {
+  public void test_trade() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    IborFixingDepositTrade trade = node.buildTrade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
+    IborFixingDepositTrade trade = node.trade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
     LocalDate startDateExpected = TEMPLATE.getConvention().getSpotDateOffset().adjust(valuationDate);
     LocalDate endDateExpected = startDateExpected.plus(TEMPLATE.getDepositPeriod());
     IborFixingDeposit depositExpected = IborFixingDeposit.builder()
@@ -96,12 +99,20 @@ public class IborFixingDepositCurveNodeTest {
     assertEquals(trade.getTradeInfo(), tradeInfoExpected);
   }
 
-  public void test_buildTrade_differentKey() {
+  public void test_trade_differentKey() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    assertThrowsIllegalArg(() -> node.buildTrade(
+    assertThrowsIllegalArg(() -> node.trade(
         valuationDate, ImmutableMap.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+  }
+
+  public void test_metadata() {
+    IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    CurveParameterMetadata metadata = node.metadata(valuationDate);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
+    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
   public void coverage() {

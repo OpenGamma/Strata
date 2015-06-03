@@ -48,21 +48,9 @@ public class TermDepositConventionTest {
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
   }
 
-  public void test_builder_noBusinessDayAdj() {
-    TermDepositConvention test = TermDepositConvention.builder()
-        .currency(EUR)
-        .dayCount(ACT_360)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
-    assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
-  }
-
   public void test_of() {
-    TermDepositConvention test = TermDepositConvention.of(EUR, ACT_360, PLUS_TWO_DAYS);
-    assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
+    TermDepositConvention test = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+    assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
@@ -112,14 +100,15 @@ public class TermDepositConventionTest {
   }
 
   public void coverage() {
-    TermDepositConvention test1 = TermDepositConvention.of(EUR, ACT_360, PLUS_TWO_DAYS);
+    TermDepositConvention test1 = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     coverImmutableBean(test1);
-    TermDepositConvention test2 = TermDepositConvention.of(GBP, ACT_365F, DaysAdjustment.ofBusinessDays(0, GBLO));
+    TermDepositConvention test2 =
+        TermDepositConvention.of(GBP, BDA_MOD_FOLLOW, ACT_365F, DaysAdjustment.ofBusinessDays(0, GBLO));
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    TermDepositConvention test = TermDepositConvention.of(EUR, ACT_360, PLUS_TWO_DAYS);
+    TermDepositConvention test = TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
     assertSerialization(test);
   }
 }

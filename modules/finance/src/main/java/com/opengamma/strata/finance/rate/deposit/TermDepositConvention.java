@@ -65,10 +65,8 @@ public final class TermDepositConvention
    * The start and end date are typically defined as valid business days and thus
    * do not need to be adjusted. If this optional property is present, then the
    * start and end date will be adjusted as defined here.
-   * <p>
-   * This will default to 'NONE' if not specified.
    */
-  @PropertyDefinition(get = "field")
+  @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
   /**
    * The day count convention.
@@ -96,34 +94,23 @@ public final class TermDepositConvention
    * Use the {@linkplain #builder() builder} for specifying the business day convention.
    * 
    * @param currency  the currency, in which the payments are made
+   * @param businessDayAdjustment the business day adjustment to apply to the start and end date
    * @param dayCount the day count convention, used to convert dates to a numerical value
    * @param spotDateOffset the offset of the spot value date from the trade date
    * @return the convention
    */
-  public static TermDepositConvention of(Currency currency, DayCount dayCount, DaysAdjustment spotDateOffset) {
+  public static TermDepositConvention of(
+      Currency currency,
+      BusinessDayAdjustment businessDayAdjustment,
+      DayCount dayCount,
+      DaysAdjustment spotDateOffset) {
     return TermDepositConvention.builder()
         .currency(currency)
+        .businessDayAdjustment(businessDayAdjustment)
         .dayCount(dayCount)
         .spotDateOffset(spotDateOffset)
         .build();
   }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the business day adjustment to apply to the start and end date,
-   * providing a default result if no override specified.
-   * <p>
-   * The start and end date are typically defined as valid business days and thus
-   * do not need to be adjusted. If this optional property is present, then the
-   * start and end date will be adjusted as defined here.
-   * <p>
-   * This will default to 'NONE' if not specified.
-   * 
-   * @return the business day adjustment, not null
-   */
-  public BusinessDayAdjustment getBusinessDayAdjustment() {
-    return businessDayAdjustment != null ? businessDayAdjustment : BusinessDayAdjustment.NONE;
-    }
 
   //-------------------------------------------------------------------------
   /**
@@ -249,6 +236,7 @@ public final class TermDepositConvention
       DayCount dayCount,
       DaysAdjustment spotDateOffset) {
     JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
     this.currency = currency;
@@ -281,6 +269,19 @@ public final class TermDepositConvention
    */
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day adjustment to apply to the start and end date, optional with defaulting getter.
+   * <p>
+   * The start and end date are typically defined as valid business days and thus
+   * do not need to be adjusted. If this optional property is present, then the
+   * start and end date will be adjusted as defined here.
+   * @return the value of the property, not null
+   */
+  public BusinessDayAdjustment getBusinessDayAdjustment() {
+    return businessDayAdjustment;
   }
 
   //-----------------------------------------------------------------------
@@ -324,7 +325,7 @@ public final class TermDepositConvention
     if (obj != null && obj.getClass() == this.getClass()) {
       TermDepositConvention other = (TermDepositConvention) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
+          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getSpotDateOffset(), other.getSpotDateOffset());
     }
@@ -335,7 +336,7 @@ public final class TermDepositConvention
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDateOffset());
     return hash;
@@ -346,7 +347,7 @@ public final class TermDepositConvention
     StringBuilder buf = new StringBuilder(160);
     buf.append("TermDepositConvention{");
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(getSpotDateOffset()));
     buf.append('}');
@@ -469,7 +470,7 @@ public final class TermDepositConvention
         case 575402001:  // currency
           return ((TermDepositConvention) bean).getCurrency();
         case -1065319863:  // businessDayAdjustment
-          return ((TermDepositConvention) bean).businessDayAdjustment;
+          return ((TermDepositConvention) bean).getBusinessDayAdjustment();
         case 1905311443:  // dayCount
           return ((TermDepositConvention) bean).getDayCount();
         case 746995843:  // spotDateOffset
@@ -512,7 +513,7 @@ public final class TermDepositConvention
      */
     private Builder(TermDepositConvention beanToCopy) {
       this.currency = beanToCopy.getCurrency();
-      this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
+      this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.dayCount = beanToCopy.getDayCount();
       this.spotDateOffset = beanToCopy.getSpotDateOffset();
     }
@@ -602,10 +603,11 @@ public final class TermDepositConvention
 
     /**
      * Sets the {@code businessDayAdjustment} property in the builder.
-     * @param businessDayAdjustment  the new value
+     * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
       this.businessDayAdjustment = businessDayAdjustment;
       return this;
     }

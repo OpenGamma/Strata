@@ -24,9 +24,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
 /**
  * A curve node whose instrument is a term deposit.
@@ -75,11 +79,18 @@ public final class TermDepositCurveNode implements CurveNode, ImmutableBean {
   }
 
   @Override
-  public TermDepositTrade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
+  public TermDepositTrade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
     BuySell buySell = BuySell.BUY;
     double notional = 1.0d;
     double fixedRate = rate(marketData);
     return template.toTrade(valuationDate, buySell, notional, fixedRate);
+  }
+
+  @Override
+  public CurveParameterMetadata metadata(LocalDate valuationDate) {
+    Tenor endTenor = Tenor.of(template.getDepositPeriod());
+    ExpandedTermDeposit deposit = template.toTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+    return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor);
   }
 
   /**
