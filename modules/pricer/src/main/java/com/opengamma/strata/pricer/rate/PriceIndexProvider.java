@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.rate;
 
 import java.io.Serializable;
 import java.time.YearMonth;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -28,16 +28,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
+import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
-import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
-import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
@@ -119,36 +118,34 @@ public final class PriceIndexProvider
   /**
    * Computes the parameter sensitivity.
    * <p>
-   * This computes the {@link CurveParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This computes the {@link CurveCurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * 
    * @param pointSensitivities the point sensitivity
    * @return  the sensitivity to the curve parameters
    */
-  public CurveParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+  public CurveCurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
 
-    Map<SensitivityKey, double[]> mutableMap = new HashMap<>();
+    List<CurveCurrencyParameterSensitivity> mutable = new ArrayList<>();
     // group by currency
-    ListMultimap<IndexCurrencySensitivityKey, ObjectDoublePair<YearMonth>> grouped = ArrayListMultimap.create();
+    ListMultimap<Pair<PriceIndex, Currency>, ObjectDoublePair<YearMonth>> grouped = ArrayListMultimap.create();
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof InflationRateSensitivity) {
         InflationRateSensitivity pt = (InflationRateSensitivity) point;
         PriceIndex index = pt.getIndex();
         YearMonth referenceMonth = pt.getReferenceMonth();
         double sensitivityValue = pt.getSensitivity();
-        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, pt.getCurrency());
+        Pair<PriceIndex, Currency> key = Pair.of(index, pt.getCurrency());
         grouped.put(key, ObjectDoublePair.of(referenceMonth, sensitivityValue));
       }
     }
     // calculate per currency
-    for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      PriceIndex index = (PriceIndex) key.getIndex();
-      PriceIndexValues values = priceIndexValues.get(index);
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(values.getCurveName(), key.getCurrency());
+    for (Pair<PriceIndex, Currency> key : grouped.keySet()) {
+      PriceIndexValues values = priceIndexValues.get(key.getFirst());
       double[] sensiParam = parameterSensitivityIndex(values, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, DoubleArrayMath::combineByAddition);
+      mutable.add(CurveCurrencyParameterSensitivity.of(values.getCurveName(), key.getSecond(), sensiParam));
     }
-    return CurveParameterSensitivities.of(mutableMap);
+    return CurveCurrencyParameterSensitivities.of(mutable);
   }
 
   // DoublesPair should contain a pair of reference time and point sensitivity value
