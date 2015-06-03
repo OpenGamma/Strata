@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import org.testng.annotations.Test;
 
@@ -31,6 +32,31 @@ public class DoubleArrayMathTest {
 
   public void test_EMPTY_DOUBLE_OBJECT_ARRAY() {
     assertThat(DoubleArrayMath.EMPTY_DOUBLE_OBJECT_ARRAY).contains();
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_sum() {
+    assertThat(DoubleArrayMath.sum(ARRAY_1_2)).isEqualTo(3d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_mutateByAddition() {
+    double[] testArray = ARRAY_1_2.clone();
+    DoubleArrayMath.mutateByAddition(testArray, 2d);
+    assertThat(testArray).contains(3d, 4d);
+  }
+
+  public void test_mutateByMultiplication() {
+    double[] testArray = ARRAY_1_2.clone();
+    DoubleArrayMath.mutateByMultiplication(testArray, 4d);
+    assertThat(testArray).contains(4d, 8d);
+  }
+
+  public void test_mutate() {
+    DoubleUnaryOperator operator = a -> 1 / a;
+    double[] testArray = ARRAY_1_2.clone();
+    DoubleArrayMath.mutate(testArray, operator);
+    assertThat(testArray).contains(1d, 1d / 2d);
   }
 
   //-------------------------------------------------------------------------

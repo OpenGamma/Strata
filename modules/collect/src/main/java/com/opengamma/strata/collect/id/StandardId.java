@@ -129,7 +129,7 @@ public final class StandardId
     this.scheme = ArgChecker.matches(REGEX_SCHEME, scheme, "scheme");
     this.value = ArgChecker.matches(REGEX_VALUE, value, "value");
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the standard identifier, which simply returns {@code this}.
