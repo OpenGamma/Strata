@@ -1,6 +1,7 @@
 package com.opengamma.strata.examples.exampleccp.trades;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -82,6 +83,7 @@ public class MyTrades {
             .id(StandardId.of("swap", "Fixed vs ON (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2015, 4, 27))
+            .attributes(ImmutableMap.of("description", "Fixed vs ON (with fixing)"))
             .build())
         .build();
   }

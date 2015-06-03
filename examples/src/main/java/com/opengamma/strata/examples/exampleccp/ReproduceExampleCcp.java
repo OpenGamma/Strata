@@ -53,7 +53,7 @@ public class ReproduceExampleCcp {
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
 
-    Result<CurrencyAmount> npvResult = (Result<CurrencyAmount>) results.get(0, 5);
+    Result<CurrencyAmount> npvResult = (Result<CurrencyAmount>) results.get(0, 6);
     double npv = npvResult.getValue().getAmount();
     almostEquals(npv, -513.0392228654528);
   }
