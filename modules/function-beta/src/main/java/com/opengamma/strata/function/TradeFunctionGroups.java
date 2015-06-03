@@ -40,6 +40,7 @@ public final class TradeFunctionGroups {
    * The supported built-in measures are:
    * <ul>
    *   <li>{@linkplain Measure#TRADE_INFO Trade info}</li>
+   *   <li>{@linkplain Measure#PRODUCT Product}</li>
    * </ul>
    * 
    * @return the function group
