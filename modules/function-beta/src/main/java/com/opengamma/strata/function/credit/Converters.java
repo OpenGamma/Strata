@@ -1,5 +1,6 @@
 package com.opengamma.strata.function.credit;
 
+import com.opengamma.analytics.convention.daycount.DayCounts;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.StubConvention;
 
@@ -14,6 +15,8 @@ public class Converters {
         return com.opengamma.analytics.convention.daycount.DayCounts.ACT_365F;
       case "30E/360":
         return com.opengamma.analytics.convention.daycount.DayCounts.THIRTY_E_360;
+      case "30/360 ISDA":
+        return com.opengamma.analytics.convention.daycount.DayCounts.THIRTY_E_360; // TODO check with Marc
       case "Act/360":
         return com.opengamma.analytics.convention.daycount.DayCounts.ACT_360;
       default:

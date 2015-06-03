@@ -23,8 +23,8 @@ import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
-import com.opengamma.strata.finance.credit.type.StandardSingleNameCdsConventions;
-import com.opengamma.strata.finance.credit.type.StandardSingleNameCdsTemplate;
+import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
+import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
 import org.joda.beans.ser.JodaBeanSer;
 
 import java.time.LocalDate;
@@ -52,9 +52,9 @@ public class CdsTradeModelDemo {
 
   //-----------------------------------------------------------------------
   public void simpleSingleNameUsd() {
-    CdsTrade trade = StandardSingleNameCdsTemplate
-        .of(StandardSingleNameCdsConventions.northAmerican())
-        .toTrade(
+    CdsTrade trade = StandardCdsTemplate
+        .of(StandardCdsConventions.northAmericanUsd())
+        .toSingleNameTrade(
             StandardId.of("tradeid", "62726762"),
             LocalDate.of(2014, 1, 1),
             Period.ofYears(5),
@@ -75,9 +75,9 @@ public class CdsTradeModelDemo {
   }
 
   public void simpleSingleNameEur() {
-    CdsTrade trade = StandardSingleNameCdsTemplate
-        .of(StandardSingleNameCdsConventions.europeanEUR())
-        .toTrade(
+    CdsTrade trade = StandardCdsTemplate
+        .of(StandardCdsConventions.europeanUsd())
+        .toSingleNameTrade(
             StandardId.of("tradeid", "62726762"),
             LocalDate.of(2014, 1, 1),
             Period.ofYears(5),
@@ -101,7 +101,7 @@ public class CdsTradeModelDemo {
 //    LocalDate tradeDate = LocalDate.of(2014, 1, 1);
 //    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
 //        BusinessDayConventions.FOLLOWING,
-//        HolidayCalendars.NO_HOLIDAYS
+//        HolidayCalendars.
 //    );
 //    CreditDefaultSwapTrade trade = CreditDefaultSwapTrade.of(
 //        StandardId.of("trade", "673676"),

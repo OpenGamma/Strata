@@ -84,7 +84,7 @@ public final class GeneralTerms
       Currency currency,
       SeniorityLevel seniority
   ) {
-    return new GeneralTerms(
+    return of(
         effectiveDate,
         scheduledTerminationDate,
         buySellProtection,
@@ -108,7 +108,7 @@ public final class GeneralTerms
       int indexSeries,
       int indexAnnexVersion
   ) {
-    return new GeneralTerms(
+    return of(
         effectiveDate,
         scheduledTerminationDate,
         buySellProtection,
@@ -119,6 +119,23 @@ public final class GeneralTerms
             indexSeries,
             indexAnnexVersion
         )
+    );
+  }
+
+
+  public static GeneralTerms of(
+      LocalDate effectiveDate,
+      LocalDate scheduledTerminationDate,
+      BuySell buySellProtection,
+      BusinessDayAdjustment businessDayAdjustment,
+      ReferenceInformation referenceInformation
+  ) {
+    return new GeneralTerms(
+        effectiveDate,
+        scheduledTerminationDate,
+        buySellProtection,
+        businessDayAdjustment,
+        referenceInformation
     );
   }
 

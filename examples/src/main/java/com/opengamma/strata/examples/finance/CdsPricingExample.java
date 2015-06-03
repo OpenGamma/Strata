@@ -24,8 +24,8 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
-import com.opengamma.strata.finance.credit.type.StandardSingleNameCdsConventions;
-import com.opengamma.strata.finance.credit.type.StandardSingleNameCdsTemplate;
+import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
+import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
@@ -86,14 +86,14 @@ public class CdsPricingExample {
   //-----------------------------------------------------------------------  
   // create a vanilla fixed vs libor 3m swap
   private static Trade singleName() {
-    return StandardSingleNameCdsTemplate
-        .of(StandardSingleNameCdsConventions.northAmerican())
-        .toTrade(
+    return StandardCdsTemplate
+        .of(StandardCdsConventions.northAmericanUsd())
+        .toSingleNameTrade(
             StandardId.of("tradeid", "62726762"),
             LocalDate.of(2014, 10, 16),
             Period.ofYears(5),
             BuySell.BUY,
-            10_000_000D,
+            100_000_000D,
             0.0100,
             RedCode.of("AH98A7"),
             "Ford Motor Company",

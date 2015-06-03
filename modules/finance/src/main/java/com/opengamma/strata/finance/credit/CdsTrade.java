@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.credit;
 
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
@@ -88,13 +89,7 @@ public final class CdsTrade
    * confusion with the legal effective date which is T-60 or T-90.
    */
   public LocalDate modelStepInDate() { // put this in the product, it comes from the convention
-    return product
-        .getGeneralTerms()
-        .getDateAdjustments()
-        .adjust(
-            modelTradeDate()
-                .plusDays(1)
-        );
+    return modelTradeDate().plusDays(1);
   }
 
   /**
@@ -110,12 +105,18 @@ public final class CdsTrade
    * period (and thus the amount of the first premium payment) is counted from this date.
    */
   public LocalDate modelAccStartDate() {
-    return product.getFeeLeg().getPeriodicPayments().getPeriodicSchedule().getStartDate();
+    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
+        modelBusinessdayAdjustmentConvention(),
+        modelCalendar()
+    );
+    return businessDayAdjustment.adjust(
+        product.getFeeLeg().getPeriodicPayments().getPeriodicSchedule().getStartDate()
+    );
   }
 
   /**
    * endDate (aka maturity date) This is when the contract expires and protection ends - any default after this date does not
-   *  trigger a payment. (the protection ends at end of day)
+   * trigger a payment. (the protection ends at end of day)
    */
   public LocalDate modelEndDate() {
     return product.getFeeLeg().getPeriodicPayments().getPeriodicSchedule().getEndDate();
@@ -137,7 +138,7 @@ public final class CdsTrade
 
   /**
    * stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed
+   * - <b>Note</b> in this code NONE is not allowed
    */
   public StubConvention modelStubConvention() {
     return product.getFeeLeg().getPeriodicPayments().getPeriodicSchedule().getStubConvention().get();

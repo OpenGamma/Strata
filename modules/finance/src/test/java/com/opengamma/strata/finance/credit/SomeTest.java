@@ -101,7 +101,7 @@ public class SomeTest {
             StubConvention.NONE,
             DayCounts.ACT_360,
             BusinessDayConventions.FOLLOWING,
-            HolidayCalendars.NO_HOLIDAYS,
+            HolidayCalendars.SAT_SUN,
             "key",
             true
         ),

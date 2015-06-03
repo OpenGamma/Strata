@@ -26,7 +26,10 @@ import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
+import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
+import com.opengamma.strata.finance.credit.general.reference.ReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
+import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
 import org.joda.beans.Bean;
@@ -50,7 +53,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 @BeanDefinition
-public final class StandardSingleNameCdsConvention
+public final class StandardCdsConvention
     implements Convention, ImmutableBean, Serializable {
 
   @PropertyDefinition(validate = "notNull")
@@ -71,10 +74,12 @@ public final class StandardSingleNameCdsConvention
   @PropertyDefinition(validate = "notNull")
   private final boolean payAccOnDefault;
 
+  // TODO set protectStart = false
+
   @PropertyDefinition(validate = "notNull")
   private final HolidayCalendar calendar;
 
-  @PropertyDefinition(get = "field")
+  @PropertyDefinition(validate = "notNull")
   private final StubConvention stubConvention;
 
   @PropertyDefinition(validate = "notNull")
@@ -92,7 +97,7 @@ public final class StandardSingleNameCdsConvention
 
   //-------------------------------------------------------------------------
 
-  public CdsTrade toTrade(
+  public CdsTrade toSingleNameTrade(
       StandardId id,
       LocalDate tradeDate,
       Period period,
@@ -104,17 +109,71 @@ public final class StandardSingleNameCdsConvention
       SeniorityLevel seniorityLevel,
       RestructuringClause restructuringClause
   ) {
-//    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
-    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
-        dayConvention,
-        calendar
+    return toTrade(
+        id,
+        tradeDate,
+        period,
+        buySell,
+        notional,
+        coupon,
+        SingleNameReferenceInformation.of(
+            referenceEntityName,
+            referenceEntityId,
+            seniorityLevel,
+            currency
+        ),
+        restructuringClause
     );
+  }
+
+  public CdsTrade toIndexTrade(
+      StandardId id,
+      LocalDate tradeDate,
+      Period period,
+      BuySell buySell,
+      double notional,
+      double coupon,
+      RedCode indexId,
+      String indexName,
+      int indexSeries,
+      int indexAnnexVersion,
+      RestructuringClause restructuringClause
+  ) {
+    return toTrade(
+        id,
+        tradeDate,
+        period,
+        buySell,
+        notional,
+        coupon,
+        IndexReferenceInformation.of(
+            indexName,
+            indexId,
+            indexSeries,
+            indexAnnexVersion
+        ),
+        restructuringClause
+    );
+  }
+
+  private CdsTrade toTrade(
+      StandardId id,
+      LocalDate tradeDate,
+      Period period,
+      BuySell buySell,
+      double notional,
+      double coupon,
+      ReferenceInformation referenceInformation,
+      RestructuringClause restructuringClause
+  ) {
+//    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
     LocalDate unadjustedStartDate = calcUnadjustedAccrualStartDate(tradeDate);
 
     // Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
     LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(unadjustedStartDate, period);
 
-    LocalDate stepInDate = businessDayAdjustment.adjust(tradeDate.plusDays(stepIn));
+    LocalDate stepInDate = calcStepInDate(tradeDate);
     LocalDate settleDate = businessDayAdjustment.adjust(tradeDate.plusDays(settleLag));
 
     PeriodicSchedule periodicSchedule = PeriodicSchedule.builder()
@@ -137,15 +196,12 @@ public final class StandardSingleNameCdsConvention
             .settlementDate(settleDate)
             .build(),
         Cds.of(
-            GeneralTerms.singleName(
+            GeneralTerms.of(
                 adjustedStartDate,
                 adjustedEndDate,
                 buySell,
                 businessDayAdjustment,
-                referenceEntityId,
-                referenceEntityName,
-                currency,
-                seniorityLevel
+                referenceInformation
             ),
             FeeLeg.of(
                 PeriodicPayments.of(
@@ -163,33 +219,49 @@ public final class StandardSingleNameCdsConvention
     );
   }
 
-  private static LocalDate calcUnadjustedAccrualStartDate(LocalDate tradeDate) {
+  public BusinessDayAdjustment calcBusinessAdjustment() {
+    return BusinessDayAdjustment.of(
+        dayConvention,
+        calendar
+    );
+  }
+
+  public LocalDate calcSettleDate(LocalDate tradeDate) {
+    return calcBusinessAdjustment().adjust(tradeDate.plusDays(settleLag));
+  }
+
+  public LocalDate calcStepInDate(LocalDate tradeDate) {
+    return calcBusinessAdjustment().adjust(tradeDate.plusDays(stepIn));
+  }
+
+  public LocalDate calcUnadjustedAccrualStartDate(LocalDate tradeDate) {
     return ImmLogic.getPrevIMMDate(tradeDate);
   }
 
   /**
    * Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
    * Example: As of Feb09, the 1y standard CDS contract would protect the buyer through Sat 20Mar10.
+   *
    * @param unadjustedAccrualStartDate beginning of protection
-   * @param period length of the CDS
+   * @param period                     length of the CDS
    * @return
    */
-  private static LocalDate calcUnadjustedMaturityDate(LocalDate unadjustedAccrualStartDate, Period period) {
+  public LocalDate calcUnadjustedMaturityDate(LocalDate unadjustedAccrualStartDate, Period period) {
     return unadjustedAccrualStartDate.plus(period);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code StandardSingleNameCdsConvention}.
+   * The meta-bean for {@code StandardCdsConvention}.
    * @return the meta-bean, not null
    */
-  public static StandardSingleNameCdsConvention.Meta meta() {
-    return StandardSingleNameCdsConvention.Meta.INSTANCE;
+  public static StandardCdsConvention.Meta meta() {
+    return StandardCdsConvention.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(StandardSingleNameCdsConvention.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(StandardCdsConvention.Meta.INSTANCE);
   }
 
   /**
@@ -201,11 +273,11 @@ public final class StandardSingleNameCdsConvention
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static StandardSingleNameCdsConvention.Builder builder() {
-    return new StandardSingleNameCdsConvention.Builder();
+  public static StandardCdsConvention.Builder builder() {
+    return new StandardCdsConvention.Builder();
   }
 
-  private StandardSingleNameCdsConvention(
+  private StandardCdsConvention(
       Currency currency,
       DayCount dayCount,
       BusinessDayConvention dayConvention,
@@ -223,6 +295,7 @@ public final class StandardSingleNameCdsConvention
     JodaBeanUtils.notNull(rollConvention, "rollConvention");
     JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
     JodaBeanUtils.notNull(calendar, "calendar");
+    JodaBeanUtils.notNull(stubConvention, "stubConvention");
     JodaBeanUtils.notNull(stepIn, "stepIn");
     JodaBeanUtils.notNull(settleLag, "settleLag");
     this.currency = currency;
@@ -239,8 +312,8 @@ public final class StandardSingleNameCdsConvention
   }
 
   @Override
-  public StandardSingleNameCdsConvention.Meta metaBean() {
-    return StandardSingleNameCdsConvention.Meta.INSTANCE;
+  public StandardCdsConvention.Meta metaBean() {
+    return StandardCdsConvention.Meta.INSTANCE;
   }
 
   @Override
@@ -318,6 +391,15 @@ public final class StandardSingleNameCdsConvention
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the stubConvention.
+   * @return the value of the property, not null
+   */
+  public StubConvention getStubConvention() {
+    return stubConvention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the stepIn.
    * @return the value of the property, not null
    */
@@ -349,7 +431,7 @@ public final class StandardSingleNameCdsConvention
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      StandardSingleNameCdsConvention other = (StandardSingleNameCdsConvention) obj;
+      StandardCdsConvention other = (StandardCdsConvention) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getDayConvention(), other.getDayConvention()) &&
@@ -357,7 +439,7 @@ public final class StandardSingleNameCdsConvention
           JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
           (isPayAccOnDefault() == other.isPayAccOnDefault()) &&
           JodaBeanUtils.equal(getCalendar(), other.getCalendar()) &&
-          JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
+          JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
           (getStepIn() == other.getStepIn()) &&
           (getSettleLag() == other.getSettleLag());
     }
@@ -374,7 +456,7 @@ public final class StandardSingleNameCdsConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCalendar());
-    hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStepIn());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSettleLag());
     return hash;
@@ -383,7 +465,7 @@ public final class StandardSingleNameCdsConvention
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
-    buf.append("StandardSingleNameCdsConvention{");
+    buf.append("StandardCdsConvention{");
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("dayConvention").append('=').append(getDayConvention()).append(',').append(' ');
@@ -391,7 +473,7 @@ public final class StandardSingleNameCdsConvention
     buf.append("rollConvention").append('=').append(getRollConvention()).append(',').append(' ');
     buf.append("payAccOnDefault").append('=').append(isPayAccOnDefault()).append(',').append(' ');
     buf.append("calendar").append('=').append(getCalendar()).append(',').append(' ');
-    buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');
+    buf.append("stubConvention").append('=').append(getStubConvention()).append(',').append(' ');
     buf.append("stepIn").append('=').append(getStepIn()).append(',').append(' ');
     buf.append("settleLag").append('=').append(JodaBeanUtils.toString(getSettleLag()));
     buf.append('}');
@@ -400,7 +482,7 @@ public final class StandardSingleNameCdsConvention
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code StandardSingleNameCdsConvention}.
+   * The meta-bean for {@code StandardCdsConvention}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -412,52 +494,52 @@ public final class StandardSingleNameCdsConvention
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", StandardSingleNameCdsConvention.class, Currency.class);
+        this, "currency", StandardCdsConvention.class, Currency.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", StandardSingleNameCdsConvention.class, DayCount.class);
+        this, "dayCount", StandardCdsConvention.class, DayCount.class);
     /**
      * The meta-property for the {@code dayConvention} property.
      */
     private final MetaProperty<BusinessDayConvention> dayConvention = DirectMetaProperty.ofImmutable(
-        this, "dayConvention", StandardSingleNameCdsConvention.class, BusinessDayConvention.class);
+        this, "dayConvention", StandardCdsConvention.class, BusinessDayConvention.class);
     /**
      * The meta-property for the {@code paymentFrequency} property.
      */
     private final MetaProperty<Frequency> paymentFrequency = DirectMetaProperty.ofImmutable(
-        this, "paymentFrequency", StandardSingleNameCdsConvention.class, Frequency.class);
+        this, "paymentFrequency", StandardCdsConvention.class, Frequency.class);
     /**
      * The meta-property for the {@code rollConvention} property.
      */
     private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
-        this, "rollConvention", StandardSingleNameCdsConvention.class, RollConvention.class);
+        this, "rollConvention", StandardCdsConvention.class, RollConvention.class);
     /**
      * The meta-property for the {@code payAccOnDefault} property.
      */
     private final MetaProperty<Boolean> payAccOnDefault = DirectMetaProperty.ofImmutable(
-        this, "payAccOnDefault", StandardSingleNameCdsConvention.class, Boolean.TYPE);
+        this, "payAccOnDefault", StandardCdsConvention.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code calendar} property.
      */
     private final MetaProperty<HolidayCalendar> calendar = DirectMetaProperty.ofImmutable(
-        this, "calendar", StandardSingleNameCdsConvention.class, HolidayCalendar.class);
+        this, "calendar", StandardCdsConvention.class, HolidayCalendar.class);
     /**
      * The meta-property for the {@code stubConvention} property.
      */
     private final MetaProperty<StubConvention> stubConvention = DirectMetaProperty.ofImmutable(
-        this, "stubConvention", StandardSingleNameCdsConvention.class, StubConvention.class);
+        this, "stubConvention", StandardCdsConvention.class, StubConvention.class);
     /**
      * The meta-property for the {@code stepIn} property.
      */
     private final MetaProperty<Integer> stepIn = DirectMetaProperty.ofImmutable(
-        this, "stepIn", StandardSingleNameCdsConvention.class, Integer.TYPE);
+        this, "stepIn", StandardCdsConvention.class, Integer.TYPE);
     /**
      * The meta-property for the {@code settleLag} property.
      */
     private final MetaProperty<Integer> settleLag = DirectMetaProperty.ofImmutable(
-        this, "settleLag", StandardSingleNameCdsConvention.class, Integer.TYPE);
+        this, "settleLag", StandardCdsConvention.class, Integer.TYPE);
     /**
      * The meta-properties.
      */
@@ -508,13 +590,13 @@ public final class StandardSingleNameCdsConvention
     }
 
     @Override
-    public StandardSingleNameCdsConvention.Builder builder() {
-      return new StandardSingleNameCdsConvention.Builder();
+    public StandardCdsConvention.Builder builder() {
+      return new StandardCdsConvention.Builder();
     }
 
     @Override
-    public Class<? extends StandardSingleNameCdsConvention> beanType() {
-      return StandardSingleNameCdsConvention.class;
+    public Class<? extends StandardCdsConvention> beanType() {
+      return StandardCdsConvention.class;
     }
 
     @Override
@@ -608,25 +690,25 @@ public final class StandardSingleNameCdsConvention
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
-          return ((StandardSingleNameCdsConvention) bean).getCurrency();
+          return ((StandardCdsConvention) bean).getCurrency();
         case 1905311443:  // dayCount
-          return ((StandardSingleNameCdsConvention) bean).getDayCount();
+          return ((StandardCdsConvention) bean).getDayCount();
         case 1710876717:  // dayConvention
-          return ((StandardSingleNameCdsConvention) bean).getDayConvention();
+          return ((StandardCdsConvention) bean).getDayConvention();
         case 863656438:  // paymentFrequency
-          return ((StandardSingleNameCdsConvention) bean).getPaymentFrequency();
+          return ((StandardCdsConvention) bean).getPaymentFrequency();
         case -10223666:  // rollConvention
-          return ((StandardSingleNameCdsConvention) bean).getRollConvention();
+          return ((StandardCdsConvention) bean).getRollConvention();
         case -988493655:  // payAccOnDefault
-          return ((StandardSingleNameCdsConvention) bean).isPayAccOnDefault();
+          return ((StandardCdsConvention) bean).isPayAccOnDefault();
         case -178324674:  // calendar
-          return ((StandardSingleNameCdsConvention) bean).getCalendar();
+          return ((StandardCdsConvention) bean).getCalendar();
         case -31408449:  // stubConvention
-          return ((StandardSingleNameCdsConvention) bean).stubConvention;
+          return ((StandardCdsConvention) bean).getStubConvention();
         case -892367599:  // stepIn
-          return ((StandardSingleNameCdsConvention) bean).getStepIn();
+          return ((StandardCdsConvention) bean).getStepIn();
         case 1526370375:  // settleLag
-          return ((StandardSingleNameCdsConvention) bean).getSettleLag();
+          return ((StandardCdsConvention) bean).getSettleLag();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -644,9 +726,9 @@ public final class StandardSingleNameCdsConvention
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code StandardSingleNameCdsConvention}.
+   * The bean-builder for {@code StandardCdsConvention}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<StandardSingleNameCdsConvention> {
+  public static final class Builder extends DirectFieldsBeanBuilder<StandardCdsConvention> {
 
     private Currency currency;
     private DayCount dayCount;
@@ -669,7 +751,7 @@ public final class StandardSingleNameCdsConvention
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(StandardSingleNameCdsConvention beanToCopy) {
+    private Builder(StandardCdsConvention beanToCopy) {
       this.currency = beanToCopy.getCurrency();
       this.dayCount = beanToCopy.getDayCount();
       this.dayConvention = beanToCopy.getDayConvention();
@@ -677,7 +759,7 @@ public final class StandardSingleNameCdsConvention
       this.rollConvention = beanToCopy.getRollConvention();
       this.payAccOnDefault = beanToCopy.isPayAccOnDefault();
       this.calendar = beanToCopy.getCalendar();
-      this.stubConvention = beanToCopy.stubConvention;
+      this.stubConvention = beanToCopy.getStubConvention();
       this.stepIn = beanToCopy.getStepIn();
       this.settleLag = beanToCopy.getSettleLag();
     }
@@ -775,8 +857,8 @@ public final class StandardSingleNameCdsConvention
     }
 
     @Override
-    public StandardSingleNameCdsConvention build() {
-      return new StandardSingleNameCdsConvention(
+    public StandardCdsConvention build() {
+      return new StandardCdsConvention(
           currency,
           dayCount,
           dayConvention,
@@ -869,10 +951,11 @@ public final class StandardSingleNameCdsConvention
 
     /**
      * Sets the {@code stubConvention} property in the builder.
-     * @param stubConvention  the new value
+     * @param stubConvention  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder stubConvention(StubConvention stubConvention) {
+      JodaBeanUtils.notNull(stubConvention, "stubConvention");
       this.stubConvention = stubConvention;
       return this;
     }
@@ -903,7 +986,7 @@ public final class StandardSingleNameCdsConvention
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(352);
-      buf.append("StandardSingleNameCdsConvention.Builder{");
+      buf.append("StandardCdsConvention.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("dayConvention").append('=').append(JodaBeanUtils.toString(dayConvention)).append(',').append(' ');

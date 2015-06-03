@@ -8,7 +8,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 
-public class StandardSingleNameCdsConventions {
+public class StandardCdsConventions {
 
   /**
    * http://www.cdsmodel.com/cdsmodel/assets/cds-model/docs/Standard%20CDS%20Contract%20Specification.pdf
@@ -42,15 +42,15 @@ public class StandardSingleNameCdsConventions {
    * payment day (Maturity Date).
    */
 
-  public static StandardSingleNameCdsConvention northAmerican() {
-    return StandardSingleNameCdsConvention
+  public static StandardCdsConvention northAmericanUsd() {
+    return StandardCdsConvention
         .builder()
         .currency(Currency.USD)
         .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.FOLLOWING)
+        .dayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
         .paymentFrequency(Frequency.P3M)
         .payAccOnDefault(true)
-        .calendar(HolidayCalendars.NO_HOLIDAYS)
+        .calendar(HolidayCalendars.SAT_SUN)
         .stubConvention(StubConvention.SHORT_INITIAL)
         .rollConvention(RollConventions.DAY_20)
         .stepIn(1)
@@ -103,8 +103,8 @@ public class StandardSingleNameCdsConventions {
    * o USD: London and New York 
    */
 
-  public static StandardSingleNameCdsConvention europeanEUR() {
-    return StandardSingleNameCdsConvention
+  public static StandardCdsConvention europeanEur() {
+    return StandardCdsConvention
         .builder()
         .currency(Currency.EUR)
         .dayCount(DayCounts.ACT_360)
@@ -119,8 +119,8 @@ public class StandardSingleNameCdsConventions {
         .build();
   }
 
-  public static StandardSingleNameCdsConvention europeanGBP() {
-    return StandardSingleNameCdsConvention
+  public static StandardCdsConvention europeanGbp() {
+    return StandardCdsConvention
         .builder()
         .currency(Currency.GBP)
         .dayCount(DayCounts.ACT_360)
@@ -135,8 +135,8 @@ public class StandardSingleNameCdsConventions {
         .build();
   }
 
-  public static StandardSingleNameCdsConvention europeanCHF() {
-    return StandardSingleNameCdsConvention
+  public static StandardCdsConvention europeanChf() {
+    return StandardCdsConvention
         .builder()
         .currency(Currency.CHF)
         .dayCount(DayCounts.ACT_360)
@@ -151,8 +151,8 @@ public class StandardSingleNameCdsConventions {
         .build();
   }
 
-  public static StandardSingleNameCdsConvention europeanUSD() {
-    return StandardSingleNameCdsConvention
+  public static StandardCdsConvention europeanUsd() {
+    return StandardCdsConvention
         .builder()
         .currency(Currency.USD)
         .dayCount(DayCounts.ACT_360)
