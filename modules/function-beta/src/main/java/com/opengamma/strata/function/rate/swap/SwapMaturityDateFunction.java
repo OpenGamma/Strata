@@ -17,7 +17,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 /**
  * Returns the maturity date of a {@code SwapTrade}.
  */
-public class SwapTradeMaturityDateFunction
+public class SwapMaturityDateFunction
     implements CalculationSingleFunction<SwapTrade, LocalDate> {
 
   @Override

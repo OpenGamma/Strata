@@ -36,12 +36,6 @@ public final class Measure
   //-------------------------------------------------------------------------
   /** Measure representing the accrued interest of the calculation target. */
   public static final Measure ACCRUED_INTEREST = Measure.of("AccruedInterest");
-  
-  /** Measure representing the counterparty of the calculation target. */
-  public static final Measure COUNTERPARTY = Measure.of("Counterparty");
-
-  /** Measure representing the ID of the calculation target. */
-  public static final Measure ID = Measure.of("Id");
 
   /** Measure representing the maturity date of the calculation target. */
   public static final Measure MATURITY_DATE = Measure.of("MaturityDate");
@@ -64,11 +58,11 @@ public final class Measure
   /** Measure representing the PV01 of the calculation target. */
   public static final Measure PV01 = Measure.of("PV01");
   
-  /** Measure representing the settlement date of the calculation target. */
-  public static final Measure SETTLEMENT_DATE = Measure.of("SettlementDate");
+  /** Measure to provide the standard block of trade information from the trade.  */
+  public static final Measure TRADE_INFO = Measure.of("TradeInfo");
   
-  /** Measure representing the trade date of the calculation target. */
-  public static final Measure TRADE_DATE = Measure.of("TradeDate");
+  /** Measure to provide the product on the trade. */
+  public static final Measure PRODUCT = Measure.of("Product");
 
   //-------------------------------------------------------------------------
   /**
