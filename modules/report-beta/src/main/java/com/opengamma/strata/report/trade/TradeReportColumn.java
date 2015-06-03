@@ -43,6 +43,10 @@ public class TradeReportColumn implements ImmutableBean {
   /** The column header. */
   @PropertyDefinition(get = "field")
   private final String header;
+  
+  /** Whether to ignore failures, or report the errors. */
+  @PropertyDefinition
+  private final boolean ignoreFailure;
 
   //-------------------------------------------------------------------------
   /**
@@ -90,6 +94,7 @@ public class TradeReportColumn implements ImmutableBean {
     this.measure = builder.measure;
     this.path = (builder.path != null ? ImmutableList.copyOf(builder.path) : null);
     this.header = builder.header;
+    this.ignoreFailure = builder.ignoreFailure;
   }
 
   @Override
@@ -127,6 +132,15 @@ public class TradeReportColumn implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether to ignore failures, or report the errors.
+   * @return the value of the property
+   */
+  public boolean isIgnoreFailure() {
+    return ignoreFailure;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -143,7 +157,8 @@ public class TradeReportColumn implements ImmutableBean {
       TradeReportColumn other = (TradeReportColumn) obj;
       return JodaBeanUtils.equal(getMeasure(), other.getMeasure()) &&
           JodaBeanUtils.equal(path, other.path) &&
-          JodaBeanUtils.equal(header, other.header);
+          JodaBeanUtils.equal(header, other.header) &&
+          (isIgnoreFailure() == other.isIgnoreFailure());
     }
     return false;
   }
@@ -154,12 +169,13 @@ public class TradeReportColumn implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(getMeasure());
     hash = hash * 31 + JodaBeanUtils.hashCode(path);
     hash = hash * 31 + JodaBeanUtils.hashCode(header);
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIgnoreFailure());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("TradeReportColumn{");
     int len = buf.length();
     toString(buf);
@@ -174,6 +190,7 @@ public class TradeReportColumn implements ImmutableBean {
     buf.append("measure").append('=').append(JodaBeanUtils.toString(getMeasure())).append(',').append(' ');
     buf.append("path").append('=').append(JodaBeanUtils.toString(path)).append(',').append(' ');
     buf.append("header").append('=').append(JodaBeanUtils.toString(header)).append(',').append(' ');
+    buf.append("ignoreFailure").append('=').append(JodaBeanUtils.toString(isIgnoreFailure())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -203,13 +220,19 @@ public class TradeReportColumn implements ImmutableBean {
     private final MetaProperty<String> header = DirectMetaProperty.ofImmutable(
         this, "header", TradeReportColumn.class, String.class);
     /**
+     * The meta-property for the {@code ignoreFailure} property.
+     */
+    private final MetaProperty<Boolean> ignoreFailure = DirectMetaProperty.ofImmutable(
+        this, "ignoreFailure", TradeReportColumn.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "measure",
         "path",
-        "header");
+        "header",
+        "ignoreFailure");
 
     /**
      * Restricted constructor.
@@ -226,6 +249,8 @@ public class TradeReportColumn implements ImmutableBean {
           return path;
         case -1221270899:  // header
           return header;
+        case -149357736:  // ignoreFailure
+          return ignoreFailure;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -270,6 +295,14 @@ public class TradeReportColumn implements ImmutableBean {
       return header;
     }
 
+    /**
+     * The meta-property for the {@code ignoreFailure} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> ignoreFailure() {
+      return ignoreFailure;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -280,6 +313,8 @@ public class TradeReportColumn implements ImmutableBean {
           return ((TradeReportColumn) bean).path;
         case -1221270899:  // header
           return ((TradeReportColumn) bean).header;
+        case -149357736:  // ignoreFailure
+          return ((TradeReportColumn) bean).isIgnoreFailure();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -304,6 +339,7 @@ public class TradeReportColumn implements ImmutableBean {
     private Measure measure;
     private List<String> path;
     private String header;
+    private boolean ignoreFailure;
 
     /**
      * Restricted constructor.
@@ -319,6 +355,7 @@ public class TradeReportColumn implements ImmutableBean {
       this.measure = beanToCopy.getMeasure();
       this.path = beanToCopy.path;
       this.header = beanToCopy.header;
+      this.ignoreFailure = beanToCopy.isIgnoreFailure();
     }
 
     //-----------------------------------------------------------------------
@@ -331,6 +368,8 @@ public class TradeReportColumn implements ImmutableBean {
           return path;
         case -1221270899:  // header
           return header;
+        case -149357736:  // ignoreFailure
+          return ignoreFailure;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -348,6 +387,9 @@ public class TradeReportColumn implements ImmutableBean {
           break;
         case -1221270899:  // header
           this.header = (String) newValue;
+          break;
+        case -149357736:  // ignoreFailure
+          this.ignoreFailure = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -426,10 +468,20 @@ public class TradeReportColumn implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code ignoreFailure} property in the builder.
+     * @param ignoreFailure  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder ignoreFailure(boolean ignoreFailure) {
+      this.ignoreFailure = ignoreFailure;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("TradeReportColumn.Builder{");
       int len = buf.length();
       toString(buf);
@@ -444,6 +496,7 @@ public class TradeReportColumn implements ImmutableBean {
       buf.append("measure").append('=').append(JodaBeanUtils.toString(measure)).append(',').append(' ');
       buf.append("path").append('=').append(JodaBeanUtils.toString(path)).append(',').append(' ');
       buf.append("header").append('=').append(JodaBeanUtils.toString(header)).append(',').append(' ');
+      buf.append("ignoreFailure").append('=').append(JodaBeanUtils.toString(ignoreFailure)).append(',').append(' ');
     }
 
   }

@@ -56,24 +56,19 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
     for (int reportColumnIdx = 0; reportColumnIdx < reportTemplate.getColumns().size(); reportColumnIdx++) {
       TradeReportColumn reportColumn = reportTemplate.getColumns().get(reportColumnIdx);
       IntFunction<Result<?>> resultFn;
-      if (reportColumn instanceof TradeReportColumn) {
-        TradeReportColumn measureColumn = (TradeReportColumn) reportColumn;
-        Column calcColumn = toColumn(measureColumn);
-        int calcColumnIndex = calculationResults.getColumns().indexOf(calcColumn);
-        if (calcColumnIndex > -1) {
-          resultFn = i -> {
-            Result<?> result = results.get(i, calcColumnIndex);
-            if (result.isFailure() || !measureColumn.getPath().isPresent()) {
-              return result;
-            } else {
-              return evaluatePath(result.getValue(), measureColumn.getPath().get());
-            }
-          };
-        } else {
-          resultFn = i -> Result.failure(FailureReason.MISSING_DATA, "Missing engine result");
-        }
+      TradeReportColumn measureColumn = (TradeReportColumn) reportColumn;
+      Column calcColumn = toColumn(measureColumn);
+      int calcColumnIndex = calculationResults.getColumns().indexOf(calcColumn);
+      if (calcColumnIndex > -1) {
+        resultFn = i -> {
+          Result<?> result = results.get(i, calcColumnIndex);
+          if (result.isSuccess() && measureColumn.getPath().isPresent()) {
+            result = evaluatePath(result.getValue(), measureColumn.getPath().get());
+          }
+          return result.isFailure() && measureColumn.isIgnoreFailure() ? Result.success("") : result;
+        };
       } else {
-        throw new IllegalArgumentException("Unsupported report column type: " + reportColumn.getClass());
+        resultFn = i -> Result.failure(FailureReason.MISSING_DATA, "Missing engine result");
       }
 
       for (int i = 0; i < results.getRowCount(); i++) {

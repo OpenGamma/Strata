@@ -17,11 +17,12 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.report.ReportTemplateIniLoader;
 
 /**
- * 
+ * Loader for trade report templates in the standard INI file format.
  */
 public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<TradeReportTemplate> {
 
   private static final String VALUE_PROPERTY = "value";
+  private static final String IGNORE_FAILURE_PROPERTY = "ignoreFailure";
   private static final String PATH_SEPARATOR = "\\.";
 
   @Override
@@ -62,6 +63,11 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
     }
     if (!measurePath.isEmpty()) {
       columnBuilder.path(measurePath);
+    }
+    if (properties.contains(IGNORE_FAILURE_PROPERTY)) {
+      String ignoreFailureValue = properties.getValue(IGNORE_FAILURE_PROPERTY);
+      boolean ignoreFailure = Boolean.valueOf(ignoreFailureValue);
+      columnBuilder.ignoreFailure(ignoreFailure);
     }
     return columnBuilder.build();
   }
