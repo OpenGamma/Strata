@@ -271,8 +271,6 @@ public final class IborFixingDepositConvention
    * Creates a trade based on this convention.
    * <p>
    * This returns a trade based on the specified periods.
-   * For example, a '2 x 5' FRA has a period to the start date of 2 months and
-   * a period to the end date of 5 months
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the Ibor fixing deposit, the floating rate is paid from the counterparty, with the fixed rate being received.

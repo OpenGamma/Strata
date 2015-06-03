@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTemplate;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 
 /**
  * A curve node whose instrument is an Ibor fixing deposit.
@@ -75,9 +75,9 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
   }
 
   @Override
-  public Trade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
+  public IborFixingDepositTrade buildTrade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
     BuySell buySell = BuySell.BUY;
-    double notional = 1;
+    double notional = 1d;
     double fixedRate = rate(marketData);
     return template.toTrade(valuationDate, buySell, notional, fixedRate);
   }

@@ -85,9 +85,23 @@ public final class IborFixingDepositTemplate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on the specified period and index.
+   * Creates a template based on the specified index.
    * <p>
    * The period from the start date to the end date will be the tenor of the index.
+   * The convention will be created based on the index. 
+   * 
+   * @param index  the index that defines the market convention
+   * @return the template
+   */
+  public static IborFixingDepositTemplate of(IborIndex index) {
+    return of(index.getTenor().getPeriod(), IborFixingDepositConvention.of(index));
+  }
+
+  /**
+   * Creates a template based on the specified period and index.
+   * <p>
+   * The period from the start date to the end is specified.
+   * The convention will be created based on the index. 
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param index  the index that defines the market convention
@@ -99,8 +113,6 @@ public final class IborFixingDepositTemplate
 
   /**
    * Creates a template based on the specified periods and convention.
-   * <p>
-   * The period from the start date to the end is specified.
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param convention  the market convention
