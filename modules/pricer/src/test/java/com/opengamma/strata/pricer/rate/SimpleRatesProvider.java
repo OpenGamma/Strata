@@ -116,7 +116,7 @@ public class SimpleRatesProvider
   }
 
   @Override
-  public CurveCurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
   }
 

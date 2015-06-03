@@ -19,7 +19,7 @@ public class FxForwardPvParameterSensitivityFunction
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedFx product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity);
   }
 
 }

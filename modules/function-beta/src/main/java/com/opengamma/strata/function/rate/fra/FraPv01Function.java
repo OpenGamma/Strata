@@ -20,7 +20,7 @@ public class FraPv01Function
   @Override
   protected MultiCurrencyAmount execute(ExpandedFra product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity).total();
+    return provider.curveParameterSensitivity(pointSensitivity).total();
   }
 
 }

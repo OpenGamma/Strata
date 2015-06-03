@@ -19,7 +19,7 @@ public class FraPvParameterSensitivityFunction
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedFra product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity);
   }
 
 }

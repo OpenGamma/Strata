@@ -19,7 +19,7 @@ public class TermDepositParSpreadParameterSensitivityFunction
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedTermDeposit product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().parSpreadSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity);
   }
 
 }

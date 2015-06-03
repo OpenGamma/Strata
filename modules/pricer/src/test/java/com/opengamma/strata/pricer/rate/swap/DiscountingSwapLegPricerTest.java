@@ -291,7 +291,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_finiteDifference() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP).build();
-    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities psFd =
         FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP, (p) -> PRICER_LEG.presentValue(expSwapLeg, p));
     ImmutableList<CurveCurrencyParameterSensitivity> listAd = psAd.getSensitivities();
@@ -304,7 +304,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_events() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivityEventsInternal(expSwapLeg, RATES_GBP).build();
-    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
         (p) -> CurrencyAmount.of(GBP, PRICER_LEG.presentValueEventsInternal(expSwapLeg, p)));
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
@@ -313,7 +313,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_periods() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivityPeriodsInternal(expSwapLeg, RATES_GBP).build();
-    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
         (p) -> CurrencyAmount.of(GBP, PRICER_LEG.presentValuePeriodsInternal(expSwapLeg, p)));
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
@@ -327,7 +327,7 @@ public class DiscountingSwapLegPricerTest {
         .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2)
         .build();
     PointSensitivities point = PRICER_LEG.pvbpSensitivity(leg, RATES_USD).build();
-    CurveCurrencyParameterSensitivities pvbpsAd = RATES_USD.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities pvbpsAd = RATES_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities pvbpsFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_USD,
         (p) -> CurrencyAmount.of(USD, PRICER_LEG.pvbp(leg, p)));
     assertTrue(pvbpsAd.equalWithTolerance(pvbpsFd, TOLERANCE_DELTA));

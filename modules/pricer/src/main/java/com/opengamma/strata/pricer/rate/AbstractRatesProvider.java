@@ -42,7 +42,7 @@ public abstract class AbstractRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities parameterSensitivity(PointSensitivities sensitivities) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities sensitivities) {
     PointSensitivities sensiFxDecomposed = resolveFxRateSensitivities(sensitivities);
     List<CurveCurrencyParameterSensitivity> mutable = new ArrayList<>();
     paramSensitivityZeroRate(sensiFxDecomposed, mutable);
