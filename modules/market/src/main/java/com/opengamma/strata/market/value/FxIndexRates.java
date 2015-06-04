@@ -94,4 +94,5 @@ public interface FxIndexRates {
    */
   public abstract PointSensitivityBuilder pointSensitivity(Currency baseCurrency, LocalDate fixingDate);
 
+  public abstract double rateDelta(Currency baseCurrency, LocalDate fixingDate);
 }

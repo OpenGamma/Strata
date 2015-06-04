@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
 
 /**
@@ -55,14 +56,15 @@ public final class ExpandedFxNonDeliverableForward
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount settlementCurrencyNotional;
   /**
-   * The notional amount in the non-deliverable currency, positive if receiving, negative if paying.
+   * The FX rate agreed for the value date at the inception of the trade.
    * <p>
-   * The amount is signed.
-   * A positive amount indicates the payment is to be received.
-   * A negative amount indicates the payment is to be paid.
+   * The settlement amount is based on the difference between this rate and the
+   * rate observed on the fixing date using the {@code index}.
+   * <p>
+   * The forward is between the two currencies defined by the rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurrencyAmount nonDeliverableCurrencyNotional;
+  private final FxRate agreedFxRate;
   /**
    * The index defining the FX rate to observe on the fixing date.
    * <p>
@@ -74,37 +76,22 @@ public final class ExpandedFxNonDeliverableForward
   @PropertyDefinition(validate = "notNull")
   private final FxIndex index;
   /**
-   * The fixing date, when the FX rate is determined.
-   * <p>
-   * This is typically 2 business days before the value date.
-   * This date should be a valid business day for the index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
-  /**
    * The date that the forward settles.
    * <p>
    * On this date, the settlement amount will be exchanged.
    * This date should be a valid business day.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate valueDate;
+  private final LocalDate paymentDate;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    if (settlementCurrencyNotional.getCurrency().equals(nonDeliverableCurrencyNotional.getCurrency())) {
-      throw new IllegalArgumentException("Notionals must have different currencies");
-    }
     if (!index.getCurrencyPair().contains(settlementCurrencyNotional.getCurrency())) {
       throw new IllegalArgumentException("FxIndex and settlement notional currency are incompatible");
     }
-    if (!index.getCurrencyPair().contains(nonDeliverableCurrencyNotional.getCurrency())) {
-      throw new IllegalArgumentException("FxIndex and non-deliverable notional currency are incompatible");
-    }
-    if ((settlementCurrencyNotional.getAmount() != 0d || nonDeliverableCurrencyNotional.getAmount() != 0d) &&
-        Math.signum(settlementCurrencyNotional.getAmount()) != -Math.signum(nonDeliverableCurrencyNotional.getAmount())) {
-      throw new IllegalArgumentException("Notionals must have different signs");
+    if (!index.getCurrencyPair().isRelated(agreedFxRate.getPair())) {
+      throw new IllegalArgumentException("FxIndex and agreed FX rate are incompatible");
     }
   }
 
@@ -119,6 +106,17 @@ public final class ExpandedFxNonDeliverableForward
   }
 
   /**
+   * Gets the settlement notional.
+   * <p>
+   * Returns the signed notional amount that is to be settled in the settlement currency. 
+   * 
+   * @return the notional
+   */
+  public double getSettlementNotional() {
+    return settlementCurrencyNotional.getAmount();
+  }
+
+  /**
    * Gets the non-deliverable currency.
    * <p>
    * Returns the currency that is not the settlement currency.
@@ -126,16 +124,8 @@ public final class ExpandedFxNonDeliverableForward
    * @return the currency that is not to be settled
    */
   public Currency getNonDeliverableCurrency() {
-    return nonDeliverableCurrencyNotional.getCurrency();
-  }
-
-  /**
-   * Gets the agreed FX rate, from the settlement currency to the non-deliverable currency.
-   * 
-   * @return the rate from the settlement currency to the non-deliverable currency
-   */
-  public double getAgreedFxRate() {
-    return -nonDeliverableCurrencyNotional.getAmount() / settlementCurrencyNotional.getAmount();
+    return index.getCurrencyPair().getBase().equals(getSettlementCurrency()) ?
+        index.getCurrencyPair().getCounter() : index.getCurrencyPair().getBase();
   }
 
   //-------------------------------------------------------------------------
@@ -178,20 +168,17 @@ public final class ExpandedFxNonDeliverableForward
 
   private ExpandedFxNonDeliverableForward(
       CurrencyAmount settlementCurrencyNotional,
-      CurrencyAmount nonDeliverableCurrencyNotional,
+      FxRate agreedFxRate,
       FxIndex index,
-      LocalDate fixingDate,
-      LocalDate valueDate) {
+      LocalDate paymentDate) {
     JodaBeanUtils.notNull(settlementCurrencyNotional, "settlementCurrencyNotional");
-    JodaBeanUtils.notNull(nonDeliverableCurrencyNotional, "nonDeliverableCurrencyNotional");
+    JodaBeanUtils.notNull(agreedFxRate, "agreedFxRate");
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
-    JodaBeanUtils.notNull(valueDate, "valueDate");
+    JodaBeanUtils.notNull(paymentDate, "paymentDate");
     this.settlementCurrencyNotional = settlementCurrencyNotional;
-    this.nonDeliverableCurrencyNotional = nonDeliverableCurrencyNotional;
+    this.agreedFxRate = agreedFxRate;
     this.index = index;
-    this.fixingDate = fixingDate;
-    this.valueDate = valueDate;
+    this.paymentDate = paymentDate;
     validate();
   }
 
@@ -225,15 +212,16 @@ public final class ExpandedFxNonDeliverableForward
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount in the non-deliverable currency, positive if receiving, negative if paying.
+   * Gets the FX rate agreed for the value date at the inception of the trade.
    * <p>
-   * The amount is signed.
-   * A positive amount indicates the payment is to be received.
-   * A negative amount indicates the payment is to be paid.
+   * The settlement amount is based on the difference between this rate and the
+   * rate observed on the fixing date using the {@code index}.
+   * <p>
+   * The forward is between the two currencies defined by the rate.
    * @return the value of the property, not null
    */
-  public CurrencyAmount getNonDeliverableCurrencyNotional() {
-    return nonDeliverableCurrencyNotional;
+  public FxRate getAgreedFxRate() {
+    return agreedFxRate;
   }
 
   //-----------------------------------------------------------------------
@@ -252,26 +240,14 @@ public final class ExpandedFxNonDeliverableForward
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixing date, when the FX rate is determined.
-   * <p>
-   * This is typically 2 business days before the value date.
-   * This date should be a valid business day for the index.
-   * @return the value of the property, not null
-   */
-  public LocalDate getFixingDate() {
-    return fixingDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the date that the forward settles.
    * <p>
    * On this date, the settlement amount will be exchanged.
    * This date should be a valid business day.
    * @return the value of the property, not null
    */
-  public LocalDate getValueDate() {
-    return valueDate;
+  public LocalDate getPaymentDate() {
+    return paymentDate;
   }
 
   //-----------------------------------------------------------------------
@@ -291,10 +267,9 @@ public final class ExpandedFxNonDeliverableForward
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedFxNonDeliverableForward other = (ExpandedFxNonDeliverableForward) obj;
       return JodaBeanUtils.equal(getSettlementCurrencyNotional(), other.getSettlementCurrencyNotional()) &&
-          JodaBeanUtils.equal(getNonDeliverableCurrencyNotional(), other.getNonDeliverableCurrencyNotional()) &&
+          JodaBeanUtils.equal(getAgreedFxRate(), other.getAgreedFxRate()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
-          JodaBeanUtils.equal(getValueDate(), other.getValueDate());
+          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate());
     }
     return false;
   }
@@ -303,22 +278,20 @@ public final class ExpandedFxNonDeliverableForward
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrencyNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNonDeliverableCurrencyNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAgreedFxRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValueDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ExpandedFxNonDeliverableForward{");
     buf.append("settlementCurrencyNotional").append('=').append(getSettlementCurrencyNotional()).append(',').append(' ');
-    buf.append("nonDeliverableCurrencyNotional").append('=').append(getNonDeliverableCurrencyNotional()).append(',').append(' ');
+    buf.append("agreedFxRate").append('=').append(getAgreedFxRate()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
-    buf.append("valueDate").append('=').append(JodaBeanUtils.toString(getValueDate()));
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(getPaymentDate()));
     buf.append('}');
     return buf.toString();
   }
@@ -339,35 +312,29 @@ public final class ExpandedFxNonDeliverableForward
     private final MetaProperty<CurrencyAmount> settlementCurrencyNotional = DirectMetaProperty.ofImmutable(
         this, "settlementCurrencyNotional", ExpandedFxNonDeliverableForward.class, CurrencyAmount.class);
     /**
-     * The meta-property for the {@code nonDeliverableCurrencyNotional} property.
+     * The meta-property for the {@code agreedFxRate} property.
      */
-    private final MetaProperty<CurrencyAmount> nonDeliverableCurrencyNotional = DirectMetaProperty.ofImmutable(
-        this, "nonDeliverableCurrencyNotional", ExpandedFxNonDeliverableForward.class, CurrencyAmount.class);
+    private final MetaProperty<FxRate> agreedFxRate = DirectMetaProperty.ofImmutable(
+        this, "agreedFxRate", ExpandedFxNonDeliverableForward.class, FxRate.class);
     /**
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", ExpandedFxNonDeliverableForward.class, FxIndex.class);
     /**
-     * The meta-property for the {@code fixingDate} property.
+     * The meta-property for the {@code paymentDate} property.
      */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", ExpandedFxNonDeliverableForward.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code valueDate} property.
-     */
-    private final MetaProperty<LocalDate> valueDate = DirectMetaProperty.ofImmutable(
-        this, "valueDate", ExpandedFxNonDeliverableForward.class, LocalDate.class);
+    private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
+        this, "paymentDate", ExpandedFxNonDeliverableForward.class, LocalDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "settlementCurrencyNotional",
-        "nonDeliverableCurrencyNotional",
+        "agreedFxRate",
         "index",
-        "fixingDate",
-        "valueDate");
+        "paymentDate");
 
     /**
      * Restricted constructor.
@@ -380,14 +347,12 @@ public final class ExpandedFxNonDeliverableForward
       switch (propertyName.hashCode()) {
         case 594670010:  // settlementCurrencyNotional
           return settlementCurrencyNotional;
-        case -1127062141:  // nonDeliverableCurrencyNotional
-          return nonDeliverableCurrencyNotional;
+        case 1040357930:  // agreedFxRate
+          return agreedFxRate;
         case 100346066:  // index
           return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
-        case -766192449:  // valueDate
-          return valueDate;
+        case -1540873516:  // paymentDate
+          return paymentDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -417,11 +382,11 @@ public final class ExpandedFxNonDeliverableForward
     }
 
     /**
-     * The meta-property for the {@code nonDeliverableCurrencyNotional} property.
+     * The meta-property for the {@code agreedFxRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> nonDeliverableCurrencyNotional() {
-      return nonDeliverableCurrencyNotional;
+    public MetaProperty<FxRate> agreedFxRate() {
+      return agreedFxRate;
     }
 
     /**
@@ -433,19 +398,11 @@ public final class ExpandedFxNonDeliverableForward
     }
 
     /**
-     * The meta-property for the {@code fixingDate} property.
+     * The meta-property for the {@code paymentDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
-    }
-
-    /**
-     * The meta-property for the {@code valueDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> valueDate() {
-      return valueDate;
+    public MetaProperty<LocalDate> paymentDate() {
+      return paymentDate;
     }
 
     //-----------------------------------------------------------------------
@@ -454,14 +411,12 @@ public final class ExpandedFxNonDeliverableForward
       switch (propertyName.hashCode()) {
         case 594670010:  // settlementCurrencyNotional
           return ((ExpandedFxNonDeliverableForward) bean).getSettlementCurrencyNotional();
-        case -1127062141:  // nonDeliverableCurrencyNotional
-          return ((ExpandedFxNonDeliverableForward) bean).getNonDeliverableCurrencyNotional();
+        case 1040357930:  // agreedFxRate
+          return ((ExpandedFxNonDeliverableForward) bean).getAgreedFxRate();
         case 100346066:  // index
           return ((ExpandedFxNonDeliverableForward) bean).getIndex();
-        case 1255202043:  // fixingDate
-          return ((ExpandedFxNonDeliverableForward) bean).getFixingDate();
-        case -766192449:  // valueDate
-          return ((ExpandedFxNonDeliverableForward) bean).getValueDate();
+        case -1540873516:  // paymentDate
+          return ((ExpandedFxNonDeliverableForward) bean).getPaymentDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -484,10 +439,9 @@ public final class ExpandedFxNonDeliverableForward
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedFxNonDeliverableForward> {
 
     private CurrencyAmount settlementCurrencyNotional;
-    private CurrencyAmount nonDeliverableCurrencyNotional;
+    private FxRate agreedFxRate;
     private FxIndex index;
-    private LocalDate fixingDate;
-    private LocalDate valueDate;
+    private LocalDate paymentDate;
 
     /**
      * Restricted constructor.
@@ -501,10 +455,9 @@ public final class ExpandedFxNonDeliverableForward
      */
     private Builder(ExpandedFxNonDeliverableForward beanToCopy) {
       this.settlementCurrencyNotional = beanToCopy.getSettlementCurrencyNotional();
-      this.nonDeliverableCurrencyNotional = beanToCopy.getNonDeliverableCurrencyNotional();
+      this.agreedFxRate = beanToCopy.getAgreedFxRate();
       this.index = beanToCopy.getIndex();
-      this.fixingDate = beanToCopy.getFixingDate();
-      this.valueDate = beanToCopy.getValueDate();
+      this.paymentDate = beanToCopy.getPaymentDate();
     }
 
     //-----------------------------------------------------------------------
@@ -513,14 +466,12 @@ public final class ExpandedFxNonDeliverableForward
       switch (propertyName.hashCode()) {
         case 594670010:  // settlementCurrencyNotional
           return settlementCurrencyNotional;
-        case -1127062141:  // nonDeliverableCurrencyNotional
-          return nonDeliverableCurrencyNotional;
+        case 1040357930:  // agreedFxRate
+          return agreedFxRate;
         case 100346066:  // index
           return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
-        case -766192449:  // valueDate
-          return valueDate;
+        case -1540873516:  // paymentDate
+          return paymentDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -532,17 +483,14 @@ public final class ExpandedFxNonDeliverableForward
         case 594670010:  // settlementCurrencyNotional
           this.settlementCurrencyNotional = (CurrencyAmount) newValue;
           break;
-        case -1127062141:  // nonDeliverableCurrencyNotional
-          this.nonDeliverableCurrencyNotional = (CurrencyAmount) newValue;
+        case 1040357930:  // agreedFxRate
+          this.agreedFxRate = (FxRate) newValue;
           break;
         case 100346066:  // index
           this.index = (FxIndex) newValue;
           break;
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
-          break;
-        case -766192449:  // valueDate
-          this.valueDate = (LocalDate) newValue;
+        case -1540873516:  // paymentDate
+          this.paymentDate = (LocalDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -578,10 +526,9 @@ public final class ExpandedFxNonDeliverableForward
     public ExpandedFxNonDeliverableForward build() {
       return new ExpandedFxNonDeliverableForward(
           settlementCurrencyNotional,
-          nonDeliverableCurrencyNotional,
+          agreedFxRate,
           index,
-          fixingDate,
-          valueDate);
+          paymentDate);
     }
 
     //-----------------------------------------------------------------------
@@ -597,13 +544,13 @@ public final class ExpandedFxNonDeliverableForward
     }
 
     /**
-     * Sets the {@code nonDeliverableCurrencyNotional} property in the builder.
-     * @param nonDeliverableCurrencyNotional  the new value, not null
+     * Sets the {@code agreedFxRate} property in the builder.
+     * @param agreedFxRate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder nonDeliverableCurrencyNotional(CurrencyAmount nonDeliverableCurrencyNotional) {
-      JodaBeanUtils.notNull(nonDeliverableCurrencyNotional, "nonDeliverableCurrencyNotional");
-      this.nonDeliverableCurrencyNotional = nonDeliverableCurrencyNotional;
+    public Builder agreedFxRate(FxRate agreedFxRate) {
+      JodaBeanUtils.notNull(agreedFxRate, "agreedFxRate");
+      this.agreedFxRate = agreedFxRate;
       return this;
     }
 
@@ -619,37 +566,25 @@ public final class ExpandedFxNonDeliverableForward
     }
 
     /**
-     * Sets the {@code fixingDate} property in the builder.
-     * @param fixingDate  the new value, not null
+     * Sets the {@code paymentDate} property in the builder.
+     * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code valueDate} property in the builder.
-     * @param valueDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder valueDate(LocalDate valueDate) {
-      JodaBeanUtils.notNull(valueDate, "valueDate");
-      this.valueDate = valueDate;
+    public Builder paymentDate(LocalDate paymentDate) {
+      JodaBeanUtils.notNull(paymentDate, "paymentDate");
+      this.paymentDate = paymentDate;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("ExpandedFxNonDeliverableForward.Builder{");
       buf.append("settlementCurrencyNotional").append('=').append(JodaBeanUtils.toString(settlementCurrencyNotional)).append(',').append(' ');
-      buf.append("nonDeliverableCurrencyNotional").append('=').append(JodaBeanUtils.toString(nonDeliverableCurrencyNotional)).append(',').append(' ');
+      buf.append("agreedFxRate").append('=').append(JodaBeanUtils.toString(agreedFxRate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
-      buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate));
+      buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
       buf.append('}');
       return buf.toString();
     }

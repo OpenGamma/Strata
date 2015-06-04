@@ -223,6 +223,29 @@ public final class DiscountFxIndexRates
     return FxIndexSensitivity.of(index, baseCurrency, fixingDate, 1d);
   }
 
+  @Override
+  public double rateDelta(Currency baseCurrency, LocalDate fixingDate) {
+    ArgChecker.isTrue(
+        index.getCurrencyPair().contains(baseCurrency),
+        "Currency {} invalid for FxIndex {}", baseCurrency, index);
+
+    double fxIndexRateDelta = !fixingDate.isAfter(valuationDate) ? 0d : forwardRateDelta(fixingDate);
+    if (baseCurrency.equals(index.getCurrencyPair().getCounter())) {
+      double fwd = forwardRate(fixingDate);
+      return -1d / fxIndexRateDelta / fwd / fwd;
+    }
+    return fxIndexRateDelta;
+  }
+
+  private double forwardRateDelta(LocalDate fixingDate) {
+    // derive rate from discount factors based off index currency pair
+    // inverse dealt with outside this method
+    LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
+    double dfCcyBaseAtMaturity = baseCurrencyDiscountFactors.discountFactor(maturityDate);
+    double dfCcyCounterAtMaturity = counterCurrencyDiscountFactors.discountFactor(maturityDate);
+    return dfCcyBaseAtMaturity / dfCcyCounterAtMaturity;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a new instance with different discount factors.
