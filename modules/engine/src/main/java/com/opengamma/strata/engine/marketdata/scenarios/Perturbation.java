@@ -18,6 +18,17 @@ package com.opengamma.strata.engine.marketdata.scenarios;
 public interface Perturbation<T> {
 
   /**
+   * Returns a perturbation that returns its input unchanged.
+   * <p>
+   * This is useful for creating base scenarios where none of the market data is perturbed.
+   *
+   * @return a perturbation that returns its input unchanged
+   */
+  public static <T> Perturbation<T> none() {
+    return marketData -> marketData;
+  }
+
+  /**
    * Applies the perturbation to some market data, returning a new, modified instance of the data.
    *
    * @param marketData  a piece of market data
