@@ -55,6 +55,9 @@ public final class Measure
   /** Measure representing the PV01 of the calculation target. */
   public static final Measure PV01 = Measure.of("PV01");
   
+  /** Measure representing the Bucketed PV01 of the calculation target. */
+  public static final Measure BUCKETED_PV01 = Measure.of("BucketedPV01");
+
   /** Measure to provide the standard block of trade information from the trade.  */
   public static final Measure TRADE_INFO = Measure.of("TradeInfo");
   

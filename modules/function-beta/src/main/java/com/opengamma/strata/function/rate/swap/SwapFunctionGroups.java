@@ -27,6 +27,7 @@ public final class SwapFunctionGroups {
           .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
           .addFunction(Measure.LEG_PRESENT_VALUE, SwapLegPvFunction.class)
           .addFunction(Measure.PV01, SwapPv01Function.class)
+          .addFunction(Measure.BUCKETED_PV01, SwapBucketedPv01Function.class)
           .addFunction(Measure.PAR_RATE, SwapParRateFunction.class)
           .addFunction(Measure.ACCRUED_INTEREST, SwapAccruedInterestFunction.class)
           .build();
