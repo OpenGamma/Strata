@@ -89,7 +89,6 @@ import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObs
 import com.opengamma.strata.pricer.impl.rate.ForwardInflationMonthlyRateObservationFn;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
@@ -404,12 +403,11 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(dscCurve)
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -449,12 +447,11 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(dscCurve)
         .dayCount(ACT_ACT_ISDA)
         .build();

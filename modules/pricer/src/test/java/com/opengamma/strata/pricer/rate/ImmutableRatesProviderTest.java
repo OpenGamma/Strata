@@ -12,9 +12,11 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -23,11 +25,16 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.value.ForwardPriceIndexValues;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * Test {@link ImmutableRatesProvider}.
@@ -37,8 +44,10 @@ public class ImmutableRatesProviderTest {
 
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
+  private static final YearMonth VAL_MONTH = YearMonth.of(2014, 6);
   private static final double FX_GBP_USD = 1.6d;
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, FX_GBP_USD);
+  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
 
   private static final double GBP_DSC = 0.99d;
   private static final double USD_DSC = 0.95d;
@@ -46,6 +55,11 @@ public class ImmutableRatesProviderTest {
   private static final Curve DISCOUNT_CURVE_USD = ConstantNodalCurve.of("USD-Discount", USD_DSC);
   private static final Curve USD_LIBOR_CURVE = ConstantNodalCurve.of("USD-Discount", 0.96d);
   private static final Curve FED_FUND_CURVE = ConstantNodalCurve.of("USD-Discount", 0.97d);
+  private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
+      GB_RPI,
+      VAL_MONTH,
+      LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
+      InterpolatedNodalCurve.of("GB-RPI", new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -157,6 +171,24 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.overnightIndexRates(USD_FED_FUND).getIndex(), USD_FED_FUND);
     assertEquals(test.overnightIndexRates(USD_FED_FUND).getTimeSeries(), ts);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_priceIndexValues() {
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .priceIndexValues(ImmutableMap.of(GB_RPI, GBPRI_CURVE))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.priceIndexValues(GB_RPI).getIndex(), GB_RPI);
+  }
+
+  public void test_priceIndexValues_notKnown() {
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertThrowsIllegalArg(() -> test.priceIndexValues(GB_RPI));
   }
 
   //-------------------------------------------------------------------------
