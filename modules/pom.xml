@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.7.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -483,14 +483,15 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Versions -->
+    <assertj.version>2.0.0</assertj.version>
+    <findbugs.version>1.3.9</findbugs.version>
     <guava.version>18.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
     <joda-beans.version>1.5.1</joda-beans.version>
-    <findbugs.version>1.3.9</findbugs.version>
-    <slf4j.version>1.7.5</slf4j.version>
-    <assertj.version>2.0.0</assertj.version>
+    <jool.version>0.9.6</jool.version>
     <og-analytics.version>3.0.0-SNAPSHOT</og-analytics.version>
-    <jool.version>0.9.4</jool.version>
+    <slf4j.version>1.7.12</slf4j.version>
+    <testng.version>6.9.4</testng.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
