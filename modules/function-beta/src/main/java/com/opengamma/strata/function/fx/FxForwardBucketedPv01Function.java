@@ -11,9 +11,10 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates the present value parameter sensitivity of an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates the bucketed PV01, the present value curve parameter sensitivity of a {@code FxForwardTrade}.
+ * This operates by algorithmic differentiation (AD).
  */
-public class FxForwardPvParameterSensitivityFunction
+public class FxForwardBucketedPv01Function
     extends AbstractFxForwardFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
