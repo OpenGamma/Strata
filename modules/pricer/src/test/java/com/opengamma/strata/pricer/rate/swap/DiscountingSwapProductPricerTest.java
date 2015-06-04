@@ -80,7 +80,6 @@ import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
@@ -204,10 +203,9 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -259,10 +257,9 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -358,10 +355,9 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -419,10 +415,9 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -500,10 +495,9 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -554,10 +548,9 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .dayCount(ACT_ACT_ISDA)
         .build();

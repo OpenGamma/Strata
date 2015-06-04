@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,12 +17,14 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -31,6 +34,7 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * An abstract rates provider implementation.
@@ -48,7 +52,8 @@ public abstract class AbstractRatesProvider
     paramSensitivityZeroRate(sensiFxDecomposed, mutable);
     parameterSensitivityIbor(sensiFxDecomposed, mutable);
     parameterSensitivityOvernight(sensiFxDecomposed, mutable);
-    return CurveCurrencyParameterSensitivities.of(mutable);
+    return CurveCurrencyParameterSensitivities.of(mutable)
+        .combinedWith(parameterSensitivityPrice(sensitivities));
   }
 
   // resolve any FX Index sensitivity into zero-rate sensitivities
@@ -207,6 +212,44 @@ public abstract class AbstractRatesProvider
       for (int i = 0; i < nbParameters; i++) {
         result[i] += dFwddyStart * unitSensStart[i] * forwardBar;
         result[i] += dFwddyEnd * unitSensEnd[i] * forwardBar;
+      }
+    }
+    return result;
+  }
+
+  // handle price index sensitivities
+  private CurveCurrencyParameterSensitivities parameterSensitivityPrice(PointSensitivities pointSensitivities) {
+    List<CurveCurrencyParameterSensitivity> mutable = new ArrayList<>();
+    // group by currency
+    ListMultimap<Pair<PriceIndex, Currency>, ObjectDoublePair<YearMonth>> grouped = ArrayListMultimap.create();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof InflationRateSensitivity) {
+        InflationRateSensitivity pt = (InflationRateSensitivity) point;
+        PriceIndex index = pt.getIndex();
+        YearMonth referenceMonth = pt.getReferenceMonth();
+        double sensitivityValue = pt.getSensitivity();
+        Pair<PriceIndex, Currency> key = Pair.of(index, pt.getCurrency());
+        grouped.put(key, ObjectDoublePair.of(referenceMonth, sensitivityValue));
+      }
+    }
+    // calculate per currency
+    for (Pair<PriceIndex, Currency> key : grouped.keySet()) {
+      PriceIndexValues values = priceIndexValues(key.getFirst());
+      double[] sensiParam = parameterSensitivityIndex(values, grouped.get(key));
+      mutable.add(CurveCurrencyParameterSensitivity.of(values.getCurveName(), key.getSecond(), sensiParam));
+    }
+    return CurveCurrencyParameterSensitivities.of(mutable);
+  }
+
+  // DoublesPair should contain a pair of reference time and point sensitivity value
+  private double[] parameterSensitivityIndex(PriceIndexValues values, List<ObjectDoublePair<YearMonth>> pointSensitivity) {
+    int nbParameters = values.getParameterCount();
+    double[] result = new double[nbParameters];
+    for (ObjectDoublePair<YearMonth> timeAndS : pointSensitivity) {
+      double[] unitSens = values.unitParameterSensitivity(timeAndS.getFirst());
+      double forwardBar = timeAndS.getSecond();
+      for (int i = 0; i < nbParameters; i++) {
+        result[i] += unitSens[i] * forwardBar;
       }
     }
     return result;

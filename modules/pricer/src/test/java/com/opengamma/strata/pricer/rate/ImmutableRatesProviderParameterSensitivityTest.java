@@ -13,10 +13,13 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +35,8 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -39,14 +44,18 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.market.value.ForwardPriceIndexValues;
+import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.pricer.impl.Legacy;
 
 /**
@@ -293,6 +302,40 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     assertTrue(paramSensiCmpUSD.equalWithTolerance(paramSensiExpUSD, EPS_FD));
   }
 
+  public void pointAndParameterPriceIndex() {
+    double eps = 1.0e-13;
+    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
+    YearMonth valuationMonth = YearMonth.of(2014, 1);
+    double[] x = new double[] {0.5, 1.0, 2.0};
+    double[] y = new double[] {224.2, 262.6, 277.5};
+    NaturalCubicSplineInterpolator1D interp = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
+    String curveName = "GB_RPI_CURVE";
+    InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(curveName, x, y, interp);
+    PriceIndexValues values = ForwardPriceIndexValues.of(
+        GB_RPI,
+        valuationMonth,
+        LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 200),
+        interpCurve);
+    ImmutableRatesProvider provider = ImmutableRatesProvider.builder()
+        .valuationDate(DATE_VAL)
+        .dayCount(ACT_ACT_ISDA)
+        .priceIndexValues(ImmutableMap.of(GB_RPI, values))
+        .build();
+
+    double pointSensiValue = 2.5;
+    YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
+    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
+    CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
+    double[] sensiComputed = computed.getSensitivities().get(0).getSensitivity();
+    double[] sensiExpectedUnit =
+        provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth);
+    assertEquals(sensiComputed.length, sensiExpectedUnit.length);
+    for (int i = 0; i < sensiComputed.length; ++i) {
+      assertEquals(sensiComputed[i], sensiExpectedUnit[i] * pointSensiValue, eps);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   // a curve that produces a constant discount factor
   static class ConstantDiscountFactorCurve implements Curve {
 
