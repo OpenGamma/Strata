@@ -37,9 +37,6 @@ public final class Measure
   /** Measure representing the accrued interest of the calculation target. */
   public static final Measure ACCRUED_INTEREST = Measure.of("AccruedInterest");
 
-  /** Measure representing the maturity date of the calculation target. */
-  public static final Measure MATURITY_DATE = Measure.of("MaturityDate");
-
   /** Measure representing the initial notional amount of each leg of the calculation target. */
   public static final Measure LEG_INITIAL_NOTIONAL = Measure.of("LegInitialNotional");
   

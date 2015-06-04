@@ -8,6 +8,8 @@ package com.opengamma.strata.finance.rate.swap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -16,6 +18,7 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -135,6 +138,38 @@ public final class Swap
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the start date of the swap.
+   * <p>
+   * This is the earliest accrual date of the legs, often known as the effective date.
+   * This date has been adjusted to be a valid business day.
+   * 
+   * @return the start date of the swap
+   */
+  @DerivedProperty
+  public LocalDate getStartDate() {
+    return legs.stream()
+        .map(SwapLeg::getStartDate)
+        .min(Comparator.naturalOrder())
+        .get();  // always at least one leg, so get() is safe
+  }
+
+  /**
+   * Gets the end date of the swap.
+   * <p>
+   * This is the latest accrual date of the legs, often known as the maturity date.
+   * This date has been adjusted to be a valid business day.
+   * 
+   * @return the end date of the swap
+   */
+  @DerivedProperty
+  public LocalDate getEndDate() {
+    return legs.stream()
+        .map(SwapLeg::getEndDate)
+        .max(Comparator.naturalOrder())
+        .get();  // always at least one leg, so get() is safe
+  }
+
   /**
    * Checks if this trade is cross-currency.
    * <p>
@@ -279,9 +314,11 @@ public final class Swap
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Swap{");
-    buf.append("legs").append('=').append(JodaBeanUtils.toString(getLegs()));
+    buf.append("legs").append('=').append(getLegs()).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
     buf.append('}');
     return buf.toString();
   }
@@ -303,11 +340,23 @@ public final class Swap
     private final MetaProperty<ImmutableList<SwapLeg>> legs = DirectMetaProperty.ofImmutable(
         this, "legs", Swap.class, (Class) ImmutableList.class);
     /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", Swap.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endDate} property.
+     */
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", Swap.class, LocalDate.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "legs");
+        "legs",
+        "startDate",
+        "endDate");
 
     /**
      * Restricted constructor.
@@ -320,6 +369,10 @@ public final class Swap
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           return legs;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -348,12 +401,32 @@ public final class Swap
       return legs;
     }
 
+    /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
+    }
+
+    /**
+     * The meta-property for the {@code endDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           return ((Swap) bean).getLegs();
+        case -2129778896:  // startDate
+          return ((Swap) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((Swap) bean).getEndDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

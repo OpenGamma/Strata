@@ -62,7 +62,7 @@ public interface SwapLeg
    * This is the first accrual date in the leg, often known as the effective date.
    * This date has been adjusted to be a valid business day.
    * 
-   * @return the start date of the period
+   * @return the start date of the leg
    */
   public abstract LocalDate getStartDate();
 
@@ -72,7 +72,7 @@ public interface SwapLeg
    * This is the last accrual date in the leg, often known as the maturity date.
    * This date has been adjusted to be a valid business day.
    * 
-   * @return the end date of the period
+   * @return the end date of the leg
    */
   public abstract LocalDate getEndDate();
 

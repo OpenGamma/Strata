@@ -11,6 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_EXPANDED_GBP1;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_EXPANDED_USD1;
 import static com.opengamma.strata.finance.rate.swap.MockSwapLeg.MOCK_GBP1;
@@ -29,6 +30,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Test.
@@ -91,6 +93,25 @@ public class SwapTest {
     assertEquals(Swap.of(MOCK_GBP1, MOCK_USD1).getReceiveLeg(), Optional.of(MOCK_USD1));
     assertEquals(Swap.of(MOCK_GBP1).getReceiveLeg(), Optional.empty());
     assertEquals(Swap.of(MOCK_USD1).getReceiveLeg(), Optional.of(MOCK_USD1));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getStartDate() {
+    SwapLeg leg1 = MockSwapLeg.of(FIXED, PAY, date(2015, 6, 29), date(2017, 6, 30), Currency.USD);
+    SwapLeg leg2 = MockSwapLeg.of(FIXED, RECEIVE, date(2015, 6, 30), date(2017, 6, 29), Currency.USD);
+    assertEquals(Swap.of(leg1).getStartDate(), date(2015, 6, 29));
+    assertEquals(Swap.of(leg2).getStartDate(), date(2015, 6, 30));
+    assertEquals(Swap.of(leg1, leg2).getStartDate(), date(2015, 6, 29));
+    assertEquals(Swap.of(leg2, leg1).getStartDate(), date(2015, 6, 29));
+  }
+
+  public void test_getEndDate() {
+    SwapLeg leg1 = MockSwapLeg.of(FIXED, PAY, date(2015, 6, 29), date(2017, 6, 30), Currency.USD);
+    SwapLeg leg2 = MockSwapLeg.of(FIXED, RECEIVE, date(2015, 6, 30), date(2017, 6, 29), Currency.USD);
+    assertEquals(Swap.of(leg1).getEndDate(), date(2017, 6, 30));
+    assertEquals(Swap.of(leg2).getEndDate(), date(2017, 6, 29));
+    assertEquals(Swap.of(leg1, leg2).getEndDate(), date(2017, 6, 30));
+    assertEquals(Swap.of(leg2, leg1).getEndDate(), date(2017, 6, 30));
   }
 
   //-------------------------------------------------------------------------
