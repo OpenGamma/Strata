@@ -20,6 +20,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
@@ -38,6 +40,8 @@ import com.opengamma.strata.market.curve.ShiftType;
  */
 @BeanDefinition
 public final class CurveParallelShift implements Perturbation<Curve>, ImmutableBean {
+
+  private static final Logger log = LoggerFactory.getLogger(CurveParallelShift.class);
 
   /** The type of shift to apply to the Y values of the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -73,6 +77,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   @Override
   public Curve apply(Curve curve) {
+    log.info("Applying {} parallel shift of {} to curve '{}'", shiftType, shiftAmount, curve.getName());
     return ParallelShiftedCurve.of(curve, shiftType, shiftAmount);
   }
 

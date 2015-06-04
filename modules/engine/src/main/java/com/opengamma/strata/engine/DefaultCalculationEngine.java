@@ -110,7 +110,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData baseMarketData,
+      BaseMarketData suppliedMarketData,
       ScenarioDefinition scenarioDefinition) {
 
     // create the tasks to be run
@@ -123,18 +123,11 @@ public final class DefaultCalculationEngine implements CalculationEngine {
             calculationRules.getReportingRules());
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
-    // build any missing market data
-    BaseMarketDataResult baseMarketDataResult =
-        marketDataFactory.buildBaseMarketData(
-            tasks.getMarketDataRequirements(),
-            baseMarketData,
-            calculationRules.getMarketDataConfig());
-
     // build any required scenarios from the base market data
     ScenarioMarketDataResult scenarioMarketDataResult =
         marketDataFactory.buildScenarioMarketData(
             tasks.getMarketDataRequirements(),
-            baseMarketDataResult.getMarketData(),
+            suppliedMarketData,
             scenarioDefinition,
             calculationRules.getMarketDataConfig());
 
