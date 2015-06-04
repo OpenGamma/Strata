@@ -14,10 +14,10 @@ public enum ReportOutputType {
    * ASCII table
    */
   ASCII_TABLE,
-  
+
   /**
    * CSV
    */
   CSV
-  
+
 }
