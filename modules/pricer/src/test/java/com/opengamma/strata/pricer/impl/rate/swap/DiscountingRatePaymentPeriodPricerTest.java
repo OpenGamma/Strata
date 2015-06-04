@@ -384,9 +384,9 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
     when(mockDf.discountFactor(PAYMENT_PERIOD_FLOATING.getPaymentDate()))
         .thenReturn(DISCOUNT_FACTOR);
-    PointSensitivityBuilder builder = ZeroRateSensitivity.of(PAYMENT_PERIOD_FLOATING.getCurrency(),
+    ZeroRateSensitivity builder = ZeroRateSensitivity.of(PAYMENT_PERIOD_FLOATING.getCurrency(),
         PAYMENT_PERIOD_FLOATING.getPaymentDate(), -DISCOUNT_FACTOR * paymentTime); // this is implemented in mockProvironment
-    when(mockDf.pointSensitivity(PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(builder);
+    when(mockDf.zeroRatePointSensitivity(PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(builder);
 
     DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
     LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};

@@ -71,10 +71,10 @@ public class ForwardIborInterpolatedRateObservationFn
     double totalWeight = weights.getFirst() + weights.getSecond();
 
     IborIndexRates ratesIndex1 = provider.iborIndexRates(index1);
-    PointSensitivityBuilder sens1 = ratesIndex1.pointSensitivity(fixingDate)
+    PointSensitivityBuilder sens1 = ratesIndex1.ratePointSensitivity(fixingDate)
         .multipliedBy(weights.getFirst() / totalWeight);
     IborIndexRates ratesIndex2 = provider.iborIndexRates(index2);
-    PointSensitivityBuilder sens2 = ratesIndex2.pointSensitivity(fixingDate)
+    PointSensitivityBuilder sens2 = ratesIndex2.ratePointSensitivity(fixingDate)
         .multipliedBy(weights.getSecond() / totalWeight);
     return sens1.combinedWith(sens2);
   }

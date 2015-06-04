@@ -434,7 +434,7 @@ public class DiscountingSwapLegPricerTest {
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
     pvSensiExpected = pvSensiExpected.multipliedBy(dscFactor);
-    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).pointSensitivity(paymentDate);
+    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
     dscSensiExpected = dscSensiExpected.multipliedBy(fvExpected);
     pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
     assertTrue(pvSensiComputed.build().normalized()
@@ -479,7 +479,7 @@ public class DiscountingSwapLegPricerTest {
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
     pvSensiExpected = pvSensiExpected.multipliedBy(dscFactor);
-    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).pointSensitivity(paymentDate);
+    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
     dscSensiExpected = dscSensiExpected.multipliedBy(fvExpected);
     pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
     assertTrue(pvSensiComputed.build().normalized()
@@ -563,7 +563,7 @@ public class DiscountingSwapLegPricerTest {
     PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
     assertEquals(fvSensiComputed, PointSensitivityBuilder.none());
-    PointSensitivityBuilder pvSensiExpected = prov.discountFactors(GBP).pointSensitivity(paymentDate);
+    PointSensitivityBuilder pvSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
     pvSensiExpected = pvSensiExpected.multipliedBy(fvExpected);
     assertTrue(pvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));

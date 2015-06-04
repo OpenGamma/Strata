@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -65,9 +64,9 @@ public class DiscountingNotionalExchangePricerTest {
 
     LocalDate paymentDate = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
     when(mockDf.discountFactor(paymentDate)).thenReturn(discountFactor);
-    PointSensitivityBuilder builder = ZeroRateSensitivity.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(),
+    ZeroRateSensitivity builder = ZeroRateSensitivity.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(),
         paymentDate, -discountFactor * paymentTime); // this is implemented in provider
-    when(mockDf.pointSensitivity(paymentDate)).thenReturn(builder);
+    when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(builder);
     DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
     PointSensitivities senseComputed = pricer.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, simpleProv).build();
 

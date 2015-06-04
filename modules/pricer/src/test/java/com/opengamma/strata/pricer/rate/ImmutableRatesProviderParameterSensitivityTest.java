@@ -275,7 +275,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     LocalDate matuirtyDate = WM_GBP_USD.calculateMaturityFromFixing(DATE_VAL);
     double maturityTime = test.relativeTime(matuirtyDate);
     // GBP based
-    PointSensitivityBuilder sensiBuildCmpGBP = test.fxIndexRates(WM_GBP_USD).pointSensitivity(GBP, DATE_VAL);
+    PointSensitivityBuilder sensiBuildCmpGBP = test.fxIndexRates(WM_GBP_USD).ratePointSensitivity(GBP, DATE_VAL);
     FxIndexSensitivity sensiBuildExpGBP = FxIndexSensitivity.of(WM_GBP_USD, USD, GBP, DATE_VAL, 1.0);
     assertTrue(sensiBuildCmpGBP.equals(sensiBuildExpGBP));
     double sense_gbp1 = 0.5 * (test_gbp_up.fxIndexRates(WM_GBP_USD).rate(GBP, DATE_VAL) -
@@ -288,7 +288,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     CurveCurrencyParameterSensitivities paramSensiExpGBP = test.curveParameterSensitivity(sensiBuildDecGBP.build().normalized());
     assertTrue(paramSensiCmpGBP.equalWithTolerance(paramSensiExpGBP, EPS_FD));
     // USD based
-    PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(WM_GBP_USD).pointSensitivity(USD, DATE_VAL);
+    PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(WM_GBP_USD).ratePointSensitivity(USD, DATE_VAL);
     FxIndexSensitivity sensiBuildExpUSD = FxIndexSensitivity.of(WM_GBP_USD, GBP, USD, DATE_VAL, 1.0);
     assertTrue(sensiBuildCmpUSD.equals(sensiBuildExpUSD));
     double sense_gbp2 = 0.5 * (test_gbp_up.fxIndexRates(WM_GBP_USD).rate(USD, DATE_VAL) -
@@ -328,7 +328,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
     double[] sensiComputed = computed.getSensitivities().get(0).getSensitivity();
     double[] sensiExpectedUnit =
-        provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth);
+        provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
     assertEquals(sensiComputed.length, sensiExpectedUnit.length);
     for (int i = 0; i < sensiComputed.length; ++i) {
       assertEquals(sensiComputed[i], sensiExpectedUnit[i] * pointSensiValue, eps);

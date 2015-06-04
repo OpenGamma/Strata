@@ -204,7 +204,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1.0);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(rateSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(rateSensitivity);
       for (int j = 0; j < nFixings; ++j) {
         when(mockRatesUp[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesUp[j][i]);
         when(mockRatesDw[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesDw[j][i]);

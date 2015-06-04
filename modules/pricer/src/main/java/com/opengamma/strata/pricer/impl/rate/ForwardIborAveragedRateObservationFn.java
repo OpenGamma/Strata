@@ -81,7 +81,7 @@ public class ForwardIborAveragedRateObservationFn
       double totalWeight,
       IborIndexRates rates) {
 
-    return rates.pointSensitivity(fixing.getFixingDate())
+    return rates.ratePointSensitivity(fixing.getFixingDate())
         .multipliedBy(fixing.getWeight() / totalWeight);
   }
 

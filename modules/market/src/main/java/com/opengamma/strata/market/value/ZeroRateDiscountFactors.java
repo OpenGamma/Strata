@@ -29,7 +29,9 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -120,16 +122,23 @@ public final class ZeroRateDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder pointSensitivity(LocalDate date, Currency sensitivityCurrency) {
+  public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
     double relativeTime = relativeTime(date);
     double discountFactor = discountFactor(relativeTime);
     return ZeroRateSensitivity.of(currency, sensitivityCurrency, date, -discountFactor * relativeTime);
   }
 
   @Override
-  public double[] unitParameterSensitivity(LocalDate date) {
+  public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeTime = relativeTime(date);
-    return curve.yValueParameterSensitivity(relativeTime);
+    return CurveUnitParameterSensitivities.of(
+        CurveUnitParameterSensitivity.of(curve.getMetadata(), curve.yValueParameterSensitivity(relativeTime)));
+  }
+
+  @Override
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSensitivity) {
+    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getDate());
+    return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
   }
 
   //-------------------------------------------------------------------------

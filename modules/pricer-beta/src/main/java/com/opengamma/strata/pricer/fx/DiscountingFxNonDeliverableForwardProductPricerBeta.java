@@ -122,9 +122,9 @@ public class DiscountingFxNonDeliverableForwardProductPricerBeta {
     double dfSettleBar = notionalSettle * pvBar;
     double dfOtherBar = -notionalSettle * agreedRateSettleToOther / spot * pvBar;
     // TODO: check this
-    PointSensitivityBuilder sensSettle = provider.discountFactors(ccySettle).pointSensitivity(ndf.getValueDate())
+    PointSensitivityBuilder sensSettle = provider.discountFactors(ccySettle).zeroRatePointSensitivity(ndf.getValueDate())
         .multipliedBy(dfSettleBar);
-    PointSensitivityBuilder sensOther = provider.discountFactors(ccyOther).pointSensitivity(ndf.getValueDate())
+    PointSensitivityBuilder sensOther = provider.discountFactors(ccyOther).zeroRatePointSensitivity(ndf.getValueDate())
         .multipliedBy(dfOtherBar).withCurrency(ccySettle);
     return sensSettle.combinedWith(sensOther).build();
   }

@@ -62,8 +62,8 @@ public class ForwardInflationMonthlyRateObservationFn
     double indexStart = values.value(observation.getReferenceStartMonth());
     double indexEnd = values.value(observation.getReferenceEndMonth());
     double indexStartInv = 1d / indexStart;
-    PointSensitivityBuilder indexStartSensitivity = values.pointSensitivity(observation.getReferenceStartMonth());
-    PointSensitivityBuilder indexEndSensitivity = values.pointSensitivity(observation.getReferenceEndMonth());
+    PointSensitivityBuilder indexStartSensitivity = values.valuePointSensitivity(observation.getReferenceStartMonth());
+    PointSensitivityBuilder indexEndSensitivity = values.valuePointSensitivity(observation.getReferenceEndMonth());
     indexEndSensitivity = indexEndSensitivity.multipliedBy(indexStartInv);
     indexStartSensitivity = indexStartSensitivity.multipliedBy(-indexEnd * indexStartInv * indexStartInv);
     return indexStartSensitivity.combinedWith(indexEndSensitivity);

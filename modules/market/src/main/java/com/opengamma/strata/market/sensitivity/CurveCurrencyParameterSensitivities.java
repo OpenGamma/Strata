@@ -216,12 +216,11 @@ public final class CurveCurrencyParameterSensitivities
    */
   @Override
   public CurveCurrencyParameterSensitivities convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
-    return sensitivities.stream()
-        .map(s -> s.convertedTo(resultCurrency, rateProvider))
-        .collect(
-            Collectors.collectingAndThen(
-                Guavate.toImmutableList(),
-                CurveCurrencyParameterSensitivities::new));
+    List<CurveCurrencyParameterSensitivity> mutable = new ArrayList<>();
+    for (CurveCurrencyParameterSensitivity sens : sensitivities) {
+      insert(mutable, sens.convertedTo(resultCurrency, rateProvider));
+    }
+    return new CurveCurrencyParameterSensitivities(ImmutableList.copyOf(mutable));
   }
 
   /**

@@ -165,27 +165,27 @@ public class DiscountFxIndexRatesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_pointSensitivity_fixing() {
+  public void test_ratePointSensitivity_fixing() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertEquals(test.pointSensitivity(GBP, DATE_BEFORE), PointSensitivityBuilder.none());
-    assertEquals(test.pointSensitivity(GBP, DATE_VAL), PointSensitivityBuilder.none());
+    assertEquals(test.ratePointSensitivity(GBP, DATE_BEFORE), PointSensitivityBuilder.none());
+    assertEquals(test.ratePointSensitivity(GBP, DATE_VAL), PointSensitivityBuilder.none());
   }
 
-  public void test_pointSensitivity_onValuation_noFixing() {
+  public void test_ratePointSensitivity_onValuation_noFixing() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES_EMPTY, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertEquals(test.pointSensitivity(GBP, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d));
-    assertEquals(test.pointSensitivity(USD, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_VAL, 1d));
+    assertEquals(test.ratePointSensitivity(GBP, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d));
+    assertEquals(test.ratePointSensitivity(USD, DATE_VAL), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_VAL, 1d));
   }
 
-  public void test_pointSensitivity_afterValuation() {
+  public void test_ratePointSensitivity_afterValuation() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertEquals(test.pointSensitivity(GBP, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_AFTER, 1d));
-    assertEquals(test.pointSensitivity(USD, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_AFTER, 1d));
+    assertEquals(test.ratePointSensitivity(GBP, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_AFTER, 1d));
+    assertEquals(test.ratePointSensitivity(USD, DATE_AFTER), FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_AFTER, 1d));
   }
 
-  public void test_pointSensitivity_nonMatchingCurrency() {
+  public void test_ratePointSensitivity_nonMatchingCurrency() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertThrowsIllegalArg(() -> test.pointSensitivity(EUR, DATE_VAL));
+    assertThrowsIllegalArg(() -> test.ratePointSensitivity(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------
