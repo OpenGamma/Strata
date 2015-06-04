@@ -6,33 +6,26 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.finance.credit.fee.SinglePayment;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-/**
- * An interface that CDS trades must provide to that the analyctics pricer can fetch
- * the necessary inputs for pricing
- */
-public interface CdsModelTrade {
+public interface ModelCdsTrade {
 
   /**
    * tradeDate The trade date
    */
-  LocalDate tradeDate();
+  LocalDate getTradeDate();
 
   /**
    * Typically T+1 unadjusted. Required by the model.
    */
-  LocalDate stepInDate();
-
-  // TODO remove
+  LocalDate getStepInDate();
 
   /**
-   * don't think we need this
+   * The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    */
-  LocalDate valueDate();
+  LocalDate getCashSettleDate();
 
   /**
    * accStartDate This is when the CDS nominally starts in terms of premium payments.
@@ -41,7 +34,8 @@ public interface CdsModelTrade {
    * <p>
    * This should be adjusted according business day and holidays
    */
-  LocalDate accStartDate();
+  LocalDate getAccStartDate();
+
 
   /**
    * endDate (aka maturity date) This is when the contract expires and protection ends -
@@ -49,67 +43,67 @@ public interface CdsModelTrade {
    * <p>
    * This is an adjusted date and can fall on a holiday or weekend.
    */
-  LocalDate endDate();
+  LocalDate getEndDate();
 
   /**
    * payAccOnDefault Is the accrued premium paid in the event of a default
    */
-  boolean payAccOnDefault();
+  boolean isPayAccOnDefault();
 
   /**
    * paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    */
-  Period paymentInterval();
+  Period getPaymentInterval();
 
   /**
    * stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    * - <b>Note</b> in this code NONE is not allowed
    */
-  StubConvention stubConvention();
+  StubConvention getStubConvention();
 
   /**
    * businessdayAdjustmentConvention How are adjustments for non-business days made
    */
-  BusinessDayConvention businessdayAdjustmentConvention();
+  BusinessDayConvention getBusinessdayAdjustmentConvention();
 
   /**
    * calendar HolidayCalendar defining what is a non-business day
    */
-  HolidayCalendar calendar();
+  HolidayCalendar getCalendar();
 
   /**
    * accrualDayCount Day count used for accrual
    */
-  DayCount accrualDayCount();
+  DayCount getAccrualDayCount();
 
   /**
    * are we buying protection and paying fees or are we selling protection and receiving fees
    */
-  BuySell buySellProtection();
+  BuySell getBuySellProtection();
 
   /**
    * optional upfront fee amount, will be NaN if there is no fee
    */
-  double upfrontFeeAmount();
+  double getUpfrontFeeAmount();
 
   /**
    * optional upfront fee date, will throw if called and there is no fee
    * check the fee amount first before calling
    */
-  LocalDate upfrontFeePaymentDate();
+  LocalDate getUpfrontFeePaymentDate();
 
   /**
    * coupon used to calc fee payments
    */
-  double coupon();
+  double getCoupon();
 
   /**
    * notional amount used to calc fee payments
    */
-  double notional();
+  double getNotional();
 
   /**
    * currency fees are paid in
    */
-  Currency currency();
+  Currency getCurrency();
 }

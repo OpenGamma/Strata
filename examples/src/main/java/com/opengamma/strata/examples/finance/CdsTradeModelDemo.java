@@ -166,13 +166,11 @@ public class CdsTradeModelDemo {
     HolidayCalendar calendar = generalTerms.getDateAdjustments().getCalendar();
 
     FeeLeg feeLeg = cds.getFeeLeg();
-    PeriodicPayments periodicPayments = feeLeg.getPeriodicPayments();
-    PeriodicSchedule periodicSchedule = periodicPayments.getPeriodicSchedule();
-    Frequency frequency = periodicSchedule.getFrequency();
-    StubConvention stubType = periodicSchedule.getStubConvention().get();
+    Frequency frequency = feeLeg.getPeriodicPayments().getPaymentFrequency();
+    StubConvention stubType = feeLeg.getPeriodicPayments().getStubConvention();
 
     boolean payAccOnDefault = true;
-    DayCount accrualDayCount = periodicPayments.getDayCountFraction();
+    DayCount accrualDayCount = feeLeg.getPeriodicPayments().getFixedAmountCalculation().getDayCountFraction();
     boolean protectStart = true;
     double recoveryRate = 0.40D;
 

@@ -13,7 +13,6 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.id.StandardId;
@@ -165,39 +164,35 @@ public final class StandardCdsConvention
       ReferenceInformation referenceInformation,
       RestructuringClause restructuringClause
   ) {
-//    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
     BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
-    LocalDate unadjustedStartDate = calcUnadjustedAccrualStartDate(tradeDate);
 
-    // Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
-    LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(unadjustedStartDate, period);
+    // start date should be adjusted
+    LocalDate adjustedStartDate = calcAdjustedStartDate(
+        tradeDate,
+        businessDayAdjustment
+    );
 
-    LocalDate stepInDate = calcStepInDate(tradeDate); // TODO what do we do with this?
-    LocalDate settleDate = businessDayAdjustment.adjust(tradeDate.plusDays(settleLag));
+    // Standard maturity dates are unadjusted – typically Mar/Jun/Sep/Dec 20th or a stub
+    LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(tradeDate, paymentFrequency, period);
 
-    PeriodicSchedule periodicSchedule = PeriodicSchedule.builder()
-        .startDate(unadjustedStartDate)
-        .endDate(unadjustedEndDate)
-        .frequency(paymentFrequency)
-        .businessDayAdjustment(businessDayAdjustment)
-        .stubConvention(stubConvention)
-        .rollConvention(rollConvention)
-        .build();
+    // Step in date is unadjusted, usually T+1
+    LocalDate unadjustedStepInDate = calcUnadjustedStepInDate(tradeDate, stepIn);
 
-    LocalDate adjustedStartDate = periodicSchedule.getAdjustedStartDate();
-    LocalDate adjustedEndDate = periodicSchedule.getAdjustedEndDate();
+    // Cash settle date is adjusted and typically T+3
+    LocalDate adjustedCashSettleDate = calcAdjustedSettleDate(tradeDate, businessDayAdjustment, settleLag);
+
 
     return CdsTrade.of(
         TradeInfo
             .builder()
             .id(id)
             .tradeDate(tradeDate)
-            .settlementDate(settleDate)
+            .settlementDate(adjustedCashSettleDate)
             .build(),
         Cds.of(
             GeneralTerms.of(
                 adjustedStartDate,
-                adjustedEndDate,
+                unadjustedEndDate,
                 buySell,
                 businessDayAdjustment,
                 referenceInformation
@@ -217,7 +212,9 @@ public final class StandardCdsConvention
             ProtectionTerms.of(
                 restructuringClause
             )
-        )
+        ),
+        unadjustedStepInDate,
+        payAccOnDefault
     );
   }
 
@@ -228,29 +225,62 @@ public final class StandardCdsConvention
     );
   }
 
-  public LocalDate calcSettleDate(LocalDate tradeDate) {
-    return calcBusinessAdjustment().adjust(tradeDate.plusDays(settleLag));
-  }
-
-  public LocalDate calcStepInDate(LocalDate tradeDate) {
-    return calcBusinessAdjustment().adjust(tradeDate.plusDays(stepIn));
-  }
-
-  public LocalDate calcUnadjustedAccrualStartDate(LocalDate tradeDate) {
+  /**
+   * Find previous IMM date
+   */
+  protected static LocalDate calcUnadjustedAccrualStartDate(
+      LocalDate tradeDate
+  ) {
     return ImmLogic.getPrevIMMDate(tradeDate);
   }
 
   /**
    * Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
    * Example: As of Feb09, the 1y standard CDS contract would protect the buyer through Sat 20Mar10.
-   *
-   * @param unadjustedAccrualStartDate beginning of protection
-   * @param period                     length of the CDS
-   * @return
    */
-  public LocalDate calcUnadjustedMaturityDate(LocalDate unadjustedAccrualStartDate, Period period) {
-    return unadjustedAccrualStartDate.plus(period);
+  protected static LocalDate calcUnadjustedMaturityDate(
+      LocalDate tradeDate,
+      Frequency paymentFrequency,
+      Period period
+  ) {
+    return calcUnadjustedAccrualStartDate(tradeDate)
+        .plus(period)
+        .plus(paymentFrequency.getPeriod());
   }
+
+  /**
+   * public so we can use in curve building
+   */
+  public static LocalDate calcAdjustedStartDate(
+      LocalDate tradeDate,
+      BusinessDayAdjustment businessAdjustment
+  ) {
+    return businessAdjustment.adjust(
+        calcUnadjustedAccrualStartDate(tradeDate)
+    );
+  }
+
+  /**
+   * public so we can use in curve building
+   */
+  public static LocalDate calcAdjustedSettleDate(
+      LocalDate tradeDate,
+      BusinessDayAdjustment businessAdjustment,
+      int settleLag
+  ) {
+    return businessAdjustment.adjust(tradeDate.plusDays(settleLag));
+  }
+
+  /**
+   * public so we can use in curve building
+   */
+  public static LocalDate calcUnadjustedStepInDate(
+      LocalDate tradeDate,
+      int stepIn
+  ) {
+    return tradeDate.plusDays(stepIn);
+  }
+
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF

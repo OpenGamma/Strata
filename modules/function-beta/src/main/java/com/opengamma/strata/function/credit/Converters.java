@@ -1,6 +1,5 @@
 package com.opengamma.strata.function.credit;
 
-import com.opengamma.analytics.convention.daycount.DayCounts;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.StubConvention;
 

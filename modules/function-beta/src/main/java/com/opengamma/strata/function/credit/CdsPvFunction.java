@@ -135,6 +135,11 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
 
     // ParSpreadQuote
     ImmutableList<String> raytheon20141020 = ImmutableList.of(
+        "6M,0.0028",
+        "1Y,0.0028",
+        "2Y,0.0028",
+        "3Y,0.0028",
+        "4Y,0.0028",
         "5Y,0.0028"
     );
 
