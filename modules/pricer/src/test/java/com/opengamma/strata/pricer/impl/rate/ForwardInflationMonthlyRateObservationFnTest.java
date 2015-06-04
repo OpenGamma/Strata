@@ -26,10 +26,9 @@ import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 
 /**
- * Test.
+ * Test {@link ForwardInflationMonthlyRateObservationFn}.
  */
 @Test
 public class ForwardInflationMonthlyRateObservationFnTest {
@@ -98,7 +97,7 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     return ImmutableRatesProvider.builder()
         .valuationDate(DUMMY_ACCRUAL_END_DATE)
         .dayCount(DayCounts.ACT_360)
-        .additionalData(ImmutableMap.of(PriceIndexProvider.class, PriceIndexProvider.of(GB_RPIX, values)))
+        .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
         .build();
   }
 

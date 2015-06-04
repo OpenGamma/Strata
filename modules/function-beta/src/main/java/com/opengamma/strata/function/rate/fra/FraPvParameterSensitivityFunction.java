@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.rate.fra;
 
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -14,12 +14,12 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * Calculates the present value parameter sensitivity of a {@code FraTrade} for each of a set of scenarios.
  */
 public class FraPvParameterSensitivityFunction
-    extends AbstractFraFunction<CurveParameterSensitivities> {
+    extends AbstractFraFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
-  protected CurveParameterSensitivities execute(ExpandedFra product, RatesProvider provider) {
+  protected CurveCurrencyParameterSensitivities execute(ExpandedFra product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity);
   }
 
 }

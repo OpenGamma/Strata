@@ -81,9 +81,9 @@ public class DiscountingTermDepositProductPricer {
     double dfStartBar = -initialAmount(deposit, provider);
     // sensitivity
     DiscountFactors discountFactors = provider.discountFactors(currency);
-    PointSensitivityBuilder sensStart = discountFactors.pointSensitivity(deposit.getStartDate())
+    PointSensitivityBuilder sensStart = discountFactors.zeroRatePointSensitivity(deposit.getStartDate())
         .multipliedBy(dfStartBar);
-    PointSensitivityBuilder sensEnd = discountFactors.pointSensitivity(deposit.getEndDate())
+    PointSensitivityBuilder sensEnd = discountFactors.zeroRatePointSensitivity(deposit.getEndDate())
         .multipliedBy(dfEndBar);
     return sensStart.combinedWith(sensEnd).build();
   }
@@ -145,9 +145,9 @@ public class DiscountingTermDepositProductPricer {
     double dfStart = provider.discountFactor(currency, deposit.getStartDate());
     double dfEndInv = 1d / provider.discountFactor(currency, deposit.getEndDate());
     DiscountFactors discountFactors = provider.discountFactors(currency);
-    PointSensitivityBuilder sensStart = discountFactors.pointSensitivity(deposit.getStartDate())
+    PointSensitivityBuilder sensStart = discountFactors.zeroRatePointSensitivity(deposit.getStartDate())
         .multipliedBy(dfEndInv * accrualFactorInv);
-    PointSensitivityBuilder sensEnd = discountFactors.pointSensitivity(deposit.getEndDate())
+    PointSensitivityBuilder sensEnd = discountFactors.zeroRatePointSensitivity(deposit.getEndDate())
         .multipliedBy(-dfStart * dfEndInv * dfEndInv * accrualFactorInv);
     return sensStart.combinedWith(sensEnd).build();
   }

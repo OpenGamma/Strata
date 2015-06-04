@@ -41,7 +41,7 @@ public class DiscountingNotionalExchangePricer
   @Override
   public PointSensitivityBuilder presentValueSensitivity(NotionalExchange event, RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(event.getCurrency());
-    return discountFactors.pointSensitivity(event.getPaymentDate())
+    return discountFactors.zeroRatePointSensitivity(event.getPaymentDate())
         .multipliedBy(event.getPaymentAmount().getAmount());
   }
 

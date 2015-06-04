@@ -204,6 +204,19 @@ public class CalculationTaskTest {
     assertThat(result).isFailure(FailureReason.NOT_APPLICABLE).hasFailureMessageMatching("bar");
   }
 
+  /**
+   * Tests that requirements are added for the FX rates needed to convert the results into the reporting currency.
+   */
+  public void fxConversionRequirements() {
+    OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    MarketDataRequirements requirements = task.requirements();
+
+    assertThat(requirements.getNonObservables()).containsOnly(
+        FxRateId.of(Currency.GBP, Currency.USD),
+        FxRateId.of(Currency.EUR, Currency.USD));
+  }
+
   //--------------------------------------------------------------------------------------------------------------------
 
   private static class TestTarget implements CalculationTarget { }
@@ -280,6 +293,24 @@ public class CalculationTaskTest {
     @Override
     public CalculationRequirements requirements(TestTarget target) {
       return CalculationRequirements.empty();
+    }
+  }
+
+  /**
+   * Function that returns requirements containing output currencies.
+   */
+  private static final class OutputCurrenciesFunction implements CalculationSingleFunction<TestTarget, Object> {
+
+    @Override
+    public Object execute(TestTarget target, CalculationMarketData marketData) {
+      throw new UnsupportedOperationException("execute not implemented");
+    }
+
+    @Override
+    public CalculationRequirements requirements(TestTarget target) {
+      return CalculationRequirements.builder()
+          .outputCurrencies(Currency.GBP, Currency.EUR, Currency.USD)
+          .build();
     }
   }
 }

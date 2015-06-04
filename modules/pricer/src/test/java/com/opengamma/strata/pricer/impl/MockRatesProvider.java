@@ -11,13 +11,15 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -94,9 +96,14 @@ public class MockRatesProvider
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public PriceIndexValues priceIndexValues(PriceIndex index) {
+    throw new UnsupportedOperationException();
+  }
+
   //-------------------------------------------------------------------------
   @Override
-  public CurveParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
   }
 

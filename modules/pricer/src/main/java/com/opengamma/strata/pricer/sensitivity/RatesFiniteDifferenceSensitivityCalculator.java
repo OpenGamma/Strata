@@ -17,9 +17,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
-import com.opengamma.strata.market.sensitivity.SensitivityKey;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -60,29 +59,29 @@ public class RatesFiniteDifferenceSensitivityCalculator {
    * 
    * @param provider  the rates provider
    * @param valueFn  the function from a rate provider to a currency amount for which the sensitivity should be computed
-   * @return the sensitivity with the {@link SensitivityKey} containing the curves names.
+   * @return the curve sensitivity
    */
-  public CurveParameterSensitivities sensitivity(
+  public CurveCurrencyParameterSensitivities sensitivity(
       ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn) {
 
     CurrencyAmount valueInit = valueFn.apply(provider);
-    CurveParameterSensitivities discounting = sensitivity(
+    CurveCurrencyParameterSensitivities discounting = sensitivity(
         provider, valueFn, ImmutableRatesProvider.meta().discountCurves(), valueInit);
-    CurveParameterSensitivities forward = sensitivity(
+    CurveCurrencyParameterSensitivities forward = sensitivity(
         provider, valueFn, ImmutableRatesProvider.meta().indexCurves(), valueInit);
     return discounting.combinedWith(forward);
   }
 
   // computes the sensitivity with respect to the curves
-  private <T> CurveParameterSensitivities sensitivity(
+  private <T> CurveCurrencyParameterSensitivities sensitivity(
       ImmutableRatesProvider provider,
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
       MetaProperty<? extends Map<T, Curve>> metaProperty,
       CurrencyAmount valueInit) {
 
     Map<T, Curve> baseCurves = metaProperty.get(provider);
-    CurveParameterSensitivities result = CurveParameterSensitivities.empty();
+    CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
       NodalCurve curveInt = checkNodal(entry.getValue());
       int nbNodePoint = curveInt.getXValues().length;
@@ -95,7 +94,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }
       CurveName name = entry.getValue().getName();
-      result = result.combinedWith(NameCurrencySensitivityKey.of(name, valueInit.getCurrency()), sensitivity);
+      result = result.combinedWith(CurveCurrencyParameterSensitivity.of(name, valueInit.getCurrency(), sensitivity));
     }
     return result;
   }

@@ -211,7 +211,7 @@ public final class DiscountFxIndexRates
   }
 
   @Override
-  public PointSensitivityBuilder pointSensitivity(Currency baseCurrency, LocalDate fixingDate) {
+  public PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate fixingDate) {
     ArgChecker.isTrue(
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);

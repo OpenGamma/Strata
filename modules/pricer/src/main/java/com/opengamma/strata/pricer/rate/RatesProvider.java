@@ -10,11 +10,13 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.pricer.BaseProvider;
 
 /**
@@ -91,9 +93,22 @@ public interface RatesProvider
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the values for an Price index.
+   * <p>
+   * The value of the Price index, such as 'US-CPI-U', varies over time.
+   * This returns an object that can provide historic and forward values for the specified index.
+   * 
+   * @param index  the index to find values for
+   * @return the values for the specified index
+   * @throws IllegalArgumentException if the values are not available
+   */
+  public abstract PriceIndexValues priceIndexValues(PriceIndex index);
+
+  //-------------------------------------------------------------------------
+  /**
    * Computes the parameter sensitivity.
    * <p>
-   * This computes the {@link CurveParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This computes the {@link CurveCurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * <p>
    * For example, the point sensitivities could represent the sensitivity to a date on the first
@@ -104,7 +119,7 @@ public interface RatesProvider
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters
    */
-  CurveParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities);
+  CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
   /**

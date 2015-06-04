@@ -61,10 +61,11 @@ public class ForwardPriceIndexValuesTest {
 
   private static final double[] TIMES = new double[] {9.0, 21.0, 57.0, 117.0};
   private static final double[] VALUES = new double[] {240.500, 245.000, 265.000, 286.000};
+  private static final double[] VALUES2 = new double[] {243.500, 248.000, 268.000, 289.000};
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final String NAME = "USD-HICP";
-  private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(NAME, TIMES, VALUES, INTERPOLATOR);
+  private static final CurveName NAME = CurveName.of("USD-HICP");
+  private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(NAME, TIMES, VALUES, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(NAME, TIMES, VALUES2, INTERPOLATOR);
   private static final List<Double> SEASONALITY = ImmutableList.copyOf(
       new Double[] {0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d});
   private static final ForwardPriceIndexValues INSTANCE =
@@ -86,7 +87,7 @@ public class ForwardPriceIndexValuesTest {
     assertEquals(test.getValuationMonth(), VAL_MONTH);
     assertEquals(test.getSeasonality(), Collections.nCopies(12, 1d));
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), CurveName.of(NAME));
+    assertEquals(test.getCurveName(), NAME);
     assertEquals(test.getParameterCount(), TIMES.length);
   }
 
@@ -96,7 +97,7 @@ public class ForwardPriceIndexValuesTest {
     assertEquals(test.getValuationMonth(), VAL_MONTH);
     assertEquals(test.getSeasonality(), SEASONALITY);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), CurveName.of(NAME));
+    assertEquals(test.getCurveName(), NAME);
     assertEquals(test.getParameterCount(), TIMES.length);
   }
 
@@ -127,23 +128,24 @@ public class ForwardPriceIndexValuesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_pointSensitivity_fixing() {
+  public void test_valuePointSensitivity_fixing() {
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE);
-    assertEquals(test.pointSensitivity(VAL_MONTH.minusMonths(3)), PointSensitivityBuilder.none());
+    assertEquals(test.valuePointSensitivity(VAL_MONTH.minusMonths(3)), PointSensitivityBuilder.none());
   }
 
-  public void test_pointSensitivity_forward() {
+  public void test_valuePointSensitivity_forward() {
     YearMonth month = VAL_MONTH.plusMonths(3);
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE);
     InflationRateSensitivity expected = InflationRateSensitivity.of(US_CPI_U, month, 1d);
-    assertEquals(test.pointSensitivity(month), expected);
+    assertEquals(test.valuePointSensitivity(month), expected);
   }
 
   //-------------------------------------------------------------------------
-  public void test_curve_sensitivity() {
+  public void test_unitParameterSensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      double[] sensitivityComputed = INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]);
+      double[] sensitivityComputed =
+          INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]).getSensitivity(NAME).getSensitivity();
       double[] sensitivityExpected = new double[VALUES.length];
       for (int j = 0; j < VALUES.length; j++) {
         double[] valueFd = new double[2];
@@ -159,6 +161,20 @@ public class ForwardPriceIndexValuesTest {
         assertEquals(sensitivityComputed[j], sensitivityExpected[j], TOLERANCE_DELTA, "Test: " + i + " - sensi: " + j);
       }
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // proper end-to-end tests are elsewhere
+  public void test_curveParameterSensitivity() {
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE);
+    InflationRateSensitivity point = InflationRateSensitivity.of(US_CPI_U, VAL_MONTH.plusMonths(3), 1d);
+    assertEquals(test.curveParameterSensitivity(point).size(), 1);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withCurve() {
+    ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_MONTH, USCPI_TS, CURVE).withCurve(CURVE2);
+    assertEquals(test.getCurve(), CURVE2);
   }
 
   //-------------------------------------------------------------------------

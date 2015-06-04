@@ -32,7 +32,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -102,7 +102,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro = OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE,
         FIXING_END_DATE, 0);
@@ -164,7 +164,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
@@ -227,7 +227,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = CHF_TOIS.calculateMaturityFromEffective(fixingStartDate);
       OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(CHF_TOIS, CHF_TOIS.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
@@ -285,7 +285,7 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
       OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
@@ -334,10 +334,10 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
       PointSensitivityBuilder sensitivityBuilderComputed =
           obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+      CurveCurrencyParameterSensitivities parameterSensitivityComputed =
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
 
-      CurveParameterSensitivities parameterSensitivityExpected =
+      CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
@@ -361,10 +361,10 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
       PointSensitivityBuilder sensitivityBuilderComputed =
           obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+      CurveCurrencyParameterSensitivities parameterSensitivityComputed =
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
 
-      CurveParameterSensitivities parameterSensitivityExpected =
+      CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(CHF_TOIS.getCurrency(),
               obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));

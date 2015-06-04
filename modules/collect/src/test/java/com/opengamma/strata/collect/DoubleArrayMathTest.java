@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -37,6 +38,20 @@ public class DoubleArrayMathTest {
   //-------------------------------------------------------------------------
   public void test_sum() {
     assertThat(DoubleArrayMath.sum(ARRAY_1_2)).isEqualTo(3d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_applyAddition() {
+    assertThat(DoubleArrayMath.applyAddition(ARRAY_1_2, 2d)).contains(3d, 4d);
+  }
+
+  public void test_applyMultiplication() {
+    assertThat(DoubleArrayMath.applyMultiplication(ARRAY_1_2, 4d)).contains(4d, 8d);
+  }
+
+  public void test_apply() {
+    DoubleUnaryOperator operator = a -> 1 / a;
+    assertThat(DoubleArrayMath.apply(ARRAY_1_2, operator)).contains(1d, 1d / 2d);
   }
 
   //-------------------------------------------------------------------------
@@ -102,6 +117,16 @@ public class DoubleArrayMathTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(DoubleArrayMath.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @AfterMethod
+  private void assertInputsUnchanged() {
+    assertThat(ARRAY_0_0).containsExactly(-1e-4, 1e-3);
+    assertThat(ARRAY_1_2).containsExactly(1d, 2d);
+    assertThat(ARRAY_1_2B).containsExactly(1 - 1e-4, 2 + 1e-3);
+    assertThat(ARRAY_3_4).containsExactly(3d, 4d);
+    assertThat(ARRAY_3).containsExactly(3d);
   }
 
 }

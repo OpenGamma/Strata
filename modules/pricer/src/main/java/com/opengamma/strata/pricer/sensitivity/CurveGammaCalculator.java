@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
@@ -23,7 +24,6 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -145,8 +145,8 @@ public class CurveGammaCalculator {
           .indexCurves(fwdBumped)
           .build();
       PointSensitivities pts = sensitivitiesFn.apply(providerBumped);
-      ImmutableMap<SensitivityKey, double[]> psObject = providerBumped.parameterSensitivity(pts).getSensitivities();
-      double[] psArray = psObject.entrySet().iterator().next().getValue(); // only one entry
+      double[] psArray = Iterables.getOnlyElement(
+          providerBumped.curveParameterSensitivity(pts).getSensitivities()).getSensitivity();
       return new DoubleMatrix1D(psArray);
     }
   }

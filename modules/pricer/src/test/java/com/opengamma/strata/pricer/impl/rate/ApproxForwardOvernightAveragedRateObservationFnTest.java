@@ -30,7 +30,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -238,7 +238,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -429,7 +429,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < 2; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(PointSensitivityBuilder.none());
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(PointSensitivityBuilder.none());
     }
     for (int i = 2; i < nRates; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
@@ -437,7 +437,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -591,7 +591,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(
           PointSensitivityBuilder.none());
     }
     for (int i = lastFixing; i < FIXING_DATES.length; i++) {
@@ -600,7 +600,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -751,7 +751,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(
           PointSensitivityBuilder.none());
     }
     for (int i = lastFixing; i < FIXING_DATES.length; i++) {
@@ -760,7 +760,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -906,7 +906,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     when(mockRates.getTimeSeries()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(
           PointSensitivityBuilder.none());
     }
     for (int i = lastFixing; i < FIXING_DATES.length; i++) {
@@ -915,7 +915,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder pointSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1d);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(pointSensitivity);
     }
     double investmentFactor = 1.0;
     double afApprox = 0.0;
@@ -1114,9 +1114,9 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
-      CurveParameterSensitivities parameterSensitivityExpected =
+      CurveCurrencyParameterSensitivities parameterSensitivityComputed =
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
+      CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
@@ -1138,9 +1138,9 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
-      CurveParameterSensitivities parameterSensitivityExpected =
+      CurveCurrencyParameterSensitivities parameterSensitivityComputed =
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
+      CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));

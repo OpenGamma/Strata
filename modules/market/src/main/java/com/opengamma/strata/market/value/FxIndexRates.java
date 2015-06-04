@@ -84,7 +84,6 @@ public interface FxIndexRates {
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
-   * Otherwise, the sensitivity has the value 1.
    * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.
    * 
    * @param baseCurrency  the base currency that the rate should be expressed against
@@ -92,6 +91,6 @@ public interface FxIndexRates {
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract PointSensitivityBuilder pointSensitivity(Currency baseCurrency, LocalDate fixingDate);
+  public abstract PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate fixingDate);
 
 }

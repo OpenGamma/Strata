@@ -271,7 +271,7 @@ public class DiscountingSwapLegPricer {
         accrualPeriod.getRateObservation() instanceof FixedRateObservation,
         "RateObservation must be instance of FixedRateObservation");
     DiscountFactors discountFactors = provider.discountFactors(paymentPeriod.getCurrency());
-    return discountFactors.pointSensitivity(paymentPeriod.getPaymentDate())
+    return discountFactors.zeroRatePointSensitivity(paymentPeriod.getPaymentDate())
         .multipliedBy(accrualPeriod.getYearFraction() * paymentPeriod.getNotional());
   }
 

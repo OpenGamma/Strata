@@ -33,7 +33,7 @@ public class BeanTokenEvaluator implements TokenEvaluator<Bean> {
     if (propertyName.isPresent()) {
       return bean.property(propertyName.get()).get();
     }
-    throw new InvalidTokenException(token, bean.getClass());
+    throw new TokenException(token, TokenError.INVALID, tokens(bean));
   }
 
 }

@@ -9,7 +9,9 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
  * Provides access to discount factors for a single currency.
@@ -69,7 +71,7 @@ public interface DiscountFactors {
   public abstract double discountFactor(LocalDate date);
 
   /**
-   * Gets the zero rate curve sensitivity for the discount factor.
+   * Calculates the zero rate point sensitivity at the specified date.
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
    * used to determine the discount factor.
@@ -78,14 +80,14 @@ public interface DiscountFactors {
    * 
    * @param date  the date to discount to
    * @return the point sensitivity of the zero rate
-   * @throws RuntimeException if the value cannot be obtained
+   * @throws RuntimeException if the result cannot be calculated
    */
-  public default PointSensitivityBuilder pointSensitivity(LocalDate date) {
-    return pointSensitivity(date, getCurrency());
+  public default ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date) {
+    return zeroRatePointSensitivity(date, getCurrency());
   }
 
   /**
-   * Gets the zero rate curve sensitivity for the discount factor specifying the currency of the sensitivity.
+   * Calculates the zero rate point sensitivity at the specified date specifying the currency of the sensitivity.
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
    * used to determine the discount factor.
@@ -97,21 +99,33 @@ public interface DiscountFactors {
    * @param date  the date to discount to
    * @param sensitivityCurrency  the currency of the sensitivity
    * @return the point sensitivity of the zero rate
-   * @throws RuntimeException if the value cannot be obtained
+   * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract PointSensitivityBuilder pointSensitivity(LocalDate date, Currency sensitivityCurrency);
+  public abstract ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency);
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the unit parameter sensitivity of the forward rate at the specified fixing date.
+   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
    * <p>
-   * This returns the unit sensitivity for each parameter on the underlying curve.
-   * If the fixing date is before the valuation date an exception is thrown.
+   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
    * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * 
    * @param date  the date to find the sensitivity for
    * @return the parameter sensitivity
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double[] unitParameterSensitivity(LocalDate date);
+  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date);
+
+  /**
+   * Calculates the curve parameter sensitivity from the point sensitivity.
+   * <p>
+   * This is used to convert a single point sensitivity to curve parameter sensitivity.
+   * The calculation typically involves multiplying the point and unit sensitivities.
+   * 
+   * @param pointSensitivity  the point sensitivity to convert
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSensitivity);
 
 }

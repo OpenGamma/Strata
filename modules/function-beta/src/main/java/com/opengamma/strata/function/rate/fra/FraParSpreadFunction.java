@@ -7,7 +7,6 @@ package com.opengamma.strata.function.rate.fra;
 
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricerBeta;
 
 /**
  * Calculates the par spread of a {@code FraTrade} for each of a set of scenarios.
@@ -15,12 +14,9 @@ import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricerBeta;
 public class FraParSpreadFunction
     extends AbstractFraFunction<Double> {
 
-  // Fra pricer
-  private static final DiscountingFraProductPricerBeta PRICER = DiscountingFraProductPricerBeta.DEFAULT;
-
   @Override
   protected Double execute(ExpandedFra product, RatesProvider provider) {
-    return PRICER.parSpread(product, provider);
+    return pricer().parSpread(product, provider);
   }
 
 }

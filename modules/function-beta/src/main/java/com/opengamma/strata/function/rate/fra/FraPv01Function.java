@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.rate.fra;
 
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -14,12 +15,12 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This operates by algorithmic differentiation (AD).
  */
 public class FraPv01Function
-    extends AbstractFraFunction<Double> {
+    extends AbstractFraFunction<MultiCurrencyAmount> {
 
   @Override
-  protected Double execute(ExpandedFra product, RatesProvider provider) {
+  protected MultiCurrencyAmount execute(ExpandedFra product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity).total();
+    return provider.curveParameterSensitivity(pointSensitivity).total();
   }
 
 }

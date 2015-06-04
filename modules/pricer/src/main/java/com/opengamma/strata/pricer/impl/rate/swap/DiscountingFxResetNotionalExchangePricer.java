@@ -44,7 +44,7 @@ public class DiscountingFxResetNotionalExchangePricer
   @Override
   public PointSensitivityBuilder presentValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(event.getCurrency());
-    PointSensitivityBuilder sensiDsc = discountFactors.pointSensitivity(event.getPaymentDate());
+    PointSensitivityBuilder sensiDsc = discountFactors.zeroRatePointSensitivity(event.getPaymentDate());
     sensiDsc = sensiDsc.multipliedBy(futureValue(event, provider));
     PointSensitivityBuilder sensiFx = futureValueSensitivity(event, provider);
     sensiFx = sensiFx.multipliedBy(discountFactors.discountFactor(event.getPaymentDate()));
@@ -63,7 +63,7 @@ public class DiscountingFxResetNotionalExchangePricer
   @Override
   public PointSensitivityBuilder futureValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
     FxIndexRates rates = provider.fxIndexRates(event.getIndex());
-    return rates.pointSensitivity(event.getReferenceCurrency(), event.getFixingDate())
+    return rates.ratePointSensitivity(event.getReferenceCurrency(), event.getFixingDate())
         .multipliedBy(event.getNotional());
   }
 

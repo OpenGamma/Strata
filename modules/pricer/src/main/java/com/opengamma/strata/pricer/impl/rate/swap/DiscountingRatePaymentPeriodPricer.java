@@ -176,7 +176,7 @@ public class DiscountingRatePaymentPeriodPricer
     PointSensitivityBuilder fwdSensitivity = futureValueSensitivity(period, provider);
     fwdSensitivity = fwdSensitivity.multipliedBy(df);
     double futureValue = futureValue(period, provider);
-    PointSensitivityBuilder dscSensitivity = discountFactors.pointSensitivity(paymentDate);
+    PointSensitivityBuilder dscSensitivity = discountFactors.zeroRatePointSensitivity(paymentDate);
     dscSensitivity = dscSensitivity.multipliedBy(futureValue);
     return fwdSensitivity.combinedWith(dscSensitivity);
   }
@@ -206,7 +206,7 @@ public class DiscountingRatePaymentPeriodPricer
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
       FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
-      return rates.pointSensitivity(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      return rates.ratePointSensitivity(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
     }
     return PointSensitivityBuilder.none();
   }

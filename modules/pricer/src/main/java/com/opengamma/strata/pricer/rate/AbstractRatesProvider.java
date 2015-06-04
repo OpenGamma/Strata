@@ -6,34 +6,23 @@
 package com.opengamma.strata.pricer.rate;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.index.FxIndex;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.collect.tuple.ObjectDoublePair;
-import com.opengamma.strata.market.sensitivity.CurveParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
-import com.opengamma.strata.market.sensitivity.IndexCurrencySensitivityKey;
+import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
-import com.opengamma.strata.market.sensitivity.NameCurrencySensitivityKey;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.SensitivityKey;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
-import com.opengamma.strata.market.value.DiscountIborIndexRates;
-import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
+import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * An abstract rates provider implementation.
@@ -45,13 +34,32 @@ public abstract class AbstractRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveParameterSensitivities parameterSensitivity(PointSensitivities sensitivities) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities sensitivities) {
     PointSensitivities sensiFxDecomposed = resolveFxRateSensitivities(sensitivities);
-    Map<SensitivityKey, double[]> map = new HashMap<>();
-    paramSensitivityZeroRate(sensiFxDecomposed, map);
-    parameterSensitivityIbor(sensiFxDecomposed, map);
-    parameterSensitivityOvernight(sensiFxDecomposed, map);
-    return CurveParameterSensitivities.of(map);
+    CurveCurrencyParameterSensitivities sens = CurveCurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : sensiFxDecomposed.getSensitivities()) {
+      if (point instanceof ZeroRateSensitivity) {
+        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
+        DiscountFactors factors = discountFactors(pt.getCurveCurrency());
+        sens = sens.combinedWith(factors.curveParameterSensitivity(pt));
+
+      } else if (point instanceof IborRateSensitivity) {
+        IborRateSensitivity pt = (IborRateSensitivity) point;
+        IborIndexRates rates = iborIndexRates(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof OvernightRateSensitivity) {
+        OvernightRateSensitivity pt = (OvernightRateSensitivity) point;
+        OvernightIndexRates rates = overnightIndexRates(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof InflationRateSensitivity) {
+        InflationRateSensitivity pt = (InflationRateSensitivity) point;
+        PriceIndexValues rates = priceIndexValues(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+      }
+    }
+    return sens;
   }
 
   // resolve any FX Index sensitivity into zero-rate sensitivities
@@ -86,162 +94,17 @@ public abstract class AbstractRatesProvider
     double dfCcyCounterAtMaturityInv = 1.0 / discountFactorsCounter.discountFactor(maturityDate);
 
     PointSensitivityBuilder dfCcyBaseAtMaturitySensitivity =
-        discountFactorsBase.pointSensitivity(maturityDate, sensitivityCurrency);
+        discountFactorsBase.zeroRatePointSensitivity(maturityDate, sensitivityCurrency);
     dfCcyBaseAtMaturitySensitivity = dfCcyBaseAtMaturitySensitivity.multipliedBy(
         fxRate(refBaseCurrency, refCounterCurrency) * dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
 
     PointSensitivityBuilder dfCcyCounterAtMaturitySensitivity =
-        discountFactorsCounter.pointSensitivity(maturityDate, sensitivityCurrency);
+        discountFactorsCounter.zeroRatePointSensitivity(maturityDate, sensitivityCurrency);
     dfCcyCounterAtMaturitySensitivity = dfCcyCounterAtMaturitySensitivity.multipliedBy(
         -fxRate(refBaseCurrency, refCounterCurrency) * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
             dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
 
     return dfCcyBaseAtMaturitySensitivity.combinedWith(dfCcyCounterAtMaturitySensitivity);
-  }
-
-  // handle zero rate sensitivities
-  private void paramSensitivityZeroRate(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
-    // group by currency
-    ListMultimap<CurrencyPair, ObjectDoublePair<LocalDate>> grouped = ArrayListMultimap.create();
-    for (PointSensitivity point : sensitivities.getSensitivities()) {
-      if (point instanceof ZeroRateSensitivity) {
-        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
-        CurrencyPair pair = CurrencyPair.of(pt.getCurveCurrency(), pt.getCurrency());
-        grouped.put(pair, ObjectDoublePair.of(pt.getDate(), pt.getSensitivity()));
-      }
-    }
-    // calculate per currency
-    for (CurrencyPair key : grouped.keySet()) {
-      DiscountFactors factors = discountFactors(key.getBase());
-      double[] sensiParam = parameterSensitivityZeroRate(factors, grouped.get(key));
-      NameCurrencySensitivityKey keyParam = NameCurrencySensitivityKey.of(factors.getCurveName(), key.getCounter());
-      mutableMap.put(keyParam, sensiParam);
-    }
-  }
-
-  // zero rate sensitivity
-  private double[] parameterSensitivityZeroRate(DiscountFactors factors, List<ObjectDoublePair<LocalDate>> grouped) {
-    int nbParameters = factors.getParameterCount();
-    double[] result = new double[nbParameters];
-    for (ObjectDoublePair<LocalDate> dateAndPointSens : grouped) {
-      double[] unitSens = factors.unitParameterSensitivity(dateAndPointSens.getFirst());
-      for (int i = 0; i < nbParameters; i++) {
-        result[i] += dateAndPointSens.getSecond() * unitSens[i];
-      }
-    }
-    return result;
-  }
-
-  // handle ibor rate sensitivities
-  private void parameterSensitivityIbor(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
-    // group by currency
-    ListMultimap<IndexCurrencySensitivityKey, IndexSensitivity> grouped = ArrayListMultimap.create();
-    for (PointSensitivity point : sensitivities.getSensitivities()) {
-      if (point instanceof IborRateSensitivity) {
-        IborRateSensitivity pt = (IborRateSensitivity) point;
-        IborIndex index = pt.getIndex();
-        LocalDate startDate = index.calculateEffectiveFromFixing(pt.getFixingDate());
-        LocalDate endDate = index.calculateMaturityFromEffective(startDate);
-        double startTime = relativeTime(startDate);
-        double endTime = relativeTime(endDate);
-        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
-        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, pt.getCurrency());
-        grouped.put(key, new IndexSensitivity(startDate, startTime, endDate, endTime, accrualFactor, pt.getSensitivity()));
-      }
-    }
-    // calculate per currency
-    for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      DiscountIborIndexRates rates = (DiscountIborIndexRates) iborIndexRates((IborIndex) key.getIndex());
-      DiscountFactors factors = rates.getDiscountFactors();
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(factors.getCurveName(), key.getCurrency());
-      double[] sensiParam = parameterSensitivityIndex(factors, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, DoubleArrayMath::combineByAddition);
-    }
-  }
-
-  // handle overnight rate sensitivities
-  private void parameterSensitivityOvernight(PointSensitivities sensitivities, Map<SensitivityKey, double[]> mutableMap) {
-    // group by currency
-    ListMultimap<IndexCurrencySensitivityKey, IndexSensitivity> grouped = ArrayListMultimap.create();
-    for (PointSensitivity point : sensitivities.getSensitivities()) {
-      if (point instanceof OvernightRateSensitivity) {
-        OvernightRateSensitivity pt = (OvernightRateSensitivity) point;
-        OvernightIndex index = pt.getIndex();
-        LocalDate fixingDate = pt.getFixingDate();
-        LocalDate endDate = pt.getEndDate();
-        LocalDate startDate = index.calculateEffectiveFromFixing(fixingDate);
-        double startTime = relativeTime(startDate);
-        double endTime = relativeTime(endDate);
-        double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
-        IndexCurrencySensitivityKey key = IndexCurrencySensitivityKey.of(index, pt.getCurrency());
-        grouped.put(key, new IndexSensitivity(startDate, startTime, endDate, endTime, accrualFactor, pt.getSensitivity()));
-      }
-    }
-    // calculate per currency
-    for (IndexCurrencySensitivityKey key : grouped.keySet()) {
-      DiscountOvernightIndexRates rates = (DiscountOvernightIndexRates) overnightIndexRates((OvernightIndex) key.getIndex());
-      DiscountFactors factors = rates.getDiscountFactors();
-      SensitivityKey keyParam = NameCurrencySensitivityKey.of(factors.getCurveName(), key.getCurrency());
-      double[] sensiParam = parameterSensitivityIndex(factors, grouped.get(key));
-      mutableMap.merge(keyParam, sensiParam, DoubleArrayMath::combineByAddition);
-    }
-  }
-
-  // sensitivity, copied from MulticurveProviderDiscount
-  private double[] parameterSensitivityIndex(DiscountFactors factors, List<IndexSensitivity> grouped) {
-    int nbParameters = factors.getParameterCount();
-    double[] result = new double[nbParameters];
-    for (IndexSensitivity group : grouped) {
-      double forwardBar = group.sensitivity;
-      // Implementation note: only the sensitivity to the forward is available.
-      // The sensitivity to the pseudo-discount factors need to be computed.
-      double dfForwardStart = factors.discountFactor(group.startDate);
-      double dfForwardEnd = factors.discountFactor(group.endDate);
-      double dFwddyStart = group.derivativeToYieldStart(dfForwardStart, dfForwardEnd);
-      double dFwddyEnd = group.derivativeToYieldEnd(dfForwardStart, dfForwardEnd);
-      double[] unitSensStart = factors.unitParameterSensitivity(group.startDate);
-      double[] unitSensEnd = factors.unitParameterSensitivity(group.endDate);
-      for (int i = 0; i < nbParameters; i++) {
-        result[i] += dFwddyStart * unitSensStart[i] * forwardBar;
-        result[i] += dFwddyEnd * unitSensEnd[i] * forwardBar;
-      }
-    }
-    return result;
-  }
-
-  //-------------------------------------------------------------------------
-  // simply compound forward sensitivity
-  private static class IndexSensitivity {
-    private final LocalDate startDate;
-    private final double startTime;
-    private final LocalDate endDate;
-    private final double endTime;
-    private final double accrualFactor;
-    private final double sensitivity;
-
-    private IndexSensitivity(
-        LocalDate startDate,
-        double startTime,
-        LocalDate endDate,
-        double endTime,
-        double accrualFactor,
-        double sensitivity) {
-
-      this.startDate = startDate;
-      this.startTime = startTime;
-      this.endDate = endDate;
-      this.endTime = endTime;
-      this.accrualFactor = accrualFactor;
-      this.sensitivity = sensitivity;
-    }
-
-    private double derivativeToYieldStart(double dicountfactorStart, double dicountfactorEnd) {
-      return -startTime * dicountfactorStart / (dicountfactorEnd * accrualFactor);
-    }
-
-    private double derivativeToYieldEnd(double dicountfactorStart, double dicountfactorEnd) {
-      return endTime * dicountfactorStart / (dicountfactorEnd * accrualFactor);
-    }
   }
 
 }
