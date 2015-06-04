@@ -15,11 +15,56 @@ public class IsdaYieldCurveConventions {
       IsdaYieldCurveConvention.of(
           Currency.USD,
           DayCounts.ACT_360,
-          DayCounts.THIRTY_360_ISDA,
-          DayCounts.ACT_365F,
+          DayCounts.THIRTY_E_360,
           2,
           Frequency.P6M,
           BusinessDayConventions.MODIFIED_FOLLOWING,
           HolidayCalendars.SAT_SUN
       );
+
+    public static final IsdaYieldCurveConvention europeanEur =
+        IsdaYieldCurveConvention.of(
+            Currency.EUR,
+            DayCounts.ACT_360,
+            DayCounts.THIRTY_360_ISDA,
+            2,
+            Frequency.P12M,
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendars.SAT_SUN
+        );
+
+    public static final IsdaYieldCurveConvention europeanGbp =
+        IsdaYieldCurveConvention.of(
+            Currency.GBP,
+            DayCounts.ACT_365F,
+            DayCounts.ACT_365F,
+            2,
+            Frequency.P6M,
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendars.SAT_SUN
+        );
+
+    public static final IsdaYieldCurveConvention europeanChf =
+        IsdaYieldCurveConvention.of(
+            Currency.CHF,
+            DayCounts.ACT_360,
+            DayCounts.THIRTY_E_360,
+            2,
+            Frequency.P12M,
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendars.SAT_SUN
+        );
+
+
+    public static final IsdaYieldCurveConvention asianJPY =
+        IsdaYieldCurveConvention.of(
+            Currency.JPY,
+            DayCounts.ACT_360,
+            DayCounts.THIRTY_E_360,
+            2,
+            Frequency.P6M,
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendars.JPTO
+        );
+
 }

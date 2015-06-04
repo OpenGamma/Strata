@@ -26,33 +26,56 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
+ * The per currency comventions used by the ISDA standard model to build an interest rate yield curve
+ * It is a combination of parameters needed to create the money market and swap curve underlyings, as
+ * well as other parameters used in curve bootstrapping
  * See 3.3.1 in http://www.cdsmodel.com/assets/cds-model/docs/Interest%20Rate%20Curve%20-%20XML%20Specifications.pdf
  */
 @BeanDefinition
 public final class IsdaYieldCurveConvention
     implements Convention, ImmutableBean, Serializable {
 
+  /**
+   * Currency associated with this curve
+   */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
 
+  /**
+   * Money market day count convention, e.g. ACT/360
+   */
   @PropertyDefinition(validate = "notNull")
   private final DayCount mmDayCount;
 
+  /**
+   * Day count convention for swap curve
+   * NB: Floating leg values not used by the model
+   */
   @PropertyDefinition(validate = "notNull")
-  private final DayCount fixedDayCount; // Floating leg values not used by the model
+  private final DayCount fixedDayCount;
 
-  @PropertyDefinition(validate = "notNull")
-  private final DayCount curveDayCount;
-
+  /**
+   * number of days to settlement for underlying swap
+   */
   @PropertyDefinition(validate = "notNull")
   private final int spotDays;
 
+  /**
+   * Floating leg values not used by the model
+   */
   @PropertyDefinition(validate = "notNull")
-  private final Frequency fixedPaymentFrequency; // Floating leg values not used by the model
+  private final Frequency fixedPaymentFrequency;
 
+  /**
+   * Convention for rolling around weekends and/or holidays
+   */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayConvention badDayConvention;
 
+  /**
+   * Holiday calendar to use in date adjustments
+   * Is typically SAT_SUN except for JPY
+   */
   @PropertyDefinition(validate = "notNull")
   private final HolidayCalendar holidayCalendar;
 
@@ -60,7 +83,6 @@ public final class IsdaYieldCurveConvention
       Currency currency,
       DayCount mmDayCount,
       DayCount fixedDayCount,
-      DayCount curveDayCount,
       int spotDays,
       Frequency fixedPaymentFrequency,
       BusinessDayConvention badDayConvention,
@@ -70,7 +92,6 @@ public final class IsdaYieldCurveConvention
         currency,
         mmDayCount,
         fixedDayCount,
-        curveDayCount,
         spotDays,
         fixedPaymentFrequency,
         badDayConvention,
@@ -78,6 +99,11 @@ public final class IsdaYieldCurveConvention
     );
   }
 
+  /**
+   * Apply the spot days settlement lag and adjust using the conventions
+   * @param asOfDate base asOfDate
+   * @return adjusted spot date
+   */
   public LocalDate getSpotDateAsOf(LocalDate asOfDate) {
     BusinessDayAdjustment adjustment = BusinessDayAdjustment.of(
         badDayConvention,
@@ -117,7 +143,6 @@ public final class IsdaYieldCurveConvention
       Currency currency,
       DayCount mmDayCount,
       DayCount fixedDayCount,
-      DayCount curveDayCount,
       int spotDays,
       Frequency fixedPaymentFrequency,
       BusinessDayConvention badDayConvention,
@@ -125,7 +150,6 @@ public final class IsdaYieldCurveConvention
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(mmDayCount, "mmDayCount");
     JodaBeanUtils.notNull(fixedDayCount, "fixedDayCount");
-    JodaBeanUtils.notNull(curveDayCount, "curveDayCount");
     JodaBeanUtils.notNull(spotDays, "spotDays");
     JodaBeanUtils.notNull(fixedPaymentFrequency, "fixedPaymentFrequency");
     JodaBeanUtils.notNull(badDayConvention, "badDayConvention");
@@ -133,7 +157,6 @@ public final class IsdaYieldCurveConvention
     this.currency = currency;
     this.mmDayCount = mmDayCount;
     this.fixedDayCount = fixedDayCount;
-    this.curveDayCount = curveDayCount;
     this.spotDays = spotDays;
     this.fixedPaymentFrequency = fixedPaymentFrequency;
     this.badDayConvention = badDayConvention;
@@ -157,7 +180,7 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency.
+   * Gets currency associated with this curve
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -166,7 +189,7 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the mmDayCount.
+   * Gets money market day count convention, e.g. ACT/360
    * @return the value of the property, not null
    */
   public DayCount getMmDayCount() {
@@ -175,7 +198,8 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixedDayCount.
+   * Gets day count convention for swap curve
+   * NB: Floating leg values not used by the model
    * @return the value of the property, not null
    */
   public DayCount getFixedDayCount() {
@@ -184,16 +208,7 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curveDayCount.
-   * @return the value of the property, not null
-   */
-  public DayCount getCurveDayCount() {
-    return curveDayCount;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the spotDays.
+   * Gets number of days to settlement for underlying swap
    * @return the value of the property, not null
    */
   public int getSpotDays() {
@@ -202,7 +217,7 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixedPaymentFrequency.
+   * Gets floating leg values not used by the model
    * @return the value of the property, not null
    */
   public Frequency getFixedPaymentFrequency() {
@@ -211,7 +226,7 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the badDayConvention.
+   * Gets convention for rolling around weekends and/or holidays
    * @return the value of the property, not null
    */
   public BusinessDayConvention getBadDayConvention() {
@@ -220,7 +235,8 @@ public final class IsdaYieldCurveConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the holidayCalendar.
+   * Gets holiday calendar to use in date adjustments
+   * Is typically SAT_SUN except for JPY
    * @return the value of the property, not null
    */
   public HolidayCalendar getHolidayCalendar() {
@@ -246,7 +262,6 @@ public final class IsdaYieldCurveConvention
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getMmDayCount(), other.getMmDayCount()) &&
           JodaBeanUtils.equal(getFixedDayCount(), other.getFixedDayCount()) &&
-          JodaBeanUtils.equal(getCurveDayCount(), other.getCurveDayCount()) &&
           (getSpotDays() == other.getSpotDays()) &&
           JodaBeanUtils.equal(getFixedPaymentFrequency(), other.getFixedPaymentFrequency()) &&
           JodaBeanUtils.equal(getBadDayConvention(), other.getBadDayConvention()) &&
@@ -261,7 +276,6 @@ public final class IsdaYieldCurveConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMmDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixedDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDays());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixedPaymentFrequency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getBadDayConvention());
@@ -271,12 +285,11 @@ public final class IsdaYieldCurveConvention
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("IsdaYieldCurveConvention{");
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("mmDayCount").append('=').append(getMmDayCount()).append(',').append(' ');
     buf.append("fixedDayCount").append('=').append(getFixedDayCount()).append(',').append(' ');
-    buf.append("curveDayCount").append('=').append(getCurveDayCount()).append(',').append(' ');
     buf.append("spotDays").append('=').append(getSpotDays()).append(',').append(' ');
     buf.append("fixedPaymentFrequency").append('=').append(getFixedPaymentFrequency()).append(',').append(' ');
     buf.append("badDayConvention").append('=').append(getBadDayConvention()).append(',').append(' ');
@@ -311,11 +324,6 @@ public final class IsdaYieldCurveConvention
     private final MetaProperty<DayCount> fixedDayCount = DirectMetaProperty.ofImmutable(
         this, "fixedDayCount", IsdaYieldCurveConvention.class, DayCount.class);
     /**
-     * The meta-property for the {@code curveDayCount} property.
-     */
-    private final MetaProperty<DayCount> curveDayCount = DirectMetaProperty.ofImmutable(
-        this, "curveDayCount", IsdaYieldCurveConvention.class, DayCount.class);
-    /**
      * The meta-property for the {@code spotDays} property.
      */
     private final MetaProperty<Integer> spotDays = DirectMetaProperty.ofImmutable(
@@ -343,7 +351,6 @@ public final class IsdaYieldCurveConvention
         "currency",
         "mmDayCount",
         "fixedDayCount",
-        "curveDayCount",
         "spotDays",
         "fixedPaymentFrequency",
         "badDayConvention",
@@ -364,8 +371,6 @@ public final class IsdaYieldCurveConvention
           return mmDayCount;
         case -1134209433:  // fixedDayCount
           return fixedDayCount;
-        case -1661418270:  // curveDayCount
-          return curveDayCount;
         case -1831990151:  // spotDays
           return spotDays;
         case 2136481162:  // fixedPaymentFrequency
@@ -419,14 +424,6 @@ public final class IsdaYieldCurveConvention
     }
 
     /**
-     * The meta-property for the {@code curveDayCount} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DayCount> curveDayCount() {
-      return curveDayCount;
-    }
-
-    /**
      * The meta-property for the {@code spotDays} property.
      * @return the meta-property, not null
      */
@@ -468,8 +465,6 @@ public final class IsdaYieldCurveConvention
           return ((IsdaYieldCurveConvention) bean).getMmDayCount();
         case -1134209433:  // fixedDayCount
           return ((IsdaYieldCurveConvention) bean).getFixedDayCount();
-        case -1661418270:  // curveDayCount
-          return ((IsdaYieldCurveConvention) bean).getCurveDayCount();
         case -1831990151:  // spotDays
           return ((IsdaYieldCurveConvention) bean).getSpotDays();
         case 2136481162:  // fixedPaymentFrequency
@@ -502,7 +497,6 @@ public final class IsdaYieldCurveConvention
     private Currency currency;
     private DayCount mmDayCount;
     private DayCount fixedDayCount;
-    private DayCount curveDayCount;
     private int spotDays;
     private Frequency fixedPaymentFrequency;
     private BusinessDayConvention badDayConvention;
@@ -522,7 +516,6 @@ public final class IsdaYieldCurveConvention
       this.currency = beanToCopy.getCurrency();
       this.mmDayCount = beanToCopy.getMmDayCount();
       this.fixedDayCount = beanToCopy.getFixedDayCount();
-      this.curveDayCount = beanToCopy.getCurveDayCount();
       this.spotDays = beanToCopy.getSpotDays();
       this.fixedPaymentFrequency = beanToCopy.getFixedPaymentFrequency();
       this.badDayConvention = beanToCopy.getBadDayConvention();
@@ -539,8 +532,6 @@ public final class IsdaYieldCurveConvention
           return mmDayCount;
         case -1134209433:  // fixedDayCount
           return fixedDayCount;
-        case -1661418270:  // curveDayCount
-          return curveDayCount;
         case -1831990151:  // spotDays
           return spotDays;
         case 2136481162:  // fixedPaymentFrequency
@@ -565,9 +556,6 @@ public final class IsdaYieldCurveConvention
           break;
         case -1134209433:  // fixedDayCount
           this.fixedDayCount = (DayCount) newValue;
-          break;
-        case -1661418270:  // curveDayCount
-          this.curveDayCount = (DayCount) newValue;
           break;
         case -1831990151:  // spotDays
           this.spotDays = (Integer) newValue;
@@ -617,7 +605,6 @@ public final class IsdaYieldCurveConvention
           currency,
           mmDayCount,
           fixedDayCount,
-          curveDayCount,
           spotDays,
           fixedPaymentFrequency,
           badDayConvention,
@@ -655,17 +642,6 @@ public final class IsdaYieldCurveConvention
     public Builder fixedDayCount(DayCount fixedDayCount) {
       JodaBeanUtils.notNull(fixedDayCount, "fixedDayCount");
       this.fixedDayCount = fixedDayCount;
-      return this;
-    }
-
-    /**
-     * Sets the {@code curveDayCount} property in the builder.
-     * @param curveDayCount  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveDayCount(DayCount curveDayCount) {
-      JodaBeanUtils.notNull(curveDayCount, "curveDayCount");
-      this.curveDayCount = curveDayCount;
       return this;
     }
 
@@ -716,12 +692,11 @@ public final class IsdaYieldCurveConvention
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("IsdaYieldCurveConvention.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("mmDayCount").append('=').append(JodaBeanUtils.toString(mmDayCount)).append(',').append(' ');
       buf.append("fixedDayCount").append('=').append(JodaBeanUtils.toString(fixedDayCount)).append(',').append(' ');
-      buf.append("curveDayCount").append('=').append(JodaBeanUtils.toString(curveDayCount)).append(',').append(' ');
       buf.append("spotDays").append('=').append(JodaBeanUtils.toString(spotDays)).append(',').append(' ');
       buf.append("fixedPaymentFrequency").append('=').append(JodaBeanUtils.toString(fixedPaymentFrequency)).append(',').append(' ');
       buf.append("badDayConvention").append('=').append(JodaBeanUtils.toString(badDayConvention)).append(',').append(' ');

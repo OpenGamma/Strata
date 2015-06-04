@@ -80,7 +80,7 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
     return CalculationRequirements.builder()
         .singleValueRequirements(Sets.newHashSet())
         .timeSeriesRequirements()
-        .outputCurrencies(ImmutableSet.of(cds.getFeeLeg().getPeriodicPayments().getCalculationAmount().getCurrency()))
+        .outputCurrencies(ImmutableSet.of(cds.getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getCurrency()))
         .build();
   }
 
@@ -88,7 +88,7 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
     // get market data from provider next
 
     LocalDate asOfDate = provider.getValuationDate();
-    return _wrapper.price(asOfDate, trade, discountCurve(), creditCurve(), recoveryRate());
+    return _wrapper.price(asOfDate, trade.expand(), discountCurve(), creditCurve(), recoveryRate());
   }
 
   private CurveYieldPlaceholder discountCurve() {

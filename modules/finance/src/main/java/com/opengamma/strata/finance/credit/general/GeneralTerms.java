@@ -42,6 +42,8 @@ public final class GeneralTerms
   /**
    * The first day of the term of the trade. This day may be subject to adjustment in accordance
    * with a business day convention. ISDA 2003 Term: Effective Date
+   *
+   * This is typically the previous imm date before trade date, adjusted.
    */
   @PropertyDefinition(validate = "notNull")
   final LocalDate effectiveDate;
@@ -49,6 +51,8 @@ public final class GeneralTerms
   /**
    * The scheduled date on which the credit protection will lapse. This day may be subject to
    * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
+   *
+   * This is typically an unadjusted imm date.
    */
   @PropertyDefinition(validate = "notNull")
   final LocalDate scheduledTerminationDate;
@@ -203,6 +207,8 @@ public final class GeneralTerms
   /**
    * Gets the first day of the term of the trade. This day may be subject to adjustment in accordance
    * with a business day convention. ISDA 2003 Term: Effective Date
+   * 
+   * This is typically the previous imm date before trade date, adjusted.
    * @return the value of the property, not null
    */
   public LocalDate getEffectiveDate() {
@@ -213,6 +219,8 @@ public final class GeneralTerms
   /**
    * Gets the scheduled date on which the credit protection will lapse. This day may be subject to
    * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
+   * 
+   * This is typically an unadjusted imm date.
    * @return the value of the property, not null
    */
   public LocalDate getScheduledTerminationDate() {

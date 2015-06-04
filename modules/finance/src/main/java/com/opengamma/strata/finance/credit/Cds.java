@@ -27,6 +27,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
+ *
+ * http://www.fpml.org/spec/fpml-5-7-2-wd-2/html/pretrade/schemaDocumentation/schemas/fpml-cd-5-7_xsd/elements/creditDefaultSwap.html
+ *
  * A credit default swap (single name and index).
  *
  * In a credit default swap one party (the protection seller) agrees to compensate another party

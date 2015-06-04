@@ -24,6 +24,7 @@ import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.common.ImmLogic;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
+import com.opengamma.strata.finance.credit.fee.FixedAmountCalculation;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
@@ -73,8 +74,6 @@ public final class StandardCdsConvention
 
   @PropertyDefinition(validate = "notNull")
   private final boolean payAccOnDefault;
-
-  // TODO set protectStart = false
 
   @PropertyDefinition(validate = "notNull")
   private final HolidayCalendar calendar;
@@ -173,7 +172,7 @@ public final class StandardCdsConvention
     // Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
     LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(unadjustedStartDate, period);
 
-    LocalDate stepInDate = calcStepInDate(tradeDate);
+    LocalDate stepInDate = calcStepInDate(tradeDate); // TODO what do we do with this?
     LocalDate settleDate = businessDayAdjustment.adjust(tradeDate.plusDays(settleLag));
 
     PeriodicSchedule periodicSchedule = PeriodicSchedule.builder()
@@ -205,14 +204,17 @@ public final class StandardCdsConvention
             ),
             FeeLeg.of(
                 PeriodicPayments.of(
-                    periodicSchedule,
-                    CurrencyAmount.of(currency, notional),
-                    coupon,
-                    dayCount
+                    paymentFrequency,
+                    stubConvention,
+                    rollConvention,
+                    FixedAmountCalculation.of(
+                        CurrencyAmount.of(Currency.USD, notional),
+                        coupon,
+                        dayCount
+                    )
                 )
             ),
             ProtectionTerms.of(
-                CurrencyAmount.of(currency, notional),
                 restructuringClause
             )
         )

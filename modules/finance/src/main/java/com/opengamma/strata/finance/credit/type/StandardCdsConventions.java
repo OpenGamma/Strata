@@ -47,7 +47,7 @@ public class StandardCdsConventions {
         .builder()
         .currency(Currency.USD)
         .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+        .dayConvention(BusinessDayConventions.FOLLOWING)
         .paymentFrequency(Frequency.P3M)
         .payAccOnDefault(true)
         .calendar(HolidayCalendars.SAT_SUN)
