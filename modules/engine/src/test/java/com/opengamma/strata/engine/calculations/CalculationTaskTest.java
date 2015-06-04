@@ -212,7 +212,7 @@ public class CalculationTaskTest {
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
     MarketDataRequirements requirements = task.requirements();
 
-    assertThat(requirements.getNonObservables()).containsExactly(
+    assertThat(requirements.getNonObservables()).containsOnly(
         FxRateId.of(Currency.GBP, Currency.USD),
         FxRateId.of(Currency.EUR, Currency.USD));
   }
