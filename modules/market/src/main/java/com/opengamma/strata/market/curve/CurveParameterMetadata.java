@@ -45,13 +45,14 @@ public interface CurveParameterMetadata
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a description of the parameter.
+   * Gets the label that describes the parameter.
    * <p>
-   * It is intended that the description is relatively short, perhaps 10 characters.
+   * It is intended that the label is relatively short, perhaps 10 characters.
+   * However, there is no formal restriction.
    * 
    * @return the description
    */
-  public abstract String getDescription();
+  public abstract String getLabel();
 
   /**
    * Returns an object used to identify the parameter so it can be referenced when creating scenarios.
