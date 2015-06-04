@@ -28,13 +28,6 @@
       <artifactId>strata-basics</artifactId>
     </dependency>
 
-    <!-- TODO temporary dependencies -->
-    <!-- Required for ShiftType -->
-    <dependency>
-      <groupId>com.opengamma.analytics</groupId>
-      <artifactId>og-analytics</artifactId>
-    </dependency>
-
     <!-- Third Party -->
     <dependency>
       <groupId>com.google.guava</groupId>
