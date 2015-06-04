@@ -24,11 +24,11 @@ final class CurrencyDataLoader {
   /**
    * INI file for currency data.
    */
-  private static final String CURRENCY_INI = "com/opengamma/basics/currency/Currency.ini";
+  private static final String CURRENCY_INI = "com/opengamma/strata/basics/currency/Currency.ini";
   /**
    * INI file for currency pair data.
    */
-  private static final String PAIR_INI = "com/opengamma/basics/currency/CurrencyPair.ini";
+  private static final String PAIR_INI = "com/opengamma/strata/basics/currency/CurrencyPair.ini";
 
   // restricted constructor
   private CurrencyDataLoader() {
