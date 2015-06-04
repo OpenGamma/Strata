@@ -1,9 +1,15 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.engine.marketdata;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +22,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.analytics.ShiftType;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
@@ -262,8 +267,6 @@ public class DefaultMarketDataFactoryTest {
     BaseMarketDataResult result =
         factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> singleValueFailures = result.getSingleValueFailures();
-    BaseMarketData marketData = result.getMarketData();
-
     assertThat(singleValueFailures.get(id1)).hasFailureMessageMatching("No market data rule.*");
   }
 
@@ -433,9 +436,9 @@ public class DefaultMarketDataFactoryTest {
         PerturbationMapping.of(
             Double.class,
             new FalseFilter<>(TestObservableId.class),
-            new DoubleShift(ShiftType.ABSOLUTE, 1),
-            new DoubleShift(ShiftType.ABSOLUTE, 2),
-            new DoubleShift(ShiftType.ABSOLUTE, 3));
+            new AbsoluteDoubleShift(1),
+            new AbsoluteDoubleShift(2),
+            new AbsoluteDoubleShift(3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -471,9 +474,9 @@ public class DefaultMarketDataFactoryTest {
         PerturbationMapping.of(
             Double.class,
             new FalseFilter<>(TestObservableId.class),
-            new DoubleShift(ShiftType.ABSOLUTE, 1),
-            new DoubleShift(ShiftType.ABSOLUTE, 2),
-            new DoubleShift(ShiftType.ABSOLUTE, 3));
+            new AbsoluteDoubleShift(1),
+            new AbsoluteDoubleShift(2),
+            new AbsoluteDoubleShift(3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -502,9 +505,9 @@ public class DefaultMarketDataFactoryTest {
         PerturbationMapping.of(
             Double.class,
             new ExactIdFilter<>(id1),
-            new DoubleShift(ShiftType.ABSOLUTE, 1),
-            new DoubleShift(ShiftType.ABSOLUTE, 2),
-            new DoubleShift(ShiftType.ABSOLUTE, 3));
+            new AbsoluteDoubleShift(1),
+            new AbsoluteDoubleShift(2),
+            new AbsoluteDoubleShift(3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -536,16 +539,16 @@ public class DefaultMarketDataFactoryTest {
         PerturbationMapping.of(
             Double.class,
             new ExactIdFilter<>(id2),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            new RelativeDoubleShift(0.1),
+            new RelativeDoubleShift(0.2),
+            new RelativeDoubleShift(0.3));
     PerturbationMapping<Double> mapping2 =
         PerturbationMapping.of(
             Double.class,
             new ExactIdFilter<>(id2),
-            new DoubleShift(ShiftType.ABSOLUTE, 1),
-            new DoubleShift(ShiftType.ABSOLUTE, 2),
-            new DoubleShift(ShiftType.ABSOLUTE, 3));
+            new AbsoluteDoubleShift(1),
+            new AbsoluteDoubleShift(2),
+            new AbsoluteDoubleShift(3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping1, mapping2));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -734,9 +737,9 @@ public class DefaultMarketDataFactoryTest {
         PerturbationMapping.of(
             Double.class,
             new ExactIdFilter<>(quoteId),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            new RelativeDoubleShift(0.1),
+            new RelativeDoubleShift(0.2),
+            new RelativeDoubleShift(0.3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioMarketDataResult result =
         factory.buildScenarioMarketData(
@@ -842,9 +845,9 @@ public class DefaultMarketDataFactoryTest {
         PerturbationMapping.of(
             Double.class,
             new ExactIdFilter<>(id),
-            new DoubleShift(ShiftType.RELATIVE, 0.1),
-            new DoubleShift(ShiftType.RELATIVE, 0.2),
-            new DoubleShift(ShiftType.RELATIVE, 0.3));
+            new RelativeDoubleShift(0.1),
+            new RelativeDoubleShift(0.2),
+            new RelativeDoubleShift(0.3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     BaseMarketData suppliedData =
         BaseMarketData.builder(date(2011, 3, 8))
@@ -1209,20 +1212,34 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Perturbation that applies a shift to a double value.
    */
-  private static final class DoubleShift implements Perturbation<Double> {
-
-    private final ShiftType shiftType;
+  private static final class AbsoluteDoubleShift implements Perturbation<Double> {
 
     private final double shiftAmount;
 
-    private DoubleShift(ShiftType shiftType, double shiftAmount) {
-      this.shiftType = shiftType;
+    private AbsoluteDoubleShift(double shiftAmount) {
       this.shiftAmount = shiftAmount;
     }
 
     @Override
     public Double apply(Double marketData) {
-      return shiftType.applyShift(marketData, shiftAmount);
+      return marketData + shiftAmount;
+    }
+  }
+
+  /**
+   * Perturbation that applies a shift to a double value.
+   */
+  private static final class RelativeDoubleShift implements Perturbation<Double> {
+
+    private final double shiftAmount;
+
+    private RelativeDoubleShift(double shiftAmount) {
+      this.shiftAmount = shiftAmount;
+    }
+
+    @Override
+    public Double apply(Double marketData) {
+      return marketData * (1 + shiftAmount);
     }
   }
 
