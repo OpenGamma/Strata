@@ -115,6 +115,7 @@ public class CalculationTask {
       //   This means the pair created here will be the same pair used in the conversion code.
       // TODO Change this when #283 is addressed. Hopefully simplify and don't worry about market convention pairs.
       List<MarketDataId<Double>> fxRateIds = calculationRequirements.getOutputCurrencies().stream()
+          .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
           .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
           .map(pair -> pair.isConventional() ? pair : pair.inverse())
           .map(FxRateKey::of)
