@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.function.marketdata.scenarios.curves;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,22 +38,22 @@ public class CurvePointShiftTest {
 
     CurvePointShift shift = CurvePointShift.builder(ShiftType.ABSOLUTE)
         .addShift(Tenor.TENOR_1W, 0.1) // Tenor not in the curve, should be ignored
-        .addShift(Tenor.TENOR_1M, 0.2)
-        .addShift(Tenor.TENOR_3M, 0.3)
+        .addShift(Tenor.TENOR_1M, 0.2) // shift based on identifier
+        .addShift("3M", 0.3) // shift based on label
         .build();
 
     Curve curve = InterpolatedNodalCurve.of(
         CurveMetadata.of("curve", nodeMetadata),
-        new double[]{1, 2, 3},
-        new double[]{5, 6, 7},
+        new double[] {1, 2, 3},
+        new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
     Curve shiftedCurve = shift.apply(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         CurveMetadata.of("curve", nodeMetadata),
-        new double[]{1, 2, 3},
-        new double[]{5.2, 6.3, 7},
+        new double[] {1, 2, 3},
+        new double[] {5.2, 6.3, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve
@@ -75,16 +77,16 @@ public class CurvePointShiftTest {
 
     Curve curve = InterpolatedNodalCurve.of(
         CurveMetadata.of("curve", nodeMetadata),
-        new double[]{1, 2, 3},
-        new double[]{5, 6, 7},
+        new double[] {1, 2, 3},
+        new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
     Curve shiftedCurve = shift.apply(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         CurveMetadata.of("curve", nodeMetadata),
-        new double[]{1, 2, 3},
-        new double[]{6, 7.8, 7},
+        new double[] {1, 2, 3},
+        new double[] {6, 7.8, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
     // Check every point from 0 to 4 in steps of 0.1 is the same on the bumped curve and the expected curve
@@ -97,8 +99,8 @@ public class CurvePointShiftTest {
   public void noNodeMetadata() {
     Curve curve = InterpolatedNodalCurve.of(
         CurveMetadata.of("curve"),
-        new double[]{1, 2, 3},
-        new double[]{5, 6, 7},
+        new double[] {1, 2, 3},
+        new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
     CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE)
@@ -123,4 +125,20 @@ public class CurvePointShiftTest {
 
     assertThrows(() -> shift.apply(curve), IllegalArgumentException.class, ".* can only be applied to NodalCurve.*");
   }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    CurvePointShift test = CurvePointShift.builder(ShiftType.RELATIVE)
+        .addShift(Tenor.TENOR_1W, 0.1)
+        .addShift(Tenor.TENOR_1M, 0.2)
+        .addShift(Tenor.TENOR_3M, 0.3)
+        .build();
+    coverImmutableBean(test);
+    CurvePointShift test2 = CurvePointShift.builder(ShiftType.ABSOLUTE)
+        .addShift(Tenor.TENOR_1M, 0.2)
+        .addShift(Tenor.TENOR_3M, 0.3)
+        .build();
+    coverBeanEquals(test, test2);
+  }
+
 }

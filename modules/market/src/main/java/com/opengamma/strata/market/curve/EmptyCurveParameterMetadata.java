@@ -48,7 +48,7 @@ final class EmptyCurveParameterMetadata
 
   //-------------------------------------------------------------------------
   @Override
-  public String getDescription() {
+  public String getLabel() {
     return EMPTY;
   }
 

@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -38,7 +39,7 @@ import com.opengamma.strata.market.curve.ShiftType;
  * For example, a relative shift of 0.1 (10%) multiplies each value on the curve by 1.1, and a shift of -0.2 (-20%)
  * multiplies the rate by 0.8. So for relative shifts the shifted value is {@code (value x (1 + shift))}.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CurveParallelShift implements Perturbation<Curve>, ImmutableBean {
 
   private static final Logger log = LoggerFactory.getLogger(CurveParallelShift.class);
@@ -95,14 +96,6 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     JodaBeanUtils.registerMetaBean(CurveParallelShift.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurveParallelShift.Builder builder() {
-    return new CurveParallelShift.Builder();
-  }
-
   private CurveParallelShift(
       ShiftType shiftType,
       double shiftAmount) {
@@ -146,14 +139,6 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -231,7 +216,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     @Override
-    public CurveParallelShift.Builder builder() {
+    public BeanBuilder<? extends CurveParallelShift> builder() {
       return new CurveParallelShift.Builder();
     }
 
@@ -289,7 +274,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   /**
    * The bean-builder for {@code CurveParallelShift}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveParallelShift> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveParallelShift> {
 
     private ShiftType shiftType;
     private double shiftAmount;
@@ -298,15 +283,6 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveParallelShift beanToCopy) {
-      this.shiftType = beanToCopy.getShiftType();
-      this.shiftAmount = beanToCopy.getShiftAmount();
     }
 
     //-----------------------------------------------------------------------
@@ -366,29 +342,6 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
       return new CurveParallelShift(
           shiftType,
           shiftAmount);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code shiftType} property in the builder.
-     * @param shiftType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder shiftType(ShiftType shiftType) {
-      JodaBeanUtils.notNull(shiftType, "shiftType");
-      this.shiftType = shiftType;
-      return this;
-    }
-
-    /**
-     * Sets the {@code shiftAmount} property in the builder.
-     * @param shiftAmount  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder shiftAmount(double shiftAmount) {
-      JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
-      this.shiftAmount = shiftAmount;
-      return this;
     }
 
     //-----------------------------------------------------------------------

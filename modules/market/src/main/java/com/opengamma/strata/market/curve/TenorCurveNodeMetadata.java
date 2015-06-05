@@ -15,6 +15,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -25,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Curve node metadata for a curve node with a specific tenor.
@@ -47,27 +49,50 @@ public final class TenorCurveNodeMetadata
    */
   @PropertyDefinition(validate = "notNull")
   private final Tenor tenor;
-
   /**
-   * Returns node metadata described by a tenor.
+   * The label that describes the node, defaulted to the tenor.
+   */
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  private final String label;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates node metadata using date and tenor.
    * 
    * @param date  the date of the curve node
    * @param tenor  the tenor of the curve node
-   * @return a curve node ID for the tenor
+   * @return node metadata based on a tenor
    */
   public static TenorCurveNodeMetadata of(LocalDate date, Tenor tenor) {
-    return new TenorCurveNodeMetadata(date, tenor);
-  }
-
-  @Override
-  public String getDescription() {
-    return tenor.toString();
+    ArgChecker.notNull(date, "date");
+    ArgChecker.notNull(tenor, "tenor");
+    return new TenorCurveNodeMetadata(date, tenor, tenor.toString());
   }
 
   /**
-   * Returns the {@link #getTenor() tenor} of the node.
+   * Creates node metadata using date, tenor and label.
+   * 
+   * @param date  the date of the curve node
+   * @param tenor  the tenor of the curve node
+   * @param label  the label to use
+   * @return node metadata based on a tenor
+   */
+  public static TenorCurveNodeMetadata of(LocalDate date, Tenor tenor, String label) {
+    return new TenorCurveNodeMetadata(date, tenor, label);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.label == null && builder.tenor != null) {
+      builder.label = builder.tenor.toString();
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the identifier, which is the tenor.
    *
-   * @return the {@link #getTenor() tenor} of the node
+   * @return the tenor
    */
   @Override
   public Tenor getIdentifier() {
@@ -95,11 +120,14 @@ public final class TenorCurveNodeMetadata
 
   private TenorCurveNodeMetadata(
       LocalDate date,
-      Tenor tenor) {
+      Tenor tenor,
+      String label) {
     JodaBeanUtils.notNull(date, "date");
     JodaBeanUtils.notNull(tenor, "tenor");
+    JodaBeanUtils.notEmpty(label, "label");
     this.date = date;
     this.tenor = tenor;
+    this.label = label;
   }
 
   @Override
@@ -140,6 +168,16 @@ public final class TenorCurveNodeMetadata
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the label that describes the node, defaulted to the tenor.
+   * @return the value of the property, not empty
+   */
+  @Override
+  public String getLabel() {
+    return label;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -148,7 +186,8 @@ public final class TenorCurveNodeMetadata
     if (obj != null && obj.getClass() == this.getClass()) {
       TenorCurveNodeMetadata other = (TenorCurveNodeMetadata) obj;
       return JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getTenor(), other.getTenor());
+          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
+          JodaBeanUtils.equal(getLabel(), other.getLabel());
     }
     return false;
   }
@@ -158,15 +197,17 @@ public final class TenorCurveNodeMetadata
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("TenorCurveNodeMetadata{");
     buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor()));
+    buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
     buf.append('}');
     return buf.toString();
   }
@@ -192,12 +233,18 @@ public final class TenorCurveNodeMetadata
     private final MetaProperty<Tenor> tenor = DirectMetaProperty.ofImmutable(
         this, "tenor", TenorCurveNodeMetadata.class, Tenor.class);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", TenorCurveNodeMetadata.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "date",
-        "tenor");
+        "tenor",
+        "label");
 
     /**
      * Restricted constructor.
@@ -212,6 +259,8 @@ public final class TenorCurveNodeMetadata
           return date;
         case 110246592:  // tenor
           return tenor;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -248,6 +297,14 @@ public final class TenorCurveNodeMetadata
       return tenor;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -256,6 +313,8 @@ public final class TenorCurveNodeMetadata
           return ((TenorCurveNodeMetadata) bean).getDate();
         case 110246592:  // tenor
           return ((TenorCurveNodeMetadata) bean).getTenor();
+        case 102727412:  // label
+          return ((TenorCurveNodeMetadata) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -279,6 +338,7 @@ public final class TenorCurveNodeMetadata
 
     private LocalDate date;
     private Tenor tenor;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -294,6 +354,8 @@ public final class TenorCurveNodeMetadata
           return date;
         case 110246592:  // tenor
           return tenor;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -307,6 +369,9 @@ public final class TenorCurveNodeMetadata
           break;
         case 110246592:  // tenor
           this.tenor = (Tenor) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -340,18 +405,21 @@ public final class TenorCurveNodeMetadata
 
     @Override
     public TenorCurveNodeMetadata build() {
+      preBuild(this);
       return new TenorCurveNodeMetadata(
           date,
-          tenor);
+          tenor,
+          label);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("TenorCurveNodeMetadata.Builder{");
       buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
-      buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor));
+      buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }
