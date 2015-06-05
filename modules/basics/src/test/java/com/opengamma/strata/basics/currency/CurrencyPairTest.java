@@ -62,9 +62,9 @@ public class CurrencyPairTest {
   }
 
   public void test_of_CurrencyCurrency_null() {
-    assertThrowsIllegalArg(() -> CurrencyPair.of((Currency) null, USD));
-    assertThrowsIllegalArg(() -> CurrencyPair.of(USD, (Currency) null));
-    assertThrowsIllegalArg(() -> CurrencyPair.of((Currency) null, (Currency) null));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(null, USD));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(USD, null));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -180,6 +180,17 @@ public class CurrencyPairTest {
     // Lexicographical ordering is used
     assertEquals(CurrencyPair.of(BHD, BRL).isConventional(), true);
     assertEquals(CurrencyPair.of(BRL, BHD).isConventional(), false);
+  }
+
+  public void test_toConventional() {
+    assertEquals(CurrencyPair.of(GBP, USD).toConventional(), CurrencyPair.of(GBP, USD));
+    assertEquals(CurrencyPair.of(USD, GBP).toConventional(), CurrencyPair.of(GBP, USD));
+
+    assertEquals(CurrencyPair.of(GBP, BRL).toConventional(), CurrencyPair.of(GBP, BRL));
+    assertEquals(CurrencyPair.of(BRL, GBP).toConventional(), CurrencyPair.of(GBP, BRL));
+
+    assertEquals(CurrencyPair.of(BHD, BRL).toConventional(), CurrencyPair.of(BHD, BRL));
+    assertEquals(CurrencyPair.of(BRL, BHD).toConventional(), CurrencyPair.of(BHD, BRL));
   }
 
   public void test_rateDigits() {

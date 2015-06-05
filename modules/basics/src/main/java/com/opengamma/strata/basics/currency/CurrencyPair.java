@@ -215,7 +215,21 @@ public final class CurrencyPair
     // Neither currency is included in the list defining the ordering.
     // Use lexicographical ordering. It's arbitrary but consistent. This ensures two CurrencyPair instances
     // created independently for the same two currencies will always choose the same conventional pair.
-    return base.getCode().compareTo(counter.getCode()) < 0;
+    // The natural ordering of Currency is the same as the natural ordering of the currency code but
+    // comparing the Currency instances is more efficient.
+    return base.compareTo(counter) < 0;
+  }
+
+  /**
+   * Returns the market convention currency pair for the currencies in the pair.
+   * <p>
+   * If {@link #isConventional()} is {@code true} this method returns {@code this}, otherwise
+   * it returns the {@link #inverse} pair.
+   *
+   * @return the market convention currency pair for the currencies in the pair
+   */
+  public CurrencyPair toConventional() {
+    return isConventional() ? this : inverse();
   }
 
   /**
