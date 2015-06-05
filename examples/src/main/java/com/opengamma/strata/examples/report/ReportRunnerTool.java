@@ -12,6 +12,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.CalculationEngine;
@@ -105,7 +106,7 @@ public class ReportRunnerTool {
         .build();
 
     BaseMarketData snapshot = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
         .build();
 
     Results results = calculationEngine.calculate(portfolio.getTrades(), columns, rules, snapshot);

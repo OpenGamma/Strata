@@ -107,7 +107,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
   public void forwardRateVsForex() {
     FxRate fwdNDF = PRICER_NDF.forwardFxRate(NDF, PROVIDER);
     FxRate fwdFX = PRICER_FWD.forwardFxRate(FWD, PROVIDER);
-    assertEquals(fwdNDF.getRate(), fwdFX.getRate(), TOLERANCE_PV);
+    assertEquals(fwdNDF, fwdFX);
   }
 
 

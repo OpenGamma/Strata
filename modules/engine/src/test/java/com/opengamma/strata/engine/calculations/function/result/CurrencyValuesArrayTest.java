@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.calculations.function.result;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 
@@ -15,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
@@ -29,7 +31,9 @@ public class CurrencyValuesArrayTest {
    */
   public void convert() {
     double[] values = {1, 2, 3};
-    List<Double> rates = ImmutableList.of(1.61, 1.62, 1.63);
+    List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
@@ -78,7 +82,9 @@ public class CurrencyValuesArrayTest {
    */
   public void wrongNumberOfFxRates() {
     double[] values = {1, 2, 3};
-    List<Double> rates = ImmutableList.of(1.61, 1.62);
+    List<FxRate> rates = ImmutableList.of(1.61, 1.62).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(2, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)

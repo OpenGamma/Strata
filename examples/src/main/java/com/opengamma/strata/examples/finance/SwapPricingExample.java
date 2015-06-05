@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -97,7 +98,7 @@ public class SwapPricingExample {
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
     BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
         .build();
 
     // create the engine and calculate the results

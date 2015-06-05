@@ -180,6 +180,7 @@ public class CurrencyPairTest {
     // Lexicographical ordering is used
     assertEquals(CurrencyPair.of(BHD, BRL).isConventional(), true);
     assertEquals(CurrencyPair.of(BRL, BHD).isConventional(), false);
+    assertEquals(CurrencyPair.of(GBP, GBP).isConventional(), true);
   }
 
   public void test_toConventional() {

@@ -217,7 +217,8 @@ public final class CurrencyPair
     // created independently for the same two currencies will always choose the same conventional pair.
     // The natural ordering of Currency is the same as the natural ordering of the currency code but
     // comparing the Currency instances is more efficient.
-    return base.compareTo(counter) < 0;
+    // This is <= 0 so that a pair with two copies of the same currency is conventional
+    return base.compareTo(counter) <= 0;
   }
 
   /**
