@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.swap;
+package com.opengamma.strata.function.calculation.rate.swap;
 
 import java.util.List;
 import java.util.stream.Collectors;
