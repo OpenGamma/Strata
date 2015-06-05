@@ -189,6 +189,16 @@ public class DiscountFxIndexRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  // proper end-to-end tests are elsewhere
+  public void test_curveParameterSensitivity() {
+    DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
+    FxIndexSensitivity point = FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d);
+    assertEquals(test.curveParameterSensitivity(point).size(), 2);
+    FxIndexSensitivity point2 = FxIndexSensitivity.of(WM_GBP_USD, USD, DATE_VAL, 1d);
+    assertEquals(test.curveParameterSensitivity(point2).size(), 2);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     coverImmutableBean(test);
