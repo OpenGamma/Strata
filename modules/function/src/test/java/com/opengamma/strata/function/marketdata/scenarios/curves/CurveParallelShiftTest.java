@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.function.marketdata.scenarios.curves;
 
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -85,4 +87,13 @@ public class CurveParallelShiftTest {
       assertThat(curve.yValue((double) i)).isEqualTo(expectedValue);
     }
   }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    CurveParallelShift test = CurveParallelShift.absolute(0.1);
+    coverImmutableBean(test);
+    CurveParallelShift test2 = CurveParallelShift.relative(0.1);
+    coverBeanEquals(test, test2);
+  }
+
 }

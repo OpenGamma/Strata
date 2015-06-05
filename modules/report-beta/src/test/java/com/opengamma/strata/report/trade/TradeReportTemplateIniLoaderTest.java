@@ -22,9 +22,9 @@ public class TradeReportTemplateIniLoaderTest {
   public void test_simple_values() {
     TradeReportTemplate template = parseIni("trade-report-test-simple.ini");
     
-    TradeReportColumn maturityDateColumn = TradeReportColumn.builder()
-        .measure(Measure.MATURITY_DATE)
-        .header("Maturity Date")
+    TradeReportColumn productColumn = TradeReportColumn.builder()
+        .measure(Measure.PRODUCT)
+        .header("Product")
         .build();
     
     TradeReportColumn pvColumn = TradeReportColumn.builder()
@@ -33,7 +33,7 @@ public class TradeReportTemplateIniLoaderTest {
         .build();
     
     assertEquals(template.getColumns().size(), 2);
-    assertEquals(template.getColumns().get(0), maturityDateColumn);
+    assertEquals(template.getColumns().get(0), productColumn);
     assertEquals(template.getColumns().get(1), pvColumn);
   }
   

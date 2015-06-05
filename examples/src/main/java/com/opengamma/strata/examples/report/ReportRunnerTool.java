@@ -38,21 +38,21 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  */
 public class ReportRunnerTool {
 
-  @Parameter(names = { "--template", "-t" }, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
+  @Parameter(names = {"--template", "-t"}, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
   private ReportTemplate template;
- 
-  @Parameter(names = { "--portfolio", "-p" }, description = "Portfolio input file", required = true, converter = PortfolioParameterConverter.class)
+
+  @Parameter(names = {"--portfolio", "-p"}, description = "Portfolio input file", required = true, converter = PortfolioParameterConverter.class)
   private TradePortfolio portfolio;
 
-  @Parameter(names = { "--date", "-d" }, description = "Valuation date, YYYY-MM-DD", required = true, converter = LocalDateParameterConverter.class)
+  @Parameter(names = {"--date", "-d"}, description = "Valuation date, YYYY-MM-DD", required = true, converter = LocalDateParameterConverter.class)
   private LocalDate valuationDate;
-  
-  @Parameter(names = { "--output", "-o" }, description = "Output type, ascii or csv", converter = ReportOutputTypeParameterConverter.class)
+
+  @Parameter(names = {"--output", "-o"}, description = "Output type, ascii or csv", converter = ReportOutputTypeParameterConverter.class)
   private ReportOutputType outputType = ReportOutputType.ASCII_TABLE;
-  
-  @Parameter(names = { "--help", "-h" }, description = "Displays this message", help = true)
+
+  @Parameter(names = {"--help", "-h"}, description = "Displays this message", help = true)
   private boolean help;
-  
+
   /**
    * Runs the tool.
    * 
@@ -72,15 +72,15 @@ public class ReportRunnerTool {
     }
     reportRunner.run();
   }
-  
+
   private void run() {
     ReportRunner<ReportTemplate> reportRunner = getReportRunner(template);
 
     ReportRequirements requirements = reportRunner.requirements(template);
     ReportCalculationResults calculationResults = runCalculationRequirements(requirements);
-    
+
     Report report = reportRunner.runReport(calculationResults, template);
-    
+
     switch (outputType) {
       case ASCII_TABLE:
         report.writeAsciiTable(System.out);
@@ -90,24 +90,24 @@ public class ReportRunnerTool {
         break;
     }
   }
-  
+
   private ReportCalculationResults runCalculationRequirements(ReportRequirements requirements) {
     CalculationEngine calculationEngine = ExampleEngine.create();
     MarketDataRules marketDataRules = ExampleMarketData.rules();
     PricingRules pricingRules = OpenGammaPricingRules.standard();
 
     List<Column> columns = requirements.getTradeMeasureRequirements();
-    
+
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(pricingRules)
         .marketDataRules(marketDataRules)
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
-    
+
     BaseMarketData snapshot = BaseMarketData.builder(valuationDate)
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
         .build();
-    
+
     Results results = calculationEngine.calculate(portfolio.getTrades(), columns, rules, snapshot);
     return ReportCalculationResults.builder()
         .valuationDate(valuationDate)
@@ -115,7 +115,7 @@ public class ReportRunnerTool {
         .calculationResults(results)
         .build();
   }
-  
+
   @SuppressWarnings({"unchecked", "rawtypes"})
   private ReportRunner<ReportTemplate> getReportRunner(ReportTemplate reportTemplate) {
     if (reportTemplate instanceof TradeReportTemplate) {
@@ -124,5 +124,5 @@ public class ReportRunnerTool {
     }
     throw new IllegalArgumentException(Messages.format("Unsupported report type: {}", reportTemplate.getClass().getSimpleName()));
   }
-  
+
 }

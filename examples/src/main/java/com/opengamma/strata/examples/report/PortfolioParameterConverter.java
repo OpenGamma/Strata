@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.examples.report;
 
-
 /**
  * Parameter converter for {@link TradePortfolio}.
  */

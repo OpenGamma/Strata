@@ -86,6 +86,15 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   @PropertyDefinition(overrideGet = true)
   private final Currency currency;
 
+  public static MockSwapLeg of(
+      SwapLegType type,
+      PayReceive payReceive,
+      LocalDate startDate,
+      LocalDate endDate,
+      Currency currency) {
+    return new MockSwapLeg(type, payReceive, startDate, endDate, currency);
+  }
+
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
   }
