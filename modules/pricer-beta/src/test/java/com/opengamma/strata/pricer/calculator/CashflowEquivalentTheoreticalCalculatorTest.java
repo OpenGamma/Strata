@@ -76,12 +76,35 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
           .paymentDate(PAYMENT_DATE)
           .currency(EUR)
           .build();
+  private static final double IBOR_SPREAD = 0.001;
+  private static final double IBOR_GEARING = 2.0;
+  private static final RateAccrualPeriod IBOR_ACCRUAL_S =
+      RateAccrualPeriod.builder()
+          .startDate(START_DATE)
+          .endDate(END_DATE)
+          .rateObservation(IBOR_OBS)
+          .yearFraction(AF)
+          .spread(IBOR_SPREAD)
+          .gearing(IBOR_GEARING)
+          .build();
+  private static final PaymentPeriod IBOR_PAY_S =
+      RatePaymentPeriod.builder()
+          .accrualPeriods(IBOR_ACCRUAL_S)
+          .notional(NOTIONAL)
+          .paymentDate(PAYMENT_DATE)
+          .currency(EUR)
+          .build();
   /* Pricer */
   private static final CashflowEquivalentTheoreticalCalculator CFEC = CashflowEquivalentTheoreticalCalculator.DEFAULT;
   /* Rate provider */
   private static final ImmutableRatesProvider RATES_1 = 
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_1)
+      .dayCount(ACT_360)
+      .build();
+  private static final ImmutableRatesProvider RATES_2 = 
+      ImmutableRatesProvider.builder()
+      .valuationDate(IBOR_FIXING_DATE)
       .dayCount(ACT_360)
       .build();
   private static final double IBOR_FIXING_VALUE = 0.02;
@@ -96,7 +119,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
   static {
     MAP_IND_CURVE.put(EUR_EURIBOR_6M, DUMMY_CURVE);
   }  
-  private static final ImmutableRatesProvider RATES_2 = 
+  private static final ImmutableRatesProvider RATES_3 = 
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_2)
       .timeSeries(MAP_TS)
@@ -131,13 +154,67 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
   }
   
   @Test
-  public void test_IborRateObservation_afterFixing() {
+  public void test_IborRateObservation_beforeFixing_gearingSpread() {
+    List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY_S, RATES_1);
+    assertEquals(cfeComputed.size(), 2, "CFE - Ibor before fixing");
+    FxPayment cfePayment1 = cfeComputed.get(0);
+    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getCurrency(), EUR);
+    assertEquals(cfePayment1.getAmount(), IBOR_GEARING * NOTIONAL, TOLERANCE_CF);
+    FxPayment cfePayment2 = cfeComputed.get(1);
+    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getCurrency(), EUR);
+    assertEquals(cfePayment2.getAmount(), - IBOR_GEARING * NOTIONAL + NOTIONAL * IBOR_SPREAD * AF, TOLERANCE_CF);
+  }
+  
+  @Test
+  public void test_IborRateObservation_onFixing() {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY, RATES_2);
+    assertEquals(cfeComputed.size(), 2, "CFE - Ibor on fixing");
+    FxPayment cfePayment1 = cfeComputed.get(0);
+    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getCurrency(), EUR);
+    assertEquals(cfePayment1.getAmount(), NOTIONAL, TOLERANCE_CF);
+    FxPayment cfePayment2 = cfeComputed.get(1);
+    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getCurrency(), EUR);
+    assertEquals(cfePayment2.getAmount(), -NOTIONAL, TOLERANCE_CF);
+  }
+
+  @Test
+  public void test_IborRateObservation_onFixing_gearingSpread() {
+    List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY_S, RATES_2);
+    assertEquals(cfeComputed.size(), 2, "CFE - Ibor on fixing");
+    FxPayment cfePayment1 = cfeComputed.get(0);
+    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getCurrency(), EUR);
+    assertEquals(cfePayment1.getAmount(), IBOR_GEARING * NOTIONAL, TOLERANCE_CF);
+    FxPayment cfePayment2 = cfeComputed.get(1);
+    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getCurrency(), EUR);
+    assertEquals(cfePayment2.getAmount(), -IBOR_GEARING * NOTIONAL + NOTIONAL * IBOR_SPREAD * AF, TOLERANCE_CF);
+  }
+  
+  @Test
+  public void test_IborRateObservation_afterFixing() {
+    List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY, RATES_3);
     assertEquals(cfeComputed.size(), 1, "CFE - Ibor after fixing");
     FxPayment cfePayment = cfeComputed.get(0);
     assertEquals(cfePayment.getDate(), PAYMENT_DATE);
     assertEquals(cfePayment.getCurrency(), EUR);
     assertEquals(cfePayment.getAmount(), NOTIONAL * IBOR_FIXING_VALUE * AF, TOLERANCE_CF);
   }
+  
+  @Test
+  public void test_IborRateObservation_afterFixing_gearingSpread() {
+    List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY_S, RATES_3);
+    assertEquals(cfeComputed.size(), 1, "CFE - Ibor after fixing");
+    FxPayment cfePayment = cfeComputed.get(0);
+    assertEquals(cfePayment.getDate(), PAYMENT_DATE);
+    assertEquals(cfePayment.getCurrency(), EUR);
+    assertEquals(cfePayment.getAmount(), NOTIONAL * (IBOR_GEARING * IBOR_FIXING_VALUE + IBOR_SPREAD) * AF, TOLERANCE_CF);
+  }
+  
+  // TODO: OIS
   
 }
