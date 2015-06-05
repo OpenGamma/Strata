@@ -27,6 +27,7 @@ public final class FraFunctionGroups {
           .addFunction(Measure.PAR_SPREAD, FraParSpreadFunction.class)
           .addFunction(Measure.PRESENT_VALUE, FraPvFunction.class)
           .addFunction(Measure.PV01, FraPv01Function.class)
+          .addFunction(Measure.BUCKETED_PV01, FraBucketedPv01Function.class)
           .build();
 
   /**
