@@ -19,6 +19,6 @@ public interface ReferenceInformation {
   /**
    * @return a string that can be used to key into the proper set of curves and recovery rate for pricing
    */
-  String getMarketDataKey();
+  String getMarketDataKeyName();
 
 }

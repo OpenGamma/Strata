@@ -37,6 +37,11 @@ public class CdsAnalyticsWrapper {
   /**
    * If protectStart = true, then protections starts at the beginning of the day, otherwise it is at the end.
    * The model expects this but it is not a property of the trade or convention
+   * protectionFromStartOfDay If true the protection is from the start of day and the effective accrual start
+   * and end dates are one day less. The exception is the final accrual end date which should have one day added
+   * (if  protectionFromStartOfDay = true) in the final CDSCouponDes to compensate for this, so the
+   * accrual end date is just the CDS maturity. The effect of having protectionFromStartOfDay = true
+   * is to add an extra day of protection.
    */
   private final static boolean s_protectStart = true;
 
@@ -165,6 +170,7 @@ public class CdsAnalyticsWrapper {
     }
   }
 
+  // TODO TradeToDerivativesConverter?
   private CDSAnalytic toAnalytic(ExpandedCdsTrade trade, double recoveryRate) {
     try {
       return new CDSAnalytic(

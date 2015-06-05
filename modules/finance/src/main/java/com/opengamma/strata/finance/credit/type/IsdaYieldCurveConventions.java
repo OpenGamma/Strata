@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p>
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.basics.currency.Currency;
@@ -24,48 +29,50 @@ public class IsdaYieldCurveConventions {
           .build();
 
   public static final IsdaYieldCurveConvention europeanEur =
-      IsdaYieldCurveConvention.of(
-          Currency.EUR,
-          DayCounts.ACT_360,
-          DayCounts.THIRTY_360_ISDA,
-          2,
-          Frequency.P12M,
-          BusinessDayConventions.MODIFIED_FOLLOWING,
-          HolidayCalendars.SAT_SUN
-      );
+      IsdaYieldCurveConvention
+          .builder()
+          .currency(Currency.EUR)
+          .mmDayCount(DayCounts.ACT_360)
+          .fixedDayCount(DayCounts.THIRTY_360_ISDA)
+          .spotDays(2)
+          .fixedPaymentFrequency(Frequency.P12M)
+          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+          .holidayCalendar(HolidayCalendars.SAT_SUN)
+          .build();
 
   public static final IsdaYieldCurveConvention europeanGbp =
-      IsdaYieldCurveConvention.of(
-          Currency.GBP,
-          DayCounts.ACT_365F,
-          DayCounts.ACT_365F,
-          2,
-          Frequency.P6M,
-          BusinessDayConventions.MODIFIED_FOLLOWING,
-          HolidayCalendars.SAT_SUN
-      );
+      IsdaYieldCurveConvention
+          .builder()
+          .currency(Currency.GBP)
+          .mmDayCount(DayCounts.ACT_365F)
+          .fixedDayCount(DayCounts.ACT_365F)
+          .spotDays(2)
+          .fixedPaymentFrequency(Frequency.P6M)
+          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+          .holidayCalendar(HolidayCalendars.SAT_SUN)
+          .build();
 
   public static final IsdaYieldCurveConvention europeanChf =
-      IsdaYieldCurveConvention.of(
-          Currency.CHF,
-          DayCounts.ACT_360,
-          DayCounts.THIRTY_E_360,
-          2,
-          Frequency.P12M,
-          BusinessDayConventions.MODIFIED_FOLLOWING,
-          HolidayCalendars.SAT_SUN
-      );
-
+      IsdaYieldCurveConvention
+          .builder()
+          .currency(Currency.CHF)
+          .mmDayCount(DayCounts.ACT_360)
+          .fixedDayCount(DayCounts.THIRTY_360_ISDA)
+          .spotDays(2)
+          .fixedPaymentFrequency(Frequency.P12M)
+          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+          .holidayCalendar(HolidayCalendars.SAT_SUN)
+          .build();
 
   public static final IsdaYieldCurveConvention asianJPY =
-      IsdaYieldCurveConvention.of(
-          Currency.JPY,
-          DayCounts.ACT_360,
-          DayCounts.THIRTY_E_360,
-          2,
-          Frequency.P6M,
-          BusinessDayConventions.MODIFIED_FOLLOWING,
-          HolidayCalendars.JPTO
-      );
-
+      IsdaYieldCurveConvention
+          .builder()
+          .currency(Currency.JPY)
+          .mmDayCount(DayCounts.ACT_360)
+          .fixedDayCount(DayCounts.THIRTY_E_360)
+          .spotDays(2)
+          .fixedPaymentFrequency(Frequency.P6M)
+          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+          .holidayCalendar(HolidayCalendars.JPTO)
+          .build();
 }

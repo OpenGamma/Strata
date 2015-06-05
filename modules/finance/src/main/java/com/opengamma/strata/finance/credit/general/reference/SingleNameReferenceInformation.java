@@ -84,7 +84,7 @@ public final class SingleNameReferenceInformation
    * @return
    */
   @Override
-  public String getMarketDataKey() {
+  public String getMarketDataKeyName() {
     return String.format(
         "%s %s %s %s",
         getReferenceEntityName(),

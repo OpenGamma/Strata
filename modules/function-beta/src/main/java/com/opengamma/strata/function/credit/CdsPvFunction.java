@@ -51,7 +51,6 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
   public ScenarioResult<MultiCurrencyAmount> execute(CdsTrade trade, CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
-        .map(MarketDataRatesProvider::new)
         .map(provider -> price(trade, provider))
         .collect(toScenarioResult());
   }
@@ -84,14 +83,14 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
         .build();
   }
 
-  private MultiCurrencyAmount price(CdsTrade trade, MarketDataRatesProvider provider) {
+  private MultiCurrencyAmount price(CdsTrade trade, DefaultSingleCalculationMarketData provider) {
     // get market data from provider next
-
     LocalDate asOfDate = provider.getValuationDate();
     return _wrapper.price(asOfDate, trade.expand(), discountCurve(), creditCurve(), recoveryRate());
   }
 
   private CurveYieldPlaceholder discountCurve() {
+
     ImmutableList<String> raytheon20141020 = ImmutableList.of(
         "1M,M,0.001535",
         "2M,M,0.001954",
@@ -135,7 +134,8 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
 
     // ParSpreadQuote
     ImmutableList<String> raytheon20141020 = ImmutableList.of(
-        "5Y,0.00000"
+        "6M,28.00000",
+        "5Y,28.00000"
     );
 
     Period[] creditCurvePoints = raytheon20141020

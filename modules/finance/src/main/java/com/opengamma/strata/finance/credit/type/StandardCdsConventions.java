@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 public class StandardCdsConventions {
 
   /**
+   * http://www.cdsmodel.com/cdsmodel/fee-computations.html?
    * http://www.cdsmodel.com/cdsmodel/assets/cds-model/docs/Standard%20CDS%20Contract%20Specification.pdf
    * <p>
    * CDS Dates: 20th of Mar/Jun/Sep/Dec

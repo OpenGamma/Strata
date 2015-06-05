@@ -5,13 +5,9 @@
  */
 package com.opengamma.strata.finance.credit.fee;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -25,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -51,36 +46,6 @@ public final class PeriodicPayments
   @PropertyDefinition(validate = "notNull")
   final Frequency paymentFrequency;
 
-  /**
-   * The start date of the initial calculation period if such date is not equal to the trade’s effective date.
-   * It must only be specified if it is not equal to the effective date.
-   * The applicable business day convention and business day are those specified in the dateAdjustments
-   * element within the generalTerms component
-   * (or in a transaction supplement FpML representation defined within
-   * the referenced general terms confirmation agreement).
-   */
-//  @PropertyDefinition(validate = "notNull")
-//  final LocalDate firstPeriodStartDate;
-
-  /**
-   * The first unadjusted fixed rate payer payment date. The applicable business day convention and business
-   * day are those specified in the dateAdjustments element within the generalTerms component
-   * (or in a transaction supplement FpML representation defined within the referenced general terms
-   * confirmation agreement). ISDA 2003 Term: Fixed Rate Payer Payment Date
-   */
-//  @PropertyDefinition(validate = "notNull")
-//  final LocalDate firstPaymentDate;
-
-  /**
-   * The last regular unadjusted fixed rate payer payment date. The applicable business day convention and
-   * business day are those specified in the dateAdjustments element within the generalTerms component
-   * (or in a transaction supplement FpML representation defined within the referenced general terms confirmation
-   * agreement). This element should only be included if there is a final payment stub, i.e. where the last regular
-   * unadjusted fixed rate payer payment date is not equal to the scheduled termination date.
-   * ISDA 2003 Term: Fixed Rate Payer Payment Date
-   */
-//  @PropertyDefinition(validate = "notNull")
-//  final LocalDate lastRegularPaymentDate;
   /**
    * Stub convention to use when the maturity date does not land precisely on an imm date
    * and a stab period is created

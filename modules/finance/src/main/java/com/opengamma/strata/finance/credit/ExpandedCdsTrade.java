@@ -29,24 +29,24 @@ import java.util.Optional;
 import java.util.Set;
 
 @BeanDefinition
-public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializable {
+public class ExpandedCdsTrade implements ImmutableBean, Serializable {
 
   /**
    * tradeDate The trade date
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate tradeDate;
 
   /**
    * Typically T+1 unadjusted. Required by the model.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final LocalDate stepInDate;
 
   /**
    * The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final LocalDate cashSettleDate;
 
   /**
@@ -56,7 +56,7 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * <p>
    * This should be adjusted according business day and holidays
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final LocalDate accStartDate;
 
 
@@ -66,143 +66,83 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * <p>
    * This is an adjusted date and can fall on a holiday or weekend.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final LocalDate endDate;
 
 
   /**
    * payAccOnDefault Is the accrued premium paid in the event of a default
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final boolean payAccOnDefault;
 
   /**
    * paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final Period paymentInterval;
 
   /**
    * stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    * - <b>Note</b> in this code NONE is not allowed
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final StubConvention stubConvention;
 
   /**
    * businessdayAdjustmentConvention How are adjustments for non-business days made
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final BusinessDayConvention businessdayAdjustmentConvention;
 
   /**
    * calendar HolidayCalendar defining what is a non-business day
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final HolidayCalendar calendar;
-
 
   /**
    * accrualDayCount Day count used for accrual
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final DayCount accrualDayCount;
 
   /**
    * are we buying protection and paying fees or are we selling protection and receiving fees
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final BuySell buySellProtection;
 
   /**
    * optional upfront fee amount, will be NaN if there is no fee
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final double upfrontFeeAmount;
 
   /**
    * optional upfront fee date, will return null if called and there is no fee
    * check the fee amount first before calling
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition()
   public final LocalDate upfrontFeePaymentDate;
 
   /**
    * coupon used to calc fee payments
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final double coupon;
 
   /**
    * notional amount used to calc fee payments
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final double notional;
 
   /**
    * currency fees are paid in
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   public final Currency currency;
-
-  public static ExpandedCdsTrade from(CdsTrade _trade) {
-    // See comments on each property above to understand the expansion mappings below
-    LocalDate tradeDate = _trade.getTradeInfo().getTradeDate().get();
-    LocalDate stepInDate = _trade.getStepInDate();
-    LocalDate cashSettleDate = _trade.getTradeInfo().getSettlementDate().get();
-    BusinessDayConvention businessdayAdjustmentConvention = _trade.getProduct().getGeneralTerms().getDateAdjustments().getConvention();
-    HolidayCalendar calendar = _trade.getProduct().getGeneralTerms().getDateAdjustments().getCalendar();
-    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
-        businessdayAdjustmentConvention,
-        calendar
-    );
-    LocalDate accStartDate = businessDayAdjustment.adjust(
-        _trade.getProduct().getGeneralTerms().getEffectiveDate()
-    );
-    LocalDate endDate = _trade.getProduct().getGeneralTerms().getScheduledTerminationDate();
-    boolean payAccOnDefault = _trade.isPayAccOnDefault();
-    Period paymentInterval = _trade.getProduct().getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
-    StubConvention stubConvention = _trade.getProduct().getFeeLeg().getPeriodicPayments().getStubConvention();
-    DayCount accrualDayCount = _trade.getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getDayCountFraction();
-    BuySell buySellProtection = _trade.getProduct().getGeneralTerms().getBuySellProtection();
-    Optional<SinglePayment> fee = _trade.getProduct().getFeeLeg().getSinglePayment();
-    final Double upfrontFeeAmount;
-    final LocalDate upfrontFeePaymentDate;
-    if (fee.isPresent()) {
-      upfrontFeeAmount = fee.get().getFixedAmount();
-      upfrontFeePaymentDate = fee.get().getPaymentDate();
-
-    } else {
-      upfrontFeeAmount = Double.NaN;
-      upfrontFeePaymentDate = null;
-
-    }
-    double coupon = _trade.getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getFixedRate();
-    double notional = _trade.getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getAmount();
-    Currency currency = _trade.getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getCurrency();
-
-    return ExpandedCdsTrade
-        .builder()
-        .tradeDate(tradeDate)
-        .stepInDate(stepInDate)
-        .cashSettleDate(cashSettleDate)
-        .accStartDate(accStartDate)
-        .endDate(endDate)
-        .payAccOnDefault(payAccOnDefault)
-        .paymentInterval(paymentInterval)
-        .stubConvention(stubConvention)
-        .businessdayAdjustmentConvention(businessdayAdjustmentConvention)
-        .calendar(calendar)
-        .accrualDayCount(accrualDayCount)
-        .buySellProtection(buySellProtection)
-        .accrualDayCount(accrualDayCount)
-        .upfrontFeeAmount(upfrontFeeAmount)
-        .upfrontFeePaymentDate(upfrontFeePaymentDate)
-        .coupon(coupon)
-        .notional(notional)
-        .currency(currency)
-        .build();
-  }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
@@ -291,7 +231,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets tradeDate The trade date
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getTradeDate() {
     return tradeDate;
   }
@@ -301,7 +240,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets typically T+1 unadjusted. Required by the model.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getStepInDate() {
     return stepInDate;
   }
@@ -311,7 +249,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets the date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getCashSettleDate() {
     return cashSettleDate;
   }
@@ -325,7 +262,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * This should be adjusted according business day and holidays
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getAccStartDate() {
     return accStartDate;
   }
@@ -338,7 +274,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * This is an adjusted date and can fall on a holiday or weekend.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getEndDate() {
     return endDate;
   }
@@ -348,7 +283,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets payAccOnDefault Is the accrued premium paid in the event of a default
    * @return the value of the property, not null
    */
-  @Override
   public boolean isPayAccOnDefault() {
     return payAccOnDefault;
   }
@@ -358,7 +292,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    * @return the value of the property, not null
    */
-  @Override
   public Period getPaymentInterval() {
     return paymentInterval;
   }
@@ -369,7 +302,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * - <b>Note</b> in this code NONE is not allowed
    * @return the value of the property, not null
    */
-  @Override
   public StubConvention getStubConvention() {
     return stubConvention;
   }
@@ -379,7 +311,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets businessdayAdjustmentConvention How are adjustments for non-business days made
    * @return the value of the property, not null
    */
-  @Override
   public BusinessDayConvention getBusinessdayAdjustmentConvention() {
     return businessdayAdjustmentConvention;
   }
@@ -389,7 +320,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets calendar HolidayCalendar defining what is a non-business day
    * @return the value of the property, not null
    */
-  @Override
   public HolidayCalendar getCalendar() {
     return calendar;
   }
@@ -399,7 +329,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets accrualDayCount Day count used for accrual
    * @return the value of the property, not null
    */
-  @Override
   public DayCount getAccrualDayCount() {
     return accrualDayCount;
   }
@@ -409,7 +338,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets are we buying protection and paying fees or are we selling protection and receiving fees
    * @return the value of the property, not null
    */
-  @Override
   public BuySell getBuySellProtection() {
     return buySellProtection;
   }
@@ -419,7 +347,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets optional upfront fee amount, will be NaN if there is no fee
    * @return the value of the property, not null
    */
-  @Override
   public double getUpfrontFeeAmount() {
     return upfrontFeeAmount;
   }
@@ -430,7 +357,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * check the fee amount first before calling
    * @return the value of the property
    */
-  @Override
   public LocalDate getUpfrontFeePaymentDate() {
     return upfrontFeePaymentDate;
   }
@@ -440,7 +366,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets coupon used to calc fee payments
    * @return the value of the property, not null
    */
-  @Override
   public double getCoupon() {
     return coupon;
   }
@@ -450,7 +375,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets notional amount used to calc fee payments
    * @return the value of the property, not null
    */
-  @Override
   public double getNotional() {
     return notional;
   }
@@ -460,7 +384,6 @@ public class ExpandedCdsTrade implements ModelCdsTrade, ImmutableBean, Serializa
    * Gets currency fees are paid in
    * @return the value of the property, not null
    */
-  @Override
   public Currency getCurrency() {
     return currency;
   }
