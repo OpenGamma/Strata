@@ -6,6 +6,8 @@
 package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.BHD;
+import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CAD;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -18,7 +20,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-import java.util.OptionalInt;
 import java.util.Set;
 
 import org.testng.annotations.DataProvider;
@@ -61,9 +62,9 @@ public class CurrencyPairTest {
   }
 
   public void test_of_CurrencyCurrency_null() {
-    assertThrowsIllegalArg(() -> CurrencyPair.of((Currency) null, USD));
-    assertThrowsIllegalArg(() -> CurrencyPair.of(USD, (Currency) null));
-    assertThrowsIllegalArg(() -> CurrencyPair.of((Currency) null, (Currency) null));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(null, USD));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(USD, null));
+    assertThrowsIllegalArg(() -> CurrencyPair.of(null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -171,13 +172,34 @@ public class CurrencyPairTest {
   public void test_isConventional() {
     assertEquals(CurrencyPair.of(GBP, USD).isConventional(), true);
     assertEquals(CurrencyPair.of(USD, GBP).isConventional(), false);
-    assertEquals(CurrencyPair.of(Currency.BRL, GBP).isConventional(), false);
+    // There is no configuration for GBP/BRL or BRL/GBP so the ordering list is used to choose a convention pair
+    // GBP is in the currency order list and BRL isn't so GBP is the base
+    assertEquals(CurrencyPair.of(GBP, BRL).isConventional(), true);
+    assertEquals(CurrencyPair.of(BRL, GBP).isConventional(), false);
+    // There is no configuration for BHD/BRL or BRL/BHD and neither are in the list specifying currency priority order.
+    // Lexicographical ordering is used
+    assertEquals(CurrencyPair.of(BHD, BRL).isConventional(), true);
+    assertEquals(CurrencyPair.of(BRL, BHD).isConventional(), false);
+  }
+
+  public void test_toConventional() {
+    assertEquals(CurrencyPair.of(GBP, USD).toConventional(), CurrencyPair.of(GBP, USD));
+    assertEquals(CurrencyPair.of(USD, GBP).toConventional(), CurrencyPair.of(GBP, USD));
+
+    assertEquals(CurrencyPair.of(GBP, BRL).toConventional(), CurrencyPair.of(GBP, BRL));
+    assertEquals(CurrencyPair.of(BRL, GBP).toConventional(), CurrencyPair.of(GBP, BRL));
+
+    assertEquals(CurrencyPair.of(BHD, BRL).toConventional(), CurrencyPair.of(BHD, BRL));
+    assertEquals(CurrencyPair.of(BRL, BHD).toConventional(), CurrencyPair.of(BHD, BRL));
   }
 
   public void test_rateDigits() {
-    assertEquals(CurrencyPair.of(GBP, USD).getRateDigits(), OptionalInt.of(4));
-    assertEquals(CurrencyPair.of(USD, GBP).getRateDigits(), OptionalInt.empty());
-    assertEquals(CurrencyPair.of(Currency.BRL, GBP).getRateDigits(), OptionalInt.empty());
+    assertEquals(CurrencyPair.of(GBP, USD).getRateDigits(), 4);
+    assertEquals(CurrencyPair.of(USD, GBP).getRateDigits(), 4);
+    assertEquals(CurrencyPair.of(BRL, GBP).getRateDigits(), 4);
+    assertEquals(CurrencyPair.of(GBP, BRL).getRateDigits(), 4);
+    assertEquals(CurrencyPair.of(BRL, BHD).getRateDigits(), 5);
+    assertEquals(CurrencyPair.of(BHD, BRL).getRateDigits(), 5);
   }
 
   //-------------------------------------------------------------------------
