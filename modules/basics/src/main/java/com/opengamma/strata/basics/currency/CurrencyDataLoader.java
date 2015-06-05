@@ -5,8 +5,13 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
@@ -29,6 +34,12 @@ final class CurrencyDataLoader {
    * INI file for currency pair data.
    */
   private static final String PAIR_INI = "com/opengamma/strata/basics/currency/CurrencyPair.ini";
+  /**
+   * INI file containing a list of general currency data.
+   * This in includes a list of currencies in priority order used to choose the base currency of the market
+   * convention pair for pairs that aren't configured in CurrencyPair.ini.
+   */
+  private static final String CURRENCY_DATA_INI = "com/opengamma/strata/basics/currency/CurrencyData.ini";
 
   // restricted constructor
   private CurrencyDataLoader() {
@@ -111,4 +122,36 @@ final class CurrencyDataLoader {
     return builder.build();
   }
 
+  /**
+   * Loads the priority order of currencies, used to determine the base currency of the market convention pair
+   * for pairs that aren't explicitly configured.
+   *
+   * @return a map of currency to order
+   */
+  static ImmutableMap<Currency, Integer> loadOrdering() {
+    try {
+      Stream<ResourceLocator> resourceLocators = ResourceLocator.streamOfClasspathResources(CURRENCY_DATA_INI);
+      IniFile ini = IniFile.ofChained(resourceLocators.map(ResourceLocator::getCharSource));
+      PropertySet section = ini.getSection("marketConventionPriority");
+      String list = section.getValue("ordering");
+      // The currency ordering is defined as a comma-separated list
+      List<Currency> currencies = Arrays.stream(list.split(","))
+          .map(String::trim)
+          .map(Currency::of)
+          .collect(toImmutableList());
+
+      ImmutableMap.Builder<Currency, Integer> orderBuilder = ImmutableMap.builder();
+
+      for (int i = 0; i < currencies.size(); i++) {
+        orderBuilder.put(currencies.get(i), i + 1);
+      }
+      return orderBuilder.build();
+    } catch (Exception ex) {
+      // logging used because this is loaded in a static variable
+      Logger logger = Logger.getLogger(CurrencyDataLoader.class.getName());
+      logger.severe(Throwables.getStackTraceAsString(ex));
+      // return an empty instance to avoid ExceptionInInitializerError
+      return ImmutableMap.of();
+    }
+  }
 }
