@@ -132,11 +132,10 @@ public class CurveScenarioExample {
     NumberFormat numberFormat = new DecimalFormat("###,##0.00");
 
     // TODO Replace these with a report once the reporting framework supports scenarios
-    System.out.println("Base PV        = " + numberFormat.format(pvBase));
-    System.out.println("Base PV01      = " + numberFormat.format(pv01Base));
-    System.out.println("Base PV + PV01 = " + numberFormat.format(pvBase + pv01Base));
-    System.out.println("Shifted PV     = " + numberFormat.format(pvShifted));
-    System.out.println("Difference     = " + numberFormat.format(pvShifted - pvBase - pv01Base));
+    System.out.println("                         PV (base) = " + numberFormat.format(pvBase));
+    System.out.println("             PV (1 bp curve shift) = " + numberFormat.format(pvShifted));
+    System.out.println("PV01 (algorithmic differentiation) = " + numberFormat.format(pv01Base));
+    System.out.println("          PV01 (finite difference) = " + numberFormat.format(pvShifted - pvBase));
   }
 
   //-----------------------------------------------------------------------
