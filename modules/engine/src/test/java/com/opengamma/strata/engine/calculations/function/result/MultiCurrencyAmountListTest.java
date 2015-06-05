@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.calculations.function.result;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 
@@ -16,6 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -44,8 +46,12 @@ public class MultiCurrencyAmountListTest {
             CurrencyAmount.of(Currency.USD, 30),
             CurrencyAmount.of(Currency.EUR, 300)));
     MultiCurrencyAmountList list = MultiCurrencyAmountList.of(values);
-    List<Double> usdRates = ImmutableList.of(1.61, 1.62, 1.63);
-    List<Double> eurRates = ImmutableList.of(1.07, 1.08, 1.09);
+    List<FxRate> usdRates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
+    List<FxRate> eurRates = ImmutableList.of(1.07, 1.08, 1.09).stream()
+        .map(rate -> FxRate.of(Currency.EUR, Currency.USD, rate))
+        .collect(toImmutableList());
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), usdRates)
         .addValues(FxRateId.of(Currency.EUR, Currency.USD), eurRates)
@@ -130,8 +136,12 @@ public class MultiCurrencyAmountListTest {
             CurrencyAmount.of(Currency.GBP, 3),
             CurrencyAmount.of(Currency.USD, 30),
             CurrencyAmount.of(Currency.EUR, 300)));
-    List<Double> usdRates = ImmutableList.of(1.61, 1.62);
-    List<Double> eurRates = ImmutableList.of(1.07, 1.08);
+    List<FxRate> usdRates = ImmutableList.of(1.61, 1.62).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
+    List<FxRate> eurRates = ImmutableList.of(1.07, 1.08).stream()
+        .map(rate -> FxRate.of(Currency.EUR, Currency.USD, rate))
+        .collect(toImmutableList());
     MultiCurrencyAmountList list = MultiCurrencyAmountList.of(values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(2, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), usdRates)

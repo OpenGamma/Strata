@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.jooq.lambda.Seq;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.function.CalculationMultiFunction;
@@ -70,17 +71,17 @@ public final class CurrencyValuesArray
     if (currency.equals(reportingCurrency)) {
       return this;
     }
-    List<Double> rates = marketData.getValues(FxRateKey.of(currency, reportingCurrency));
+    List<FxRate> rates = marketData.getValues(FxRateKey.of(currency, reportingCurrency));
     checkNumberOfRates(rates);
     double[] convertedValues = Seq.zip(Arrays.stream(values).boxed(), rates.stream())
-        .map(tp -> tp.v1 * tp.v2)
+        .map(tp -> tp.v2.convert(tp.v1, currency, reportingCurrency))
         .mapToDouble(d -> d)
         .toArray();
 
     return new CurrencyValuesArray(reportingCurrency, convertedValues);
   }
 
-  private void checkNumberOfRates(List<Double> rates) {
+  private void checkNumberOfRates(List<FxRate> rates) {
     if (values.length != rates.size()) {
       throw new IllegalArgumentException(
           Messages.format(

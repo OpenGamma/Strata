@@ -17,6 +17,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateKey.Meta;
 
 /**
@@ -26,18 +27,23 @@ import com.opengamma.strata.basics.market.FxRateKey.Meta;
 public class FxRateKeyTest {
 
   private static final CurrencyPair PAIR = CurrencyPair.of(GBP, USD);
+  private static final CurrencyPair INVERSE = PAIR.inverse();
 
   //-------------------------------------------------------------------------
   public void test_of_pair() {
     FxRateKey test = FxRateKey.of(PAIR);
+    FxRateKey inverse = FxRateKey.of(INVERSE);
     assertEquals(test.getPair(), PAIR);
-    assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(inverse.getPair(), PAIR);
+    assertEquals(test.getMarketDataType(), FxRate.class);
   }
 
   public void test_of_currencies() {
     FxRateKey test = FxRateKey.of(GBP, USD);
+    FxRateKey inverse = FxRateKey.of(USD, GBP);
     assertEquals(test.getPair(), PAIR);
-    assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(inverse.getPair(), PAIR);
+    assertEquals(test.getMarketDataType(), FxRate.class);
   }
 
   //-------------------------------------------------------------------------
