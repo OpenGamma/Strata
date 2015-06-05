@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.market.ObservableId;
  * The par rates used when calibrating a curve.
  */
 @BeanDefinition
-public final class PaParRates implements ImmutableBean {
+public final class ParRates implements ImmutableBean {
 
   /** The par rates, keyed by ID. */
   @PropertyDefinition(validate = "notNull")
