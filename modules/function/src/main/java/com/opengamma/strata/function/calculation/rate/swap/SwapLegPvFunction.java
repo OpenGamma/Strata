@@ -20,7 +20,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
 /**
  * Calculates the present value of each leg of an interest rate swap.
  * <p>
- * The resulting {@linkpain LegAmounts leg amounts} contains of a value for each leg,
+ * The resulting {@linkplain LegAmounts leg amounts} contains of a value for each leg,
  * each expressed as a {@linkplain SwapLegAmount swap leg amount} with leg details.
  */
 public class SwapLegPvFunction extends AbstractSwapFunction<LegAmounts> {
@@ -37,7 +37,7 @@ public class SwapLegPvFunction extends AbstractSwapFunction<LegAmounts> {
     CurrencyAmount amount = DiscountingSwapLegPricer.DEFAULT.presentValue(leg, provider);
     return SwapLegAmount.builder()
         .amount(amount)
-        .payReceieve(leg.getPayReceive())
+        .payReceive(leg.getPayReceive())
         .legType(leg.getType())
         .legCurrency(leg.getCurrency())
         .build();

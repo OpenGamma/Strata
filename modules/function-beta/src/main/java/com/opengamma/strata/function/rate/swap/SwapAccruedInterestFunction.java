@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.rate.swap;
 
-import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toMultiCurrencyAmountList;
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toFxConvertibleList;
 
 import java.util.stream.IntStream;
 
@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.range.LocalDateRange;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
-import com.opengamma.strata.engine.calculations.function.result.MultiCurrencyAmountList;
+import com.opengamma.strata.engine.calculations.function.result.FxConvertibleList;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
@@ -32,7 +32,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapLegPricer;
  * Calculates the accrued interest for a {@code SwapTrade} for each of a set of scenarios.
  */
 public class SwapAccruedInterestFunction
-    implements CalculationSingleFunction<SwapTrade, MultiCurrencyAmountList> {
+    implements CalculationSingleFunction<SwapTrade, FxConvertibleList> {
   // TODO: implementation needs more work to handle edge cases
 
   @Override
@@ -41,14 +41,14 @@ public class SwapAccruedInterestFunction
   }
 
   @Override
-  public MultiCurrencyAmountList execute(SwapTrade trade, CalculationMarketData marketData) {
+  public FxConvertibleList execute(SwapTrade trade, CalculationMarketData marketData) {
     ExpandedSwap expandedSwap = trade.getProduct().expand();
     
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(env -> accruedInterest(env, expandedSwap))
-        .collect(toMultiCurrencyAmountList());
+        .collect(toFxConvertibleList());
   }
   
   private MultiCurrencyAmount accruedInterest(MarketDataRatesProvider env, ExpandedSwap expandedSwap) {
