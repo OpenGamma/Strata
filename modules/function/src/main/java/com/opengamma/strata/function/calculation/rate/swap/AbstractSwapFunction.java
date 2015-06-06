@@ -8,10 +8,12 @@ package com.opengamma.strata.function.calculation.rate.swap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.Sets;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -103,6 +105,17 @@ public abstract class AbstractSwapFunction<T>
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toScenarioResult(isConvertCurrencies()));
+  }
+
+  /**
+   * Returns the currency of the first leg.
+   *
+   * @param target  the swap that is the target of the calculation
+   * @return the currency of the first leg
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
+    return Optional.of(target.getProduct().getLegs().get(0).getCurrency());
   }
 
   // execute for a single trade

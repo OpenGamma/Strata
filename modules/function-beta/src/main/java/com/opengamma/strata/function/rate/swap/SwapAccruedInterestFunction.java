@@ -7,9 +7,11 @@ package com.opengamma.strata.function.rate.swap;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toFxConvertibleList;
 
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
@@ -49,6 +51,17 @@ public class SwapAccruedInterestFunction
         .map(MarketDataRatesProvider::new)
         .map(env -> accruedInterest(env, expandedSwap))
         .collect(toFxConvertibleList());
+  }
+
+  /**
+   * Returns the currency of the first leg of the swap.
+   *
+   * @param target  the swap that is the target of the calculation
+   * @return the currency of the first leg of the swap
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
+    return Optional.of(target.getProduct().getLegs().get(0).getCurrency());
   }
   
   private MultiCurrencyAmount accruedInterest(MarketDataRatesProvider env, ExpandedSwap expandedSwap) {

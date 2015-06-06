@@ -5,7 +5,10 @@
  */
 package com.opengamma.strata.engine.calculations.function;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 
 /**
@@ -27,4 +30,21 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * @return requirements specifying the market data the function needs to perform its calculations for the target
    */
   public abstract CalculationRequirements requirements(T target);
+
+  /**
+   * Returns the default reporting currency for the result of performing the calculation for the target
+   * if there is a sensible default.
+   * <p>
+   * This is the currency to which currency amounts are converted if the reporting rules don't specify
+   * a reporting currency. This is normally the 'natural' currency for the trade, for example
+   * the currency of a FRA or the base currency of an FX forward.
+   * <p>
+   * The default implementation returns an empty optional.
+   *
+   * @param target  the target of the calculation
+   * @return the default reporting currency for the target if there is a sensible default
+   */
+  public default Optional<Currency> defaultReportingCurrency(T target) {
+    return Optional.empty();
+  }
 }

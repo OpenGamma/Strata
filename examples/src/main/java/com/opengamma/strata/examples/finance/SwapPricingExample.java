@@ -88,7 +88,7 @@ public class SwapPricingExample {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(ExampleMarketData.rules())
-        .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
+        .reportingRules(ReportingRules.empty())
         .build();
 
     // Use an empty snapshot of market data, indicating only the valuation date.
