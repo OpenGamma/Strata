@@ -8,34 +8,34 @@ import java.time.Period;
 
 public class CurveCreditPlaceholder {
 
-  private final Period[] _creditCurvePoints;
-  private final double[] _fractionalParSpreads;
-  private final StandardCdsConvention _cdsConvention;
+    private final Period[] _creditCurvePoints;
+    private final double[] _fractionalParSpreads;
+    private final StandardCdsConvention _cdsConvention;
 
-  private CurveCreditPlaceholder(Period[] creditCurvePoints, double[] fractionalParSpreads, StandardCdsConvention cdsConvention) {
-    _creditCurvePoints = creditCurvePoints;
-    _fractionalParSpreads = fractionalParSpreads;
-    _cdsConvention = cdsConvention;
-  }
+    private CurveCreditPlaceholder(Period[] creditCurvePoints, double[] fractionalParSpreads, StandardCdsConvention cdsConvention) {
+        _creditCurvePoints = creditCurvePoints;
+        _fractionalParSpreads = fractionalParSpreads;
+        _cdsConvention = cdsConvention;
+    }
 
-  public LocalDate[] getCreditCurvePoints(LocalDate valueDate) {
-    return Lists.newArrayList(_creditCurvePoints).stream().map(x -> x.addTo(valueDate)).toArray(LocalDate[]::new);
-  }
+    public LocalDate[] getCreditCurveEndDatePoints(LocalDate valuationDate) {
+        return Lists
+                .newArrayList(_creditCurvePoints)
+                .stream()
+                .map(p -> _cdsConvention.calcUnadjustedMaturityDateFromValuationDateOf(valuationDate, p))
+                .toArray(LocalDate[]::new);
+    }
+    
+    public double[] getFractionalParSpreads() {
+        return _fractionalParSpreads;
+    }
 
-  public Period[] getCreditCurvePoints() {
-    return _creditCurvePoints;
-  }
+    public StandardCdsConvention getCdsConvention() {
+        return _cdsConvention;
+    }
 
-  public double[] getFractionalParSpreads() {
-    return _fractionalParSpreads;
-  }
-
-  public StandardCdsConvention getCdsConvention() {
-    return _cdsConvention;
-  }
-
-  public static CurveCreditPlaceholder of(Period[] creditCurvePoints, double[] fractionalParSpreads, StandardCdsConvention cdsConvention) {
-    return new CurveCreditPlaceholder(creditCurvePoints, fractionalParSpreads, cdsConvention);
-  }
+    public static CurveCreditPlaceholder of(Period[] creditCurvePoints, double[] fractionalParSpreads, StandardCdsConvention cdsConvention) {
+        return new CurveCreditPlaceholder(creditCurvePoints, fractionalParSpreads, cdsConvention);
+    }
 
 }

@@ -156,7 +156,7 @@ public class CdsAnalyticsWrapper {
               asOfDate,
               cdsConvention.calcBusinessAdjustment()
           ),
-          curveCurve.getCreditCurvePoints(asOfDate),
+          curveCurve.getCreditCurveEndDatePoints(asOfDate),
           curveCurve.getFractionalParSpreads(),
           cdsConvention.isPayAccOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
