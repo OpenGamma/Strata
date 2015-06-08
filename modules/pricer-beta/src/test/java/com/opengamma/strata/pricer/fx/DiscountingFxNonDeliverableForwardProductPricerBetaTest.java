@@ -61,8 +61,8 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
 
   private static final FxForward FWD = FxForward.of(CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, PAYMENT_DATE);
 
-  private static final DiscountingFxNonDeliverableForwardProductPricerBeta PRICER_NDF =
-      DiscountingFxNonDeliverableForwardProductPricerBeta.DEFAULT;
+  private static final DiscountingFxNonDeliverableForwardProductPricer PRICER_NDF =
+      DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;
   private static final DiscountingFxProductPricerBeta PRICER_FWD = DiscountingFxProductPricerBeta.DEFAULT;
 
   private static final double TOLERANCE_PV = 1.0E-2;

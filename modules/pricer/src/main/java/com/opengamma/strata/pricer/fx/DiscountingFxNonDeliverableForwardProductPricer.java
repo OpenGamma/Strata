@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardProduct;
-import com.opengamma.strata.finance.fx.FxProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -21,18 +20,18 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * This function provides the ability to price an {@link FxProduct}.
  */
-public class DiscountingFxNonDeliverableForwardProductPricerBeta {
+public class DiscountingFxNonDeliverableForwardProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxNonDeliverableForwardProductPricerBeta DEFAULT =
-      new DiscountingFxNonDeliverableForwardProductPricerBeta();
+  public static final DiscountingFxNonDeliverableForwardProductPricer DEFAULT =
+      new DiscountingFxNonDeliverableForwardProductPricer();
 
   /**
    * Creates an instance.
    */
-  public DiscountingFxNonDeliverableForwardProductPricerBeta() {
+  public DiscountingFxNonDeliverableForwardProductPricer() {
   }
 
   //-------------------------------------------------------------------------
