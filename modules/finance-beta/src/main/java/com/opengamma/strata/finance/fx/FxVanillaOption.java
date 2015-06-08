@@ -99,7 +99,7 @@ public class FxVanillaOption
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    inOrderOrEqual(expiryDate, underlying.getValueDate(), "expiryDate", "underlying.valueDate");
+    inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.valueDate");
   }
 
   //-------------------------------------------------------------------------

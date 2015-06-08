@@ -21,7 +21,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
- * Test.
+ * Test {@link FxForwardTrade}.
  */
 @Test
 public class FxForwardTradeTest {

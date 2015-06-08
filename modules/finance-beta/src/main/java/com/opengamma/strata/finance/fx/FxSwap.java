@@ -113,7 +113,7 @@ public final class FxSwap
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(
-        nearLeg.getValueDate(), farLeg.getValueDate(), "nearLeg.valueDate", "farLeg.valueDate");
+        nearLeg.getPaymentDate(), farLeg.getPaymentDate(), "nearLeg.valueDate", "farLeg.valueDate");
     if (!nearLeg.getBaseCurrencyAmount().getCurrency().equals(farLeg.getBaseCurrencyAmount().getCurrency()) ||
         !nearLeg.getCounterCurrencyAmount().getCurrency().equals(farLeg.getCounterCurrencyAmount().getCurrency())) {
       throw new IllegalArgumentException("Legs must have the same currency pair");

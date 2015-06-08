@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
- * Test.
+ * Test {@link FxForward}.
  */
 @Test
 public class FxForwardTest {
@@ -40,21 +40,21 @@ public class FxForwardTest {
     FxForward test = FxForward.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_switchOrder() {
     FxForward test = FxForward.of(USD_M1600, GBP_P1000, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_bothZero() {
     FxForward test = FxForward.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), CurrencyAmount.zero(GBP));
     assertEquals(test.getCounterCurrencyAmount(), CurrencyAmount.zero(USD));
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_positiveNegative() {
@@ -73,21 +73,21 @@ public class FxForwardTest {
     FxForward test = FxForward.of(GBP_P1000, USD, 1.6d, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_rate_switchOrder() {
     FxForward test = FxForward.of(USD_M1600, GBP, 1d / 1.6d, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_rate_bothZero() {
     FxForward test = FxForward.of(CurrencyAmount.zero(GBP), USD, 1.6d, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), CurrencyAmount.zero(GBP));
     assertEquals(test.getCounterCurrencyAmount().getAmount(), CurrencyAmount.zero(USD).getAmount(), 1e-12);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_rate_sameCurrency() {
@@ -99,29 +99,29 @@ public class FxForwardTest {
     FxForward test = FxForward.meta().builder()
         .set(FxForward.meta().baseCurrencyAmount(), GBP_P1000)
         .set(FxForward.meta().counterCurrencyAmount(), USD_M1600)
-        .set(FxForward.meta().valueDate(), DATE_2015_06_30)
+        .set(FxForward.meta().paymentDate(), DATE_2015_06_30)
         .build();
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_builder_switchOrder() {
     FxForward test = FxForward.meta().builder()
         .set(FxForward.meta().baseCurrencyAmount(), USD_M1600)
         .set(FxForward.meta().counterCurrencyAmount(), GBP_P1000)
-        .set(FxForward.meta().valueDate(), DATE_2015_06_30)
+        .set(FxForward.meta().paymentDate(), DATE_2015_06_30)
         .build();
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_builder_bothPositive() {
     assertThrowsIllegalArg(() -> FxForward.meta().builder()
         .set(FxForward.meta().baseCurrencyAmount(), GBP_P1000)
         .set(FxForward.meta().counterCurrencyAmount(), USD_P1600)
-        .set(FxForward.meta().valueDate(), DATE_2015_06_30)
+        .set(FxForward.meta().paymentDate(), DATE_2015_06_30)
         .build());
   }
 
@@ -129,7 +129,7 @@ public class FxForwardTest {
     assertThrowsIllegalArg(() -> FxForward.meta().builder()
         .set(FxForward.meta().baseCurrencyAmount(), GBP_M1000)
         .set(FxForward.meta().counterCurrencyAmount(), USD_M1600)
-        .set(FxForward.meta().valueDate(), DATE_2015_06_30)
+        .set(FxForward.meta().paymentDate(), DATE_2015_06_30)
         .build());
   }
 
@@ -137,7 +137,7 @@ public class FxForwardTest {
     assertThrowsIllegalArg(() -> FxForward.meta().builder()
         .set(FxForward.meta().baseCurrencyAmount(), GBP_P1000)
         .set(FxForward.meta().counterCurrencyAmount(), GBP_M1000)
-        .set(FxForward.meta().valueDate(), DATE_2015_06_30)
+        .set(FxForward.meta().paymentDate(), DATE_2015_06_30)
         .build());
   }
 
@@ -147,7 +147,7 @@ public class FxForwardTest {
     ExpandedFx test = fwd.expand();
     assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(DATE_2015_06_30, GBP_P1000));
     assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(DATE_2015_06_30, USD_M1600));
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   //-------------------------------------------------------------------------

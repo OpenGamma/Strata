@@ -56,11 +56,11 @@ public class DiscountingFxSwapProductPricerBeta {
    */
   public MultiCurrencyAmount presentValue(FxSwapProduct product, RatesProvider provider) {
     ExpandedFxSwap fx = product.expand();
-    if (provider.getValuationDate().isAfter(fx.getFarLeg().getValueDate())) {
+    if (provider.getValuationDate().isAfter(fx.getFarLeg().getPaymentDate())) {
       return MultiCurrencyAmount.empty();
     }
     MultiCurrencyAmount farPv = fxPricer.presentValue(fx.getFarLeg(), provider);
-    if (provider.getValuationDate().isAfter(fx.getNearLeg().getValueDate())) {
+    if (provider.getValuationDate().isAfter(fx.getNearLeg().getPaymentDate())) {
       return farPv;
     }
     MultiCurrencyAmount nearPv = fxPricer.presentValue(fx.getNearLeg(), provider);
@@ -89,7 +89,7 @@ public class DiscountingFxSwapProductPricerBeta {
    */
   public double parSpread(FxSwapProduct product, RatesProvider provider) {
     ExpandedFxSwap fx = product.expand();
-    if (provider.getValuationDate().isAfter(fx.getNearLeg().getValueDate())) {
+    if (provider.getValuationDate().isAfter(fx.getNearLeg().getPaymentDate())) {
       return fxPricer.parSpread(fx.getFarLeg(), provider);
     }
     FxPayment basePaymentNear = fx.getNearLeg().getBaseCurrencyPayment();
@@ -97,7 +97,7 @@ public class DiscountingFxSwapProductPricerBeta {
     MultiCurrencyAmount pv = presentValue(fx, provider);
     double pvCounterCcy = pv.convertedTo(counterPaymentNear.getCurrency(), provider).getAmount();
     // TODO: is basePaymentNear.getCurrency() correct?
-    double dfEnd = provider.discountFactor(basePaymentNear.getCurrency(), fx.getFarLeg().getValueDate());
+    double dfEnd = provider.discountFactor(basePaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
     double notionalBaseCcy = basePaymentNear.getAmount();
     return -pvCounterCcy / (notionalBaseCcy * dfEnd);
   }
