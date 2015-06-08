@@ -49,8 +49,9 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
   public CurrencyAmount presentValue(FxNonDeliverableForwardProduct product, RatesProvider provider) {
     ExpandedFxNonDeliverableForward ndf = product.expand();
     Currency ccySettle = ndf.getSettlementCurrency();
+    Currency ccyOther = ndf.getNonDeliverableCurrency();
     CurrencyAmount notionalSettle = ndf.getSettlementCurrencyNotional();
-    double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle);
+    double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
     LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
     double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
@@ -97,18 +98,19 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
   public PointSensitivities presentValueSensitivity(FxNonDeliverableForwardProduct product, RatesProvider provider) {
     ExpandedFxNonDeliverableForward ndf = product.expand();
     Currency ccySettle = ndf.getSettlementCurrency();
+    Currency ccyOther = ndf.getNonDeliverableCurrency();
     double notionalSettle = ndf.getSettlementNotional();
-    double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle);
+    double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
     LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
     double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
     double ratio = agreedRate / forwardRate;
     double dscBar = (1d - ratio) * notionalSettle;
     PointSensitivityBuilder sensiDsc =
-        provider.discountFactors(ccySettle).pointSensitivity(ndf.getPaymentDate()).multipliedBy(dscBar);
+        provider.discountFactors(ccySettle).zeroRatePointSensitivity(ndf.getPaymentDate()).multipliedBy(dscBar);
     double fxBar = dfSettle * ratio / forwardRate * notionalSettle;
     PointSensitivityBuilder sensiFx = provider.fxIndexRates(ndf.getIndex())
-        .pointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(fxBar);
+        .ratePointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(fxBar);
     return sensiDsc.combinedWith(sensiFx).build();
   }
 

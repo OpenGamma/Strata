@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.calculations;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
@@ -80,7 +82,9 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrency() {
     double[] values = {1, 2, 3};
-    List<Double> rates = ImmutableList.of(1.61, 1.62, 1.63);
+    List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
@@ -122,7 +126,9 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrencyNoReportingCurrency() {
     double[] values = {1, 2, 3};
-    List<Double> rates = ImmutableList.of(1.61, 1.62, 1.63);
+    List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
@@ -204,6 +210,19 @@ public class CalculationTaskTest {
     assertThat(result).isFailure(FailureReason.NOT_APPLICABLE).hasFailureMessageMatching("bar");
   }
 
+  /**
+   * Tests that requirements are added for the FX rates needed to convert the results into the reporting currency.
+   */
+  public void fxConversionRequirements() {
+    OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+    MarketDataRequirements requirements = task.requirements();
+
+    assertThat(requirements.getNonObservables()).containsOnly(
+        FxRateId.of(Currency.GBP, Currency.USD),
+        FxRateId.of(Currency.EUR, Currency.USD));
+  }
+
   //--------------------------------------------------------------------------------------------------------------------
 
   private static class TestTarget implements CalculationTarget { }
@@ -280,6 +299,24 @@ public class CalculationTaskTest {
     @Override
     public CalculationRequirements requirements(TestTarget target) {
       return CalculationRequirements.empty();
+    }
+  }
+
+  /**
+   * Function that returns requirements containing output currencies.
+   */
+  private static final class OutputCurrenciesFunction implements CalculationSingleFunction<TestTarget, Object> {
+
+    @Override
+    public Object execute(TestTarget target, CalculationMarketData marketData) {
+      throw new UnsupportedOperationException("execute not implemented");
+    }
+
+    @Override
+    public CalculationRequirements requirements(TestTarget target) {
+      return CalculationRequirements.builder()
+          .outputCurrencies(Currency.GBP, Currency.EUR, Currency.USD)
+          .build();
     }
   }
 }

@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -27,6 +28,7 @@ import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
@@ -35,6 +37,7 @@ import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.PriceIndexValues;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
@@ -99,7 +102,7 @@ public final class MarketDataRatesProvider
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
-    return marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency));
+    return marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency)).fxRate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -134,6 +137,12 @@ public final class MarketDataRatesProvider
     Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
     DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PriceIndexValues priceIndexValues(PriceIndex index) {
+    return marketData.getValue(PriceIndexValuesKey.of(index));
   }
 
   //-------------------------------------------------------------------------

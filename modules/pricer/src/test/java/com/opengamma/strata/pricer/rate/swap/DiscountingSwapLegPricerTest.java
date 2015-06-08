@@ -89,7 +89,6 @@ import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObs
 import com.opengamma.strata.pricer.impl.rate.ForwardInflationMonthlyRateObservationFn;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
@@ -291,7 +290,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_finiteDifference() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP).build();
-    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities psFd =
         FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP, (p) -> PRICER_LEG.presentValue(expSwapLeg, p));
     ImmutableList<CurveCurrencyParameterSensitivity> listAd = psAd.getSensitivities();
@@ -304,7 +303,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_events() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivityEventsInternal(expSwapLeg, RATES_GBP).build();
-    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
         (p) -> CurrencyAmount.of(GBP, PRICER_LEG.presentValueEventsInternal(expSwapLeg, p)));
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
@@ -313,7 +312,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity_periods() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivityPeriodsInternal(expSwapLeg, RATES_GBP).build();
-    CurveCurrencyParameterSensitivities psAd = RATES_GBP.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities psAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities psFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_GBP,
         (p) -> CurrencyAmount.of(GBP, PRICER_LEG.presentValuePeriodsInternal(expSwapLeg, p)));
     assertTrue(psAd.equalWithTolerance(psFd, TOLERANCE_DELTA));
@@ -327,7 +326,7 @@ public class DiscountingSwapLegPricerTest {
         .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2)
         .build();
     PointSensitivities point = PRICER_LEG.pvbpSensitivity(leg, RATES_USD).build();
-    CurveCurrencyParameterSensitivities pvbpsAd = RATES_USD.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities pvbpsAd = RATES_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities pvbpsFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(RATES_USD,
         (p) -> CurrencyAmount.of(USD, PRICER_LEG.pvbp(leg, p)));
     assertTrue(pvbpsAd.equalWithTolerance(pvbpsFd, TOLERANCE_DELTA));
@@ -404,12 +403,11 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(dscCurve)
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -436,7 +434,7 @@ public class DiscountingSwapLegPricerTest {
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
     pvSensiExpected = pvSensiExpected.multipliedBy(dscFactor);
-    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).pointSensitivity(paymentDate);
+    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
     dscSensiExpected = dscSensiExpected.multipliedBy(fvExpected);
     pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
     assertTrue(pvSensiComputed.build().normalized()
@@ -449,12 +447,11 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
-    PriceIndexProvider priceIndexMap = PriceIndexProvider.builder().priceIndexValues(map).build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
-        .additionalData(ImmutableMap.of(priceIndexMap.getClass(), priceIndexMap))
+        .priceIndexValues(map)
         .discountCurves(dscCurve)
         .dayCount(ACT_ACT_ISDA)
         .build();
@@ -482,7 +479,7 @@ public class DiscountingSwapLegPricerTest {
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));
     pvSensiExpected = pvSensiExpected.multipliedBy(dscFactor);
-    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).pointSensitivity(paymentDate);
+    PointSensitivityBuilder dscSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
     dscSensiExpected = dscSensiExpected.multipliedBy(fvExpected);
     pvSensiExpected = pvSensiExpected.combinedWith(dscSensiExpected);
     assertTrue(pvSensiComputed.build().normalized()
@@ -566,7 +563,7 @@ public class DiscountingSwapLegPricerTest {
     PointSensitivityBuilder fvSensiComputed = pricer.futureValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
     assertEquals(fvSensiComputed, PointSensitivityBuilder.none());
-    PointSensitivityBuilder pvSensiExpected = prov.discountFactors(GBP).pointSensitivity(paymentDate);
+    PointSensitivityBuilder pvSensiExpected = prov.discountFactors(GBP).zeroRatePointSensitivity(paymentDate);
     pvSensiExpected = pvSensiExpected.multipliedBy(fvExpected);
     assertTrue(pvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), EPS * NOTIONAL));

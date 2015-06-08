@@ -30,21 +30,21 @@ public class FxRateTest {
   public void test_of_CurrencyCurrencyDouble() {
     FxRate test = FxRate.of(GBP, USD, 1.5d);
     assertEquals(test.getPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getRate(), 1.5d, 0);
+    assertEquals(test.fxRate(GBP, USD), 1.5d, 0);
     assertEquals(test.toString(), "GBP/USD 1.5");
   }
 
   public void test_of_CurrencyCurrencyDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(USD, GBP, 0.8d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, GBP));
-    assertEquals(test.getRate(), 0.8d, 0);
+    assertEquals(test.fxRate(USD, GBP), 0.8d, 0);
     assertEquals(test.toString(), "USD/GBP 0.8");
   }
 
   public void test_of_CurrencyCurrencyDouble_same() {
     FxRate test = FxRate.of(USD, USD, 1d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, USD));
-    assertEquals(test.getRate(), 1d, 0);
+    assertEquals(test.fxRate(USD, USD), 1d, 0);
     assertEquals(test.toString(), "USD/USD 1");
   }
 
@@ -54,30 +54,30 @@ public class FxRateTest {
   }
 
   public void test_of_CurrencyCurrencyDouble_null() {
-    assertThrowsIllegalArg(() -> FxRate.of((Currency) null, USD, 1.5d));
-    assertThrowsIllegalArg(() -> FxRate.of(USD, (Currency) null, 1.5d));
-    assertThrowsIllegalArg(() -> FxRate.of((Currency) null, (Currency) null, 1.5d));
+    assertThrowsIllegalArg(() -> FxRate.of(null, USD, 1.5d));
+    assertThrowsIllegalArg(() -> FxRate.of(USD, null, 1.5d));
+    assertThrowsIllegalArg(() -> FxRate.of(null, null, 1.5d));
   }
 
   //-------------------------------------------------------------------------
   public void test_of_CurrencyPairDouble() {
     FxRate test = FxRate.of(CurrencyPair.of(GBP, USD), 1.5d);
     assertEquals(test.getPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getRate(), 1.5d, 0);
+    assertEquals(test.fxRate(GBP, USD), 1.5d, 0);
     assertEquals(test.toString(), "GBP/USD 1.5");
   }
 
   public void test_of_CurrencyPairDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, GBP), 0.8d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, GBP));
-    assertEquals(test.getRate(), 0.8d, 0);
+    assertEquals(test.fxRate(USD, GBP), 0.8d, 0);
     assertEquals(test.toString(), "USD/GBP 0.8");
   }
 
   public void test_of_CurrencyPairDouble_same() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, USD), 1d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, USD));
-    assertEquals(test.getRate(), 1d, 0);
+    assertEquals(test.fxRate(USD, USD), 1d, 0);
     assertEquals(test.toString(), "USD/USD 1");
   }
 
@@ -87,7 +87,12 @@ public class FxRateTest {
   }
 
   public void test_of_CurrencyPairDouble_null() {
-    assertThrowsIllegalArg(() -> FxRate.of((CurrencyPair) null, 1.5d));
+    assertThrowsIllegalArg(() -> FxRate.of(null, 1.5d));
+  }
+
+  public void test_toConventional() {
+    assertEquals(FxRate.of(GBP, USD, 1.25), FxRate.of(USD, GBP, 0.8).toConventional());
+    assertEquals(FxRate.of(GBP, USD, 1.25), FxRate.of(GBP, USD, 1.25).toConventional());
   }
 
   //-------------------------------------------------------------------------
@@ -144,9 +149,9 @@ public class FxRateTest {
   //-------------------------------------------------------------------------
   public void test_fxRate_forBase() {
     FxRate test = FxRate.of(GBP, USD, 1.25d);
-    assertEquals(test.fxRate(GBP), 1.25d);
-    assertEquals(test.fxRate(USD), 1d / 1.25d);
-    assertThrowsIllegalArg(() -> test.fxRate(AUD));
+    assertEquals(test.fxRate(GBP, USD), 1.25d);
+    assertEquals(test.fxRate(USD, GBP), 1d / 1.25d);
+    assertThrowsIllegalArg(() -> test.fxRate(GBP, AUD));
   }
 
   public void test_fxRate_forPair() {

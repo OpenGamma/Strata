@@ -102,6 +102,13 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
         TOLERANCE_PV);
   }
 
+  //  // Checks that the NDF forward rate is coherent with the standard FX forward present value.
+  //  public void forwardRateVsForex() {
+  //    FxRate fwdNDF = PRICER_NDF.forwardFxRate(NDF, PROVIDER);
+  //    FxRate fwdFX = PRICER_FWD.forwardFxRate(FWD, PROVIDER);
+  //    assertEquals(fwdNDF, fwdFX);
+  //  }
+
   //  // Tests the present value curve sensitivity using the Forex instrument curve sensitivity as reference.
   //  public void presentValueCurveSensitivity() {
   //    PointSensitivities pvcsNDF = METHOD_NDF.presentValueSensitivity(NDF, PROVIDER).normalized();

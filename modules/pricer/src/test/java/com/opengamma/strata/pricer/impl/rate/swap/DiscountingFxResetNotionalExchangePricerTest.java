@@ -98,7 +98,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
 
       PointSensitivityBuilder pointSensitivityComputed = test.presentValueSensitivity(expanded[i], prov);
-      CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.parameterSensitivity(
+      CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.curveParameterSensitivity(
           pointSensitivityComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
           prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.presentValue(fxReset, (p))));
@@ -137,7 +137,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
 
       PointSensitivityBuilder pointSensitivityComputed = test.futureValueSensitivity(expanded[i], prov);
-      CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.parameterSensitivity(
+      CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.curveParameterSensitivity(
           pointSensitivityComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
           prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.futureValue(fxReset, (p))));

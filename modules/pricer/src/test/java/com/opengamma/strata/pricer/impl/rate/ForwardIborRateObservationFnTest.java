@@ -49,7 +49,7 @@ public class ForwardIborRateObservationFnTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
 
-    when(mockIbor.pointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY);
+    when(mockIbor.ratePointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY);
 
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;

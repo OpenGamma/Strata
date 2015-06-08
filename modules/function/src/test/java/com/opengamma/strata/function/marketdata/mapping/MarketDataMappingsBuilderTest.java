@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -61,7 +62,7 @@ public class MarketDataMappingsBuilderTest {
     FxRateKey fxKey = FxRateKey.of(Currency.EUR, Currency.USD);
 
     MarketDataId<Curve> curveId = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
-    MarketDataId<Double> fxId = mappings.getIdForKey(fxKey);
+    MarketDataId<FxRate> fxId = mappings.getIdForKey(fxKey);
 
     assertThat(curveId).isEqualTo(DiscountCurveId.of(Currency.GBP, curveGroupName));
     assertThat(fxId).isEqualTo(MissingMappingId.of(fxKey));

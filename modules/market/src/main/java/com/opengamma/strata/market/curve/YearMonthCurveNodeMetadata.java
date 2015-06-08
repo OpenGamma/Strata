@@ -18,6 +18,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,6 +27,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Curve node metadata for a curve node with a specific year-month.
@@ -55,27 +58,49 @@ public final class YearMonthCurveNodeMetadata
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth yearMonth;
-
   /**
-   * Returns node metadata described by a tenor.
+   * The label that describes the node, defaulted to the year-month.
+   */
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  private final String label;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates node metadata using date and year-month.
    * 
    * @param date  the date of the curve node
    * @param yearMonth  the year-month of the curve node
-   * @return a curve node ID for the tenor
+   * @return node metadata based on a year-month
    */
   public static YearMonthCurveNodeMetadata of(LocalDate date, YearMonth yearMonth) {
-    return new YearMonthCurveNodeMetadata(date, yearMonth);
-  }
-
-  @Override
-  public String getDescription() {
-    return yearMonth.format(FORMATTER);
+    ArgChecker.notNull(date, "date");
+    ArgChecker.notNull(yearMonth, "yearMonth");
+    return new YearMonthCurveNodeMetadata(date, yearMonth, yearMonth.format(FORMATTER));
   }
 
   /**
-   * Returns the {@link #getYearMonth() yearMonth} of the node.
+   * Creates node metadata using date, year-month and label.
+   * 
+   * @param date  the date of the curve node
+   * @param yearMonth  the year-month of the curve node
+   * @param label  the label to use
+   * @return node metadata based on a year-month
+   */
+  public static YearMonthCurveNodeMetadata of(LocalDate date, YearMonth yearMonth, String label) {
+    return new YearMonthCurveNodeMetadata(date, yearMonth, label);
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.label == null && builder.yearMonth != null) {
+      builder.label = builder.yearMonth.format(FORMATTER);
+    }
+  }
+
+  /**
+   * Gets the identifier, which is the year-month.
    *
-   * @return the {@link #getYearMonth() yearMonth} of the node
+   * @return the year-month
    */
   @Override
   public YearMonth getIdentifier() {
@@ -103,11 +128,14 @@ public final class YearMonthCurveNodeMetadata
 
   private YearMonthCurveNodeMetadata(
       LocalDate date,
-      YearMonth yearMonth) {
+      YearMonth yearMonth,
+      String label) {
     JodaBeanUtils.notNull(date, "date");
     JodaBeanUtils.notNull(yearMonth, "yearMonth");
+    JodaBeanUtils.notEmpty(label, "label");
     this.date = date;
     this.yearMonth = yearMonth;
+    this.label = label;
   }
 
   @Override
@@ -148,6 +176,16 @@ public final class YearMonthCurveNodeMetadata
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the label that describes the node, defaulted to the year-month.
+   * @return the value of the property, not empty
+   */
+  @Override
+  public String getLabel() {
+    return label;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -156,7 +194,8 @@ public final class YearMonthCurveNodeMetadata
     if (obj != null && obj.getClass() == this.getClass()) {
       YearMonthCurveNodeMetadata other = (YearMonthCurveNodeMetadata) obj;
       return JodaBeanUtils.equal(getDate(), other.getDate()) &&
-          JodaBeanUtils.equal(getYearMonth(), other.getYearMonth());
+          JodaBeanUtils.equal(getYearMonth(), other.getYearMonth()) &&
+          JodaBeanUtils.equal(getLabel(), other.getLabel());
     }
     return false;
   }
@@ -166,15 +205,17 @@ public final class YearMonthCurveNodeMetadata
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearMonth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("YearMonthCurveNodeMetadata{");
     buf.append("date").append('=').append(getDate()).append(',').append(' ');
-    buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(getYearMonth()));
+    buf.append("yearMonth").append('=').append(getYearMonth()).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
     buf.append('}');
     return buf.toString();
   }
@@ -200,12 +241,18 @@ public final class YearMonthCurveNodeMetadata
     private final MetaProperty<YearMonth> yearMonth = DirectMetaProperty.ofImmutable(
         this, "yearMonth", YearMonthCurveNodeMetadata.class, YearMonth.class);
     /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", YearMonthCurveNodeMetadata.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "date",
-        "yearMonth");
+        "yearMonth",
+        "label");
 
     /**
      * Restricted constructor.
@@ -220,6 +267,8 @@ public final class YearMonthCurveNodeMetadata
           return date;
         case -496678845:  // yearMonth
           return yearMonth;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -256,6 +305,14 @@ public final class YearMonthCurveNodeMetadata
       return yearMonth;
     }
 
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -264,6 +321,8 @@ public final class YearMonthCurveNodeMetadata
           return ((YearMonthCurveNodeMetadata) bean).getDate();
         case -496678845:  // yearMonth
           return ((YearMonthCurveNodeMetadata) bean).getYearMonth();
+        case 102727412:  // label
+          return ((YearMonthCurveNodeMetadata) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -287,6 +346,7 @@ public final class YearMonthCurveNodeMetadata
 
     private LocalDate date;
     private YearMonth yearMonth;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -302,6 +362,8 @@ public final class YearMonthCurveNodeMetadata
           return date;
         case -496678845:  // yearMonth
           return yearMonth;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -315,6 +377,9 @@ public final class YearMonthCurveNodeMetadata
           break;
         case -496678845:  // yearMonth
           this.yearMonth = (YearMonth) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -348,18 +413,21 @@ public final class YearMonthCurveNodeMetadata
 
     @Override
     public YearMonthCurveNodeMetadata build() {
+      preBuild(this);
       return new YearMonthCurveNodeMetadata(
           date,
-          yearMonth);
+          yearMonth,
+          label);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("YearMonthCurveNodeMetadata.Builder{");
       buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
-      buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth));
+      buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

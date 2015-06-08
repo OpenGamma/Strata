@@ -204,7 +204,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
       PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
           FIXING_DATES[i], fixingEndDate, 1.0);
-      when(mockRates.pointSensitivity(FIXING_DATES[i])).thenReturn(rateSensitivity);
+      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(rateSensitivity);
       for (int j = 0; j < nFixings; ++j) {
         when(mockRatesUp[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesUp[j][i]);
         when(mockRatesDw[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesDw[j][i]);
@@ -990,7 +990,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FWD_ONCMP.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
@@ -1014,7 +1014,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FWD_ONCMP.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
       CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
       CurveCurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));

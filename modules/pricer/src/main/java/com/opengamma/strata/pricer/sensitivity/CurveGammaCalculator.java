@@ -146,7 +146,7 @@ public class CurveGammaCalculator {
           .build();
       PointSensitivities pts = sensitivitiesFn.apply(providerBumped);
       double[] psArray = Iterables.getOnlyElement(
-          providerBumped.parameterSensitivity(pts).getSensitivities()).getSensitivity();
+          providerBumped.curveParameterSensitivity(pts).getSensitivities()).getSensitivity();
       return new DoubleMatrix1D(psArray);
     }
   }

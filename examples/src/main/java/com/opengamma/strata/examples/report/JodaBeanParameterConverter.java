@@ -15,11 +15,13 @@ import com.beust.jcommander.IStringConverter;
 
 /**
  * Abstract parameter converter for bean types.
+ * 
+ * @param <T>  the type of the converter
  */
 public abstract class JodaBeanParameterConverter<T> implements IStringConverter<T> {
 
   protected abstract Class<T> getExpectedType();
-  
+
   @Override
   public T convert(String fileName) {
     File f = new File(fileName);

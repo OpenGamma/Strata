@@ -7,14 +7,12 @@ package com.opengamma.strata.report.result;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.joda.beans.Bean;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Multiset;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
@@ -22,7 +20,7 @@ import com.opengamma.strata.finance.rate.swap.SwapLegType;
 /**
  * 
  */
-public class IterableTraverser implements TokenEvaluator<Iterable<?>> {
+public class IterableTokenEvaluator implements TokenEvaluator<Iterable<?>> {
 
   private static final Set<Class<?>> SUPPORTED_FIELD_TYPES = ImmutableSet.of(
       Currency.class,
@@ -36,20 +34,29 @@ public class IterableTraverser implements TokenEvaluator<Iterable<?>> {
 
   @Override
   public Set<String> tokens(Iterable<?> iterable) {
-    Stream<String> listIndexStream = IntStream.range(0, Iterables.size(iterable)).mapToObj(i -> String.valueOf(i));
-    Stream<String> listItemValuesStream = StreamSupport.stream(iterable.spliterator(), false)
-        .flatMap(i -> fieldValues(i).stream());
-    return Stream.concat(listIndexStream, listItemValuesStream).collect(Collectors.toSet());
+    Multiset<String> tokens = HashMultiset.create();
+    int index = 1;
+    for (Object item : iterable) {
+      tokens.add(String.valueOf(index++));
+      tokens.addAll(fieldValues(item));
+    }
+    return tokens.stream()
+        .filter(token -> tokens.count(token) == 1)
+        .collect(Collectors.toSet());
   }
 
   @Override
   public Object evaluate(Iterable<?> iterable, String token) {
     for (Object item : iterable) {
-      if (fieldValues(item).contains(token)) {
-        return item;
+      if (!fieldValues(item).contains(token)) {
+        continue;
       }
+      if (!tokens(iterable).contains(token)) {
+        throw new TokenException(token, TokenError.AMBIGUOUS, tokens(iterable));
+      }
+      return item;
     }
-    throw new InvalidTokenException(token, iterable.getClass());
+    throw new TokenException(token, TokenError.INVALID, tokens(iterable));
   }
 
   //-------------------------------------------------------------------------

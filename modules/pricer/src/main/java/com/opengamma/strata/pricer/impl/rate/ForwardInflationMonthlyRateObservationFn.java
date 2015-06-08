@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.PriceIndexProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -45,7 +44,7 @@ public class ForwardInflationMonthlyRateObservationFn
       RatesProvider provider) {
 
     PriceIndex index = observation.getIndex();
-    PriceIndexValues values = provider.data(PriceIndexProvider.class).priceIndexValues(index);
+    PriceIndexValues values = provider.priceIndexValues(index);
     double indexStart = values.value(observation.getReferenceStartMonth());
     double indexEnd = values.value(observation.getReferenceEndMonth());
     return indexEnd / indexStart - 1d;
@@ -59,12 +58,12 @@ public class ForwardInflationMonthlyRateObservationFn
       RatesProvider provider) {
 
     PriceIndex index = observation.getIndex();
-    PriceIndexValues values = provider.data(PriceIndexProvider.class).priceIndexValues(index);
+    PriceIndexValues values = provider.priceIndexValues(index);
     double indexStart = values.value(observation.getReferenceStartMonth());
     double indexEnd = values.value(observation.getReferenceEndMonth());
     double indexStartInv = 1d / indexStart;
-    PointSensitivityBuilder indexStartSensitivity = values.pointSensitivity(observation.getReferenceStartMonth());
-    PointSensitivityBuilder indexEndSensitivity = values.pointSensitivity(observation.getReferenceEndMonth());
+    PointSensitivityBuilder indexStartSensitivity = values.valuePointSensitivity(observation.getReferenceStartMonth());
+    PointSensitivityBuilder indexEndSensitivity = values.valuePointSensitivity(observation.getReferenceEndMonth());
     indexEndSensitivity = indexEndSensitivity.multipliedBy(indexStartInv);
     indexStartSensitivity = indexStartSensitivity.multipliedBy(-indexEnd * indexStartInv * indexStartInv);
     return indexStartSensitivity.combinedWith(indexEndSensitivity);

@@ -215,7 +215,7 @@ public class ForwardOvernightCompoundedRateObservationFn
         }
         compositionFactorDerivative *= compositionFactor;
         PointSensitivityBuilder rateSensitivity =
-            cutoffOffset <= 1 ? PointSensitivityBuilder.none() : rates.pointSensitivity(lastFixingNonCutoff);
+            cutoffOffset <= 1 ? PointSensitivityBuilder.none() : rates.ratePointSensitivity(lastFixingNonCutoff);
         rateSensitivity = rateSensitivity.multipliedBy(compositionFactorDerivative);
         return ObjectDoublePair.of(rateSensitivity, compositionFactor);
       }

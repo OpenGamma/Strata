@@ -61,7 +61,7 @@ public final class FxRate
    * The rate applicable to the currency pair.
    * One unit of the base currency is exchanged for this amount of the counter currency.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero", get = "private")
   private final double rate;
 
   //-------------------------------------------------------------------------
@@ -109,7 +109,7 @@ public final class FxRate
   public static FxRate parse(String rateStr) {
     ArgChecker.notNull(rateStr, "rateStr");
     Matcher matcher = REGEX_FORMAT.matcher(rateStr.toUpperCase(Locale.ENGLISH));
-    if (matcher.matches() == false) {
+    if (!matcher.matches()) {
       throw new IllegalArgumentException("Invalid rate: " + rateStr);
     }
     try {
@@ -144,31 +144,6 @@ public final class FxRate
   }
 
   /**
-   * Gets the FX rate for the specified base currency.
-   * <p>
-   * This returns either the stored rate of the inverse rate.
-   * The stored rate is returned if the required base currency matches the stored
-   * base currency. The inverse or the stored rate is returned if the required
-   * base currency matches the stored counter currency.
-   * <p>
-   * The rate returned is the rate from the required base currency to the other currency
-   * as defined by this formula: {@code (1 * requiredBaseCurrency = fxRate * otherCurrency)}.
-   * 
-   * @param requiredBaseCurrency  the base currency of the returned rate
-   * @return the FX rate from the specified base currency to the other currency
-   * @throws IllegalArgumentException if the base currency is not one of those in this object
-   */
-  public double fxRate(Currency requiredBaseCurrency) {
-    if (requiredBaseCurrency.equals(pair.getBase())) {
-      return rate;
-    }
-    if (requiredBaseCurrency.equals(pair.getCounter())) {
-      return 1d / rate;
-    }
-    throw new IllegalArgumentException("Required currency is not contained in " + pair + ": " + requiredBaseCurrency);
-  }
-
-  /**
    * Gets the FX rate for the specified currency pair.
    * <p>
    * The rate returned is the rate from the base currency to the counter currency
@@ -193,6 +168,33 @@ public final class FxRate
       return 1d / rate;
     }
     throw new IllegalArgumentException("Unknown rate: " + baseCurrency + "/" + counterCurrency);
+  }
+
+  /**
+   * Converts an amount in a currency to an amount in a different currency using this rate.
+   * <p>
+   * The currencies must both be included in the currency pair of this rate.
+   *
+   * @param amount  an amount in {@code fromCurrency}
+   * @param fromCurrency  the currency of the amount
+   * @param toCurrency  the currency into which the amount should be converted
+   * @return the amount converted into {@code toCurrency}
+   * @throws IllegalArgumentException if either of the currencies aren't included in the currency pair of this rate
+   */
+  public double convert(double amount, Currency fromCurrency, Currency toCurrency) {
+    return amount * fxRate(fromCurrency, toCurrency);
+  }
+
+  /**
+   * Returns an FX rate object representing the market convention rate between the two currencies.
+   * <p>
+   * If the currency pair is the market convention pair, this method returns {@code this}, otherwise
+   * it returns an {@code FxRate} with the inverse currency pair and reciprocal rate.
+   *
+   * @return an FX rate object representing the market convention rate between the two currencies
+   */
+  public FxRate toConventional() {
+    return pair.isConventional() ? this : FxRate.of(pair.toConventional(), 1 / rate);
   }
 
   //-------------------------------------------------------------------------
@@ -269,7 +271,7 @@ public final class FxRate
    * One unit of the base currency is exchanged for this amount of the counter currency.
    * @return the value of the property
    */
-  public double getRate() {
+  private double getRate() {
     return rate;
   }
 

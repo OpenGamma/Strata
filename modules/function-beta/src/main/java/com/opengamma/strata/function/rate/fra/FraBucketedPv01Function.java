@@ -11,15 +11,16 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates the present value parameter sensitivity of a {@code FraTrade} for each of a set of scenarios.
+ * Calculates the bucketed PV01, the present value curve parameter sensitivity of a {@code FraTrade}.
+ * This operates by algorithmic differentiation (AD).
  */
-public class FraPvParameterSensitivityFunction
+public class FraBucketedPv01Function
     extends AbstractFraFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedFra product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity);
   }
 
 }

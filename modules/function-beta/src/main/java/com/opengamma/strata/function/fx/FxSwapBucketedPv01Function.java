@@ -5,21 +5,22 @@
  */
 package com.opengamma.strata.function.fx;
 
-import com.opengamma.strata.finance.fx.ExpandedFx;
+import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates the present value parameter sensitivity of an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates the bucketed PV01, the present value curve parameter sensitivity of a {@code FxSwapTrade}.
+ * This operates by algorithmic differentiation (AD).
  */
-public class FxForwardPvParameterSensitivityFunction
-    extends AbstractFxForwardFunction<CurveCurrencyParameterSensitivities> {
+public class FxSwapBucketedPv01Function
+    extends AbstractFxSwapFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
-  protected CurveCurrencyParameterSensitivities execute(ExpandedFx product, RatesProvider provider) {
+  protected CurveCurrencyParameterSensitivities execute(ExpandedFxSwap product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.parameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity);
   }
 
 }

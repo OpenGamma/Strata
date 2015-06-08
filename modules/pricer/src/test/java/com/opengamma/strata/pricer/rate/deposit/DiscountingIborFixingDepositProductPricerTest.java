@@ -118,7 +118,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
   public void test_presentValueSensitivity() {
     DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
     PointSensitivities computed = test.presentValueSensitivity(DEPOSIT, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(computed);
     CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV, (p) -> test.presentValue(DEPOSIT, (p)));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
@@ -180,7 +180,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
   public void test_parSpreadSensitivity() {
     DiscountingIborFixingDepositProductPricer test = DiscountingIborFixingDepositProductPricer.DEFAULT;
     PointSensitivities computed = test.parSpreadSensitivity(DEPOSIT, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(computed);
     CurveCurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, test.parSpread(DEPOSIT, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));

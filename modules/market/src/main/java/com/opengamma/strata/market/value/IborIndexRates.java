@@ -10,6 +10,9 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -81,30 +84,41 @@ public interface IborIndexRates {
   public abstract double rate(LocalDate fixingDate);
 
   /**
-   * Gets the point sensitivity of the historic or forward rate at the specified fixing date.
+   * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
-   * Otherwise, the sensitivity has the value 1.
    * The sensitivity refers to the result of {@link #rate(LocalDate)}.
    * 
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
-   * @throws RuntimeException if the value cannot be obtained
+   * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract PointSensitivityBuilder pointSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the unit parameter sensitivity of the forward rate at the specified fixing date.
+   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
    * <p>
-   * This returns the unit sensitivity for each parameter on the underlying curve.
-   * If the fixing date is before the valuation date an exception is thrown.
+   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
    * The sensitivity refers to the result of {@link #rate(LocalDate)}.
    * 
    * @param fixingDate  the fixing date to find the sensitivity for
    * @return the parameter sensitivity
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double[] unitParameterSensitivity(LocalDate fixingDate);
+  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate fixingDate);
+
+  /**
+   * Calculates the curve parameter sensitivity from the point sensitivity.
+   * <p>
+   * This is used to convert a single point sensitivity to curve parameter sensitivity.
+   * The calculation typically involves multiplying the point and unit sensitivities.
+   * 
+   * @param pointSensitivity  the point sensitivity to convert
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity);
 
 }

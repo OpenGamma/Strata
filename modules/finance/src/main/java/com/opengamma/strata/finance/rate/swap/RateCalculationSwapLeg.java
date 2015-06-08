@@ -114,6 +114,7 @@ public final class RateCalculationSwapLeg
    * @return the start date of the period
    */
   @Override
+  @DerivedProperty
   public LocalDate getStartDate() {
     return accrualSchedule.getAdjustedStartDate();
   }
@@ -127,6 +128,7 @@ public final class RateCalculationSwapLeg
    * @return the end date of the period
    */
   @Override
+  @DerivedProperty
   public LocalDate getEndDate() {
     return accrualSchedule.getAdjustedEndDate();
   }
@@ -137,6 +139,7 @@ public final class RateCalculationSwapLeg
    * @return the currency
    */
   @Override
+  @DerivedProperty
   public Currency getCurrency() {
     return notionalSchedule.getCurrency();
   }
@@ -333,14 +336,17 @@ public final class RateCalculationSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("RateCalculationSwapLeg{");
     buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(getAccrualSchedule()).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(getPaymentSchedule()).append(',').append(' ');
     buf.append("notionalSchedule").append('=').append(getNotionalSchedule()).append(',').append(' ');
     buf.append("calculation").append('=').append(getCalculation()).append(',').append(' ');
-    buf.append("type").append('=').append(JodaBeanUtils.toString(getType()));
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
@@ -386,6 +392,21 @@ public final class RateCalculationSwapLeg
     private final MetaProperty<SwapLegType> type = DirectMetaProperty.ofDerived(
         this, "type", RateCalculationSwapLeg.class, SwapLegType.class);
     /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", RateCalculationSwapLeg.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endDate} property.
+     */
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", RateCalculationSwapLeg.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofDerived(
+        this, "currency", RateCalculationSwapLeg.class, Currency.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -395,7 +416,10 @@ public final class RateCalculationSwapLeg
         "paymentSchedule",
         "notionalSchedule",
         "calculation",
-        "type");
+        "type",
+        "startDate",
+        "endDate",
+        "currency");
 
     /**
      * Restricted constructor.
@@ -418,6 +442,12 @@ public final class RateCalculationSwapLeg
           return calculation;
         case 3575610:  // type
           return type;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
+        case 575402001:  // currency
+          return currency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -486,6 +516,30 @@ public final class RateCalculationSwapLeg
       return type;
     }
 
+    /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
+    }
+
+    /**
+     * The meta-property for the {@code endDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -502,6 +556,12 @@ public final class RateCalculationSwapLeg
           return ((RateCalculationSwapLeg) bean).getCalculation();
         case 3575610:  // type
           return ((RateCalculationSwapLeg) bean).getType();
+        case -2129778896:  // startDate
+          return ((RateCalculationSwapLeg) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((RateCalculationSwapLeg) bean).getEndDate();
+        case 575402001:  // currency
+          return ((RateCalculationSwapLeg) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

@@ -73,7 +73,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(NDF, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected = CAL_FD.sensitivity(
         (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(NDF, (p)));
     assertTrue(computed.equalWithTolerance(expected, NOMINAL_USD * EPS_FD));

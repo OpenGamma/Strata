@@ -61,7 +61,7 @@ public class SwapReportRegressionTest {
 
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.TRADE_INFO),
-        Column.of(Measure.MATURITY_DATE),
+        Column.of(Measure.PRODUCT),
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.LEG_PRESENT_VALUE),

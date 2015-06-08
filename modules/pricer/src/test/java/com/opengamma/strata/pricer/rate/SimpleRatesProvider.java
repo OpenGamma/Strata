@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -33,6 +34,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 /**
  * A simple rates provider for overnight rates.
@@ -53,6 +55,8 @@ public class SimpleRatesProvider
   private IborIndexRates iborRates;
   @PropertyDefinition
   private OvernightIndexRates overnightRates;
+  @PropertyDefinition
+  private PriceIndexValues priceIndexValues;
 
   public SimpleRatesProvider() {
   }
@@ -116,7 +120,12 @@ public class SimpleRatesProvider
   }
 
   @Override
-  public CurveCurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+  public PriceIndexValues priceIndexValues(PriceIndex index) {
+    return priceIndexValues;
+  }
+
+  @Override
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
   }
 
@@ -306,6 +315,31 @@ public class SimpleRatesProvider
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the priceIndexValues.
+   * @return the value of the property
+   */
+  public PriceIndexValues getPriceIndexValues() {
+    return priceIndexValues;
+  }
+
+  /**
+   * Sets the priceIndexValues.
+   * @param priceIndexValues  the new value of the property
+   */
+  public void setPriceIndexValues(PriceIndexValues priceIndexValues) {
+    this.priceIndexValues = priceIndexValues;
+  }
+
+  /**
+   * Gets the the {@code priceIndexValues} property.
+   * @return the property, not null
+   */
+  public final Property<PriceIndexValues> priceIndexValues() {
+    return metaBean().priceIndexValues().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public SimpleRatesProvider clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -323,7 +357,8 @@ public class SimpleRatesProvider
           JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
           JodaBeanUtils.equal(getFxIndexRates(), other.getFxIndexRates()) &&
           JodaBeanUtils.equal(getIborRates(), other.getIborRates()) &&
-          JodaBeanUtils.equal(getOvernightRates(), other.getOvernightRates());
+          JodaBeanUtils.equal(getOvernightRates(), other.getOvernightRates()) &&
+          JodaBeanUtils.equal(getPriceIndexValues(), other.getPriceIndexValues());
     }
     return false;
   }
@@ -337,12 +372,13 @@ public class SimpleRatesProvider
     hash = hash * 31 + JodaBeanUtils.hashCode(getFxIndexRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIborRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getOvernightRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPriceIndexValues());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("SimpleRatesProvider{");
     int len = buf.length();
     toString(buf);
@@ -360,6 +396,7 @@ public class SimpleRatesProvider
     buf.append("fxIndexRates").append('=').append(JodaBeanUtils.toString(getFxIndexRates())).append(',').append(' ');
     buf.append("iborRates").append('=').append(JodaBeanUtils.toString(getIborRates())).append(',').append(' ');
     buf.append("overnightRates").append('=').append(JodaBeanUtils.toString(getOvernightRates())).append(',').append(' ');
+    buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(getPriceIndexValues())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -403,6 +440,11 @@ public class SimpleRatesProvider
     private final MetaProperty<OvernightIndexRates> overnightRates = DirectMetaProperty.ofReadWrite(
         this, "overnightRates", SimpleRatesProvider.class, OvernightIndexRates.class);
     /**
+     * The meta-property for the {@code priceIndexValues} property.
+     */
+    private final MetaProperty<PriceIndexValues> priceIndexValues = DirectMetaProperty.ofReadWrite(
+        this, "priceIndexValues", SimpleRatesProvider.class, PriceIndexValues.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -412,7 +454,8 @@ public class SimpleRatesProvider
         "discountFactors",
         "fxIndexRates",
         "iborRates",
-        "overnightRates");
+        "overnightRates",
+        "priceIndexValues");
 
     /**
      * Restricted constructor.
@@ -435,6 +478,8 @@ public class SimpleRatesProvider
           return iborRates;
         case 300027439:  // overnightRates
           return overnightRates;
+        case 1422773131:  // priceIndexValues
+          return priceIndexValues;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -503,6 +548,14 @@ public class SimpleRatesProvider
       return overnightRates;
     }
 
+    /**
+     * The meta-property for the {@code priceIndexValues} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PriceIndexValues> priceIndexValues() {
+      return priceIndexValues;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -519,6 +572,8 @@ public class SimpleRatesProvider
           return ((SimpleRatesProvider) bean).getIborRates();
         case 300027439:  // overnightRates
           return ((SimpleRatesProvider) bean).getOvernightRates();
+        case 1422773131:  // priceIndexValues
+          return ((SimpleRatesProvider) bean).getPriceIndexValues();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -543,6 +598,9 @@ public class SimpleRatesProvider
           return;
         case 300027439:  // overnightRates
           ((SimpleRatesProvider) bean).setOvernightRates((OvernightIndexRates) newValue);
+          return;
+        case 1422773131:  // priceIndexValues
+          ((SimpleRatesProvider) bean).setPriceIndexValues((PriceIndexValues) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

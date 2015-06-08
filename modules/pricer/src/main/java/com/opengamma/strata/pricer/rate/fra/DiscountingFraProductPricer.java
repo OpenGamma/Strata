@@ -87,7 +87,7 @@ public class DiscountingFraProductPricer {
     double derivative = derivative(fra, provider);
     PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
         .multipliedBy(derivative * df * notional);
-    PointSensitivityBuilder discSens = discountFactors.pointSensitivity(fra.getPaymentDate())
+    PointSensitivityBuilder discSens = discountFactors.zeroRatePointSensitivity(fra.getPaymentDate())
         .multipliedBy(unitAmount * notional);
     return iborSens.withCurrency(fra.getCurrency()).combinedWith(discSens).build();
   }
@@ -139,6 +139,35 @@ public class DiscountingFraProductPricer {
    */
   public double parRate(FraProduct product, RatesProvider provider) {
     return forwardRate(product.expand(), provider);
+  }
+
+  /**
+   * Calculates the par spread of the FRA product.
+   * <p>
+   * This is spread to be added to the fixed rate to have a present value of 0.
+   * 
+   * @param product  the FRA product for which the par spread should be computed
+   * @param provider  the rates provider
+   * @return the par spread
+   */
+  public double parSpread(FraProduct product, RatesProvider provider) {
+    ExpandedFra fra = product.expand();
+    double forward = forwardRate(fra, provider);
+    return forward - fra.getFixedRate();
+  }
+
+  /**
+   * Calculates the par spread curve sensitivity of the FRA product.
+   * <p>
+   * The par spread curve sensitivity of the product is the sensitivity of the par spread to
+   * the underlying curves.
+   * 
+   * @param product  the FRA product for which the curve sensitivity of the par spread should be computed
+   * @param provider  the rates provider
+   * @return the par spread sensitivity
+   */
+  public PointSensitivities parSpreadCurveSensitivity(FraProduct product, RatesProvider provider) {
+    return forwardRateSensitivity(product.expand(), provider).build();
   }
 
   //-------------------------------------------------------------------------

@@ -24,7 +24,7 @@ public class ReportTemplateParameterConverter implements IStringConverter<Report
     File file = new File(fileName);
     CharSource charSource = ResourceLocator.ofFile(file).getCharSource();
     IniFile ini = IniFile.of(charSource);
-    
+
     // TODO - support for other report template types
     TradeReportTemplateIniLoader loader = new TradeReportTemplateIniLoader();
     return loader.load(ini);

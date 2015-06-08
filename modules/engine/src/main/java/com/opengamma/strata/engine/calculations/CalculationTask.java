@@ -5,10 +5,17 @@
  */
 package com.opengamma.strata.engine.calculations;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
+import java.util.List;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -96,6 +103,20 @@ public class CalculationTask {
 
     for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
+    }
+    Optional<Currency> optionalReportingCurrency = reportingRules.reportingCurrency(target);
+
+    if (optionalReportingCurrency.isPresent()) {
+      Currency reportingCurrency = optionalReportingCurrency.get();
+
+      // Add requirements for the FX rates needed to convert the output values into the reporting currency
+      List<MarketDataId<FxRate>> fxRateIds = calculationRequirements.getOutputCurrencies().stream()
+          .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
+          .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
+          .map(FxRateKey::of)
+          .map(marketDataMappings::getIdForKey)
+          .collect(toImmutableList());
+      requirementsBuilder.addValues(fxRateIds);
     }
     return requirementsBuilder.build();
   }

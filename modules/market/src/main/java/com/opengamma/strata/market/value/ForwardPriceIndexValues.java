@@ -37,6 +37,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -213,7 +216,8 @@ public final class ForwardPriceIndexValues
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder pointSensitivity(YearMonth fixingMonth) {
+  public PointSensitivityBuilder valuePointSensitivity(YearMonth fixingMonth) {
+    // no sensitivity if historic month price index present in the time series
     if (timeSeries.get(fixingMonth.atEndOfMonth()).isPresent()) {
       return PointSensitivityBuilder.none();
     }
@@ -222,11 +226,11 @@ public final class ForwardPriceIndexValues
 
   //-------------------------------------------------------------------------
   @Override
-  public double[] unitParameterSensitivity(YearMonth month) {
+  public CurveUnitParameterSensitivities unitParameterSensitivity(YearMonth month) {
     // no sensitivity if historic month price index present in the time series
-    OptionalDouble fixing = timeSeries.get(month.atEndOfMonth());
-    if (fixing.isPresent()) {
-      return new double[getParameterCount()];
+    if (timeSeries.get(month.atEndOfMonth()).isPresent()) {
+      return CurveUnitParameterSensitivities.of(
+          CurveUnitParameterSensitivity.of(curve.getMetadata(), new double[getParameterCount()]));
     }
     double nbMonth = valuationMonth.until(month, MONTHS);
     int month0 = month.getMonthValue() - 1;
@@ -237,7 +241,14 @@ public final class ForwardPriceIndexValues
     for (int i = 0; i < unadjustedSensitivity.length - 1; i++) {
       adjustedSensitivity[i] = unadjustedSensitivity[i + 1] * adjustment;
     }
-    return adjustedSensitivity;
+    return CurveUnitParameterSensitivities.of(CurveUnitParameterSensitivity.of(curve.getMetadata(), adjustedSensitivity));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity) {
+    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getReferenceMonth());
+    return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
   }
 
   //-------------------------------------------------------------------------
