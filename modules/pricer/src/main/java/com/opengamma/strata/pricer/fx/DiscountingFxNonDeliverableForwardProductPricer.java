@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -84,6 +85,22 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
   //        notionalSettle.multipliedBy(dfSettle * delta * spot).convertedTo(ccyOther, spot);
   //    return MultiCurrencyAmount.of(exposureOther, exposureSettle);
   //  }
+
+  /**
+   * Calculates the forward exchange rate.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the forward rate
+   */
+  public FxRate forwardFxRate(FxNonDeliverableForwardProduct product, RatesProvider provider) {
+    ExpandedFxNonDeliverableForward ndf = product.expand();
+    Currency ccySettle = ndf.getSettlementCurrency();
+    Currency ccyOther = ndf.getNonDeliverableCurrency();
+    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
+    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
+    return FxRate.of(ccySettle, ccyOther, forwardRate);
+  }
 
   /**
    * Calculates the present value curve sensitivity of the NDF product.
