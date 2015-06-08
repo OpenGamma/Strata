@@ -27,7 +27,7 @@ import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Test {@link DiscountingFxNonDeliverableForwardProductPricerBeta}.
+ * Test {@link DiscountingFxNonDeliverableForwardProductPricer}.
  */
 @Test
 public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {

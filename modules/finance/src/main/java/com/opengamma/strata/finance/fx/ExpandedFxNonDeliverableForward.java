@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
 
@@ -87,10 +88,11 @@ public final class ExpandedFxNonDeliverableForward
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    if (!index.getCurrencyPair().contains(settlementCurrencyNotional.getCurrency())) {
+    CurrencyPair pair = index.getCurrencyPair();
+    if (!pair.contains(settlementCurrencyNotional.getCurrency())) {
       throw new IllegalArgumentException("FxIndex and settlement notional currency are incompatible");
     }
-    if (!index.getCurrencyPair().isRelated(agreedFxRate.getPair())) {
+    if (!(pair.equals(agreedFxRate.getPair()) || pair.isInverse(agreedFxRate.getPair()))) {
       throw new IllegalArgumentException("FxIndex and agreed FX rate are incompatible");
     }
   }

@@ -16,9 +16,10 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Pricer for foreign exchange transaction products.
+ * Pricer for FX non-deliverable forward (NDF) products.
  * <p>
- * This function provides the ability to price an {@link FxProduct}.
+ * This function provides the ability to price an {@link FxNonDeliverableForwardProduct}.
+ * The product is priced using forward curves for the currency pair.
  */
 public class DiscountingFxNonDeliverableForwardProductPricer {
 
@@ -36,13 +37,14 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value.
+   * Calculates the present value of the NDF product.
    * <p>
+   * The present value of the product is the value on the valuation date.
    * The present value is returned in the settlement currency.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the present value in the settlement currency
+   * @return the present value of the product in the settlement currency
    */
   public CurrencyAmount presentValue(FxNonDeliverableForwardProduct product, RatesProvider provider) {
     ExpandedFxNonDeliverableForward ndf = product.expand();
@@ -55,13 +57,13 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     return notionalSettle.multipliedBy(dfSettle * (1d - agreedRate / forwardRate));
   }
 
-  // TODO requires implementation of fx rate sensitivity to spot
+  // TODO requires implementation of forward rate sensitivity to spot rate
   //  /**
-  //   * Calculates the currency exposure.
+  //   * Calculates the currency exposure of the NDF product.
   //   * 
   //   * @param product  the product to prices
   //   * @param provider  the rates provider
-  //   * @return the currency exposure in the two natural currencies
+  //   * @return the currency exposure of the product in the two natural currencies
   //   */
   //  public MultiCurrencyAmount currencyExposure(FxNonDeliverableForwardProduct product, RatesProvider provider) {
   //    ExpandedFxNonDeliverableForward ndf = product.expand();
@@ -83,11 +85,14 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
   //  }
 
   /**
-   * Calculates the present value curve sensitivity.
+   * Calculates the present value curve sensitivity of the NDF product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the present value sensitivity
+   * @return the point sensitivity of the present value
    */
   public PointSensitivities presentValueSensitivity(FxNonDeliverableForwardProduct product, RatesProvider provider) {
     ExpandedFxNonDeliverableForward ndf = product.expand();
