@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A Non-Deliverable Forward (NDF).
@@ -62,7 +63,7 @@ public final class FxNonDeliverableForward
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
   /**
    * The FX rate agreed for the value date at the inception of the trade.
@@ -171,7 +172,7 @@ public final class FxNonDeliverableForward
       FxIndex index) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(settlementCurrency, "settlementCurrency");
-    JodaBeanUtils.notNull(notional, "notional");
+    ArgChecker.notNegative(notional, "notional");
     JodaBeanUtils.notNull(agreedFxRate, "agreedFxRate");
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(index, "index");
@@ -226,7 +227,7 @@ public final class FxNonDeliverableForward
    * <p>
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getNotional() {
     return notional;
@@ -636,11 +637,11 @@ public final class FxNonDeliverableForward
 
     /**
      * Sets the {@code notional} property in the builder.
-     * @param notional  the new value, not null
+     * @param notional  the new value
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      JodaBeanUtils.notNull(notional, "notional");
+      ArgChecker.notNegative(notional, "notional");
       this.notional = notional;
       return this;
     }

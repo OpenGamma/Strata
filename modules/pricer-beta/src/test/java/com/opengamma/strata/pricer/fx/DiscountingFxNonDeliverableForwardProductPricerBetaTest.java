@@ -32,7 +32,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 @Test
 public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
   // copied/modified from ForexNonDeliverableForwardDiscountingMethodTest
-  // TODO: use FxIndex!
 
   private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
