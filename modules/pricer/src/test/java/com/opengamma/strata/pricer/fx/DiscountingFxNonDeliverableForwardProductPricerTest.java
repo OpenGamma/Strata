@@ -33,10 +33,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingFxNonDeliverableForwardProductPricerTest {
-
-  //  private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
-
   private static final Currency KRW = Currency.KRW;
   private static final Currency USD = Currency.USD;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 5, 4);
@@ -48,7 +45,6 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
       .fixingCalendar(HolidayCalendars.USNY)
       .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
       .build();
-
   private static final FxNonDeliverableForward NDF =
       FxNonDeliverableForward.builder()
           .buySell(BUY)

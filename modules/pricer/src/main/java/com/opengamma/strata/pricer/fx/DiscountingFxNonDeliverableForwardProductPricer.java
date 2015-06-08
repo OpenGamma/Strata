@@ -57,7 +57,7 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     return notionalSettle.multipliedBy(dfSettle * (1d - agreedRate / forwardRate));
   }
 
-  // TODO requires implementation of forward rate sensitivity to spot rate
+  // TODO Add currencyExposure: requires implementation of forward rate sensitivity to spot rate
   //  /**
   //   * Calculates the currency exposure of the NDF product.
   //   * 
