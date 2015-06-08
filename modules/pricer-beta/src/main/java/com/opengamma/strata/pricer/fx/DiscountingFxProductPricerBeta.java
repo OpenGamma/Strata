@@ -22,8 +22,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This function provides the ability to price an {@link FxProduct}.
  */
 public class DiscountingFxProductPricerBeta {
-  // copied/modified from ForexDiscountingMethod
-  // TODO: check valuation date vs payment date (pv of zero?)
 
   /**
    * Default implementation.
@@ -46,12 +44,14 @@ public class DiscountingFxProductPricerBeta {
    */
   public MultiCurrencyAmount presentValue(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
+    if (provider.getValuationDate().isAfter(fx.getPaymentDate())) {
+      return MultiCurrencyAmount.empty();
+    }
     CurrencyAmount pv1 = presentValue(fx.getBaseCurrencyPayment(), provider);
     CurrencyAmount pv2 = presentValue(fx.getCounterCurrencyPayment(), provider);
     return MultiCurrencyAmount.of(pv1, pv2);
   }
 
-  // from PaymentFixedDiscountingMethod
   public CurrencyAmount presentValue(FxPayment payment, RatesProvider provider) {
     return payment.getValue().multipliedBy(provider.discountFactor(payment.getCurrency(), payment.getDate()));
   }
@@ -80,7 +80,7 @@ public class DiscountingFxProductPricerBeta {
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
     double pvCounterCcy = pv.convertedTo(counterPayment.getCurrency(), provider).getAmount();
-    double dfEnd = provider.discountFactor(counterPayment.getCurrency(), fx.getValueDate());
+    double dfEnd = provider.discountFactor(counterPayment.getCurrency(), fx.getPaymentDate());
     double notionalBaseCcy = basePayment.getAmount();
     return pvCounterCcy / (notionalBaseCcy * dfEnd);
   }
@@ -118,7 +118,6 @@ public class DiscountingFxProductPricerBeta {
     return pvcs1.combinedWith(pvcs2).build();
   }
 
-  // from PaymentFixedDiscountingMethod
   public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
     return discountFactors.zeroRatePointSensitivity(payment.getDate())
