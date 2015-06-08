@@ -93,6 +93,4 @@ public interface FxIndexRates {
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract PointSensitivityBuilder pointSensitivity(Currency baseCurrency, LocalDate fixingDate);
-
-  public abstract double rateDelta(Currency baseCurrency, LocalDate fixingDate);
 }

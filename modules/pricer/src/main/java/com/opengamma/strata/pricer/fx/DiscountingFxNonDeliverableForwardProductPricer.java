@@ -102,14 +102,13 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
     double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
-
     double ratio = agreedRate / forwardRate;
     double dscBar = (1d - ratio) * notionalSettle;
     PointSensitivityBuilder sensiDsc =
         provider.discountFactors(ccySettle).pointSensitivity(ndf.getPaymentDate()).multipliedBy(dscBar);
     double fxBar = dfSettle * ratio / forwardRate * notionalSettle;
-    PointSensitivityBuilder sensiFx =
-        provider.fxIndexRates(ndf.getIndex()).pointSensitivity(ccySettle, fixingDate).multipliedBy(fxBar);
+    PointSensitivityBuilder sensiFx = provider.fxIndexRates(ndf.getIndex())
+        .pointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(fxBar);
     return sensiDsc.combinedWith(sensiFx).build();
   }
 
