@@ -85,8 +85,8 @@ public class CdsPvFunction implements CalculationSingleFunction<CdsTrade, Scenar
 
   private MultiCurrencyAmount price(CdsTrade trade, DefaultSingleCalculationMarketData provider) {
     // get market data from provider next
-    LocalDate asOfDate = provider.getValuationDate();
-    return _wrapper.price(asOfDate, trade.expand(), discountCurve(), creditCurve(), recoveryRate());
+    LocalDate valuationDate = provider.getValuationDate();
+    return _wrapper.price(valuationDate, trade.expand(), discountCurve(), creditCurve(), recoveryRate());
   }
 
   private CurveYieldPlaceholder discountCurve() {

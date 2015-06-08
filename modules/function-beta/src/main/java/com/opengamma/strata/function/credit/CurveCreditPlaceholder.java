@@ -25,7 +25,7 @@ public class CurveCreditPlaceholder {
                 .map(p -> _cdsConvention.calcUnadjustedMaturityDateFromValuationDateOf(valuationDate, p))
                 .toArray(LocalDate[]::new);
     }
-    
+
     public double[] getFractionalParSpreads() {
         return _fractionalParSpreads;
     }
