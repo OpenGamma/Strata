@@ -94,7 +94,7 @@ public class FxVanillaOption
    * A put option permits the inverse transaction to occur.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxForward underlying;
+  private final Fx underlying;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
@@ -253,7 +253,7 @@ public class FxVanillaOption
    * A put option permits the inverse transaction to occur.
    * @return the value of the property, not null
    */
-  public FxForward getUnderlying() {
+  public Fx getUnderlying() {
     return underlying;
   }
 
@@ -355,8 +355,8 @@ public class FxVanillaOption
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<FxForward> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", FxVanillaOption.class, FxForward.class);
+    private final MetaProperty<Fx> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", FxVanillaOption.class, Fx.class);
     /**
      * The meta-properties.
      */
@@ -454,7 +454,7 @@ public class FxVanillaOption
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<FxForward> underlying() {
+    public final MetaProperty<Fx> underlying() {
       return underlying;
     }
 
@@ -500,7 +500,7 @@ public class FxVanillaOption
     private LocalDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
-    private FxForward underlying;
+    private Fx underlying;
 
     /**
      * Restricted constructor.
@@ -561,7 +561,7 @@ public class FxVanillaOption
           this.expiryZone = (ZoneId) newValue;
           break;
         case -1770633379:  // underlying
-          this.underlying = (FxForward) newValue;
+          this.underlying = (Fx) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -657,7 +657,7 @@ public class FxVanillaOption
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlying(FxForward underlying) {
+    public Builder underlying(Fx underlying) {
       JodaBeanUtils.notNull(underlying, "underlying");
       this.underlying = underlying;
       return this;

@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
-import com.opengamma.strata.finance.fx.FxForward;
+import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -58,7 +58,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
           .index(INDEX)
           .build();
 
-  private static final FxForward FWD = FxForward.of(CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, PAYMENT_DATE);
+  private static final Fx FWD = Fx.of(CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, PAYMENT_DATE);
 
   private static final DiscountingFxNonDeliverableForwardProductPricer PRICER_NDF =
       DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;

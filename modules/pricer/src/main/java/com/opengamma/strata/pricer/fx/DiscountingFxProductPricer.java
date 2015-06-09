@@ -36,7 +36,7 @@ public class DiscountingFxProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the present value by discounting each payment in its own currency.
+   * Computes the present value of the FX product by discounting each payment in its own currency.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -52,6 +52,13 @@ public class DiscountingFxProductPricer {
     return MultiCurrencyAmount.of(pv1, pv2);
   }
 
+  /**
+   * Computes the present value of the payment by discounting. 
+   * 
+   * @param payment  the payment to price
+   * @param provider  the rates provider
+   * @return the present value
+   */
   public CurrencyAmount presentValue(FxPayment payment, RatesProvider provider) {
     return payment.getValue().multipliedBy(provider.discountFactor(payment.getCurrency(), payment.getPaymentDate()));
   }
@@ -68,7 +75,7 @@ public class DiscountingFxProductPricer {
   }
 
   /**
-   * The par spread is the spread that should be added to the forex forward points to have a zero value.
+   * The par spread is the spread that should be added to the FX points to have a zero value.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -105,11 +112,14 @@ public class DiscountingFxProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Compute the present value sensitivity.
+   * Compute the present value curve sensitivity of the FX product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
-   * @return the present value sensitivity
+   * @return the point sensitivity of the present value
    */
   public PointSensitivities presentValueSensitivity(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
@@ -118,6 +128,16 @@ public class DiscountingFxProductPricer {
     return pvcs1.combinedWith(pvcs2).build();
   }
 
+  /**
+   * Compute the present value curve sensitivity of the payment.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param payment  the payment to price
+   * @param provider  the rates provider
+   * @return the point sensitivity of the present value
+   */
   public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
     return discountFactors.zeroRatePointSensitivity(payment.getPaymentDate())
