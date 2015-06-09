@@ -95,7 +95,8 @@ public class CdsAnalyticsWrapper {
         if (feeDate.isBefore(valuationDate)) {
             return 0D; // fee already paid
         }
-        DayCount feeDaycount = trade.getAccrualDayCount();
+        DayCount feeDaycount = DayCounts.ACT_ACT_ISDA;
+        // trade.getAccrualDayCount();
         double feeSettleYearFraction = feeDaycount.yearFraction(valuationDate, feeDate);
         double discountFactor = yieldCurve.getDiscountFactor(feeSettleYearFraction);
         return discountFactor * feeAmount;

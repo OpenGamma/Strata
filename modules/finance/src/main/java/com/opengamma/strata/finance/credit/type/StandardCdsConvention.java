@@ -22,6 +22,7 @@ import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.FixedAmountCalculation;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
+import com.opengamma.strata.finance.credit.fee.SinglePayment;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformation;
@@ -47,6 +48,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 @BeanDefinition
@@ -102,7 +104,8 @@ public final class StandardCdsConvention
             RedCode referenceEntityId,
             String referenceEntityName,
             SeniorityLevel seniorityLevel,
-            RestructuringClause restructuringClause
+            RestructuringClause restructuringClause,
+            Optional<SinglePayment> upfrontFee
     ) {
         return toTrade(
                 id,
@@ -117,7 +120,8 @@ public final class StandardCdsConvention
                         seniorityLevel,
                         currency
                 ),
-                restructuringClause
+                restructuringClause,
+                upfrontFee
         );
     }
 
@@ -132,7 +136,8 @@ public final class StandardCdsConvention
             String indexName,
             int indexSeries,
             int indexAnnexVersion,
-            RestructuringClause restructuringClause
+            RestructuringClause restructuringClause,
+            Optional<SinglePayment> upfrontFee
     ) {
         return toTrade(
                 id,
@@ -147,7 +152,8 @@ public final class StandardCdsConvention
                         indexSeries,
                         indexAnnexVersion
                 ),
-                restructuringClause
+                restructuringClause,
+                upfrontFee
         );
     }
 
@@ -159,7 +165,8 @@ public final class StandardCdsConvention
             double notional,
             double coupon,
             ReferenceInformation referenceInformation,
-            RestructuringClause restructuringClause
+            RestructuringClause restructuringClause,
+            Optional<SinglePayment> upfrontFee
     ) {
         BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
 
@@ -178,7 +185,6 @@ public final class StandardCdsConvention
         // Cash settle date is adjusted and typically T+3
         LocalDate adjustedCashSettleDate = calcAdjustedSettleDate(tradeDate, businessDayAdjustment, settleLag);
 
-
         return CdsTrade.of(
                 TradeInfo
                         .builder()
@@ -195,6 +201,7 @@ public final class StandardCdsConvention
                                 referenceInformation
                         ),
                         FeeLeg.of(
+                                upfrontFee,
                                 PeriodicPayments.of(
                                         paymentFrequency,
                                         stubConvention,

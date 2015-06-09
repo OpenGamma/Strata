@@ -23,6 +23,7 @@ import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.common.RedCode;
+import com.opengamma.strata.finance.credit.fee.SinglePayment;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
 import com.opengamma.strata.finance.credit.protection.RestructuringClause;
 import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
@@ -71,7 +72,7 @@ public class CdsPricingExample {
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
 
-    assert(((CurrencyAmount)results.get(0,1).getValue()).getAmount() == 3_694_048.58D);
+    assert (((CurrencyAmount) results.get(0, 1).getValue()).getAmount() == 3_694_048.58D);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
@@ -100,7 +101,9 @@ public class CdsPricingExample {
             RedCode.of("AH98A7"),
             "Ford Motor Company",
             SeniorityLevel.SeniorUnSec,
-            RestructuringClause.XR
+            RestructuringClause.XR,
+            3_694_000D,
+            LocalDate.of(2014, 10, 21)
         );
   }
 
