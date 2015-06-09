@@ -129,7 +129,7 @@ public class CurveScenarioExample {
     double pvBase = pvList.get(0).getAmount();
     double pvShifted = pvList.get(1).getAmount();
     // The swap PV01 function returns a value for a shift of 1, not 1 basis point, so need to scale the result
-    double pv01Base = pv01List.get(0).getAmount() * ONE_BP;
+    double pv01Base = pv01List.get(0).getAmount();
     NumberFormat numberFormat = new DecimalFormat("###,##0.00");
 
     // TODO Replace these with a report once the reporting framework supports scenarios
