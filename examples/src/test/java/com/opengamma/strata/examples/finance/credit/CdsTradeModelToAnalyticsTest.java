@@ -1,6 +1,5 @@
 package com.opengamma.strata.examples.finance.credit;
 
-
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.strata.basics.BuySell;
@@ -23,6 +22,7 @@ import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.common.RedCode;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
+import com.opengamma.strata.finance.credit.fee.FixedAmountCalculation;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
@@ -65,11 +65,10 @@ public class CdsTradeModelToAnalyticsTest {
     boolean payAccOnDefault = false;
 
     PeriodicPayments periodicPayments = feeLeg.getPeriodicPayments();
-    DayCount accrualDayCount = periodicPayments.getDayCountFraction();
+    DayCount accrualDayCount = periodicPayments.getFixedAmountCalculation().getDayCountFraction();
 
-    PeriodicSchedule periodicSchedule = periodicPayments.getPeriodicSchedule();
-    Frequency frequency = periodicSchedule.getFrequency();
-    StubConvention stubConvention = periodicSchedule.getStubConvention().get();
+    Frequency frequency = periodicPayments.getPaymentFrequency();
+    StubConvention stubConvention = periodicPayments.getStubConvention();
 
     boolean protectStart = true;
 
@@ -167,26 +166,19 @@ public class CdsTradeModelToAnalyticsTest {
               .feeLeg(
                   FeeLeg.of(
                       PeriodicPayments.of(
-                          PeriodicSchedule.of(
-                              LocalDate.of(2014, 9, 20),
-                              LocalDate.of(2019, 12, 20),
-                              Frequency.P3M,
-                              BusinessDayAdjustment.of(
-                                  BusinessDayConventions.FOLLOWING,
-                                  HolidayCalendars.NO_HOLIDAYS
-                              ),
-                              StubConvention.SHORT_FINAL,
-                              RollConventions.DAY_20
-                          ),
-                          CurrencyAmount.of(Currency.USD, 1_000_000D),
-                          0.0100D,
-                          DayCounts.ACT_360
+                          Frequency.P3M,
+                          StubConvention.SHORT_FINAL,
+                          RollConventions.DAY_20,
+                          FixedAmountCalculation.of(
+                              CurrencyAmount.of(Currency.USD, 1_000_000D),
+                              0.0100D,
+                              DayCounts.ACT_360
+                          )
                       )
                   )
               )
               .protectionTerms(
                   ProtectionTerms.of(
-                      CurrencyAmount.of(Currency.USD, 1_000_000D),
                       RestructuringClause.XR
                   )
               )

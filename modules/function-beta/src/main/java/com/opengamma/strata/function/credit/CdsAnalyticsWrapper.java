@@ -62,8 +62,17 @@ public class CdsAnalyticsWrapper {
             double recoveryRate
     ) {
         CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, trade, recoveryRate);
-        ISDACompliantYieldCurve yieldCurveAnalytics = toIsdaDiscountCurve(valuationDate, yieldCurve);
-        ISDACompliantCreditCurve creditCurveAnalytics = toIsdaCreditCurve(valuationDate, creditCurve, yieldCurveAnalytics, recoveryRate);
+        ISDACompliantYieldCurve yieldCurveAnalytics = toIsdaDiscountCurve(
+            valuationDate,
+            yieldCurve
+        );
+        ISDACompliantCreditCurve creditCurveAnalytics = toIsdaCreditCurve(
+            valuationDate,
+            creditCurve,
+            yieldCurveAnalytics,
+            recoveryRate
+        );
+
         double coupon = trade.getCoupon();
         double pv = _calculator.pv(
                 cdsAnalytic,
@@ -95,9 +104,7 @@ public class CdsAnalyticsWrapper {
         if (feeDate.isBefore(valuationDate)) {
             return 0D; // fee already paid
         }
-        DayCount feeDaycount = DayCounts.ACT_ACT_ISDA;
-        // trade.getAccrualDayCount();
-        double feeSettleYearFraction = feeDaycount.yearFraction(valuationDate, feeDate);
+        double feeSettleYearFraction = s_curveDayCount.yearFraction(valuationDate, feeDate);
         double discountFactor = yieldCurve.getDiscountFactor(feeSettleYearFraction);
         return discountFactor * feeAmount;
     }
@@ -172,7 +179,6 @@ public class CdsAnalyticsWrapper {
         }
     }
 
-    // TODO TradeToDerivativesConverter?
     private CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCdsTrade trade, double recoveryRate) {
         try {
             return new CDSAnalytic(

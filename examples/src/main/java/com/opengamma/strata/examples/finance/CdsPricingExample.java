@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.engine.CalculationEngine;
@@ -65,7 +66,7 @@ public class CdsPricingExample {
     LocalDate valuationDate = LocalDate.of(2014, 10, 16);
     // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
     BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
         .build();
 
     // create the engine and calculate the results
