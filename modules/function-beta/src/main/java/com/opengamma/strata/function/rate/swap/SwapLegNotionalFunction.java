@@ -56,7 +56,7 @@ public class SwapLegNotionalFunction
     CurrencyAmount amount = CurrencyAmount.of(legCurrency, leg.getNotionalSchedule().getAmount().getInitialValue());
     return SwapLegAmount.builder()
         .amount(amount)
-        .payReceieve(leg.getPayReceive())
+        .payReceive(leg.getPayReceive())
         .legType(leg.getType())
         .legCurrency(legCurrency)
         .build();

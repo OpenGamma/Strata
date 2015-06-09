@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.engine.calculations.function.result;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
@@ -25,17 +26,17 @@ import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 @Test
-public class CurrencyAmountListTest {
+public class FxConvertibleListTest {
 
   /**
    * Test that values are converted to the reporting currency using the rates in the market data.
    */
-  public void convert() {
+  public void convertCurrencyAmount() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    CurrencyAmountList list = CurrencyAmountList.of(values);
+    FxConvertibleList list = FxConvertibleList.of(values);
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
@@ -45,30 +46,71 @@ public class CurrencyAmountListTest {
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
-    CurrencyAmountList convertedList = list.convertedTo(Currency.USD, calculationMarketData);
+    ScenarioResult<?> convertedList = list.convertedTo(Currency.USD, calculationMarketData);
     List<CurrencyAmount> expectedValues = ImmutableList.of(
         CurrencyAmount.of(Currency.USD, 1 * 1.61),
         CurrencyAmount.of(Currency.USD, 2 * 1.62),
         CurrencyAmount.of(Currency.USD, 3 * 1.63));
-    CurrencyAmountList expectedList = CurrencyAmountList.of(expectedValues);
+    DefaultScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
   /**
-   * Test that no conversion is done and no rates are used if the values are already in the reporting currency.
+   * Test that values are converted to the reporting currency using the rates in the market data.
+   */
+  public void convertMultiCurrencyAmount() {
+    List<MultiCurrencyAmount> values = ImmutableList.of(
+        MultiCurrencyAmount.of(
+            CurrencyAmount.of(Currency.GBP, 1),
+            CurrencyAmount.of(Currency.USD, 10),
+            CurrencyAmount.of(Currency.EUR, 100)),
+        MultiCurrencyAmount.of(
+            CurrencyAmount.of(Currency.GBP, 2),
+            CurrencyAmount.of(Currency.USD, 20),
+            CurrencyAmount.of(Currency.EUR, 200)),
+        MultiCurrencyAmount.of(
+            CurrencyAmount.of(Currency.GBP, 3),
+            CurrencyAmount.of(Currency.USD, 30),
+            CurrencyAmount.of(Currency.EUR, 300)));
+    FxConvertibleList list = FxConvertibleList.of(values);
+    List<FxRate> usdRates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
+    List<FxRate> eurRates = ImmutableList.of(1.07, 1.08, 1.09).stream()
+        .map(rate -> FxRate.of(Currency.EUR, Currency.USD, rate))
+        .collect(toImmutableList());
+    ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
+        .addValues(FxRateId.of(Currency.GBP, Currency.USD), usdRates)
+        .addValues(FxRateId.of(Currency.EUR, Currency.USD), eurRates)
+        .build();
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+
+    ScenarioResult<?> convertedList = list.convertedTo(Currency.USD, calculationMarketData);
+    List<CurrencyAmount> expectedValues = ImmutableList.of(
+        CurrencyAmount.of(Currency.USD, 1 * 1.61 + 10 + 100 * 1.07),
+        CurrencyAmount.of(Currency.USD, 2 * 1.62 + 20 + 200 * 1.08),
+        CurrencyAmount.of(Currency.USD, 3 * 1.63 + 30 + 300 * 1.09));
+    ScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(expectedValues);
+    assertThat(convertedList).isEqualTo(expectedList);
+  }
+
+  /**
+   * Test that no conversion is done if the values are already in the reporting currency.
    */
   public void noConversionNecessary() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    CurrencyAmountList list = CurrencyAmountList.of(values);
+    FxConvertibleList list = FxConvertibleList.of(values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
-    CurrencyAmountList convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
-    assertThat(convertedList).isEqualTo(list);
+    ScenarioResult<?> convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
+    ScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(values);
+    assertThat(convertedList).isEqualTo(expectedList);
   }
 
   /**
@@ -79,7 +121,7 @@ public class CurrencyAmountListTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    CurrencyAmountList list = CurrencyAmountList.of(values);
+    FxConvertibleList list = FxConvertibleList.of(values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
@@ -101,7 +143,7 @@ public class CurrencyAmountListTest {
     List<FxRate> rates = ImmutableList.of(1.61, 1.62).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
         .collect(toImmutableList());
-            CurrencyAmountList list = CurrencyAmountList.of(values);
+    FxConvertibleList list = FxConvertibleList.of(values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(2, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();

@@ -6,11 +6,12 @@
 package com.opengamma.strata.market.amount;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxConvertible;
 
 /**
  * Represents an amount of a currency associated with one leg of an instrument.
  */
-public interface LegAmount {
+public interface LegAmount extends FxConvertible<LegAmount> {
 
   /**
    * Gets the amount associated with the leg.
