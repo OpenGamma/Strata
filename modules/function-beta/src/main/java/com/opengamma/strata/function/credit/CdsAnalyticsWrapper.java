@@ -70,7 +70,8 @@ public class CdsAnalyticsWrapper {
                 yieldCurveAnalytics,
                 creditCurveAnalytics,
                 coupon,
-                PriceType.DIRTY
+                PriceType.DIRTY,
+                0D
         );
 
         int sign = trade.getBuySellProtection().isBuy() ? 1 : -1;
