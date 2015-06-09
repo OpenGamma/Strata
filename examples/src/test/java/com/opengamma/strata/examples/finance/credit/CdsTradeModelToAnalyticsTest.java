@@ -184,6 +184,8 @@ public class CdsTradeModelToAnalyticsTest {
               )
               .build()
       )
+      .stepInDate(LocalDate.of(2014, 10, 17))
+      .payAccOnDefault(true)
       .build();
 
   public static void compare(CDSAnalytic result, CDSAnalytic expected) {

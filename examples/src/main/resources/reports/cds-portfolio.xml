@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.strata.examples.report.TradePortfolio">
+    <trades>
+        <item type="com.opengamma.strata.finance.credit.CdsTrade">
+            <tradeInfo>
+                <id>tradeid~62726762</id>
+                <tradeDate>2014-10-16</tradeDate>
+                <settlementDate>2014-10-21</settlementDate>
+                <attributes/>
+            </tradeInfo>
+            <product>
+                <generalTerms>
+                    <effectiveDate>2014-09-22</effectiveDate>
+                    <scheduledTerminationDate>2019-12-20</scheduledTerminationDate>
+                    <buySellProtection>Buy</buySellProtection>
+                    <dateAdjustments>
+                        <convention>Following</convention>
+                        <calendar>Sat/Sun</calendar>
+                    </dateAdjustments>
+                    <referenceInformation type="com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation">
+                        <referenceEntityName>Ford Motor Company</referenceEntityName>
+                        <referenceEntityId>AH98A7</referenceEntityId>
+                        <seniority>SeniorUnSec</seniority>
+                        <currency>USD</currency>
+                    </referenceInformation>
+                </generalTerms>
+                <feeLeg>
+                    <singlePayment>
+                        <fixedAmount>3694117.73</fixedAmount>
+                        <paymentDate>2014-10-21</paymentDate>
+                    </singlePayment>
+                    <periodicPayments>
+                        <paymentFrequency>P3M</paymentFrequency>
+                        <stubConvention>ShortInitial</stubConvention>
+                        <rollConvention>Day20</rollConvention>
+                        <fixedAmountCalculation>
+                            <calculationAmount>USD 100000000</calculationAmount>
+                            <fixedRate>0.01</fixedRate>
+                            <dayCountFraction>Act/360</dayCountFraction>
+                        </fixedAmountCalculation>
+                    </periodicPayments>
+                </feeLeg>
+                <protectionTerms>
+                    <restructuringType>XR</restructuringType>
+                </protectionTerms>
+            </product>
+            <stepInDate>2014-10-17</stepInDate>
+            <payAccOnDefault>true</payAccOnDefault>
+        </item>
+        <item type="CdsTrade">
+            <tradeInfo>
+                <id>tradeid~62726763</id>
+                <tradeDate>2014-01-01</tradeDate>
+                <settlementDate>2014-01-06</settlementDate>
+                <attributes/>
+            </tradeInfo>
+            <product>
+                <generalTerms>
+                    <effectiveDate>2013-12-20</effectiveDate>
+                    <scheduledTerminationDate>2019-03-20</scheduledTerminationDate>
+                    <buySellProtection>Buy</buySellProtection>
+                    <dateAdjustments>
+                        <convention>Following</convention>
+                        <calendar>GBLO+USNY</calendar>
+                    </dateAdjustments>
+                    <referenceInformation type="SingleNameReferenceInformation">
+                        <referenceEntityName>Addidas</referenceEntityName>
+                        <referenceEntityId>D28123</referenceEntityId>
+                        <seniority>SeniorUnSec</seniority>
+                        <currency>USD</currency>
+                    </referenceInformation>
+                </generalTerms>
+                <feeLeg>
+                    <periodicPayments>
+                        <paymentFrequency>P3M</paymentFrequency>
+                        <stubConvention>ShortInitial</stubConvention>
+                        <rollConvention>Day20</rollConvention>
+                        <fixedAmountCalculation>
+                            <calculationAmount>USD 1000000</calculationAmount>
+                            <fixedRate>0.005</fixedRate>
+                            <dayCountFraction>Act/360</dayCountFraction>
+                        </fixedAmountCalculation>
+                    </periodicPayments>
+                </feeLeg>
+                <protectionTerms>
+                    <restructuringType>XR</restructuringType>
+                </protectionTerms>
+            </product>
+            <stepInDate>2014-01-02</stepInDate>
+            <payAccOnDefault>true</payAccOnDefault>
+        </item>
+        <item type="CdsTrade">
+            <tradeInfo>
+                <id>tradeid~62726764</id>
+                <tradeDate>2014-01-01</tradeDate>
+                <settlementDate>2014-01-06</settlementDate>
+                <attributes/>
+            </tradeInfo>
+            <product>
+                <generalTerms>
+                    <effectiveDate>2013-12-20</effectiveDate>
+                    <scheduledTerminationDate>2019-03-20</scheduledTerminationDate>
+                    <buySellProtection>Buy</buySellProtection>
+                    <dateAdjustments>
+                        <convention>Following</convention>
+                        <calendar>Sat/Sun</calendar>
+                    </dateAdjustments>
+                    <referenceInformation type="com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation">
+                        <indexName>Dow Jones CDX.NA.IG</indexName>
+                        <indexId>D28123245</indexId>
+                        <indexSeries>3</indexSeries>
+                        <indexAnnexVersion>1</indexAnnexVersion>
+                    </referenceInformation>
+                </generalTerms>
+                <feeLeg>
+                    <singlePayment>
+                        <fixedAmount>50632.0</fixedAmount>
+                        <paymentDate>2014-01-04</paymentDate>
+                    </singlePayment>
+                    <periodicPayments>
+                        <paymentFrequency>P3M</paymentFrequency>
+                        <stubConvention>ShortInitial</stubConvention>
+                        <rollConvention>Day20</rollConvention>
+                        <fixedAmountCalculation>
+                            <calculationAmount>USD 10000000</calculationAmount>
+                            <fixedRate>0.01</fixedRate>
+                            <dayCountFraction>Act/360</dayCountFraction>
+                        </fixedAmountCalculation>
+                    </periodicPayments>
+                </feeLeg>
+                <protectionTerms>
+                    <restructuringType>XR</restructuringType>
+                </protectionTerms>
+            </product>
+            <stepInDate>2014-01-02</stepInDate>
+            <payAccOnDefault>true</payAccOnDefault>
+        </item>
+    </trades>
+</bean>
