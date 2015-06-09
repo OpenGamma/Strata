@@ -34,6 +34,8 @@ public class CurveCreditPlaceholder {
         return _cdsConvention;
     }
 
+    public String name() {return "credit spreads";}
+
     public static CurveCreditPlaceholder of(Period[] creditCurvePoints, double[] fractionalParSpreads, StandardCdsConvention cdsConvention) {
         return new CurveCreditPlaceholder(creditCurvePoints, fractionalParSpreads, cdsConvention);
     }

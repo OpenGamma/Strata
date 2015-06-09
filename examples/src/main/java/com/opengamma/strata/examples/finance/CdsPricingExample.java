@@ -49,7 +49,11 @@ public class CdsPricingExample {
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.TRADE_INFO),
-        Column.of(Measure.PRESENT_VALUE)
+        Column.of(Measure.PRESENT_VALUE),
+        Column.of(Measure.PV01),
+        Column.of(Measure.BUCKETED_PV01),
+        Column.of(Measure.CS01),
+        Column.of(Measure.BUCKETED_CS01)
     );
 
     // the complete set of rules for calculating measures
@@ -103,7 +107,7 @@ public class CdsPricingExample {
             "Ford Motor Company",
             SeniorityLevel.SeniorUnSec,
             RestructuringClause.XR,
-            3_694_000D,
+            3_694_117.73D,
             LocalDate.of(2014, 10, 21)
         );
   }

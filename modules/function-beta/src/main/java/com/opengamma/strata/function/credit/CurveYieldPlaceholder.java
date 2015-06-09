@@ -40,6 +40,8 @@ public class CurveYieldPlaceholder {
     return _curveConvention;
   }
 
+  public String name() {return "interest rates";}
+
   public static CurveYieldPlaceholder of(
       Period[] yieldCurvePoints,
       ISDAInstrumentTypes[] yieldCurveInstruments,
