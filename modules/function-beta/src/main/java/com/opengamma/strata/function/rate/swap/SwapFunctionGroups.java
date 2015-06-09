@@ -9,6 +9,11 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
+import com.opengamma.strata.function.calculation.rate.swap.SwapBucketedPv01Function;
+import com.opengamma.strata.function.calculation.rate.swap.SwapLegPvFunction;
+import com.opengamma.strata.function.calculation.rate.swap.SwapParRateFunction;
+import com.opengamma.strata.function.calculation.rate.swap.SwapPv01Function;
+import com.opengamma.strata.function.calculation.rate.swap.SwapPvFunction;
 
 /**
  * Contains function groups for built-in swap engine functions.

@@ -7,7 +7,6 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.util.Locale;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +28,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * Only currencies listed in configuration will be returned by {@link #getAvailablePairs()}.
  * If a pair is requested that is not defined in configuration, it will still be created,
- * however the market convention information will not be available.
+ * however the market convention information will be generated.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -48,6 +47,11 @@ public final class CurrencyPair
    * The configured instances and associated rate digits.
    */
   private static final ImmutableMap<CurrencyPair, Integer> CONFIGURED = CurrencyDataLoader.loadPairs();
+  /**
+   * Ordering of each currency, used when choosing a market convention pair when there is no configuration.
+   * The currency closer to the start of the list (with the lower ordering) is the base currency.
+   */
+  private static final ImmutableMap<Currency, Integer> CURRENCY_ORDERING = CurrencyDataLoader.loadOrdering();
 
   /**
    * The base currency of the pair.
@@ -104,7 +108,7 @@ public final class CurrencyPair
   public static CurrencyPair parse(String pairStr) {
     ArgChecker.notNull(pairStr, "pairStr");
     Matcher matcher = REGEX_FORMAT.matcher(pairStr.toUpperCase(Locale.ENGLISH));
-    if (matcher.matches() == false) {
+    if (!matcher.matches()) {
       throw new IllegalArgumentException("Invalid currency pair: " + pairStr);
     }
     Currency base = Currency.parse(matcher.group(1));
@@ -179,15 +183,54 @@ public final class CurrencyPair
    * Checks if this currency pair is a conventional currency pair.
    * <p>
    * A market convention determines that 'EUR/USD' should be used and not 'USD/EUR'.
-   * This knowledge is encoded in configuration.
-   * For those currency pairs that are in configuration, this method checks if
-   * the pair is the conventional way round.
+   * This knowledge is encoded in configuration for a standard set of pairs.
+   * <p>
+   * It is possible to create two different currency pairs from any two currencies, and it is guaranteed that
+   * exactly one of the pairs will be the market convention pair.
+   * <p>
+   * If a currency pair is not explicitly listed in the configuration, a priority ordering of currencies
+   * is used to choose base currency of the pair that is treated as conventional.
+   * <p>
+   * If there is no configuration available to determine which pair is the market convention, a pair will
+   * be chosen arbitrarily but deterministically. This ensures the same pair will be chosen for any two
+   * currencies even if the {@code CurrencyPair} instances are created independently.
    * 
-   * @return true if the currency pair follows the convention, false if it does not,
-   *  or the data is not available
+   * @return true if the currency pair follows the market convention, false if it does not
    */
   public boolean isConventional() {
-    return CONFIGURED.containsKey(this);
+    // If the pair is in the configuration file it is a market convention pair
+    if (CONFIGURED.containsKey(this)) {
+      return true;
+    }
+    // Get the priorities of the currencies to determine which should be the base
+    Integer basePriority = CURRENCY_ORDERING.getOrDefault(base, Integer.MAX_VALUE);
+    Integer counterPriority = CURRENCY_ORDERING.getOrDefault(counter, Integer.MAX_VALUE);
+
+    // If a currency is earlier in the list it has a higher priority
+    if (basePriority < counterPriority) {
+      return true;
+    } else if (basePriority > counterPriority) {
+      return false;
+    }
+    // Neither currency is included in the list defining the ordering.
+    // Use lexicographical ordering. It's arbitrary but consistent. This ensures two CurrencyPair instances
+    // created independently for the same two currencies will always choose the same conventional pair.
+    // The natural ordering of Currency is the same as the natural ordering of the currency code but
+    // comparing the Currency instances is more efficient.
+    // This is <= 0 so that a pair with two copies of the same currency is conventional
+    return base.compareTo(counter) <= 0;
+  }
+
+  /**
+   * Returns the market convention currency pair for the currencies in the pair.
+   * <p>
+   * If {@link #isConventional()} is {@code true} this method returns {@code this}, otherwise
+   * it returns the {@link #inverse} pair.
+   *
+   * @return the market convention currency pair for the currencies in the pair
+   */
+  public CurrencyPair toConventional() {
+    return isConventional() ? this : inverse();
   }
 
   /**
@@ -195,12 +238,24 @@ public final class CurrencyPair
    * <p>
    * If this rate is a conventional currency pair defined in configuration,
    * then the number of digits in a market FX rate quote is returned.
+   * <p>
+   * If the currency pair is not defined in configuration the sum of the
+   * {@link Currency#getMinorUnitDigits() minor unit digits} from the two currencies is returned.
    * 
-   * @return the number of digits in the FX rate, empty if not known
+   * @return the number of digits in the FX rate
    */
-  public OptionalInt getRateDigits() {
-    Integer result = CONFIGURED.get(this);
-    return (result == null ? OptionalInt.empty() : OptionalInt.of(result));
+  public int getRateDigits() {
+    Integer digits = CONFIGURED.get(this);
+
+    if (digits != null) {
+      return digits;
+    }
+    Integer inverseDigits = CONFIGURED.get(inverse());
+
+    if (inverseDigits != null) {
+      return inverseDigits;
+    }
+    return base.getMinorUnitDigits() + counter.getMinorUnitDigits();
   }
 
   //-------------------------------------------------------------------------

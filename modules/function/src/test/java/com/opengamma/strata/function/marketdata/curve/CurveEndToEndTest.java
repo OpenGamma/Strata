@@ -9,7 +9,7 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toCurrencyAmountList;
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toFxConvertibleList;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
@@ -49,7 +49,7 @@ import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
-import com.opengamma.strata.engine.calculations.function.result.CurrencyAmountList;
+import com.opengamma.strata.engine.calculations.function.result.FxConvertibleList;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.Measure;
@@ -73,11 +73,11 @@ import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.function.calculation.rate.swap.SwapPvFunction;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.function.marketdata.mapping.FxRateMapping;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
-import com.opengamma.strata.function.rate.swap.SwapPvFunction;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.config.CurveGroupConfig;
@@ -269,16 +269,16 @@ public class CurveEndToEndTest {
    * function once it is promoted to the function module.
    */
   public static final class TestFraPresentValueFunction
-      implements CalculationSingleFunction<FraTrade, CurrencyAmountList> {
+      implements CalculationSingleFunction<FraTrade, FxConvertibleList> {
 
     @Override
-    public CurrencyAmountList execute(FraTrade trade, CalculationMarketData marketData) {
+    public FxConvertibleList execute(FraTrade trade, CalculationMarketData marketData) {
       ExpandedFra product = trade.getProduct().expand();
       return IntStream.range(0, marketData.getScenarioCount())
           .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
           .map(MarketDataRatesProvider::new)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))
-          .collect(toCurrencyAmountList());
+          .collect(toFxConvertibleList());
     }
 
     @Override

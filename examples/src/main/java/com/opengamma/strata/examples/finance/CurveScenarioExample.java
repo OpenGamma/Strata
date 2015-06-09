@@ -16,6 +16,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -29,7 +31,7 @@ import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
-import com.opengamma.strata.engine.calculations.function.result.CurrencyAmountList;
+import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -114,7 +116,7 @@ public class CurveScenarioExample {
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
     BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), 1.61)
+        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
         .build();
 
     // create the engine and calculate the results
@@ -122,21 +124,19 @@ public class CurveScenarioExample {
     Results results = engine.calculate(trades, columns, rules, baseMarketData, scenarioDefinition);
 
     // The results are lists of currency amounts containing one value for each scenario
-    CurrencyAmountList pvList = (CurrencyAmountList) results.get(0, 0).getValue();
-    CurrencyAmountList pv01List = (CurrencyAmountList) results.get(0, 1).getValue();
+    ScenarioResult<?> pvList = (ScenarioResult<?>) results.get(0, 0).getValue();
+    ScenarioResult<?> pv01List = (ScenarioResult<?>) results.get(0, 1).getValue();
 
-    double pvBase = pvList.get(0).getAmount();
-    double pvShifted = pvList.get(1).getAmount();
-    // The swap PV01 function returns a value for a shift of 1, not 1 basis point, so need to scale the result
-    double pv01Base = pv01List.get(0).getAmount() * ONE_BP;
+    double pvBase = ((CurrencyAmount) pvList.get(0)).getAmount();
+    double pvShifted = ((CurrencyAmount) pvList.get(1)).getAmount();
+    double pv01Base = ((CurrencyAmount) pv01List.get(0)).getAmount();
     NumberFormat numberFormat = new DecimalFormat("###,##0.00");
 
     // TODO Replace these with a report once the reporting framework supports scenarios
-    System.out.println("Base PV        = " + numberFormat.format(pvBase));
-    System.out.println("Base PV01      = " + numberFormat.format(pv01Base));
-    System.out.println("Base PV + PV01 = " + numberFormat.format(pvBase + pv01Base));
-    System.out.println("Shifted PV     = " + numberFormat.format(pvShifted));
-    System.out.println("Difference     = " + numberFormat.format(pvShifted - pvBase - pv01Base));
+    System.out.println("                         PV (base) = " + numberFormat.format(pvBase));
+    System.out.println("             PV (1 bp curve shift) = " + numberFormat.format(pvShifted));
+    System.out.println("PV01 (algorithmic differentiation) = " + numberFormat.format(pv01Base));
+    System.out.println("          PV01 (finite difference) = " + numberFormat.format(pvShifted - pvBase));
   }
 
   //-----------------------------------------------------------------------

@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataId;
@@ -31,7 +32,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
  * when creating IDs. Therefore it is a stateless singleton.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxRateMapping implements MarketDataMapping<Double, FxRateKey>, ImmutableBean {
+public final class FxRateMapping implements MarketDataMapping<FxRate, FxRateKey>, ImmutableBean {
 
   /** The shared stateless instance of this class. */
   public static final FxRateMapping INSTANCE = new FxRateMapping();
@@ -42,7 +43,7 @@ public final class FxRateMapping implements MarketDataMapping<Double, FxRateKey>
   }
 
   @Override
-  public MarketDataId<Double> getIdForKey(FxRateKey key) {
+  public MarketDataId<FxRate> getIdForKey(FxRateKey key) {
     return FxRateId.of(key.getPair());
   }
 

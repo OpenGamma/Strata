@@ -11,10 +11,12 @@ import java.util.List;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
@@ -86,7 +88,8 @@ public class CashflowEquivalentTheoreticalCalculator {
     RateAccrualPeriod accrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
     ArgChecker.isTrue(
         (accrualPeriod.getRateObservation() instanceof FixedRateObservation) ||
-            (accrualPeriod.getRateObservation() instanceof IborRateObservation),
+            (accrualPeriod.getRateObservation() instanceof IborRateObservation) ||
+                (accrualPeriod.getRateObservation() instanceof OvernightCompoundedRateObservation),
         "RateObservation must be instance of FixedRateObservation or IborRateObservation");
     LocalDate valuationDate = provider.getValuationDate();
     List<FxPayment> list = new ArrayList<>();
@@ -102,24 +105,56 @@ public class CashflowEquivalentTheoreticalCalculator {
       list.add(payment);
       return list;
     }
-    // TODO: OIS?
-    IborRateObservation ibor = (IborRateObservation) accrualPeriod.getRateObservation();
-    if(!ibor.getFixingDate().isAfter(valuationDate)) { // fixing already took place
-      double fixing = provider.iborIndexRates(ibor.getIndex()).rate(ibor.getFixingDate());
-      FxPayment payment = FxPayment.of(paymentPeriod.getPaymentDate(),
-          CurrencyAmount.of(paymentPeriod.getCurrency(),
-              (accrualPeriod.getGearing() * fixing + accrualPeriod.getSpread()) 
-              * accrualPeriod.getYearFraction() * ratePaymentPeriod.getNotional()));
-      list.add(payment);
+    if (accrualPeriod.getRateObservation() instanceof IborRateObservation) {
+      IborRateObservation ibor = (IborRateObservation) accrualPeriod.getRateObservation();
+      if (ibor.getFixingDate().isBefore(valuationDate)) { // fixing already took place
+        double fixing = provider.iborIndexRates(ibor.getIndex()).rate(ibor.getFixingDate());
+        FxPayment payment = FxPayment.of(paymentPeriod.getPaymentDate(),
+            CurrencyAmount.of(paymentPeriod.getCurrency(),
+                (accrualPeriod.getGearing() * fixing + accrualPeriod.getSpread())
+                    * accrualPeriod.getYearFraction() * ratePaymentPeriod.getNotional()));
+        list.add(payment);
+        return list;
+      }
+      // fixing in the future: start and end date notional equivalent
+      FxPayment paymentStart = FxPayment.of(accrualPeriod.getStartDate(),
+          CurrencyAmount.of(paymentPeriod.getCurrency(), accrualPeriod.getGearing() * ratePaymentPeriod.getNotional()));
+      FxPayment paymentEnd = FxPayment.of(accrualPeriod.getEndDate(),
+          CurrencyAmount.of(paymentPeriod.getCurrency(), -accrualPeriod.getGearing() * ratePaymentPeriod.getNotional()
+              +  accrualPeriod.getSpread() * accrualPeriod.getYearFraction() * ratePaymentPeriod.getNotional()));
+      list.add(paymentStart);
+      list.add(paymentEnd);
       return list;
     }
-    // fixing in the future: start and end date notional equivalent
-    FxPayment paymentStart = FxPayment.of(accrualPeriod.getStartDate(),
-        CurrencyAmount.of(paymentPeriod.getCurrency(), ratePaymentPeriod.getNotional()));
-    FxPayment paymentEnd = FxPayment.of(accrualPeriod.getEndDate(),
-        CurrencyAmount.of(paymentPeriod.getCurrency(), - ratePaymentPeriod.getNotional()));
-    list.add(paymentStart);
+    OvernightCompoundedRateObservation on = (OvernightCompoundedRateObservation) accrualPeriod.getRateObservation();
+    OvernightIndex index = on.getIndex();
+    if (!on.getStartDate().isBefore(valuationDate)) { // First fixing not taken place yet
+      // TODO: spread, gearing
+      FxPayment paymentStart = FxPayment.of(index.calculateEffectiveFromFixing(accrualPeriod.getStartDate()),
+          CurrencyAmount.of(paymentPeriod.getCurrency(), ratePaymentPeriod.getNotional()));
+      FxPayment paymentEnd = FxPayment.of(
+          index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(accrualPeriod.getEndDate())),
+          CurrencyAmount.of(paymentPeriod.getCurrency(), -ratePaymentPeriod.getNotional()));
+      list.add(paymentStart);
+      list.add(paymentEnd);
+      return list;
+    }
+    double compositionFactor = 1.0d;
+    LocalDate currentFixing = on.getStartDate();
+    while (currentFixing.isBefore(on.getEndDate()) && // fixing in the non-cutoff period
+        valuationDate.isAfter(currentFixing)) { // publication before valuation
+      double rate = provider.overnightIndexRates(index).rate(currentFixing);
+      LocalDate effectiveDate = index.calculateEffectiveFromFixing(currentFixing);
+      LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
+      double accrualFactor = index.getDayCount().yearFraction(effectiveDate, maturityDate);
+      compositionFactor *= 1.0d + accrualFactor * rate;
+      currentFixing = index.getFixingCalendar().next(currentFixing);
+    }
+    FxPayment paymentEnd = FxPayment.of(
+        index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(accrualPeriod.getEndDate())),
+        CurrencyAmount.of(paymentPeriod.getCurrency(), -ratePaymentPeriod.getNotional() * compositionFactor));
     list.add(paymentEnd);
+    // TODO: ibor compounding
     return list;
   }
   

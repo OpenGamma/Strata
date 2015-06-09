@@ -7,10 +7,12 @@ package com.opengamma.strata.function.rate.deposit;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
@@ -88,6 +90,17 @@ public abstract class AbstractTermDepositFunction<T>
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toScenarioResult(convertCurrencies));
+  }
+
+  /**
+   * Returns the currency of the trade.
+   *
+   * @param target  the the target of the calculation
+   * @return the currency of the trade
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(TermDepositTrade target) {
+    return Optional.of(target.getProduct().getCurrency());
   }
 
   // execute for a single trade

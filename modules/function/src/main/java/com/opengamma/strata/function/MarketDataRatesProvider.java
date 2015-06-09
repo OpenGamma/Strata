@@ -102,7 +102,7 @@ public final class MarketDataRatesProvider
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
-    return marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency));
+    return marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency)).fxRate(baseCurrency, counterCurrency);
   }
 
   //-------------------------------------------------------------------------
