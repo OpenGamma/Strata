@@ -9,6 +9,7 @@ import static com.opengamma.strata.engine.calculations.function.FunctionUtils.to
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.Currency;
@@ -40,6 +41,17 @@ public class SwapLegNotionalFunction
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(i -> notional)
         .collect(toScenarioResult());
+  }
+
+  /**
+   * Returns the currency of the first leg of the swap.
+   *
+   * @param target  the swap that is the target of the calculation
+   * @return the currency of the first leg of the swap
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
+    return Optional.of(target.getProduct().getLegs().get(0).getCurrency());
   }
 
   private LegAmounts getNotional(SwapTrade input) {

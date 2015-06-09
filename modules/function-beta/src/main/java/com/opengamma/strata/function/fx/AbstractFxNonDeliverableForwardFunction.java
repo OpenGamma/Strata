@@ -7,6 +7,7 @@ package com.opengamma.strata.function.fx;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -91,6 +92,18 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toScenarioResult(convertCurrencies));
+  }
+
+  /**
+   * Returns the base currency of the market convention currency pair of the trade currencies.
+   *
+   * @param target  the target of the calculation
+   * @return the base currency of the market convention currency pair of the trade currencies
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(FxNonDeliverableForwardTrade target) {
+    Currency base = target.getProduct().getAgreedFxRate().getPair().toConventional().getBase();
+    return Optional.of(base);
   }
 
   // execute for a single trade

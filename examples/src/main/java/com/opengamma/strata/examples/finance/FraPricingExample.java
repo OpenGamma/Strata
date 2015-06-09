@@ -11,7 +11,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.engine.CalculationEngine;
@@ -63,7 +62,7 @@ public class FraPricingExample {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(ExampleMarketData.rules())
-        .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
+        .reportingRules(ReportingRules.empty())
         .build();
 
     // Use an empty snapshot of market data, indicating only the valuation date.

@@ -104,7 +104,8 @@ public class CalculationTask {
     for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
-    Optional<Currency> optionalReportingCurrency = reportingRules.reportingCurrency(target);
+    Optional<Currency> optionalReportingCurrency =
+        reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
 
     if (optionalReportingCurrency.isPresent()) {
       Currency reportingCurrency = optionalReportingCurrency.get();
@@ -119,6 +120,19 @@ public class CalculationTask {
       requirementsBuilder.addValues(fxRateIds);
     }
     return requirementsBuilder.build();
+  }
+
+  /**
+   * Returns an optional containing the first currency from the arguments or empty if both arguments are empty.
+   */
+  private static Optional<Currency> reportingCurrency(Optional<Currency> ccy1, Optional<Currency> ccy2) {
+    if (ccy1.isPresent()) {
+      return ccy1;
+    }
+    if (ccy2.isPresent()) {
+      return ccy2;
+    }
+    return Optional.empty();
   }
 
   /**
@@ -166,10 +180,11 @@ public class CalculationTask {
     if (!(value instanceof CurrencyConvertible)) {
       return result;
     }
-    Optional<Currency> optionalReportingCurrency = reportingRules.reportingCurrency(target);
+    Optional<Currency> optionalReportingCurrency =
+        reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
 
     if (!optionalReportingCurrency.isPresent()) {
-      return result;
+      return Result.failure(FailureReason.MISSING_DATA, "No reporting currency available for convert value {}", value);
     }
     Currency reportingCurrency = optionalReportingCurrency.get();
     CurrencyConvertible<?> convertible = (CurrencyConvertible) value;

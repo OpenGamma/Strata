@@ -7,11 +7,13 @@ package com.opengamma.strata.function.fx;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
@@ -91,6 +93,20 @@ public abstract class AbstractFxForwardFunction<T>
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toScenarioResult(convertCurrencies));
+  }
+
+  /**
+   * Returns the base currency of the market convention pair of the trade currencies.
+   *
+   * @param target  the target of the calculation
+   * @return the base currency of the market convention pair of the trade currencies
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(FxForwardTrade target) {
+    Currency base = target.getProduct().getBaseCurrencyAmount().getCurrency();
+    Currency counter = target.getProduct().getCounterCurrencyAmount().getCurrency();
+    CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
+    return Optional.of(marketConventionPair.getBase());
   }
 
   // execute for a single trade
