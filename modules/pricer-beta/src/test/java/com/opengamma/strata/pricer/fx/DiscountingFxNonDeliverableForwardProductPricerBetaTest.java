@@ -62,7 +62,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
 
   private static final DiscountingFxNonDeliverableForwardProductPricer PRICER_NDF =
       DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;
-  private static final DiscountingFxProductPricerBeta PRICER_FWD = DiscountingFxProductPricerBeta.DEFAULT;
+  private static final DiscountingFxProductPricer PRICER_FWD = DiscountingFxProductPricer.DEFAULT;
 
   private static final double TOLERANCE_PV = 1.0E-2;
 

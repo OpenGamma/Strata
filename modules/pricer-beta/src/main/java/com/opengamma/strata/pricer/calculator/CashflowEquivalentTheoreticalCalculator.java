@@ -24,7 +24,7 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.fx.DiscountingFxProductPricerBeta;
+import com.opengamma.strata.pricer.fx.DiscountingFxProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -42,7 +42,7 @@ public class CashflowEquivalentTheoreticalCalculator {
   public static final CashflowEquivalentTheoreticalCalculator DEFAULT = new CashflowEquivalentTheoreticalCalculator();
   
   /** The pricer to compute the present value and present value sensitivity of the cash flows. */
-  DiscountingFxProductPricerBeta PRICER_CASH_FLOW = DiscountingFxProductPricerBeta.DEFAULT;
+  DiscountingFxProductPricer PRICER_CASH_FLOW = DiscountingFxProductPricer.DEFAULT;
   
   /**
    * Computes the cash flow equivalent of a swap.

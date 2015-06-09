@@ -119,7 +119,7 @@ public final class ExpandedFx
         Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
       throw new IllegalArgumentException("Payments must have different signs");
     }
-    ArgChecker.inOrderOrEqual(baseCurrencyPayment.getDate(), counterCurrencyPayment.getDate(),
+    ArgChecker.inOrderOrEqual(baseCurrencyPayment.getPaymentDate(), counterCurrencyPayment.getPaymentDate(),
         "baseCurrencyPayment.date", "counterCurrencyPayment.date");
   }
 
@@ -146,7 +146,7 @@ public final class ExpandedFx
    * @return the value date
    */
   public LocalDate getPaymentDate() {
-    return baseCurrencyPayment.getDate();
+    return baseCurrencyPayment.getPaymentDate();
   }
 
   //-------------------------------------------------------------------------

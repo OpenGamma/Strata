@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.calculator;
 
-import static org.testng.Assert.assertEquals;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
+import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -27,7 +27,6 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.pricer.calculator.CashflowEquivalentTheoreticalCalculator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -134,7 +133,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(FIXED_PAY, RATES_1);
     assertEquals(cfeComputed.size(), 1, "CFE - Fixed");
     FxPayment cfePayment = cfeComputed.get(0);
-    assertEquals(cfePayment.getDate(), PAYMENT_DATE);
+    assertEquals(cfePayment.getPaymentDate(), PAYMENT_DATE);
     assertEquals(cfePayment.getCurrency(), EUR);
     assertEquals(cfePayment.getAmount(), NOTIONAL * FIXED_RATE * AF, TOLERANCE_CF);
   }
@@ -144,11 +143,11 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY, RATES_1);
     assertEquals(cfeComputed.size(), 2, "CFE - Ibor before fixing");
     FxPayment cfePayment1 = cfeComputed.get(0);
-    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getPaymentDate(), START_DATE);
     assertEquals(cfePayment1.getCurrency(), EUR);
     assertEquals(cfePayment1.getAmount(), NOTIONAL, TOLERANCE_CF);
     FxPayment cfePayment2 = cfeComputed.get(1);
-    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getPaymentDate(), END_DATE);
     assertEquals(cfePayment2.getCurrency(), EUR);
     assertEquals(cfePayment2.getAmount(), -NOTIONAL, TOLERANCE_CF);
   }
@@ -158,11 +157,11 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY_S, RATES_1);
     assertEquals(cfeComputed.size(), 2, "CFE - Ibor before fixing");
     FxPayment cfePayment1 = cfeComputed.get(0);
-    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getPaymentDate(), START_DATE);
     assertEquals(cfePayment1.getCurrency(), EUR);
     assertEquals(cfePayment1.getAmount(), IBOR_GEARING * NOTIONAL, TOLERANCE_CF);
     FxPayment cfePayment2 = cfeComputed.get(1);
-    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getPaymentDate(), END_DATE);
     assertEquals(cfePayment2.getCurrency(), EUR);
     assertEquals(cfePayment2.getAmount(), - IBOR_GEARING * NOTIONAL + NOTIONAL * IBOR_SPREAD * AF, TOLERANCE_CF);
   }
@@ -172,11 +171,11 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY, RATES_2);
     assertEquals(cfeComputed.size(), 2, "CFE - Ibor on fixing");
     FxPayment cfePayment1 = cfeComputed.get(0);
-    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getPaymentDate(), START_DATE);
     assertEquals(cfePayment1.getCurrency(), EUR);
     assertEquals(cfePayment1.getAmount(), NOTIONAL, TOLERANCE_CF);
     FxPayment cfePayment2 = cfeComputed.get(1);
-    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getPaymentDate(), END_DATE);
     assertEquals(cfePayment2.getCurrency(), EUR);
     assertEquals(cfePayment2.getAmount(), -NOTIONAL, TOLERANCE_CF);
   }
@@ -186,11 +185,11 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY_S, RATES_2);
     assertEquals(cfeComputed.size(), 2, "CFE - Ibor on fixing");
     FxPayment cfePayment1 = cfeComputed.get(0);
-    assertEquals(cfePayment1.getDate(), START_DATE);
+    assertEquals(cfePayment1.getPaymentDate(), START_DATE);
     assertEquals(cfePayment1.getCurrency(), EUR);
     assertEquals(cfePayment1.getAmount(), IBOR_GEARING * NOTIONAL, TOLERANCE_CF);
     FxPayment cfePayment2 = cfeComputed.get(1);
-    assertEquals(cfePayment2.getDate(), END_DATE);
+    assertEquals(cfePayment2.getPaymentDate(), END_DATE);
     assertEquals(cfePayment2.getCurrency(), EUR);
     assertEquals(cfePayment2.getAmount(), -IBOR_GEARING * NOTIONAL + NOTIONAL * IBOR_SPREAD * AF, TOLERANCE_CF);
   }
@@ -200,7 +199,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY, RATES_3);
     assertEquals(cfeComputed.size(), 1, "CFE - Ibor after fixing");
     FxPayment cfePayment = cfeComputed.get(0);
-    assertEquals(cfePayment.getDate(), PAYMENT_DATE);
+    assertEquals(cfePayment.getPaymentDate(), PAYMENT_DATE);
     assertEquals(cfePayment.getCurrency(), EUR);
     assertEquals(cfePayment.getAmount(), NOTIONAL * IBOR_FIXING_VALUE * AF, TOLERANCE_CF);
   }
@@ -210,7 +209,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     List<FxPayment> cfeComputed = CFEC.cashFlowEquivalent(IBOR_PAY_S, RATES_3);
     assertEquals(cfeComputed.size(), 1, "CFE - Ibor after fixing");
     FxPayment cfePayment = cfeComputed.get(0);
-    assertEquals(cfePayment.getDate(), PAYMENT_DATE);
+    assertEquals(cfePayment.getPaymentDate(), PAYMENT_DATE);
     assertEquals(cfePayment.getCurrency(), EUR);
     assertEquals(cfePayment.getAmount(), NOTIONAL * (IBOR_GEARING * IBOR_FIXING_VALUE + IBOR_SPREAD) * AF, TOLERANCE_CF);
   }

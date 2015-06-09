@@ -21,17 +21,17 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * This function provides the ability to price an {@link FxProduct}.
  */
-public class DiscountingFxProductPricerBeta {
+public class DiscountingFxProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxProductPricerBeta DEFAULT = new DiscountingFxProductPricerBeta();
+  public static final DiscountingFxProductPricer DEFAULT = new DiscountingFxProductPricer();
 
   /**
    * Creates an instance.
    */
-  public DiscountingFxProductPricerBeta() {
+  public DiscountingFxProductPricer() {
   }
 
   //-------------------------------------------------------------------------
@@ -53,7 +53,7 @@ public class DiscountingFxProductPricerBeta {
   }
 
   public CurrencyAmount presentValue(FxPayment payment, RatesProvider provider) {
-    return payment.getValue().multipliedBy(provider.discountFactor(payment.getCurrency(), payment.getDate()));
+    return payment.getValue().multipliedBy(provider.discountFactor(payment.getCurrency(), payment.getPaymentDate()));
   }
 
   /**
@@ -97,8 +97,8 @@ public class DiscountingFxProductPricerBeta {
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
     // TODO: domestic/foreign vs base/counter?
-    double dfDomestic = provider.discountFactor(counterPayment.getCurrency(), counterPayment.getDate());
-    double dfForeign = provider.discountFactor(basePayment.getCurrency(), basePayment.getDate());
+    double dfDomestic = provider.discountFactor(counterPayment.getCurrency(), counterPayment.getPaymentDate());
+    double dfForeign = provider.discountFactor(basePayment.getCurrency(), basePayment.getPaymentDate());
     double spot = provider.fxRate(basePayment.getCurrency(), counterPayment.getCurrency());
     return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), spot * dfForeign / dfDomestic);
   }
@@ -120,7 +120,7 @@ public class DiscountingFxProductPricerBeta {
 
   public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
-    return discountFactors.zeroRatePointSensitivity(payment.getDate())
+    return discountFactors.zeroRatePointSensitivity(payment.getPaymentDate())
         .multipliedBy(payment.getAmount());
   }
 

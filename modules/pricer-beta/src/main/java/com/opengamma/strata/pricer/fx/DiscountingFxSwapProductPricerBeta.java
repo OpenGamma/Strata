@@ -27,12 +27,12 @@ public class DiscountingFxSwapProductPricerBeta {
    * Default implementation.
    */
   public static final DiscountingFxSwapProductPricerBeta DEFAULT =
-      new DiscountingFxSwapProductPricerBeta(DiscountingFxProductPricerBeta.DEFAULT);
+      new DiscountingFxSwapProductPricerBeta(DiscountingFxProductPricer.DEFAULT);
 
   /**
    * Underlying single FX pricer.
    */
-  private final DiscountingFxProductPricerBeta fxPricer;
+  private final DiscountingFxProductPricer fxPricer;
 
   /**
    * Creates an instance.
@@ -40,7 +40,7 @@ public class DiscountingFxSwapProductPricerBeta {
    * @param fxPricer  the pricer for {@link FxProduct}
    */
   public DiscountingFxSwapProductPricerBeta(
-      DiscountingFxProductPricerBeta fxPricer) {
+      DiscountingFxProductPricer fxPricer) {
     this.fxPricer = ArgChecker.notNull(fxPricer, "fxPricer");
   }
 
