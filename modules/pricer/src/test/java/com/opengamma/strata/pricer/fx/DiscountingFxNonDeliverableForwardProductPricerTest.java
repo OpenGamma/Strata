@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -38,6 +37,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   private static final Currency USD = Currency.USD;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 5, 4);
   private static final double NOMINAL_USD = 100_000_000;
+  private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(USD, NOMINAL_USD);
   private static final double FX_RATE = 1123.45;
   private static final FxIndex INDEX = ImmutableFxIndex.builder()
       .name("USD/KRW")
@@ -47,9 +47,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
       .build();
   private static final FxNonDeliverableForward NDF =
       FxNonDeliverableForward.builder()
-          .buySell(BUY)
-          .settlementCurrency(USD)
-          .notional(NOMINAL_USD)
+          .settlementCurrencyNotional(CURRENCY_NOTIONAL)
           .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
           .paymentDate(PAYMENT_DATE)
           .index(INDEX)
@@ -74,9 +72,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   public void test_presentValue_ended() {
     FxNonDeliverableForward ndf =
         FxNonDeliverableForward.builder()
-            .buySell(BUY)
-            .settlementCurrency(USD)
-            .notional(NOMINAL_USD)
+            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
             .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
             .paymentDate(LocalDate.of(2011, 5, 4))
             .index(INDEX)
@@ -89,9 +85,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
     FxRate computed = PRICER.forwardFxRate(NDF, PROVIDER);
     FxNonDeliverableForward ndfFwd =
         FxNonDeliverableForward.builder()
-            .buySell(BUY)
-            .settlementCurrency(USD)
-            .notional(NOMINAL_USD)
+            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
             .agreedFxRate(computed)
             .paymentDate(PAYMENT_DATE)
             .index(INDEX)
@@ -111,9 +105,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   public void test_presentValueSensitivity_ended() {
     FxNonDeliverableForward ndf =
         FxNonDeliverableForward.builder()
-            .buySell(BUY)
-            .settlementCurrency(USD)
-            .notional(NOMINAL_USD)
+            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
             .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
             .paymentDate(LocalDate.of(2011, 5, 4))
             .index(INDEX)

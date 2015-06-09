@@ -33,9 +33,9 @@ import com.opengamma.strata.basics.index.FxIndex;
 /**
  * An expanded Non-Deliverable Forward (NDF), the low level representation of an NDF.
  * <p>
- * An NDF is a financial instrument that returns the difference between the spot rate
- * at the inception of the trade and the FX rate at maturity.
- * It is primarily used to handle FX requirements for currencies that cannot be easily traded.
+ * An NDF is a financial instrument that returns the difference between a fixed FX rate 
+ * agreed at the inception of the trade and the FX rate at maturity. 
+ * It is primarily used to handle FX requirements for currencies that have settlement restrictions.
  * For example, the forward may be between USD and CNY (Chinese Yuan).
  * <p>
  * An {@code ExpandedFxNonDeliverableForward} may contain information based on holiday calendars.

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -40,6 +39,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
   private static final Currency USD = Currency.USD;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 5, 4);
   private static final double NOMINAL_USD = 100_000_000;
+  private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(USD, NOMINAL_USD);
   private static final double FX_RATE = 1123.45;
   private static final FxIndex INDEX = ImmutableFxIndex.builder()
       .name("USD/KRW")
@@ -50,9 +50,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerBetaTest {
 
   private static final FxNonDeliverableForward NDF =
       FxNonDeliverableForward.builder()
-          .buySell(BUY)
-          .settlementCurrency(USD)
-          .notional(NOMINAL_USD)
+          .settlementCurrencyNotional(CURRENCY_NOTIONAL)
           .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
           .paymentDate(PAYMENT_DATE)
           .index(INDEX)
