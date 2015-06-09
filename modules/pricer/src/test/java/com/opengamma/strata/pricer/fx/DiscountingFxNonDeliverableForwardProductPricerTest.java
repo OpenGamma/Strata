@@ -71,6 +71,20 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
     assertEquals(computed.getAmount(), expected, NOMINAL_USD * TOL);
   }
 
+  public void test_presentValue_ended() {
+    FxNonDeliverableForward ndf =
+        FxNonDeliverableForward.builder()
+            .buySell(BUY)
+            .settlementCurrency(USD)
+            .notional(NOMINAL_USD)
+            .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+            .paymentDate(LocalDate.of(2011, 5, 4))
+            .index(INDEX)
+            .build();
+    CurrencyAmount computed = PRICER.presentValue(ndf, PROVIDER);
+    assertEquals(computed.getAmount(), 0d);
+  }
+
   public void test_forwardValue() {
     FxRate computed = PRICER.forwardFxRate(NDF, PROVIDER);
     FxNonDeliverableForward ndfFwd =
@@ -92,5 +106,19 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
     CurveCurrencyParameterSensitivities expected = CAL_FD.sensitivity(
         (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(NDF, (p)));
     assertTrue(computed.equalWithTolerance(expected, NOMINAL_USD * EPS_FD));
+  }
+
+  public void test_presentValueSensitivity_ended() {
+    FxNonDeliverableForward ndf =
+        FxNonDeliverableForward.builder()
+            .buySell(BUY)
+            .settlementCurrency(USD)
+            .notional(NOMINAL_USD)
+            .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+            .paymentDate(LocalDate.of(2011, 5, 4))
+            .index(INDEX)
+            .build();
+    PointSensitivities computed = PRICER.presentValueSensitivity(ndf, PROVIDER);
+    assertEquals(computed, PointSensitivities.empty());
   }
 }

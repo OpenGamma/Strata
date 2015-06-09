@@ -50,6 +50,9 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
   public CurrencyAmount presentValue(FxNonDeliverableForwardProduct product, RatesProvider provider) {
     ExpandedFxNonDeliverableForward ndf = product.expand();
     Currency ccySettle = ndf.getSettlementCurrency();
+    if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
+      return CurrencyAmount.zero(ccySettle);
+    }
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     CurrencyAmount notionalSettle = ndf.getSettlementCurrencyNotional();
     double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
@@ -114,6 +117,9 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
    */
   public PointSensitivities presentValueSensitivity(FxNonDeliverableForwardProduct product, RatesProvider provider) {
     ExpandedFxNonDeliverableForward ndf = product.expand();
+    if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
+      return PointSensitivities.empty();
+    }
     Currency ccySettle = ndf.getSettlementCurrency();
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     double notionalSettle = ndf.getSettlementNotional();
