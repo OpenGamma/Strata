@@ -76,7 +76,6 @@ import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.function.calculation.rate.swap.SwapPvFunction;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
-import com.opengamma.strata.function.marketdata.mapping.FxRateMapping;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -167,7 +166,6 @@ public class CurveEndToEndTest {
         MarketDataRule.anyTarget(
             MarketDataMappingsBuilder.create()
                 .curveGroup(groupName)
-                .mapping(FxRateMapping.INSTANCE)
                 .build()));
 
     CalculationRules calculationRules = CalculationRules.builder()

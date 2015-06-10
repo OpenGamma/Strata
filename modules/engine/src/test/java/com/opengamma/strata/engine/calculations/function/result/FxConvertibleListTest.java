@@ -43,7 +43,7 @@ public class FxConvertibleListTest {
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     ScenarioResult<?> convertedList = list.convertedTo(Currency.USD, calculationMarketData);
@@ -83,7 +83,7 @@ public class FxConvertibleListTest {
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), usdRates)
         .addValues(FxRateId.of(Currency.EUR, Currency.USD), eurRates)
         .build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     ScenarioResult<?> convertedList = list.convertedTo(Currency.USD, calculationMarketData);
@@ -105,7 +105,7 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 3));
     FxConvertibleList list = FxConvertibleList.of(values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     ScenarioResult<?> convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
@@ -123,7 +123,7 @@ public class FxConvertibleListTest {
         CurrencyAmount.of(Currency.GBP, 3));
     FxConvertibleList list = FxConvertibleList.of(values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     assertThrows(
@@ -147,7 +147,7 @@ public class FxConvertibleListTest {
     ScenarioMarketData marketData = ScenarioMarketData.builder(2, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     assertThrows(

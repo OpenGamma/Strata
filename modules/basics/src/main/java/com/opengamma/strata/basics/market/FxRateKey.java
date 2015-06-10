@@ -43,7 +43,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class FxRateKey
-    implements MarketDataKey<FxRate>, ImmutableBean, Serializable {
+    implements SimpleMarketDataKey<FxRate>, ImmutableBean, Serializable {
 
   /**
    * The currency pair that is required.
@@ -78,6 +78,11 @@ public final class FxRateKey
   @Override
   public Class<FxRate> getMarketDataType() {
     return FxRate.class;
+  }
+
+  @Override
+  public MarketDataId<FxRate> toMarketDataId(MarketDataFeed marketDataFeed) {
+    return FxRateId.of(pair);
   }
 
   @ImmutableConstructor
