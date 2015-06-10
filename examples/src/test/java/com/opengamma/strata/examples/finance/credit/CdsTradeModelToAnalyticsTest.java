@@ -26,7 +26,6 @@ import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -176,11 +175,7 @@ public class CdsTradeModelToAnalyticsTest {
                       )
                   )
               )
-              .protectionTerms(
-                  ProtectionTerms.of(
-                      RestructuringClause.XR
-                  )
-              )
+              .restructuringType(RestructuringClause.XR)
               .build()
       )
       .stepInDate(LocalDate.of(2014, 10, 17))

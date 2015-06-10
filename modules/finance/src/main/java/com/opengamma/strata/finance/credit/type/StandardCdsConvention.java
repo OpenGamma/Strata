@@ -33,7 +33,6 @@ import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInfor
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.markit.RedCode;
-import com.opengamma.strata.finance.credit.protection.ProtectionTerms;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -57,249 +56,247 @@ import java.util.Set;
 
 @BeanDefinition
 public final class StandardCdsConvention
-        implements Convention, ImmutableBean, Serializable {
+    implements Convention, ImmutableBean, Serializable {
 
-    @PropertyDefinition(validate = "notNull")
-    private final Currency currency;
+  @PropertyDefinition(validate = "notNull")
+  private final Currency currency;
 
-    @PropertyDefinition(validate = "notNull")
-    private final DayCount dayCount;
+  @PropertyDefinition(validate = "notNull")
+  private final DayCount dayCount;
 
-    @PropertyDefinition(validate = "notNull")
-    private final BusinessDayConvention dayConvention;
+  @PropertyDefinition(validate = "notNull")
+  private final BusinessDayConvention dayConvention;
 
-    @PropertyDefinition(validate = "notNull")
-    private final Frequency paymentFrequency;
+  @PropertyDefinition(validate = "notNull")
+  private final Frequency paymentFrequency;
 
-    @PropertyDefinition(validate = "notNull")
-    private final RollConvention rollConvention;
+  @PropertyDefinition(validate = "notNull")
+  private final RollConvention rollConvention;
 
-    @PropertyDefinition(validate = "notNull")
-    private final boolean payAccOnDefault;
+  @PropertyDefinition(validate = "notNull")
+  private final boolean payAccOnDefault;
 
-    @PropertyDefinition(validate = "notNull")
-    private final HolidayCalendar calendar;
+  @PropertyDefinition(validate = "notNull")
+  private final HolidayCalendar calendar;
 
-    @PropertyDefinition(validate = "notNull")
-    private final StubConvention stubConvention;
+  @PropertyDefinition(validate = "notNull")
+  private final StubConvention stubConvention;
 
-    @PropertyDefinition(validate = "notNull")
-    private final int stepIn;
+  @PropertyDefinition(validate = "notNull")
+  private final int stepIn;
 
-    @PropertyDefinition(validate = "notNull")
-    private final int settleLag;
+  @PropertyDefinition(validate = "notNull")
+  private final int settleLag;
 
 
-    //-------------------------------------------------------------------------
-    @ImmutableValidator
-    private void validate() {
-        //   ArgChecker.isTrue(fixedLeg.getCurrency().equals(floatingLeg.getCurrency()), "Conventions must have same currency");
-    }
+  //-------------------------------------------------------------------------
+  @ImmutableValidator
+  private void validate() {
+    //   ArgChecker.isTrue(fixedLeg.getCurrency().equals(floatingLeg.getCurrency()), "Conventions must have same currency");
+  }
 
-    //-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
 
-    public CdsTrade toSingleNameTrade(
-            StandardId id,
-            LocalDate tradeDate,
-            Period period,
-            BuySell buySell,
-            double notional,
-            double coupon,
-            RedCode referenceEntityId,
-            String referenceEntityName,
-            SeniorityLevel seniorityLevel,
-            RestructuringClause restructuringClause,
-            Optional<SinglePayment> upfrontFee
-    ) {
-        return toTrade(
-                id,
-                tradeDate,
-                period,
+  public CdsTrade toSingleNameTrade(
+      StandardId id,
+      LocalDate tradeDate,
+      Period period,
+      BuySell buySell,
+      double notional,
+      double coupon,
+      RedCode referenceEntityId,
+      String referenceEntityName,
+      SeniorityLevel seniorityLevel,
+      RestructuringClause restructuringClause,
+      Optional<SinglePayment> upfrontFee
+  ) {
+    return toTrade(
+        id,
+        tradeDate,
+        period,
+        buySell,
+        notional,
+        coupon,
+        SingleNameReferenceInformation.of(
+            referenceEntityName,
+            referenceEntityId,
+            seniorityLevel,
+            currency
+        ),
+        restructuringClause,
+        upfrontFee
+    );
+  }
+
+  public CdsTrade toIndexTrade(
+      StandardId id,
+      LocalDate tradeDate,
+      Period period,
+      BuySell buySell,
+      double notional,
+      double coupon,
+      RedCode indexId,
+      String indexName,
+      int indexSeries,
+      int indexAnnexVersion,
+      RestructuringClause restructuringClause,
+      Optional<SinglePayment> upfrontFee
+  ) {
+    return toTrade(
+        id,
+        tradeDate,
+        period,
+        buySell,
+        notional,
+        coupon,
+        IndexReferenceInformation.of(
+            indexName,
+            indexId,
+            indexSeries,
+            indexAnnexVersion
+        ),
+        restructuringClause,
+        upfrontFee
+    );
+  }
+
+  private CdsTrade toTrade(
+      StandardId id,
+      LocalDate tradeDate,
+      Period period,
+      BuySell buySell,
+      double notional,
+      double coupon,
+      ReferenceInformation referenceInformation,
+      RestructuringClause restructuringClause,
+      Optional<SinglePayment> upfrontFee
+  ) {
+    BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
+
+    // start date should be adjusted
+    LocalDate adjustedStartDate = calcAdjustedStartDate(
+        tradeDate,
+        businessDayAdjustment
+    );
+
+    // Standard maturity dates are unadjusted – typically Mar/Jun/Sep/Dec 20th or a stub
+    LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(tradeDate, paymentFrequency, period);
+
+    // Step in date is unadjusted, usually T+1
+    LocalDate unadjustedStepInDate = calcUnadjustedStepInDate(tradeDate, stepIn);
+
+    // Cash settle date is adjusted and typically T+3
+    LocalDate adjustedCashSettleDate = calcAdjustedSettleDate(tradeDate, businessDayAdjustment, settleLag);
+
+    return CdsTrade.of(
+        TradeInfo
+            .builder()
+            .id(id)
+            .tradeDate(tradeDate)
+            .settlementDate(adjustedCashSettleDate)
+            .build(),
+        Cds.builder()
+            .generalTerms(GeneralTerms.of(
+                adjustedStartDate,
+                unadjustedEndDate,
                 buySell,
-                notional,
-                coupon,
-                SingleNameReferenceInformation.of(
-                        referenceEntityName,
-                        referenceEntityId,
-                        seniorityLevel,
-                        currency
-                ),
-                restructuringClause,
-                upfrontFee
-        );
-    }
+                businessDayAdjustment,
+                referenceInformation
+            ))
+            .feeLeg(FeeLeg.of(
+                upfrontFee,
+                PeriodicPayments.of(
+                    paymentFrequency,
+                    stubConvention,
+                    rollConvention,
+                    FixedAmountCalculation.of(
+                        CurrencyAmount.of(Currency.USD, notional),
+                        coupon,
+                        dayCount
+                    )
+                )
+            ))
+            .restructuringType(restructuringClause)
+            .build(),
+        unadjustedStepInDate,
+        payAccOnDefault
+    );
+  }
 
-    public CdsTrade toIndexTrade(
-            StandardId id,
-            LocalDate tradeDate,
-            Period period,
-            BuySell buySell,
-            double notional,
-            double coupon,
-            RedCode indexId,
-            String indexName,
-            int indexSeries,
-            int indexAnnexVersion,
-            RestructuringClause restructuringClause,
-            Optional<SinglePayment> upfrontFee
-    ) {
-        return toTrade(
-                id,
-                tradeDate,
-                period,
-                buySell,
-                notional,
-                coupon,
-                IndexReferenceInformation.of(
-                        indexName,
-                        indexId,
-                        indexSeries,
-                        indexAnnexVersion
-                ),
-                restructuringClause,
-                upfrontFee
-        );
-    }
+  public BusinessDayAdjustment calcBusinessAdjustment() {
+    return BusinessDayAdjustment.of(
+        dayConvention,
+        calendar
+    );
+  }
 
-    private CdsTrade toTrade(
-            StandardId id,
-            LocalDate tradeDate,
-            Period period,
-            BuySell buySell,
-            double notional,
-            double coupon,
-            ReferenceInformation referenceInformation,
-            RestructuringClause restructuringClause,
-            Optional<SinglePayment> upfrontFee
-    ) {
-        BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
+  /**
+   * Used in curve point calculation
+   *
+   * @param valuationDate asOfDate for curve calibration
+   * @param period        term for this point
+   * @return unadjusted maturity date
+   */
+  public LocalDate calcUnadjustedMaturityDateFromValuationDateOf(LocalDate valuationDate, Period period) {
+    return calcUnadjustedMaturityDate(valuationDate, paymentFrequency, period);
+  }
 
-        // start date should be adjusted
-        LocalDate adjustedStartDate = calcAdjustedStartDate(
-                tradeDate,
-                businessDayAdjustment
-        );
+  /**
+   * Find previous IMM date
+   */
+  protected static LocalDate calcUnadjustedAccrualStartDate(
+      LocalDate tradeDate
+  ) {
+    return ImmLogic.getPrevIMMDate(tradeDate);
+  }
 
-        // Standard maturity dates are unadjusted – typically Mar/Jun/Sep/Dec 20th or a stub
-        LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(tradeDate, paymentFrequency, period);
+  /**
+   * Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
+   * Example: As of Feb09, the 1y standard CDS contract would protect the buyer through Sat 20Mar10.
+   */
+  protected static LocalDate calcUnadjustedMaturityDate(
+      LocalDate tradeDate,
+      Frequency paymentFrequency,
+      Period period
+  ) {
+    return calcUnadjustedAccrualStartDate(tradeDate)
+        .plus(period)
+        .plus(paymentFrequency.getPeriod());
+  }
 
-        // Step in date is unadjusted, usually T+1
-        LocalDate unadjustedStepInDate = calcUnadjustedStepInDate(tradeDate, stepIn);
+  /**
+   * public so we can use in curve building
+   */
+  public static LocalDate calcAdjustedStartDate(
+      LocalDate tradeDate,
+      BusinessDayAdjustment businessAdjustment
+  ) {
+    return businessAdjustment.adjust(
+        calcUnadjustedAccrualStartDate(tradeDate)
+    );
+  }
 
-        // Cash settle date is adjusted and typically T+3
-        LocalDate adjustedCashSettleDate = calcAdjustedSettleDate(tradeDate, businessDayAdjustment, settleLag);
+  /**
+   * public so we can use in curve building
+   */
+  public static LocalDate calcAdjustedSettleDate(
+      LocalDate tradeDate,
+      BusinessDayAdjustment businessAdjustment,
+      int settleLag
+  ) {
+    DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(settleLag, businessAdjustment.getCalendar(), businessAdjustment);
+    return daysAdjustment.adjust(tradeDate);
+  }
 
-        return CdsTrade.of(
-                TradeInfo
-                        .builder()
-                        .id(id)
-                        .tradeDate(tradeDate)
-                        .settlementDate(adjustedCashSettleDate)
-                        .build(),
-                Cds.of(
-                        GeneralTerms.of(
-                                adjustedStartDate,
-                                unadjustedEndDate,
-                                buySell,
-                                businessDayAdjustment,
-                                referenceInformation
-                        ),
-                        FeeLeg.of(
-                                upfrontFee,
-                                PeriodicPayments.of(
-                                        paymentFrequency,
-                                        stubConvention,
-                                        rollConvention,
-                                        FixedAmountCalculation.of(
-                                                CurrencyAmount.of(Currency.USD, notional),
-                                                coupon,
-                                                dayCount
-                                        )
-                                )
-                        ),
-                        ProtectionTerms.of(
-                                restructuringClause
-                        )
-                ),
-                unadjustedStepInDate,
-                payAccOnDefault
-        );
-    }
-
-    public BusinessDayAdjustment calcBusinessAdjustment() {
-        return BusinessDayAdjustment.of(
-                dayConvention,
-                calendar
-        );
-    }
-
-    /**
-     * Used in curve point calculation
-     *
-     * @param valuationDate asOfDate for curve calibration
-     * @param period        term for this point
-     * @return unadjusted maturity date
-     */
-    public LocalDate calcUnadjustedMaturityDateFromValuationDateOf(LocalDate valuationDate, Period period) {
-        return calcUnadjustedMaturityDate(valuationDate, paymentFrequency, period);
-    }
-
-    /**
-     * Find previous IMM date
-     */
-    protected static LocalDate calcUnadjustedAccrualStartDate(
-            LocalDate tradeDate
-    ) {
-        return ImmLogic.getPrevIMMDate(tradeDate);
-    }
-
-    /**
-     * Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
-     * Example: As of Feb09, the 1y standard CDS contract would protect the buyer through Sat 20Mar10.
-     */
-    protected static LocalDate calcUnadjustedMaturityDate(
-            LocalDate tradeDate,
-            Frequency paymentFrequency,
-            Period period
-    ) {
-        return calcUnadjustedAccrualStartDate(tradeDate)
-                .plus(period)
-                .plus(paymentFrequency.getPeriod());
-    }
-
-    /**
-     * public so we can use in curve building
-     */
-    public static LocalDate calcAdjustedStartDate(
-            LocalDate tradeDate,
-            BusinessDayAdjustment businessAdjustment
-    ) {
-        return businessAdjustment.adjust(
-                calcUnadjustedAccrualStartDate(tradeDate)
-        );
-    }
-
-    /**
-     * public so we can use in curve building
-     */
-    public static LocalDate calcAdjustedSettleDate(
-            LocalDate tradeDate,
-            BusinessDayAdjustment businessAdjustment,
-            int settleLag
-    ) {
-        DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(settleLag, businessAdjustment.getCalendar(), businessAdjustment);
-        return daysAdjustment.adjust(tradeDate);
-    }
-
-    /**
-     * public so we can use in curve building
-     */
-    public static LocalDate calcUnadjustedStepInDate(
-            LocalDate tradeDate,
-            int stepIn
-    ) {
-        return tradeDate.plusDays(stepIn);
-    }
+  /**
+   * public so we can use in curve building
+   */
+  public static LocalDate calcUnadjustedStepInDate(
+      LocalDate tradeDate,
+      int stepIn
+  ) {
+    return tradeDate.plusDays(stepIn);
+  }
 
 
   //------------------------- AUTOGENERATED START -------------------------
