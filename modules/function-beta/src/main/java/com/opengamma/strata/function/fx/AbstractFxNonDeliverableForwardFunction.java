@@ -23,7 +23,7 @@ import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.pricer.fx.DiscountingFxNonDeliverableForwardProductPricerBeta;
+import com.opengamma.strata.pricer.fx.DiscountingFxNonDeliverableForwardProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -63,8 +63,8 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
    * 
    * @return the pricer
    */
-  protected DiscountingFxNonDeliverableForwardProductPricerBeta pricer() {
-    return DiscountingFxNonDeliverableForwardProductPricerBeta.DEFAULT;
+  protected DiscountingFxNonDeliverableForwardProductPricer pricer() {
+    return DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------
