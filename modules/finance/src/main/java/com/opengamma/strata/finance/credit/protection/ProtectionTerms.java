@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.finance.credit.protection;
 
+import com.opengamma.strata.finance.credit.RestructuringClause;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;

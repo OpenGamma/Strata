@@ -3,12 +3,13 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.protection;
+package com.opengamma.strata.finance.credit;
 
 /**
  * http://www.fpml.org/coding-scheme/restructuring
  * <p>
  * Specifies the form of the restructuring credit event that is applicable to the credit default swap.
+ * Also called DocClause
  */
 public enum RestructuringClause {
 

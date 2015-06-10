@@ -10,16 +10,15 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.report.TradePortfolio;
 import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.common.RedCode;
-import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
-import com.opengamma.strata.finance.credit.protection.RestructuringClause;
+import com.opengamma.strata.finance.credit.markit.RedCode;
+import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
 import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
 import org.joda.beans.ser.JodaBeanSer;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.stream.Collectors;
 
 /**
  * Demonstrate use of the API for credit default swaps.
@@ -55,7 +54,7 @@ public class CdsTradeModelDemo {
         .of(StandardCdsConventions.northAmericanUsd())
         .toSingleNameTrade(
             StandardId.of("tradeid", "62726762"),
-            LocalDate.of(2014, 10, 16),
+            LocalDate.of(2014, 10, 16), // tradeDate, from which start date will be calculated
             Period.ofYears(5),
             BuySell.BUY,
             100_000_000D,
@@ -64,8 +63,8 @@ public class CdsTradeModelDemo {
             "Ford Motor Company",
             SeniorityLevel.SeniorUnSec,
             RestructuringClause.XR,
-            3_694_117.73D,
-            LocalDate.of(2014, 10, 21)
+            3_694_117.73D, // up front fee
+            LocalDate.of(2014, 10, 21) // up front fee pay date
         );
   }
 

@@ -3,9 +3,10 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.common;
+package com.opengamma.strata.finance.credit.markit;
 
 import com.google.common.base.Preconditions;
+import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.type.TypedString;
 import org.joda.convert.FromString;
 
@@ -16,6 +17,8 @@ import org.joda.convert.FromString;
  */
 public class RedCode extends TypedString<RedCode> {
   private static final long serialVersionUID = 1L;
+
+  public static final String MARKIT_REDCODE_SCHEME = "MarkitRedCode";
 
   @FromString
   public static RedCode of(String name) {
@@ -28,6 +31,14 @@ public class RedCode extends TypedString<RedCode> {
 
   private RedCode(String name) {
     super(name);
+  }
+
+  public static StandardId id(String name) {
+    Preconditions.checkArgument(
+        name.length() == 6 || name.length() == 9,
+        "RED Code must be exactly 6 or 9 characters"
+    );
+    return StandardId.of(MARKIT_REDCODE_SCHEME, name);
   }
 
 }

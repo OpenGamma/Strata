@@ -10,9 +10,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.finance.credit.common.RedCode;
+import com.opengamma.strata.finance.credit.markit.RedCode;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformationType;
-import com.opengamma.strata.finance.credit.general.reference.SeniorityLevel;
+import com.opengamma.strata.finance.credit.SeniorityLevel;
 import org.testng.annotations.Test;
 
 import java.time.LocalDate;

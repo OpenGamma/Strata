@@ -10,7 +10,6 @@
 package com.opengamma.strata.function.credit;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.finance.credit.ExpandedCdsTrade;
@@ -18,7 +17,6 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class CdsPricer {
 
