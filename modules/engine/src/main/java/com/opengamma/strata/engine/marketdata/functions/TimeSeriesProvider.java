@@ -23,4 +23,17 @@ public interface TimeSeriesProvider {
    * @throws IllegalArgumentException if there is no time series available for the specified ID
    */
   public abstract Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id);
+  
+  /**
+   * Returns a time-series provider that is unable to source any time-series.
+   * <p>
+   * This is useful when it is not necessary for the engine to source time-series on-demand, for
+   * example because all market data is being provided in a snapshot.
+   * 
+   * @return the time-series provider
+   */
+  public static TimeSeriesProvider none() {
+    return EmptyTimeSeriesProvider.INSTANCE;
+  }
+  
 }
