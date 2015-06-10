@@ -41,7 +41,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * An {@code ExpandedFx} may contain information based on holiday calendars.
  * If a holiday calendar changes, the adjusted dates may no longer be correct.
  * Care must be taken when placing the expanded form in a cache or persistence layer.
- * Application code should use {@link FxForward}, not this class.
+ * Application code should use {@link Fx}, not this class.
  */
 @BeanDefinition(builderScope = "private")
 public final class ExpandedFx
