@@ -6,6 +6,7 @@
 package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Template;
 import com.opengamma.strata.finance.credit.CdsTrade;
@@ -72,7 +73,8 @@ public final class StandardCdsTemplate
         referenceEntityId,
         seniorityLevel,
         restructuringClause,
-        Optional.empty()
+        0D,
+        LocalDate.MIN
     );
   }
 
@@ -100,12 +102,8 @@ public final class StandardCdsTemplate
         referenceEntityId,
         seniorityLevel,
         restructuringClause,
-        Optional.of(
-            SinglePayment.of(
                 upfrontFeeAmount,
                 upfrontFeePaymentDate
-            )
-        )
     );
   }
 
@@ -131,7 +129,8 @@ public final class StandardCdsTemplate
         indexSeries,
         indexAnnexVersion,
         restructuringClause,
-        Optional.empty()
+        0D,
+        LocalDate.MIN
     );
   }
 
@@ -144,7 +143,6 @@ public final class StandardCdsTemplate
       double notional,
       double coupon,
       StandardId indexId,
-      String indexName,
       int indexSeries,
       int indexAnnexVersion,
       RestructuringClause restructuringClause,
@@ -162,12 +160,8 @@ public final class StandardCdsTemplate
         indexSeries,
         indexAnnexVersion,
         restructuringClause,
-        Optional.of(
-            SinglePayment.of(
                 upfrontFeeAmount,
                 upfrontFeePaymentDate
-            )
-        )
     );
   }
 

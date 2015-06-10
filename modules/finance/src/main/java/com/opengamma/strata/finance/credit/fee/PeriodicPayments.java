@@ -26,10 +26,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * http://www.fpml.org/spec/fpml-5-7-2-wd-2/html/pretrade/schemaDocumentation/schemas/fpml-cd-5-7_xsd/complexTypes/FeeLeg/periodicPayment.html
- * <p>
  * Specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller on
- * the fixed rate payer payment dates. The fixed amount to be paid on each payment date can be
+ * the fixed rate payer payment dates.
+ * <p>
+ * The fixed amount to be paid on each payment date can be
  * specified in terms of a known currency amount or as an amount calculated on a formula basis
  * by reference to a per annum fixed rate. The applicable business day convention and business
  * day for adjusting any fixed rate payer payment date if it would otherwise fall on a day that

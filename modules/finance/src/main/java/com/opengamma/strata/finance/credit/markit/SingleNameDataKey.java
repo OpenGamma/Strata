@@ -10,6 +10,7 @@
 package com.opengamma.strata.finance.credit.markit;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import org.joda.beans.BeanDefinition;
@@ -37,7 +38,7 @@ public final class SingleNameDataKey
    * A CDS entity identifier (e.g. 03AFCJ for Apple Inc.)
    */
   @PropertyDefinition(validate = "notNull")
-  final RedCode entityId;
+  final StandardId entityId;
 
   @PropertyDefinition(validate = "notNull")
   final SeniorityLevel seniorityLevel;
@@ -76,7 +77,7 @@ public final class SingleNameDataKey
   }
 
   private SingleNameDataKey(
-      RedCode entityId,
+      StandardId entityId,
       SeniorityLevel seniorityLevel,
       Currency currency,
       RestructuringClause restructuringClause) {
@@ -110,7 +111,7 @@ public final class SingleNameDataKey
    * Gets a CDS entity identifier (e.g. 03AFCJ for Apple Inc.)
    * @return the value of the property, not null
    */
-  public RedCode getEntityId() {
+  public StandardId getEntityId() {
     return entityId;
   }
 
@@ -200,8 +201,8 @@ public final class SingleNameDataKey
     /**
      * The meta-property for the {@code entityId} property.
      */
-    private final MetaProperty<RedCode> entityId = DirectMetaProperty.ofImmutable(
-        this, "entityId", SingleNameDataKey.class, RedCode.class);
+    private final MetaProperty<StandardId> entityId = DirectMetaProperty.ofImmutable(
+        this, "entityId", SingleNameDataKey.class, StandardId.class);
     /**
      * The meta-property for the {@code seniorityLevel} property.
      */
@@ -268,7 +269,7 @@ public final class SingleNameDataKey
      * The meta-property for the {@code entityId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RedCode> entityId() {
+    public MetaProperty<StandardId> entityId() {
       return entityId;
     }
 
@@ -329,7 +330,7 @@ public final class SingleNameDataKey
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SingleNameDataKey> {
 
-    private RedCode entityId;
+    private StandardId entityId;
     private SeniorityLevel seniorityLevel;
     private Currency currency;
     private RestructuringClause restructuringClause;
@@ -372,7 +373,7 @@ public final class SingleNameDataKey
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -2102099874:  // entityId
-          this.entityId = (RedCode) newValue;
+          this.entityId = (StandardId) newValue;
           break;
         case 1229868454:  // seniorityLevel
           this.seniorityLevel = (SeniorityLevel) newValue;
@@ -428,7 +429,7 @@ public final class SingleNameDataKey
      * @param entityId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder entityId(RedCode entityId) {
+    public Builder entityId(StandardId entityId) {
       JodaBeanUtils.notNull(entityId, "entityId");
       this.entityId = entityId;
       return this;

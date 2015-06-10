@@ -7,6 +7,7 @@ package com.opengamma.strata.finance.credit;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
@@ -107,33 +108,23 @@ public final class CdsTrade
     LocalDate tradeDate = getTradeInfo().getTradeDate().get();
     LocalDate stepInDate = getStepInDate();
     LocalDate cashSettleDate = getTradeInfo().getSettlementDate().get();
-    BusinessDayConvention businessdayAdjustmentConvention = getProduct().getGeneralTerms().getDateAdjustments().getConvention();
-    HolidayCalendar calendar = getProduct().getGeneralTerms().getDateAdjustments().getCalendar();
+    BusinessDayConvention businessdayAdjustmentConvention = getProduct().getGeneralTerms().getBusinessDayAdjustment().getConvention();
+    HolidayCalendar calendar = getProduct().getGeneralTerms().getBusinessDayAdjustment().getCalendar();
     BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
         businessdayAdjustmentConvention,
         calendar
     );
     LocalDate accStartDate = businessDayAdjustment.adjust(
-        getProduct().getGeneralTerms().getEffectiveDate()
+        getProduct().getGeneralTerms().getStartDate()
     );
-    LocalDate endDate = getProduct().getGeneralTerms().getScheduledTerminationDate();
+    LocalDate endDate = getProduct().getGeneralTerms().getEndDate();
     boolean payAccOnDefault = isPayAccOnDefault();
     Period paymentInterval = getProduct().getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
     StubConvention stubConvention = getProduct().getFeeLeg().getPeriodicPayments().getStubConvention();
     DayCount accrualDayCount = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getDayCountFraction();
     BuySell buySellProtection = getProduct().getGeneralTerms().getBuySellProtection();
-    Optional<SinglePayment> fee = getProduct().getFeeLeg().getSinglePayment();
-    final Double upfrontFeeAmount;
-    final LocalDate upfrontFeePaymentDate;
-    if (fee.isPresent()) {
-      upfrontFeeAmount = fee.get().getFixedAmount();
-      upfrontFeePaymentDate = fee.get().getPaymentDate();
-
-    } else {
-      upfrontFeeAmount = Double.NaN;
-      upfrontFeePaymentDate = null;
-
-    }
+    double upfrontFeeAmount = getProduct().getFeeLeg().getUpfrontFee().getFixedAmount().getAmount();
+    LocalDate upfrontFeePaymentDate = getProduct().getFeeLeg().getUpfrontFee().getPaymentDate();
     double coupon = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getFixedRate();
     double notional = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getAmount();
     Currency currency = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getCurrency();

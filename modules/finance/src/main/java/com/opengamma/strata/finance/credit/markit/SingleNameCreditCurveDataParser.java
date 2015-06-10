@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
@@ -39,11 +40,13 @@ import java.util.Scanner;
  */
 public class SingleNameCreditCurveDataParser {
 
+  // Index used to access the specified columns of string data in the file
   private static final int s_redcode = 3;
   private static final int s_tier = 4;
   private static final int s_currency = 5;
   private static final int s_docclause = 6;
   private static final int s_firstspreadcolumn = 8;
+
   private static final List<Tenor> s_tenors = ImmutableList.of(
       Tenor.TENOR_6M,
       Tenor.TENOR_1Y,
@@ -67,7 +70,7 @@ public class SingleNameCreditCurveDataParser {
       String line = scanner.nextLine();
       String[] columns = line.split(",");
 
-      RedCode redCode = RedCode.of(columns[s_redcode]);
+      StandardId redCode = RedCode.id(columns[s_redcode]);
       SeniorityLevel seniorityLevel = SeniorityLevel.valueOf(columns[s_tier]);
       Currency currency = Currency.parse(columns[s_currency]);
       RestructuringClause restructuringClause = RestructuringClause.valueOf(columns[s_docclause]);

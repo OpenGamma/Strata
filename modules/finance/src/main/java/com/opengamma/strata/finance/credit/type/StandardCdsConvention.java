@@ -50,7 +50,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 @BeanDefinition
@@ -91,7 +90,7 @@ public final class StandardCdsConvention
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    //   ArgChecker.isTrue(fixedLeg.getCurrency().equals(floatingLeg.getCurrency()), "Conventions must have same currency");
+     //  ArgChecker.isTrue(fixedLeg.getCurrency().equals(floatingLeg.getCurrency()), "Conventions must have same currency");
   }
 
   //-------------------------------------------------------------------------
@@ -106,7 +105,8 @@ public final class StandardCdsConvention
       StandardId referenceEntityId,
       SeniorityLevel seniorityLevel,
       RestructuringClause restructuringClause,
-      Optional<SinglePayment> upfrontFee
+      double upfrontFeeAmount,
+      LocalDate upfrontFeePaymentDate
   ) {
     return toTrade(
         id,
@@ -121,7 +121,8 @@ public final class StandardCdsConvention
             currency,
             restructuringClause
         ),
-        upfrontFee
+        upfrontFeeAmount,
+        upfrontFeePaymentDate
     );
   }
 
@@ -136,7 +137,8 @@ public final class StandardCdsConvention
       int indexSeries,
       int indexAnnexVersion,
       RestructuringClause restructuringClause,
-      Optional<SinglePayment> upfrontFee
+      double upfrontFeeAmount,
+      LocalDate upfrontFeePaymentDate
   ) {
     return toTrade(
         id,
@@ -151,7 +153,8 @@ public final class StandardCdsConvention
             indexAnnexVersion,
             restructuringClause
         ),
-        upfrontFee
+        upfrontFeeAmount,
+        upfrontFeePaymentDate
     );
   }
 
@@ -163,7 +166,8 @@ public final class StandardCdsConvention
       double notional,
       double coupon,
       ReferenceInformation referenceInformation,
-      Optional<SinglePayment> upfrontFee
+      double upfrontFeeAmount,
+      LocalDate upfrontFeePaymentDate
   ) {
     BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
 
@@ -198,13 +202,17 @@ public final class StandardCdsConvention
                 referenceInformation
             ))
             .feeLeg(FeeLeg.of(
-                upfrontFee,
+                SinglePayment.of(
+                    currency,
+                    upfrontFeeAmount,
+                    upfrontFeePaymentDate
+                ),
                 PeriodicPayments.of(
                     paymentFrequency,
                     stubConvention,
                     rollConvention,
                     FixedAmountCalculation.of(
-                        CurrencyAmount.of(Currency.USD, notional),
+                        CurrencyAmount.of(currency, notional),
                         coupon,
                         dayCount
                     )

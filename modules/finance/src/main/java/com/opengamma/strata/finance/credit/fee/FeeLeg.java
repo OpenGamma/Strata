@@ -24,9 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- *
  * http://www.fpml.org/spec/fpml-5-7-2-wd-2/html/pretrade/schemaDocumentation/schemas/fpml-cd-5-7_xsd/complexTypes/CreditDefaultSwap/feeLeg.html
- *
+ * <p>
  * This element contains all the terms relevant to defining the fixed amounts/payments per
  * the applicable ISDA definitions.
  */
@@ -35,12 +34,12 @@ public final class FeeLeg
     implements ImmutableBean, Serializable {
 
   /**
-   * Upfront fee. Optional.
+   * Upfront fee.
    * Specifies a single fixed amount that is payable by the buyer to the seller on the fixed rate payer payment date.
    * The fixed amount to be paid is specified in terms of a known currency amount.
    */
   @PropertyDefinition(validate = "notNull")
-  final Optional<SinglePayment> singlePayment;
+  final SinglePayment upfrontFee;
 
   /**
    * Specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller on
@@ -55,31 +54,12 @@ public final class FeeLeg
   final PeriodicPayments periodicPayments;
 
   public static FeeLeg of(
-      PeriodicPayments periodicPayments
-  ) {
-    return new FeeLeg(
-        Optional.empty(),
-        periodicPayments
-    );
-  }
-
-  public static FeeLeg of(
       SinglePayment upfrontFee,
       PeriodicPayments periodicPayments
   ) {
     return new FeeLeg(
-        Optional.of(upfrontFee),
+        upfrontFee,
         periodicPayments
-    );
-  }
-
-  public static FeeLeg of(
-          Optional<SinglePayment> upfrontFee,
-          PeriodicPayments periodicPayments
-  ) {
-    return new FeeLeg(
-            upfrontFee,
-            periodicPayments
     );
   }
 
@@ -112,11 +92,11 @@ public final class FeeLeg
   }
 
   private FeeLeg(
-      Optional<SinglePayment> singlePayment,
+      SinglePayment upfrontFee,
       PeriodicPayments periodicPayments) {
-    JodaBeanUtils.notNull(singlePayment, "singlePayment");
+    JodaBeanUtils.notNull(upfrontFee, "upfrontFee");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
-    this.singlePayment = singlePayment;
+    this.upfrontFee = upfrontFee;
     this.periodicPayments = periodicPayments;
   }
 
@@ -137,13 +117,13 @@ public final class FeeLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets upfront fee. Optional.
+   * Gets upfront fee.
    * Specifies a single fixed amount that is payable by the buyer to the seller on the fixed rate payer payment date.
    * The fixed amount to be paid is specified in terms of a known currency amount.
    * @return the value of the property, not null
    */
-  public Optional<SinglePayment> getSinglePayment() {
-    return singlePayment;
+  public SinglePayment getUpfrontFee() {
+    return upfrontFee;
   }
 
   //-----------------------------------------------------------------------
@@ -177,7 +157,7 @@ public final class FeeLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FeeLeg other = (FeeLeg) obj;
-      return JodaBeanUtils.equal(getSinglePayment(), other.getSinglePayment()) &&
+      return JodaBeanUtils.equal(getUpfrontFee(), other.getUpfrontFee()) &&
           JodaBeanUtils.equal(getPeriodicPayments(), other.getPeriodicPayments());
     }
     return false;
@@ -186,7 +166,7 @@ public final class FeeLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSinglePayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontFee());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodicPayments());
     return hash;
   }
@@ -195,7 +175,7 @@ public final class FeeLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FeeLeg{");
-    buf.append("singlePayment").append('=').append(getSinglePayment()).append(',').append(' ');
+    buf.append("upfrontFee").append('=').append(getUpfrontFee()).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(getPeriodicPayments()));
     buf.append('}');
     return buf.toString();
@@ -212,11 +192,10 @@ public final class FeeLeg
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code singlePayment} property.
+     * The meta-property for the {@code upfrontFee} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Optional<SinglePayment>> singlePayment = DirectMetaProperty.ofImmutable(
-        this, "singlePayment", FeeLeg.class, (Class) Optional.class);
+    private final MetaProperty<SinglePayment> upfrontFee = DirectMetaProperty.ofImmutable(
+        this, "upfrontFee", FeeLeg.class, SinglePayment.class);
     /**
      * The meta-property for the {@code periodicPayments} property.
      */
@@ -227,7 +206,7 @@ public final class FeeLeg
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "singlePayment",
+        "upfrontFee",
         "periodicPayments");
 
     /**
@@ -239,8 +218,8 @@ public final class FeeLeg
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1301570718:  // singlePayment
-          return singlePayment;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
         case -367345944:  // periodicPayments
           return periodicPayments;
       }
@@ -264,11 +243,11 @@ public final class FeeLeg
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code singlePayment} property.
+     * The meta-property for the {@code upfrontFee} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Optional<SinglePayment>> singlePayment() {
-      return singlePayment;
+    public MetaProperty<SinglePayment> upfrontFee() {
+      return upfrontFee;
     }
 
     /**
@@ -283,8 +262,8 @@ public final class FeeLeg
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1301570718:  // singlePayment
-          return ((FeeLeg) bean).getSinglePayment();
+        case 963468344:  // upfrontFee
+          return ((FeeLeg) bean).getUpfrontFee();
         case -367345944:  // periodicPayments
           return ((FeeLeg) bean).getPeriodicPayments();
       }
@@ -308,7 +287,7 @@ public final class FeeLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FeeLeg> {
 
-    private Optional<SinglePayment> singlePayment;
+    private SinglePayment upfrontFee;
     private PeriodicPayments periodicPayments;
 
     /**
@@ -322,7 +301,7 @@ public final class FeeLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FeeLeg beanToCopy) {
-      this.singlePayment = beanToCopy.getSinglePayment();
+      this.upfrontFee = beanToCopy.getUpfrontFee();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
     }
 
@@ -330,8 +309,8 @@ public final class FeeLeg
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1301570718:  // singlePayment
-          return singlePayment;
+        case 963468344:  // upfrontFee
+          return upfrontFee;
         case -367345944:  // periodicPayments
           return periodicPayments;
         default:
@@ -339,12 +318,11 @@ public final class FeeLeg
       }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1301570718:  // singlePayment
-          this.singlePayment = (Optional<SinglePayment>) newValue;
+        case 963468344:  // upfrontFee
+          this.upfrontFee = (SinglePayment) newValue;
           break;
         case -367345944:  // periodicPayments
           this.periodicPayments = (PeriodicPayments) newValue;
@@ -382,19 +360,19 @@ public final class FeeLeg
     @Override
     public FeeLeg build() {
       return new FeeLeg(
-          singlePayment,
+          upfrontFee,
           periodicPayments);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code singlePayment} property in the builder.
-     * @param singlePayment  the new value, not null
+     * Sets the {@code upfrontFee} property in the builder.
+     * @param upfrontFee  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder singlePayment(Optional<SinglePayment> singlePayment) {
-      JodaBeanUtils.notNull(singlePayment, "singlePayment");
-      this.singlePayment = singlePayment;
+    public Builder upfrontFee(SinglePayment upfrontFee) {
+      JodaBeanUtils.notNull(upfrontFee, "upfrontFee");
+      this.upfrontFee = upfrontFee;
       return this;
     }
 
@@ -414,7 +392,7 @@ public final class FeeLeg
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("FeeLeg.Builder{");
-      buf.append("singlePayment").append('=').append(JodaBeanUtils.toString(singlePayment)).append(',').append(' ');
+      buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments));
       buf.append('}');
       return buf.toString();

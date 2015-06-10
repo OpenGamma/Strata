@@ -47,7 +47,7 @@ public final class GeneralTerms
    * This is typically the previous cds (qtr on 20th) date before trade date, adjusted.
    */
   @PropertyDefinition(validate = "notNull")
-  final LocalDate effectiveDate;
+  final LocalDate startDate;
 
   /**
    * The scheduled date on which the credit protection will lapse. This day may be subject to
@@ -56,7 +56,7 @@ public final class GeneralTerms
    * This is typically an unadjusted cds date.
    */
   @PropertyDefinition(validate = "notNull")
-  final LocalDate scheduledTerminationDate;
+  final LocalDate endDate;
 
   /**
    * Indicator of whether we are buying or selling protection
@@ -70,7 +70,7 @@ public final class GeneralTerms
    * ISDA 2003 Terms: Business Day and Business Day Convention
    */
   @PropertyDefinition(validate = "notNull")
-  final BusinessDayAdjustment dateAdjustments;
+  final BusinessDayAdjustment businessDayAdjustment;
 
   /**
    * Contains information on reference entity/issue for single name or
@@ -172,20 +172,20 @@ public final class GeneralTerms
   }
 
   private GeneralTerms(
-      LocalDate effectiveDate,
-      LocalDate scheduledTerminationDate,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySellProtection,
-      BusinessDayAdjustment dateAdjustments,
+      BusinessDayAdjustment businessDayAdjustment,
       ReferenceInformation referenceInformation) {
-    JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
-    JodaBeanUtils.notNull(scheduledTerminationDate, "scheduledTerminationDate");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
-    JodaBeanUtils.notNull(dateAdjustments, "dateAdjustments");
+    JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(referenceInformation, "referenceInformation");
-    this.effectiveDate = effectiveDate;
-    this.scheduledTerminationDate = scheduledTerminationDate;
+    this.startDate = startDate;
+    this.endDate = endDate;
     this.buySellProtection = buySellProtection;
-    this.dateAdjustments = dateAdjustments;
+    this.businessDayAdjustment = businessDayAdjustment;
     this.referenceInformation = referenceInformation;
   }
 
@@ -212,8 +212,8 @@ public final class GeneralTerms
    * This is typically the previous cds (qtr on 20th) date before trade date, adjusted.
    * @return the value of the property, not null
    */
-  public LocalDate getEffectiveDate() {
-    return effectiveDate;
+  public LocalDate getStartDate() {
+    return startDate;
   }
 
   //-----------------------------------------------------------------------
@@ -224,8 +224,8 @@ public final class GeneralTerms
    * This is typically an unadjusted cds date.
    * @return the value of the property, not null
    */
-  public LocalDate getScheduledTerminationDate() {
-    return scheduledTerminationDate;
+  public LocalDate getEndDate() {
+    return endDate;
   }
 
   //-----------------------------------------------------------------------
@@ -244,8 +244,8 @@ public final class GeneralTerms
    * Gets iSDA 2003 Terms: Business Day and Business Day Convention
    * @return the value of the property, not null
    */
-  public BusinessDayAdjustment getDateAdjustments() {
-    return dateAdjustments;
+  public BusinessDayAdjustment getBusinessDayAdjustment() {
+    return businessDayAdjustment;
   }
 
   //-----------------------------------------------------------------------
@@ -274,10 +274,10 @@ public final class GeneralTerms
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GeneralTerms other = (GeneralTerms) obj;
-      return JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
-          JodaBeanUtils.equal(getScheduledTerminationDate(), other.getScheduledTerminationDate()) &&
+      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
-          JodaBeanUtils.equal(getDateAdjustments(), other.getDateAdjustments()) &&
+          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
           JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation());
     }
     return false;
@@ -286,10 +286,10 @@ public final class GeneralTerms
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getScheduledTerminationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDateAdjustments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
     return hash;
   }
@@ -298,10 +298,10 @@ public final class GeneralTerms
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("GeneralTerms{");
-    buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
-    buf.append("scheduledTerminationDate").append('=').append(getScheduledTerminationDate()).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("buySellProtection").append('=').append(getBuySellProtection()).append(',').append(' ');
-    buf.append("dateAdjustments").append('=').append(getDateAdjustments()).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
     buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(getReferenceInformation()));
     buf.append('}');
     return buf.toString();
@@ -318,25 +318,25 @@ public final class GeneralTerms
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code effectiveDate} property.
+     * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> effectiveDate = DirectMetaProperty.ofImmutable(
-        this, "effectiveDate", GeneralTerms.class, LocalDate.class);
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
+        this, "startDate", GeneralTerms.class, LocalDate.class);
     /**
-     * The meta-property for the {@code scheduledTerminationDate} property.
+     * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> scheduledTerminationDate = DirectMetaProperty.ofImmutable(
-        this, "scheduledTerminationDate", GeneralTerms.class, LocalDate.class);
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", GeneralTerms.class, LocalDate.class);
     /**
      * The meta-property for the {@code buySellProtection} property.
      */
     private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
         this, "buySellProtection", GeneralTerms.class, BuySell.class);
     /**
-     * The meta-property for the {@code dateAdjustments} property.
+     * The meta-property for the {@code businessDayAdjustment} property.
      */
-    private final MetaProperty<BusinessDayAdjustment> dateAdjustments = DirectMetaProperty.ofImmutable(
-        this, "dateAdjustments", GeneralTerms.class, BusinessDayAdjustment.class);
+    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "businessDayAdjustment", GeneralTerms.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code referenceInformation} property.
      */
@@ -347,10 +347,10 @@ public final class GeneralTerms
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "effectiveDate",
-        "scheduledTerminationDate",
+        "startDate",
+        "endDate",
         "buySellProtection",
-        "dateAdjustments",
+        "businessDayAdjustment",
         "referenceInformation");
 
     /**
@@ -362,14 +362,14 @@ public final class GeneralTerms
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -930389515:  // effectiveDate
-          return effectiveDate;
-        case -1325141915:  // scheduledTerminationDate
-          return scheduledTerminationDate;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
         case -405622799:  // buySellProtection
           return buySellProtection;
-        case 1942192152:  // dateAdjustments
-          return dateAdjustments;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -2117930783:  // referenceInformation
           return referenceInformation;
       }
@@ -393,19 +393,19 @@ public final class GeneralTerms
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code effectiveDate} property.
+     * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> effectiveDate() {
-      return effectiveDate;
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
     }
 
     /**
-     * The meta-property for the {@code scheduledTerminationDate} property.
+     * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> scheduledTerminationDate() {
-      return scheduledTerminationDate;
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
     }
 
     /**
@@ -417,11 +417,11 @@ public final class GeneralTerms
     }
 
     /**
-     * The meta-property for the {@code dateAdjustments} property.
+     * The meta-property for the {@code businessDayAdjustment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BusinessDayAdjustment> dateAdjustments() {
-      return dateAdjustments;
+    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+      return businessDayAdjustment;
     }
 
     /**
@@ -436,14 +436,14 @@ public final class GeneralTerms
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -930389515:  // effectiveDate
-          return ((GeneralTerms) bean).getEffectiveDate();
-        case -1325141915:  // scheduledTerminationDate
-          return ((GeneralTerms) bean).getScheduledTerminationDate();
+        case -2129778896:  // startDate
+          return ((GeneralTerms) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((GeneralTerms) bean).getEndDate();
         case -405622799:  // buySellProtection
           return ((GeneralTerms) bean).getBuySellProtection();
-        case 1942192152:  // dateAdjustments
-          return ((GeneralTerms) bean).getDateAdjustments();
+        case -1065319863:  // businessDayAdjustment
+          return ((GeneralTerms) bean).getBusinessDayAdjustment();
         case -2117930783:  // referenceInformation
           return ((GeneralTerms) bean).getReferenceInformation();
       }
@@ -467,10 +467,10 @@ public final class GeneralTerms
    */
   public static final class Builder extends DirectFieldsBeanBuilder<GeneralTerms> {
 
-    private LocalDate effectiveDate;
-    private LocalDate scheduledTerminationDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private BuySell buySellProtection;
-    private BusinessDayAdjustment dateAdjustments;
+    private BusinessDayAdjustment businessDayAdjustment;
     private ReferenceInformation referenceInformation;
 
     /**
@@ -484,10 +484,10 @@ public final class GeneralTerms
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(GeneralTerms beanToCopy) {
-      this.effectiveDate = beanToCopy.getEffectiveDate();
-      this.scheduledTerminationDate = beanToCopy.getScheduledTerminationDate();
+      this.startDate = beanToCopy.getStartDate();
+      this.endDate = beanToCopy.getEndDate();
       this.buySellProtection = beanToCopy.getBuySellProtection();
-      this.dateAdjustments = beanToCopy.getDateAdjustments();
+      this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.referenceInformation = beanToCopy.getReferenceInformation();
     }
 
@@ -495,14 +495,14 @@ public final class GeneralTerms
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -930389515:  // effectiveDate
-          return effectiveDate;
-        case -1325141915:  // scheduledTerminationDate
-          return scheduledTerminationDate;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
         case -405622799:  // buySellProtection
           return buySellProtection;
-        case 1942192152:  // dateAdjustments
-          return dateAdjustments;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -2117930783:  // referenceInformation
           return referenceInformation;
         default:
@@ -513,17 +513,17 @@ public final class GeneralTerms
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -930389515:  // effectiveDate
-          this.effectiveDate = (LocalDate) newValue;
+        case -2129778896:  // startDate
+          this.startDate = (LocalDate) newValue;
           break;
-        case -1325141915:  // scheduledTerminationDate
-          this.scheduledTerminationDate = (LocalDate) newValue;
+        case -1607727319:  // endDate
+          this.endDate = (LocalDate) newValue;
           break;
         case -405622799:  // buySellProtection
           this.buySellProtection = (BuySell) newValue;
           break;
-        case 1942192152:  // dateAdjustments
-          this.dateAdjustments = (BusinessDayAdjustment) newValue;
+        case -1065319863:  // businessDayAdjustment
+          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         case -2117930783:  // referenceInformation
           this.referenceInformation = (ReferenceInformation) newValue;
@@ -561,33 +561,33 @@ public final class GeneralTerms
     @Override
     public GeneralTerms build() {
       return new GeneralTerms(
-          effectiveDate,
-          scheduledTerminationDate,
+          startDate,
+          endDate,
           buySellProtection,
-          dateAdjustments,
+          businessDayAdjustment,
           referenceInformation);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code effectiveDate} property in the builder.
-     * @param effectiveDate  the new value, not null
+     * Sets the {@code startDate} property in the builder.
+     * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder effectiveDate(LocalDate effectiveDate) {
-      JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
-      this.effectiveDate = effectiveDate;
+    public Builder startDate(LocalDate startDate) {
+      JodaBeanUtils.notNull(startDate, "startDate");
+      this.startDate = startDate;
       return this;
     }
 
     /**
-     * Sets the {@code scheduledTerminationDate} property in the builder.
-     * @param scheduledTerminationDate  the new value, not null
+     * Sets the {@code endDate} property in the builder.
+     * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder scheduledTerminationDate(LocalDate scheduledTerminationDate) {
-      JodaBeanUtils.notNull(scheduledTerminationDate, "scheduledTerminationDate");
-      this.scheduledTerminationDate = scheduledTerminationDate;
+    public Builder endDate(LocalDate endDate) {
+      JodaBeanUtils.notNull(endDate, "endDate");
+      this.endDate = endDate;
       return this;
     }
 
@@ -603,13 +603,13 @@ public final class GeneralTerms
     }
 
     /**
-     * Sets the {@code dateAdjustments} property in the builder.
-     * @param dateAdjustments  the new value, not null
+     * Sets the {@code businessDayAdjustment} property in the builder.
+     * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder dateAdjustments(BusinessDayAdjustment dateAdjustments) {
-      JodaBeanUtils.notNull(dateAdjustments, "dateAdjustments");
-      this.dateAdjustments = dateAdjustments;
+    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
+      this.businessDayAdjustment = businessDayAdjustment;
       return this;
     }
 
@@ -629,10 +629,10 @@ public final class GeneralTerms
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("GeneralTerms.Builder{");
-      buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(effectiveDate)).append(',').append(' ');
-      buf.append("scheduledTerminationDate").append('=').append(JodaBeanUtils.toString(scheduledTerminationDate)).append(',').append(' ');
+      buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
-      buf.append("dateAdjustments").append('=').append(JodaBeanUtils.toString(dateAdjustments)).append(',').append(' ');
+      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation));
       buf.append('}');
       return buf.toString();

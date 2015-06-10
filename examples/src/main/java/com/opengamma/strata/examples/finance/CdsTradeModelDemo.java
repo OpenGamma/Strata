@@ -59,8 +59,7 @@ public class CdsTradeModelDemo {
             BuySell.BUY,
             100_000_000D,
             0.0100,
-            RedCode.of("AH98A7"),
-            "Ford Motor Company",
+            RedCode.id("AH98A7"),
             SeniorityLevel.SeniorUnSec,
             RestructuringClause.XR,
             3_694_117.73D, // up front fee
@@ -78,8 +77,7 @@ public class CdsTradeModelDemo {
             BuySell.BUY,
             1_000_000D,
             0.0050,
-            RedCode.of("D28123"),
-            "Addidas",
+            RedCode.id("D28123"),
             SeniorityLevel.SeniorUnSec,
             RestructuringClause.XR
         );
@@ -95,12 +93,11 @@ public class CdsTradeModelDemo {
             BuySell.BUY,
             10_000_000D,
             0.0100,
-            RedCode.of("D28123245"),
-            "Dow Jones CDX.NA.IG",
+            RedCode.id("D28123245"),
             3,
             1,
             RestructuringClause.XR,
-            50632D,
+            50_632D,
             LocalDate.of(2014, 1, 4)
         );
   }
