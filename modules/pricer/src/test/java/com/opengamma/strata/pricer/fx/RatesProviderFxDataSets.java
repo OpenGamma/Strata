@@ -14,9 +14,15 @@ import java.time.LocalDate;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -67,6 +73,13 @@ public class RatesProviderFxDataSets {
   private static final InterpolatedNodalCurve KRW_DSC =
       InterpolatedNodalCurve.of(KRW_DSC_NAME, KRW_DSC_TIME, KRW_DSC_RATE, INTERPOLATOR);
 
+  private static final FxIndex INDEX_USD_KRW = ImmutableFxIndex.builder()
+      .name("USD/KRW")
+      .currencyPair(CurrencyPair.of(USD, KRW))
+      .fixingCalendar(HolidayCalendars.USNY)
+      .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
+      .build();
+
   /**
    * Create a yield curve bundle with three curves.
    * One called "Discounting EUR" with a constant rate of 2.50%, one called "Discounting USD"
@@ -86,6 +99,7 @@ public class RatesProviderFxDataSets {
             .put(KRW, KRW_DSC)
             .build())
         .fxMatrix(FX_MATRIX)
+        .timeSeries(ImmutableMap.of(INDEX_USD_KRW, LocalDateDoubleTimeSeries.empty()))
         .build();
   }
 
