@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 
 /**
  * Test {@link Fx}.
@@ -70,28 +71,28 @@ public class FxTest {
 
   //-------------------------------------------------------------------------
   public void test_of_rate_rightOrder() {
-    Fx test = Fx.of(GBP_P1000, USD, 1.6d, DATE_2015_06_30);
+    Fx test = Fx.of(GBP_P1000, FxRate.of(GBP, USD, 1.6d), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_rate_switchOrder() {
-    Fx test = Fx.of(USD_M1600, GBP, 1d / 1.6d, DATE_2015_06_30);
+    Fx test = Fx.of(USD_M1600, FxRate.of(USD, GBP, 1d / 1.6d), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_rate_bothZero() {
-    Fx test = Fx.of(CurrencyAmount.zero(GBP), USD, 1.6d, DATE_2015_06_30);
+    Fx test = Fx.of(CurrencyAmount.zero(GBP), FxRate.of(USD, GBP, 1.6d), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyAmount(), CurrencyAmount.zero(GBP));
     assertEquals(test.getCounterCurrencyAmount().getAmount(), CurrencyAmount.zero(USD).getAmount(), 1e-12);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
-  public void test_of_rate_sameCurrency() {
-    assertThrowsIllegalArg(() -> Fx.of(GBP_P1000, GBP, 1d, DATE_2015_06_30));
+  public void test_of_rate_wrongCurrency() {
+    assertThrowsIllegalArg(() -> Fx.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------

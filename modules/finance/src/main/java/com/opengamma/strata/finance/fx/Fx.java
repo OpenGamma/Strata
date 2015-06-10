@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -87,15 +88,15 @@ public final class Fx
    * 
    * @param amount1  the amount in the first currency
    * @param amount2  the amount in the second currency
-   * @param valueDate  the value date
+   * @param paymentDate  the date that the FX settles
    * @return the FX
    */
-  public static Fx of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
+  public static Fx of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate paymentDate) {
     CurrencyPair pair = CurrencyPair.of(amount2.getCurrency(), amount1.getCurrency());
     if (pair.isConventional()) {
-      return new Fx(amount2, amount1, valueDate);
+      return new Fx(amount2, amount1, paymentDate);
     } else {
-      return new Fx(amount1, amount2, valueDate);
+      return new Fx(amount1, amount2, paymentDate);
     }
   }
 
@@ -113,21 +114,16 @@ public final class Fx
    * No payment date adjustments apply.
    * 
    * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param currency2  the second currency
-   * @param fxRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
-   * @param valueDate  the value date
+   * @param fxRate  the near FX rate
+   * @param paymentDate  date that the FX settles
    * @return the FX
    */
-  public static Fx of(
-      CurrencyAmount amountCurrency1,
-      Currency currency2,
-      double fxRate,
-      LocalDate valueDate) {
-
-    ArgChecker.isFalse(amountCurrency1.getCurrency().equals(currency2), "Currencies must not be equal");
-    ArgChecker.notNegativeOrZero(fxRate, "fxRate");
+  public static Fx of(CurrencyAmount amountCurrency1, FxRate fxRate, LocalDate paymentDate) {
+    CurrencyPair pair = fxRate.getPair();
+    ArgChecker.isTrue(pair.contains(amountCurrency1.getCurrency()));
+    Currency currency2 = pair.getBase().equals(amountCurrency1.getCurrency()) ? pair.getCounter() : pair.getBase();
     CurrencyAmount amountCurrency2 = amountCurrency1.convertedTo(currency2, fxRate).negated();
-    return of(amountCurrency1, amountCurrency2, valueDate);
+    return of(amountCurrency1, amountCurrency2, paymentDate);
   }
 
   //-------------------------------------------------------------------------

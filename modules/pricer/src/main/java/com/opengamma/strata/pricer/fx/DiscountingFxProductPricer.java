@@ -100,6 +100,7 @@ public class DiscountingFxProductPricer {
    * @return the forward rate
    */
   public FxRate forwardFxRate(FxProduct product, RatesProvider provider) {
+    // TODO Need FxIndex in product?
     ExpandedFx fx = product.expand();
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
@@ -123,6 +124,9 @@ public class DiscountingFxProductPricer {
    */
   public PointSensitivities presentValueSensitivity(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
+    if (provider.getValuationDate().isAfter(fx.getPaymentDate())) {
+      return PointSensitivities.empty();
+    }
     PointSensitivityBuilder pvcs1 = presentValueSensitivity(fx.getBaseCurrencyPayment(), provider);
     PointSensitivityBuilder pvcs2 = presentValueSensitivity(fx.getCounterCurrencyPayment(), provider);
     return pvcs1.combinedWith(pvcs2).build();
@@ -140,8 +144,7 @@ public class DiscountingFxProductPricer {
    */
   public PointSensitivityBuilder presentValueSensitivity(FxPayment payment, final RatesProvider provider) {
     DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
-    return discountFactors.zeroRatePointSensitivity(payment.getPaymentDate())
-        .multipliedBy(payment.getAmount());
+    return discountFactors.zeroRatePointSensitivity(payment.getPaymentDate()).multipliedBy(payment.getAmount());
   }
 
 }
