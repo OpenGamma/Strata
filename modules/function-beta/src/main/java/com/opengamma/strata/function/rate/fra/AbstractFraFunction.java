@@ -9,11 +9,13 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -110,6 +112,18 @@ public abstract class AbstractFraFunction<T>
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
         .collect(toScenarioResult(convertCurrencies));
+  }
+
+
+  /**
+   * Returns the currency of the FRA.
+   *
+   * @param target  the FRA that is the target of the calculation
+   * @return the currency of the FRA
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(FraTrade target) {
+    return Optional.of(target.getProduct().getCurrency());
   }
 
   // execute for a single trade

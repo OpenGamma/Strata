@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.swap;
+package com.opengamma.strata.function.calculation.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -20,7 +20,7 @@ public class SwapBucketedPv01Function
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedSwap product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider).build();
-    return provider.curveParameterSensitivity(pointSensitivity);
+    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
 }

@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -78,9 +79,9 @@ public class CalculationTaskTest {
 
   /**
    * Test that the result is converted to the reporting currency if it implements CurrencyConvertible and
-   * the FX rates are available in the market data
+   * the FX rates are available in the market data. The reporting currency is taken from the reporting rules.
    */
-  public void convertResultCurrency() {
+  public void convertResultCurrencyUsingReportingRules() {
     double[] values = {1, 2, 3};
     List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
         .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
@@ -91,6 +92,29 @@ public class CalculationTaskTest {
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list);
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
+
+    double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
+    CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
+    CalculationResult calculationResult = task.execute(marketData);
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).hasValue(expectedArray);
+  }
+
+  /**
+   * Test that the result is converted to the reporting currency if it implements CurrencyConvertible and
+   * the FX rates are available in the market data. The default reporting currency is taken from the function.
+   */
+  public void convertResultCurrencyUsingDefaultReportingCurrency() {
+    double[] values = {1, 2, 3};
+    List<FxRate> rates = ImmutableList.of(1.61, 1.62, 1.63).stream()
+        .map(rate -> FxRate.of(Currency.GBP, Currency.USD, rate))
+        .collect(toImmutableList());
+    CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
+    ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
+        .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
+        .build();
+    ConvertibleFunction fn = ConvertibleFunction.of(() -> list, Currency.USD);
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
 
     double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(Currency.USD, expectedValues);
@@ -122,7 +146,7 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test the result is returned unchanged if it is convertible but no reporting currency is available.
+   * Test a failure is returned for a convertible value if there is no reporting currency.
    */
   public void convertResultCurrencyNoReportingCurrency() {
     double[] values = {1, 2, 3};
@@ -139,7 +163,18 @@ public class CalculationTaskTest {
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
-    assertThat(result).hasValue(list);
+    assertThat(result).hasFailureMessageMatching("No reporting currency available.*");
+  }
+
+  /**
+   * Test a non-convertible result is returned even if there is no reporting currency.
+   */
+  public void nonConvertibleResultReturnedWhenNoReportingCurrency() {
+    TestFunction fn = new TestFunction();
+    CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, ReportingRules.empty());
+    CalculationResult calculationResult = task.execute(ScenarioMarketData.builder(1, date(2011, 3, 8)).build());
+    Result<?> result = calculationResult.getResult();
+    assertThat(result).hasValue("bar");
   }
 
   /**
@@ -256,13 +291,19 @@ public class CalculationTaskTest {
       implements CalculationSingleFunction<TestTarget, CurrencyValuesArray> {
 
     private final Supplier<CurrencyValuesArray> supplier;
+    private final Optional<Currency> reportingCurrency;
 
     public static ConvertibleFunction of(Supplier<CurrencyValuesArray> supplier) {
-      return new ConvertibleFunction(supplier);
+      return new ConvertibleFunction(supplier, Optional.<Currency>empty());
     }
 
-    private ConvertibleFunction(Supplier<CurrencyValuesArray> supplier) {
+    public static ConvertibleFunction of(Supplier<CurrencyValuesArray> supplier, Currency reportingCurrency) {
+      return new ConvertibleFunction(supplier, Optional.of(reportingCurrency));
+    }
+
+    private ConvertibleFunction(Supplier<CurrencyValuesArray> supplier, Optional<Currency> reportingCurrency) {
       this.supplier = supplier;
+      this.reportingCurrency = reportingCurrency;
     }
 
     @Override
@@ -273,6 +314,11 @@ public class CalculationTaskTest {
     @Override
     public CalculationRequirements requirements(TestTarget target) {
       return CalculationRequirements.empty();
+    }
+
+    @Override
+    public Optional<Currency> defaultReportingCurrency(TestTarget target) {
+      return reportingCurrency;
     }
   }
 

@@ -127,21 +127,22 @@ public class CashflowEquivalentTheoreticalCalculator {
       return list;
     }
     OvernightCompoundedRateObservation on = (OvernightCompoundedRateObservation) accrualPeriod.getRateObservation();
+    OvernightIndex index = on.getIndex();
     if (!on.getStartDate().isBefore(valuationDate)) { // First fixing not taken place yet
       // TODO: spread, gearing
-      FxPayment paymentStart = FxPayment.of(accrualPeriod.getStartDate(),
+      FxPayment paymentStart = FxPayment.of(index.calculateEffectiveFromFixing(accrualPeriod.getStartDate()),
           CurrencyAmount.of(paymentPeriod.getCurrency(), ratePaymentPeriod.getNotional()));
-      FxPayment paymentEnd = FxPayment.of(accrualPeriod.getEndDate(),
+      FxPayment paymentEnd = FxPayment.of(
+          index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(accrualPeriod.getEndDate())),
           CurrencyAmount.of(paymentPeriod.getCurrency(), -ratePaymentPeriod.getNotional()));
       list.add(paymentStart);
       list.add(paymentEnd);
       return list;
     }
-    OvernightIndex index = on.getIndex();
     double compositionFactor = 1.0d;
     LocalDate currentFixing = on.getStartDate();
     while (currentFixing.isBefore(on.getEndDate()) && // fixing in the non-cutoff period
-        provider.getValuationDate().isAfter(currentFixing)) { // publication before valuation
+        valuationDate.isAfter(currentFixing)) { // publication before valuation
       double rate = provider.overnightIndexRates(index).rate(currentFixing);
       LocalDate effectiveDate = index.calculateEffectiveFromFixing(currentFixing);
       LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate);
@@ -149,9 +150,11 @@ public class CashflowEquivalentTheoreticalCalculator {
       compositionFactor *= 1.0d + accrualFactor * rate;
       currentFixing = index.getFixingCalendar().next(currentFixing);
     }
-    FxPayment paymentEnd = FxPayment.of(accrualPeriod.getEndDate(),
+    FxPayment paymentEnd = FxPayment.of(
+        index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(accrualPeriod.getEndDate())),
         CurrencyAmount.of(paymentPeriod.getCurrency(), -ratePaymentPeriod.getNotional() * compositionFactor));
     list.add(paymentEnd);
+    // TODO: ibor compounding
     return list;
   }
   

@@ -5,19 +5,14 @@
  */
 package com.opengamma.strata.engine.calculations.function;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collector;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.engine.calculations.function.result.CurrencyAmountList;
+import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.engine.calculations.function.result.DefaultScenarioResult;
-import com.opengamma.strata.engine.calculations.function.result.MultiCurrencyAmountList;
+import com.opengamma.strata.engine.calculations.function.result.FxConvertibleList;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 
 /**
@@ -30,37 +25,20 @@ public final class FunctionUtils {
   }
 
   /**
-   * Returns a collector which can be used at the end of a stream of {@link MultiCurrencyAmount}
-   * to build a {@link MultiCurrencyAmountList}.
+   * Returns a collector which can be used at the end of a stream of {@link FxConvertible}
+   * to build a {@link FxConvertibleList}.
    *
-   * @return a collector used to create a {@code MultiCurrencyAmountList} from a stream of {@code MultiCurrencyAmount}
+   * @return a collector used to create a {@code FxConvertibleList} from a stream of {@code FxConvertible}
    */
-  public static Collector<MultiCurrencyAmount, ImmutableList.Builder<MultiCurrencyAmount>, MultiCurrencyAmountList>
-      toMultiCurrencyAmountList() {
+  public static Collector<FxConvertible<?>, ImmutableList.Builder<FxConvertible<?>>, FxConvertibleList>
+      toFxConvertibleList() {
 
     // edited to compile in Eclipse
     return Collector.of(
-        ImmutableList.Builder<MultiCurrencyAmount>::new,
+        ImmutableList.Builder<FxConvertible<?>>::new,
         (bld, v) -> bld.add(v),
         (l, r) -> l.addAll(r.build()),
-        builder -> MultiCurrencyAmountList.of(builder.build()));
-  }
-
-  /**
-   * Returns a collector which can be used at the end of a stream of {@link CurrencyAmount}
-   * to build a {@link CurrencyAmountList}.
-   *
-   * @return a collector used to create a {@code CurrencyAmountList} from a stream of {@code CurrencyAmount}
-   */
-  public static Collector<CurrencyAmount, ImmutableList.Builder<CurrencyAmount>, CurrencyAmountList>
-      toCurrencyAmountList() {
-
-    // edited to compile in Eclipse
-    return Collector.of(
-        ImmutableList.Builder<CurrencyAmount>::new,
-        (bld, v) -> bld.add(v),
-        (l, r) -> l.addAll(r.build()),
-        builder -> CurrencyAmountList.of(builder.build()));
+        builder -> FxConvertibleList.of(builder.build()));
   }
 
   /**
@@ -70,11 +48,9 @@ public final class FunctionUtils {
    * If the currency of the result shouldn't be converted, for example when the results contain notional
    * amounts, call {@link #toScenarioResult(boolean)} specifying {@code convertCurrencies = false}.
    * <p>
-   * If the results are all instances of {@link CurrencyAmount} a {@link CurrencyAmountList} is created which
-   * can be automatically converted to the reporting currency by the engine.
-   * <p>
-   * If the results are all instances of {@link MultiCurrencyAmount} a {@link MultiCurrencyAmountList} is created which
-   * can be automatically converted to the reporting currency by the engine.
+   * If the results are all instances of {@link FxConvertible} and the {@code convertCurrencies}
+   * flag is true an {@link FxConvertibleList} is created. This can be automatically converted to the
+   * reporting currency by the engine.
    *
    * @param <T> the type of the results in the stream
    * @return a collector used to create a {@code CurrencyAmountList} from a stream of {@code CurrencyAmount}
@@ -89,12 +65,8 @@ public final class FunctionUtils {
    * If {@code convertCurrencies} is true the returned result will support automatic currency conversion if
    * the underlying results support it.
    * <p>
-   * If the results are all instances of {@link CurrencyAmount} and the {@code convertCurrencies}
-   * flag is true a {@link CurrencyAmountList} is created. This can be automatically converted to the
-   * reporting currency by the engine.
-   * <p>
-   * If the results are all instances of {@link MultiCurrencyAmount} and the {@code convertCurrencies}
-   * flag is true a {@link MultiCurrencyAmountList} is created. This can be automatically converted to the
+   * If the results are all instances of {@link FxConvertible} and the {@code convertCurrencies}
+   * flag is true an {@link FxConvertibleList} is created. This can be automatically converted to the
    * reporting currency by the engine.
    *
    * @param convertCurrencies  if this is true the results will be wrapped in an object supporting automatic
@@ -113,24 +85,16 @@ public final class FunctionUtils {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> ScenarioResult<T> buildResult(List<T> results, boolean convertCurrencies) {
+  private static <T, R> ScenarioResult<T> buildResult(List<T> results, boolean convertCurrencies) {
     // If currency conversion isn't required return a result that doesn't implement CurrencyConvertible
     // and the engine won't try to convert it.
     if (!convertCurrencies) {
-      return DefaultScenarioResult.of(results);
+      return DefaultScenarioResult.of((results));
     }
-    // Build the set of all types in the results
-    Set<Class<?>> resultTypes = results.stream().map(Object::getClass).collect(toSet());
-
-    if (resultTypes.size() == 1 && resultTypes.contains(CurrencyAmount.class)) {
-      // This casts are definitely safe, the results list only contains CurrencyAmounts
-      List<CurrencyAmount> currencyAmounts = (List<CurrencyAmount>) results;
-      return (ScenarioResult<T>) CurrencyAmountList.of(currencyAmounts);
-    }
-    if (resultTypes.size() == 1 && resultTypes.contains(MultiCurrencyAmount.class)) {
-      // This casts are definitely safe, the results list only contains MultiCurrencyAmounts
-      List<MultiCurrencyAmount> currencyAmounts = (List<MultiCurrencyAmount>) results;
-      return (ScenarioResult<T>) MultiCurrencyAmountList.of(currencyAmounts);
+    // If all the results are FxConvertible wrap in a type that implements CurrencyConvertible
+    if (results.stream().allMatch(FxConvertible.class::isInstance)) {
+      List<FxConvertible<R>> convertibleResults = (List<FxConvertible<R>>) results;
+      return (ScenarioResult<T>) FxConvertibleList.of(convertibleResults);
     }
     return DefaultScenarioResult.of(results);
   }

@@ -3,20 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.swap;
+package com.opengamma.strata.function.calculation.rate.swap;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.Sets;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
@@ -25,6 +26,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
@@ -37,20 +39,14 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
  * @param <T>  the return type
  */
 public abstract class AbstractSwapFunction<T>
-    implements CalculationSingleFunction<SwapTrade, ScenarioResult<T>> {
-
-  /**
-   * If this is true the value returned by the {@code execute} method will support automatic currency
-   * conversion if the underlying results support it.
-   */
-  private final boolean convertCurrencies;
+    extends AbstractCalculationFunction<SwapTrade, ScenarioResult<T>> {
 
   /**
    * Creates a new instance which will return results from the {@code execute} method that support automatic
    * currency conversion if the underlying results support it.
    */
   protected AbstractSwapFunction() {
-    this(true);
+    super();
   }
 
   /**
@@ -60,7 +56,7 @@ public abstract class AbstractSwapFunction<T>
    *   automatic currency conversion if the underlying results support it
    */
   protected AbstractSwapFunction(boolean convertCurrencies) {
-    this.convertCurrencies = convertCurrencies;
+    super(convertCurrencies);
   }
 
   /**
@@ -108,7 +104,18 @@ public abstract class AbstractSwapFunction<T>
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
-        .collect(toScenarioResult(convertCurrencies));
+        .collect(toScenarioResult(isConvertCurrencies()));
+  }
+
+  /**
+   * Returns the currency of the first leg.
+   *
+   * @param target  the swap that is the target of the calculation
+   * @return the currency of the first leg
+   */
+  @Override
+  public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
+    return Optional.of(target.getProduct().getLegs().get(0).getCurrency());
   }
 
   // execute for a single trade

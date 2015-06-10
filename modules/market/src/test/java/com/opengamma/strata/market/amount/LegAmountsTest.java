@@ -28,14 +28,14 @@ public class LegAmountsTest {
 
   private static final LegAmount LEG_AMOUNT_1 = SwapLegAmount.builder()
       .amount(CurrencyAmount.of(Currency.USD, 500))
-      .payReceieve(PayReceive.PAY)
+      .payReceive(PayReceive.PAY)
       .legType(SwapLegType.FIXED)
       .legCurrency(Currency.USD)
       .build();
   
   private static final LegAmount LEG_AMOUNT_2 = SwapLegAmount.builder()
       .amount(CurrencyAmount.of(Currency.USD, 420))
-      .payReceieve(PayReceive.RECEIVE)
+      .payReceive(PayReceive.RECEIVE)
       .legType(SwapLegType.IBOR)
       .legCurrency(Currency.USD)
       .build();
@@ -63,7 +63,7 @@ public class LegAmountsTest {
     
     LegAmount swapLeg = SwapLegAmount.builder()
         .amount(CurrencyAmount.of(Currency.GBP, 1557.445))
-        .payReceieve(PayReceive.PAY)
+        .payReceive(PayReceive.PAY)
         .legType(SwapLegType.FIXED)
         .legCurrency(Currency.EUR)
         .build();
