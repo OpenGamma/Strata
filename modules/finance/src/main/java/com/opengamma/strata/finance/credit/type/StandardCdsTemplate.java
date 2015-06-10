@@ -9,7 +9,6 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Template;
 import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.markit.RedCode;
 import com.opengamma.strata.finance.credit.fee.SinglePayment;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.RestructuringClause;
@@ -59,8 +58,7 @@ public final class StandardCdsTemplate
       BuySell buySell,
       double notional,
       double coupon,
-      RedCode referenceEntityId,
-      String referenceEntityName,
+      StandardId referenceEntityId,
       SeniorityLevel seniorityLevel,
       RestructuringClause restructuringClause
   ) {
@@ -72,7 +70,6 @@ public final class StandardCdsTemplate
         notional,
         coupon,
         referenceEntityId,
-        referenceEntityName,
         seniorityLevel,
         restructuringClause,
         Optional.empty()
@@ -86,8 +83,7 @@ public final class StandardCdsTemplate
       BuySell buySell,
       double notional,
       double coupon,
-      RedCode referenceEntityId,
-      String referenceEntityName,
+      StandardId referenceEntityId,
       SeniorityLevel seniorityLevel,
       RestructuringClause restructuringClause,
       double upfrontFeeAmount,
@@ -102,7 +98,6 @@ public final class StandardCdsTemplate
         notional,
         coupon,
         referenceEntityId,
-        referenceEntityName,
         seniorityLevel,
         restructuringClause,
         Optional.of(
@@ -121,8 +116,7 @@ public final class StandardCdsTemplate
       BuySell buySell,
       double notional,
       double coupon,
-      RedCode indexId,
-      String indexName,
+      StandardId indexId,
       int indexSeries,
       int indexAnnexVersion,
       RestructuringClause restructuringClause) {
@@ -134,7 +128,6 @@ public final class StandardCdsTemplate
         notional,
         coupon,
         indexId,
-        indexName,
         indexSeries,
         indexAnnexVersion,
         restructuringClause,
@@ -150,7 +143,7 @@ public final class StandardCdsTemplate
       BuySell buySell,
       double notional,
       double coupon,
-      RedCode indexId,
+      StandardId indexId,
       String indexName,
       int indexSeries,
       int indexAnnexVersion,
@@ -166,7 +159,6 @@ public final class StandardCdsTemplate
         notional,
         coupon,
         indexId,
-        indexName,
         indexSeries,
         indexAnnexVersion,
         restructuringClause,

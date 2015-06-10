@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.finance.credit.general.reference;
 
-import com.opengamma.strata.finance.credit.markit.RedCode;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.finance.credit.RestructuringClause;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -31,20 +32,10 @@ public final class IndexReferenceInformation
     implements ReferenceInformation, ImmutableBean, Serializable {
 
   /**
-   * The name of the index expressed as a free format string.
-   * FpML does not define usage rules for this element.
-   * <p>
-   * The full name of the index, including series
-   * and version. Example: CDX.NA.HY.14-V1 5Y.
-   */
-  @PropertyDefinition(validate = "notNull")
-  final String indexName;
-
-  /**
    * A CDS index identifier (e.g. RED pair code)
    */
   @PropertyDefinition(validate = "notNull")
-  final RedCode indexId;
+  final StandardId indexId;
 
   /**
    * A CDS index series identifier, e.g. 1, 2, 3 etc
@@ -57,6 +48,14 @@ public final class IndexReferenceInformation
    */
   @PropertyDefinition(validate = "notNull")
   final int indexAnnexVersion;
+
+  /**
+   * Specifies the type of restructuring that is applicable.
+   * This is used as part of the key in determining which curves will be used to price
+   * the swap.
+   */
+  @PropertyDefinition(validate = "notNull")
+  final RestructuringClause restructuringClause;
 
   /**
    * @return value that determines this is an index trade and not a single name
@@ -77,24 +76,24 @@ public final class IndexReferenceInformation
   public String getMarketDataKeyName() {
     return String.format(
         "%s %s %s %s",
-        indexName,
         indexId,
         indexSeries,
-        indexAnnexVersion
+        indexAnnexVersion,
+        restructuringClause
     );
   }
 
   public static ReferenceInformation of(
-      String indexName,
-      RedCode indexId,
+      StandardId indexId,
       int indexSeries,
-      int indexAnnexVersion
+      int indexAnnexVersion,
+      RestructuringClause restructuringClause
   ) {
     return new IndexReferenceInformation(
-        indexName,
         indexId,
         indexSeries,
-        indexAnnexVersion
+        indexAnnexVersion,
+        restructuringClause
     );
   }
 
@@ -126,18 +125,18 @@ public final class IndexReferenceInformation
   }
 
   private IndexReferenceInformation(
-      String indexName,
-      RedCode indexId,
+      StandardId indexId,
       int indexSeries,
-      int indexAnnexVersion) {
-    JodaBeanUtils.notNull(indexName, "indexName");
+      int indexAnnexVersion,
+      RestructuringClause restructuringClause) {
     JodaBeanUtils.notNull(indexId, "indexId");
     JodaBeanUtils.notNull(indexSeries, "indexSeries");
     JodaBeanUtils.notNull(indexAnnexVersion, "indexAnnexVersion");
-    this.indexName = indexName;
+    JodaBeanUtils.notNull(restructuringClause, "restructuringClause");
     this.indexId = indexId;
     this.indexSeries = indexSeries;
     this.indexAnnexVersion = indexAnnexVersion;
+    this.restructuringClause = restructuringClause;
   }
 
   @Override
@@ -157,23 +156,10 @@ public final class IndexReferenceInformation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the index expressed as a free format string.
-   * FpML does not define usage rules for this element.
-   * <p>
-   * The full name of the index, including series
-   * and version. Example: CDX.NA.HY.14-V1 5Y.
-   * @return the value of the property, not null
-   */
-  public String getIndexName() {
-    return indexName;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets a CDS index identifier (e.g. RED pair code)
    * @return the value of the property, not null
    */
-  public RedCode getIndexId() {
+  public StandardId getIndexId() {
     return indexId;
   }
 
@@ -197,6 +183,17 @@ public final class IndexReferenceInformation
 
   //-----------------------------------------------------------------------
   /**
+   * Gets specifies the type of restructuring that is applicable.
+   * This is used as part of the key in determining which curves will be used to price
+   * the swap.
+   * @return the value of the property, not null
+   */
+  public RestructuringClause getRestructuringClause() {
+    return restructuringClause;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -211,10 +208,10 @@ public final class IndexReferenceInformation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IndexReferenceInformation other = (IndexReferenceInformation) obj;
-      return JodaBeanUtils.equal(getIndexName(), other.getIndexName()) &&
-          JodaBeanUtils.equal(getIndexId(), other.getIndexId()) &&
+      return JodaBeanUtils.equal(getIndexId(), other.getIndexId()) &&
           (getIndexSeries() == other.getIndexSeries()) &&
-          (getIndexAnnexVersion() == other.getIndexAnnexVersion());
+          (getIndexAnnexVersion() == other.getIndexAnnexVersion()) &&
+          JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause());
     }
     return false;
   }
@@ -222,10 +219,10 @@ public final class IndexReferenceInformation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexName());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndexId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndexSeries());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndexAnnexVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
     return hash;
   }
 
@@ -233,10 +230,10 @@ public final class IndexReferenceInformation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("IndexReferenceInformation{");
-    buf.append("indexName").append('=').append(getIndexName()).append(',').append(' ');
     buf.append("indexId").append('=').append(getIndexId()).append(',').append(' ');
     buf.append("indexSeries").append('=').append(getIndexSeries()).append(',').append(' ');
-    buf.append("indexAnnexVersion").append('=').append(JodaBeanUtils.toString(getIndexAnnexVersion()));
+    buf.append("indexAnnexVersion").append('=').append(getIndexAnnexVersion()).append(',').append(' ');
+    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(getRestructuringClause()));
     buf.append('}');
     return buf.toString();
   }
@@ -252,15 +249,10 @@ public final class IndexReferenceInformation
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code indexName} property.
-     */
-    private final MetaProperty<String> indexName = DirectMetaProperty.ofImmutable(
-        this, "indexName", IndexReferenceInformation.class, String.class);
-    /**
      * The meta-property for the {@code indexId} property.
      */
-    private final MetaProperty<RedCode> indexId = DirectMetaProperty.ofImmutable(
-        this, "indexId", IndexReferenceInformation.class, RedCode.class);
+    private final MetaProperty<StandardId> indexId = DirectMetaProperty.ofImmutable(
+        this, "indexId", IndexReferenceInformation.class, StandardId.class);
     /**
      * The meta-property for the {@code indexSeries} property.
      */
@@ -272,14 +264,19 @@ public final class IndexReferenceInformation
     private final MetaProperty<Integer> indexAnnexVersion = DirectMetaProperty.ofImmutable(
         this, "indexAnnexVersion", IndexReferenceInformation.class, Integer.TYPE);
     /**
+     * The meta-property for the {@code restructuringClause} property.
+     */
+    private final MetaProperty<RestructuringClause> restructuringClause = DirectMetaProperty.ofImmutable(
+        this, "restructuringClause", IndexReferenceInformation.class, RestructuringClause.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "indexName",
         "indexId",
         "indexSeries",
-        "indexAnnexVersion");
+        "indexAnnexVersion",
+        "restructuringClause");
 
     /**
      * Restricted constructor.
@@ -290,14 +287,14 @@ public final class IndexReferenceInformation
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -807707011:  // indexName
-          return indexName;
         case 1943291277:  // indexId
           return indexId;
         case 1329638889:  // indexSeries
           return indexSeries;
         case -1801228842:  // indexAnnexVersion
           return indexAnnexVersion;
+        case -1774904020:  // restructuringClause
+          return restructuringClause;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -319,18 +316,10 @@ public final class IndexReferenceInformation
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code indexName} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<String> indexName() {
-      return indexName;
-    }
-
-    /**
      * The meta-property for the {@code indexId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RedCode> indexId() {
+    public MetaProperty<StandardId> indexId() {
       return indexId;
     }
 
@@ -350,18 +339,26 @@ public final class IndexReferenceInformation
       return indexAnnexVersion;
     }
 
+    /**
+     * The meta-property for the {@code restructuringClause} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<RestructuringClause> restructuringClause() {
+      return restructuringClause;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -807707011:  // indexName
-          return ((IndexReferenceInformation) bean).getIndexName();
         case 1943291277:  // indexId
           return ((IndexReferenceInformation) bean).getIndexId();
         case 1329638889:  // indexSeries
           return ((IndexReferenceInformation) bean).getIndexSeries();
         case -1801228842:  // indexAnnexVersion
           return ((IndexReferenceInformation) bean).getIndexAnnexVersion();
+        case -1774904020:  // restructuringClause
+          return ((IndexReferenceInformation) bean).getRestructuringClause();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -383,10 +380,10 @@ public final class IndexReferenceInformation
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IndexReferenceInformation> {
 
-    private String indexName;
-    private RedCode indexId;
+    private StandardId indexId;
     private int indexSeries;
     private int indexAnnexVersion;
+    private RestructuringClause restructuringClause;
 
     /**
      * Restricted constructor.
@@ -399,24 +396,24 @@ public final class IndexReferenceInformation
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IndexReferenceInformation beanToCopy) {
-      this.indexName = beanToCopy.getIndexName();
       this.indexId = beanToCopy.getIndexId();
       this.indexSeries = beanToCopy.getIndexSeries();
       this.indexAnnexVersion = beanToCopy.getIndexAnnexVersion();
+      this.restructuringClause = beanToCopy.getRestructuringClause();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -807707011:  // indexName
-          return indexName;
         case 1943291277:  // indexId
           return indexId;
         case 1329638889:  // indexSeries
           return indexSeries;
         case -1801228842:  // indexAnnexVersion
           return indexAnnexVersion;
+        case -1774904020:  // restructuringClause
+          return restructuringClause;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -425,17 +422,17 @@ public final class IndexReferenceInformation
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -807707011:  // indexName
-          this.indexName = (String) newValue;
-          break;
         case 1943291277:  // indexId
-          this.indexId = (RedCode) newValue;
+          this.indexId = (StandardId) newValue;
           break;
         case 1329638889:  // indexSeries
           this.indexSeries = (Integer) newValue;
           break;
         case -1801228842:  // indexAnnexVersion
           this.indexAnnexVersion = (Integer) newValue;
+          break;
+        case -1774904020:  // restructuringClause
+          this.restructuringClause = (RestructuringClause) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -470,30 +467,19 @@ public final class IndexReferenceInformation
     @Override
     public IndexReferenceInformation build() {
       return new IndexReferenceInformation(
-          indexName,
           indexId,
           indexSeries,
-          indexAnnexVersion);
+          indexAnnexVersion,
+          restructuringClause);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code indexName} property in the builder.
-     * @param indexName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder indexName(String indexName) {
-      JodaBeanUtils.notNull(indexName, "indexName");
-      this.indexName = indexName;
-      return this;
-    }
-
     /**
      * Sets the {@code indexId} property in the builder.
      * @param indexId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder indexId(RedCode indexId) {
+    public Builder indexId(StandardId indexId) {
       JodaBeanUtils.notNull(indexId, "indexId");
       this.indexId = indexId;
       return this;
@@ -521,15 +507,26 @@ public final class IndexReferenceInformation
       return this;
     }
 
+    /**
+     * Sets the {@code restructuringClause} property in the builder.
+     * @param restructuringClause  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder restructuringClause(RestructuringClause restructuringClause) {
+      JodaBeanUtils.notNull(restructuringClause, "restructuringClause");
+      this.restructuringClause = restructuringClause;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("IndexReferenceInformation.Builder{");
-      buf.append("indexName").append('=').append(JodaBeanUtils.toString(indexName)).append(',').append(' ');
       buf.append("indexId").append('=').append(JodaBeanUtils.toString(indexId)).append(',').append(' ');
       buf.append("indexSeries").append('=').append(JodaBeanUtils.toString(indexSeries)).append(',').append(' ');
-      buf.append("indexAnnexVersion").append('=').append(JodaBeanUtils.toString(indexAnnexVersion));
+      buf.append("indexAnnexVersion").append('=').append(JodaBeanUtils.toString(indexAnnexVersion)).append(',').append(' ');
+      buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(restructuringClause));
       buf.append('}');
       return buf.toString();
     }

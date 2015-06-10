@@ -23,7 +23,7 @@ import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.common.ImmLogic;
+import com.opengamma.strata.finance.credit.common.CdsDatesLogic;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.FixedAmountCalculation;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
@@ -32,7 +32,6 @@ import com.opengamma.strata.finance.credit.general.GeneralTerms;
 import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.markit.RedCode;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -104,8 +103,7 @@ public final class StandardCdsConvention
       BuySell buySell,
       double notional,
       double coupon,
-      RedCode referenceEntityId,
-      String referenceEntityName,
+      StandardId referenceEntityId,
       SeniorityLevel seniorityLevel,
       RestructuringClause restructuringClause,
       Optional<SinglePayment> upfrontFee
@@ -118,12 +116,11 @@ public final class StandardCdsConvention
         notional,
         coupon,
         SingleNameReferenceInformation.of(
-            referenceEntityName,
             referenceEntityId,
             seniorityLevel,
-            currency
+            currency,
+            restructuringClause
         ),
-        restructuringClause,
         upfrontFee
     );
   }
@@ -135,8 +132,7 @@ public final class StandardCdsConvention
       BuySell buySell,
       double notional,
       double coupon,
-      RedCode indexId,
-      String indexName,
+      StandardId indexId,
       int indexSeries,
       int indexAnnexVersion,
       RestructuringClause restructuringClause,
@@ -150,12 +146,11 @@ public final class StandardCdsConvention
         notional,
         coupon,
         IndexReferenceInformation.of(
-            indexName,
             indexId,
             indexSeries,
-            indexAnnexVersion
+            indexAnnexVersion,
+            restructuringClause
         ),
-        restructuringClause,
         upfrontFee
     );
   }
@@ -168,7 +163,6 @@ public final class StandardCdsConvention
       double notional,
       double coupon,
       ReferenceInformation referenceInformation,
-      RestructuringClause restructuringClause,
       Optional<SinglePayment> upfrontFee
   ) {
     BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
@@ -216,7 +210,6 @@ public final class StandardCdsConvention
                     )
                 )
             ))
-            .restructuringType(restructuringClause)
             .build(),
         unadjustedStepInDate,
         payAccOnDefault
@@ -247,7 +240,7 @@ public final class StandardCdsConvention
   protected static LocalDate calcUnadjustedAccrualStartDate(
       LocalDate tradeDate
   ) {
-    return ImmLogic.getPrevIMMDate(tradeDate);
+    return CdsDatesLogic.getPrevCdsDate(tradeDate);
   }
 
   /**

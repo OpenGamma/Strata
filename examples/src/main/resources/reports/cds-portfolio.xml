@@ -40,9 +40,7 @@
                         </fixedAmountCalculation>
                     </periodicPayments>
                 </feeLeg>
-                <protectionTerms>
-                    <restructuringType>XR</restructuringType>
-                </protectionTerms>
+                <restructuringType>XR</restructuringType>
             </product>
             <stepInDate>2014-10-17</stepInDate>
             <payAccOnDefault>true</payAccOnDefault>
@@ -71,10 +69,6 @@
                     </referenceInformation>
                 </generalTerms>
                 <feeLeg>
-                    <singlePayment>
-                        <fixedAmount>0.0</fixedAmount>
-                        <paymentDate>2014-10-21</paymentDate>
-                    </singlePayment>
                     <periodicPayments>
                         <paymentFrequency>P3M</paymentFrequency>
                         <stubConvention>ShortInitial</stubConvention>
@@ -86,9 +80,7 @@
                         </fixedAmountCalculation>
                     </periodicPayments>
                 </feeLeg>
-                <protectionTerms>
-                    <restructuringType>XR</restructuringType>
-                </protectionTerms>
+                <restructuringType>XR</restructuringType>
             </product>
             <stepInDate>2014-01-02</stepInDate>
             <payAccOnDefault>true</payAccOnDefault>
@@ -132,9 +124,7 @@
                         </fixedAmountCalculation>
                     </periodicPayments>
                 </feeLeg>
-                <protectionTerms>
-                    <restructuringType>XR</restructuringType>
-                </protectionTerms>
+                <restructuringType>XR</restructuringType>
             </product>
             <stepInDate>2014-01-02</stepInDate>
             <payAccOnDefault>true</payAccOnDefault>

@@ -8,8 +8,9 @@ package com.opengamma.strata.finance.credit.general;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.markit.RedCode;
 import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformation;
 import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
@@ -43,7 +44,7 @@ public final class GeneralTerms
    * The first day of the term of the trade. This day may be subject to adjustment in accordance
    * with a business day convention. ISDA 2003 Term: Effective Date
    *
-   * This is typically the previous imm date before trade date, adjusted.
+   * This is typically the previous cds (qtr on 20th) date before trade date, adjusted.
    */
   @PropertyDefinition(validate = "notNull")
   final LocalDate effectiveDate;
@@ -52,7 +53,7 @@ public final class GeneralTerms
    * The scheduled date on which the credit protection will lapse. This day may be subject to
    * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
    *
-   * This is typically an unadjusted imm date.
+   * This is typically an unadjusted cds date.
    */
   @PropertyDefinition(validate = "notNull")
   final LocalDate scheduledTerminationDate;
@@ -83,21 +84,21 @@ public final class GeneralTerms
       LocalDate scheduledTerminationDate,
       BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
-      RedCode referenceEntityId,
-      String referenceEntityName,
+      StandardId referenceEntityId,
       Currency currency,
-      SeniorityLevel seniority
-  ) {
+      SeniorityLevel seniority,
+      RestructuringClause restructuringClause
+      ) {
     return of(
         effectiveDate,
         scheduledTerminationDate,
         buySellProtection,
         businessDayAdjustment,
         SingleNameReferenceInformation.of(
-            referenceEntityName,
             referenceEntityId,
             seniority,
-            currency
+            currency,
+            restructuringClause
         )
     );
   }
@@ -107,10 +108,10 @@ public final class GeneralTerms
       LocalDate scheduledTerminationDate,
       BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
-      RedCode indexId,
-      String indexName,
+      StandardId indexId,
       int indexSeries,
-      int indexAnnexVersion
+      int indexAnnexVersion,
+      RestructuringClause restructuringClause
   ) {
     return of(
         effectiveDate,
@@ -118,10 +119,10 @@ public final class GeneralTerms
         buySellProtection,
         businessDayAdjustment,
         IndexReferenceInformation.of(
-            indexName,
             indexId,
             indexSeries,
-            indexAnnexVersion
+            indexAnnexVersion,
+            restructuringClause
         )
     );
   }
@@ -208,7 +209,7 @@ public final class GeneralTerms
    * Gets the first day of the term of the trade. This day may be subject to adjustment in accordance
    * with a business day convention. ISDA 2003 Term: Effective Date
    * 
-   * This is typically the previous imm date before trade date, adjusted.
+   * This is typically the previous cds (qtr on 20th) date before trade date, adjusted.
    * @return the value of the property, not null
    */
   public LocalDate getEffectiveDate() {
@@ -220,7 +221,7 @@ public final class GeneralTerms
    * Gets the scheduled date on which the credit protection will lapse. This day may be subject to
    * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
    * 
-   * This is typically an unadjusted imm date.
+   * This is typically an unadjusted cds date.
    * @return the value of the property, not null
    */
   public LocalDate getScheduledTerminationDate() {
