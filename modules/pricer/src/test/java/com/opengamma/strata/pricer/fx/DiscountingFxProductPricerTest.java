@@ -82,7 +82,21 @@ public class DiscountingFxProductPricerTest {
     assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
   }
 
-  // TODO forwardRate
+  public void test_parSpread_ended() {
+    Fx fwd = Fx.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), LocalDate.of(2011, 11, 2));
+    double spread = PRICER.parSpread(fwd, PROVIDER);
+    assertEquals(spread, 0d, TOL);
+  }
+
+  public void test_forwardFxRate() {
+    // forward rate is computed by discounting for any RatesProvider input. 
+    FxRate computed = PRICER.forwardFxRate(FWD, PROVIDER);
+    double df1 = PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double df2 = PROVIDER.discountFactor(KRW, PAYMENT_DATE);
+    double spot = PROVIDER.fxRate(USD, KRW);
+    FxRate expected = FxRate.of(USD, KRW, spot * df1 / df2);
+    assertEquals(computed, expected);
+  }
 
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(FWD, PROVIDER);
