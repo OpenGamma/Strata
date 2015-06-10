@@ -62,33 +62,6 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     return notionalSettle.multipliedBy(dfSettle * (1d - agreedRate / forwardRate));
   }
 
-  // TODO Add currencyExposure: requires implementation of forward rate sensitivity to spot rate
-  //  /**
-  //   * Calculates the currency exposure of the NDF product.
-  //   * 
-  //   * @param product  the product to prices
-  //   * @param provider  the rates provider
-  //   * @return the currency exposure of the product in the two natural currencies
-  //   */
-  //  public MultiCurrencyAmount currencyExposure(FxNonDeliverableForwardProduct product, RatesProvider provider) {
-  //    ExpandedFxNonDeliverableForward ndf = product.expand();
-  //    Currency ccySettle = ndf.getSettlementCurrency();
-  //    Currency ccyOther = ndf.getNonDeliverableCurrency();
-  //    CurrencyAmount notionalSettle = ndf.getSettlementCurrencyNotional();
-  //    double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle);
-  //    double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
-  //    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
-  //    double spot = provider.fxRate(ccySettle, ccyOther);
-  //    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
-  //    double forwardRateDelta = provider.fxIndexRates(ndf.getIndex()).rateDelta(ccySettle, fixingDate);
-  //    double delta = -agreedRate * forwardRateDelta / forwardRate / forwardRate;
-  //    CurrencyAmount exposureSettle =
-  //        notionalSettle.multipliedBy(dfSettle * (1d - agreedRate / forwardRate - delta * spot));
-  //    CurrencyAmount exposureOther =
-  //        notionalSettle.multipliedBy(dfSettle * delta * spot).convertedTo(ccyOther, spot);
-  //    return MultiCurrencyAmount.of(exposureOther, exposureSettle);
-  //  }
-
   /**
    * Calculates the forward exchange rate.
    * 

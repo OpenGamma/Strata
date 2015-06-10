@@ -31,9 +31,9 @@ import com.opengamma.strata.finance.TradeInfo;
  * <p>
  * An Over-The-Counter (OTC) trade in an {@link FxNonDeliverableForward}.
  * <p>
- * An NDF is a financial instrument that returns the difference between the spot rate
- * at the inception of the trade and the FX rate at maturity.
- * It is primarily used to handle FX requirements for currencies that cannot be easily traded.
+ * An NDF is a financial instrument that returns the difference between a fixed FX rate 
+ * agreed at the inception of the trade and the FX rate at maturity. 
+ * It is primarily used to handle FX requirements for currencies that have settlement restrictions.
  * For example, the forward may be between USD and CNY (Chinese Yuan).
  */
 @BeanDefinition

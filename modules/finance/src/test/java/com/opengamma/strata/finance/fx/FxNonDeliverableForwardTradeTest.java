@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.finance.fx;
 
-import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
@@ -19,6 +18,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.finance.TradeInfo;
 
@@ -30,13 +30,12 @@ public class FxNonDeliverableForwardTradeTest {
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final double NOTIONAL = 100_000_000;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 3, 19);
+  private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(GBP, NOTIONAL);
   private static final FxNonDeliverableForward PRODUCT = FxNonDeliverableForward.builder()
       .agreedFxRate(FX_RATE)
-      .buySell(SELL)
+      .settlementCurrencyNotional(CURRENCY_NOTIONAL)
       .index(WM_GBP_USD)
-      .notional(NOTIONAL)
       .paymentDate(PAYMENT_DATE)
-      .settlementCurrency(GBP)
       .build();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
 
