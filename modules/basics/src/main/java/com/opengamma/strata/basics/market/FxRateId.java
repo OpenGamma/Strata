@@ -72,6 +72,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean {
    * Creates an ID for the FX rate for a currency pair.
    *
    * @param currencyPair a currency pair
+   * @param marketDataFeed  the feed that is the source of the observable market data used to create the rate
    * @return an ID for the FX rate for the currency pair
    */
   public static FxRateId of(CurrencyPair currencyPair, MarketDataFeed marketDataFeed) {
@@ -83,7 +84,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean {
    *
    * @param base the base currency of the pair
    * @param counter the counter currency of the pair
-   * @param marketDataFeed
+   * @param marketDataFeed  the feed that is the source of the observable market data used to create the rate
    * @return an ID for the FX rate for the currency pair
    */
   public static FxRateId of(Currency base, Currency counter, MarketDataFeed marketDataFeed) {
