@@ -7,7 +7,6 @@ package com.opengamma.strata.finance.credit;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
@@ -16,7 +15,6 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.Expandable;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.credit.fee.SinglePayment;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -35,7 +33,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -110,10 +107,7 @@ public final class CdsTrade
     LocalDate cashSettleDate = getTradeInfo().getSettlementDate().get();
     BusinessDayConvention businessdayAdjustmentConvention = getProduct().getGeneralTerms().getBusinessDayAdjustment().getConvention();
     HolidayCalendar calendar = getProduct().getGeneralTerms().getBusinessDayAdjustment().getCalendar();
-    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(
-        businessdayAdjustmentConvention,
-        calendar
-    );
+    BusinessDayAdjustment businessDayAdjustment = getProduct().getGeneralTerms().getBusinessDayAdjustment();
     LocalDate accStartDate = businessDayAdjustment.adjust(
         getProduct().getGeneralTerms().getStartDate()
     );
@@ -121,13 +115,13 @@ public final class CdsTrade
     boolean payAccOnDefault = isPayAccOnDefault();
     Period paymentInterval = getProduct().getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
     StubConvention stubConvention = getProduct().getFeeLeg().getPeriodicPayments().getStubConvention();
-    DayCount accrualDayCount = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getDayCountFraction();
+    DayCount accrualDayCount = getProduct().getFeeLeg().getPeriodicPayments().getDayCount();
     BuySell buySellProtection = getProduct().getGeneralTerms().getBuySellProtection();
     double upfrontFeeAmount = getProduct().getFeeLeg().getUpfrontFee().getFixedAmount().getAmount();
     LocalDate upfrontFeePaymentDate = getProduct().getFeeLeg().getUpfrontFee().getPaymentDate();
-    double coupon = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getFixedRate();
-    double notional = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getAmount();
-    Currency currency = getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getCurrency();
+    double coupon = getProduct().getFeeLeg().getPeriodicPayments().getCoupon();
+    double notional = getProduct().getFeeLeg().getPeriodicPayments().getNotional().getAmount();
+    Currency currency = getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
 
     return ExpandedCdsTrade
         .builder()

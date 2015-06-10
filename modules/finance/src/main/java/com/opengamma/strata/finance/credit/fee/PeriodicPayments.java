@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.finance.credit.fee;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -41,14 +43,36 @@ public final class PeriodicPayments
     implements ImmutableBean, Serializable {
 
   /**
+   * The notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis,
+   * i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction.
+   * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
+   */
+  @PropertyDefinition(validate = "notNull")
+  final CurrencyAmount notional;
+
+  /**
+   * Coupon. Also known as coupon
+   * The calculation period fixed rate. A per annum rate, expressed as a decimal.
+   * A fixed rate of 5% would be represented as 0.05.
+   */
+  @PropertyDefinition(validate = "notNull")
+  final double coupon;
+
+  /**
+   * The day count fraction. ISDA 2003 Term: Fixed Rate Day Count Fraction.
+   */
+  @PropertyDefinition(validate = "notNull")
+  final DayCount dayCount;
+
+  /**
    * The time interval between regular fixed rate payer payment dates.
    */
   @PropertyDefinition(validate = "notNull")
   final Frequency paymentFrequency;
 
   /**
-   * Stub convention to use when the maturity date does not land precisely on an imm date
-   * and a stab period is created
+   * Stub convention to use when the maturity date does not land precisely on an cds date
+   * and a stub period is created
    */
   @PropertyDefinition(validate = "notNull")
   final StubConvention stubConvention;
@@ -59,25 +83,21 @@ public final class PeriodicPayments
   @PropertyDefinition(validate = "notNull")
   final RollConvention rollConvention;
 
-  /**
-   * This element contains all the terms relevant to calculating a fixed amount where the fixed amount is
-   * calculated by reference to a per annum fixed rate. There is no corresponding ISDA 2003 Term.
-   * The equivalent is Sec 5.1 "Calculation of Fixed Amount" but this in itself is not a defined Term.
-   */
-  @PropertyDefinition(validate = "notNull")
-  final FixedAmountCalculation fixedAmountCalculation;
-
   public static PeriodicPayments of(
+      CurrencyAmount notional,
+      double coupon,
+      DayCount dayCount,
       Frequency paymentFrequency,
       StubConvention stubConvention,
-      RollConvention rollConvention,
-      FixedAmountCalculation fixedAmountCalculation
+      RollConvention rollConvention
   ) {
     return new PeriodicPayments(
+        notional,
+        coupon,
+        dayCount,
         paymentFrequency,
         stubConvention,
-        rollConvention,
-        fixedAmountCalculation
+        rollConvention
     );
   }
 
@@ -109,18 +129,24 @@ public final class PeriodicPayments
   }
 
   private PeriodicPayments(
+      CurrencyAmount notional,
+      double coupon,
+      DayCount dayCount,
       Frequency paymentFrequency,
       StubConvention stubConvention,
-      RollConvention rollConvention,
-      FixedAmountCalculation fixedAmountCalculation) {
+      RollConvention rollConvention) {
+    JodaBeanUtils.notNull(notional, "notional");
+    JodaBeanUtils.notNull(coupon, "coupon");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(paymentFrequency, "paymentFrequency");
     JodaBeanUtils.notNull(stubConvention, "stubConvention");
     JodaBeanUtils.notNull(rollConvention, "rollConvention");
-    JodaBeanUtils.notNull(fixedAmountCalculation, "fixedAmountCalculation");
+    this.notional = notional;
+    this.coupon = coupon;
+    this.dayCount = dayCount;
     this.paymentFrequency = paymentFrequency;
     this.stubConvention = stubConvention;
     this.rollConvention = rollConvention;
-    this.fixedAmountCalculation = fixedAmountCalculation;
   }
 
   @Override
@@ -140,6 +166,37 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis,
+   * i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction.
+   * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
+   * @return the value of the property, not null
+   */
+  public CurrencyAmount getNotional() {
+    return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets coupon. Also known as coupon
+   * The calculation period fixed rate. A per annum rate, expressed as a decimal.
+   * A fixed rate of 5% would be represented as 0.05.
+   * @return the value of the property, not null
+   */
+  public double getCoupon() {
+    return coupon;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the day count fraction. ISDA 2003 Term: Fixed Rate Day Count Fraction.
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCount() {
+    return dayCount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the time interval between regular fixed rate payer payment dates.
    * @return the value of the property, not null
    */
@@ -149,8 +206,8 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
-   * Gets stub convention to use when the maturity date does not land precisely on an imm date
-   * and a stab period is created
+   * Gets stub convention to use when the maturity date does not land precisely on an cds date
+   * and a stub period is created
    * @return the value of the property, not null
    */
   public StubConvention getStubConvention() {
@@ -164,17 +221,6 @@ public final class PeriodicPayments
    */
   public RollConvention getRollConvention() {
     return rollConvention;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets this element contains all the terms relevant to calculating a fixed amount where the fixed amount is
-   * calculated by reference to a per annum fixed rate. There is no corresponding ISDA 2003 Term.
-   * The equivalent is Sec 5.1 "Calculation of Fixed Amount" but this in itself is not a defined Term.
-   * @return the value of the property, not null
-   */
-  public FixedAmountCalculation getFixedAmountCalculation() {
-    return fixedAmountCalculation;
   }
 
   //-----------------------------------------------------------------------
@@ -193,10 +239,12 @@ public final class PeriodicPayments
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PeriodicPayments other = (PeriodicPayments) obj;
-      return JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
+      return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
           JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
-          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
-          JodaBeanUtils.equal(getFixedAmountCalculation(), other.getFixedAmountCalculation());
+          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention());
     }
     return false;
   }
@@ -204,21 +252,25 @@ public final class PeriodicPayments
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedAmountCalculation());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("PeriodicPayments{");
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
+    buf.append("coupon").append('=').append(getCoupon()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("paymentFrequency").append('=').append(getPaymentFrequency()).append(',').append(' ');
     buf.append("stubConvention").append('=').append(getStubConvention()).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(getRollConvention()).append(',').append(' ');
-    buf.append("fixedAmountCalculation").append('=').append(JodaBeanUtils.toString(getFixedAmountCalculation()));
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention()));
     buf.append('}');
     return buf.toString();
   }
@@ -233,6 +285,21 @@ public final class PeriodicPayments
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<CurrencyAmount> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", PeriodicPayments.class, CurrencyAmount.class);
+    /**
+     * The meta-property for the {@code coupon} property.
+     */
+    private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
+        this, "coupon", PeriodicPayments.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
+        this, "dayCount", PeriodicPayments.class, DayCount.class);
     /**
      * The meta-property for the {@code paymentFrequency} property.
      */
@@ -249,19 +316,16 @@ public final class PeriodicPayments
     private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
         this, "rollConvention", PeriodicPayments.class, RollConvention.class);
     /**
-     * The meta-property for the {@code fixedAmountCalculation} property.
-     */
-    private final MetaProperty<FixedAmountCalculation> fixedAmountCalculation = DirectMetaProperty.ofImmutable(
-        this, "fixedAmountCalculation", PeriodicPayments.class, FixedAmountCalculation.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "notional",
+        "coupon",
+        "dayCount",
         "paymentFrequency",
         "stubConvention",
-        "rollConvention",
-        "fixedAmountCalculation");
+        "rollConvention");
 
     /**
      * Restricted constructor.
@@ -272,14 +336,18 @@ public final class PeriodicPayments
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1585636160:  // notional
+          return notional;
+        case -1354573786:  // coupon
+          return coupon;
+        case 1905311443:  // dayCount
+          return dayCount;
         case 863656438:  // paymentFrequency
           return paymentFrequency;
         case -31408449:  // stubConvention
           return stubConvention;
         case -10223666:  // rollConvention
           return rollConvention;
-        case 542293565:  // fixedAmountCalculation
-          return fixedAmountCalculation;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -300,6 +368,30 @@ public final class PeriodicPayments
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurrencyAmount> notional() {
+      return notional;
+    }
+
+    /**
+     * The meta-property for the {@code coupon} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> coupon() {
+      return coupon;
+    }
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DayCount> dayCount() {
+      return dayCount;
+    }
+
     /**
      * The meta-property for the {@code paymentFrequency} property.
      * @return the meta-property, not null
@@ -324,26 +416,22 @@ public final class PeriodicPayments
       return rollConvention;
     }
 
-    /**
-     * The meta-property for the {@code fixedAmountCalculation} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FixedAmountCalculation> fixedAmountCalculation() {
-      return fixedAmountCalculation;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1585636160:  // notional
+          return ((PeriodicPayments) bean).getNotional();
+        case -1354573786:  // coupon
+          return ((PeriodicPayments) bean).getCoupon();
+        case 1905311443:  // dayCount
+          return ((PeriodicPayments) bean).getDayCount();
         case 863656438:  // paymentFrequency
           return ((PeriodicPayments) bean).getPaymentFrequency();
         case -31408449:  // stubConvention
           return ((PeriodicPayments) bean).getStubConvention();
         case -10223666:  // rollConvention
           return ((PeriodicPayments) bean).getRollConvention();
-        case 542293565:  // fixedAmountCalculation
-          return ((PeriodicPayments) bean).getFixedAmountCalculation();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -365,10 +453,12 @@ public final class PeriodicPayments
    */
   public static final class Builder extends DirectFieldsBeanBuilder<PeriodicPayments> {
 
+    private CurrencyAmount notional;
+    private double coupon;
+    private DayCount dayCount;
     private Frequency paymentFrequency;
     private StubConvention stubConvention;
     private RollConvention rollConvention;
-    private FixedAmountCalculation fixedAmountCalculation;
 
     /**
      * Restricted constructor.
@@ -381,24 +471,30 @@ public final class PeriodicPayments
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(PeriodicPayments beanToCopy) {
+      this.notional = beanToCopy.getNotional();
+      this.coupon = beanToCopy.getCoupon();
+      this.dayCount = beanToCopy.getDayCount();
       this.paymentFrequency = beanToCopy.getPaymentFrequency();
       this.stubConvention = beanToCopy.getStubConvention();
       this.rollConvention = beanToCopy.getRollConvention();
-      this.fixedAmountCalculation = beanToCopy.getFixedAmountCalculation();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1585636160:  // notional
+          return notional;
+        case -1354573786:  // coupon
+          return coupon;
+        case 1905311443:  // dayCount
+          return dayCount;
         case 863656438:  // paymentFrequency
           return paymentFrequency;
         case -31408449:  // stubConvention
           return stubConvention;
         case -10223666:  // rollConvention
           return rollConvention;
-        case 542293565:  // fixedAmountCalculation
-          return fixedAmountCalculation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -407,6 +503,15 @@ public final class PeriodicPayments
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1585636160:  // notional
+          this.notional = (CurrencyAmount) newValue;
+          break;
+        case -1354573786:  // coupon
+          this.coupon = (Double) newValue;
+          break;
+        case 1905311443:  // dayCount
+          this.dayCount = (DayCount) newValue;
+          break;
         case 863656438:  // paymentFrequency
           this.paymentFrequency = (Frequency) newValue;
           break;
@@ -415,9 +520,6 @@ public final class PeriodicPayments
           break;
         case -10223666:  // rollConvention
           this.rollConvention = (RollConvention) newValue;
-          break;
-        case 542293565:  // fixedAmountCalculation
-          this.fixedAmountCalculation = (FixedAmountCalculation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -452,13 +554,48 @@ public final class PeriodicPayments
     @Override
     public PeriodicPayments build() {
       return new PeriodicPayments(
+          notional,
+          coupon,
+          dayCount,
           paymentFrequency,
           stubConvention,
-          rollConvention,
-          fixedAmountCalculation);
+          rollConvention);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder notional(CurrencyAmount notional) {
+      JodaBeanUtils.notNull(notional, "notional");
+      this.notional = notional;
+      return this;
+    }
+
+    /**
+     * Sets the {@code coupon} property in the builder.
+     * @param coupon  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder coupon(double coupon) {
+      JodaBeanUtils.notNull(coupon, "coupon");
+      this.coupon = coupon;
+      return this;
+    }
+
+    /**
+     * Sets the {@code dayCount} property in the builder.
+     * @param dayCount  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder dayCount(DayCount dayCount) {
+      JodaBeanUtils.notNull(dayCount, "dayCount");
+      this.dayCount = dayCount;
+      return this;
+    }
+
     /**
      * Sets the {@code paymentFrequency} property in the builder.
      * @param paymentFrequency  the new value, not null
@@ -492,26 +629,17 @@ public final class PeriodicPayments
       return this;
     }
 
-    /**
-     * Sets the {@code fixedAmountCalculation} property in the builder.
-     * @param fixedAmountCalculation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixedAmountCalculation(FixedAmountCalculation fixedAmountCalculation) {
-      JodaBeanUtils.notNull(fixedAmountCalculation, "fixedAmountCalculation");
-      this.fixedAmountCalculation = fixedAmountCalculation;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("PeriodicPayments.Builder{");
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
       buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
-      buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
-      buf.append("fixedAmountCalculation").append('=').append(JodaBeanUtils.toString(fixedAmountCalculation));
+      buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention));
       buf.append('}');
       return buf.toString();
     }

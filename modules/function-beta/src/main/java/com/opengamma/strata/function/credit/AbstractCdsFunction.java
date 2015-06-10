@@ -91,7 +91,7 @@ public abstract class AbstractCdsFunction<T>
     return CalculationRequirements.builder()
         .singleValueRequirements(Sets.newHashSet())
         .timeSeriesRequirements()
-        .outputCurrencies(ImmutableSet.of(cds.getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getCurrency()))
+        .outputCurrencies(ImmutableSet.of(cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency()))
         .build();
   }
 
@@ -103,7 +103,7 @@ public abstract class AbstractCdsFunction<T>
    */
   @Override
   public Optional<Currency> defaultReportingCurrency(CdsTrade target) {
-    return Optional.of(target.getProduct().getFeeLeg().getPeriodicPayments().getFixedAmountCalculation().getCalculationAmount().getCurrency());
+    return Optional.of(target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());
   }
 
   // execute for a single trade

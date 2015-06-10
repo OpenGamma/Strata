@@ -81,7 +81,7 @@ public final class GeneralTerms
 
   public static GeneralTerms singleName(
       LocalDate effectiveDate,
-      LocalDate scheduledTerminationDate,
+      LocalDate endDate,
       BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
       StandardId referenceEntityId,
@@ -91,7 +91,7 @@ public final class GeneralTerms
       ) {
     return of(
         effectiveDate,
-        scheduledTerminationDate,
+        endDate,
         buySellProtection,
         businessDayAdjustment,
         SingleNameReferenceInformation.of(
@@ -104,8 +104,8 @@ public final class GeneralTerms
   }
 
   public static GeneralTerms index(
-      LocalDate effectiveDate,
-      LocalDate scheduledTerminationDate,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
       StandardId indexId,
@@ -114,8 +114,8 @@ public final class GeneralTerms
       RestructuringClause restructuringClause
   ) {
     return of(
-        effectiveDate,
-        scheduledTerminationDate,
+        startDate,
+        endDate,
         buySellProtection,
         businessDayAdjustment,
         IndexReferenceInformation.of(
@@ -129,15 +129,15 @@ public final class GeneralTerms
 
 
   public static GeneralTerms of(
-      LocalDate effectiveDate,
-      LocalDate scheduledTerminationDate,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
       ReferenceInformation referenceInformation
   ) {
     return new GeneralTerms(
-        effectiveDate,
-        scheduledTerminationDate,
+        startDate,
+        endDate,
         buySellProtection,
         businessDayAdjustment,
         referenceInformation
