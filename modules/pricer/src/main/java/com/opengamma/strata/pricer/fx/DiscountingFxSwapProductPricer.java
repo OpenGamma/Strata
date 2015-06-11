@@ -19,15 +19,13 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * This function provides the ability to price an {@link FxSwapProduct}.
  */
-public class DiscountingFxSwapProductPricerBeta {
-  // copied/modified from ForexSwapDiscountingMethod
-  // TODO: check valuation date vs payment date (pv of zero?)
+public class DiscountingFxSwapProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxSwapProductPricerBeta DEFAULT =
-      new DiscountingFxSwapProductPricerBeta(DiscountingFxProductPricer.DEFAULT);
+  public static final DiscountingFxSwapProductPricer DEFAULT =
+      new DiscountingFxSwapProductPricer(DiscountingFxProductPricer.DEFAULT);
 
   /**
    * Underlying single FX pricer.
@@ -39,7 +37,7 @@ public class DiscountingFxSwapProductPricerBeta {
    * 
    * @param fxPricer  the pricer for {@link FxProduct}
    */
-  public DiscountingFxSwapProductPricerBeta(
+  public DiscountingFxSwapProductPricer(
       DiscountingFxProductPricer fxPricer) {
     this.fxPricer = ArgChecker.notNull(fxPricer, "fxPricer");
   }
@@ -56,13 +54,7 @@ public class DiscountingFxSwapProductPricerBeta {
    */
   public MultiCurrencyAmount presentValue(FxSwapProduct product, RatesProvider provider) {
     ExpandedFxSwap fx = product.expand();
-    if (provider.getValuationDate().isAfter(fx.getFarLeg().getPaymentDate())) {
-      return MultiCurrencyAmount.empty();
-    }
     MultiCurrencyAmount farPv = fxPricer.presentValue(fx.getFarLeg(), provider);
-    if (provider.getValuationDate().isAfter(fx.getNearLeg().getPaymentDate())) {
-      return farPv;
-    }
     MultiCurrencyAmount nearPv = fxPricer.presentValue(fx.getNearLeg(), provider);
     return nearPv.plus(farPv);
   }
@@ -89,16 +81,11 @@ public class DiscountingFxSwapProductPricerBeta {
    */
   public double parSpread(FxSwapProduct product, RatesProvider provider) {
     ExpandedFxSwap fx = product.expand();
-    if (provider.getValuationDate().isAfter(fx.getNearLeg().getPaymentDate())) {
-      return fxPricer.parSpread(fx.getFarLeg(), provider);
-    }
-    FxPayment basePaymentNear = fx.getNearLeg().getBaseCurrencyPayment();
     FxPayment counterPaymentNear = fx.getNearLeg().getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
     double pvCounterCcy = pv.convertedTo(counterPaymentNear.getCurrency(), provider).getAmount();
-    // TODO: is basePaymentNear.getCurrency() correct?
-    double dfEnd = provider.discountFactor(basePaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
-    double notionalBaseCcy = basePaymentNear.getAmount();
+    double dfEnd = provider.discountFactor(counterPaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
+    double notionalBaseCcy = fx.getNearLeg().getBaseCurrencyPayment().getAmount();
     return -pvCounterCcy / (notionalBaseCcy * dfEnd);
   }
 
