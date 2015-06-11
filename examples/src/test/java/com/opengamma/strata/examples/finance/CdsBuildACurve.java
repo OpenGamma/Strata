@@ -1,4 +1,4 @@
-package com.opengamma.strata.examples.finance.credit;
+package com.opengamma.strata.examples.finance;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
