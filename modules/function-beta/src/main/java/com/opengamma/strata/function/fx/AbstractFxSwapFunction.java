@@ -24,7 +24,7 @@ import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricerBeta;
+import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -64,8 +64,8 @@ public abstract class AbstractFxSwapFunction<T>
    * 
    * @return the pricer
    */
-  protected DiscountingFxSwapProductPricerBeta pricer() {
-    return DiscountingFxSwapProductPricerBeta.DEFAULT;
+  protected DiscountingFxSwapProductPricer pricer() {
+    return DiscountingFxSwapProductPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------

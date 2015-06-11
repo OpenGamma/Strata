@@ -38,7 +38,9 @@ import com.opengamma.strata.collect.ArgChecker;
  * An FX swap is a financial instrument that represents the exchange of an equivalent amount
  * in two different currencies between counterparties on two different dates.
  * <p>
- * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932
+ * The two exchanges are based on the same currency pair, with the two payment flows in the opposite directions.
+ * <p>
+ * For example, an FX swap might represent the payment of USD 1,000 and the receipt of EUR 932
  * on one date, and the payment of EUR 941 and the receipt of USD 1,000 at a later date.
  */
 @BeanDefinition(builderScope = "private")
@@ -49,6 +51,7 @@ public final class FxSwap
    * The foreign exchange transaction at the earlier date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
+   * The payment date of this transaction must be before that of the far leg.
    */
   @PropertyDefinition(validate = "notNull")
   private final Fx nearLeg;
@@ -56,7 +59,7 @@ public final class FxSwap
    * The foreign exchange transaction at the later date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
-   * The value date of this transaction must be after that of the near leg.
+   * The payment date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
   private final Fx farLeg;
@@ -115,7 +118,7 @@ public final class FxSwap
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(
-        nearLeg.getPaymentDate(), farLeg.getPaymentDate(), "nearLeg.valueDate", "farLeg.valueDate");
+        nearLeg.getPaymentDate(), farLeg.getPaymentDate(), "nearLeg.paymentDate", "farLeg.paymentDate");
     if (!nearLeg.getBaseCurrencyAmount().getCurrency().equals(farLeg.getBaseCurrencyAmount().getCurrency()) ||
         !nearLeg.getCounterCurrencyAmount().getCurrency().equals(farLeg.getCounterCurrencyAmount().getCurrency())) {
       throw new IllegalArgumentException("Legs must have the same currency pair");
@@ -127,9 +130,9 @@ public final class FxSwap
 
   //-------------------------------------------------------------------------
   /**
-   * Expands this FX swap, trivially returning {@code this}.
+   * Expands this FX swap into {@code ExpandedFxSwap}.
    * 
-   * @return this
+   * @return the expanded FX swap
    */
   @Override
   public ExpandedFxSwap expand() {
@@ -185,6 +188,7 @@ public final class FxSwap
    * Gets the foreign exchange transaction at the earlier date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
+   * The payment date of this transaction must be before that of the far leg.
    * @return the value of the property, not null
    */
   public Fx getNearLeg() {
@@ -196,7 +200,7 @@ public final class FxSwap
    * Gets the foreign exchange transaction at the later date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
-   * The value date of this transaction must be after that of the near leg.
+   * The payment date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
   public Fx getFarLeg() {
