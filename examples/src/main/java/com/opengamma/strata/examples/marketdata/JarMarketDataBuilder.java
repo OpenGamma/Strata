@@ -38,9 +38,9 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
    * @param rootPath  the root path to the resources within the JAR file
    */
   public JarMarketDataBuilder(File jarFile, String rootPath) {
-    String jarRoot = rootPath.startsWith("/") ? rootPath.substring(1) : rootPath;
-    if (!jarRoot.endsWith("/")) {
-      jarRoot += "/";
+    String jarRoot = rootPath.startsWith(File.separator) ? rootPath.substring(1) : rootPath;
+    if (!jarRoot.endsWith(File.separator)) {
+      jarRoot += File.separator;
     }
     this.jarFile = jarFile;
     this.rootPath = jarRoot;
@@ -48,7 +48,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
 
   @Override
   protected Collection<ResourceLocator> getAllResources(String subdirectoryName) {
-    String fullSubdirectory = String.format("%s%s/", rootPath, subdirectoryName);
+    String fullSubdirectory = String.format("%s%s", rootPath, subdirectoryName);
     try (JarFile jar = new JarFile(jarFile)) {
       List<ResourceLocator> resources = new ArrayList<ResourceLocator>();
       Enumeration<JarEntry> jarEntries = jar.entries();
@@ -68,7 +68,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
 
   @Override
   protected ResourceLocator getResource(String subdirectoryName, String resourceName) {
-    String fullLocation = String.format("%s%s/%s", rootPath, subdirectoryName, resourceName);
+    String fullLocation = String.format("%s%s%s%s", rootPath, subdirectoryName, File.separator, resourceName);
     try (JarFile jar = new JarFile(jarFile)) {
       JarEntry entry = jar.getJarEntry(fullLocation);
       if (entry == null) {
@@ -83,7 +83,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
 
   @Override
   protected boolean subdirectoryExists(String subdirectoryName) {
-    String fullSubdirectory = String.format("%s%s/", rootPath, subdirectoryName);
+    String fullSubdirectory = String.format("%s%s", rootPath, subdirectoryName);
     try (JarFile jar = new JarFile(jarFile)) {
       Enumeration<JarEntry> jarEntries = jar.entries();
       while (jarEntries.hasMoreElements()) {
