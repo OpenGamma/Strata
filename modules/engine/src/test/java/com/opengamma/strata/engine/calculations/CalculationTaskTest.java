@@ -30,7 +30,6 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.CurrencyValuesArray;
-import com.opengamma.strata.engine.calculations.function.result.FxRateMapping;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
@@ -46,7 +45,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 @Test
 public class CalculationTaskTest {
 
-  private static final MarketDataMappings MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+  private static final MarketDataMappings MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
   private static final ReportingRules REPORTING_RULES = ReportingRules.fixedCurrency(Currency.USD);
   private static final TestTarget TARGET = new TestTarget();
 

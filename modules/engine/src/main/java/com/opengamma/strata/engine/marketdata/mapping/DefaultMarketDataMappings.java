@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 
 /**
  * Market data mappings specify which market data from the global set of data should be used for a particular
@@ -46,7 +47,7 @@ import com.opengamma.strata.basics.market.ObservableKey;
 public final class DefaultMarketDataMappings implements MarketDataMappings, ImmutableBean {
 
   /** An empty set of market data mappings containing no mappers. */
-  public static final MarketDataMappings EMPTY = new DefaultMarketDataMappings(MarketDataFeed.NONE, ImmutableMap.of());
+  static final MarketDataMappings EMPTY = new DefaultMarketDataMappings(MarketDataFeed.NONE, ImmutableMap.of());
 
   /** Market data feed system that is the source of observable market data, for example Bloomberg or Reuters. */
   @PropertyDefinition(validate = "notNull")
@@ -96,6 +97,9 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
   public <T, K extends MarketDataKey<T>> MarketDataId<T> getIdForKey(K key) {
     if (key instanceof ObservableKey) {
       return (MarketDataId<T>) getIdForObservableKey((ObservableKey) key);
+    }
+    if (key instanceof SimpleMarketDataKey) {
+      return ((SimpleMarketDataKey) key).toMarketDataId(marketDataFeed);
     }
     MarketDataMapping<T, K> mapping =
         (MarketDataMapping<T, K>) mappings.getOrDefault(key.getClass(), MissingMapping.INSTANCE);

@@ -38,7 +38,7 @@ public class CurrencyValuesArrayTest {
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(Currency.USD, calculationMarketData);
@@ -54,7 +54,7 @@ public class CurrencyValuesArrayTest {
     double[] values = {1, 2, 3};
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
@@ -68,7 +68,7 @@ public class CurrencyValuesArrayTest {
     double[] values = {1, 2, 3};
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioMarketData marketData = ScenarioMarketData.builder(3, date(2011, 3, 8)).build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     assertThrows(
@@ -89,7 +89,7 @@ public class CurrencyValuesArrayTest {
     ScenarioMarketData marketData = ScenarioMarketData.builder(2, date(2011, 3, 8))
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE, FxRateMapping.INSTANCE);
+    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
 
     assertThrows(
