@@ -94,21 +94,22 @@ public class DiscountingFxProductPricer {
 
   /**
    * Computes the forward exchange rate.
+   * <p>
+   * The forward rate is given by {@code spot * dfBase / dfCounter}, where {@code dfBase} and {@code dfCounter} are, 
+   * respectively, discount factors of base currency and counter currency of the FX product.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
    * @return the forward rate
    */
   public FxRate forwardFxRate(FxProduct product, RatesProvider provider) {
-    // TODO Need FxIndex in product?
     ExpandedFx fx = product.expand();
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
-    // TODO: domestic/foreign vs base/counter?
-    double dfDomestic = provider.discountFactor(counterPayment.getCurrency(), counterPayment.getPaymentDate());
-    double dfForeign = provider.discountFactor(basePayment.getCurrency(), basePayment.getPaymentDate());
+    double dfCounter = provider.discountFactor(counterPayment.getCurrency(), counterPayment.getPaymentDate());
+    double dfBase = provider.discountFactor(basePayment.getCurrency(), basePayment.getPaymentDate());
     double spot = provider.fxRate(basePayment.getCurrency(), counterPayment.getCurrency());
-    return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), spot * dfForeign / dfDomestic);
+    return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), spot * dfBase / dfCounter);
   }
 
   //-------------------------------------------------------------------------

@@ -14,14 +14,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.basics.index.FxIndex;
-import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -34,20 +28,12 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingFxProductPricerTest {
-  private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
-
   private static final Currency KRW = Currency.KRW;
   private static final Currency USD = Currency.USD;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 5, 4);
   private static final double NOMINAL_USD = 100_000_000;
   private static final double FX_RATE = 1123.45;
-  private static final FxIndex INDEX = ImmutableFxIndex.builder()
-      .name("USD/KRW")
-      .currencyPair(CurrencyPair.of(USD, KRW))
-      .fixingCalendar(HolidayCalendars.USNY)
-      .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
-      .build();
   private static final Fx FWD = Fx.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE);
   private static final DiscountingFxProductPricer PRICER = DiscountingFxProductPricer.DEFAULT;
   private static final double TOL = 1.0e-12;
@@ -82,7 +68,21 @@ public class DiscountingFxProductPricerTest {
     assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
   }
 
-  // TODO forwardRate
+  public void test_parSpread_ended() {
+    Fx fwd = Fx.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), LocalDate.of(2011, 11, 2));
+    double spread = PRICER.parSpread(fwd, PROVIDER);
+    assertEquals(spread, 0d, TOL);
+  }
+
+  public void test_forwardFxRate() {
+    // forward rate is computed by discounting for any RatesProvider input. 
+    FxRate computed = PRICER.forwardFxRate(FWD, PROVIDER);
+    double df1 = PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double df2 = PROVIDER.discountFactor(KRW, PAYMENT_DATE);
+    double spot = PROVIDER.fxRate(USD, KRW);
+    FxRate expected = FxRate.of(USD, KRW, spot * df1 / df2);
+    assertEquals(computed, expected);
+  }
 
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(FWD, PROVIDER);

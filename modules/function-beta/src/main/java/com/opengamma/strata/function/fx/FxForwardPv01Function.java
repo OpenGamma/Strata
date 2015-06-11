@@ -11,7 +11,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates PV01, the present value sensitivity of a {@code FxForwardTrade}.
+ * Calculates PV01, the present value sensitivity of a {@code FxTrade}.
  * This operates by algorithmic differentiation (AD).
  */
 public class FxForwardPv01Function

@@ -10,7 +10,7 @@ import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates the currency exposure of an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates the currency exposure of an {@code FxTrade} for each of a set of scenarios.
  */
 public class FxForwardCurrencyExposureFunction
     extends AbstractFxForwardFunction<MultiCurrencyAmount> {

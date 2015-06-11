@@ -28,7 +28,7 @@ import com.opengamma.strata.pricer.fx.DiscountingFxProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates a result for an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates a result for an {@code FxTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */

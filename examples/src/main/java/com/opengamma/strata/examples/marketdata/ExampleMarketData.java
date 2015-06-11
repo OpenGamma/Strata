@@ -13,7 +13,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.examples.data.ExampleData;
-import com.opengamma.strata.function.marketdata.mapping.FxRateMapping;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
@@ -30,7 +29,6 @@ public final class ExampleMarketData {
           MarketDataRule.anyTarget(
               MarketDataMappingsBuilder.create()
                   .curveGroup(CurveGroupName.of("Default"))
-                  .mapping(FxRateMapping.INSTANCE)
                   .build()));
 
   /**
