@@ -30,7 +30,7 @@ public class ExampleTradeSource implements TradeSource {
 
   @Override
   public ImmutableList<Trade> trades() {
-    private final ImmutableList<Trade> trades = ImmutableList.of(
+    return ImmutableList.of(
         StandardCdsTemplate
             .of(StandardCdsConventions.northAmericanUsd())
             .toSingleNameTrade(
