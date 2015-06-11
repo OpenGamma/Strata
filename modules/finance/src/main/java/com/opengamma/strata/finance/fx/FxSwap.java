@@ -38,6 +38,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * An FX swap is a financial instrument that represents the exchange of an equivalent amount
  * in two different currencies between counterparties on two different dates.
  * <p>
+ * The two exchanges are based on the same currency pair, and the two payment flows are in the opposite directions. 
+ * <p>
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932
  * on one date, and the payment of EUR 941 and the receipt of USD 1,000 at a later date.
  */
@@ -49,6 +51,7 @@ public final class FxSwap
    * The foreign exchange transaction at the earlier date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
+   * The payment value of this transaction must be before that of the far leg.
    */
   @PropertyDefinition(validate = "notNull")
   private final Fx nearLeg;
@@ -56,7 +59,7 @@ public final class FxSwap
    * The foreign exchange transaction at the later date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
-   * The value date of this transaction must be after that of the near leg.
+   * The payment date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
   private final Fx farLeg;
@@ -185,6 +188,7 @@ public final class FxSwap
    * Gets the foreign exchange transaction at the earlier date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
+   * The payment value of this transaction must be before that of the far leg.
    * @return the value of the property, not null
    */
   public Fx getNearLeg() {
@@ -196,7 +200,7 @@ public final class FxSwap
    * Gets the foreign exchange transaction at the later date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
-   * The value date of this transaction must be after that of the near leg.
+   * The payment date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
   public Fx getFarLeg() {
