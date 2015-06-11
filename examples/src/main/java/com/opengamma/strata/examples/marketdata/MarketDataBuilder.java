@@ -6,12 +6,16 @@
 package com.opengamma.strata.examples.marketdata;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -62,6 +66,8 @@ import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
  */
 public abstract class MarketDataBuilder {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataBuilder.class);
+  
   /** The name of the subdirectory containing historical fixings. */
   private static final String HISTORICAL_FIXINGS_DIR = "historical-fixings";
 
@@ -103,7 +109,13 @@ public abstract class MarketDataBuilder {
       return new JarMarketDataBuilder(jarFile, resourceRoot);
     } else {
       // Resource is on disk
-      File file = new File(url.getPath());
+      File file;
+      try {
+        file = new File(url.toURI());
+      } catch (URISyntaxException e) {
+        throw new IllegalArgumentException(
+            Messages.format("Unexpected file location: {}", url), e);
+      }
       return new DirectoryMarketDataBuilder(file.toPath());
     }
   }
@@ -148,34 +160,60 @@ public abstract class MarketDataBuilder {
 
   //-------------------------------------------------------------------------
   private void loadFixingSeries(BaseMarketDataBuilder builder) {
-    Collection<ResourceLocator> fixingSeriesResources = getAllResources(HISTORICAL_FIXINGS_DIR);
-    Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.loadFixingSeries(fixingSeriesResources);
-    builder.addAllTimeSeries(fixingSeries);
+    if (!subdirectoryExists(HISTORICAL_FIXINGS_DIR)) {
+      s_logger.debug("No historical fixings directory found");
+      return;
+    }
+    try {
+      Collection<ResourceLocator> fixingSeriesResources = getAllResources(HISTORICAL_FIXINGS_DIR);
+      Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.loadFixingSeries(fixingSeriesResources);
+      builder.addAllTimeSeries(fixingSeries);
+    } catch (Exception e) {
+      s_logger.error("Error loading fixing series", e);
+    }
   }
 
   private void loadRatesCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    if (!subdirectoryExists(CURVES_DIR)) {
+      s_logger.debug("No rates curves directory found");
+      return;
+    }
+    
     ResourceLocator curveGroupsResource = getResource(CURVES_DIR, CURVES_GROUPS_FILE);
+    if (curveGroupsResource == null) {
+      s_logger.error("Unable to load rates curves: curve groups file not found at {}/{}", CURVES_DIR, CURVES_GROUPS_FILE);
+      return;
+    }
+    
     ResourceLocator curveSettingsResource = getResource(CURVES_DIR, CURVES_SETTINGS_FILE);
+    if (curveSettingsResource == null) {
+      s_logger.error("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE);
+      return;
+    }
 
-    Collection<ResourceLocator> curvesResources = getAllResources(CURVES_DIR)
-        .stream()
-        .filter(
-            res -> !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
-        .collect(Collectors.toList());
-
-    Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
-        .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
-
-    Map<ZeroRateDiscountFactorsId, ZeroRateDiscountFactors> zeroRateDiscountFactors =
-        ratesCurves.entrySet().stream()
-            .filter(e -> e.getKey() instanceof DiscountCurveId)
-            .map(e -> Pair.of((DiscountCurveId) e.getKey(), e.getValue()))
-            .collect(Collectors.toMap(
-                e -> toZeroRateDiscountFactorsId(e.getFirst()),
-                e -> toZeroRateDiscountFactors(e.getFirst(), e.getSecond(), marketDataDate)));
-
-    builder.addAllValues(ratesCurves);
-    builder.addAllValues(zeroRateDiscountFactors);
+    try {
+      Collection<ResourceLocator> curvesResources = getAllResources(CURVES_DIR)
+          .stream()
+          .filter(res ->
+              !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
+          .collect(Collectors.toList());
+      
+      Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
+          .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
+  
+      Map<ZeroRateDiscountFactorsId, ZeroRateDiscountFactors> zeroRateDiscountFactors =
+          ratesCurves.entrySet().stream()
+              .filter(e -> e.getKey() instanceof DiscountCurveId)
+              .map(e -> Pair.of((DiscountCurveId) e.getKey(), e.getValue()))
+              .collect(Collectors.toMap(
+                  e -> toZeroRateDiscountFactorsId(e.getFirst()),
+                  e -> toZeroRateDiscountFactors(e.getFirst(), e.getSecond(), marketDataDate)));
+  
+      builder.addAllValues(ratesCurves);
+      builder.addAllValues(zeroRateDiscountFactors);
+    } catch (Exception e) {
+      s_logger.error("Error loading rates curves", e);
+    }
   }
 
   private ZeroRateDiscountFactorsId toZeroRateDiscountFactorsId(DiscountCurveId curveId) {
@@ -215,5 +253,13 @@ public abstract class MarketDataBuilder {
    * @return a locator for the requested resource
    */
   protected abstract ResourceLocator getResource(String subdirectoryName, String resourceName);
+  
+  /**
+   * Gets whether a specific subdirectory exists.
+   * 
+   * @param subdirectoryName  the name of the subdirectory
+   * @return whether the subdirectory exists
+   */
+  protected abstract boolean subdirectoryExists(String subdirectoryName);
 
 }

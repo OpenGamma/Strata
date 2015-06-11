@@ -49,7 +49,16 @@ public class DirectoryMarketDataBuilder extends MarketDataBuilder {
   @Override
   protected ResourceLocator getResource(String subdirectoryName, String resourceName) {
     File file = rootPath.resolve(subdirectoryName).resolve(resourceName).toFile();
+    if (!file.exists()) {
+      return null;
+    }
     return ResourceLocator.ofFile(file);
+  }
+
+  @Override
+  protected boolean subdirectoryExists(String subdirectoryName) {
+    File file = rootPath.resolve(subdirectoryName).toFile();
+    return file.exists();
   }
 
 }

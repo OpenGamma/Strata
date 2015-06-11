@@ -72,16 +72,34 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
     try (JarFile jar = new JarFile(jarFile)) {
       JarEntry entry = jar.getJarEntry(fullLocation);
       if (entry == null) {
-        throw new IllegalArgumentException(
-            Messages.format("Entry {} not found in JAR file: {}", fullLocation, jarFile));
+        return null;
       }
       return getEntryLocator(entry);
     } catch (Exception e) {
       throw new IllegalArgumentException(
-          Messages.format("Error loading market data from JAR file: {}", jarFile), e);
+          Messages.format("Error loading resource from JAR file: {}", jarFile), e);
     }
   }
 
+  @Override
+  protected boolean subdirectoryExists(String subdirectoryName) {
+    String fullSubdirectory = String.format("%s%s/", rootPath, subdirectoryName);
+    try (JarFile jar = new JarFile(jarFile)) {
+      Enumeration<JarEntry> jarEntries = jar.entries();
+      while (jarEntries.hasMoreElements()) {
+        JarEntry entry = jarEntries.nextElement();
+        String entryName = entry.getName();
+        if (entryName.startsWith(fullSubdirectory)) {
+          return true;
+        }
+      }
+      return false;
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          Messages.format("Error loading resource from JAR file: {}", jarFile), e);
+    }
+  }
+  
   //-------------------------------------------------------------------------
   // Gets the resource locator corresponding to a given entry
   private ResourceLocator getEntryLocator(JarEntry entry) {
