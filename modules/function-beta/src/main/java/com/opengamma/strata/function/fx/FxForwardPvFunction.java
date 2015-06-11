@@ -10,7 +10,7 @@ import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates the present value of an {@code FxForwardTrade} for each of a set of scenarios.
+ * Calculates the present value of an {@code FxTrade} for each of a set of scenarios.
  */
 public class FxForwardPvFunction
     extends AbstractFxForwardFunction<MultiCurrencyAmount> {

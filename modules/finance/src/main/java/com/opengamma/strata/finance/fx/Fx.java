@@ -39,8 +39,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * in two different currencies between counterparties on a specific date.
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  * <p>
- * Since a FX spot is essentially equivalent, simply with a different meaning applied to the date,
- * it can also be represented using this class.
+ * FX spot and FX forward are essentially equivalent, simply with a different way to obtain the payment date; 
+ * they are both represented using this class.
  */
 @BeanDefinition(builderScope = "private")
 public final class Fx
