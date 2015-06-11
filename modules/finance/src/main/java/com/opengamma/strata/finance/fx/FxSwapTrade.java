@@ -36,7 +36,7 @@ import com.opengamma.strata.finance.TradeInfo;
  * <p>
  * The two exchanges are based on the same currency pair, and the two payment flows are in the opposite directions.
  * <p>
- * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932
+ * For example, an FX swap might represent the payment of USD 1,000 and the receipt of EUR 932
  * on one date, and the payment of EUR 941 and the receipt of USD 1,000 at a later date.
  */
 @BeanDefinition
