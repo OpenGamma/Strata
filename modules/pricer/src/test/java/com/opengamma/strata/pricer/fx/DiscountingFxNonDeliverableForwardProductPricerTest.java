@@ -15,11 +15,14 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
+import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -32,6 +35,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingFxNonDeliverableForwardProductPricerTest {
+  private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
   private static final Currency KRW = Currency.KRW;
   private static final Currency USD = Currency.USD;
@@ -112,5 +116,36 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
             .build();
     PointSensitivities computed = PRICER.presentValueSensitivity(ndf, PROVIDER);
     assertEquals(computed, PointSensitivities.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  private static final Fx FOREX = Fx
+      .of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE);
+  private static final DiscountingFxProductPricer PRICER_FX = DiscountingFxProductPricer.DEFAULT;
+  
+  // Checks that the NDF present value is coherent with the standard FX forward present value.
+  public void presentValueVsForex() {
+    CurrencyAmount pvNDF = PRICER.presentValue(NDF, PROVIDER);
+    MultiCurrencyAmount pvFX = PRICER_FX.presentValue(FOREX, PROVIDER);
+    assertEquals(
+        pvNDF.getAmount(),
+        pvFX.getAmount(USD).getAmount() + pvFX.getAmount(KRW).getAmount() * FX_MATRIX.fxRate(KRW, USD),
+        NOMINAL_USD *TOL);
+  }
+
+  // Checks that the NDF forward rate is coherent with the standard FX forward present value.
+  public void forwardRateVsForex() {
+    FxRate fwdNDF = PRICER.forwardFxRate(NDF, PROVIDER);
+    FxRate fwdFX = PRICER_FX.forwardFxRate(FOREX, PROVIDER);
+    assertEquals(fwdNDF, fwdFX);
+  }
+
+  // Checks that the NDF present value sensitivity is coherent with the standard FX forward present value.
+  public void presentValueCurveSensitivityVsForex() {
+    PointSensitivities pvcsNDF = PRICER.presentValueSensitivity(NDF, PROVIDER).normalized();
+    CurveCurrencyParameterSensitivities sensiNDF =   PROVIDER.curveParameterSensitivity(pvcsNDF);
+    PointSensitivities pvcsFX = PRICER_FX.presentValueSensitivity(FOREX, PROVIDER).normalized();
+    CurveCurrencyParameterSensitivities sensiFX = PROVIDER.curveParameterSensitivity(pvcsFX);
+    assertTrue(sensiNDF.equalWithTolerance(sensiFX.convertedTo(USD, PROVIDER), NOMINAL_USD * TOL));
   }
 }
