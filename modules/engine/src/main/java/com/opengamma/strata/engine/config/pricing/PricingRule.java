@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -111,6 +112,23 @@ public final class PricingRule<T extends CalculationTarget>
     return targetType.isInstance(target) && handlesMeasure(measure) && functionConfig.isPresent() ?
         Optional.of(configuredFunctionGroup) :
         Optional.empty();
+  }
+  
+  /**
+   * Returns the set of measures configured for a calculation target.
+   * 
+   * @param target  a target
+   * @return the set of measures configured by this rule
+   */
+  public ImmutableSet<Measure> measuresConfigured(CalculationTarget target) {
+    if (!targetType.isInstance(target)) {
+      return ImmutableSet.of();
+    }
+    Set<Measure> measuresConfigured = functionGroup.measuresConfigured(target);
+    if (!measures.isEmpty()) {
+      measuresConfigured = Sets.intersection(measures, functionGroup.measuresConfigured(target));
+    }
+    return ImmutableSet.copyOf(measuresConfigured);
   }
 
   /**
