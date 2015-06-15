@@ -1,0 +1,2 @@
+Group Name,Curve Name,Day Count,Interpolator,Left Extrapolator,Right Extrapolator,Value Type
+Default,USD-Disc,Act/Act ISDA,Linear,Flat,Flat,DF

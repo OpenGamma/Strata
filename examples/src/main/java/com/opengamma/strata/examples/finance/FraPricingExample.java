@@ -23,6 +23,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
+import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.fra.Fra;
@@ -31,7 +32,6 @@ import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
-
 
 /**
  * Example to illustrate using the engine to price a FRA.
@@ -49,7 +49,7 @@ public class FraPricingExample {
   public static void main(String[] args) {
     // the trades that will have measures calculated
     List<Trade> trades = ImmutableList.of(createTrade1());
-    
+
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measure.TRADE_INFO),
@@ -58,30 +58,30 @@ public class FraPricingExample {
         Column.of(Measure.PAR_RATE),
         Column.of(Measure.PAR_SPREAD));
 
+    // use the built-in example market data
+    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
-        .marketDataRules(ExampleMarketData.rules())
+        .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.empty())
         .build();
 
-    // Use an empty snapshot of market data, indicating only the valuation date.
-    // The engine will attempt to source the data for us, which the example engine is
-    // configured to load from JSON resources. We could alternatively populate the snapshot
-    // with some or all of the required market data here.
+    // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    BaseMarketData baseMarketData = BaseMarketData.empty(valuationDate);
+    BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, baseMarketData);
+    Results results = engine.calculate(trades, columns, rules, snapshot);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
         columns,
         results);
-    
+
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("fra-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);

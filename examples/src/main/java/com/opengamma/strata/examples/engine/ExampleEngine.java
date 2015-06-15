@@ -16,11 +16,9 @@ import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.examples.marketdata.ExampleDiscountCurveFunction;
-import com.opengamma.strata.examples.marketdata.ExampleForwardCurveFunction;
-import com.opengamma.strata.examples.marketdata.ExampleTimeSeriesProvider;
-import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
+import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 
 /**
  * Contains utility methods for obtaining a calculation engine configured for use
@@ -38,29 +36,24 @@ public final class ExampleEngine {
   /**
    * Creates a calculation engine instance configured for use in the examples environment.
    * <p>
-   * The engine is configured to source market data from JSON resources using the
-   * example functions and example time-series provider. It has no ability to perform
-   * link resolution and operates with a single calculation thread.
+   * The engine is not wired up to any external market data sources, so all required market
+   * data must be present in the snapshot passed to the engine when it is invoked.
+   * <p>
+   * The engine may be used in conjunction with {@link ExampleMarketData} which provides
+   * access to snapshots of example data.
    * 
-   * @return a new calculation engine instance
+   * @return a calculation engine instance
    */
   public static CalculationEngine create() {
-    // create the calculation runner, that calculates the results
+    // create the calculation runner that calculates the results
     ExecutorService executor = createExecutor();
     CalculationRunner calcRunner = new DefaultCalculationRunner(executor);
 
-    // create the market data factory, that builds market data
-    ExampleTimeSeriesProvider timeSeriesProvider = new ExampleTimeSeriesProvider();
-    ExampleDiscountCurveFunction discountCurveBuilder = new ExampleDiscountCurveFunction();
-    ZeroRateDiscountFactorsMarketDataFunction discountFactorsBuilder = new ZeroRateDiscountFactorsMarketDataFunction();
-    ExampleForwardCurveFunction forwardCurveBuilder = new ExampleForwardCurveFunction();
+    // create the market data factory that builds market data
     MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
-        timeSeriesProvider,
+        TimeSeriesProvider.none(),
         ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity(),
-        discountCurveBuilder,
-        discountFactorsBuilder,
-        forwardCurveBuilder);
+        FeedIdMapping.identity());
 
     // combine the runner and market data factory
     return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());

@@ -14,14 +14,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
-import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -37,6 +35,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
+import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
@@ -84,33 +83,30 @@ public class SwapPricingExample {
         Column.of(Measure.PAR_RATE),
         Column.of(Measure.ACCRUED_INTEREST));
 
+    // use the built-in example market data
+    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
-        .marketDataRules(ExampleMarketData.rules())
+        .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.empty())
         .build();
 
-    // Use an empty snapshot of market data, indicating only the valuation date.
-    // The engine will attempt to source the data for us, which the example engine is
-    // configured to load from JSON resources. We could alternatively populate the snapshot
-    // with some or all of the required market data here.
+    // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
-    BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
-        .build();
+    BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, baseMarketData);
+    Results results = engine.calculate(trades, columns, rules, snapshot);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
         columns,
         results);
-    
+
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);

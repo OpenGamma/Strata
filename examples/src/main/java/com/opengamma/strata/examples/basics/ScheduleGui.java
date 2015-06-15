@@ -69,26 +69,26 @@ public class ScheduleGui extends Application {
     DatePicker startInp = new DatePicker(LocalDate.now());
     startLbl.setLabelFor(startInp);
     startInp.setShowWeekNumbers(false);
-    
+
     Label endLbl = new Label("End date:");
     DatePicker endInp = new DatePicker(LocalDate.now().plusYears(1));
     endLbl.setLabelFor(endInp);
     endInp.setShowWeekNumbers(false);
-    
+
     Label freqLbl = new Label("Frequency:");
     ChoiceBox<Frequency> freqInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
             Frequency.P1M, Frequency.P2M, Frequency.P3M, Frequency.P4M, Frequency.P6M, Frequency.P12M));
     freqLbl.setLabelFor(freqInp);
     freqInp.setValue(Frequency.P3M);
-    
+
     Label stubLbl = new Label("Stub:");
     ObservableList<StubConvention> stubOptions = FXCollections.observableArrayList(StubConvention.values());
     stubOptions.add(0, null);
     ChoiceBox<StubConvention> stubInp = new ChoiceBox<>(stubOptions);
     stubLbl.setLabelFor(stubInp);
     stubInp.setValue(StubConvention.SHORT_INITIAL);
-    
+
     Label rollLbl = new Label("Roll:");
     ChoiceBox<RollConvention> rollInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
@@ -101,7 +101,7 @@ public class ScheduleGui extends Application {
             RollConventions.SFE));
     rollLbl.setLabelFor(rollInp);
     rollInp.setValue(RollConventions.NONE);
-    
+
     Label bdcLbl = new Label("Adjust:");
     ChoiceBox<BusinessDayConvention> bdcInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
@@ -114,7 +114,7 @@ public class ScheduleGui extends Application {
             BusinessDayConventions.NEAREST));
     bdcLbl.setLabelFor(bdcInp);
     bdcInp.setValue(BusinessDayConventions.MODIFIED_FOLLOWING);
-    
+
     Label holidayLbl = new Label("Holidays:");
     ChoiceBox<HolidayCalendar> holidayInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
@@ -125,21 +125,21 @@ public class ScheduleGui extends Application {
             HolidayCalendars.USGS));
     holidayLbl.setLabelFor(holidayInp);
     holidayInp.setValue(HolidayCalendars.GBLO);
-    
+
     TableView<SchedulePeriod> resultGrid = new TableView<>();
     TableColumn<SchedulePeriod, LocalDate> unadjustedCol = new TableColumn<>("Unadjusted dates");
     TableColumn<SchedulePeriod, LocalDate> adjustedCol = new TableColumn<>("Adjusted dates");
-    
+
     TableColumn<SchedulePeriod, LocalDate> resultUnadjStartCol = new TableColumn<>("Start");
     resultUnadjStartCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().unadjustedStartDate()));
     TableColumn<SchedulePeriod, LocalDate> resultUnadjEndCol = new TableColumn<>("End");
     resultUnadjEndCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().unadjustedEndDate()));
-    
+
     TableColumn<SchedulePeriod, LocalDate> resultStartCol = new TableColumn<>("Start");
     resultStartCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().startDate()));
     TableColumn<SchedulePeriod, LocalDate> resultEndCol = new TableColumn<>("End");
     resultEndCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().endDate()));
-    
+
     unadjustedCol.getColumns().add(resultUnadjStartCol);
     unadjustedCol.getColumns().add(resultUnadjEndCol);
     adjustedCol.getColumns().add(resultStartCol);
@@ -147,14 +147,14 @@ public class ScheduleGui extends Application {
     resultGrid.getColumns().add(unadjustedCol);
     resultGrid.getColumns().add(adjustedCol);
     resultGrid.setPlaceholder(new Label("Schedule not yet generated"));
-    
+
     unadjustedCol.prefWidthProperty().bind(resultGrid.widthProperty().divide(2));
     adjustedCol.prefWidthProperty().bind(resultGrid.widthProperty().divide(2));
     resultUnadjStartCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(2));
     resultUnadjEndCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(2));
     resultStartCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(2));
     resultEndCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(2));
-    
+
     // setup generation button
     // this uses the GUI thread which is not the best idea
     Button btn = new Button();
@@ -186,7 +186,7 @@ public class ScheduleGui extends Application {
         System.out.println(ex.getMessage());
       }
     });
-    
+
     // layout the components
     GridPane gp = new GridPane();
     gp.setHgap(10);
@@ -208,10 +208,10 @@ public class ScheduleGui extends Application {
     gp.add(rollInp, 4, 4);
     gp.add(btn, 3, 5, 2, 1);
     gp.add(resultGrid, 1, 7, 4, 1);
-    
+
     BorderPane bp = new BorderPane(gp);
     Scene scene = new Scene(bp, 600, 600);
-    
+
     // launch
     primaryStage.setTitle("Periodic schedule generator");
     primaryStage.setScene(scene);
