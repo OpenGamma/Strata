@@ -21,7 +21,7 @@ package com.opengamma.strata.basics.market;
  * A simple market data implementation will have a single value associated with the key.
  * A more complex system may have multiple values associated, which will involve a mapping
  * step to convert the {@code MarketDataKey} to a {@link MarketDataId}.
- * For example, the mapping step might involve selecting the desired curve based on a curve name.
+ * For example, the mapping step might involve selecting the curve group which supplied a curve.
  *
  * @param <T>  the type of the market data identified by the key
  */

@@ -29,20 +29,21 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * An FX forward.
+ * An FX.
  * <p>
- * An FX forward is a financial instrument that represents the exchange of an equivalent amount
+ * An FX is a financial instrument that represents the exchange of an equivalent amount
  * in two different currencies between counterparties on a specific date.
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  * <p>
- * Since a FX spot is essentially equivalent, simply with a different meaning applied to the date,
- * it can also be represented using this class.
+ * FX spot and FX forward are essentially equivalent, simply with a different way to obtain the payment date; 
+ * they are both represented using this class.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxForward
+public final class Fx
     implements FxProduct, ImmutableBean, Serializable {
 
   /**
@@ -64,17 +65,17 @@ public final class FxForward
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount counterCurrencyAmount;
   /**
-   * The date that the forward settles.
+   * The date that the FX settles.
    * <p>
    * On this date, the pay and receive amounts will be exchanged.
    * This date should be a valid business day.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate valueDate;
+  private final LocalDate paymentDate;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code FxForward} from two amounts and the value date.
+   * Creates an {@code Fx} from two amounts and the value date.
    * <p>
    * The amounts must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
@@ -87,22 +88,22 @@ public final class FxForward
    * 
    * @param amount1  the amount in the first currency
    * @param amount2  the amount in the second currency
-   * @param valueDate  the value date
-   * @return the FX forward
+   * @param paymentDate  the date that the FX settles
+   * @return the FX
    */
-  public static FxForward of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
+  public static Fx of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate paymentDate) {
     CurrencyPair pair = CurrencyPair.of(amount2.getCurrency(), amount1.getCurrency());
     if (pair.isConventional()) {
-      return new FxForward(amount2, amount1, valueDate);
+      return new Fx(amount2, amount1, paymentDate);
     } else {
-      return new FxForward(amount1, amount2, valueDate);
+      return new Fx(amount1, amount2, paymentDate);
     }
   }
 
   /**
-   * Creates an {@code FxForward} using a rate.
+   * Creates an {@code Fx} using a rate.
    * <p>
-   * This create a forward specifying a value date, notional in one currency, the second currency
+   * This create an FX specifying a value date, notional in one currency, the second currency
    * and the FX rate between the two.
    * The currencies of the payments must differ.
    * <p>
@@ -113,21 +114,16 @@ public final class FxForward
    * No payment date adjustments apply.
    * 
    * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param currency2  the second currency
-   * @param fxRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
-   * @param valueDate  the value date
-   * @return the FX forward
+   * @param fxRate  the near FX rate
+   * @param paymentDate  date that the FX settles
+   * @return the FX
    */
-  public static FxForward of(
-      CurrencyAmount amountCurrency1,
-      Currency currency2,
-      double fxRate,
-      LocalDate valueDate) {
-
-    ArgChecker.isFalse(amountCurrency1.getCurrency().equals(currency2), "Currencies must not be equal");
-    ArgChecker.notNegativeOrZero(fxRate, "fxRate");
+  public static Fx of(CurrencyAmount amountCurrency1, FxRate fxRate, LocalDate paymentDate) {
+    CurrencyPair pair = fxRate.getPair();
+    ArgChecker.isTrue(pair.contains(amountCurrency1.getCurrency()));
+    Currency currency2 = pair.getBase().equals(amountCurrency1.getCurrency()) ? pair.getCounter() : pair.getBase();
     CurrencyAmount amountCurrency2 = amountCurrency1.convertedTo(currency2, fxRate).negated();
-    return of(amountCurrency1, amountCurrency2, valueDate);
+    return of(amountCurrency1, amountCurrency2, paymentDate);
   }
 
   //-------------------------------------------------------------------------
@@ -157,30 +153,29 @@ public final class FxForward
 
   //-------------------------------------------------------------------------
   /**
-   * Expands this FX forward into an {@code ExpandedFx}.
+   * Expands this FX into an {@code ExpandedFx}.
    * 
    * @return the transaction
    */
   @Override
   public ExpandedFx expand() {
     return ExpandedFx.of(
-        FxPayment.of(valueDate, baseCurrencyAmount),
-        FxPayment.of(valueDate, counterCurrencyAmount),
-        valueDate);
+        FxPayment.of(paymentDate, baseCurrencyAmount),
+        FxPayment.of(paymentDate, counterCurrencyAmount));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FxForward}.
+   * The meta-bean for {@code Fx}.
    * @return the meta-bean, not null
    */
-  public static FxForward.Meta meta() {
-    return FxForward.Meta.INSTANCE;
+  public static Fx.Meta meta() {
+    return Fx.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FxForward.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(Fx.Meta.INSTANCE);
   }
 
   /**
@@ -188,22 +183,22 @@ public final class FxForward
    */
   private static final long serialVersionUID = 1L;
 
-  private FxForward(
+  private Fx(
       CurrencyAmount baseCurrencyAmount,
       CurrencyAmount counterCurrencyAmount,
-      LocalDate valueDate) {
+      LocalDate paymentDate) {
     JodaBeanUtils.notNull(baseCurrencyAmount, "baseCurrencyAmount");
     JodaBeanUtils.notNull(counterCurrencyAmount, "counterCurrencyAmount");
-    JodaBeanUtils.notNull(valueDate, "valueDate");
+    JodaBeanUtils.notNull(paymentDate, "paymentDate");
     this.baseCurrencyAmount = baseCurrencyAmount;
     this.counterCurrencyAmount = counterCurrencyAmount;
-    this.valueDate = valueDate;
+    this.paymentDate = paymentDate;
     validate();
   }
 
   @Override
-  public FxForward.Meta metaBean() {
-    return FxForward.Meta.INSTANCE;
+  public Fx.Meta metaBean() {
+    return Fx.Meta.INSTANCE;
   }
 
   @Override
@@ -244,14 +239,14 @@ public final class FxForward
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date that the forward settles.
+   * Gets the date that the FX settles.
    * <p>
    * On this date, the pay and receive amounts will be exchanged.
    * This date should be a valid business day.
    * @return the value of the property, not null
    */
-  public LocalDate getValueDate() {
-    return valueDate;
+  public LocalDate getPaymentDate() {
+    return paymentDate;
   }
 
   //-----------------------------------------------------------------------
@@ -261,10 +256,10 @@ public final class FxForward
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FxForward other = (FxForward) obj;
+      Fx other = (Fx) obj;
       return JodaBeanUtils.equal(getBaseCurrencyAmount(), other.getBaseCurrencyAmount()) &&
           JodaBeanUtils.equal(getCounterCurrencyAmount(), other.getCounterCurrencyAmount()) &&
-          JodaBeanUtils.equal(getValueDate(), other.getValueDate());
+          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate());
     }
     return false;
   }
@@ -274,24 +269,24 @@ public final class FxForward
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyAmount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyAmount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getValueDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
-    buf.append("FxForward{");
+    buf.append("Fx{");
     buf.append("baseCurrencyAmount").append('=').append(getBaseCurrencyAmount()).append(',').append(' ');
     buf.append("counterCurrencyAmount").append('=').append(getCounterCurrencyAmount()).append(',').append(' ');
-    buf.append("valueDate").append('=').append(JodaBeanUtils.toString(getValueDate()));
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(getPaymentDate()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FxForward}.
+   * The meta-bean for {@code Fx}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -303,17 +298,17 @@ public final class FxForward
      * The meta-property for the {@code baseCurrencyAmount} property.
      */
     private final MetaProperty<CurrencyAmount> baseCurrencyAmount = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyAmount", FxForward.class, CurrencyAmount.class);
+        this, "baseCurrencyAmount", Fx.class, CurrencyAmount.class);
     /**
      * The meta-property for the {@code counterCurrencyAmount} property.
      */
     private final MetaProperty<CurrencyAmount> counterCurrencyAmount = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyAmount", FxForward.class, CurrencyAmount.class);
+        this, "counterCurrencyAmount", Fx.class, CurrencyAmount.class);
     /**
-     * The meta-property for the {@code valueDate} property.
+     * The meta-property for the {@code paymentDate} property.
      */
-    private final MetaProperty<LocalDate> valueDate = DirectMetaProperty.ofImmutable(
-        this, "valueDate", FxForward.class, LocalDate.class);
+    private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
+        this, "paymentDate", Fx.class, LocalDate.class);
     /**
      * The meta-properties.
      */
@@ -321,7 +316,7 @@ public final class FxForward
         this, null,
         "baseCurrencyAmount",
         "counterCurrencyAmount",
-        "valueDate");
+        "paymentDate");
 
     /**
      * Restricted constructor.
@@ -336,20 +331,20 @@ public final class FxForward
           return baseCurrencyAmount;
         case -446491419:  // counterCurrencyAmount
           return counterCurrencyAmount;
-        case -766192449:  // valueDate
-          return valueDate;
+        case -1540873516:  // paymentDate
+          return paymentDate;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends FxForward> builder() {
-      return new FxForward.Builder();
+    public BeanBuilder<? extends Fx> builder() {
+      return new Fx.Builder();
     }
 
     @Override
-    public Class<? extends FxForward> beanType() {
-      return FxForward.class;
+    public Class<? extends Fx> beanType() {
+      return Fx.class;
     }
 
     @Override
@@ -375,11 +370,11 @@ public final class FxForward
     }
 
     /**
-     * The meta-property for the {@code valueDate} property.
+     * The meta-property for the {@code paymentDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> valueDate() {
-      return valueDate;
+    public MetaProperty<LocalDate> paymentDate() {
+      return paymentDate;
     }
 
     //-----------------------------------------------------------------------
@@ -387,11 +382,11 @@ public final class FxForward
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 714419450:  // baseCurrencyAmount
-          return ((FxForward) bean).getBaseCurrencyAmount();
+          return ((Fx) bean).getBaseCurrencyAmount();
         case -446491419:  // counterCurrencyAmount
-          return ((FxForward) bean).getCounterCurrencyAmount();
-        case -766192449:  // valueDate
-          return ((FxForward) bean).getValueDate();
+          return ((Fx) bean).getCounterCurrencyAmount();
+        case -1540873516:  // paymentDate
+          return ((Fx) bean).getPaymentDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -409,13 +404,13 @@ public final class FxForward
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FxForward}.
+   * The bean-builder for {@code Fx}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxForward> {
+  private static final class Builder extends DirectFieldsBeanBuilder<Fx> {
 
     private CurrencyAmount baseCurrencyAmount;
     private CurrencyAmount counterCurrencyAmount;
-    private LocalDate valueDate;
+    private LocalDate paymentDate;
 
     /**
      * Restricted constructor.
@@ -431,8 +426,8 @@ public final class FxForward
           return baseCurrencyAmount;
         case -446491419:  // counterCurrencyAmount
           return counterCurrencyAmount;
-        case -766192449:  // valueDate
-          return valueDate;
+        case -1540873516:  // paymentDate
+          return paymentDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -447,8 +442,8 @@ public final class FxForward
         case -446491419:  // counterCurrencyAmount
           this.counterCurrencyAmount = (CurrencyAmount) newValue;
           break;
-        case -766192449:  // valueDate
-          this.valueDate = (LocalDate) newValue;
+        case -1540873516:  // paymentDate
+          this.paymentDate = (LocalDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -481,22 +476,22 @@ public final class FxForward
     }
 
     @Override
-    public FxForward build() {
+    public Fx build() {
       preBuild(this);
-      return new FxForward(
+      return new Fx(
           baseCurrencyAmount,
           counterCurrencyAmount,
-          valueDate);
+          paymentDate);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("FxForward.Builder{");
+      buf.append("Fx.Builder{");
       buf.append("baseCurrencyAmount").append('=').append(JodaBeanUtils.toString(baseCurrencyAmount)).append(',').append(' ');
       buf.append("counterCurrencyAmount").append('=').append(JodaBeanUtils.toString(counterCurrencyAmount)).append(',').append(' ');
-      buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate));
+      buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
       buf.append('}');
       return buf.toString();
     }

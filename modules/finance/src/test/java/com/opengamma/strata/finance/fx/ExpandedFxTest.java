@@ -42,21 +42,21 @@ public class ExpandedFxTest {
 
   //-------------------------------------------------------------------------
   public void test_of_payments_rightOrder() {
-    ExpandedFx test = ExpandedFx.of(PAYMENT_GBP_P1000, PAYMENT_USD_M1600, DATE_2015_06_30);
+    ExpandedFx test = ExpandedFx.of(PAYMENT_GBP_P1000, PAYMENT_USD_M1600);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_payments_switchOrder() {
-    ExpandedFx test = ExpandedFx.of(PAYMENT_USD_M1600, PAYMENT_GBP_P1000, DATE_2015_06_30);
+    ExpandedFx test = ExpandedFx.of(PAYMENT_USD_M1600, PAYMENT_GBP_P1000);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_payments_sameCurrency() {
-    assertThrowsIllegalArg(() -> ExpandedFx.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000, DATE_2015_06_30));
+    assertThrowsIllegalArg(() -> ExpandedFx.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000));
   }
 
   //-------------------------------------------------------------------------
@@ -64,21 +64,21 @@ public class ExpandedFxTest {
     ExpandedFx test = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_amounts_switchOrder() {
     ExpandedFx test = ExpandedFx.of(USD_M1600, GBP_P1000, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_amounts_bothZero() {
     ExpandedFx test = ExpandedFx.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(DATE_2015_06_30, CurrencyAmount.zero(GBP)));
     assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(DATE_2015_06_30, CurrencyAmount.zero(USD)));
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_of_amounts_positiveNegative() {
@@ -97,29 +97,26 @@ public class ExpandedFxTest {
     ExpandedFx test = ExpandedFx.meta().builder()
         .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
         .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
-        .set(ExpandedFx.meta().valueDate(), DATE_2015_06_30)
         .build();
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_builder_switchOrder() {
     ExpandedFx test = ExpandedFx.meta().builder()
         .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_USD_M1600)
         .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_GBP_P1000)
-        .set(ExpandedFx.meta().valueDate(), DATE_2015_06_30)
         .build();
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getValueDate(), DATE_2015_06_30);
+    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
   public void test_builder_bothPositive() {
     assertThrowsIllegalArg(() -> ExpandedFx.meta().builder()
         .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
         .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_USD_P1600)
-        .set(ExpandedFx.meta().valueDate(), DATE_2015_06_30)
         .build());
   }
 
@@ -127,7 +124,6 @@ public class ExpandedFxTest {
     assertThrowsIllegalArg(() -> ExpandedFx.meta().builder()
         .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_M1000)
         .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
-        .set(ExpandedFx.meta().valueDate(), DATE_2015_06_30)
         .build());
   }
 
@@ -135,7 +131,6 @@ public class ExpandedFxTest {
     assertThrowsIllegalArg(() -> ExpandedFx.meta().builder()
         .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
         .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_GBP_M1000)
-        .set(ExpandedFx.meta().valueDate(), DATE_2015_06_30)
         .build());
   }
 

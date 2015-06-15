@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -50,7 +51,7 @@ public final class FxSwap
    * This provides details of a single foreign exchange at a specific date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxForward nearLeg;
+  private final Fx nearLeg;
   /**
    * The foreign exchange transaction at the later date.
    * <p>
@@ -58,7 +59,7 @@ public final class FxSwap
    * The value date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxForward farLeg;
+  private final Fx farLeg;
 
   //-------------------------------------------------------------------------
   /**
@@ -71,7 +72,7 @@ public final class FxSwap
    * @param farLeg  the later leg
    * @return the FX swap
    */
-  public static FxSwap of(FxForward nearLeg, FxForward farLeg) {
+  public static FxSwap of(Fx nearLeg, Fx farLeg) {
     return new FxSwap(nearLeg, farLeg);
   }
 
@@ -101,11 +102,12 @@ public final class FxSwap
       LocalDate nearDate,
       LocalDate farDate) {
 
-    ArgChecker.isFalse(amountCurrency1.getCurrency().equals(currency2), "Currencies must not be equal");
+    Currency currency1 = amountCurrency1.getCurrency();
+    ArgChecker.isFalse(currency1.equals(currency2), "Currencies must not be equal");
     ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
     double farFxRate = nearFxRate + forwardPoints;
-    FxForward nearLeg = FxForward.of(amountCurrency1, currency2, nearFxRate, nearDate);
-    FxForward farLeg = FxForward.of(amountCurrency1.negated(), currency2, farFxRate, farDate);
+    Fx nearLeg = Fx.of(amountCurrency1, FxRate.of(currency1, currency2, nearFxRate), nearDate);
+    Fx farLeg = Fx.of(amountCurrency1.negated(), FxRate.of(currency1, currency2, farFxRate), farDate);
     return of(nearLeg, farLeg);
   }
 
@@ -113,7 +115,7 @@ public final class FxSwap
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(
-        nearLeg.getValueDate(), farLeg.getValueDate(), "nearLeg.valueDate", "farLeg.valueDate");
+        nearLeg.getPaymentDate(), farLeg.getPaymentDate(), "nearLeg.valueDate", "farLeg.valueDate");
     if (!nearLeg.getBaseCurrencyAmount().getCurrency().equals(farLeg.getBaseCurrencyAmount().getCurrency()) ||
         !nearLeg.getCounterCurrencyAmount().getCurrency().equals(farLeg.getCounterCurrencyAmount().getCurrency())) {
       throw new IllegalArgumentException("Legs must have the same currency pair");
@@ -154,8 +156,8 @@ public final class FxSwap
   private static final long serialVersionUID = 1L;
 
   private FxSwap(
-      FxForward nearLeg,
-      FxForward farLeg) {
+      Fx nearLeg,
+      Fx farLeg) {
     JodaBeanUtils.notNull(nearLeg, "nearLeg");
     JodaBeanUtils.notNull(farLeg, "farLeg");
     this.nearLeg = nearLeg;
@@ -185,7 +187,7 @@ public final class FxSwap
    * This provides details of a single foreign exchange at a specific date.
    * @return the value of the property, not null
    */
-  public FxForward getNearLeg() {
+  public Fx getNearLeg() {
     return nearLeg;
   }
 
@@ -197,7 +199,7 @@ public final class FxSwap
    * The value date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
-  public FxForward getFarLeg() {
+  public Fx getFarLeg() {
     return farLeg;
   }
 
@@ -246,13 +248,13 @@ public final class FxSwap
     /**
      * The meta-property for the {@code nearLeg} property.
      */
-    private final MetaProperty<FxForward> nearLeg = DirectMetaProperty.ofImmutable(
-        this, "nearLeg", FxSwap.class, FxForward.class);
+    private final MetaProperty<Fx> nearLeg = DirectMetaProperty.ofImmutable(
+        this, "nearLeg", FxSwap.class, Fx.class);
     /**
      * The meta-property for the {@code farLeg} property.
      */
-    private final MetaProperty<FxForward> farLeg = DirectMetaProperty.ofImmutable(
-        this, "farLeg", FxSwap.class, FxForward.class);
+    private final MetaProperty<Fx> farLeg = DirectMetaProperty.ofImmutable(
+        this, "farLeg", FxSwap.class, Fx.class);
     /**
      * The meta-properties.
      */
@@ -298,7 +300,7 @@ public final class FxSwap
      * The meta-property for the {@code nearLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxForward> nearLeg() {
+    public MetaProperty<Fx> nearLeg() {
       return nearLeg;
     }
 
@@ -306,7 +308,7 @@ public final class FxSwap
      * The meta-property for the {@code farLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxForward> farLeg() {
+    public MetaProperty<Fx> farLeg() {
       return farLeg;
     }
 
@@ -339,8 +341,8 @@ public final class FxSwap
    */
   private static final class Builder extends DirectFieldsBeanBuilder<FxSwap> {
 
-    private FxForward nearLeg;
-    private FxForward farLeg;
+    private Fx nearLeg;
+    private Fx farLeg;
 
     /**
      * Restricted constructor.
@@ -365,10 +367,10 @@ public final class FxSwap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1825755334:  // nearLeg
-          this.nearLeg = (FxForward) newValue;
+          this.nearLeg = (Fx) newValue;
           break;
         case -1281739913:  // farLeg
-          this.farLeg = (FxForward) newValue;
+          this.farLeg = (Fx) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

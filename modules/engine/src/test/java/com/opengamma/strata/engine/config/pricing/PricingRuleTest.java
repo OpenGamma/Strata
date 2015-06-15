@@ -6,8 +6,10 @@
 package com.opengamma.strata.engine.config.pricing;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -19,6 +21,9 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 
+/**
+ * Test {@link PricingRule}.
+ */
 @Test
 public class PricingRuleTest {
 
@@ -69,8 +74,14 @@ public class PricingRuleTest {
             .addMeasures(MEASURE1)
             .build();
 
-    Optional<ConfiguredFunctionGroup> result = pricingRule.functionGroup(new TestTrade2(), MEASURE2);
-    assertThat(result).isEmpty();
+    Optional<ConfiguredFunctionGroup> functionGroup = pricingRule.functionGroup(new TestTrade2(), MEASURE2);
+    assertThat(functionGroup).isEmpty();
+
+    Set<Measure> trade1Measures = pricingRule.configuredMeasures(new TestTrade1());
+    assertThat(trade1Measures).containsOnly(MEASURE1);
+
+    Set<Measure> trade2Measures = pricingRule.configuredMeasures(new TestTrade2());
+    assertThat(trade2Measures).isEmpty();
   }
 
   /**
@@ -81,13 +92,24 @@ public class PricingRuleTest {
         PricingRule.builder(TestTrade1.class)
             .functionGroup(GROUP)
             .build();
-    Optional<ConfiguredFunctionGroup> result = rule.functionGroup(new TestTrade1(), MEASURE1);
-    assertThat(result).hasValue(ConfiguredFunctionGroup.of(GROUP));
+
+    Optional<ConfiguredFunctionGroup> functionGroup = rule.functionGroup(new TestTrade1(), MEASURE1);
+    assertThat(functionGroup).hasValue(ConfiguredFunctionGroup.of(GROUP));
+
+    Set<Measure> measures = rule.configuredMeasures(new TestTrade1());
+    assertThat(measures).containsOnly(MEASURE1, MEASURE2);
   }
 
-  private static final class TestTrade1 implements CalculationTarget { }
+  public void measuresMatchingFunctionGroup() {
+    Set<Measure> measures = PRICING_RULE.configuredMeasures(new TestTrade1());
+    assertThat(measures).containsOnly(MEASURE1, MEASURE2);
+  }
 
-  private static final class TestTrade2 implements CalculationTarget { }
+  private static final class TestTrade1 implements CalculationTarget {
+  }
+
+  private static final class TestTrade2 implements CalculationTarget {
+  }
 
   private static final class TestFunction1 implements CalculationSingleFunction<TestTrade1, Object> {
 
@@ -114,19 +136,5 @@ public class PricingRuleTest {
       return "foo";
     }
   }
-
-  private static final class TestFunction3 implements CalculationSingleFunction<TestTrade2, Object> {
-
-    @Override
-    public CalculationRequirements requirements(TestTrade2 target) {
-      return CalculationRequirements.empty();
-    }
-
-    @Override
-    public Object execute(TestTrade2 target, CalculationMarketData marketData) {
-      return "bar";
-    }
-  }
-
 
 }

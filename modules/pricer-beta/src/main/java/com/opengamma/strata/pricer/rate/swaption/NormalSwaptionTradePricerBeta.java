@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
 import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
-import com.opengamma.strata.pricer.fx.DiscountingFxProductPricerBeta;
+import com.opengamma.strata.pricer.fx.DiscountingFxProductPricer;
 import com.opengamma.strata.pricer.provider.NormalVolatilitySwaptionProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -34,7 +34,7 @@ public class NormalSwaptionTradePricerBeta {
   /** Pricer for {@link Swaption}. */
   private static final NormalSwaptionProductPricerBeta PRICER_PRODUCT = NormalSwaptionProductPricerBeta.DEFAULT;
   /** Pricer for {@link FxPayment} which is used to described the premium. **/
-  private static final DiscountingFxProductPricerBeta PRICER_PREMIUM = DiscountingFxProductPricerBeta.DEFAULT;
+  private static final DiscountingFxProductPricer PRICER_PREMIUM = DiscountingFxProductPricer.DEFAULT;
   
   /**
    * Calculates the present value of the swaption product.

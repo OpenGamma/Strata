@@ -6,8 +6,10 @@
 package com.opengamma.strata.engine.config.pricing;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -17,6 +19,9 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 
+/**
+ * Test {@link PricingRules}.
+ */
 @Test
 public class PricingRulesTest {
 
@@ -39,13 +44,13 @@ public class PricingRulesTest {
           .addFunction(FOO_MEASURE, TestFunction3.class)
           .build();
 
-  private static final PricingRule PRICING_RULE1 =
+  private static final PricingRule<?> PRICING_RULE1 =
       PricingRule.builder(TestTrade1.class)
           .functionGroup(FUNCTION_GROUP1)
           .addMeasures(FOO_MEASURE, BAR_MEASURE)
           .build();
 
-  private static final PricingRule PRICING_RULE2 =
+  private static final PricingRule<?> PRICING_RULE2 =
       PricingRule.builder(TestTrade2.class)
           .functionGroup(FUNCTION_GROUP2)
           .addMeasures(FOO_MEASURE)
@@ -57,17 +62,21 @@ public class PricingRulesTest {
   public void ofEmpty() {
     PricingRules rules = PricingRules.of();
     Optional<ConfiguredFunctionGroup> functionGroup = rules.functionGroup(TRADE1, FOO_MEASURE);
+    Set<Measure> measures = rules.configuredMeasures(TRADE1);
 
     assertThat(rules).isInstanceOf(EmptyPricingRules.class);
     assertThat(functionGroup).isEmpty();
+    assertThat(measures).isEmpty();
   }
 
   public void ofSingle() {
     PricingRules rules = PricingRules.of(PRICING_RULES1);
     Optional<ConfiguredFunctionGroup> functionGroup = rules.functionGroup(TRADE1, FOO_MEASURE);
+    Set<Measure> measures = rules.configuredMeasures(TRADE1);
 
     assertThat(rules).isInstanceOf(DefaultPricingRules.class);
     assertThat(functionGroup).hasValue(ConfiguredFunctionGroup.of(FUNCTION_GROUP1));
+    assertThat(measures).containsOnly(FOO_MEASURE, BAR_MEASURE);
   }
 
   public void ofMultiple() {
@@ -81,14 +90,22 @@ public class PricingRulesTest {
     assertThat(functionGroup2).hasValue(ConfiguredFunctionGroup.of(FUNCTION_GROUP1));
     assertThat(functionGroup3).hasValue(ConfiguredFunctionGroup.of(FUNCTION_GROUP2));
     assertThat(functionGroup4).isEmpty();
+
+    Set<Measure> measures1 = rules.configuredMeasures(TRADE1);
+    assertThat(measures1).containsOnly(FOO_MEASURE, BAR_MEASURE);
+
+    Set<Measure> measures2 = rules.configuredMeasures(TRADE2);
+    assertThat(measures2).containsOnly(FOO_MEASURE);
   }
 
   public void composedWithEmpty() {
     PricingRules rules = PricingRules.empty().composedWith(PRICING_RULES1);
     Optional<ConfiguredFunctionGroup> functionConfig = rules.functionGroup(TRADE1, FOO_MEASURE);
+    Set<Measure> measures = rules.configuredMeasures(TRADE1);
 
     assertThat(rules).isInstanceOf(DefaultPricingRules.class);
     assertThat(functionConfig).hasValue(ConfiguredFunctionGroup.of(FUNCTION_GROUP1));
+    assertThat(measures).containsOnly(FOO_MEASURE, BAR_MEASURE);
   }
 
   public void composedWithDefault() {
@@ -108,9 +125,11 @@ public class PricingRulesTest {
     assertThat(functionGroup6).isEmpty();
   }
 
-  private static final class TestTrade1 implements CalculationTarget { }
+  private static final class TestTrade1 implements CalculationTarget {
+  }
 
-  private static final class TestTrade2 implements CalculationTarget { }
+  private static final class TestTrade2 implements CalculationTarget {
+  }
 
   private static final class TestFunction1 implements CalculationSingleFunction<TestTrade1, Object> {
 

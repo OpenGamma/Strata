@@ -17,7 +17,7 @@ import com.opengamma.strata.finance.Product;
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  * <p>
  * An FX forward and an FX spot can be represented using this product.
- * Application code should use {@link FxForward}.
+ * Application code should use {@link Fx}.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */

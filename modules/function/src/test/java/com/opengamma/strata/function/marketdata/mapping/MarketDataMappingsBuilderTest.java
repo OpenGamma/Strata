@@ -10,9 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
@@ -23,6 +22,8 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.market.key.PriceIndexValuesKey;
+import com.opengamma.strata.market.value.PriceIndexValues;
 
 @Test
 public class MarketDataMappingsBuilderTest {
@@ -59,13 +60,13 @@ public class MarketDataMappingsBuilderTest {
         MarketDataMappingsBuilder.create()
             .curveGroup(curveGroupName)
             .build();
-    FxRateKey fxKey = FxRateKey.of(Currency.EUR, Currency.USD);
+    PriceIndexValuesKey key = PriceIndexValuesKey.of(PriceIndices.CH_CPI);
 
     MarketDataId<Curve> curveId = mappings.getIdForKey(DiscountCurveKey.of(Currency.GBP));
-    MarketDataId<FxRate> fxId = mappings.getIdForKey(fxKey);
+    MarketDataId<PriceIndexValues> id = mappings.getIdForKey(key);
 
     assertThat(curveId).isEqualTo(DiscountCurveId.of(Currency.GBP, curveGroupName));
-    assertThat(fxId).isEqualTo(MissingMappingId.of(fxKey));
+    assertThat(id).isEqualTo(MissingMappingId.of(key));
   }
 
   /**
