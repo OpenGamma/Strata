@@ -53,6 +53,7 @@ public class FixingSeriesCsvLoader {
   public static Map<ObservableId, LocalDateDoubleTimeSeries> loadFixingSeries(Collection<ResourceLocator> fixingSeriesResources) {
     ImmutableMap.Builder<ObservableId, LocalDateDoubleTimeSeries> builder = ImmutableMap.builder();
     for (ResourceLocator timeSeriesResource : fixingSeriesResources) {
+      // builder ensures keys can only be seen once
       builder.putAll(loadFixingSeries(timeSeriesResource));
     }
     return builder.build();

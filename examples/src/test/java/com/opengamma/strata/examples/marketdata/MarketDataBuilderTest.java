@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -94,20 +93,18 @@ public class MarketDataBuilderTest {
         appendToZip(diskRoot, "zip-data", diskRoot, zipFileOut);
       }
     }
-
-    // Append this JAR file to the classpath
-    // This is ugly, but the only practical way to test this no matter how the test is being run
-    URLClassLoader classLoader = (URLClassLoader) getClass().getClassLoader();
-    Method addUrlMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-    addUrlMethod.setAccessible(true);
-    addUrlMethod.invoke(classLoader, tempFile.toURI().toURL());
-
-    // Test loading directly from this JAR
-    JarMarketDataBuilder builder = new JarMarketDataBuilder(tempFile, "zip-data");
-    assertBuilder(builder);
-
-    // Test automatically finding the resource inside the JAR
-    assertBuilder(MarketDataBuilder.ofResource("zip-data"));
+    
+    // Obtain a classloader which can see this JAR
+    ClassLoader classLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() });
+    
+    ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      // Test automatically finding the resource inside the JAR
+      Thread.currentThread().setContextClassLoader(classLoader);
+      assertBuilder(MarketDataBuilder.ofResource("zip-data", classLoader));
+    } finally {
+      Thread.currentThread().setContextClassLoader(originalContextClassLoader);
+    }
   }
 
   public void test_of_path() {

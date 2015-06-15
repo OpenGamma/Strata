@@ -22,6 +22,14 @@ public final class LoaderUtils {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Attempts to locate a rate index by reference name.
+   * <p>
+   * This utility searches both {@link IborIndex} and {@link OvernightIndex}.
+   * 
+   * @param reference  the reference name
+   * @return the resolved rate index
+   */
   public static RateIndex findIndex(String reference) {
     if (IborIndex.extendedEnum().lookupAll().containsKey(reference)) {
       return IborIndex.of(reference);

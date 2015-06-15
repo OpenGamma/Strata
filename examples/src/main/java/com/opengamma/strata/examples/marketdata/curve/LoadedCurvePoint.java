@@ -5,29 +5,29 @@
  */
 package com.opengamma.strata.examples.marketdata.curve;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Bean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Represents a point on a calibrated curve.
  */
-@BeanDefinition
-public class LoadedCurvePoint
+@BeanDefinition(builderScope = "private")
+public final class LoadedCurvePoint
     implements Comparable<LoadedCurvePoint>, ImmutableBean {
 
   /** The point date. */
@@ -42,12 +42,16 @@ public class LoadedCurvePoint
   @PropertyDefinition(validate = "notNull")
   private final String label;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param pointDate  the curve point date
+   * @param pointValue  the curve point value
+   * @param label  the curve point label
+   * @return the curve point
+   */
   public static LoadedCurvePoint of(LocalDate pointDate, double pointValue, String label) {
-    return builder()
-        .pointDate(pointDate)
-        .pointValue(pointValue)
-        .label(label)
-        .build();
+    return new LoadedCurvePoint(pointDate, pointValue, label);
   }
 
   //-------------------------------------------------------------------------
@@ -70,24 +74,15 @@ public class LoadedCurvePoint
     JodaBeanUtils.registerMetaBean(LoadedCurvePoint.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static LoadedCurvePoint.Builder builder() {
-    return new LoadedCurvePoint.Builder();
-  }
-
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected LoadedCurvePoint(LoadedCurvePoint.Builder builder) {
-    JodaBeanUtils.notNull(builder.pointDate, "pointDate");
-    JodaBeanUtils.notNull(builder.label, "label");
-    this.pointDate = builder.pointDate;
-    this.pointValue = builder.pointValue;
-    this.label = builder.label;
+  private LoadedCurvePoint(
+      LocalDate pointDate,
+      double pointValue,
+      String label) {
+    JodaBeanUtils.notNull(pointDate, "pointDate");
+    JodaBeanUtils.notNull(label, "label");
+    this.pointDate = pointDate;
+    this.pointValue = pointValue;
+    this.label = label;
   }
 
   @Override
@@ -133,14 +128,6 @@ public class LoadedCurvePoint
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -168,26 +155,18 @@ public class LoadedCurvePoint
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("LoadedCurvePoint{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("pointDate").append('=').append(getPointDate()).append(',').append(' ');
+    buf.append("pointValue").append('=').append(getPointValue()).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("pointDate").append('=').append(JodaBeanUtils.toString(getPointDate())).append(',').append(' ');
-    buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
-    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code LoadedCurvePoint}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -220,7 +199,7 @@ public class LoadedCurvePoint
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -237,7 +216,7 @@ public class LoadedCurvePoint
     }
 
     @Override
-    public LoadedCurvePoint.Builder builder() {
+    public BeanBuilder<? extends LoadedCurvePoint> builder() {
       return new LoadedCurvePoint.Builder();
     }
 
@@ -256,7 +235,7 @@ public class LoadedCurvePoint
      * The meta-property for the {@code pointDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> pointDate() {
+    public MetaProperty<LocalDate> pointDate() {
       return pointDate;
     }
 
@@ -264,7 +243,7 @@ public class LoadedCurvePoint
      * The meta-property for the {@code pointValue} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> pointValue() {
+    public MetaProperty<Double> pointValue() {
       return pointValue;
     }
 
@@ -272,7 +251,7 @@ public class LoadedCurvePoint
      * The meta-property for the {@code label} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> label() {
+    public MetaProperty<String> label() {
       return label;
     }
 
@@ -305,7 +284,7 @@ public class LoadedCurvePoint
   /**
    * The bean-builder for {@code LoadedCurvePoint}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<LoadedCurvePoint> {
+  private static final class Builder extends DirectFieldsBeanBuilder<LoadedCurvePoint> {
 
     private LocalDate pointDate;
     private double pointValue;
@@ -314,17 +293,7 @@ public class LoadedCurvePoint
     /**
      * Restricted constructor.
      */
-    protected Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    protected Builder(LoadedCurvePoint beanToCopy) {
-      this.pointDate = beanToCopy.getPointDate();
-      this.pointValue = beanToCopy.getPointValue();
-      this.label = beanToCopy.getLabel();
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -386,40 +355,10 @@ public class LoadedCurvePoint
 
     @Override
     public LoadedCurvePoint build() {
-      return new LoadedCurvePoint(this);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code pointDate} property in the builder.
-     * @param pointDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder pointDate(LocalDate pointDate) {
-      JodaBeanUtils.notNull(pointDate, "pointDate");
-      this.pointDate = pointDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code pointValue} property in the builder.
-     * @param pointValue  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder pointValue(double pointValue) {
-      this.pointValue = pointValue;
-      return this;
-    }
-
-    /**
-     * Sets the {@code label} property in the builder.
-     * @param label  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder label(String label) {
-      JodaBeanUtils.notNull(label, "label");
-      this.label = label;
-      return this;
+      return new LoadedCurvePoint(
+          pointDate,
+          pointValue,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -427,19 +366,11 @@ public class LoadedCurvePoint
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("LoadedCurvePoint.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("pointDate").append('=').append(JodaBeanUtils.toString(pointDate)).append(',').append(' ');
       buf.append("pointValue").append('=').append(JodaBeanUtils.toString(pointValue)).append(',').append(' ');
-      buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

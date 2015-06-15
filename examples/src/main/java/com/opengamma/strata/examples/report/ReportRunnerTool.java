@@ -38,22 +38,22 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  */
 public class ReportRunnerTool {
 
-  @Parameter(names = {"-template", "--template"}, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
+  @Parameter(names = {"-t", "--template"}, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
   private ReportTemplate template;
 
-  @Parameter(names = {"-marketdata", "--marketdata"}, description = "Market data root directory")
+  @Parameter(names = {"-m", "--marketdata"}, description = "Market data root directory")
   private File marketDataRoot;
 
-  @Parameter(names = {"-portfolio", "--portfolio"}, description = "Portfolio input file", required = true, converter = PortfolioParameterConverter.class)
+  @Parameter(names = {"-p", "--portfolio"}, description = "Portfolio input file", required = true, converter = PortfolioParameterConverter.class)
   private TradePortfolio portfolio;
 
-  @Parameter(names = {"-date", "--date"}, description = "Valuation date, YYYY-MM-DD", required = true, converter = LocalDateParameterConverter.class)
+  @Parameter(names = {"-d", "--date"}, description = "Valuation date, YYYY-MM-DD", required = true, converter = LocalDateParameterConverter.class)
   private LocalDate valuationDate;
 
-  @Parameter(names = {"-format", "--format"}, description = "Output type, ascii or csv", converter = ReportOutputTypeParameterConverter.class)
+  @Parameter(names = {"-f", "--format"}, description = "Output type, ascii or csv", converter = ReportOutputTypeParameterConverter.class)
   private ReportOutputType outputType = ReportOutputType.ASCII_TABLE;
 
-  @Parameter(names = {"-help", "--help", "-h"}, description = "Displays this message", help = true)
+  @Parameter(names = {"-h", "--help"}, description = "Displays this message", help = true)
   private boolean help;
 
   /**

@@ -77,9 +77,10 @@ public abstract class MarketDataBuilder {
   private static final String CURVES_GROUPS_FILE = "groups.csv";
   /** The name of the curve settings file. */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
-
+  
   /**
-   * Creates an instance from a given classpath resource root location.
+   * Creates an instance from a given classpath resource root location using the class loader
+   * which created this class.
    * <p>
    * This is designed to handle resource roots which may physically correspond to a directory on
    * disk, or be located within a jar file.
@@ -88,9 +89,27 @@ public abstract class MarketDataBuilder {
    * @return the market data builder
    */
   public static MarketDataBuilder ofResource(String resourceRoot) {
-    String qualifiedResourceRoot = resourceRoot.startsWith("/") ? resourceRoot : "/" + resourceRoot;
-
-    URL url = MarketDataBuilder.class.getResource(qualifiedResourceRoot);
+    return ofResource(resourceRoot, MarketDataBuilder.class.getClassLoader());
+  }
+  
+  /**
+   * Creates an instance from a given classpath resource root location, using the given class loader
+   * to find the resource.
+   * <p>
+   * This is designed to handle resource roots which may physically correspond to a directory on
+   * disk, or be located within a jar file.
+   * 
+   * @param resourceRoot  the resource root path
+   * @param classLoader  the class loader with which to find the resource
+   * @return the market data builder
+   */
+  public static MarketDataBuilder ofResource(String resourceRoot, ClassLoader classLoader) {
+    String qualifiedResourceRoot = resourceRoot.startsWith("/") ? resourceRoot.substring(1): resourceRoot;
+    URL url = classLoader.getResource(qualifiedResourceRoot);
+    if (url == null) {
+      throw new IllegalArgumentException(
+          Messages.format("Resource not found: {}", resourceRoot));
+    }
     if (url.getProtocol() != null && "jar".equals(url.getProtocol().toLowerCase())) {
       // Inside a JAR
       int classSeparatorIdx = url.getFile().indexOf("!");

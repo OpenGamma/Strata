@@ -1,1 +1,3 @@
-Group Name,Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right ExtrapolatorDefault,USD-Disc,Zero,Act/Act ISDA,Linear,Flat,FlatDefault,USD-3ML,Zero,Act/Act ISDA,Linear,Flat,Flat
+Group Name,Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator
+Default,USD-Disc,Zero,Act/Act ISDA,Linear,Flat,Flat
+Default,USD-3ML,Zero,Act/Act ISDA,Linear,Flat,Flat

@@ -1,1 +1,2 @@
-Group Name,Curve Name,Day Count,Interpolator,Left Extrapolator,Right Extrapolator,Value TypeDefault,USD-Disc,Act,Linear,Flat,Flat,Zero
+Group Name,Curve Name,Day Count,Interpolator,Left Extrapolator,Right Extrapolator,Value Type
+Default,USD-Disc,Act,Linear,Flat,Flat,Zero
