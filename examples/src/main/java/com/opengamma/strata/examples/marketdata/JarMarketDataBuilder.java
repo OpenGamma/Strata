@@ -50,6 +50,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
     this.entries = getEntries(jarFile, rootPath);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected Collection<ResourceLocator> getAllResources(String subdirectoryName) {
     String resolvedSubdirectory = subdirectoryName + File.separator;
@@ -82,13 +83,13 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
     }
     return entries.contains(resolvedName);
   }
-  
+
   //-------------------------------------------------------------------------
   // Gets the resource locator corresponding to a given entry
   private ResourceLocator getEntryLocator(String entryName) {
     return ResourceLocator.of(ResourceLocator.CLASSPATH_URL_PREFIX + entryName);
   }
-  
+
   private static ImmutableSet<String> getEntries(File jarFile, String rootPath) {
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
     try (JarFile jar = new JarFile(jarFile)) {

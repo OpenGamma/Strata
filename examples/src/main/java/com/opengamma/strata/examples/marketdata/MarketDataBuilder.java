@@ -67,7 +67,7 @@ import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 public abstract class MarketDataBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataBuilder.class);
-  
+
   /** The name of the subdirectory containing historical fixings. */
   private static final String HISTORICAL_FIXINGS_DIR = "historical-fixings";
 
@@ -77,7 +77,7 @@ public abstract class MarketDataBuilder {
   private static final String CURVES_GROUPS_FILE = "groups.csv";
   /** The name of the curve settings file. */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
-  
+
   /**
    * Creates an instance from a given classpath resource root location using the class loader
    * which created this class.
@@ -91,7 +91,7 @@ public abstract class MarketDataBuilder {
   public static MarketDataBuilder ofResource(String resourceRoot) {
     return ofResource(resourceRoot, MarketDataBuilder.class.getClassLoader());
   }
-  
+
   /**
    * Creates an instance from a given classpath resource root location, using the given class loader
    * to find the resource.
@@ -104,7 +104,7 @@ public abstract class MarketDataBuilder {
    * @return the market data builder
    */
   public static MarketDataBuilder ofResource(String resourceRoot, ClassLoader classLoader) {
-    String qualifiedResourceRoot = resourceRoot.startsWith(File.separator) ? resourceRoot.substring(1): resourceRoot;
+    String qualifiedResourceRoot = resourceRoot.startsWith(File.separator) ? resourceRoot.substring(1) : resourceRoot;
     URL url = classLoader.getResource(qualifiedResourceRoot);
     if (url == null) {
       throw new IllegalArgumentException(
@@ -153,6 +153,7 @@ public abstract class MarketDataBuilder {
   /**
    * Builds a market data snapshot from this environment.
    * 
+   * @param marketDataDate  the date of the market data
    * @return the snapshot
    */
   public BaseMarketData buildSnapshot(LocalDate marketDataDate) {
@@ -197,13 +198,13 @@ public abstract class MarketDataBuilder {
       s_logger.debug("No rates curves directory found");
       return;
     }
-    
+
     ResourceLocator curveGroupsResource = getResource(CURVES_DIR, CURVES_GROUPS_FILE);
     if (curveGroupsResource == null) {
       s_logger.error("Unable to load rates curves: curve groups file not found at {}/{}", CURVES_DIR, CURVES_GROUPS_FILE);
       return;
     }
-    
+
     ResourceLocator curveSettingsResource = getResource(CURVES_DIR, CURVES_SETTINGS_FILE);
     if (curveSettingsResource == null) {
       s_logger.error("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE);
@@ -211,15 +212,14 @@ public abstract class MarketDataBuilder {
     }
 
     try {
-      Collection<ResourceLocator> curvesResources = getAllResources(CURVES_DIR)
-          .stream()
+      Collection<ResourceLocator> curvesResources = getAllResources(CURVES_DIR).stream()
           .filter(res ->
               !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
           .collect(Collectors.toList());
-      
+
       Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
           .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
-  
+
       Map<ZeroRateDiscountFactorsId, ZeroRateDiscountFactors> zeroRateDiscountFactors =
           ratesCurves.entrySet().stream()
               .filter(e -> e.getKey() instanceof DiscountCurveId)
@@ -227,7 +227,7 @@ public abstract class MarketDataBuilder {
               .collect(Collectors.toMap(
                   e -> toZeroRateDiscountFactorsId(e.getFirst()),
                   e -> toZeroRateDiscountFactors(e.getFirst(), e.getSecond(), marketDataDate)));
-  
+
       builder.addAllValues(ratesCurves);
       builder.addAllValues(zeroRateDiscountFactors);
     } catch (Exception e) {
@@ -272,9 +272,9 @@ public abstract class MarketDataBuilder {
    * @return a locator for the requested resource
    */
   protected abstract ResourceLocator getResource(String subdirectoryName, String resourceName);
-  
+
   /**
-   * Gets whether a specific subdirectory exists.
+   * Checks whether a specific subdirectory exists.
    * 
    * @param subdirectoryName  the name of the subdirectory
    * @return whether the subdirectory exists

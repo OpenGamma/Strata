@@ -30,15 +30,19 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class LoadedCurvePoint
     implements Comparable<LoadedCurvePoint>, ImmutableBean {
 
-  /** The point date. */
+  /**
+   * The point date.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate pointDate;
-
-  /** The point value. */
+  /**
+   * The point value.
+   */
   @PropertyDefinition
   private final double pointValue;
-
-  /** The curve node label. */
+  /**
+   * The curve node label.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String label;
 

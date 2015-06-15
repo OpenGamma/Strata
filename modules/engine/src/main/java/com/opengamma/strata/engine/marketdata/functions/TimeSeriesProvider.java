@@ -16,15 +16,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public interface TimeSeriesProvider {
 
   /**
-   * Returns a time series of market data for the specified ID.
-   *
-   * @param id  the ID of the market data in the time series
-   * @return a time series of market data for the specified ID
-   * @throws IllegalArgumentException if there is no time series available for the specified ID
-   */
-  public abstract Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id);
-  
-  /**
    * Returns a time-series provider that is unable to source any time-series.
    * <p>
    * This is useful when it is not necessary for the engine to source time-series on-demand, for
@@ -35,5 +26,15 @@ public interface TimeSeriesProvider {
   public static TimeSeriesProvider none() {
     return EmptyTimeSeriesProvider.INSTANCE;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a time series of market data for the specified ID.
+   *
+   * @param id  the ID of the market data in the time series
+   * @return a time series of market data for the specified ID
+   * @throws IllegalArgumentException if there is no time series available for the specified ID
+   */
+  public abstract Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id);
+
 }

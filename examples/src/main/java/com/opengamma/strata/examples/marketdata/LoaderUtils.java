@@ -37,8 +37,7 @@ public final class LoaderUtils {
     if (OvernightIndex.extendedEnum().lookupAll().containsKey(reference)) {
       return OvernightIndex.of(reference);
     }
-    throw new IllegalArgumentException(
-        Messages.format("No index found for reference: {}", reference));
+    throw new IllegalArgumentException(Messages.format("No index found for reference: {}", reference));
   }
 
 }

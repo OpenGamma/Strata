@@ -33,12 +33,12 @@ public class DirectoryMarketDataBuilder extends MarketDataBuilder {
     this.rootPath = rootPath;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected Collection<ResourceLocator> getAllResources(String subdirectoryName) {
     File dir = rootPath.resolve(subdirectoryName).toFile();
     if (!dir.exists()) {
-      throw new IllegalArgumentException(
-          Messages.format("Directory does not exist: {}", dir));
+      throw new IllegalArgumentException(Messages.format("Directory does not exist: {}", dir));
     }
     return Arrays.stream(dir.listFiles())
         .filter(f -> !f.isHidden())

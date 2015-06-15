@@ -33,19 +33,24 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 @BeanDefinition
 public final class LoadedCurveSettings implements ImmutableBean {
 
-  /** The day count convention. */
+  /**
+   * The day count convention.
+   */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
-
-  /** The interpolator. */
+  /**
+   * The interpolator.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveInterpolator interpolator;
-
-  /** The left extrapolator. */
+  /**
+   * The left extrapolator.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator leftExtrapolator;
-
-  /** The right extrapolator. */
+  /**
+   * The right extrapolator.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator rightExtrapolator;
 

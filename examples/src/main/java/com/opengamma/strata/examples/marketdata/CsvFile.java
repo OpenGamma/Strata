@@ -43,12 +43,10 @@ public final class CsvFile {
    * The header row, as the headers appear in the file.
    */
   private final ImmutableList<String> headers;
-
   /**
    * The header row, transformed for case-insensitive searching.
    */
   private final ImmutableList<String> searchHeaders;
-
   /**
    * The data rows in the CSV file.
    */
@@ -61,14 +59,15 @@ public final class CsvFile {
    * @param source  the CSV file resource
    * @param headerRow  whether the source has a header row
    * @return the CSV file
+   * @throws IllegalArgumentException if the file is invalid
    */
   public static CsvFile of(CharSource source, boolean headerRow) {
     ArgChecker.notNull(source, "source");
     List<ImmutableList<String>> lines;
     try {
       lines = parse(source);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
     }
     if (headerRow) {
       if (lines.isEmpty()) {
