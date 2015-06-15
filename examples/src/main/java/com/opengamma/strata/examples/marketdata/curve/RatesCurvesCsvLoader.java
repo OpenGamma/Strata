@@ -197,8 +197,9 @@ public final class RatesCurvesCsvLoader {
       Map<LoadedCurveKey, LoadedCurveSettings> settingsMap,
       LocalDate curveDate) {
 
+    // parse the curve nodes
     CsvFile csv = CsvFile.of(curvesResource.getCharSource(), true);
-    Map<LoadedCurveKey, List<LoadedCurvePoint>> builders = new HashMap<>();
+    Map<LoadedCurveKey, List<LoadedCurveNode>> builders = new HashMap<>();
     for (int i = 0; i < csv.lineCount(); i++) {
       String valuationDateText = csv.field(i, CURVE_DATE);
       String curveGroup = csv.field(i, CURVE_GROUP_NAME);
@@ -216,17 +217,18 @@ public final class RatesCurvesCsvLoader {
       double pointValue = Double.valueOf(pointValueText);
 
       LoadedCurveKey key = LoadedCurveKey.of(curveGroup, curveName);
-      List<LoadedCurvePoint> curvePoints = builders.get(key);
-      if (curvePoints == null) {
-        curvePoints = new ArrayList<LoadedCurvePoint>();
-        builders.put(key, curvePoints);
+      List<LoadedCurveNode> curveNodes = builders.get(key);
+      if (curveNodes == null) {
+        curveNodes = new ArrayList<LoadedCurveNode>();
+        builders.put(key, curveNodes);
       }
-      LoadedCurvePoint curvePoint = LoadedCurvePoint.of(pointDate, pointValue, pointLabel);
-      curvePoints.add(curvePoint);
+      LoadedCurveNode curvePoint = LoadedCurveNode.of(pointDate, pointValue, pointLabel);
+      curveNodes.add(curvePoint);
     }
 
+    // build the curves
     ImmutableMap.Builder<LoadedCurveKey, Curve> results = ImmutableMap.builder();
-    for (Map.Entry<LoadedCurveKey, List<LoadedCurvePoint>> builderEntry : builders.entrySet()) {
+    for (Map.Entry<LoadedCurveKey, List<LoadedCurveNode>> builderEntry : builders.entrySet()) {
       LoadedCurveKey key = builderEntry.getKey();
       LoadedCurveSettings settings = settingsMap.get(key);
       if (settings == null) {
@@ -241,25 +243,28 @@ public final class RatesCurvesCsvLoader {
   // constructs an interpolated nodal curve
   private static Curve createCurve(
       LoadedCurveKey curveKey,
-      List<LoadedCurvePoint> curvePoints,
+      List<LoadedCurveNode> curveNodes,
       LoadedCurveSettings curveSettings,
       LocalDate curveDate) {
 
-    curvePoints.sort(Comparator.naturalOrder());
-    double[] xValues = new double[curvePoints.size()];
-    double[] yValues = new double[curvePoints.size()];
-    List<CurveParameterMetadata> pointsMetadata = new ArrayList<CurveParameterMetadata>(curvePoints.size());
-    for (int i = 0; i < curvePoints.size(); i++) {
-      LoadedCurvePoint point = curvePoints.get(i);
-      double yearFraction = curveSettings.getDayCount().yearFraction(curveDate, point.getPointDate());
+    // build each node
+    curveNodes.sort(Comparator.naturalOrder());
+    double[] xValues = new double[curveNodes.size()];
+    double[] yValues = new double[curveNodes.size()];
+    List<CurveParameterMetadata> pointsMetadata = new ArrayList<CurveParameterMetadata>(curveNodes.size());
+    for (int i = 0; i < curveNodes.size(); i++) {
+      LoadedCurveNode point = curveNodes.get(i);
+      double yearFraction = curveSettings.getDayCount().yearFraction(curveDate, point.getDate());
       xValues[i] = yearFraction;
-      yValues[i] = point.getPointValue();
-      CurveParameterMetadata pointMetadata = SimpleCurveNodeMetadata.of(point.getPointDate(), point.getLabel());
+      yValues[i] = point.getValue();
+      CurveParameterMetadata pointMetadata = SimpleCurveNodeMetadata.of(point.getDate(), point.getLabel());
       pointsMetadata.add(pointMetadata);
     }
-    CurveMetadata curveMatadata = CurveMetadata.of(curveKey.getCurveName(), pointsMetadata);
+
+    // create metadata
+    CurveMetadata curveMetadata = CurveMetadata.of(curveKey.getCurveName(), pointsMetadata);
     return InterpolatedNodalCurve.builder()
-        .metadata(curveMatadata)
+        .metadata(curveMetadata)
         .xValues(xValues)
         .yValues(yValues)
         .interpolator(curveSettings.getInterpolator())
