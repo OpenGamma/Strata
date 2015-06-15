@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.engine.config.Measure;
 
 /**
  * Test {@link TradeReportTemplateIniLoader}.
@@ -23,12 +22,12 @@ public class TradeReportTemplateIniLoaderTest {
     TradeReportTemplate template = parseIni("trade-report-test-simple.ini");
     
     TradeReportColumn productColumn = TradeReportColumn.builder()
-        .measure(Measure.PRODUCT)
+        .value("Product")
         .header("Product")
         .build();
     
     TradeReportColumn pvColumn = TradeReportColumn.builder()
-        .measure(Measure.PRESENT_VALUE)
+        .value("Measures.PresentValue")
         .header("Present Value")
         .build();
     
@@ -41,8 +40,7 @@ public class TradeReportTemplateIniLoaderTest {
     TradeReportTemplate template = parseIni("trade-report-test-path.ini");
     
     TradeReportColumn payLegCcyColumn = TradeReportColumn.builder()
-        .measure(Measure.LEG_INITIAL_NOTIONAL)
-        .path("pay", "currency")
+        .value("Measures.LegInitialNotional.pay.currency")
         .header("Pay Leg Ccy")
         .build();
     
@@ -54,15 +52,14 @@ public class TradeReportTemplateIniLoaderTest {
     TradeReportTemplate template = parseIni("trade-report-test-ignore-failures.ini");
     
     TradeReportColumn payLegCcyColumn = TradeReportColumn.builder()
-        .measure(Measure.LEG_INITIAL_NOTIONAL)
-        .path("pay", "currency")
+        .value("Measures.LegInitialNotional.pay.currency")
         .header("Pay Leg Ccy")
         .build();
     
     TradeReportColumn pvColumn = TradeReportColumn.builder()
-        .measure(Measure.PRESENT_VALUE)
+        .value("Measures.PresentValue")
         .header("Present Value")
-        .ignoreFailure(true)
+        .ignoreFailures(true)
         .build();
     
     assertEquals(template.getColumns().size(), 2);
