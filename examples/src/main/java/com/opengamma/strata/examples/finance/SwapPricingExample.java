@@ -74,8 +74,6 @@ public class SwapPricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.TRADE_INFO),
-        Column.of(Measure.PRODUCT),
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.LEG_PRESENT_VALUE),
@@ -104,6 +102,7 @@ public class SwapPricingExample {
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
+        trades,
         columns,
         results);
 

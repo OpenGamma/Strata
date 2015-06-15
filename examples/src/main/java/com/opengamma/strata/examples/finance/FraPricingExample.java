@@ -52,7 +52,6 @@ public class FraPricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.TRADE_INFO),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.PV01),
         Column.of(Measure.PAR_RATE),
@@ -79,6 +78,7 @@ public class FraPricingExample {
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
+        trades,
         columns,
         results);
 
