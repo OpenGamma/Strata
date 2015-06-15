@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -15,7 +17,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.io.CharSource;
 import com.opencsv.CSVParser;
 import com.opengamma.strata.collect.ArgChecker;
@@ -74,12 +75,8 @@ public final class CsvFile {
         throw new IllegalArgumentException("Could not read header row from empty CSV file");
       }
       ImmutableList<String> headers = lines.remove(0);
-      ImmutableList<String> searchHeaders = headers.stream()
-          .map(h -> h.toLowerCase())
-          .collect(Builder<String>::new, Builder<String>::add, (b1, b2) -> b1.addAll(b2.build()))
-          .build();
       ImmutableList<ImmutableList<String>> dataLines = ImmutableList.copyOf(lines);
-      return new CsvFile(headers, searchHeaders, dataLines);
+      return new CsvFile(headers, dataLines);
     } else {
       return new CsvFile(ImmutableList.copyOf(lines));
     }
@@ -125,7 +122,7 @@ public final class CsvFile {
    * @param lines  the data lines
    */
   private CsvFile(ImmutableList<ImmutableList<String>> lines) {
-    this(null, null, lines);
+    this(null, lines);
   }
 
   /**
@@ -138,9 +135,12 @@ public final class CsvFile {
    * @param searchHeaders  the headers used for case-insensitive searching
    * @param lines  the data lines
    */
-  private CsvFile(ImmutableList<String> headers, ImmutableList<String> searchHeaders, ImmutableList<ImmutableList<String>> lines) {
+  private CsvFile(ImmutableList<String> headers, ImmutableList<ImmutableList<String>> lines) {
     this.headers = headers;
-    this.searchHeaders = searchHeaders;
+    this.searchHeaders = headers == null ? null :
+        headers.stream()
+            .map(h -> h.toLowerCase())
+            .collect(toImmutableList());
     this.lines = lines;
   }
 
