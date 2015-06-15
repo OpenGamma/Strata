@@ -35,10 +35,10 @@ public class ExpandedFxTest {
   private static final CurrencyAmount EUR_P1600 = CurrencyAmount.of(EUR, 1_800);
   private static final LocalDate DATE_2015_06_29 = date(2015, 6, 29);
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
-  private static final FxPayment PAYMENT_GBP_P1000 = FxPayment.of(DATE_2015_06_30, GBP_P1000);
-  private static final FxPayment PAYMENT_GBP_M1000 = FxPayment.of(DATE_2015_06_30, GBP_M1000);
-  private static final FxPayment PAYMENT_USD_P1600 = FxPayment.of(DATE_2015_06_30, USD_P1600);
-  private static final FxPayment PAYMENT_USD_M1600 = FxPayment.of(DATE_2015_06_30, USD_M1600);
+  private static final FxPayment PAYMENT_GBP_P1000 = FxPayment.of(GBP_P1000, DATE_2015_06_30);
+  private static final FxPayment PAYMENT_GBP_M1000 = FxPayment.of(GBP_M1000, DATE_2015_06_30);
+  private static final FxPayment PAYMENT_USD_P1600 = FxPayment.of(USD_P1600, DATE_2015_06_30);
+  private static final FxPayment PAYMENT_USD_M1600 = FxPayment.of(USD_M1600, DATE_2015_06_30);
 
   //-------------------------------------------------------------------------
   public void test_of_payments_rightOrder() {
@@ -76,8 +76,8 @@ public class ExpandedFxTest {
 
   public void test_of_amounts_bothZero() {
     ExpandedFx test = ExpandedFx.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD), DATE_2015_06_30);
-    assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(DATE_2015_06_30, CurrencyAmount.zero(GBP)));
-    assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(DATE_2015_06_30, CurrencyAmount.zero(USD)));
+    assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(CurrencyAmount.zero(GBP), DATE_2015_06_30));
+    assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(CurrencyAmount.zero(USD), DATE_2015_06_30));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 
