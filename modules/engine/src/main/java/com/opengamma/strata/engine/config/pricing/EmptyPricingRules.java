@@ -44,9 +44,9 @@ final class EmptyPricingRules implements PricingRules, ImmutableBean {
   public Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure) {
     return Optional.empty();
   }
-  
+
   @Override
-  public ImmutableSet<Measure> measuresConfigured(CalculationTarget target) {
+  public ImmutableSet<Measure> configuredMeasures(CalculationTarget target) {
     return ImmutableSet.of();
   }
 

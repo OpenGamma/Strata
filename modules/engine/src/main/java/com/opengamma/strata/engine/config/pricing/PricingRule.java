@@ -113,20 +113,20 @@ public final class PricingRule<T extends CalculationTarget>
         Optional.of(configuredFunctionGroup) :
         Optional.empty();
   }
-  
+
   /**
    * Returns the set of measures configured for a calculation target.
    * 
    * @param target  a target
    * @return the set of measures configured by this rule
    */
-  public ImmutableSet<Measure> measuresConfigured(CalculationTarget target) {
+  public ImmutableSet<Measure> configuredMeasures(CalculationTarget target) {
     if (!targetType.isInstance(target)) {
       return ImmutableSet.of();
     }
-    Set<Measure> measuresConfigured = functionGroup.measuresConfigured(target);
+    Set<Measure> measuresConfigured = functionGroup.configuredMeasures(target);
     if (!measures.isEmpty()) {
-      measuresConfigured = Sets.intersection(measures, functionGroup.measuresConfigured(target));
+      measuresConfigured = Sets.intersection(measures, functionGroup.configuredMeasures(target));
     }
     return ImmutableSet.copyOf(measuresConfigured);
   }

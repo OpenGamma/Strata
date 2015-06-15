@@ -69,13 +69,13 @@ public interface PricingRules {
    * @return a function group specifying how a measure should be calculated for the target
    */
   public abstract Optional<ConfiguredFunctionGroup> functionGroup(CalculationTarget target, Measure measure);
-  
+
   /**
    * Returns the set of measures that are configured for a calculation target.
    * 
    * @param target  a target
    * @return a set of available measures for the target
    */
-  public abstract ImmutableSet<Measure> measuresConfigured(CalculationTarget target);
-  
+  public abstract ImmutableSet<Measure> configuredMeasures(CalculationTarget target);
+
 }

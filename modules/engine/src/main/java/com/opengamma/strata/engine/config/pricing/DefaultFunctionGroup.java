@@ -94,9 +94,9 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
         Optional.ofNullable(this.functionConfig.get(measure)) :
         Optional.empty();
   }
-  
+
   @Override
-  public ImmutableSet<Measure> measuresConfigured(CalculationTarget target) {
+  public ImmutableSet<Measure> configuredMeasures(CalculationTarget target) {
     return functionConfig.keySet();
   }
 

@@ -55,11 +55,11 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
         .flatMap(Guavate::stream)
         .findFirst();
   }
-  
+
   @Override
-  public ImmutableSet<Measure> measuresConfigured(CalculationTarget target) {
+  public ImmutableSet<Measure> configuredMeasures(CalculationTarget target) {
     return rules.stream()
-        .flatMap(rule -> rule.measuresConfigured(target).stream())
+        .flatMap(rule -> rule.configuredMeasures(target).stream())
         .collect(toImmutableSet());
   }
 

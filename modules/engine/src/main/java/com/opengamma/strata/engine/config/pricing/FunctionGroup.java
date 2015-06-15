@@ -41,13 +41,13 @@ public interface FunctionGroup<T extends CalculationTarget> {
    * @return configuration for a function to calculate the value of a measure for a target if this group has one
    */
   Optional<FunctionConfig<T>> functionConfig(CalculationTarget target, Measure measure);
-  
+
   /**
    * Returns the set of measures configured for a calculation target.
    * 
    * @param target  the calculation target
    * @return the set of measures configured for a calculation target
    */
-  ImmutableSet<Measure> measuresConfigured(CalculationTarget target);
-  
+  ImmutableSet<Measure> configuredMeasures(CalculationTarget target);
+
 }
