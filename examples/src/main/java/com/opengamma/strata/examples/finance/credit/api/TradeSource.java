@@ -23,6 +23,6 @@ public interface TradeSource {
     Map<StandardId, Trade> tradeLookup = trades()
         .stream()
         .collect(Guavate.toImmutableMap(t -> t.getTradeInfo().getId().get()));
-    return tradeLookup(id);
+    return tradeLookup.get(id);
   }
 }
