@@ -592,9 +592,9 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, eventPricer);
 
     CashFlows computed = pricer.cashFlows(expSwapLeg, mockProv);
-    CashFlow flow1 = CashFlow.of(period1.getPaymentDate(), GBP, fv1, df1);
-    CashFlow flow2 = CashFlow.of(period2.getPaymentDate(), GBP, fv2, df2);
-    CashFlow flow3 = CashFlow.of(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
+    CashFlow flow1 = CashFlow.ofFutureValue(period1.getPaymentDate(), GBP, fv1, df1);
+    CashFlow flow2 = CashFlow.ofFutureValue(period2.getPaymentDate(), GBP, fv2, df2);
+    CashFlow flow3 = CashFlow.ofFutureValue(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
     CashFlows expected = CashFlows.of(ImmutableList.of(flow1, flow2, flow3));
     assertEquals(computed, expected);
   }
