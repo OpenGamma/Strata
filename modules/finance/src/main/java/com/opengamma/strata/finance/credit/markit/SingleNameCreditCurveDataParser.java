@@ -16,8 +16,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.common.RestructuringClause;
+import com.opengamma.strata.finance.credit.common.SeniorityLevel;
 
 import java.io.InputStream;
 import java.util.List;

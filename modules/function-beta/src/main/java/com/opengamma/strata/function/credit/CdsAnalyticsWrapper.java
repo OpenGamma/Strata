@@ -46,20 +46,11 @@ public class CdsAnalyticsWrapper {
   private final static boolean s_protectStart = true;
 
   /**
-   * 
-   */
-  private final static int s_stepIn = 1;
-
-  /**
    * ISDA Standard model implementation in analytics
    */
-  private final AnalyticCDSPricer _calculator;
+  private final static AnalyticCDSPricer s_calculator = new AnalyticCDSPricer();
 
-  public CdsAnalyticsWrapper() {
-    _calculator = new AnalyticCDSPricer();
-  }
-
-  public MultiCurrencyAmount price(
+  public static MultiCurrencyAmount price(
       LocalDate valuationDate,
       ExpandedCds product,
       CurveYieldPlaceholder yieldCurve,
@@ -79,7 +70,7 @@ public class CdsAnalyticsWrapper {
     );
 
     double coupon = product.getCoupon();
-    double pv = _calculator.pv(
+    double pv = s_calculator.pv(
         cdsAnalytic,
         yieldCurveAnalytics,
         creditCurveAnalytics,
@@ -91,7 +82,8 @@ public class CdsAnalyticsWrapper {
     int sign = product.getBuySellProtection().isBuy() ? 1 : -1;
     double notional = product.getNotional();
     double adjusted = pv * notional * sign;
-    double upfrontFeeAmount = priceUpfrontFee(valuationDate, product, yieldCurveAnalytics) * sign;
+    double upfrontFeeAmount = priceUpfrontFee(
+        valuationDate, product.upfrontFeeAmount, product.getUpfrontFeePaymentDate(), yieldCurveAnalytics) * sign;
     double adjustedPlusFee = adjusted + upfrontFeeAmount;
     CurrencyAmount currencyAmount = CurrencyAmount.of(product.getCurrency(), adjustedPlusFee);
     return MultiCurrencyAmount.of(currencyAmount);
@@ -100,21 +92,24 @@ public class CdsAnalyticsWrapper {
   /**
    * The fee is always calculated as being payable by the protection buyer.
    */
-  private double priceUpfrontFee(LocalDate valuationDate, ExpandedCds product, ISDACompliantYieldCurve yieldCurve) {
-    double feeAmount = product.getUpfrontFeeAmount();
-    if (Double.isNaN(feeAmount)) {
-      return 0D; // fee missing
+  protected static double priceUpfrontFee(
+      LocalDate valuationDate,
+      double amount,
+      LocalDate paymentDate,
+      ISDACompliantYieldCurve yieldCurve
+  ) {
+    if (amount == 0D) {
+      return 0D; // no fee
     }
-    LocalDate feeDate = product.getUpfrontFeePaymentDate();
-    if (feeDate.isBefore(valuationDate)) {
+    if (paymentDate.isBefore(valuationDate)) {
       return 0D; // fee already paid
     }
-    double feeSettleYearFraction = s_curveDayCount.yearFraction(valuationDate, feeDate);
+    double feeSettleYearFraction = s_curveDayCount.yearFraction(valuationDate, paymentDate);
     double discountFactor = yieldCurve.getDiscountFactor(feeSettleYearFraction);
-    return discountFactor * feeAmount;
+    return discountFactor * amount;
   }
 
-  private ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, CurveYieldPlaceholder yieldCurve) {
+  public static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, CurveYieldPlaceholder yieldCurve) {
     try {
       // model does not use floating leg of underlying IRS
       IsdaYieldCurveConvention curveConvention = yieldCurve.getCurveConvention();
@@ -144,7 +139,7 @@ public class CdsAnalyticsWrapper {
     }
   }
 
-  private ISDACompliantCreditCurve toIsdaCreditCurve(
+  private static ISDACompliantCreditCurve toIsdaCreditCurve(
       LocalDate valuationDate,
       CurveCreditPlaceholder curveCurve,
       ISDACompliantYieldCurve yieldCurve,
@@ -157,19 +152,9 @@ public class CdsAnalyticsWrapper {
           ISDACompliantCreditCurveBuilder.ArbitrageHandling.Fail
       ).calibrateCreditCurve(
           valuationDate,
-          StandardCdsConvention.calcUnadjustedStepInDate(
-              valuationDate,
-              cdsConvention.getStepIn()
-          ),
-          StandardCdsConvention.calcAdjustedSettleDate(
-              valuationDate,
-              cdsConvention.calcBusinessAdjustment(),
-              cdsConvention.getSettleLag()
-          ),
-          StandardCdsConvention.calcAdjustedStartDate(
-              valuationDate,
-              cdsConvention.calcBusinessAdjustment()
-          ),
+          cdsConvention.calcUnadjustedStepInDate(valuationDate),
+          cdsConvention.calcAdjustedSettleDate(valuationDate),
+          cdsConvention.calcAdjustedStartDate(valuationDate),
           curveCurve.getCreditCurveEndDatePoints(valuationDate),
           curveCurve.getFractionalParSpreads(),
           cdsConvention.isPayAccOnDefault(),
@@ -184,11 +169,11 @@ public class CdsAnalyticsWrapper {
     }
   }
 
-  private CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
+  private static CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
     try {
       return new CDSAnalytic(
           valuationDate,
-          valuationDate.plusDays(s_stepIn),
+          valuationDate.plusDays(1),
           valuationDate,
           product.getAccStartDate(),
           product.getEndDate(),

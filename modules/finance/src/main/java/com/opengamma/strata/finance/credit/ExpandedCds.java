@@ -2,12 +2,10 @@ package com.opengamma.strata.finance.credit;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.finance.credit.fee.SinglePayment;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -25,29 +23,10 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 @BeanDefinition
 public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
-
-  /**
-   * tradeDate The trade date
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate tradeDate;
-
-  /**
-   * Typically T+1 unadjusted. Required by the model.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final LocalDate stepInDate;
-
-  /**
-   * The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final LocalDate cashSettleDate;
 
   /**
    * accStartDate This is when the CDS nominally starts in terms of premium payments.
@@ -59,7 +38,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   @PropertyDefinition(validate = "notNull")
   public final LocalDate accStartDate;
 
-
   /**
    * endDate (aka maturity date) This is when the contract expires and protection ends -
    * any default after this date does not trigger a payment. (the protection ends at end of day)
@@ -68,7 +46,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
    */
   @PropertyDefinition(validate = "notNull")
   public final LocalDate endDate;
-
 
   /**
    * payAccOnDefault Is the accrued premium paid in the event of a default
@@ -181,9 +158,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
    * @param builder  the builder to copy from, not null
    */
   protected ExpandedCds(ExpandedCds.Builder builder) {
-    JodaBeanUtils.notNull(builder.tradeDate, "tradeDate");
-    JodaBeanUtils.notNull(builder.stepInDate, "stepInDate");
-    JodaBeanUtils.notNull(builder.cashSettleDate, "cashSettleDate");
     JodaBeanUtils.notNull(builder.accStartDate, "accStartDate");
     JodaBeanUtils.notNull(builder.endDate, "endDate");
     JodaBeanUtils.notNull(builder.payAccOnDefault, "payAccOnDefault");
@@ -197,9 +171,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     JodaBeanUtils.notNull(builder.coupon, "coupon");
     JodaBeanUtils.notNull(builder.notional, "notional");
     JodaBeanUtils.notNull(builder.currency, "currency");
-    this.tradeDate = builder.tradeDate;
-    this.stepInDate = builder.stepInDate;
-    this.cashSettleDate = builder.cashSettleDate;
     this.accStartDate = builder.accStartDate;
     this.endDate = builder.endDate;
     this.payAccOnDefault = builder.payAccOnDefault;
@@ -229,33 +200,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets tradeDate The trade date
-   * @return the value of the property, not null
-   */
-  public LocalDate getTradeDate() {
-    return tradeDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets typically T+1 unadjusted. Required by the model.
-   * @return the value of the property, not null
-   */
-  public LocalDate getStepInDate() {
-    return stepInDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
-   * @return the value of the property, not null
-   */
-  public LocalDate getCashSettleDate() {
-    return cashSettleDate;
   }
 
   //-----------------------------------------------------------------------
@@ -409,10 +353,7 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedCds other = (ExpandedCds) obj;
-      return JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
-          JodaBeanUtils.equal(getStepInDate(), other.getStepInDate()) &&
-          JodaBeanUtils.equal(getCashSettleDate(), other.getCashSettleDate()) &&
-          JodaBeanUtils.equal(getAccStartDate(), other.getAccStartDate()) &&
+      return JodaBeanUtils.equal(getAccStartDate(), other.getAccStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           (isPayAccOnDefault() == other.isPayAccOnDefault()) &&
           JodaBeanUtils.equal(getPaymentInterval(), other.getPaymentInterval()) &&
@@ -433,9 +374,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStepInDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettleDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getAccStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
@@ -455,7 +393,7 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(576);
+    StringBuilder buf = new StringBuilder(480);
     buf.append("ExpandedCds{");
     int len = buf.length();
     toString(buf);
@@ -467,9 +405,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
-    buf.append("stepInDate").append('=').append(JodaBeanUtils.toString(getStepInDate())).append(',').append(' ');
-    buf.append("cashSettleDate").append('=').append(JodaBeanUtils.toString(getCashSettleDate())).append(',').append(' ');
     buf.append("accStartDate").append('=').append(JodaBeanUtils.toString(getAccStartDate())).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
     buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccOnDefault())).append(',').append(' ');
@@ -496,21 +431,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code tradeDate} property.
-     */
-    private final MetaProperty<LocalDate> tradeDate = DirectMetaProperty.ofImmutable(
-        this, "tradeDate", ExpandedCds.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code stepInDate} property.
-     */
-    private final MetaProperty<LocalDate> stepInDate = DirectMetaProperty.ofImmutable(
-        this, "stepInDate", ExpandedCds.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code cashSettleDate} property.
-     */
-    private final MetaProperty<LocalDate> cashSettleDate = DirectMetaProperty.ofImmutable(
-        this, "cashSettleDate", ExpandedCds.class, LocalDate.class);
     /**
      * The meta-property for the {@code accStartDate} property.
      */
@@ -586,9 +506,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeDate",
-        "stepInDate",
-        "cashSettleDate",
         "accStartDate",
         "endDate",
         "payAccOnDefault",
@@ -613,12 +530,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752419634:  // tradeDate
-          return tradeDate;
-        case -1890516897:  // stepInDate
-          return stepInDate;
-        case 625347372:  // cashSettleDate
-          return cashSettleDate;
         case -274214993:  // accStartDate
           return accStartDate;
         case -1607727319:  // endDate
@@ -667,30 +578,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code tradeDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> tradeDate() {
-      return tradeDate;
-    }
-
-    /**
-     * The meta-property for the {@code stepInDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> stepInDate() {
-      return stepInDate;
-    }
-
-    /**
-     * The meta-property for the {@code cashSettleDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> cashSettleDate() {
-      return cashSettleDate;
-    }
-
     /**
      * The meta-property for the {@code accStartDate} property.
      * @return the meta-property, not null
@@ -807,12 +694,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752419634:  // tradeDate
-          return ((ExpandedCds) bean).getTradeDate();
-        case -1890516897:  // stepInDate
-          return ((ExpandedCds) bean).getStepInDate();
-        case 625347372:  // cashSettleDate
-          return ((ExpandedCds) bean).getCashSettleDate();
         case -274214993:  // accStartDate
           return ((ExpandedCds) bean).getAccStartDate();
         case -1607727319:  // endDate
@@ -862,9 +743,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
    */
   public static class Builder extends DirectFieldsBeanBuilder<ExpandedCds> {
 
-    private LocalDate tradeDate;
-    private LocalDate stepInDate;
-    private LocalDate cashSettleDate;
     private LocalDate accStartDate;
     private LocalDate endDate;
     private boolean payAccOnDefault;
@@ -891,9 +769,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
      * @param beanToCopy  the bean to copy from, not null
      */
     protected Builder(ExpandedCds beanToCopy) {
-      this.tradeDate = beanToCopy.getTradeDate();
-      this.stepInDate = beanToCopy.getStepInDate();
-      this.cashSettleDate = beanToCopy.getCashSettleDate();
       this.accStartDate = beanToCopy.getAccStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.payAccOnDefault = beanToCopy.isPayAccOnDefault();
@@ -914,12 +789,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752419634:  // tradeDate
-          return tradeDate;
-        case -1890516897:  // stepInDate
-          return stepInDate;
-        case 625347372:  // cashSettleDate
-          return cashSettleDate;
         case -274214993:  // accStartDate
           return accStartDate;
         case -1607727319:  // endDate
@@ -956,15 +825,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752419634:  // tradeDate
-          this.tradeDate = (LocalDate) newValue;
-          break;
-        case -1890516897:  // stepInDate
-          this.stepInDate = (LocalDate) newValue;
-          break;
-        case 625347372:  // cashSettleDate
-          this.cashSettleDate = (LocalDate) newValue;
-          break;
         case -274214993:  // accStartDate
           this.accStartDate = (LocalDate) newValue;
           break;
@@ -1043,39 +903,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code tradeDate} property in the builder.
-     * @param tradeDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder tradeDate(LocalDate tradeDate) {
-      JodaBeanUtils.notNull(tradeDate, "tradeDate");
-      this.tradeDate = tradeDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code stepInDate} property in the builder.
-     * @param stepInDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder stepInDate(LocalDate stepInDate) {
-      JodaBeanUtils.notNull(stepInDate, "stepInDate");
-      this.stepInDate = stepInDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code cashSettleDate} property in the builder.
-     * @param cashSettleDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder cashSettleDate(LocalDate cashSettleDate) {
-      JodaBeanUtils.notNull(cashSettleDate, "cashSettleDate");
-      this.cashSettleDate = cashSettleDate;
-      return this;
-    }
-
     /**
      * Sets the {@code accStartDate} property in the builder.
      * @param accStartDate  the new value, not null
@@ -1232,7 +1059,7 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(576);
+      StringBuilder buf = new StringBuilder(480);
       buf.append("ExpandedCds.Builder{");
       int len = buf.length();
       toString(buf);
@@ -1244,9 +1071,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
 
     protected void toString(StringBuilder buf) {
-      buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
-      buf.append("stepInDate").append('=').append(JodaBeanUtils.toString(stepInDate)).append(',').append(' ');
-      buf.append("cashSettleDate").append('=').append(JodaBeanUtils.toString(cashSettleDate)).append(',').append(' ');
       buf.append("accStartDate").append('=').append(JodaBeanUtils.toString(accStartDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(payAccOnDefault)).append(',').append(' ');

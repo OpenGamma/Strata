@@ -5,14 +5,6 @@
  */
 package com.opengamma.strata.finance.credit;
 
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConvention;
-import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.finance.Expandable;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
 import org.joda.beans.Bean;
@@ -29,8 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -62,23 +52,6 @@ public final class CdsTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Cds product;
 
-  /**
-   * Value that the ISDA Standard model needs but that does not occur in the FpML
-   * <p>
-   * (aka Protection Effective date or assignment date). Date when party assumes ownership.
-   * This is usually T+1. This is when protection (and risk) starts in terms of the model.
-   * Note, this is sometimes just called the Effective Date, however this can cause
-   * confusion with the legal effective date which is T-60 or T-90.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate stepInDate;
-
-  /**
-   * Value that the ISDA Standard model needs but that does not occur in the FpML
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final boolean payAccOnDefault;
-
   //-------------------------------------------------------------------------
   @SuppressWarnings({"rawtypes", "unchecked"})
   @ImmutableDefaults
@@ -88,15 +61,11 @@ public final class CdsTrade
 
   public static CdsTrade of(
       TradeInfo tradeInfo,
-      Cds product,
-      LocalDate stepInDate,
-      boolean payAccOnDefault
+      Cds product
   ) {
     return builder()
         .tradeInfo(tradeInfo)
         .product(product)
-        .stepInDate(stepInDate)
-        .payAccOnDefault(payAccOnDefault)
         .build();
   }
 
@@ -129,16 +98,10 @@ public final class CdsTrade
 
   private CdsTrade(
       TradeInfo tradeInfo,
-      Cds product,
-      LocalDate stepInDate,
-      boolean payAccOnDefault) {
+      Cds product) {
     JodaBeanUtils.notNull(product, "product");
-    JodaBeanUtils.notNull(stepInDate, "stepInDate");
-    JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
     this.tradeInfo = tradeInfo;
     this.product = product;
-    this.stepInDate = stepInDate;
-    this.payAccOnDefault = payAccOnDefault;
   }
 
   @Override
@@ -184,29 +147,6 @@ public final class CdsTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets value that the ISDA Standard model needs but that does not occur in the FpML
-   * <p>
-   * (aka Protection Effective date or assignment date). Date when party assumes ownership.
-   * This is usually T+1. This is when protection (and risk) starts in terms of the model.
-   * Note, this is sometimes just called the Effective Date, however this can cause
-   * confusion with the legal effective date which is T-60 or T-90.
-   * @return the value of the property, not null
-   */
-  public LocalDate getStepInDate() {
-    return stepInDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets value that the ISDA Standard model needs but that does not occur in the FpML
-   * @return the value of the property, not null
-   */
-  public boolean isPayAccOnDefault() {
-    return payAccOnDefault;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -222,9 +162,7 @@ public final class CdsTrade
     if (obj != null && obj.getClass() == this.getClass()) {
       CdsTrade other = (CdsTrade) obj;
       return JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getProduct(), other.getProduct()) &&
-          JodaBeanUtils.equal(getStepInDate(), other.getStepInDate()) &&
-          (isPayAccOnDefault() == other.isPayAccOnDefault());
+          JodaBeanUtils.equal(getProduct(), other.getProduct());
     }
     return false;
   }
@@ -234,19 +172,15 @@ public final class CdsTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
     hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStepInDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("CdsTrade{");
     buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("product").append('=').append(getProduct()).append(',').append(' ');
-    buf.append("stepInDate").append('=').append(getStepInDate()).append(',').append(' ');
-    buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccOnDefault()));
+    buf.append("product").append('=').append(JodaBeanUtils.toString(getProduct()));
     buf.append('}');
     return buf.toString();
   }
@@ -272,24 +206,12 @@ public final class CdsTrade
     private final MetaProperty<Cds> product = DirectMetaProperty.ofImmutable(
         this, "product", CdsTrade.class, Cds.class);
     /**
-     * The meta-property for the {@code stepInDate} property.
-     */
-    private final MetaProperty<LocalDate> stepInDate = DirectMetaProperty.ofImmutable(
-        this, "stepInDate", CdsTrade.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code payAccOnDefault} property.
-     */
-    private final MetaProperty<Boolean> payAccOnDefault = DirectMetaProperty.ofImmutable(
-        this, "payAccOnDefault", CdsTrade.class, Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "tradeInfo",
-        "product",
-        "stepInDate",
-        "payAccOnDefault");
+        "product");
 
     /**
      * Restricted constructor.
@@ -304,10 +226,6 @@ public final class CdsTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
-        case -1890516897:  // stepInDate
-          return stepInDate;
-        case -988493655:  // payAccOnDefault
-          return payAccOnDefault;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -344,22 +262,6 @@ public final class CdsTrade
       return product;
     }
 
-    /**
-     * The meta-property for the {@code stepInDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> stepInDate() {
-      return stepInDate;
-    }
-
-    /**
-     * The meta-property for the {@code payAccOnDefault} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Boolean> payAccOnDefault() {
-      return payAccOnDefault;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -368,10 +270,6 @@ public final class CdsTrade
           return ((CdsTrade) bean).getTradeInfo();
         case -309474065:  // product
           return ((CdsTrade) bean).getProduct();
-        case -1890516897:  // stepInDate
-          return ((CdsTrade) bean).getStepInDate();
-        case -988493655:  // payAccOnDefault
-          return ((CdsTrade) bean).isPayAccOnDefault();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -395,8 +293,6 @@ public final class CdsTrade
 
     private TradeInfo tradeInfo;
     private Cds product;
-    private LocalDate stepInDate;
-    private boolean payAccOnDefault;
 
     /**
      * Restricted constructor.
@@ -412,8 +308,6 @@ public final class CdsTrade
     private Builder(CdsTrade beanToCopy) {
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.product = beanToCopy.getProduct();
-      this.stepInDate = beanToCopy.getStepInDate();
-      this.payAccOnDefault = beanToCopy.isPayAccOnDefault();
     }
 
     //-----------------------------------------------------------------------
@@ -424,10 +318,6 @@ public final class CdsTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
-        case -1890516897:  // stepInDate
-          return stepInDate;
-        case -988493655:  // payAccOnDefault
-          return payAccOnDefault;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -441,12 +331,6 @@ public final class CdsTrade
           break;
         case -309474065:  // product
           this.product = (Cds) newValue;
-          break;
-        case -1890516897:  // stepInDate
-          this.stepInDate = (LocalDate) newValue;
-          break;
-        case -988493655:  // payAccOnDefault
-          this.payAccOnDefault = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -482,9 +366,7 @@ public final class CdsTrade
     public CdsTrade build() {
       return new CdsTrade(
           tradeInfo,
-          product,
-          stepInDate,
-          payAccOnDefault);
+          product);
     }
 
     //-----------------------------------------------------------------------
@@ -509,37 +391,13 @@ public final class CdsTrade
       return this;
     }
 
-    /**
-     * Sets the {@code stepInDate} property in the builder.
-     * @param stepInDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder stepInDate(LocalDate stepInDate) {
-      JodaBeanUtils.notNull(stepInDate, "stepInDate");
-      this.stepInDate = stepInDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code payAccOnDefault} property in the builder.
-     * @param payAccOnDefault  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder payAccOnDefault(boolean payAccOnDefault) {
-      JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
-      this.payAccOnDefault = payAccOnDefault;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("CdsTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
-      buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-      buf.append("stepInDate").append('=').append(JodaBeanUtils.toString(stepInDate)).append(',').append(' ');
-      buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(payAccOnDefault));
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product));
       buf.append('}');
       return buf.toString();
     }

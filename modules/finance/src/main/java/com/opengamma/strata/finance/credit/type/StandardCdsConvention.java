@@ -21,9 +21,9 @@ import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.common.CdsDatesLogic;
+import com.opengamma.strata.finance.credit.common.RestructuringClause;
+import com.opengamma.strata.finance.credit.common.SeniorityLevel;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.fee.SinglePayment;
@@ -96,8 +96,8 @@ public final class StandardCdsConvention
 
   public CdsTrade toSingleNameTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -109,8 +109,8 @@ public final class StandardCdsConvention
   ) {
     return toTrade(
         id,
-        tradeDate,
-        period,
+        startDate,
+        endDate,
         buySell,
         notional,
         coupon,
@@ -127,8 +127,8 @@ public final class StandardCdsConvention
 
   public CdsTrade toIndexTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -141,8 +141,8 @@ public final class StandardCdsConvention
   ) {
     return toTrade(
         id,
-        tradeDate,
-        period,
+        startDate,
+        endDate,
         buySell,
         notional,
         coupon,
@@ -159,8 +159,8 @@ public final class StandardCdsConvention
 
   private CdsTrade toTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -170,32 +170,15 @@ public final class StandardCdsConvention
   ) {
     BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
 
-    // start date should be adjusted
-    LocalDate adjustedStartDate = calcAdjustedStartDate(
-        tradeDate,
-        businessDayAdjustment
-    );
-
-    // Standard maturity dates are unadjusted – typically Mar/Jun/Sep/Dec 20th or a stub
-    LocalDate unadjustedEndDate = calcUnadjustedMaturityDate(tradeDate, paymentFrequency, period);
-
-    // Step in date is unadjusted, usually T+1
-    LocalDate unadjustedStepInDate = calcUnadjustedStepInDate(tradeDate, stepIn);
-
-    // Cash settle date is adjusted and typically T+3
-    LocalDate adjustedCashSettleDate = calcAdjustedSettleDate(tradeDate, businessDayAdjustment, settleLag);
-
     return CdsTrade.of(
         TradeInfo
             .builder()
             .id(id)
-            .tradeDate(tradeDate)
-            .settlementDate(adjustedCashSettleDate)
             .build(),
         Cds.builder()
             .generalTerms(GeneralTerms.of(
-                adjustedStartDate,
-                unadjustedEndDate,
+                startDate,
+                endDate,
                 buySell,
                 businessDayAdjustment,
                 referenceInformation
@@ -217,9 +200,8 @@ public final class StandardCdsConvention
                     )
                 )
             )
-            .build(),
-        unadjustedStepInDate,
-        payAccOnDefault
+            .payAccOnDefault(true)
+            .build()
     );
   }
 
@@ -244,22 +226,20 @@ public final class StandardCdsConvention
   /**
    * Find previous IMM date
    */
-  protected static LocalDate calcUnadjustedAccrualStartDate(
-      LocalDate tradeDate
-  ) {
-    return CdsDatesLogic.getPrevCdsDate(tradeDate);
+  protected LocalDate calcUnadjustedAccrualStartDate(LocalDate valuationDate) {
+    return CdsDatesLogic.getPrevCdsDate(valuationDate);
   }
 
   /**
    * Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
    * Example: As of Feb09, the 1y standard CDS contract would protect the buyer through Sat 20Mar10.
    */
-  protected static LocalDate calcUnadjustedMaturityDate(
-      LocalDate tradeDate,
+  protected LocalDate calcUnadjustedMaturityDate(
+      LocalDate valuationDate,
       Frequency paymentFrequency,
       Period period
   ) {
-    return calcUnadjustedAccrualStartDate(tradeDate)
+    return calcUnadjustedAccrualStartDate(valuationDate)
         .plus(period)
         .plus(paymentFrequency.getPeriod());
   }
@@ -267,35 +247,26 @@ public final class StandardCdsConvention
   /**
    * public so we can use in curve building
    */
-  public static LocalDate calcAdjustedStartDate(
-      LocalDate tradeDate,
-      BusinessDayAdjustment businessAdjustment
-  ) {
-    return businessAdjustment.adjust(
-        calcUnadjustedAccrualStartDate(tradeDate)
+  public LocalDate calcAdjustedStartDate(LocalDate valuationDate) {
+    return calcBusinessAdjustment().adjust(
+        calcUnadjustedAccrualStartDate(valuationDate)
     );
   }
 
   /**
    * public so we can use in curve building
    */
-  public static LocalDate calcAdjustedSettleDate(
-      LocalDate tradeDate,
-      BusinessDayAdjustment businessAdjustment,
-      int settleLag
-  ) {
+  public LocalDate calcAdjustedSettleDate(LocalDate valuationDate) {
+    BusinessDayAdjustment businessAdjustment = calcBusinessAdjustment();
     DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(settleLag, businessAdjustment.getCalendar(), businessAdjustment);
-    return daysAdjustment.adjust(tradeDate);
+    return daysAdjustment.adjust(valuationDate);
   }
 
   /**
    * public so we can use in curve building
    */
-  public static LocalDate calcUnadjustedStepInDate(
-      LocalDate tradeDate,
-      int stepIn
-  ) {
-    return tradeDate.plusDays(stepIn);
+  public LocalDate calcUnadjustedStepInDate(LocalDate valuationDate) {
+    return valuationDate.plusDays(stepIn);
   }
 
 

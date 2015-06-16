@@ -15,7 +15,6 @@ import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;
-import com.opengamma.strata.finance.credit.ExpandedCdsTrade;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformationType;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 

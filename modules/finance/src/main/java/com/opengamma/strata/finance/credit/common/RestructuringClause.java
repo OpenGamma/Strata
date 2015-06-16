@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit;
+package com.opengamma.strata.finance.credit.common;
 
 /**
  * http://www.fpml.org/coding-scheme/restructuring

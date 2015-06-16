@@ -11,5 +11,4 @@ public class CdsPvFunction extends AbstractCdsFunction<MultiCurrencyAmount> {
     return pricer().presentValue(product, provider);
   }
 
-
 }

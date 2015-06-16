@@ -6,7 +6,7 @@
 package com.opengamma.strata.finance.credit.general.reference;
 
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.common.RestructuringClause;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;

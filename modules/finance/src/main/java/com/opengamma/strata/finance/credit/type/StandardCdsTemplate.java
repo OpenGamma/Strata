@@ -6,13 +6,11 @@
 package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Template;
 import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.fee.SinglePayment;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.common.RestructuringClause;
+import com.opengamma.strata.finance.credit.common.SeniorityLevel;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -28,10 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 @BeanDefinition
@@ -54,8 +50,8 @@ public final class StandardCdsTemplate
 
   public CdsTrade toSingleNameTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -65,8 +61,8 @@ public final class StandardCdsTemplate
   ) {
     return convention.toSingleNameTrade(
         id,
-        tradeDate,
-        period,
+        startDate,
+        endDate,
         buySell,
         notional,
         coupon,
@@ -80,8 +76,8 @@ public final class StandardCdsTemplate
 
   public CdsTrade toSingleNameTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -94,8 +90,8 @@ public final class StandardCdsTemplate
   ) {
     return convention.toSingleNameTrade(
         id,
-        tradeDate,
-        period,
+        startDate,
+        endDate,
         buySell,
         notional,
         coupon,
@@ -109,8 +105,8 @@ public final class StandardCdsTemplate
 
   public CdsTrade toIndexTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -120,8 +116,8 @@ public final class StandardCdsTemplate
       RestructuringClause restructuringClause) {
     return convention.toIndexTrade(
         id,
-        tradeDate,
-        period,
+        startDate,
+        endDate,
         buySell,
         notional,
         coupon,
@@ -137,8 +133,8 @@ public final class StandardCdsTemplate
 
   public CdsTrade toIndexTrade(
       StandardId id,
-      LocalDate tradeDate,
-      Period period,
+      LocalDate startDate,
+      LocalDate endDate,
       BuySell buySell,
       double notional,
       double coupon,
@@ -151,8 +147,8 @@ public final class StandardCdsTemplate
   ) {
     return convention.toIndexTrade(
         id,
-        tradeDate,
-        period,
+        startDate,
+        endDate,
         buySell,
         notional,
         coupon,

@@ -22,18 +22,12 @@ public class CdsPricer {
 
   public static final CdsPricer DEFAULT = new CdsPricer();
 
-  private final CdsAnalyticsWrapper _wrapper;
-
-  public CdsPricer() {
-    _wrapper = new CdsAnalyticsWrapper();
-  }
-
   public MultiCurrencyAmount presentValue(ExpandedCds product, DefaultSingleCalculationMarketData provider) {
     LocalDate valuationDate = provider.getValuationDate();
     CurveYieldPlaceholder yieldCurve = Curves.discountCurve();
     CurveCreditPlaceholder creditCurve = Curves.creditCurve();
     double recoveryRate = Curves.recoveryRate();
-    return _wrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate);
+    return CdsAnalyticsWrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate);
   }
 
   public MultiCurrencyAmount ir01ParallelPar(ExpandedCds product, DefaultSingleCalculationMarketData provider) {
@@ -41,7 +35,7 @@ public class CdsPricer {
     CurveYieldPlaceholder yieldCurve = Curves.discountCurvePar(0.0001D);
     CurveCreditPlaceholder creditCurve = Curves.creditCurve();
     double recoveryRate = Curves.recoveryRate();
-    return _wrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
+    return CdsAnalyticsWrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
         .minus(presentValue(product, provider));
   }
 
@@ -53,7 +47,7 @@ public class CdsPricer {
       CurveYieldPlaceholder yieldCurve = Curves.discountCurveParBucket(i, 0.0001D);
       CurveCreditPlaceholder creditCurve = Curves.creditCurve();
       double recoveryRate = Curves.recoveryRate();
-      MultiCurrencyAmount sensitivity = _wrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
+      MultiCurrencyAmount sensitivity = CdsAnalyticsWrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
           .minus(presentValue(product, provider));
       sensitivities[i] = sensitivity.getAmount(product.getCurrency()).getAmount();
     }
@@ -73,7 +67,7 @@ public class CdsPricer {
     CurveYieldPlaceholder yieldCurve = Curves.discountCurve();
     CurveCreditPlaceholder creditCurve = Curves.creditCurvePar(0.0001D);
     double recoveryRate = Curves.recoveryRate();
-    return _wrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
+    return CdsAnalyticsWrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
         .minus(presentValue(product, provider));
   }
 
@@ -85,7 +79,7 @@ public class CdsPricer {
       CurveYieldPlaceholder yieldCurve = Curves.discountCurve();
       CurveCreditPlaceholder creditCurve = Curves.creditCurveParBucket(i, 0.0001D);
       double recoveryRate = Curves.recoveryRate();
-      MultiCurrencyAmount sensitivity = _wrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
+      MultiCurrencyAmount sensitivity = CdsAnalyticsWrapper.price(valuationDate, product, yieldCurve, creditCurve, recoveryRate)
           .minus(presentValue(product, provider));
       sensitivities[i] = sensitivity.getAmount(product.getCurrency()).getAmount();
     }

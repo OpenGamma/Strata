@@ -11,8 +11,8 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.report.TradePortfolio;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.markit.RedCode;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.common.SeniorityLevel;
+import com.opengamma.strata.finance.credit.common.RestructuringClause;
 import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
 import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
 import org.joda.beans.ser.JodaBeanSer;
@@ -54,8 +54,8 @@ public class CdsTradeModelDemo {
         .of(StandardCdsConventions.northAmericanUsd())
         .toSingleNameTrade(
             StandardId.of("tradeid", "62726762"),
-            LocalDate.of(2014, 10, 16), // tradeDate, from which start date will be calculated
-            Period.ofYears(5),
+            LocalDate.of(2014, 9, 22),
+            LocalDate.of(2019, 12, 20),
             BuySell.BUY,
             100_000_000D,
             0.0100,
@@ -72,8 +72,8 @@ public class CdsTradeModelDemo {
         .of(StandardCdsConventions.europeanUsd())
         .toSingleNameTrade(
             StandardId.of("tradeid", "62726763"),
-            LocalDate.of(2014, 1, 1),
-            Period.ofYears(5),
+            LocalDate.of(2014, 9, 22),
+            LocalDate.of(2019, 12, 20),
             BuySell.BUY,
             1_000_000D,
             0.0050,
@@ -88,8 +88,8 @@ public class CdsTradeModelDemo {
         .of(StandardCdsConventions.northAmericanUsd())
         .toIndexTrade(
             StandardId.of("tradeid", "62726764"),
-            LocalDate.of(2014, 1, 1),
-            Period.ofYears(5),
+            LocalDate.of(2014, 9, 22),
+            LocalDate.of(2019, 12, 20),
             BuySell.BUY,
             10_000_000D,
             0.0100,
