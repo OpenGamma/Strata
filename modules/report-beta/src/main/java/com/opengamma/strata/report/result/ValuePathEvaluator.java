@@ -92,7 +92,9 @@ public class ValuePathEvaluator {
                 : Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
           };
           break;
-        case TRADE_INFO:
+        case TRADE:
+          // TODO - eventually provide access to merged set of fields from both the trade itself and
+          // trade info. Using trade info for now since most information is there.
           rootResultSupplier = i -> Result.success(results.getTrades().get(i).getTradeInfo());
           break;
         default:

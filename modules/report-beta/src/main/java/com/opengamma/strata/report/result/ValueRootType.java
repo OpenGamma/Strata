@@ -25,9 +25,9 @@ public enum ValueRootType {
    */
   PRODUCT("Product"),
   /**
-   * Refers to the trade info.
+   * Refers to the trade.
    */
-  TRADE_INFO("TradeInfo");
+  TRADE("Trade");
   
   //-------------------------------------------------------------------------
   private final String token;
