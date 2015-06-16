@@ -9,6 +9,7 @@
 
 package com.opengamma.strata.examples.finance.credit;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -27,6 +28,7 @@ import com.opengamma.strata.examples.finance.credit.api.Calculator;
 import com.opengamma.strata.examples.finance.credit.api.TradeSource;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.report.ReportCalculationResults;
 
 import java.time.LocalDate;
@@ -39,26 +41,30 @@ public class ExampleCalculator implements Calculator {
   }
 
   @Override
-  public CurrencyAmount calculateSimpleValue(
+  public double calculateScalarValue(
       final LocalDate valuationDate,
       final TradeSource tradeSource,
       final Measure measure
   ) {
-    return calculateSimpleValues(valuationDate, tradeSource, ImmutableList.of(measure)).get(0);
+    Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);
+    Preconditions.checkArgument(
+        result.getValue() instanceof CurrencyAmount,
+        "Expecting a CurrencyAmount, found " + result.getValue()
+    );
+    CurrencyAmount value = (CurrencyAmount) result.getValue();
+    return value.getAmount();
   }
 
   @Override
-  public List<CurrencyAmount> calculateSimpleValues(
-      final LocalDate valuationDate,
-      final TradeSource tradeSource,
-      final List<Measure> measures
-  ) {
-    return calculateResults(valuationDate, tradeSource, measures)
-        .getItems()
-        .stream()
-        .map(s -> ((Result<CurrencyAmount>) s).getValue())
-        .collect(Collectors.toList());
-  }
+  public double[] calculateVectorValue(LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
+    Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);
+    Preconditions.checkArgument(
+        result.getValue() instanceof CurveCurrencyParameterSensitivity,
+        "Expecting a vector CurveCurrencyParameterSensitivity, found " + result.getValue()
+    );
+    CurveCurrencyParameterSensitivity value = (CurveCurrencyParameterSensitivity)result.getValue();
+    return value.getSensitivity();
+ }
 
   @Override
   public Results calculateResults(LocalDate valuationDate, TradeSource tradeSource, List<Measure> measures) {

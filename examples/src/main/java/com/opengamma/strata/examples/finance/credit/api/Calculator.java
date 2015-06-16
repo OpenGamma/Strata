@@ -9,7 +9,6 @@
 
 package com.opengamma.strata.examples.finance.credit.api;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -19,16 +18,16 @@ import java.util.List;
 
 public interface Calculator {
 
-  CurrencyAmount calculateSimpleValue(
+  double calculateScalarValue(
       LocalDate valuationDate,
       TradeSource tradeSource,
       Measure measure
   );
 
-  List<CurrencyAmount> calculateSimpleValues(
+  double[] calculateVectorValue(
       LocalDate valuationDate,
       TradeSource tradeSource,
-      List<Measure> measures
+      Measure measure
   );
 
   Results calculateResults(

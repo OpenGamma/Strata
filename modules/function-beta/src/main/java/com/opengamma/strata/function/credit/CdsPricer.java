@@ -36,7 +36,7 @@ public class CdsPricer {
     return _wrapper.price(valuationDate, trade, yieldCurve, creditCurve, recoveryRate);
   }
 
-  public MultiCurrencyAmount ir01Par(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
+  public MultiCurrencyAmount ir01ParallelPar(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
     LocalDate valuationDate = provider.getValuationDate();
     CurveYieldPlaceholder yieldCurve = Curves.discountCurvePar(0.0001D);
     CurveCreditPlaceholder creditCurve = Curves.creditCurve();
@@ -45,7 +45,7 @@ public class CdsPricer {
         .minus(presentValue(trade, provider));
   }
 
-  public CurveCurrencyParameterSensitivities bucketedIr01Par(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
+  public CurveCurrencyParameterSensitivities ir01BucketedPar(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
     int points = Curves.numOfYieldCurvePoints();
     double[] sensitivities = new double[points];
     for (int i = 0; i < points; i++) {
@@ -68,7 +68,7 @@ public class CdsPricer {
     );
   }
 
-  public MultiCurrencyAmount cs01Par(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
+  public MultiCurrencyAmount cs01ParallelPar(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
     LocalDate valuationDate = provider.getValuationDate();
     CurveYieldPlaceholder yieldCurve = Curves.discountCurve();
     CurveCreditPlaceholder creditCurve = Curves.creditCurvePar(0.0001D);
@@ -77,7 +77,7 @@ public class CdsPricer {
         .minus(presentValue(trade, provider));
   }
 
-  public CurveCurrencyParameterSensitivities bucketedCr01Par(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
+  public CurveCurrencyParameterSensitivities cs01BucketedPar(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
     int points = Curves.numOfCreditCurvePoints();
     double[] sensitivities = new double[points];
     for (int i = 0; i < points; i++) {

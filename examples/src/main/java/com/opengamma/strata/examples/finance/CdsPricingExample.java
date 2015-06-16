@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class CdsPricingExample {
 
@@ -29,9 +31,13 @@ public class CdsPricingExample {
   static final TradeSource trades = ExampleTradeSource.of();
   static final LocalDate valuationDate = LocalDate.of(2014, 10, 16);
   static final Measure pv = Measure.PRESENT_VALUE;
+  static final Measure ir01ParallelPar = Measure.IR01_PARALLEL_PAR;
+  static final Measure cs01ParallelPar = Measure.CS01_PARALLEL_PAR;
   static final Measure tradeInfo = Measure.TRADE_INFO;
   static final ImmutableList<Measure> measures = ImmutableList.of(
       pv,
+      ir01ParallelPar,
+      cs01ParallelPar,
       tradeInfo
   );
   static final Calculator calc = ExampleCalculator.of();
@@ -39,15 +45,32 @@ public class CdsPricingExample {
 
   public static void main(String[] args) {
     logger.info("PV is " + calcPv());
-    calcPvAndReportToAsciiToLogger();
+    logger.info("IR01 parallel par is " + calcIr01ParallelPar());
+    logger.info("CS01 parallel par is " + calcCs01ParallelPar());
+    calcMeasuresAndReportToAsciiToLogger();
   }
 
   public static double calcPv() {
-    return calc.calculateSimpleValue(valuationDate, trades, pv).getAmount();
+    return calc.calculateScalarValue(valuationDate, trades, pv);
   }
 
-  public static void calcPvAndReportToAsciiToLogger() {
+  public static double calcIr01ParallelPar() {
+    return calc.calculateScalarValue(valuationDate, trades, ir01ParallelPar);
+  }
+
+  public static double calcCs01ParallelPar() {
+    return calc.calculateScalarValue(valuationDate, trades, cs01ParallelPar);
+  }
+
+  public static void calcMeasuresAndReportToAsciiToLogger() {
     reporter.reportAsciiToLogger(calc.calculateReportingResults(valuationDate, trades, measures));
+  }
+
+  private static String join(double[] d) {
+    return Arrays.asList(d)
+        .stream()
+        .map(s -> String.valueOf(s))
+        .collect(Collectors.joining(", "));
   }
 
 }

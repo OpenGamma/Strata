@@ -58,11 +58,29 @@ public final class Measure
   /** Measure representing the Bucketed PV01 of the calculation target. */
   public static final Measure BUCKETED_PV01 = Measure.of("BucketedPV01");
 
-  /** Measure representing the CS01 of the calculation target. */
-  public static final Measure CS01 = Measure.of("CS01");
+  /** Measure representing the (scalar) PV change to a 1 bps shift in par interest rates */
+  public static final Measure IR01_PARALLEL_PAR = Measure.of("Ir01ParallelPar");
 
-  /** Measure representing the Bucketed CS01 of the calculation target. */
-  public static final Measure BUCKETED_CS01 = Measure.of("BucketedCS01");
+  /** Measure representing the (vector) PV change to series of 1 bps shift in par interest rates at each curve point */
+  public static final Measure IR01_BUCKETED_PAR = Measure.of("Ir01BucketedPar");
+
+  /** Measure representing the (scalar) PV change to a 1 bps shift in zero interest rates of calibrated curve */
+  public static final Measure IR01_PARALLEL_ZERO = Measure.of("Ir01ParallelZero");
+
+  /** Measure representing the (vector) PV change to series of 1 bps shift in zero interest rates at each curve point */
+  public static final Measure IR01_BUCKETED_ZERO = Measure.of("Ir01BucketedZero");
+
+  /** Measure representing the (scalar) PV change to a 1 bps shift in par credit spread rates */
+  public static final Measure CS01_PARALLEL_PAR = Measure.of("Cs01ParallelPar");
+
+  /** Measure representing the (vector) PV change to a series of 1 bps shift in par credit rates at each curve point */
+  public static final Measure CS01_BUCKETED_PAR = Measure.of("Cs01BucketedPar");
+
+  /** Measure representing the (scalar) PV change to a 1 bps shift in hazard rates of calibrated curve */
+  public static final Measure CS01_PARALLEL_HAZARD = Measure.of("Cs01ParallelHazard");
+
+  /** Measure representing the (vector) PV change to a series of 1 bps shift in hazard rates at each curve point */
+  public static final Measure CS01_BUCKETED_HAZARD = Measure.of("Cs01BucketedHazard");
 
   /** Measure to provide the standard block of trade information from the trade.  */
   public static final Measure TRADE_INFO = Measure.of("TradeInfo");

@@ -4,11 +4,11 @@ import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketDa
 import com.opengamma.strata.finance.credit.ExpandedCdsTrade;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 
-public class CdsBucketedCs01ParFunction extends AbstractCdsFunction<CurveCurrencyParameterSensitivities> {
+public class CdsIr01BucketedParFunction extends AbstractCdsFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider) {
-    return pricer().bucketedCr01Par(trade, provider);
+    return pricer().ir01BucketedPar(trade, provider);
   }
 
 }
