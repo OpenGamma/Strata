@@ -186,7 +186,7 @@ public class DiscountingFraProductPricer {
     LocalDate paymentDate = fra.getPaymentDate();
     double futureValue = futureValue(fra, provider);
     double df = provider.discountFactor(fra.getCurrency(), paymentDate);
-    CashFlow cashFlow = CashFlow.of(paymentDate, fra.getCurrency(), futureValue, df);
+    CashFlow cashFlow = CashFlow.ofFutureValue(paymentDate, fra.getCurrency(), futureValue, df);
     return CashFlows.of(cashFlow);
   }
 

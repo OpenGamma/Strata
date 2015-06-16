@@ -18,8 +18,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.market.amount.CashFlow;
-import com.opengamma.strata.market.amount.CashFlows;
 
 /**
  * Test {@link CashFlows}.
@@ -35,9 +33,9 @@ public class CashFlowsTest {
   private static final double DISCOUNT_FACTOR_1 = 0.96d;
   private static final double DISCOUNT_FACTOR_2 = 0.9d;
 
-  private static final CashFlow CASH_FLOW_1 = CashFlow.of(PAYMENT_DATE_1, USD, FUTURE_VALUE_1, DISCOUNT_FACTOR_1);
-  private static final CashFlow CASH_FLOW_2 = CashFlow.of(PAYMENT_DATE_1, GBP, FUTURE_VALUE_2, DISCOUNT_FACTOR_1);
-  private static final CashFlow CASH_FLOW_3 = CashFlow.of(PAYMENT_DATE_2, USD, FUTURE_VALUE_3, DISCOUNT_FACTOR_2);
+  private static final CashFlow CASH_FLOW_1 = CashFlow.ofFutureValue(PAYMENT_DATE_1, USD, FUTURE_VALUE_1, DISCOUNT_FACTOR_1);
+  private static final CashFlow CASH_FLOW_2 = CashFlow.ofFutureValue(PAYMENT_DATE_1, GBP, FUTURE_VALUE_2, DISCOUNT_FACTOR_1);
+  private static final CashFlow CASH_FLOW_3 = CashFlow.ofFutureValue(PAYMENT_DATE_2, USD, FUTURE_VALUE_3, DISCOUNT_FACTOR_2);
 
   //-------------------------------------------------------------------------
   public void test_of_singleFlow() {
@@ -63,12 +61,21 @@ public class CashFlowsTest {
     assertEquals(test, expected);
   }
 
-  public void test_combinedWith_Flows() {
+  public void test_combinedWith_listFlows() {
     CashFlows base = CashFlows.of(CASH_FLOW_1);
     CashFlows other = CashFlows.of(ImmutableList.of(CASH_FLOW_2, CASH_FLOW_3));
     CashFlows test = base.combinedWith(other);
     CashFlows expected = CashFlows.of(ImmutableList.of(CASH_FLOW_1, CASH_FLOW_2, CASH_FLOW_3));
     assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_sorted_listFlows() {
+    CashFlows base = CashFlows.of(ImmutableList.of(CASH_FLOW_1, CASH_FLOW_2, CASH_FLOW_3));
+    CashFlows test = base.sorted();
+    CashFlows expected = CashFlows.of(ImmutableList.of(CASH_FLOW_2, CASH_FLOW_1, CASH_FLOW_3));
+    assertEquals(test, expected);
+    assertEquals(test.sorted(), test);
   }
 
   //-------------------------------------------------------------------------

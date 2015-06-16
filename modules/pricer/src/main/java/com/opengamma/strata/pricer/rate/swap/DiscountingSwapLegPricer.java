@@ -371,7 +371,7 @@ public class DiscountingSwapLegPricer {
           Currency currency = period.getCurrency();
           LocalDate paymentDate = period.getPaymentDate();
           double discountFactor = provider.discountFactor(currency, paymentDate);
-          CashFlow singleCashFlow = CashFlow.of(paymentDate, currency, futureValue, discountFactor);
+          CashFlow singleCashFlow = CashFlow.ofFutureValue(paymentDate, currency, futureValue, discountFactor);
           builder.add(singleCashFlow);
         }
       }
@@ -389,7 +389,7 @@ public class DiscountingSwapLegPricer {
           Currency currency = event.getCurrency();
           LocalDate paymentDate = event.getPaymentDate();
           double discountFactor = provider.discountFactor(currency, paymentDate);
-          CashFlow singleCashFlow = CashFlow.of(paymentDate, currency, futureValue, discountFactor);
+          CashFlow singleCashFlow = CashFlow.ofFutureValue(paymentDate, currency, futureValue, discountFactor);
           builder.add(singleCashFlow);
         }
       }
