@@ -22,7 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 
 /**
  * Point sensitivity to an implied volatility for a FX option model.
@@ -34,10 +34,10 @@ public final class FxOptionSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-   * The index on which the underlying FX.
+   * The currency pair for which the sensitivity is presented.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxIndex index;
+  private final CurrencyPair currencyPair;
   /**
    * The expiration date of the option.
    */
@@ -68,7 +68,7 @@ public final class FxOptionSensitivity
   /**
    * Obtains an {@code FxOptionSensitivity} from the key, value and currency.
    * 
-   * @param index  the index of the curve
+   * @param currencyPair  the currency pair
    * @param expiryDate  the expiry date of the option
    * @param strike  the strike of the option
    * @param forward  the forward of the underlying
@@ -77,7 +77,7 @@ public final class FxOptionSensitivity
    * @return the point sensitivity object
    */
   public static FxOptionSensitivity of(
-      FxIndex index,
+      CurrencyPair currencyPair,
       LocalDate expiryDate,
       double strike,
       double forward,
@@ -85,7 +85,7 @@ public final class FxOptionSensitivity
       double sensitivity) {
 
     return new FxOptionSensitivity(
-        index, expiryDate, strike, forward, currency, sensitivity);
+        currencyPair, expiryDate, strike, forward, currency, sensitivity);
   }
 
 
@@ -96,13 +96,13 @@ public final class FxOptionSensitivity
       return this;
     }
     return new FxOptionSensitivity(
-        index, expiryDate, strike, forward, currency, sensitivity);
+        currencyPair, expiryDate, strike, forward, currency, sensitivity);
   }
 
   @Override
   public FxOptionSensitivity withSensitivity(double sensitivity) {
     return new FxOptionSensitivity(
-        index, expiryDate, strike, forward, currency, sensitivity);
+        currencyPair, expiryDate, strike, forward, currency, sensitivity);
   }
 
   @Override
@@ -110,7 +110,7 @@ public final class FxOptionSensitivity
     if (other instanceof FxOptionSensitivity) {
       FxOptionSensitivity otherOption = (FxOptionSensitivity) other;
       return ComparisonChain.start()
-          .compare(index.toString(), otherOption.index.toString())
+          .compare(currencyPair.toString(), otherOption.currencyPair.toString())
           .compare(expiryDate, otherOption.expiryDate)
           .compare(strike, otherOption.strike)
           .compare(forward, otherOption.forward)
@@ -124,13 +124,13 @@ public final class FxOptionSensitivity
   @Override
   public FxOptionSensitivity multipliedBy(double factor) {
     return new FxOptionSensitivity(
-        index, expiryDate, strike, forward, currency, sensitivity * factor);
+        currencyPair, expiryDate, strike, forward, currency, sensitivity * factor);
   }
 
   @Override
   public FxOptionSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new FxOptionSensitivity(
-        index, expiryDate, strike, forward, currency, operator.applyAsDouble(sensitivity));
+        currencyPair, expiryDate, strike, forward, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -168,16 +168,16 @@ public final class FxOptionSensitivity
   private static final long serialVersionUID = 1L;
 
   private FxOptionSensitivity(
-      FxIndex index,
+      CurrencyPair currencyPair,
       LocalDate expiryDate,
       double strike,
       double forward,
       Currency currency,
       double sensitivity) {
-    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(currencyPair, "currencyPair");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(currency, "currency");
-    this.index = index;
+    this.currencyPair = currencyPair;
     this.expiryDate = expiryDate;
     this.strike = strike;
     this.forward = forward;
@@ -202,11 +202,11 @@ public final class FxOptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index on which the underlying FX.
+   * Gets the currency pair for which the sensitivity is presented.
    * @return the value of the property, not null
    */
-  public FxIndex getIndex() {
-    return index;
+  public CurrencyPair getCurrencyPair() {
+    return currencyPair;
   }
 
   //-----------------------------------------------------------------------
@@ -264,7 +264,7 @@ public final class FxOptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FxOptionSensitivity other = (FxOptionSensitivity) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+      return JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
           JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getForward(), other.getForward()) &&
@@ -277,7 +277,7 @@ public final class FxOptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash = hash * 31 + JodaBeanUtils.hashCode(getForward());
@@ -290,7 +290,7 @@ public final class FxOptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("FxOptionSensitivity{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
     buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
     buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
     buf.append("forward").append('=').append(getForward()).append(',').append(' ');
@@ -311,10 +311,10 @@ public final class FxOptionSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code currencyPair} property.
      */
-    private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", FxOptionSensitivity.class, FxIndex.class);
+    private final MetaProperty<CurrencyPair> currencyPair = DirectMetaProperty.ofImmutable(
+        this, "currencyPair", FxOptionSensitivity.class, CurrencyPair.class);
     /**
      * The meta-property for the {@code expiryDate} property.
      */
@@ -345,7 +345,7 @@ public final class FxOptionSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "index",
+        "currencyPair",
         "expiryDate",
         "strike",
         "forward",
@@ -361,8 +361,8 @@ public final class FxOptionSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
+        case 1005147787:  // currencyPair
+          return currencyPair;
         case -816738431:  // expiryDate
           return expiryDate;
         case -891985998:  // strike
@@ -394,11 +394,11 @@ public final class FxOptionSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code currencyPair} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxIndex> index() {
-      return index;
+    public MetaProperty<CurrencyPair> currencyPair() {
+      return currencyPair;
     }
 
     /**
@@ -445,8 +445,8 @@ public final class FxOptionSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return ((FxOptionSensitivity) bean).getIndex();
+        case 1005147787:  // currencyPair
+          return ((FxOptionSensitivity) bean).getCurrencyPair();
         case -816738431:  // expiryDate
           return ((FxOptionSensitivity) bean).getExpiryDate();
         case -891985998:  // strike
@@ -478,7 +478,7 @@ public final class FxOptionSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<FxOptionSensitivity> {
 
-    private FxIndex index;
+    private CurrencyPair currencyPair;
     private LocalDate expiryDate;
     private double strike;
     private double forward;
@@ -495,8 +495,8 @@ public final class FxOptionSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
+        case 1005147787:  // currencyPair
+          return currencyPair;
         case -816738431:  // expiryDate
           return expiryDate;
         case -891985998:  // strike
@@ -515,8 +515,8 @@ public final class FxOptionSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          this.index = (FxIndex) newValue;
+        case 1005147787:  // currencyPair
+          this.currencyPair = (CurrencyPair) newValue;
           break;
         case -816738431:  // expiryDate
           this.expiryDate = (LocalDate) newValue;
@@ -566,7 +566,7 @@ public final class FxOptionSensitivity
     @Override
     public FxOptionSensitivity build() {
       return new FxOptionSensitivity(
-          index,
+          currencyPair,
           expiryDate,
           strike,
           forward,
@@ -579,7 +579,7 @@ public final class FxOptionSensitivity
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("FxOptionSensitivity.Builder{");
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
       buf.append("forward").append('=').append(JodaBeanUtils.toString(forward)).append(',').append(' ');

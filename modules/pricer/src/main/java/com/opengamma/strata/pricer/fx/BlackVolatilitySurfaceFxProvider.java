@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
@@ -48,10 +48,10 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
   @PropertyDefinition(validate = "notNull")
   private final InterpolatedDoublesSurface surface;
   /**
-   * The underlying FX index.
+   * The currency pair for which the volatility data are presented.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final FxIndex index;
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final CurrencyPair currencyPair;
   /**
    * The day count applicable to the model.
    */
@@ -64,35 +64,34 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
 
+
   //-------------------------------------------------------------------------
   /**
    * Obtains an {@code BlackVolatilitySurfaceFxProvider}.
    * 
    * @param surface  the Black volatility surface
-   * @param index  the underling FX index
+   * @param currencyPair  the currency pair
    * @param dayCount  the day count applicable to the model
    * @param valuationTime  the valuation date-time
    * @return the provider
    */
   public static BlackVolatilitySurfaceFxProvider of(
       InterpolatedDoublesSurface surface,
-      FxIndex index,
+      CurrencyPair currencyPair,
       DayCount dayCount,
       ZonedDateTime valuationTime) {
 
-    return new BlackVolatilitySurfaceFxProvider(surface, index, dayCount, valuationTime);
+    return new BlackVolatilitySurfaceFxProvider(surface, currencyPair, dayCount, valuationTime);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(LocalDate expiryDate, double strike, double forward) {
+  public double getVolatility(CurrencyPair currencyPair, LocalDate expiryDate, double strike, double forward) {
     double expiryTime = relativeTime(expiryDate, null, null); // TODO: time and zone
+    if (currencyPair.isInverse(this.currencyPair)) {
+      return surface.getZValue(expiryTime, 1d / strike);
+    }
     return surface.getZValue(expiryTime, strike);
-  }
-
-  @Override
-  public FxIndex getFxIndex() {
-    return index;
   }
 
   //-------------------------------------------------------------------------
@@ -105,10 +104,10 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
   @Override
   public Map<DoublesPair, Double> nodeSensitivity(FxOptionSensitivity point) {
     double expiryTime = relativeTime(point.getExpiryDate(), null, null); // TODO: time and zone
+    double strike = point.getCurrencyPair().isInverse(currencyPair) ? 1d / point.getStrike() : point.getStrike();
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = surface.getInterpolator().getNodeSensitivitiesForValue(
-        (Map<Double, Interpolator1DDataBundle>) surface.getInterpolatorData(),
-        DoublesPair.of(expiryTime, point.getStrike()));
+        (Map<Double, Interpolator1DDataBundle>) surface.getInterpolatorData(), DoublesPair.of(expiryTime, strike));
     return result;
   }
 
@@ -136,15 +135,15 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
 
   private BlackVolatilitySurfaceFxProvider(
       InterpolatedDoublesSurface surface,
-      FxIndex index,
+      CurrencyPair currencyPair,
       DayCount dayCount,
       ZonedDateTime valuationDateTime) {
     JodaBeanUtils.notNull(surface, "surface");
-    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(currencyPair, "currencyPair");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
     this.surface = surface;
-    this.index = index;
+    this.currencyPair = currencyPair;
     this.dayCount = dayCount;
     this.valuationDateTime = valuationDateTime;
   }
@@ -176,11 +175,12 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying FX index.
+   * Gets the currency pair for which the volatility data are presented.
    * @return the value of the property, not null
    */
-  public FxIndex getIndex() {
-    return index;
+  @Override
+  public CurrencyPair getCurrencyPair() {
+    return currencyPair;
   }
 
   //-----------------------------------------------------------------------
@@ -220,7 +220,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     if (obj != null && obj.getClass() == this.getClass()) {
       BlackVolatilitySurfaceFxProvider other = (BlackVolatilitySurfaceFxProvider) obj;
       return JodaBeanUtils.equal(getSurface(), other.getSurface()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getValuationDateTime(), other.getValuationDateTime());
     }
@@ -231,7 +231,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getSurface());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDateTime());
     return hash;
@@ -242,7 +242,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     StringBuilder buf = new StringBuilder(160);
     buf.append("BlackVolatilitySurfaceFxProvider{");
     buf.append("surface").append('=').append(getSurface()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(getValuationDateTime()));
     buf.append('}');
@@ -265,10 +265,10 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     private final MetaProperty<InterpolatedDoublesSurface> surface = DirectMetaProperty.ofImmutable(
         this, "surface", BlackVolatilitySurfaceFxProvider.class, InterpolatedDoublesSurface.class);
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code currencyPair} property.
      */
-    private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", BlackVolatilitySurfaceFxProvider.class, FxIndex.class);
+    private final MetaProperty<CurrencyPair> currencyPair = DirectMetaProperty.ofImmutable(
+        this, "currencyPair", BlackVolatilitySurfaceFxProvider.class, CurrencyPair.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -285,7 +285,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "surface",
-        "index",
+        "currencyPair",
         "dayCount",
         "valuationDateTime");
 
@@ -300,8 +300,8 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
           return surface;
-        case 100346066:  // index
-          return index;
+        case 1005147787:  // currencyPair
+          return currencyPair;
         case 1905311443:  // dayCount
           return dayCount;
         case -949589828:  // valuationDateTime
@@ -335,11 +335,11 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     }
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code currencyPair} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxIndex> index() {
-      return index;
+    public MetaProperty<CurrencyPair> currencyPair() {
+      return currencyPair;
     }
 
     /**
@@ -364,8 +364,8 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
           return ((BlackVolatilitySurfaceFxProvider) bean).getSurface();
-        case 100346066:  // index
-          return ((BlackVolatilitySurfaceFxProvider) bean).getIndex();
+        case 1005147787:  // currencyPair
+          return ((BlackVolatilitySurfaceFxProvider) bean).getCurrencyPair();
         case 1905311443:  // dayCount
           return ((BlackVolatilitySurfaceFxProvider) bean).getDayCount();
         case -949589828:  // valuationDateTime
@@ -392,7 +392,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
   public static final class Builder extends DirectFieldsBeanBuilder<BlackVolatilitySurfaceFxProvider> {
 
     private InterpolatedDoublesSurface surface;
-    private FxIndex index;
+    private CurrencyPair currencyPair;
     private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
 
@@ -408,7 +408,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
      */
     private Builder(BlackVolatilitySurfaceFxProvider beanToCopy) {
       this.surface = beanToCopy.getSurface();
-      this.index = beanToCopy.getIndex();
+      this.currencyPair = beanToCopy.getCurrencyPair();
       this.dayCount = beanToCopy.getDayCount();
       this.valuationDateTime = beanToCopy.getValuationDateTime();
     }
@@ -419,8 +419,8 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
           return surface;
-        case 100346066:  // index
-          return index;
+        case 1005147787:  // currencyPair
+          return currencyPair;
         case 1905311443:  // dayCount
           return dayCount;
         case -949589828:  // valuationDateTime
@@ -436,8 +436,8 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
         case -1853231955:  // surface
           this.surface = (InterpolatedDoublesSurface) newValue;
           break;
-        case 100346066:  // index
-          this.index = (FxIndex) newValue;
+        case 1005147787:  // currencyPair
+          this.currencyPair = (CurrencyPair) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -479,7 +479,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     public BlackVolatilitySurfaceFxProvider build() {
       return new BlackVolatilitySurfaceFxProvider(
           surface,
-          index,
+          currencyPair,
           dayCount,
           valuationDateTime);
     }
@@ -497,13 +497,13 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     }
 
     /**
-     * Sets the {@code index} property in the builder.
-     * @param index  the new value, not null
+     * Sets the {@code currencyPair} property in the builder.
+     * @param currencyPair  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(FxIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
+    public Builder currencyPair(CurrencyPair currencyPair) {
+      JodaBeanUtils.notNull(currencyPair, "currencyPair");
+      this.currencyPair = currencyPair;
       return this;
     }
 
@@ -535,7 +535,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
       StringBuilder buf = new StringBuilder(160);
       buf.append("BlackVolatilitySurfaceFxProvider.Builder{");
       buf.append("surface").append('=').append(JodaBeanUtils.toString(surface)).append(',').append(' ');
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
       buf.append('}');

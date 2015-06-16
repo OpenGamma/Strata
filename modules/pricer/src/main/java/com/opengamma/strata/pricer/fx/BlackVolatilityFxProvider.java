@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 
 /**
@@ -32,18 +32,19 @@ public interface BlackVolatilityFxProvider
   /**
    * Returns the Black volatility.
    * 
+   * @param currencyPair the currency pair
    * @param expiryDate  the option expiry
    * @param strike  the option strike
    * @param forward  the underling forward
    * @return the volatility
    */
-  public abstract double getVolatility(LocalDate expiryDate, double strike, double forward);
+  public abstract double getVolatility(CurrencyPair currencyPair, LocalDate expiryDate, double strike, double forward);
 
   /**
    * Returns the index on which the underlying FX is based.
    * @return the index
    */
-  public abstract FxIndex getFxIndex();
+  public abstract CurrencyPair getCurrencyPair();
 
   /**
    * Converts a date to a relative {@code double} time.
