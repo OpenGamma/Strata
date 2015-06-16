@@ -33,12 +33,10 @@ public class CdsPricingExample {
   static final Measure pv = Measure.PRESENT_VALUE;
   static final Measure ir01ParallelPar = Measure.IR01_PARALLEL_PAR;
   static final Measure cs01ParallelPar = Measure.CS01_PARALLEL_PAR;
-  static final Measure tradeInfo = Measure.TRADE_INFO;
   static final ImmutableList<Measure> measures = ImmutableList.of(
       pv,
       ir01ParallelPar,
-      cs01ParallelPar,
-      tradeInfo
+      cs01ParallelPar
   );
   static final Calculator calc = ExampleCalculator.of();
   static final Reporter reporter = ExampleReporter.of("cds-report-template");

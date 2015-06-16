@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -25,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -42,6 +44,10 @@ public class TradeReport implements Report, ImmutableBean {
   /** The instant at which the report was run. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Instant runInstant;
+  
+  /** The report columns, which may contain information required for formatting. */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableList<TradeReportColumn> columns;
 
   /** The column headers. */
   @PropertyDefinition(validate = "notNull")
@@ -103,10 +109,12 @@ public class TradeReport implements Report, ImmutableBean {
   protected TradeReport(TradeReport.Builder builder) {
     JodaBeanUtils.notNull(builder.valuationDate, "valuationDate");
     JodaBeanUtils.notNull(builder.runInstant, "runInstant");
+    JodaBeanUtils.notNull(builder.columns, "columns");
     JodaBeanUtils.notNull(builder.columnHeaders, "columnHeaders");
     JodaBeanUtils.notNull(builder.results, "results");
     this.valuationDate = builder.valuationDate;
     this.runInstant = builder.runInstant;
+    this.columns = ImmutableList.copyOf(builder.columns);
     this.columnHeaders = builder.columnHeaders.clone();
     this.results = builder.results;
   }
@@ -148,6 +156,15 @@ public class TradeReport implements Report, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the report columns, which may contain information required for formatting.
+   * @return the value of the property, not null
+   */
+  public ImmutableList<TradeReportColumn> getColumns() {
+    return columns;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the column headers.
    * @return the value of the property, not null
    */
@@ -182,6 +199,7 @@ public class TradeReport implements Report, ImmutableBean {
       TradeReport other = (TradeReport) obj;
       return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
           JodaBeanUtils.equal(getRunInstant(), other.getRunInstant()) &&
+          JodaBeanUtils.equal(getColumns(), other.getColumns()) &&
           JodaBeanUtils.equal(getColumnHeaders(), other.getColumnHeaders()) &&
           JodaBeanUtils.equal(getResults(), other.getResults());
     }
@@ -193,6 +211,7 @@ public class TradeReport implements Report, ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRunInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getColumns());
     hash = hash * 31 + JodaBeanUtils.hashCode(getColumnHeaders());
     hash = hash * 31 + JodaBeanUtils.hashCode(getResults());
     return hash;
@@ -200,7 +219,7 @@ public class TradeReport implements Report, ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("TradeReport{");
     int len = buf.length();
     toString(buf);
@@ -214,6 +233,7 @@ public class TradeReport implements Report, ImmutableBean {
   protected void toString(StringBuilder buf) {
     buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
     buf.append("runInstant").append('=').append(JodaBeanUtils.toString(getRunInstant())).append(',').append(' ');
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(getColumns())).append(',').append(' ');
     buf.append("columnHeaders").append('=').append(JodaBeanUtils.toString(getColumnHeaders())).append(',').append(' ');
     buf.append("results").append('=').append(JodaBeanUtils.toString(getResults())).append(',').append(' ');
   }
@@ -239,6 +259,12 @@ public class TradeReport implements Report, ImmutableBean {
     private final MetaProperty<Instant> runInstant = DirectMetaProperty.ofImmutable(
         this, "runInstant", TradeReport.class, Instant.class);
     /**
+     * The meta-property for the {@code columns} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<TradeReportColumn>> columns = DirectMetaProperty.ofImmutable(
+        this, "columns", TradeReport.class, (Class) ImmutableList.class);
+    /**
      * The meta-property for the {@code columnHeaders} property.
      */
     private final MetaProperty<String[]> columnHeaders = DirectMetaProperty.ofImmutable(
@@ -256,6 +282,7 @@ public class TradeReport implements Report, ImmutableBean {
         this, null,
         "valuationDate",
         "runInstant",
+        "columns",
         "columnHeaders",
         "results");
 
@@ -272,6 +299,8 @@ public class TradeReport implements Report, ImmutableBean {
           return valuationDate;
         case 111354070:  // runInstant
           return runInstant;
+        case 949721053:  // columns
+          return columns;
         case 1598220112:  // columnHeaders
           return columnHeaders;
         case 1097546742:  // results
@@ -313,6 +342,14 @@ public class TradeReport implements Report, ImmutableBean {
     }
 
     /**
+     * The meta-property for the {@code columns} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ImmutableList<TradeReportColumn>> columns() {
+      return columns;
+    }
+
+    /**
      * The meta-property for the {@code columnHeaders} property.
      * @return the meta-property, not null
      */
@@ -336,6 +373,8 @@ public class TradeReport implements Report, ImmutableBean {
           return ((TradeReport) bean).getValuationDate();
         case 111354070:  // runInstant
           return ((TradeReport) bean).getRunInstant();
+        case 949721053:  // columns
+          return ((TradeReport) bean).getColumns();
         case 1598220112:  // columnHeaders
           return ((TradeReport) bean).getColumnHeaders();
         case 1097546742:  // results
@@ -363,6 +402,7 @@ public class TradeReport implements Report, ImmutableBean {
 
     private LocalDate valuationDate;
     private Instant runInstant;
+    private List<TradeReportColumn> columns = ImmutableList.of();
     private String[] columnHeaders;
     private Result<?>[][] results;
 
@@ -379,6 +419,7 @@ public class TradeReport implements Report, ImmutableBean {
     protected Builder(TradeReport beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
       this.runInstant = beanToCopy.getRunInstant();
+      this.columns = beanToCopy.getColumns();
       this.columnHeaders = beanToCopy.getColumnHeaders().clone();
       this.results = beanToCopy.getResults();
     }
@@ -391,6 +432,8 @@ public class TradeReport implements Report, ImmutableBean {
           return valuationDate;
         case 111354070:  // runInstant
           return runInstant;
+        case 949721053:  // columns
+          return columns;
         case 1598220112:  // columnHeaders
           return columnHeaders;
         case 1097546742:  // results
@@ -409,6 +452,9 @@ public class TradeReport implements Report, ImmutableBean {
           break;
         case 111354070:  // runInstant
           this.runInstant = (Instant) newValue;
+          break;
+        case 949721053:  // columns
+          this.columns = (List<TradeReportColumn>) newValue;
           break;
         case 1598220112:  // columnHeaders
           this.columnHeaders = (String[]) newValue;
@@ -475,6 +521,27 @@ public class TradeReport implements Report, ImmutableBean {
     }
 
     /**
+     * Sets the {@code columns} property in the builder.
+     * @param columns  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder columns(List<TradeReportColumn> columns) {
+      JodaBeanUtils.notNull(columns, "columns");
+      this.columns = columns;
+      return this;
+    }
+
+    /**
+     * Sets the {@code columns} property in the builder
+     * from an array of objects.
+     * @param columns  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder columns(TradeReportColumn... columns) {
+      return columns(ImmutableList.copyOf(columns));
+    }
+
+    /**
      * Sets the {@code columnHeaders} property in the builder.
      * @param columnHeaders  the new value, not null
      * @return this, for chaining, not null
@@ -499,7 +566,7 @@ public class TradeReport implements Report, ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("TradeReport.Builder{");
       int len = buf.length();
       toString(buf);
@@ -513,6 +580,7 @@ public class TradeReport implements Report, ImmutableBean {
     protected void toString(StringBuilder buf) {
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("runInstant").append('=').append(JodaBeanUtils.toString(runInstant)).append(',').append(' ');
+      buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
       buf.append("columnHeaders").append('=').append(JodaBeanUtils.toString(columnHeaders)).append(',').append(' ');
       buf.append("results").append('=').append(JodaBeanUtils.toString(results)).append(',').append(' ');
     }

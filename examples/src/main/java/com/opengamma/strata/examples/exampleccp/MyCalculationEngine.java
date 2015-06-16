@@ -13,15 +13,11 @@ import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.examples.exampleccp.marketdatafunctions.MyDiscountCurveFunction;
 import com.opengamma.strata.examples.exampleccp.marketdatafunctions.MyForecastCurveFunction;
 import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessObservableMarketDataFunction;
 import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessTimeSeriesProvider;
-import com.opengamma.strata.examples.marketdata.ExampleDiscountCurveFunction;
-import com.opengamma.strata.examples.marketdata.ExampleForwardCurveFunction;
-import com.opengamma.strata.examples.marketdata.ExampleTimeSeriesProvider;
 import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
 
 import java.util.concurrent.ExecutorService;

@@ -9,10 +9,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.opengamma.strata.collect.result.Result;
+
 /**
  * 
  */
-public class MapTokenEvaluator implements TokenEvaluator<Map<?, ?>> {
+public class MapTokenEvaluator extends TokenEvaluator<Map<?, ?>> {
 
   @Override
   public Class<?> getTargetType() {
@@ -27,13 +29,13 @@ public class MapTokenEvaluator implements TokenEvaluator<Map<?, ?>> {
   }
 
   @Override
-  public Object evaluate(Map<?, ?> map, String token) {
+  public Result<?> evaluate(Map<?, ?> map, String token) {
     for (Object key : map.keySet()) {
       if (token.equals(key.toString().toLowerCase())) {
-        return map.get(key);
+        return Result.success(map.get(key));
       }
     }
-    throw new TokenException(token, TokenError.INVALID, tokens(map));
+    return invalidTokenFailure(map, token);
   }
 
 }

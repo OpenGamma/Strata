@@ -82,12 +82,6 @@ public final class Measure
   /** Measure representing the (vector) PV change to a series of 1 bps shift in hazard rates at each curve point */
   public static final Measure CS01_BUCKETED_HAZARD = Measure.of("Cs01BucketedHazard");
 
-  /** Measure to provide the standard block of trade information from the trade.  */
-  public static final Measure TRADE_INFO = Measure.of("TradeInfo");
-  
-  /** Measure to provide the product on the trade. */
-  public static final Measure PRODUCT = Measure.of("Product");
-
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code Measure} by name.

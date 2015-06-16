@@ -1,0 +1,3 @@
+Group Name,Day Count,Interpolator,Left Extrapolator,Right Extrapolator,Value Type
+Default,Act/Act ISDA,Linear,Flat,Flat,Zero
+Default,Act/Act ISDA,Linear,Flat,Flat,Zero

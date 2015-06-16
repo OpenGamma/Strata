@@ -33,8 +33,10 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
  * Provides access to discount factors for a currency.
@@ -221,6 +223,37 @@ public final class DiscountFxIndexRates
       return PointSensitivityBuilder.none();
     }
     return FxIndexSensitivity.of(index, baseCurrency, fixingDate, 1d);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity fxRateSensitivity) {
+    // use the specified base currency to determine the desired currency pair
+    // then derive sensitivity from discount factors based off desired currency pair, not that of the index
+    FxIndex index = fxRateSensitivity.getIndex();
+    Currency refBaseCurrency = fxRateSensitivity.getReferenceCurrency();
+    Currency refCounterCurrency = fxRateSensitivity.getReferenceCounterCurrency();
+    Currency sensitivityCurrency = fxRateSensitivity.getCurrency();
+    LocalDate maturityDate = index.calculateMaturityFromFixing(fxRateSensitivity.getFixingDate());
+
+    boolean inverse = refBaseCurrency.equals(index.getCurrencyPair().getCounter());
+    DiscountFactors discountFactorsRefBase = (inverse ? counterCurrencyDiscountFactors : baseCurrencyDiscountFactors);
+    DiscountFactors discountFactorsRefCounter = (inverse ? baseCurrencyDiscountFactors : counterCurrencyDiscountFactors);
+    double dfCcyBaseAtMaturity = discountFactorsRefBase.discountFactor(maturityDate);
+    double dfCcyCounterAtMaturityInv = 1.0 / discountFactorsRefCounter.discountFactor(maturityDate);
+
+    double fxRate = fxRateProvider.fxRate(refBaseCurrency, refCounterCurrency);
+    ZeroRateSensitivity dfCcyBaseAtMaturitySensitivity =
+        discountFactorsRefBase.zeroRatePointSensitivity(maturityDate, sensitivityCurrency)
+            .multipliedBy(fxRate * dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
+
+    ZeroRateSensitivity dfCcyCounterAtMaturitySensitivity =
+        discountFactorsRefCounter.zeroRatePointSensitivity(maturityDate, sensitivityCurrency)
+            .multipliedBy(-fxRate * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
+                dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
+
+    return discountFactorsRefBase.curveParameterSensitivity(dfCcyBaseAtMaturitySensitivity)
+        .combinedWith(discountFactorsRefCounter.curveParameterSensitivity(dfCcyCounterAtMaturitySensitivity));
   }
 
   //-------------------------------------------------------------------------

@@ -32,6 +32,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
+import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
@@ -60,36 +61,37 @@ public class SwapReportRegressionTest {
     List<Trade> trades = ImmutableList.of(createTrade1());
 
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.TRADE_INFO),
-        Column.of(Measure.PRODUCT),
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.LEG_PRESENT_VALUE),
         Column.of(Measure.PV01),
         Column.of(Measure.ACCRUED_INTEREST));
 
+    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
-        .marketDataRules(ExampleMarketData.rules())
+        .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
-    BaseMarketData baseMarketData = BaseMarketData.empty(valuationDate);
+    BaseMarketData baseMarketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     CalculationEngine engine = ExampleEngine.create();
     Results results = engine.calculate(trades, columns, rules, baseMarketData);
-    
+
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
+        trades,
         columns,
         results);
-    
+
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-regression-test-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
 
     String expectedResults = ExampleData.loadExpectedResults("swap-report");
-    
+
     TradeReportRegressionTestUtils.assertAsciiTableEquals(tradeReport.getAsciiTable(), expectedResults);
   }
 

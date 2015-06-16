@@ -6,7 +6,6 @@
 package com.opengamma.strata.engine.config;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
@@ -24,6 +23,6 @@ public class MissingConfigCalculationFunction implements CalculationSingleFuncti
   @Override
   public Void execute(CalculationTarget target, CalculationMarketData marketData) {
     // TODO Pass in the measure and include it in the error message
-    throw new IllegalStateException(Messages.format("No configuration found to calculate a value for {}", target));
+    throw new IllegalStateException("No pricing rule configured");
   }
 }

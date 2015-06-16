@@ -15,6 +15,7 @@ import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.exampleccp.marketdatarules.MyMarketDataRules;
 import com.opengamma.strata.examples.exampleccp.trades.MyTrades;
 import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessBaseMarketData;
+import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -34,9 +35,10 @@ public class ReproduceExampleCcp {
 
     // create the engine and calculate the results
     List<Column> columns = MyColumns.create();
+    List<Trade> trades = MyTrades.create();
     CalculationEngine engine = MyCalculationEngine.create();
     Results results = engine.calculate(
-        MyTrades.create(),
+        trades,
         columns,
         MyCalculationRules.create(MyMarketDataRules.create()),
         MyUselessBaseMarketData.create(valuationDate)
@@ -45,6 +47,7 @@ public class ReproduceExampleCcp {
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
+        trades,
         columns,
         results
     );
