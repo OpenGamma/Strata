@@ -70,10 +70,10 @@ public final class CashFlow
   //-------------------------------------------------------------------------
   /**
    * Creates a {@code CashFlow} representing a single cash flow from
-   * payment date, future value and discount factor. 
+   * payment date, present value and discount factor. 
    * 
    * @param paymentDate  the payment date
-   * @param presentValue  the future value as a currency amount
+   * @param presentValue  the present value as a currency amount
    * @param discountFactor  the discount factor
    * @return the cash flow instance
    */
@@ -82,12 +82,12 @@ public final class CashFlow
   }
 
   /**
-   * Creates a {@code CashFlow} representing a single cash flow from payment date, future value amount, 
+   * Creates a {@code CashFlow} representing a single cash flow from payment date, present value amount, 
    * discount factor and currency. 
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency
-   * @param presentValue  the amount of the future value
+   * @param presentValue  the amount of the present value
    * @param discountFactor  the discount factor
    * @return the cash flow instance
    */

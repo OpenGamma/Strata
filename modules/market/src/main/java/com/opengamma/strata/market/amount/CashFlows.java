@@ -119,7 +119,7 @@ public final class CashFlows
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a instance that is sorted.
+   * Returns an instance that is sorted.
    * <p>
    * The sort is by date, then value.
    * 
