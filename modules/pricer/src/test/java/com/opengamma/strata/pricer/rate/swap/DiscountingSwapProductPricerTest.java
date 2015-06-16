@@ -584,8 +584,8 @@ public class DiscountingSwapProductPricerTest {
     ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
 
     CashFlows computed = pricerSwap.cashFlows(expanded, mockProv);
-    CashFlow flowGBP = CashFlow.of(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), GBP, fvGBP, df1);
-    CashFlow flowUSD = CashFlow.of(FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate(), USD, fvUSD, df2);
+    CashFlow flowGBP = CashFlow.ofFutureValue(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), GBP, fvGBP, df1);
+    CashFlow flowUSD = CashFlow.ofFutureValue(FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate(), USD, fvUSD, df2);
     CashFlows expected = CashFlows.of(ImmutableList.of(flowGBP, flowUSD));
     assertEquals(computed, expected);
 

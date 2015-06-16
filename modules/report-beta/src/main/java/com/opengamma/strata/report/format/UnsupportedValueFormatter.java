@@ -6,12 +6,10 @@
 package com.opengamma.strata.report.format;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.util.ArrayUtils;
 import com.opengamma.strata.collect.Messages;
