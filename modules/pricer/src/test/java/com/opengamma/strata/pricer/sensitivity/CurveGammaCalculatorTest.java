@@ -13,23 +13,22 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -42,8 +41,12 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**
@@ -54,6 +57,7 @@ public class CurveGammaCalculatorTest {
 
   // Data
   private static final ImmutableRatesProvider SINGLE = RatesProviderDataSets.USD_SINGLE;
+  private static final Currency SINGLE_CURRENCY = Currency.USD;
   // Conventions
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, USNY);
@@ -69,13 +73,10 @@ public class CurveGammaCalculatorTest {
   private static final double TOLERANCE_GAMMA = 1.0E+1;
 
   //-------------------------------------------------------------------------
-  @Test
   public void semiParallelGammaValue() {
-    ImmutableMap<Currency, Curve> dsc = SINGLE.getDiscountCurves();
-    ImmutableMap<Index, Curve> fwd = SINGLE.getIndexCurves();
-    // Check all curves are the same
-    Curve single = dsc.entrySet().iterator().next().getValue();
-    NodalCurve curve = CurveGammaCalculator.checkInterpolated(single);
+    ImmutableRatesProvider provider = SINGLE;
+    NodalCurve curve = (NodalCurve) Iterables.getOnlyElement(provider.getDiscountCurves().values());
+    Currency curveCurrency = SINGLE_CURRENCY;
     double[] y = curve.getYValues();
     int nbNode = y.length;
     double[] gammaExpected = new double[nbNode];
@@ -90,54 +91,70 @@ public class CurveGammaCalculatorTest {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
           Curve curveBumped = curve.withYValues(yBumped[pmi][pmP]);
-          Map<Currency, Curve> dscBumped = new HashMap<>();
-          for (Entry<Currency, Curve> entry : dsc.entrySet()) {
-            dscBumped.put(entry.getKey(), curveBumped);
-          }
-          Map<Index, Curve> fwdBumped = new HashMap<>(fwd);
-          for (Entry<Index, Curve> entry : fwd.entrySet()) {
-            fwdBumped.put(entry.getKey(), curveBumped);
-          }
-          ImmutableRatesProvider providerBumped = SINGLE.toBuilder().discountCurves(dscBumped).indexCurves(fwdBumped).build();
+          ImmutableRatesProvider providerBumped = provider.toBuilder()
+              .discountCurves(provider.getDiscountCurves().keySet().stream()
+                  .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
+              .indexCurves(provider.getIndexCurves().keySet().stream()
+                  .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
+              .build();
           pv[pmi][pmP] = PRICER_SWAP.presentValue(SWAP, providerBumped).getAmount(USD).getAmount();
         }
       }
       gammaExpected[i] = (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
     }
-    double[] gammaComputed = GAMMA_CAL.calculateSemiParallelGamma(SINGLE,
-        (p) -> PRICER_SWAP.presentValueSensitivity(SWAP, p).build());
+    CurveCurrencyParameterSensitivity sensitivityComputed = GAMMA_CAL.calculateSemiParallelGamma(
+        curve,
+        curveCurrency,
+        c -> buildSensitivities(c, provider));
+    assertEquals(sensitivityComputed.getMetadata(), curve.getMetadata());
+    double[] gammaComputed = sensitivityComputed.getSensitivity();
     for (int i = 0; i < nbNode; i++) {
       assertEquals(gammaComputed[i], gammaExpected[i], TOLERANCE_GAMMA);
     }
   }
 
-  // Checks that difference finite difference types and shifts gives similar results.
+  // Checks that different finite difference types and shifts give similar results.
   public void semiParallelGammaCoherency() {
-    double toleranceCoherency = 1.0E+3;
+    ImmutableRatesProvider provider = SINGLE;
+    NodalCurve curve = (NodalCurve) Iterables.getOnlyElement(provider.getDiscountCurves().values());
+    Currency curveCurrency = SINGLE_CURRENCY;
+    double toleranceCoherency = 1.0E+5;
     CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
     CurveGammaCalculator calculatorBackward5 = new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, FD_SHIFT);
     CurveGammaCalculator calculatorCentral4 = new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-4);
     double[] gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
-        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+        curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     int nbNode = gammaCentral5.length;
     double[] gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
-        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+        curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     for (int i = 0; i < nbNode; i++) {
       assertEquals(gammaForward5[i], gammaCentral5[i], toleranceCoherency);
     }
     double[] gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
-        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+        curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     for (int i = 0; i < nbNode; i++) {
       assertEquals(gammaForward5[i], gammaBackward5[i], toleranceCoherency);
     }
     double[] gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
-        SINGLE, p -> PRICER_SWAP.presentValueSensitivity(SWAP, SINGLE).build());
+        curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
     for (int i = 0; i < nbNode; i++) {
       assertEquals(gammaForward5[i], gammaCentral4[i], toleranceCoherency);
     }
   }
 
   //-------------------------------------------------------------------------
+  private static CurveCurrencyParameterSensitivity buildSensitivities(NodalCurve bumpedCurve, ImmutableRatesProvider ratesProvider) {
+    RatesProvider bumpedRatesProvider = ratesProvider.toBuilder()
+        .discountCurves(ratesProvider.getDiscountCurves().keySet().stream()
+            .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
+        .indexCurves(ratesProvider.getIndexCurves().keySet().stream()
+            .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
+        .build();
+    PointSensitivities pointSensitivities = PRICER_SWAP.presentValueSensitivity(SWAP, bumpedRatesProvider).build();
+    CurveCurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.curveParameterSensitivity(pointSensitivities);
+    return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
+  }
+  
   // swap USD standard conventions- TODO: replace by a template when available
   private static Swap swapUsd(LocalDate start, LocalDate end, PayReceive payReceive,
       NotionalSchedule notional, double fixedRate) {
