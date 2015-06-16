@@ -14,6 +14,7 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
+import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.finance.credit.ExpandedCdsTrade;
 import com.opengamma.strata.finance.credit.general.reference.ReferenceInformationType;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
@@ -63,7 +64,7 @@ public abstract class AbstractCdsFunction<T>
   public ScenarioResult<T> execute(CdsTrade trade, CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
-        .map(provider -> execute(trade.expand(), provider))
+        .map(provider -> execute(trade.getProduct().expand(), provider))
         .collect(toScenarioResult(isConvertCurrencies()));
   }
 
@@ -106,7 +107,7 @@ public abstract class AbstractCdsFunction<T>
     return Optional.of(target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());
   }
 
-  // execute for a single trade
-  protected abstract T execute(ExpandedCdsTrade trade, DefaultSingleCalculationMarketData provider);
+  // execute for a single product
+  protected abstract T execute(ExpandedCds product, DefaultSingleCalculationMarketData provider);
 
 }

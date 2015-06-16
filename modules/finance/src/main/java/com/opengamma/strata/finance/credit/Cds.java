@@ -5,6 +5,13 @@
  */
 package com.opengamma.strata.finance.credit;
 
+import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.Product;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.general.GeneralTerms;
@@ -21,6 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -37,7 +46,7 @@ import java.util.Set;
  */
 @BeanDefinition
 public final class Cds
-    implements Product, ImmutableBean, Serializable {
+    implements CdsProduct, ImmutableBean, Serializable {
 
   /**
    * This element contains all the data that appears in the section entitled "1. General Terms"
@@ -52,6 +61,53 @@ public final class Cds
    */
   @PropertyDefinition(validate = "notNull")
   private final FeeLeg feeLeg;
+
+  /**
+   * Value that the ISDA Standard model needs but that does not occur in the FpML
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final boolean payAccOnDefault;
+
+  @Override
+  public ExpandedCds expand() {
+    BusinessDayConvention businessdayAdjustmentConvention = getGeneralTerms().getBusinessDayAdjustment().getConvention();
+    HolidayCalendar calendar = getGeneralTerms().getBusinessDayAdjustment().getCalendar();
+    BusinessDayAdjustment businessDayAdjustment = getGeneralTerms().getBusinessDayAdjustment();
+    LocalDate accStartDate = businessDayAdjustment.adjust(
+        getGeneralTerms().getStartDate()
+    );
+    LocalDate endDate = getGeneralTerms().getEndDate();
+    boolean payAccOnDefault = isPayAccOnDefault();
+    Period paymentInterval = getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
+    StubConvention stubConvention = getFeeLeg().getPeriodicPayments().getStubConvention();
+    DayCount accrualDayCount = getFeeLeg().getPeriodicPayments().getDayCount();
+    BuySell buySellProtection = getGeneralTerms().getBuySellProtection();
+    double upfrontFeeAmount = getFeeLeg().getUpfrontFee().getFixedAmount().getAmount();
+    LocalDate upfrontFeePaymentDate = getFeeLeg().getUpfrontFee().getPaymentDate();
+    double coupon = getFeeLeg().getPeriodicPayments().getCoupon();
+    double notional = getFeeLeg().getPeriodicPayments().getNotional().getAmount();
+    Currency currency = getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
+
+    return ExpandedCds
+        .builder()
+        .accStartDate(accStartDate)
+        .endDate(endDate)
+        .payAccOnDefault(payAccOnDefault)
+        .paymentInterval(paymentInterval)
+        .stubConvention(stubConvention)
+        .businessdayAdjustmentConvention(businessdayAdjustmentConvention)
+        .calendar(calendar)
+        .accrualDayCount(accrualDayCount)
+        .buySellProtection(buySellProtection)
+        .accrualDayCount(accrualDayCount)
+        .upfrontFeeAmount(upfrontFeeAmount)
+        .upfrontFeePaymentDate(upfrontFeePaymentDate)
+        .coupon(coupon)
+        .notional(notional)
+        .currency(currency)
+        .build();
+
+  }
 
 
   // TODO add validation that notional currency match the fee currency
@@ -85,11 +141,14 @@ public final class Cds
 
   private Cds(
       GeneralTerms generalTerms,
-      FeeLeg feeLeg) {
+      FeeLeg feeLeg,
+      boolean payAccOnDefault) {
     JodaBeanUtils.notNull(generalTerms, "generalTerms");
     JodaBeanUtils.notNull(feeLeg, "feeLeg");
+    JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
     this.generalTerms = generalTerms;
     this.feeLeg = feeLeg;
+    this.payAccOnDefault = payAccOnDefault;
   }
 
   @Override
@@ -129,6 +188,15 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
+   * Gets value that the ISDA Standard model needs but that does not occur in the FpML
+   * @return the value of the property, not null
+   */
+  public boolean isPayAccOnDefault() {
+    return payAccOnDefault;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -144,7 +212,8 @@ public final class Cds
     if (obj != null && obj.getClass() == this.getClass()) {
       Cds other = (Cds) obj;
       return JodaBeanUtils.equal(getGeneralTerms(), other.getGeneralTerms()) &&
-          JodaBeanUtils.equal(getFeeLeg(), other.getFeeLeg());
+          JodaBeanUtils.equal(getFeeLeg(), other.getFeeLeg()) &&
+          (isPayAccOnDefault() == other.isPayAccOnDefault());
     }
     return false;
   }
@@ -154,15 +223,17 @@ public final class Cds
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getGeneralTerms());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFeeLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Cds{");
     buf.append("generalTerms").append('=').append(getGeneralTerms()).append(',').append(' ');
-    buf.append("feeLeg").append('=').append(JodaBeanUtils.toString(getFeeLeg()));
+    buf.append("feeLeg").append('=').append(getFeeLeg()).append(',').append(' ');
+    buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccOnDefault()));
     buf.append('}');
     return buf.toString();
   }
@@ -188,12 +259,18 @@ public final class Cds
     private final MetaProperty<FeeLeg> feeLeg = DirectMetaProperty.ofImmutable(
         this, "feeLeg", Cds.class, FeeLeg.class);
     /**
+     * The meta-property for the {@code payAccOnDefault} property.
+     */
+    private final MetaProperty<Boolean> payAccOnDefault = DirectMetaProperty.ofImmutable(
+        this, "payAccOnDefault", Cds.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "generalTerms",
-        "feeLeg");
+        "feeLeg",
+        "payAccOnDefault");
 
     /**
      * Restricted constructor.
@@ -208,6 +285,8 @@ public final class Cds
           return generalTerms;
         case -1278433112:  // feeLeg
           return feeLeg;
+        case -988493655:  // payAccOnDefault
+          return payAccOnDefault;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -244,6 +323,14 @@ public final class Cds
       return feeLeg;
     }
 
+    /**
+     * The meta-property for the {@code payAccOnDefault} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> payAccOnDefault() {
+      return payAccOnDefault;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -252,6 +339,8 @@ public final class Cds
           return ((Cds) bean).getGeneralTerms();
         case -1278433112:  // feeLeg
           return ((Cds) bean).getFeeLeg();
+        case -988493655:  // payAccOnDefault
+          return ((Cds) bean).isPayAccOnDefault();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -275,6 +364,7 @@ public final class Cds
 
     private GeneralTerms generalTerms;
     private FeeLeg feeLeg;
+    private boolean payAccOnDefault;
 
     /**
      * Restricted constructor.
@@ -289,6 +379,7 @@ public final class Cds
     private Builder(Cds beanToCopy) {
       this.generalTerms = beanToCopy.getGeneralTerms();
       this.feeLeg = beanToCopy.getFeeLeg();
+      this.payAccOnDefault = beanToCopy.isPayAccOnDefault();
     }
 
     //-----------------------------------------------------------------------
@@ -299,6 +390,8 @@ public final class Cds
           return generalTerms;
         case -1278433112:  // feeLeg
           return feeLeg;
+        case -988493655:  // payAccOnDefault
+          return payAccOnDefault;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -312,6 +405,9 @@ public final class Cds
           break;
         case -1278433112:  // feeLeg
           this.feeLeg = (FeeLeg) newValue;
+          break;
+        case -988493655:  // payAccOnDefault
+          this.payAccOnDefault = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -347,7 +443,8 @@ public final class Cds
     public Cds build() {
       return new Cds(
           generalTerms,
-          feeLeg);
+          feeLeg,
+          payAccOnDefault);
     }
 
     //-----------------------------------------------------------------------
@@ -373,13 +470,25 @@ public final class Cds
       return this;
     }
 
+    /**
+     * Sets the {@code payAccOnDefault} property in the builder.
+     * @param payAccOnDefault  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder payAccOnDefault(boolean payAccOnDefault) {
+      JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
+      this.payAccOnDefault = payAccOnDefault;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Cds.Builder{");
       buf.append("generalTerms").append('=').append(JodaBeanUtils.toString(generalTerms)).append(',').append(' ');
-      buf.append("feeLeg").append('=').append(JodaBeanUtils.toString(feeLeg));
+      buf.append("feeLeg").append('=').append(JodaBeanUtils.toString(feeLeg)).append(',').append(' ');
+      buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(payAccOnDefault));
       buf.append('}');
       return buf.toString();
     }

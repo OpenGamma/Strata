@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.finance.credit.ExpandedCdsTrade;
+import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
 import com.opengamma.strata.pricer.PricingException;
@@ -46,6 +46,11 @@ public class CdsAnalyticsWrapper {
   private final static boolean s_protectStart = true;
 
   /**
+   * 
+   */
+  private final static int s_stepIn = 1;
+
+  /**
    * ISDA Standard model implementation in analytics
    */
   private final AnalyticCDSPricer _calculator;
@@ -56,12 +61,12 @@ public class CdsAnalyticsWrapper {
 
   public MultiCurrencyAmount price(
       LocalDate valuationDate,
-      ExpandedCdsTrade trade,
+      ExpandedCds product,
       CurveYieldPlaceholder yieldCurve,
       CurveCreditPlaceholder creditCurve,
       double recoveryRate
   ) {
-    CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, trade, recoveryRate);
+    CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
     ISDACompliantYieldCurve yieldCurveAnalytics = toIsdaDiscountCurve(
         valuationDate,
         yieldCurve
@@ -73,7 +78,7 @@ public class CdsAnalyticsWrapper {
         recoveryRate
     );
 
-    double coupon = trade.getCoupon();
+    double coupon = product.getCoupon();
     double pv = _calculator.pv(
         cdsAnalytic,
         yieldCurveAnalytics,
@@ -83,24 +88,24 @@ public class CdsAnalyticsWrapper {
         0D
     );
 
-    int sign = trade.getBuySellProtection().isBuy() ? 1 : -1;
-    double notional = trade.getNotional();
+    int sign = product.getBuySellProtection().isBuy() ? 1 : -1;
+    double notional = product.getNotional();
     double adjusted = pv * notional * sign;
-    double upfrontFeeAmount = priceUpfrontFee(valuationDate, trade, yieldCurveAnalytics) * sign;
+    double upfrontFeeAmount = priceUpfrontFee(valuationDate, product, yieldCurveAnalytics) * sign;
     double adjustedPlusFee = adjusted + upfrontFeeAmount;
-    CurrencyAmount currencyAmount = CurrencyAmount.of(trade.getCurrency(), adjustedPlusFee);
+    CurrencyAmount currencyAmount = CurrencyAmount.of(product.getCurrency(), adjustedPlusFee);
     return MultiCurrencyAmount.of(currencyAmount);
   }
 
   /**
    * The fee is always calculated as being payable by the protection buyer.
    */
-  private double priceUpfrontFee(LocalDate valuationDate, ExpandedCdsTrade trade, ISDACompliantYieldCurve yieldCurve) {
-    double feeAmount = trade.getUpfrontFeeAmount();
+  private double priceUpfrontFee(LocalDate valuationDate, ExpandedCds product, ISDACompliantYieldCurve yieldCurve) {
+    double feeAmount = product.getUpfrontFeeAmount();
     if (Double.isNaN(feeAmount)) {
       return 0D; // fee missing
     }
-    LocalDate feeDate = trade.getUpfrontFeePaymentDate();
+    LocalDate feeDate = product.getUpfrontFeePaymentDate();
     if (feeDate.isBefore(valuationDate)) {
       return 0D; // fee already paid
     }
@@ -179,22 +184,22 @@ public class CdsAnalyticsWrapper {
     }
   }
 
-  private CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCdsTrade trade, double recoveryRate) {
+  private CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
     try {
       return new CDSAnalytic(
-          trade.getTradeDate(),
-          trade.getStepInDate(),
           valuationDate,
-          trade.getAccStartDate(),
-          trade.getEndDate(),
-          trade.isPayAccOnDefault(),
-          trade.getPaymentInterval(),
-          translateStubType(trade.getStubConvention()),
+          valuationDate.plusDays(s_stepIn),
+          valuationDate,
+          product.getAccStartDate(),
+          product.getEndDate(),
+          product.isPayAccOnDefault(),
+          product.getPaymentInterval(),
+          translateStubType(product.getStubConvention()),
           s_protectStart,
           recoveryRate,
-          trade.getBusinessdayAdjustmentConvention(),
-          trade.getCalendar(),
-          translateDayCount(trade.getAccrualDayCount()),
+          product.getBusinessdayAdjustmentConvention(),
+          product.getCalendar(),
+          translateDayCount(product.getAccrualDayCount()),
           translateDayCount(s_curveDayCount)
       );
     } catch (Exception e) {
