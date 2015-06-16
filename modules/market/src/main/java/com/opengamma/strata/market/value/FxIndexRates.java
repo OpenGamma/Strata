@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -80,7 +82,7 @@ public interface FxIndexRates {
   public abstract double rate(Currency baseCurrency, LocalDate fixingDate);
 
   /**
-   * Gets the point sensitivity of the historic or forward rate at the specified fixing date.
+   * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
@@ -92,5 +94,17 @@ public interface FxIndexRates {
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate fixingDate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the curve parameter sensitivity from the point sensitivity.
+   * <p>
+   * This is used to convert a single point sensitivity to curve parameter sensitivity.
+   * 
+   * @param pointSensitivity  the point sensitivity to convert
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity pointSensitivity);
 
 }
