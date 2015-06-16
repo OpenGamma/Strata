@@ -8,7 +8,10 @@ package com.opengamma.strata.report.format;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
+import com.opengamma.analytics.util.ArrayUtils;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.report.result.ValuePathEvaluator;
 
@@ -25,15 +28,26 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
   
   @Override
   public String formatForCsv(Object object) {
-    return Messages.format("<{}>", object.getClass().getSimpleName());
+    if (object instanceof double[]) {
+      return Messages.format("<{}>: {}", object.getClass().getSimpleName(), formatDoubleArray(object));
+    } else {
+      return Messages.format("<{}>", object.getClass().getSimpleName());
+    }
+
   }
 
   @Override
   public String formatForDisplay(Object object) {
     Set<String> validTokens = valuePathEvaluator.tokens(object);
     if (validTokens.isEmpty()) {
-      return Messages.format("<{}> - drilling into this type is not supported",
-          object.getClass().getSimpleName());
+      if (object instanceof double[]) {
+        return Messages.format("<{}> - drilling into this type is not supported: {}",
+            object.getClass().getSimpleName(),
+            formatDoubleArray(object));
+      } else {
+        return Messages.format("<{}> - drilling into this type is not supported",
+            object.getClass().getSimpleName());
+      }
     } else {
       List<String> orderedTokens = new ArrayList<String>(validTokens);
       orderedTokens.sort(null);
@@ -41,6 +55,18 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
           object.getClass().getSimpleName(), orderedTokens);
     }
 
+  }
+
+  private String formatDoubleArray(Object object) {
+    // prepare a better error message for case where we have a vector of doubles
+    // this is a common case and we want a descriptive error message where the
+    // user can see the data in the array
+    double[] data = (double[])object;
+    return Lists
+        .newArrayList(ArrayUtils.toObject(data))
+        .stream()
+        .map(d -> String.valueOf(d))
+        .collect(Collectors.joining(" ", "[", "]"));
   }
 
 }
