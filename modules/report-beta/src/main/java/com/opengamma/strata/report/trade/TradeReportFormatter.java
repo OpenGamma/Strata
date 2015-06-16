@@ -37,7 +37,7 @@ public class TradeReportFormatter {
     CSVWriter writer = new CSVWriter(outputWriter);
     writer.writeNext(report.getColumnHeaders());
     for (int r = 0; r < report.getResults().length; r++) {
-      writer.writeNext(formatRow(report.getResults()[r], true));
+      writer.writeNext(formatRow(report.getResults()[r], report.getColumns(), true));
     }
     try {
       writer.flush();
@@ -51,7 +51,7 @@ public class TradeReportFormatter {
     ASCIITableHeader[] headers = IntStream.range(0, columnTypes.size())
         .mapToObj(i -> toAsciiTableHeader(report.getColumnHeaders()[i], columnTypes.get(i)))
         .toArray(i -> new ASCIITableHeader[i]);
-    String[][] table = getFormattedTable(report.getResults(), false);
+    String[][] table = getFormattedTable(report.getResults(), report.getColumns(), false);
     String asciiTable = AsciiTableInstance.get().getTable(headers, table);
     PrintWriter pw = new PrintWriter(out);
     pw.println(asciiTable);
@@ -84,28 +84,29 @@ public class TradeReportFormatter {
     return ASCIITableHeader.h(header, align, align);
   }
 
-  private String[][] getFormattedTable(Result<?>[][] results, boolean forCsv) {
+  private String[][] getFormattedTable(Result<?>[][] results, List<TradeReportColumn> templateColumns, boolean forCsv) {
     String[][] table = new String[results.length][];
     for (int r = 0; r < results.length; r++) {
-      table[r] = formatRow(results[r], forCsv);
+      table[r] = formatRow(results[r], templateColumns, forCsv);
     }
     return table;
   }
 
-  private String[] formatRow(Result<?>[] resultsRow, boolean forCsv) {
+  private String[] formatRow(Result<?>[] resultsRow, List<TradeReportColumn> templateColumns, boolean forCsv) {
     int resultColumnCount = resultsRow.length;
     String[] tableRow = new String[resultColumnCount];
     for (int c = 0; c < resultColumnCount; c++) {
       Result<?> result = resultsRow[c];
-      tableRow[c] = formatResult(result, forCsv);
+      TradeReportColumn templateColumn = templateColumns.get(c);
+      tableRow[c] = formatResult(result, templateColumn, forCsv);
     }
     return tableRow;
   }
 
   @SuppressWarnings("unchecked")
-  private String formatResult(Result<?> result, boolean forCsv) {
+  private String formatResult(Result<?> result, TradeReportColumn templateColumn, boolean forCsv) {
     if (result.isFailure()) {
-      return Messages.format("FAIL: {}", result.getFailure().getMessage());
+      return templateColumn.isIgnoreFailures() ? "" : Messages.format("FAIL: {}", result.getFailure().getMessage());
     }
     Object value = result.getValue();
     if (value == null) {

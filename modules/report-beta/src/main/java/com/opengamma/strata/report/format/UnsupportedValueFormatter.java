@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.report.result.TokenPathEvaluator;
+import com.opengamma.strata.report.result.ValuePathEvaluator;
 
 /**
  * Catch-all formatter that outputs the type of the value in angular brackets,
@@ -21,7 +21,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
   /** Singleton instance. */
   public static final UnsupportedValueFormatter INSTANCE = new UnsupportedValueFormatter();
 
-  private final TokenPathEvaluator tokenPathEvaluator = new TokenPathEvaluator();
+  private final ValuePathEvaluator valuePathEvaluator = new ValuePathEvaluator();
   
   @Override
   public String formatForCsv(Object object) {
@@ -30,7 +30,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
 
   @Override
   public String formatForDisplay(Object object) {
-    Set<String> validTokens = tokenPathEvaluator.tokens(object);
+    Set<String> validTokens = valuePathEvaluator.tokens(object);
     if (validTokens.isEmpty()) {
       return Messages.format("<{}> - drilling into this type is not supported",
           object.getClass().getSimpleName());

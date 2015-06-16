@@ -7,19 +7,16 @@ package com.opengamma.strata.report.trade;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.ColumnDefinition;
-import com.opengamma.strata.engine.calculations.Results;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.ReportRequirements;
 import com.opengamma.strata.report.ReportRunner;
-import com.opengamma.strata.report.result.TokenPathEvaluator;
+import com.opengamma.strata.report.result.ValuePathEvaluator;
 
 /**
  * Report runner for trade reports.
@@ -29,75 +26,55 @@ import com.opengamma.strata.report.result.TokenPathEvaluator;
  * showing a value for that trade.
  */
 public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
-
-  private final TokenPathEvaluator pathEvaluator = new TokenPathEvaluator();
+  
+  /** The evaluator for the report column's value field */
+  private final ValuePathEvaluator valuePathEvaluator = new ValuePathEvaluator();
 
   @Override
   public ReportRequirements requirements(TradeReportTemplate reportTemplate) {
-    List<Column> tradeMeasureColumns = reportTemplate.getColumns().stream()
-        .map(this::toColumn)
+    List<Column> measureRequirements = reportTemplate.getColumns().stream()
+        .filter(c -> c.getValue().isPresent())
+        .map(c -> valuePathEvaluator.measure(c.getValue().get()))
+        .filter(m -> m.isPresent())
+        .map(m -> Column.of(m.get()))
         .collect(Collectors.toList());
-
+    
     return ReportRequirements.builder()
-        .tradeMeasureRequirements(tradeMeasureColumns)
+        .tradeMeasureRequirements(measureRequirements)
         .build();
   }
 
   @Override
-  public TradeReport runReport(ReportCalculationResults calculationResults, TradeReportTemplate reportTemplate) {
+  public TradeReport runReport(ReportCalculationResults results, TradeReportTemplate reportTemplate) {
     String[] columnHeaders = reportTemplate.getColumns().stream()
         .map(c -> c.getHeader())
         .toArray(i -> new String[i]);
-
-    Results results = calculationResults.getCalculationResults();
-    Result<?>[][] resultsTable = new Result<?>[calculationResults.getCalculationResults().getRowCount()][reportTemplate
+    
+    Result<?>[][] resultsTable = new Result<?>[results.getCalculationResults().getRowCount()][reportTemplate
         .getColumns().size()];
 
     for (int reportColumnIdx = 0; reportColumnIdx < reportTemplate.getColumns().size(); reportColumnIdx++) {
       TradeReportColumn reportColumn = reportTemplate.getColumns().get(reportColumnIdx);
-      IntFunction<Result<?>> resultFn;
-      TradeReportColumn measureColumn = (TradeReportColumn) reportColumn;
-      Column calcColumn = toColumn(measureColumn);
-      int calcColumnIndex = calculationResults.getColumns().indexOf(calcColumn);
-      if (calcColumnIndex > -1) {
-        resultFn = i -> {
-          Result<?> result = results.get(i, calcColumnIndex);
-          if (result.isSuccess() && measureColumn.getPath().isPresent()) {
-            result = evaluatePath(result.getValue(), measureColumn.getPath().get());
-          }
-          return result.isFailure() && measureColumn.isIgnoreFailure() ? Result.success("") : result;
-        };
+      List<Result<?>> columnResults;
+      if (reportColumn.getValue().isPresent()) {
+        columnResults = valuePathEvaluator.evaluate(reportColumn.getValue().get(), results);
       } else {
-        resultFn = i -> Result.failure(FailureReason.MISSING_DATA, "Missing engine result");
+        columnResults = IntStream.range(0, results.getTrades().size())
+            .mapToObj(i -> Result.failure(FailureReason.INVALID_INPUT, "No value specified in report template"))
+            .collect(Collectors.toList());
       }
-
-      for (int i = 0; i < results.getRowCount(); i++) {
-        resultsTable[i][reportColumnIdx] = resultFn.apply(i);
+      for (int rowIdx = 0; rowIdx < resultsTable.length; rowIdx++) {
+        resultsTable[rowIdx][reportColumnIdx] = columnResults.get(rowIdx);
       }
     }
 
     return TradeReport.builder()
         .runInstant(Instant.now())
-        .valuationDate(calculationResults.getValuationDate())
+        .valuationDate(results.getValuationDate())
+        .columns(reportTemplate.getColumns())
         .columnHeaders(columnHeaders)
         .results(resultsTable)
         .build();
-  }
-
-  private Column toColumn(TradeReportColumn column) {
-    return Column.builder()
-        .definition(ColumnDefinition.of(column.getMeasure()))
-        .reportingRules(ReportingRules.empty())
-        .build();
-  }
-
-  private Result<?> evaluatePath(Object resultValue, List<String> path) {
-    Object resultObject = resultValue;
-    try {
-      return Result.success(pathEvaluator.evaluate(resultObject, path));
-    } catch (Exception e) {
-      return Result.failure(e);
-    }
   }
 
 }

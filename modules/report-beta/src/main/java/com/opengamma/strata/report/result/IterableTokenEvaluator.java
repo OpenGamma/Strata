@@ -15,12 +15,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multiset;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 
 /**
  * 
  */
-public class IterableTokenEvaluator implements TokenEvaluator<Iterable<?>> {
+public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
 
   private static final Set<Class<?>> SUPPORTED_FIELD_TYPES = ImmutableSet.of(
       Currency.class,
@@ -46,17 +47,17 @@ public class IterableTokenEvaluator implements TokenEvaluator<Iterable<?>> {
   }
 
   @Override
-  public Object evaluate(Iterable<?> iterable, String token) {
+  public Result<?> evaluate(Iterable<?> iterable, String token) {
     for (Object item : iterable) {
       if (!fieldValues(item).contains(token)) {
         continue;
       }
       if (!tokens(iterable).contains(token)) {
-        throw new TokenException(token, TokenError.AMBIGUOUS, tokens(iterable));
+        return ambiguousTokenFailure(iterable, token);
       }
-      return item;
+      return Result.success(item);
     }
-    throw new TokenException(token, TokenError.INVALID, tokens(iterable));
+    return invalidTokenFailure(iterable, token);
   }
 
   //-------------------------------------------------------------------------

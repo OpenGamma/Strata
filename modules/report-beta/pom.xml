@@ -55,6 +55,10 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-function-beta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-market</artifactId>
     </dependency>
     <dependency>
