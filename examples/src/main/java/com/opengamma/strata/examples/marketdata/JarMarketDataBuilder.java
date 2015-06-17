@@ -12,6 +12,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -55,7 +57,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
   protected Collection<ResourceLocator> getAllResources(String subdirectoryName) {
     String resolvedSubdirectory = subdirectoryName + File.separator;
     return entries.stream()
-        .filter(e -> e.startsWith(resolvedSubdirectory))
+        .filter(e -> e.startsWith(resolvedSubdirectory) && !e.equals(resolvedSubdirectory))
         .map(e -> getEntryLocator(rootPath + e))
         .collect(Collectors.toSet());
   }
@@ -78,8 +80,8 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
   @Override
   protected boolean subdirectoryExists(String subdirectoryName) {
     String resolvedName = subdirectoryName.startsWith(File.separator) ? subdirectoryName.substring(1) : subdirectoryName;
-    if (resolvedName.endsWith(File.separator)) {
-      resolvedName = resolvedName.substring(0, resolvedName.length() - 1);
+    if (!resolvedName.endsWith(File.separator)) {
+      resolvedName += File.separator;
     }
     return entries.contains(resolvedName);
   }
@@ -98,7 +100,10 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
         JarEntry entry = jarEntries.nextElement();
         String entryName = entry.getName();
         if (entryName.startsWith(rootPath) && !entryName.equals(rootPath)) {
-          builder.add(entryName.substring(rootPath.length() + 1));
+          String relativeEntryPath = entryName.substring(rootPath.length() + 1);
+          if (!StringUtils.isBlank(relativeEntryPath)) {
+            builder.add(relativeEntryPath);
+          }
         }
       }
     } catch (Exception e) {

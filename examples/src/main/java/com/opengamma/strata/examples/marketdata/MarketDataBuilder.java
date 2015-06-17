@@ -105,6 +105,9 @@ public abstract class MarketDataBuilder {
    */
   public static MarketDataBuilder ofResource(String resourceRoot, ClassLoader classLoader) {
     String qualifiedResourceRoot = resourceRoot.startsWith(File.separator) ? resourceRoot.substring(1) : resourceRoot;
+    if (!qualifiedResourceRoot.endsWith(File.separator)) {
+      qualifiedResourceRoot += File.separator;
+    }
     URL url = classLoader.getResource(qualifiedResourceRoot);
     if (url == null) {
       throw new IllegalArgumentException(
