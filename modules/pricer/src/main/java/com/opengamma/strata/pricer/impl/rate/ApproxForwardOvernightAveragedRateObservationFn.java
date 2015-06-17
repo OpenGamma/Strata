@@ -15,6 +15,8 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.pricer.PricingException;
@@ -86,6 +88,20 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     return details.calculateRateSensitivity();
   }
 
+  @Override
+  public double explainRate(
+      OvernightAveragedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider,
+      ExplainMapBuilder builder) {
+
+    double rate = rate(observation, startDate, endDate, provider);
+    builder.put(ExplainKey.COMBINED_RATE, rate);
+    return rate;
+  }
+
+  //-------------------------------------------------------------------------
   // Compute the approximated rate in the case where the whole period is forward. 
   // There is no need to compute overnight periods, except for the cut-off period.
   private double rateForward(OvernightAveragedRateObservation observation, OvernightIndexRates rates) {

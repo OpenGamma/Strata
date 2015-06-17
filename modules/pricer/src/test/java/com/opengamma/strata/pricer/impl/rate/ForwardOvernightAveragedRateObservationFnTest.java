@@ -32,6 +32,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -44,6 +47,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 /**
  * Test {@link ForwardOvernightAveragedRateObservationFn}.
  */
+@Test
 public class ForwardOvernightAveragedRateObservationFnTest {
 
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
@@ -61,7 +65,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
   //-------------------------------------------------------------------------
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and no cutoff period. */
-  @Test
   public void rateFedFundNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -86,11 +89,19 @@ public class ForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = accruedRate / accrualFactorTotal;
     double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+
+    // explain
+    ExplainMapBuilder builder = ExplainMap.builder();
+    double explainedRate = obsFn.explainRate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv, builder);
+    assertEquals(explainedRate, rateExpected, TOLERANCE_RATE);
+
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), false);
+    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, TOLERANCE_RATE);
   }
 
   /** Test against FD approximation for the case where publication lag=1, effective offset=0 (USD conventions) and 
    * no cutoff period. Note that all the rates are bumped here, i.e., all the rates are treated as forward rates.*/
-  @Test
   public void rateFedFundNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -118,7 +129,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and cutoff=2 (FedFund swaps). */
-  @Test
   public void rateFedFund() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -152,7 +162,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   /** Test against FD approximation for the case where publication lag=1, effective offset=0 (USD conventions) and 
    * cutoff=2 (FedFund swaps). 
    * Note that all the rates are bumped here, i.e., all the rates are treated as forward rates. */
-  @Test
   public void rateFedFundSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -184,7 +193,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
    * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period. 
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
    */
-  @Test
   public void rateChfNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(CHF_TOIS);
@@ -215,7 +223,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
    * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period. 
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
    */
-  @Test
   public void rateChfNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(CHF_TOIS);
@@ -244,7 +251,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
   /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period. 
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
-  @Test
   public void rateGbpNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(GBP_SONIA);
@@ -273,7 +279,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
   /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period. 
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
-  @Test
   public void rateGbpNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(GBP_SONIA);
@@ -318,7 +323,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   /** Test parameter sensitivity with finite difference sensitivity calculator. Two days cutoff period. */
-  @Test
   public void rateFedFundTwoDaysCutoffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -345,7 +349,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Test parameter sensitivity with finite difference sensitivity calculator. No cutoff period. */
-  @Test
   public void rateChfNoCutOffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {

@@ -41,7 +41,7 @@ public class ReportRunnerTool {
   @Parameter(names = {"-t", "--template"}, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
   private ReportTemplate template;
 
-  @Parameter(names = {"-m", "--marketdata"}, description = "Market data root directory")
+  @Parameter(names = {"-m", "--marketdata"}, description = "Market data root directory", validateValueWith = MarketDataRootValidator.class)
   private File marketDataRoot;
 
   @Parameter(names = {"-p", "--portfolio"}, description = "Portfolio input file", required = true, converter = PortfolioParameterConverter.class)
@@ -73,7 +73,11 @@ public class ReportRunnerTool {
       commander.usage();
       return;
     }
-    reportRunner.run();
+    if (reportRunner.help) {
+      commander.usage();
+    } else {
+      reportRunner.run();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -115,6 +119,7 @@ public class ReportRunnerTool {
     Results results = calculationEngine.calculate(portfolio.getTrades(), columns, rules, snapshot);
     return ReportCalculationResults.builder()
         .valuationDate(valuationDate)
+        .trades(portfolio.getTrades())
         .columns(requirements.getTradeMeasureRequirements())
         .calculationResults(results)
         .build();

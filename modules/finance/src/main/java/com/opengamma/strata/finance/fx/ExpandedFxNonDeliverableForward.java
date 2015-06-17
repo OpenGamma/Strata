@@ -53,6 +53,8 @@ public final class ExpandedFxNonDeliverableForward
    * The amount is signed.
    * A positive amount indicates the payment is to be received.
    * A negative amount indicates the payment is to be paid.
+   * <p>
+   * This must be specified in one of the two currencies of the forward.
    */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount settlementCurrencyNotional;
@@ -134,7 +136,7 @@ public final class ExpandedFxNonDeliverableForward
   /**
    * Expands this forward, trivially returning {@code this}.
    * 
-   * @return this transaction
+   * @return this NDF
    */
   @Override
   public ExpandedFxNonDeliverableForward expand() {
@@ -206,6 +208,8 @@ public final class ExpandedFxNonDeliverableForward
    * The amount is signed.
    * A positive amount indicates the payment is to be received.
    * A negative amount indicates the payment is to be paid.
+   * <p>
+   * This must be specified in one of the two currencies of the forward.
    * @return the value of the property, not null
    */
   public CurrencyAmount getSettlementCurrencyNotional() {

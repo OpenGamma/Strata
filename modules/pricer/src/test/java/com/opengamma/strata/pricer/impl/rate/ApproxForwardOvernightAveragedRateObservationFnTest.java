@@ -30,6 +30,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -42,6 +45,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 /**
  * Test {@link ApproxForwardOvernightAveragedRateObservationFn}.
  */
+@Test
 public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
@@ -69,7 +73,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   //-------------------------------------------------------------------------
   /** Compare the rate estimated with approximation to the rate estimated by daily forward. */
-  @Test
   public void comparisonApproxVNoApprox() {
     LocalDate valuationDate = date(2015, 1, 5);
     OvernightAveragedRateObservation ro =
@@ -95,10 +98,19 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateApprox = OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
     double rateDet = OBS_FN_DET_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
     assertEquals(rateDet, rateApprox, TOLERANCE_APPROX);
+
+    // explain
+    ExplainMapBuilder builder = ExplainMap.builder();
+    double explainedRate = OBS_FN_APPROX_FWD.explainRate(
+        ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv, builder);
+    assertEquals(explainedRate, rateApprox, TOLERANCE_APPROX);
+
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), false);
+    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateApprox, TOLERANCE_APPROX);
   }
 
   /** No cutoff period and the period entirely forward. Test the approximation part only. */
-  @Test
   public void rateFedFundNoCutOffForward() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightAveragedRateObservation ro =
@@ -129,7 +141,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Test rate sensitivity against FD approximation. No cutoff period and the period entirely forward. */
-  @Test
   public void rateFedFundNoCutOffForwardSensitivity() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightAveragedRateObservation ro =
@@ -177,7 +188,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Two days cutoff and the period is entirely forward. Test Approximation part plus cutoff specifics.*/
-  @Test
   public void rateFedFund2CutOffForward() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightAveragedRateObservation ro =
@@ -213,7 +223,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   /** Test rate sensitivity against FD approximation.  
    * Two days cutoff and the period is entirely forward. Test Approximation part plus cutoff specifics.*/
-  @Test
   public void rateFedFund2CutOffForwardSensitivity() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightAveragedRateObservation ro =
@@ -351,7 +360,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Two days cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate.*/
-  @Test
   public void rateFedFund2CutOffValuation1() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 1
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -402,7 +410,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   /** Test rate sensitivity against FD approximation.  
    * Two days cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate.*/
-  @Test
   public void rateFedFund2CutOffValuation1Sensitivity() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 1
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -508,7 +515,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Two days cutoff and two already fixed ON rate. ON index is Fed Fund. */
-  @Test
   public void rateFedFund2CutOffValuation2() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
@@ -563,7 +569,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   /** Test rate sensitivity against FD approximation.  
    * Two days cutoff and two already fixed ON rate. ON index is Fed Fund. */
-  @Test
   public void rateFedFund2CutOffValuation2Sensitivity() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
@@ -667,7 +672,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Two days cutoff and two already fixed ON rate. ON index is SONIA. */
-  @Test
   public void rateSonia2CutOffValuation2() {
     // publication=0, cutoff=2, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -723,7 +727,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   /** Test rate sensitivity against FD approximation.  
    * Two days cutoff and two already fixed ON rate. ON index is SONIA. */
-  @Test
   public void rateSonia2CutOffValuation2Sensitivity() {
     // publication=0, cutoff=2, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -826,7 +829,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** No cutoff period and two already fixed ON rate. ON index is SONIA. */
-  @Test
   public void rateSonia0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -878,7 +880,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   /** Test rate sensitivity against FD approximation. 
    * No cutoff period and two already fixed ON rate. ON index is SONIA. */
-  @Test
   public void rateSonia0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -982,7 +983,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** One past fixing missing. Checking the error thrown. */
-  @Test
   public void rateFedFund2CutOffValuation2MissingFixing() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
     LocalDate valuationDate = date(2015, 1, 13);
@@ -1014,7 +1014,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Two days cutoff, all ON rates already fixed. */
-  @Test
   public void rateFedFund2CutOffValuationEnd() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16)};
@@ -1058,7 +1057,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Test rate Sensitivity. Two days cutoff, all ON rates already fixed. Thus none is expected*/
-  @Test
   public void rateFedFund2CutOffValuationEndSensitivity() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16)};
@@ -1100,7 +1098,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   /** Test curve parameter sensitivity with finite difference sensitivity calculator. No cutoff period*/
-  @Test
   public void rateFedFundNoCutOffForwardParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightAveragedRateObservation ro =
@@ -1124,7 +1121,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   }
 
   /** Test curve parameter sensitivity with finite difference sensitivity calculator. Two days cutoff period*/
-  @Test
   public void rateFedFund2CutOffForwardParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightAveragedRateObservation ro =
@@ -1146,4 +1142,5 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
     }
   }
+
 }

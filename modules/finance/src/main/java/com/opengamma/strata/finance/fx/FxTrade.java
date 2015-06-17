@@ -27,7 +27,7 @@ import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
- * A trade in an FX forward.
+ * A foreign exchange trade, such as an FX forward or FX spot.
  * <p>
  * An Over-The-Counter (OTC) trade in an {@link Fx}.
  * <p>
@@ -50,7 +50,7 @@ public final class FxTrade
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo tradeInfo;
   /**
-   * The FX product that was agreed when the trade occurred.
+   * The product that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    */
@@ -128,7 +128,7 @@ public final class FxTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the FX product that was agreed when the trade occurred.
+   * Gets the product that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null

@@ -47,6 +47,7 @@ public final class ExpandedFxSwap
    * The foreign exchange transaction at the earlier date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
+   * The payment date of this transaction must be before that of the far leg.
    */
   @PropertyDefinition(validate = "notNull")
   private final ExpandedFx nearLeg;
@@ -54,7 +55,7 @@ public final class ExpandedFxSwap
    * The foreign exchange transaction at the later date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
-   * The value date of this transaction must be after that of the near leg.
+   * The payment date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
   private final ExpandedFx farLeg;
@@ -63,7 +64,7 @@ public final class ExpandedFxSwap
   /**
    * Creates an {@code ExpandedFxSwap} from two legs.
    * <p>
-   * The transactions must be passed in with value dates in the correct order.
+   * The transactions must be passed in with payment dates in the correct order.
    * The currency pair of each leg must match and have amounts flowing in opposite directions.
    * 
    * @param nearLeg  the earlier leg
@@ -78,7 +79,7 @@ public final class ExpandedFxSwap
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(
-        nearLeg.getPaymentDate(), farLeg.getPaymentDate(), "nearLeg.valueDate", "farLeg.valueDate");
+        nearLeg.getPaymentDate(), farLeg.getPaymentDate(), "nearLeg.paymentDate", "farLeg.paymentDate");
     if (!nearLeg.getBaseCurrencyPayment().getCurrency().equals(farLeg.getBaseCurrencyPayment().getCurrency()) ||
         !nearLeg.getCounterCurrencyPayment().getCurrency().equals(farLeg.getCounterCurrencyPayment().getCurrency())) {
       throw new IllegalArgumentException("Legs must have the same currency pair");
@@ -148,6 +149,7 @@ public final class ExpandedFxSwap
    * Gets the foreign exchange transaction at the earlier date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
+   * The payment date of this transaction must be before that of the far leg.
    * @return the value of the property, not null
    */
   public ExpandedFx getNearLeg() {
@@ -159,7 +161,7 @@ public final class ExpandedFxSwap
    * Gets the foreign exchange transaction at the later date.
    * <p>
    * This provides details of a single foreign exchange at a specific date.
-   * The value date of this transaction must be after that of the near leg.
+   * The payment date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
   public ExpandedFx getFarLeg() {

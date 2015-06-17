@@ -164,13 +164,15 @@ public class MarketDataBuilderTest {
   private void appendToZip(File sourceRootDir, String destRootPath, File currentFile, ZipOutputStream zipOutput)
       throws IOException {
     if (currentFile.isDirectory()) {
-      zipOutput.putNextEntry(getEntry(sourceRootDir, destRootPath, currentFile));
+      String entryName = getEntryName(sourceRootDir, destRootPath, currentFile) + File.separator;
+      zipOutput.putNextEntry(new ZipEntry(entryName));
       zipOutput.closeEntry();
       for (File content : currentFile.listFiles()) {
         appendToZip(sourceRootDir, destRootPath, content, zipOutput);
       }
     } else {
-      zipOutput.putNextEntry(getEntry(sourceRootDir, destRootPath, currentFile));
+      String entryName = getEntryName(sourceRootDir, destRootPath, currentFile);
+      zipOutput.putNextEntry(new ZipEntry(entryName));
       try (FileInputStream fileIn = new FileInputStream(currentFile)) {
         byte[] b = new byte[1024];
         int len;
@@ -182,9 +184,8 @@ public class MarketDataBuilderTest {
     }
   }
   
-  private ZipEntry getEntry(File sourceRootDir, String destRootPath, File currentFile) {
-    String entryName = destRootPath + currentFile.getAbsolutePath().substring(sourceRootDir.getAbsolutePath().length());
-    return new ZipEntry(entryName);
+  private String getEntryName(File sourceRootDir, String destRootPath, File currentFile) {
+    return destRootPath + currentFile.getAbsolutePath().substring(sourceRootDir.getAbsolutePath().length());
   }
 
 }

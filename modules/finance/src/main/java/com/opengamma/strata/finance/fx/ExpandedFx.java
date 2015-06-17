@@ -106,7 +106,7 @@ public final class ExpandedFx
    * @return the expanded foreign exchange transaction
    */
   public static ExpandedFx of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
-    return ExpandedFx.of(FxPayment.of(valueDate, amount1), FxPayment.of(valueDate, amount2));
+    return ExpandedFx.of(FxPayment.of(amount1, valueDate), FxPayment.of(amount2, valueDate));
   }
 
   //-------------------------------------------------------------------------
@@ -139,9 +139,9 @@ public final class ExpandedFx
   //-------------------------------------------------------------------------
 
   /**
-   * Returns the date that the forward settles.
+   * Returns the date that the transaction settles.
    * <p>
-   * The settle dates of the two payments should be the same. 
+   * This returns the settlement date of the base currency.
    * 
    * @return the value date
    */

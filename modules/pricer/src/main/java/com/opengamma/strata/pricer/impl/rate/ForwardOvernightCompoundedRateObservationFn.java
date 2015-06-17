@@ -13,6 +13,8 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.ObjectDoublePair;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.pricer.PricingException;
@@ -64,6 +66,19 @@ public class ForwardOvernightCompoundedRateObservationFn
     OvernightIndexRates rates = provider.overnightIndexRates(observation.getIndex());
     ObservationDetails details = new ObservationDetails(observation, rates);
     return details.calculateRateSensitivity();
+  }
+
+  @Override
+  public double explainRate(
+      OvernightCompoundedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider,
+      ExplainMapBuilder builder) {
+
+    double rate = rate(observation, startDate, endDate, provider);
+    builder.put(ExplainKey.COMBINED_RATE, rate);
+    return rate;
   }
 
   //-------------------------------------------------------------------------

@@ -12,10 +12,14 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.finance.rate.IborRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
@@ -42,6 +46,18 @@ public class ForwardIborRateObservationFnTest {
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
     assertEquals(obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), RATE);
+
+    // explain
+    ExplainMapBuilder builder = ExplainMap.builder();
+    assertEquals(obsFn.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov, builder), RATE);
+
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 1);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATE));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.OBSERVED_INDEX), Optional.of(GBP_LIBOR_3M));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.OBSERVED_RATE), Optional.of(RATE));
+    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(RATE));
   }
 
   public void test_rateSensitivity() {

@@ -36,6 +36,9 @@ public final class Measure
   //-------------------------------------------------------------------------
   /** Measure representing the accrued interest of the calculation target. */
   public static final Measure ACCRUED_INTEREST = Measure.of("AccruedInterest");
+  
+  /** Measure representing the Bucketed Gamma PV01 of the calculation target. */
+  public static final Measure BUCKETED_GAMMA_PV01 = Measure.of("BucketedGammaPV01");
 
   /** Measure representing the initial notional amount of each leg of the calculation target. */
   public static final Measure LEG_INITIAL_NOTIONAL = Measure.of("LegInitialNotional");
