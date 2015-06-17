@@ -39,12 +39,11 @@ public class ValuePathEvaluator {
   /** The separator used in the value path */
   private static final String PATH_SEPARATOR = "\\.";
 
-  private final BeanTokenEvaluator beanTokenEvaluator = new BeanTokenEvaluator();
-
   private final ImmutableList<TokenEvaluator<?>> tokenEvaluators = ImmutableList.of(
       new CurrencyAmountTokenEvaluator(),
       new MapTokenEvaluator(),
-      beanTokenEvaluator,
+      new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
+      new BeanTokenEvaluator(),
       new IterableTokenEvaluator());
   
   /**
@@ -120,15 +119,16 @@ public class ValuePathEvaluator {
     // This must mirror the main evaluate method implementation
     Object evalObject = object;
     Set<String> tokens = new HashSet<String>();
-    if (evalObject instanceof Bean) {
+    Optional<TokenEvaluator<Object>> evaluator = getEvaluator(evalObject.getClass());
+    if (evalObject instanceof Bean && !isTypeSpecificEvaluator(evaluator)) {
       Bean bean = (Bean) evalObject;
       if (bean.propertyNames().size() == 1) {
         String onlyProperty = Iterables.getOnlyElement(bean.propertyNames());
         tokens.add(onlyProperty);
         evalObject = bean.property(onlyProperty).get();
+        evaluator = getEvaluator(evalObject.getClass());
       }
     }
-    Optional<TokenEvaluator<Object>> evaluator = getEvaluator(evalObject.getClass());
     if (evaluator.isPresent()) {
       tokens.addAll(evaluator.get().tokens(evalObject));
     }
@@ -181,15 +181,15 @@ public class ValuePathEvaluator {
 
   // performs a single step of evaluation against an object
   private Result<?> evaluateValue(Object object, Queue<String> tokens) {
-    if (object instanceof Bean) {
+    Optional<TokenEvaluator<Object>> evaluator = getEvaluator(object.getClass());
+    if (object instanceof Bean && !isTypeSpecificEvaluator(evaluator)) {
       Bean bean = (Bean) object;
-      if (bean.propertyNames().size() == 1 && !beanTokenEvaluator.tokens(bean).contains(tokens.peek())) {
+      if (bean.propertyNames().size() == 1 && !evaluator.get().tokens(bean).contains(tokens.peek())) {
         // Allow single properties to be skipped over in the value path
         String singlePropertyName = Iterables.getOnlyElement(bean.propertyNames());
         return Result.success(bean.property(singlePropertyName).get());
       }
     }
-    Optional<TokenEvaluator<Object>> evaluator = getEvaluator(object.getClass());
     if (!evaluator.isPresent()) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unable to drill into type {} to evaluate: {}",
           object.getClass().getSimpleName(), String.join(PATH_SEPARATOR, tokens));
@@ -203,6 +203,10 @@ public class ValuePathEvaluator {
         .filter(e -> e.getTargetType().isAssignableFrom(targetClazz))
         .map(e -> (TokenEvaluator<Object>) e)
         .findFirst();
+  }
+  
+  private boolean isTypeSpecificEvaluator(Optional<TokenEvaluator<Object>> evaluator) {
+    return evaluator.isPresent() && !Bean.class.equals(evaluator.get().getTargetType());
   }
 
 }
