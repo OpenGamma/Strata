@@ -10,6 +10,10 @@
 package com.opengamma.strata.examples.finance;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.opengamma.analytics.util.ArrayUtils;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.examples.finance.credit.ExampleCalculator;
 import com.opengamma.strata.examples.finance.credit.ExampleReporter;
@@ -22,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CdsPricingExample {
@@ -32,7 +37,9 @@ public class CdsPricingExample {
   static final LocalDate valuationDate = LocalDate.of(2014, 10, 16);
   static final Measure pv = Measure.PRESENT_VALUE;
   static final Measure ir01ParallelPar = Measure.IR01_PARALLEL_PAR;
+  static final Measure ir01BucketedPar = Measure.IR01_BUCKETED_PAR;
   static final Measure cs01ParallelPar = Measure.CS01_PARALLEL_PAR;
+  static final Measure cs01BucketedPar = Measure.CS01_BUCKETED_PAR;
   static final ImmutableList<Measure> measures = ImmutableList.of(
       pv,
       ir01ParallelPar,
@@ -44,7 +51,9 @@ public class CdsPricingExample {
   public static void main(String[] args) {
     logger.info("PV is " + calcPv());
     logger.info("IR01 parallel par is " + calcIr01ParallelPar());
+    logger.info("IR01 bucketed par is " + join(calcIr01BucketedPar()));
     logger.info("CS01 parallel par is " + calcCs01ParallelPar());
+    logger.info("CS01 bucketed par is " + join(calcCs01BucketedPar()));
     calcMeasuresAndReportToAsciiToLogger();
   }
 
@@ -56,8 +65,16 @@ public class CdsPricingExample {
     return calc.calculateScalarValue(valuationDate, trades, ir01ParallelPar);
   }
 
+  public static double[] calcIr01BucketedPar() {
+    return calc.calculateVectorValue(valuationDate, trades, ir01BucketedPar);
+  }
+
   public static double calcCs01ParallelPar() {
     return calc.calculateScalarValue(valuationDate, trades, cs01ParallelPar);
+  }
+
+  public static double[] calcCs01BucketedPar() {
+    return calc.calculateVectorValue(valuationDate, trades, cs01BucketedPar);
   }
 
   public static void calcMeasuresAndReportToAsciiToLogger() {
@@ -65,7 +82,7 @@ public class CdsPricingExample {
   }
 
   private static String join(double[] d) {
-    return Arrays.asList(d)
+    return Lists.newArrayList(ArrayUtils.toObject(d))
         .stream()
         .map(s -> String.valueOf(s))
         .collect(Collectors.joining(", "));

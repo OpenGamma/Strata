@@ -29,6 +29,7 @@ import com.opengamma.strata.examples.finance.credit.api.TradeSource;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.report.ReportCalculationResults;
 
@@ -60,11 +61,12 @@ public class ExampleCalculator implements Calculator {
   public double[] calculateVectorValue(LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
     Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);
     Preconditions.checkArgument(
-        result.getValue() instanceof CurveCurrencyParameterSensitivity,
-        "Expecting a vector CurveCurrencyParameterSensitivity, found " + result.getValue()
+        result.getValue() instanceof CurveCurrencyParameterSensitivities,
+        "Expecting a vector CurveCurrencyParameterSensitivities, found " + result.getValue()
     );
-    CurveCurrencyParameterSensitivity value = (CurveCurrencyParameterSensitivity)result.getValue();
-    return value.getSensitivity();
+    CurveCurrencyParameterSensitivities value = (CurveCurrencyParameterSensitivities)result.getValue();
+    Preconditions.checkArgument(value.getSensitivities().size() == 1);
+    return value.getSensitivities().get(0).getSensitivity();
  }
 
   @Override

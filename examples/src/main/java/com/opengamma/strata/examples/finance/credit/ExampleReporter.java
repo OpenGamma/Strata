@@ -44,7 +44,7 @@ public class ExampleReporter implements Reporter {
 
   @Override
   public void reportAsciiToLogger(final ReportCalculationResults reportCalculationResults) {
-    logger.info(reportAsciiAsString(reportCalculationResults));
+    logger.info("\n" + reportAsciiAsString(reportCalculationResults));
   }
 
   @Override
