@@ -9,6 +9,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
@@ -96,6 +97,19 @@ public class DispatchingPaymentEventPricer
       return notionalExchangePricer.futureValueSensitivity((NotionalExchange) paymentEvent, provider);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
       return fxResetNotionalExchangePricer.futureValueSensitivity((FxResetNotionalExchange) paymentEvent, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void explainPresentValue(PaymentEvent paymentEvent, RatesProvider provider, ExplainMapBuilder builder) {
+    // dispatch by runtime type
+    if (paymentEvent instanceof NotionalExchange) {
+      notionalExchangePricer.explainPresentValue((NotionalExchange) paymentEvent, provider, builder);
+    } else if (paymentEvent instanceof FxResetNotionalExchange) {
+      fxResetNotionalExchangePricer.explainPresentValue((FxResetNotionalExchange) paymentEvent, provider, builder);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }

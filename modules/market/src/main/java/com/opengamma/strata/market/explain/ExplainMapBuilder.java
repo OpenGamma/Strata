@@ -116,6 +116,28 @@ public final class ExplainMapBuilder {
     return child.closeListEntry(key);
   }
 
+  /**
+   * Adds a list entry using a consumer callback function, including the list index.
+   * <p>
+   * This is an alternative to using {@link #openListEntry(ExplainKey)} and
+   * {@link #closeListEntry(ExplainKey)} directly.
+   * The consumer function receives the child builder and must add data to it.
+   * 
+   * @param key  the list key to open
+   * @param consumer  the consumer that receives the list entry builder and adds to it
+   * @return this builder
+   */
+  public <R extends List<?>> ExplainMapBuilder addListEntryWithIndex(ExplainKey<R> key, Consumer<ExplainMapBuilder> consumer) {
+    ExplainMapBuilder child = openListEntry(key);
+    // find index
+    Object value = map.get(key);
+    @SuppressWarnings("unchecked")
+    ArrayList<Object> list = (ArrayList<Object>) value;
+    child.put(ExplainKey.ENTRY_INDEX, list.size() - 1);
+    consumer.accept(child);
+    return child.closeListEntry(key);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Puts a single value into the map.
