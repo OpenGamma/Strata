@@ -19,15 +19,13 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * This function provides the ability to price an {@link FxSwapProduct}.
  */
-public class DiscountingFxSwapProductPricerBeta {
-  // copied/modified from ForexSwapDiscountingMethod
-  // TODO: check valuation date vs payment date (pv of zero?)
+public class DiscountingFxSwapProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxSwapProductPricerBeta DEFAULT =
-      new DiscountingFxSwapProductPricerBeta(DiscountingFxProductPricer.DEFAULT);
+  public static final DiscountingFxSwapProductPricer DEFAULT =
+      new DiscountingFxSwapProductPricer(DiscountingFxProductPricer.DEFAULT);
 
   /**
    * Underlying single FX pricer.
@@ -39,14 +37,14 @@ public class DiscountingFxSwapProductPricerBeta {
    * 
    * @param fxPricer  the pricer for {@link FxProduct}
    */
-  public DiscountingFxSwapProductPricerBeta(
+  public DiscountingFxSwapProductPricer(
       DiscountingFxProductPricer fxPricer) {
     this.fxPricer = ArgChecker.notNull(fxPricer, "fxPricer");
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value.
+   * Calculates the present value of the FX swap product.
    * <p>
    * This discounts each payment on each leg in its own currency.
    * 
@@ -56,19 +54,31 @@ public class DiscountingFxSwapProductPricerBeta {
    */
   public MultiCurrencyAmount presentValue(FxSwapProduct product, RatesProvider provider) {
     ExpandedFxSwap fx = product.expand();
-    if (provider.getValuationDate().isAfter(fx.getFarLeg().getPaymentDate())) {
-      return MultiCurrencyAmount.empty();
-    }
     MultiCurrencyAmount farPv = fxPricer.presentValue(fx.getFarLeg(), provider);
-    if (provider.getValuationDate().isAfter(fx.getNearLeg().getPaymentDate())) {
-      return farPv;
-    }
     MultiCurrencyAmount nearPv = fxPricer.presentValue(fx.getNearLeg(), provider);
     return nearPv.plus(farPv);
   }
 
   /**
-   * Calculates the currency exposure.
+   * Calculates the present value sensitivity of the FX swap product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the present value sensitivity
+   */
+  public PointSensitivities presentValueSensitivity(FxSwapProduct product, RatesProvider provider) {
+    ExpandedFxSwap fx = product.expand();
+    PointSensitivities nearSens = fxPricer.presentValueSensitivity(fx.getNearLeg(), provider);
+    PointSensitivities farSens = fxPricer.presentValueSensitivity(fx.getFarLeg(), provider);
+    return nearSens.combinedWith(farSens);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the FX swap product.
    * <p>
    * This discounts each payment on each leg in its own currency.
    * 
@@ -81,7 +91,7 @@ public class DiscountingFxSwapProductPricerBeta {
   }
 
   /**
-   * Calculates the par spread is the spread that should be added to the forex forward points to have a zero value.
+   * Calculates the par spread is the spread that should be added to the FX forward points to have a zero value.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -89,32 +99,12 @@ public class DiscountingFxSwapProductPricerBeta {
    */
   public double parSpread(FxSwapProduct product, RatesProvider provider) {
     ExpandedFxSwap fx = product.expand();
-    if (provider.getValuationDate().isAfter(fx.getNearLeg().getPaymentDate())) {
-      return fxPricer.parSpread(fx.getFarLeg(), provider);
-    }
-    FxPayment basePaymentNear = fx.getNearLeg().getBaseCurrencyPayment();
     FxPayment counterPaymentNear = fx.getNearLeg().getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
     double pvCounterCcy = pv.convertedTo(counterPaymentNear.getCurrency(), provider).getAmount();
-    // TODO: is basePaymentNear.getCurrency() correct?
-    double dfEnd = provider.discountFactor(basePaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
-    double notionalBaseCcy = basePaymentNear.getAmount();
+    double dfEnd = provider.discountFactor(counterPaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
+    double notionalBaseCcy = fx.getNearLeg().getBaseCurrencyPayment().getAmount();
     return -pvCounterCcy / (notionalBaseCcy * dfEnd);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the present value sensitivity.
-   * 
-   * @param product  the product to price
-   * @param provider  the rates provider
-   * @return the present value sensitivity
-   */
-  public PointSensitivities presentValueSensitivity(FxSwapProduct product, RatesProvider provider) {
-    ExpandedFxSwap fx = product.expand();
-    PointSensitivities nearSens = fxPricer.presentValueSensitivity(fx.getNearLeg(), provider);
-    PointSensitivities farSens = fxPricer.presentValueSensitivity(fx.getFarLeg(), provider);
-    return nearSens.combinedWith(farSens);
   }
 
 }
