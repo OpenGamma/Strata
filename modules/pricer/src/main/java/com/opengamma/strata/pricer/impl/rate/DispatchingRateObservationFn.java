@@ -17,6 +17,8 @@ import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -176,6 +178,47 @@ public class DispatchingRateObservationFn
     } else if (observation instanceof InflationInterpolatedRateObservation) {
       return inflationInterpolatedRateObservationFn.rateSensitivity(
           (InflationInterpolatedRateObservation) observation, startDate, endDate, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public double explainRate(
+      RateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider,
+      ExplainMapBuilder builder) {
+
+    // dispatch by runtime type
+    if (observation instanceof FixedRateObservation) {
+      // inline code (performance) avoiding need for FixedRateObservationFn implementation
+      double rate = ((FixedRateObservation) observation).getRate();
+      builder.put(ExplainKey.FIXED_RATE, rate);
+      builder.put(ExplainKey.COMBINED_RATE, rate);
+      return rate;
+    } else if (observation instanceof IborRateObservation) {
+      return iborRateObservationFn.explainRate(
+          (IborRateObservation) observation, startDate, endDate, provider, builder);
+    } else if (observation instanceof IborInterpolatedRateObservation) {
+      return iborInterpolatedRateObservationFn.explainRate(
+          (IborInterpolatedRateObservation) observation, startDate, endDate, provider, builder);
+    } else if (observation instanceof IborAveragedRateObservation) {
+      return iborAveragedRateObservationFn.explainRate(
+          (IborAveragedRateObservation) observation, startDate, endDate, provider, builder);
+    } else if (observation instanceof OvernightAveragedRateObservation) {
+      return overnightAveragedRateObservationFn.explainRate(
+          (OvernightAveragedRateObservation) observation, startDate, endDate, provider, builder);
+    } else if (observation instanceof OvernightCompoundedRateObservation) {
+      return overnightCompoundedRateObservationFn.explainRate(
+          (OvernightCompoundedRateObservation) observation, startDate, endDate, provider, builder);
+    } else if (observation instanceof InflationMonthlyRateObservation) {
+      return inflationMonthlyRateObservationFn.explainRate(
+          (InflationMonthlyRateObservation) observation, startDate, endDate, provider, builder);
+    } else if (observation instanceof InflationInterpolatedRateObservation) {
+      return inflationInterpolatedRateObservationFn.explainRate(
+          (InflationInterpolatedRateObservation) observation, startDate, endDate, provider, builder);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }

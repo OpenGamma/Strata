@@ -12,6 +12,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -22,6 +23,9 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
@@ -62,6 +66,35 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     double rateExpected = (WEIGHT * RATE_END + (1.0 - WEIGHT) * RATE_END_INTERP) /
         (WEIGHT * RATE_START + (1.0 - WEIGHT) * RATE_START_INTERP) - 1.0;
     assertEquals(obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov), rateExpected, EPS);
+
+    // explain
+    ExplainMapBuilder builder = ExplainMap.builder();
+    assertEquals(obsFn.explainRate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov, builder), rateExpected, EPS);
+
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 4);
+    ExplainMap explain0 = built.get(ExplainKey.OBSERVATIONS).get().get(0);
+    assertEquals(explain0.get(ExplainKey.FIXING_DATE), Optional.of(REF_START_MONTH.atEndOfMonth()));
+    assertEquals(explain0.get(ExplainKey.OBSERVED_INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain0.get(ExplainKey.OBSERVED_RATE), Optional.of(RATE_START));
+    assertEquals(explain0.get(ExplainKey.WEIGHT), Optional.of(WEIGHT));
+    ExplainMap explain1 = built.get(ExplainKey.OBSERVATIONS).get().get(1);
+    assertEquals(explain1.get(ExplainKey.FIXING_DATE), Optional.of(REF_START_MONTH_INTERP.atEndOfMonth()));
+    assertEquals(explain1.get(ExplainKey.OBSERVED_INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain1.get(ExplainKey.OBSERVED_RATE), Optional.of(RATE_START_INTERP));
+    assertEquals(explain1.get(ExplainKey.WEIGHT), Optional.of(1d - WEIGHT));
+    ExplainMap explain2 = built.get(ExplainKey.OBSERVATIONS).get().get(2);
+    assertEquals(explain2.get(ExplainKey.FIXING_DATE), Optional.of(REF_END_MONTH.atEndOfMonth()));
+    assertEquals(explain2.get(ExplainKey.OBSERVED_INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain2.get(ExplainKey.OBSERVED_RATE), Optional.of(RATE_END));
+    assertEquals(explain2.get(ExplainKey.WEIGHT), Optional.of(WEIGHT));
+    ExplainMap explain3 = built.get(ExplainKey.OBSERVATIONS).get().get(3);
+    assertEquals(explain3.get(ExplainKey.FIXING_DATE), Optional.of(REF_END_MONTH_INTERP.atEndOfMonth()));
+    assertEquals(explain3.get(ExplainKey.OBSERVED_INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain3.get(ExplainKey.OBSERVED_RATE), Optional.of(RATE_END_INTERP));
+    assertEquals(explain3.get(ExplainKey.WEIGHT), Optional.of(1d - WEIGHT));
+    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, EPS);
   }
 
   //-------------------------------------------------------------------------
