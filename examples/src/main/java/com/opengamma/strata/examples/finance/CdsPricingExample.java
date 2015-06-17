@@ -65,16 +65,16 @@ public class CdsPricingExample {
     return calc.calculateScalarValue(valuationDate, trades, ir01ParallelPar);
   }
 
-  public static double[] calcIr01BucketedPar() {
-    return calc.calculateVectorValue(valuationDate, trades, ir01BucketedPar);
+  public static List<Pair<String, Double>> calcIr01BucketedPar() {
+    return calc.calculateSensitivityValue(valuationDate, trades, ir01BucketedPar);
   }
 
   public static double calcCs01ParallelPar() {
     return calc.calculateScalarValue(valuationDate, trades, cs01ParallelPar);
   }
 
-  public static double[] calcCs01BucketedPar() {
-    return calc.calculateVectorValue(valuationDate, trades, cs01BucketedPar);
+  public static List<Pair<String, Double>> calcCs01BucketedPar() {
+    return calc.calculateSensitivityValue(valuationDate, trades, cs01BucketedPar);
   }
 
   public static void calcMeasuresAndReportToAsciiToLogger() {
@@ -85,6 +85,19 @@ public class CdsPricingExample {
     return Lists.newArrayList(ArrayUtils.toObject(d))
         .stream()
         .map(s -> String.valueOf(s))
+        .collect(Collectors.joining(", "));
+  }
+
+  private static String join(List<Pair<String, Double>> p) {
+    return p
+        .stream()
+        .map(
+            s -> String.format(
+                    "%s -> %s",
+                s.getFirst(),
+                s.getSecond()
+            )
+        )
         .collect(Collectors.joining(", "));
   }
 

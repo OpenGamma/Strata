@@ -26,6 +26,10 @@ public class CurveCreditPlaceholder {
                 .toArray(LocalDate[]::new);
     }
 
+    public Period[] getCreditCurvePoints() {
+        return _creditCurvePoints;
+    }
+
     public double[] getFractionalParSpreads() {
         return _fractionalParSpreads;
     }

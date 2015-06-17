@@ -9,6 +9,7 @@
 
 package com.opengamma.strata.examples.finance.credit.api;
 
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -25,6 +26,12 @@ public interface Calculator {
   );
 
   double[] calculateVectorValue(
+      LocalDate valuationDate,
+      TradeSource tradeSource,
+      Measure measure
+  );
+
+  List<Pair<String, Double>> calculateSensitivityValue(
       LocalDate valuationDate,
       TradeSource tradeSource,
       Measure measure
