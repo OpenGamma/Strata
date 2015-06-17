@@ -17,7 +17,7 @@
                         <convention>Following</convention>
                         <calendar>Sat/Sun</calendar>
                     </dateAdjustments>
-                    <referenceInformation type="com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation">
+                    <referenceInformation type="com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation">
                         <referenceEntityName>Ford Motor Company</referenceEntityName>
                         <referenceEntityId>AH98A7</referenceEntityId>
                         <seniority>SeniorUnSec</seniority>
@@ -101,7 +101,7 @@
                         <convention>Following</convention>
                         <calendar>Sat/Sun</calendar>
                     </dateAdjustments>
-                    <referenceInformation type="com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation">
+                    <referenceInformation type="com.opengamma.strata.finance.credit.reference.IndexReferenceInformation">
                         <indexName>Dow Jones CDX.NA.IG</indexName>
                         <indexId>D28123245</indexId>
                         <indexSeries>3</indexSeries>

@@ -21,16 +21,15 @@ import com.opengamma.strata.finance.Convention;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
-import com.opengamma.strata.finance.credit.common.CdsDatesLogic;
-import com.opengamma.strata.finance.credit.common.RestructuringClause;
-import com.opengamma.strata.finance.credit.common.SeniorityLevel;
+import com.opengamma.strata.finance.credit.CdsDatesLogic;
+import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.fee.SinglePayment;
-import com.opengamma.strata.finance.credit.general.GeneralTerms;
-import com.opengamma.strata.finance.credit.general.reference.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.general.reference.ReferenceInformation;
-import com.opengamma.strata.finance.credit.general.reference.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.credit.reference.IndexReferenceInformation;
+import com.opengamma.strata.finance.credit.reference.ReferenceInformation;
+import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -168,21 +167,18 @@ public final class StandardCdsConvention
       double upfrontFeeAmount,
       LocalDate upfrontFeePaymentDate
   ) {
-    BusinessDayAdjustment businessDayAdjustment = calcBusinessAdjustment();
-
     return CdsTrade.of(
         TradeInfo
             .builder()
             .id(id)
             .build(),
         Cds.builder()
-            .generalTerms(GeneralTerms.of(
-                startDate,
-                endDate,
-                buySell,
-                businessDayAdjustment,
-                referenceInformation
-            ))
+            .startDate(startDate)
+            .endDate(endDate)
+            .buySellProtection(buySell)
+            .businessDayConvention(dayConvention)
+            .holidayCalendar(calendar)
+            .referenceInformation(referenceInformation)
             .feeLeg(
                 FeeLeg.of(
                     SinglePayment.of(

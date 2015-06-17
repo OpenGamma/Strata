@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.common;
+package com.opengamma.strata.finance.credit;
 
 import com.opengamma.strata.collect.ArgChecker;
 

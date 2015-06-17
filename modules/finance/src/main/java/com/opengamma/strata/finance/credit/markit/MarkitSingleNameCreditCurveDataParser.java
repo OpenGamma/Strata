@@ -14,10 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.finance.credit.common.RestructuringClause;
-import com.opengamma.strata.finance.credit.common.SeniorityLevel;
 
 import java.io.InputStream;
 import java.util.List;
@@ -27,7 +24,7 @@ import java.util.Scanner;
 /**
  * Parser to load daily credit curve information provided by Markit
  * <p>
- * Date Ticker ShortName RedCode Tier
+ * Date Ticker ShortName MarkitRedCode Tier
  * Ccy DocClause Contributor Spread6m Spread1y
  * Spread2y Spread3y Spread4y Spread5y Spread7y
  * Spread10y Spread15y Spread20y Spread30y Recovery
@@ -38,7 +35,7 @@ import java.util.Scanner;
  * CompositeLevel2y CompositeLevel3y CompositeLevel4y CompositeLevel5y CompositeLevel7y
  * CompositeLevel10y CompositeLevel15y CompositeLevel20y CompositeLevel30y CompositeLevelRecovery
  */
-public class SingleNameCreditCurveDataParser {
+public class MarkitSingleNameCreditCurveDataParser {
 
   // Index used to access the specified columns of string data in the file
   private static final int s_redcode = 3;
@@ -61,8 +58,8 @@ public class SingleNameCreditCurveDataParser {
       Tenor.TENOR_30Y
   );
 
-  public static Map<SingleNameDataKey, List<Pair<Tenor, Double>>> parse(InputStream source) {
-    Map<SingleNameDataKey, List<Pair<Tenor, Double>>> result = Maps.newHashMap();
+  public static Map<MarkitSingleNameDataKey, List<Pair<Tenor, Double>>> parse(InputStream source) {
+    Map<MarkitSingleNameDataKey, List<Pair<Tenor, Double>>> result = Maps.newHashMap();
     Scanner scanner = new Scanner(source);
 
     while (scanner.hasNextLine()) {
@@ -70,12 +67,12 @@ public class SingleNameCreditCurveDataParser {
       String line = scanner.nextLine();
       String[] columns = line.split(",");
 
-      StandardId redCode = RedCode.id(columns[s_redcode]);
-      SeniorityLevel seniorityLevel = SeniorityLevel.valueOf(columns[s_tier]);
+      MarkitRedCode redCode = MarkitRedCode.of(columns[s_redcode]);
+      MarkitSeniorityLevel seniorityLevel = MarkitSeniorityLevel.valueOf(columns[s_tier]);
       Currency currency = Currency.parse(columns[s_currency]);
-      RestructuringClause restructuringClause = RestructuringClause.valueOf(columns[s_docclause]);
+      MarkitRestructuringClause restructuringClause = MarkitRestructuringClause.valueOf(columns[s_docclause]);
 
-      SingleNameDataKey key = SingleNameDataKey
+      MarkitSingleNameDataKey key = MarkitSingleNameDataKey
           .builder()
           .currency(currency)
           .restructuringClause(restructuringClause)

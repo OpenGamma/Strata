@@ -11,12 +11,12 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
 
-import static com.opengamma.strata.finance.credit.common.CdsDatesLogic.getCdsDateSet;
-import static com.opengamma.strata.finance.credit.common.CdsDatesLogic.getNextCdsDate;
-import static com.opengamma.strata.finance.credit.common.CdsDatesLogic.getNextIndexRollDate;
-import static com.opengamma.strata.finance.credit.common.CdsDatesLogic.getPrevCdsDate;
-import static com.opengamma.strata.finance.credit.common.CdsDatesLogic.isCdsDate;
-import static com.opengamma.strata.finance.credit.common.CdsDatesLogic.isIndexRollDate;
+import static com.opengamma.strata.finance.credit.CdsDatesLogic.getCdsDateSet;
+import static com.opengamma.strata.finance.credit.CdsDatesLogic.getNextCdsDate;
+import static com.opengamma.strata.finance.credit.CdsDatesLogic.getNextIndexRollDate;
+import static com.opengamma.strata.finance.credit.CdsDatesLogic.getPrevCdsDate;
+import static com.opengamma.strata.finance.credit.CdsDatesLogic.isCdsDate;
+import static com.opengamma.strata.finance.credit.CdsDatesLogic.isIndexRollDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;

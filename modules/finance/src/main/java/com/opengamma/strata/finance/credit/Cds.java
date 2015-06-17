@@ -7,13 +7,12 @@ package com.opengamma.strata.finance.credit;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.credit.fee.FeeLeg;
-import com.opengamma.strata.finance.credit.general.GeneralTerms;
+import com.opengamma.strata.finance.credit.reference.ReferenceInformation;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -48,11 +47,49 @@ public final class Cds
     implements CdsProduct, ImmutableBean, Serializable {
 
   /**
-   * This element contains all the data that appears in the section entitled "1. General Terms"
-   * in the 2003 ISDA Credit Derivatives Confirmation
+   * The first day of the term of the trade. This day may be subject to adjustment in accordance
+   * with a business day convention. ISDA 2003 Term: Effective Date
+   *
+   * This is typically the previous cds (qtr on 20th) date before trade date, adjusted.
    */
   @PropertyDefinition(validate = "notNull")
-  private final GeneralTerms generalTerms;
+  private final LocalDate startDate;
+
+  /**
+   * The scheduled date on which the credit protection will lapse. This day may be subject to
+   * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
+   *
+   * This is typically an unadjusted cds date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate endDate;
+
+  /**
+   * Indicator of whether we are buying or selling protection
+   * Buy means we are paying the fee leg payments and buying the protection
+   * Sell means we are receiving the fee leg payments and selling the protection
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final BuySell buySellProtection;
+
+  /**
+   * ISDA 2003 Terms: Business Day and Business Day Convention
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final BusinessDayConvention businessDayConvention;
+
+  /**
+   * Holiday Calendar to use in business day adjustments
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final HolidayCalendar holidayCalendar;
+
+  /**
+   * Contains information on reference entity/issue for single name or
+   * index information for index trades
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ReferenceInformation referenceInformation;
 
   /**
    * This element contains all the terms relevant to defining the fixed amounts/payments per
@@ -69,18 +106,9 @@ public final class Cds
 
   @Override
   public ExpandedCds expand() {
-    BusinessDayConvention businessdayAdjustmentConvention = getGeneralTerms().getBusinessDayAdjustment().getConvention();
-    HolidayCalendar calendar = getGeneralTerms().getBusinessDayAdjustment().getCalendar();
-    BusinessDayAdjustment businessDayAdjustment = getGeneralTerms().getBusinessDayAdjustment();
-    LocalDate accStartDate = businessDayAdjustment.adjust(
-        getGeneralTerms().getStartDate()
-    );
-    LocalDate endDate = getGeneralTerms().getEndDate();
-    boolean payAccOnDefault = isPayAccOnDefault();
     Period paymentInterval = getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
     StubConvention stubConvention = getFeeLeg().getPeriodicPayments().getStubConvention();
     DayCount accrualDayCount = getFeeLeg().getPeriodicPayments().getDayCount();
-    BuySell buySellProtection = getGeneralTerms().getBuySellProtection();
     double upfrontFeeAmount = getFeeLeg().getUpfrontFee().getFixedAmount().getAmount();
     LocalDate upfrontFeePaymentDate = getFeeLeg().getUpfrontFee().getPaymentDate();
     double coupon = getFeeLeg().getPeriodicPayments().getCoupon();
@@ -89,13 +117,13 @@ public final class Cds
 
     return ExpandedCds
         .builder()
-        .accStartDate(accStartDate)
+        .accStartDate(startDate)
         .endDate(endDate)
         .payAccOnDefault(payAccOnDefault)
         .paymentInterval(paymentInterval)
         .stubConvention(stubConvention)
-        .businessdayAdjustmentConvention(businessdayAdjustmentConvention)
-        .calendar(calendar)
+        .businessdayAdjustmentConvention(businessDayConvention)
+        .calendar(holidayCalendar)
         .accrualDayCount(accrualDayCount)
         .buySellProtection(buySellProtection)
         .accrualDayCount(accrualDayCount)
@@ -139,13 +167,28 @@ public final class Cds
   }
 
   private Cds(
-      GeneralTerms generalTerms,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySellProtection,
+      BusinessDayConvention businessDayConvention,
+      HolidayCalendar holidayCalendar,
+      ReferenceInformation referenceInformation,
       FeeLeg feeLeg,
       boolean payAccOnDefault) {
-    JodaBeanUtils.notNull(generalTerms, "generalTerms");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
+    JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
+    JodaBeanUtils.notNull(holidayCalendar, "holidayCalendar");
+    JodaBeanUtils.notNull(referenceInformation, "referenceInformation");
     JodaBeanUtils.notNull(feeLeg, "feeLeg");
     JodaBeanUtils.notNull(payAccOnDefault, "payAccOnDefault");
-    this.generalTerms = generalTerms;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.buySellProtection = buySellProtection;
+    this.businessDayConvention = businessDayConvention;
+    this.holidayCalendar = holidayCalendar;
+    this.referenceInformation = referenceInformation;
     this.feeLeg = feeLeg;
     this.payAccOnDefault = payAccOnDefault;
   }
@@ -167,12 +210,65 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets this element contains all the data that appears in the section entitled "1. General Terms"
-   * in the 2003 ISDA Credit Derivatives Confirmation
+   * Gets the first day of the term of the trade. This day may be subject to adjustment in accordance
+   * with a business day convention. ISDA 2003 Term: Effective Date
+   * 
+   * This is typically the previous cds (qtr on 20th) date before trade date, adjusted.
    * @return the value of the property, not null
    */
-  public GeneralTerms getGeneralTerms() {
-    return generalTerms;
+  public LocalDate getStartDate() {
+    return startDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the scheduled date on which the credit protection will lapse. This day may be subject to
+   * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
+   * 
+   * This is typically an unadjusted cds date.
+   * @return the value of the property, not null
+   */
+  public LocalDate getEndDate() {
+    return endDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets indicator of whether we are buying or selling protection
+   * Buy means we are paying the fee leg payments and buying the protection
+   * Sell means we are receiving the fee leg payments and selling the protection
+   * @return the value of the property, not null
+   */
+  public BuySell getBuySellProtection() {
+    return buySellProtection;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets iSDA 2003 Terms: Business Day and Business Day Convention
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getBusinessDayConvention() {
+    return businessDayConvention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets holiday Calendar to use in business day adjustments
+   * @return the value of the property, not null
+   */
+  public HolidayCalendar getHolidayCalendar() {
+    return holidayCalendar;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets contains information on reference entity/issue for single name or
+   * index information for index trades
+   * @return the value of the property, not null
+   */
+  public ReferenceInformation getReferenceInformation() {
+    return referenceInformation;
   }
 
   //-----------------------------------------------------------------------
@@ -210,7 +306,12 @@ public final class Cds
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Cds other = (Cds) obj;
-      return JodaBeanUtils.equal(getGeneralTerms(), other.getGeneralTerms()) &&
+      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+          JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getHolidayCalendar(), other.getHolidayCalendar()) &&
+          JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation()) &&
           JodaBeanUtils.equal(getFeeLeg(), other.getFeeLeg()) &&
           (isPayAccOnDefault() == other.isPayAccOnDefault());
     }
@@ -220,7 +321,12 @@ public final class Cds
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getGeneralTerms());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFeeLeg());
     hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
     return hash;
@@ -228,9 +334,14 @@ public final class Cds
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("Cds{");
-    buf.append("generalTerms").append('=').append(getGeneralTerms()).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("buySellProtection").append('=').append(getBuySellProtection()).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
+    buf.append("holidayCalendar").append('=').append(getHolidayCalendar()).append(',').append(' ');
+    buf.append("referenceInformation").append('=').append(getReferenceInformation()).append(',').append(' ');
     buf.append("feeLeg").append('=').append(getFeeLeg()).append(',').append(' ');
     buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccOnDefault()));
     buf.append('}');
@@ -248,10 +359,35 @@ public final class Cds
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code generalTerms} property.
+     * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<GeneralTerms> generalTerms = DirectMetaProperty.ofImmutable(
-        this, "generalTerms", Cds.class, GeneralTerms.class);
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
+        this, "startDate", Cds.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endDate} property.
+     */
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", Cds.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code buySellProtection} property.
+     */
+    private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
+        this, "buySellProtection", Cds.class, BuySell.class);
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> businessDayConvention = DirectMetaProperty.ofImmutable(
+        this, "businessDayConvention", Cds.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code holidayCalendar} property.
+     */
+    private final MetaProperty<HolidayCalendar> holidayCalendar = DirectMetaProperty.ofImmutable(
+        this, "holidayCalendar", Cds.class, HolidayCalendar.class);
+    /**
+     * The meta-property for the {@code referenceInformation} property.
+     */
+    private final MetaProperty<ReferenceInformation> referenceInformation = DirectMetaProperty.ofImmutable(
+        this, "referenceInformation", Cds.class, ReferenceInformation.class);
     /**
      * The meta-property for the {@code feeLeg} property.
      */
@@ -267,7 +403,12 @@ public final class Cds
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "generalTerms",
+        "startDate",
+        "endDate",
+        "buySellProtection",
+        "businessDayConvention",
+        "holidayCalendar",
+        "referenceInformation",
         "feeLeg",
         "payAccOnDefault");
 
@@ -280,8 +421,18 @@ public final class Cds
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1474273663:  // generalTerms
-          return generalTerms;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
+        case -405622799:  // buySellProtection
+          return buySellProtection;
+        case -1002835891:  // businessDayConvention
+          return businessDayConvention;
+        case -30625866:  // holidayCalendar
+          return holidayCalendar;
+        case -2117930783:  // referenceInformation
+          return referenceInformation;
         case -1278433112:  // feeLeg
           return feeLeg;
         case -988493655:  // payAccOnDefault
@@ -307,11 +458,51 @@ public final class Cds
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code generalTerms} property.
+     * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<GeneralTerms> generalTerms() {
-      return generalTerms;
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
+    }
+
+    /**
+     * The meta-property for the {@code endDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
+    }
+
+    /**
+     * The meta-property for the {@code buySellProtection} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BuySell> buySellProtection() {
+      return buySellProtection;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayConvention> businessDayConvention() {
+      return businessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code holidayCalendar} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<HolidayCalendar> holidayCalendar() {
+      return holidayCalendar;
+    }
+
+    /**
+     * The meta-property for the {@code referenceInformation} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ReferenceInformation> referenceInformation() {
+      return referenceInformation;
     }
 
     /**
@@ -334,8 +525,18 @@ public final class Cds
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1474273663:  // generalTerms
-          return ((Cds) bean).getGeneralTerms();
+        case -2129778896:  // startDate
+          return ((Cds) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((Cds) bean).getEndDate();
+        case -405622799:  // buySellProtection
+          return ((Cds) bean).getBuySellProtection();
+        case -1002835891:  // businessDayConvention
+          return ((Cds) bean).getBusinessDayConvention();
+        case -30625866:  // holidayCalendar
+          return ((Cds) bean).getHolidayCalendar();
+        case -2117930783:  // referenceInformation
+          return ((Cds) bean).getReferenceInformation();
         case -1278433112:  // feeLeg
           return ((Cds) bean).getFeeLeg();
         case -988493655:  // payAccOnDefault
@@ -361,7 +562,12 @@ public final class Cds
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Cds> {
 
-    private GeneralTerms generalTerms;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private BuySell buySellProtection;
+    private BusinessDayConvention businessDayConvention;
+    private HolidayCalendar holidayCalendar;
+    private ReferenceInformation referenceInformation;
     private FeeLeg feeLeg;
     private boolean payAccOnDefault;
 
@@ -376,7 +582,12 @@ public final class Cds
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Cds beanToCopy) {
-      this.generalTerms = beanToCopy.getGeneralTerms();
+      this.startDate = beanToCopy.getStartDate();
+      this.endDate = beanToCopy.getEndDate();
+      this.buySellProtection = beanToCopy.getBuySellProtection();
+      this.businessDayConvention = beanToCopy.getBusinessDayConvention();
+      this.holidayCalendar = beanToCopy.getHolidayCalendar();
+      this.referenceInformation = beanToCopy.getReferenceInformation();
       this.feeLeg = beanToCopy.getFeeLeg();
       this.payAccOnDefault = beanToCopy.isPayAccOnDefault();
     }
@@ -385,8 +596,18 @@ public final class Cds
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1474273663:  // generalTerms
-          return generalTerms;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
+        case -405622799:  // buySellProtection
+          return buySellProtection;
+        case -1002835891:  // businessDayConvention
+          return businessDayConvention;
+        case -30625866:  // holidayCalendar
+          return holidayCalendar;
+        case -2117930783:  // referenceInformation
+          return referenceInformation;
         case -1278433112:  // feeLeg
           return feeLeg;
         case -988493655:  // payAccOnDefault
@@ -399,8 +620,23 @@ public final class Cds
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1474273663:  // generalTerms
-          this.generalTerms = (GeneralTerms) newValue;
+        case -2129778896:  // startDate
+          this.startDate = (LocalDate) newValue;
+          break;
+        case -1607727319:  // endDate
+          this.endDate = (LocalDate) newValue;
+          break;
+        case -405622799:  // buySellProtection
+          this.buySellProtection = (BuySell) newValue;
+          break;
+        case -1002835891:  // businessDayConvention
+          this.businessDayConvention = (BusinessDayConvention) newValue;
+          break;
+        case -30625866:  // holidayCalendar
+          this.holidayCalendar = (HolidayCalendar) newValue;
+          break;
+        case -2117930783:  // referenceInformation
+          this.referenceInformation = (ReferenceInformation) newValue;
           break;
         case -1278433112:  // feeLeg
           this.feeLeg = (FeeLeg) newValue;
@@ -441,20 +677,80 @@ public final class Cds
     @Override
     public Cds build() {
       return new Cds(
-          generalTerms,
+          startDate,
+          endDate,
+          buySellProtection,
+          businessDayConvention,
+          holidayCalendar,
+          referenceInformation,
           feeLeg,
           payAccOnDefault);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code generalTerms} property in the builder.
-     * @param generalTerms  the new value, not null
+     * Sets the {@code startDate} property in the builder.
+     * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder generalTerms(GeneralTerms generalTerms) {
-      JodaBeanUtils.notNull(generalTerms, "generalTerms");
-      this.generalTerms = generalTerms;
+    public Builder startDate(LocalDate startDate) {
+      JodaBeanUtils.notNull(startDate, "startDate");
+      this.startDate = startDate;
+      return this;
+    }
+
+    /**
+     * Sets the {@code endDate} property in the builder.
+     * @param endDate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder endDate(LocalDate endDate) {
+      JodaBeanUtils.notNull(endDate, "endDate");
+      this.endDate = endDate;
+      return this;
+    }
+
+    /**
+     * Sets the {@code buySellProtection} property in the builder.
+     * @param buySellProtection  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder buySellProtection(BuySell buySellProtection) {
+      JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
+      this.buySellProtection = buySellProtection;
+      return this;
+    }
+
+    /**
+     * Sets the {@code businessDayConvention} property in the builder.
+     * @param businessDayConvention  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder businessDayConvention(BusinessDayConvention businessDayConvention) {
+      JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
+      this.businessDayConvention = businessDayConvention;
+      return this;
+    }
+
+    /**
+     * Sets the {@code holidayCalendar} property in the builder.
+     * @param holidayCalendar  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder holidayCalendar(HolidayCalendar holidayCalendar) {
+      JodaBeanUtils.notNull(holidayCalendar, "holidayCalendar");
+      this.holidayCalendar = holidayCalendar;
+      return this;
+    }
+
+    /**
+     * Sets the {@code referenceInformation} property in the builder.
+     * @param referenceInformation  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder referenceInformation(ReferenceInformation referenceInformation) {
+      JodaBeanUtils.notNull(referenceInformation, "referenceInformation");
+      this.referenceInformation = referenceInformation;
       return this;
     }
 
@@ -483,9 +779,14 @@ public final class Cds
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("Cds.Builder{");
-      buf.append("generalTerms").append('=').append(JodaBeanUtils.toString(generalTerms)).append(',').append(' ');
+      buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+      buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
+      buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(businessDayConvention)).append(',').append(' ');
+      buf.append("holidayCalendar").append('=').append(JodaBeanUtils.toString(holidayCalendar)).append(',').append(' ');
+      buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation)).append(',').append(' ');
       buf.append("feeLeg").append('=').append(JodaBeanUtils.toString(feeLeg)).append(',').append(' ');
       buf.append("payAccOnDefault").append('=').append(JodaBeanUtils.toString(payAccOnDefault));
       buf.append('}');

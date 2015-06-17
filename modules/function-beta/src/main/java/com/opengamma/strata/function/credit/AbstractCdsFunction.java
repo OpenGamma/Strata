@@ -15,7 +15,7 @@ import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;
-import com.opengamma.strata.finance.credit.general.reference.ReferenceInformationType;
+import com.opengamma.strata.finance.credit.reference.ReferenceInformationType;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 
 import java.util.Optional;
@@ -77,7 +77,7 @@ public abstract class AbstractCdsFunction<T>
 
     // Recovery Rate
 
-    ReferenceInformationType cdsType = cds.getGeneralTerms().getReferenceInformation().getType();
+    ReferenceInformationType cdsType = cds.getReferenceInformation().getType();
     switch (cdsType) {
       case SINGLE_NAME:
         break;

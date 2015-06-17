@@ -14,14 +14,13 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.finance.credit.api.TradeSource;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.finance.credit.common.RestructuringClause;
-import com.opengamma.strata.finance.credit.common.SeniorityLevel;
-import com.opengamma.strata.finance.credit.markit.RedCode;
+import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
 import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
 import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 public class ExampleTradeSource implements TradeSource {
 
@@ -40,9 +39,9 @@ public class ExampleTradeSource implements TradeSource {
                 BuySell.BUY,
                 100_000_000D,
                 0.0100,
-                RedCode.id("AH98A7"),
-                SeniorityLevel.SeniorUnSec,
-                RestructuringClause.XR,
+                MarkitRedCode.id("AH98A7"),
+                SeniorityLevel.SeniorUnsecuredForeign,
+                RestructuringClause.NoRestructuring2003,
                 3_694_117.73D,
                 LocalDate.of(2014, 10, 21)
             )
