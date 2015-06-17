@@ -56,6 +56,7 @@ public class CurveGammaCalculator {
    * This implementation only supports a single curve.
    * 
    * @param curve  the single curve to be bumped
+   * @param curveCurrency  the currency of the curve and resulting sensitivity
    * @param sensitivitiesFn  the function to convert the bumped curve to parameter sensitivities
    * @return the "sum-of-columns" or "semi-parallel" gamma vector
    */
@@ -79,7 +80,6 @@ public class CurveGammaCalculator {
    * Inner class to compute the delta for a given parallel shift of the curve.
    */
   static class Delta extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
-
     private final NodalCurve curve;
     private final Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn;
 

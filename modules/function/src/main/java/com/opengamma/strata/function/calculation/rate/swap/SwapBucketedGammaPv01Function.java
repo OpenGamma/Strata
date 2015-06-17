@@ -21,7 +21,6 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.Swap;
-import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.rate.MarketDataUtils;
 import com.opengamma.strata.market.curve.Curve;
@@ -43,8 +42,8 @@ import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
  * discounting and forecasting.
  */
 public class SwapBucketedGammaPv01Function
-    extends AbstractSwapFunction<CurveCurrencyParameterSensitivities>{
-  
+    extends AbstractSwapFunction<CurveCurrencyParameterSensitivities> {
+
   @Override
   public ScenarioResult<CurveCurrencyParameterSensitivities> execute(SwapTrade trade, CalculationMarketData marketData) {
     ExpandedSwap expandedSwap = trade.getProduct().expand();
@@ -56,53 +55,64 @@ public class SwapBucketedGammaPv01Function
 
   @Override
   protected CurveCurrencyParameterSensitivities execute(ExpandedSwap product, RatesProvider provider) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("execute(SwapTrade) overridden instead");
   }
-  
-  //-------------------------------------------------------------------------
-  private CurveCurrencyParameterSensitivities execute(
-      Swap swap, ExpandedSwap expandedSwap, SingleCalculationMarketData marketData) {
-    
-    Set<Currency> currencies = expandedSwap.getLegs().stream()
-        .map(SwapLeg::getCurrency)
-        .collect(toSet());
-    if (currencies.size() > 1) {
-      throw new IllegalArgumentException(
-          Messages.format("Implementation only supports a single curve, but swap is cross-currency: {}", currencies));
-    }
-    Currency currency = Iterables.getOnlyElement(currencies);
 
+  //-------------------------------------------------------------------------
+  // calculate the gamma sensitivity
+  private CurveCurrencyParameterSensitivities execute(
+      Swap swap,
+      ExpandedSwap expandedSwap,
+      SingleCalculationMarketData marketData) {
+
+    // find the curve and check it is valid
+    if (swap.isCrossCurrency()) {
+      throw new IllegalArgumentException("Implementation only supports a single curve, but swap is cross-currency");
+    }
+    Currency currency = swap.getLegs().get(0).getCurrency();
+    NodalCurve nodalCurve = findNodalCurve(marketData, currency);
+
+    // find indices and validate there is only one curve
+    Set<Index> indices = swap.allIndices();
+    validateSingleCurve(indices, marketData, nodalCurve);
+
+    // calculate gamma
+    CurveCurrencyParameterSensitivity gamma = CurveGammaCalculator.DEFAULT.calculateSemiParallelGamma(
+        nodalCurve, currency, c -> calculateCurveSensitivity(expandedSwap, currency, indices, marketData, c));
+    return CurveCurrencyParameterSensitivities.of(gamma).multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
+  }
+
+  // finds the discount curve and ensures it is a NodalCurve
+  private NodalCurve findNodalCurve(SingleCalculationMarketData marketData, Currency currency) {
     Curve curve = marketData.getValue(DiscountCurveKey.of(currency));
     if (!(curve instanceof NodalCurve)) {
-      throw new IllegalArgumentException(
-          Messages.format("Implementation only supports nodal curves; unsupported curve type: {}", curve.getClass().getSimpleName()));
+      throw new IllegalArgumentException(Messages.format(
+          "Implementation only supports nodal curves; unsupported curve type: {}", curve.getClass().getSimpleName()));
     }
-    NodalCurve nodalCurve = (NodalCurve) curve;
+    return (NodalCurve) curve;
+  }
 
-    Set<Index> indices = swap.allIndices();
+  // validates that the indices all resolve to the single specified curve
+  private void validateSingleCurve(Set<Index> indices, SingleCalculationMarketData marketData, NodalCurve nodalCurve) {
     Set<RateIndexCurveKey> differentForwardCurves = indices.stream()
         .map(MarketDataKeys::indexCurve)
-        .filter(k -> !curve.equals(marketData.getValue(k)))
+        .filter(k -> !nodalCurve.equals(marketData.getValue(k)))
         .collect(toSet());
     if (!differentForwardCurves.isEmpty()) {
       throw new IllegalArgumentException(
           Messages.format("Implementation only supports a single curve, but discounting curve is different from " +
               "index curves for indices: {}", differentForwardCurves));
     }
-    
-    CurveCurrencyParameterSensitivity gamma = CurveGammaCalculator.DEFAULT.calculateSemiParallelGamma(
-        nodalCurve, currency,
-        c -> getCurveSensitivity(expandedSwap, currency, indices, marketData, c));
-    return CurveCurrencyParameterSensitivities.of(gamma).multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
   }
-  
-  private CurveCurrencyParameterSensitivity getCurveSensitivity(
+
+  // calculates the sensitivity
+  private CurveCurrencyParameterSensitivity calculateCurveSensitivity(
       ExpandedSwap expandedSwap,
       Currency currency,
-      Set<Index> indices,
+      Set<? extends Index> indices,
       SingleCalculationMarketData marketData,
       NodalCurve bumpedCurve) {
-    
+
     RatesProvider ratesProvider = MarketDataUtils.toSingleCurveRatesProvider(marketData, currency, indices, bumpedCurve);
     PointSensitivities pointSensitivities = pricer().presentValueSensitivity(expandedSwap, ratesProvider).build();
     CurveCurrencyParameterSensitivities paramSensitivities = ratesProvider.curveParameterSensitivity(pointSensitivities);

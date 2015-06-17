@@ -154,7 +154,7 @@ public class CurveGammaCalculatorTest {
     CurveCurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.curveParameterSensitivity(pointSensitivities);
     return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
   }
-  
+
   // swap USD standard conventions- TODO: replace by a template when available
   private static Swap swapUsd(LocalDate start, LocalDate end, PayReceive payReceive,
       NotionalSchedule notional, double fixedRate) {

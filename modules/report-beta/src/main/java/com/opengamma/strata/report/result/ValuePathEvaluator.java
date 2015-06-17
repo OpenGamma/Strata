@@ -45,7 +45,7 @@ public class ValuePathEvaluator {
       new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
       new BeanTokenEvaluator(),
       new IterableTokenEvaluator());
-  
+
   /**
    * Gets the measure encoded in a value path, if present. 
    * 
@@ -65,7 +65,7 @@ public class ValuePathEvaluator {
       return Optional.empty();
     }
   }
-  
+
   /**
    * Evaluates a value path against a set of results, returning the resolved result for
    * each trade.
@@ -108,7 +108,7 @@ public class ValuePathEvaluator {
         .map(r -> evaluate(r, new LinkedList<String>(tokens)))
         .collect(Collectors.toList());
   }
-  
+
   /**
    * Gets the supported tokens on the given object.
    * 
@@ -134,7 +134,7 @@ public class ValuePathEvaluator {
     }
     return tokens;
   }
-  
+
   //-------------------------------------------------------------------------
   // splits a value path into tokens for processing
   private Queue<String> tokenize(String valuePath) {
@@ -169,7 +169,7 @@ public class ValuePathEvaluator {
     }
     return i -> results.getCalculationResults().get(i, columnIdx);
   }
-  
+
   // evaluates a sequence of tokens against a result
   private Result<?> evaluate(Result<?> rootResult, Queue<String> tokens) {
     Result<?> result = rootResult;
@@ -204,7 +204,7 @@ public class ValuePathEvaluator {
         .map(e -> (TokenEvaluator<Object>) e)
         .findFirst();
   }
-  
+
   private boolean isTypeSpecificEvaluator(Optional<TokenEvaluator<Object>> evaluator) {
     return evaluator.isPresent() && !Bean.class.equals(evaluator.get().getTargetType());
   }
