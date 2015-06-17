@@ -12,7 +12,6 @@ package com.opengamma.strata.examples.finance;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.util.ArrayUtils;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.examples.finance.credit.ExampleCalculator;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,9 +49,9 @@ public class CdsPricingExample {
   public static void main(String[] args) {
     logger.info("PV is " + calcPv());
     logger.info("IR01 parallel par is " + calcIr01ParallelPar());
-    logger.info("IR01 bucketed par is " + join(calcIr01BucketedPar()));
+    logger.info("IR01 bucketed par is " + join(calcIr01BucketedParSens()));
     logger.info("CS01 parallel par is " + calcCs01ParallelPar());
-    logger.info("CS01 bucketed par is " + join(calcCs01BucketedPar()));
+    logger.info("CS01 bucketed par is " + join(calcCs01BucketedParSens()));
     calcMeasuresAndReportToAsciiToLogger();
   }
 
@@ -65,7 +63,11 @@ public class CdsPricingExample {
     return calc.calculateScalarValue(valuationDate, trades, ir01ParallelPar);
   }
 
-  public static List<Pair<String, Double>> calcIr01BucketedPar() {
+  public static double[] calcIr01BucketedPar() {
+    return calc.calculateVectorValue(valuationDate, trades, ir01BucketedPar);
+  }
+
+  public static List<Pair<String, Double>> calcIr01BucketedParSens() {
     return calc.calculateSensitivityValue(valuationDate, trades, ir01BucketedPar);
   }
 
@@ -73,7 +75,11 @@ public class CdsPricingExample {
     return calc.calculateScalarValue(valuationDate, trades, cs01ParallelPar);
   }
 
-  public static List<Pair<String, Double>> calcCs01BucketedPar() {
+  public static double[] calcCs01BucketedPar() {
+    return calc.calculateVectorValue(valuationDate, trades, cs01BucketedPar);
+  }
+
+  public static List<Pair<String, Double>> calcCs01BucketedParSens() {
     return calc.calculateSensitivityValue(valuationDate, trades, cs01BucketedPar);
   }
 
@@ -93,7 +99,7 @@ public class CdsPricingExample {
         .stream()
         .map(
             s -> String.format(
-                    "%s -> %s",
+                "%s -> %s",
                 s.getFirst(),
                 s.getSecond()
             )
