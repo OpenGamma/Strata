@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.rate;
 import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.rate.DispatchingRateObservationFn;
 
@@ -69,5 +70,25 @@ public interface RateObservationFn<T extends RateObservation> {
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider);
+
+  /**
+   * Explains the calculation of the applicable rate.
+   * <p>
+   * This adds information to the {@link ExplainMapBuilder} to aid understanding of the observation.
+   * The actual rate is also returned.
+   * 
+   * @param observation  the rate to be observed
+   * @param startDate  the start date of the accrual period
+   * @param endDate  the end date of the accrual period
+   * @param provider  the rates provider
+   * @param builder  the builder to populate
+   * @return the applicable rate
+   */
+  public abstract double explainRate(
+      T observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider,
+      ExplainMapBuilder builder);
 
 }
