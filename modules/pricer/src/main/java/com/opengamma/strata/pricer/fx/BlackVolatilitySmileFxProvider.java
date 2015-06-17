@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
@@ -38,8 +37,8 @@ import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
  * <p>
  * The volatility is represented by a term structure of interpolated smile, 
- * {@link SmileDeltaTermStructureParametersStrikeInterpolation}, which represents expiration dependent smile 
- * from ATM, risk reversal and strangle as used in FX market.
+ * {@link SmileDeltaTermStructureParametersStrikeInterpolation}, which represents expiration dependent smile formed of
+ * ATM, risk reversal and strangle as used in FX market.
  */
 @BeanDefinition
 public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxProvider, ImmutableBean {
@@ -47,7 +46,7 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
   /**
    * The volatility model. 
    * <p>
-   * This represents expiration dependent smile from ATM, risk reversal and strangle as used in FX market.
+   * This represents expiration dependent smile which consists of ATM, risk reversal and strangle as used in FX market.
    */
   @PropertyDefinition(validate = "notNull")
   private final SmileDeltaTermStructureParametersStrikeInterpolation smile;
@@ -107,17 +106,24 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
   @Override
   public Map<DoublesPair, Double> nodeSensitivity(FxOptionSensitivity point) {
     double expiryTime = relativeTime(point.getExpiryDate(), null, null); // TODO: time and zone
+    double strike = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getStrike() : point.getStrike();
+    double forward = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getForward() : point.getForward();
     Map<DoublesPair, Double> result = new HashMap<>();
     double[][] bucketedSensi = smile.getVolatilityAndSensitivities(
-        expiryTime, point.getStrike(), point.getForward()).getBucketedSensitivities();
+        expiryTime, strike, forward).getBucketedSensitivities();
     double[] times = smile.getTimeToExpiration();
     int nTimes = times.length;
     for (int i = 0; i < nTimes; ++i) {
-      SmileDeltaParameters singleSmile = smile.getVolatilityTerm()[i];
-      double[] deltas = singleSmile.getDelta();
+      double[] deltas = smile.getVolatilityTerm()[i].getDelta();
       int nDeltas = deltas.length;
+      int nDeltasTotal = 2 * nDeltas + 1;
+      double[] deltasTotal = new double[nDeltasTotal];
       for (int j = 0; j < nDeltas; ++j) {
-        result.put(DoublesPair.of(times[i], deltas[j]), bucketedSensi[i][j]);
+        deltasTotal[j] = -deltas[j];
+        deltasTotal[2 * nDeltas - j] = deltas[j];
+      }
+      for (int j = 0; j < nDeltasTotal; ++j) {
+        result.put(DoublesPair.of(times[i], deltasTotal[j]), bucketedSensi[i][j]);
       }
     }
     return result;
@@ -179,7 +185,7 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
   /**
    * Gets the volatility model.
    * <p>
-   * This represents expiration dependent smile from ATM, risk reversal and strangle as used in FX market.
+   * This represents expiration dependent smile which consists of ATM, risk reversal and strangle as used in FX market.
    * @return the value of the property, not null
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation getSmile() {
