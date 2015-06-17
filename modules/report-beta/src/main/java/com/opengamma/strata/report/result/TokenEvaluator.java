@@ -16,6 +16,8 @@ import com.opengamma.strata.collect.result.Result;
  * Evaluates a token against an object to produce another object.
  * <p>
  * The token may be part of an expression which traverses a graph of objects.
+ * 
+ * @param <T>  the type of the target
  */
 public abstract class TokenEvaluator<T> {
 

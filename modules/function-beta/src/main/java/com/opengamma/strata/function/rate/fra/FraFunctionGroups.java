@@ -28,6 +28,7 @@ public final class FraFunctionGroups {
           .addFunction(Measure.PRESENT_VALUE, FraPvFunction.class)
           .addFunction(Measure.PV01, FraPv01Function.class)
           .addFunction(Measure.BUCKETED_PV01, FraBucketedPv01Function.class)
+          .addFunction(Measure.BUCKETED_GAMMA_PV01, FraBucketedGammaPv01Function.class)
           .build();
 
   /**
@@ -47,6 +48,8 @@ public final class FraFunctionGroups {
    *   <li>{@linkplain Measure#PAR_SPREAD Par spread}
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
    *   <li>{@linkplain Measure#PV01 PV01}
+   *   <li>{@linkplain Measure#BUCKETED_PV01 Bucketed PV01}
+   *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Bucketed Gamma PV01}
    * </ul>
    * 
    * @return the function group
