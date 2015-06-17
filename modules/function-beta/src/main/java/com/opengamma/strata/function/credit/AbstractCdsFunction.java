@@ -8,6 +8,7 @@ package com.opengamma.strata.function.credit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
@@ -15,10 +16,12 @@ import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;
-import com.opengamma.strata.finance.credit.reference.ReferenceInformationType;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
+import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.MarketDataKeys;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
@@ -71,28 +74,50 @@ public abstract class AbstractCdsFunction<T>
   public CalculationRequirements requirements(CdsTrade trade) {
     Cds cds = trade.getProduct();
 
-    // Discount Curve
+    Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
+    Currency feeCurrency = cds.getFeeLeg().getUpfrontFee().getFixedAmount().getCurrency();
+//    Set<ObservableKey> indexRateKeys =
+//        indices.stream()
+//            .map(IndexRateKey::of)
+//            .collect(toImmutableSet());
+//
+//    Set<MarketDataKey<?>> indexCurveKeys =
+//        indices.stream()
+//            .map(MarketDataKeys::indexCurve)
+//            .collect(toImmutableSet());
+//
+//    Set<DiscountFactorsKey> discountCurveKeys =
+//        swap.getLegs().stream()
+//            .map(SwapLeg::getCurrency)
+//            .map(DiscountFactorsKey::of)
+//            .collect(toImmutableSet());
 
-    // Credit Curve
+    Set<DiscountFactorsKey> rateCurveKey = ImmutableSet.of(MarketDataKeys.discountFactors(notionalCurrency), MarketDataKeys.discountFactors(feeCurrency));
 
-    // Recovery Rate
+    Set<MarketDataKey<?>> spreadCurveKey = ImmutableSet.of();
 
-    ReferenceInformationType cdsType = cds.getReferenceInformation().getType();
-    switch (cdsType) {
-      case SINGLE_NAME:
-        break;
-      case INDEX:
-        // Index Factor?
-        break;
-      default:
-        throw new IllegalStateException("unknown reference information type: " + cdsType);
-    }
-
+    // TODO recovery rate and index factor
     return CalculationRequirements.builder()
-        .singleValueRequirements(Sets.newHashSet())
-        .timeSeriesRequirements()
-        .outputCurrencies(ImmutableSet.of(cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency()))
+        .singleValueRequirements(Sets.union(rateCurveKey, spreadCurveKey))
+        .outputCurrencies(ImmutableSet.of(notionalCurrency, feeCurrency))
         .build();
+
+//    ReferenceInformationType cdsType = cds.getReferenceInformation().getType();
+//    switch (cdsType) {
+//      case SINGLE_NAME:
+//        break;
+//      case INDEX:
+//        // Index Factor?
+//        break;
+//      default:
+//        throw new IllegalStateException("unknown reference information type: " + cdsType);
+//    }
+//
+//    return CalculationRequirements.builder()
+//        .singleValueRequirements(Sets.newHashSet())
+//        .timeSeriesRequirements()
+//        .outputCurrencies(ImmutableSet.of(cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency()))
+//        .build();
   }
 
   /**

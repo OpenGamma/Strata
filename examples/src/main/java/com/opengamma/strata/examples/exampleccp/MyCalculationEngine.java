@@ -6,19 +6,19 @@
 package com.opengamma.strata.examples.exampleccp;
 
 import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.DefaultCalculationEngine;
 import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.DefaultCalculationRunner;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.examples.exampleccp.marketdatafunctions.MyDiscountCurveFunction;
-import com.opengamma.strata.examples.exampleccp.marketdatafunctions.MyForecastCurveFunction;
-import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessObservableMarketDataFunction;
-import com.opengamma.strata.examples.exampleccp.uselessboilerplate.MyUselessTimeSeriesProvider;
-import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
+import com.opengamma.strata.examples.exampleccp.marketdatafunctions.MyRateIndexCurveMarketDataFunction;
+import com.opengamma.strata.examples.exampleccp.marketdatafunctions.MyZeroRateDiscountFactorsMarketDataFunction;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,16 +36,15 @@ public final class MyCalculationEngine {
     ExecutorService executor = createExecutor();
     CalculationRunner calcRunner = new DefaultCalculationRunner(executor);
 
-    // create the market data factory, that builds market data
-    FeedIdMapping uselessFeedIdMapping = FeedIdMapping.identity();
-    MarketDataFunction<?,?> uselessExtraFunction = new ZeroRateDiscountFactorsMarketDataFunction();
+    TimeSeriesProvider tsProvider = id -> Result.success(LocalDateDoubleTimeSeries.empty());
+    // create the market data factory that builds market data
     MarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
-        MyUselessTimeSeriesProvider.create(),
-        MyUselessObservableMarketDataFunction.create(),
-        uselessFeedIdMapping,
-        MyDiscountCurveFunction.create(),
-        MyForecastCurveFunction.create(),
-        uselessExtraFunction);
+        tsProvider,
+        ObservableMarketDataFunction.none(),
+        FeedIdMapping.identity(),
+        MyZeroRateDiscountFactorsMarketDataFunction.create(),
+        MyRateIndexCurveMarketDataFunction.create()
+    );
 
     // combine the runner and market data factory
     return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());

@@ -53,10 +53,6 @@ public class TestHarness {
       );
     }
 
-    public static TradeFactory withBaseTrade() {
-      return new TradeFactory(BuySell.BUY, 3_694_117.73D, LocalDate.of(2014, 10, 21));
-    }
-
     public static TradeFactory withTrade(BuySell buySell, double feeAmount, LocalDate cashSettleDate) {
       return new TradeFactory(buySell, feeAmount, cashSettleDate);
     }
