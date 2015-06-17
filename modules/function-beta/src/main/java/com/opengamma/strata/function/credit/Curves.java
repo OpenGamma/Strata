@@ -54,7 +54,9 @@ public class Curves {
       "2Y,0.0028",
       "3Y,0.0028",
       "4Y,0.0028",
-      "5Y,0.0028"
+      "5Y,0.0028",
+      "7Y,0.0028",
+      "10Y,0.0028"
   );
 
   public static int numOfYieldCurvePoints() {

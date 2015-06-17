@@ -101,7 +101,7 @@ public class CdsAnalyticsWrapper {
     if (amount == 0D) {
       return 0D; // no fee
     }
-    if (paymentDate.isBefore(valuationDate)) {
+    if (!paymentDate.isAfter(valuationDate)) {
       return 0D; // fee already paid
     }
     double feeSettleYearFraction = s_curveDayCount.yearFraction(valuationDate, paymentDate);
