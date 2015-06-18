@@ -79,7 +79,8 @@ public class SwapPricingExample {
         Column.of(Measure.LEG_PRESENT_VALUE),
         Column.of(Measure.PV01),
         Column.of(Measure.PAR_RATE),
-        Column.of(Measure.ACCRUED_INTEREST));
+        Column.of(Measure.ACCRUED_INTEREST),
+        Column.of(Measure.BUCKETED_PV01));
 
     // use the built-in example market data
     MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();

@@ -11,8 +11,8 @@ import com.beust.jcommander.IStringConverter;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.report.MasterReportTemplateIniLoader;
 import com.opengamma.strata.report.ReportTemplate;
-import com.opengamma.strata.report.trade.TradeReportTemplateIniLoader;
 
 /**
  * Parameter converter for {@link ReportTemplate}.
@@ -25,8 +25,7 @@ public class ReportTemplateParameterConverter implements IStringConverter<Report
     CharSource charSource = ResourceLocator.ofFile(file).getCharSource();
     IniFile ini = IniFile.of(charSource);
 
-    // TODO - support for other report template types
-    TradeReportTemplateIniLoader loader = new TradeReportTemplateIniLoader();
+    MasterReportTemplateIniLoader loader = new MasterReportTemplateIniLoader();
     return loader.load(ini);
   }
 

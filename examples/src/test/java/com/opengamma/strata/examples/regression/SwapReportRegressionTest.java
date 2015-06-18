@@ -92,7 +92,7 @@ public class SwapReportRegressionTest {
 
     String expectedResults = ExampleData.loadExpectedResults("swap-report");
 
-    TradeReportRegressionTestUtils.assertAsciiTableEquals(tradeReport.getAsciiTable(), expectedResults);
+    TradeReportRegressionTestUtils.assertAsciiTableEquals(tradeReport.toAsciiTableString(), expectedResults);
   }
 
   private static Trade createTrade1() {

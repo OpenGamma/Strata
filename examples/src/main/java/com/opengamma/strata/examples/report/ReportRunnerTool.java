@@ -30,6 +30,9 @@ import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.ReportRequirements;
 import com.opengamma.strata.report.ReportRunner;
 import com.opengamma.strata.report.ReportTemplate;
+import com.opengamma.strata.report.cashflow.CashFlowReportRunner;
+import com.opengamma.strata.report.cashflow.CashFlowReportTemplate;
+import com.opengamma.strata.report.format.ReportOutputFormat;
 import com.opengamma.strata.report.trade.TradeReportRunner;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
 
@@ -50,8 +53,8 @@ public class ReportRunnerTool {
   @Parameter(names = {"-d", "--date"}, description = "Valuation date, YYYY-MM-DD", required = true, converter = LocalDateParameterConverter.class)
   private LocalDate valuationDate;
 
-  @Parameter(names = {"-f", "--format"}, description = "Output type, ascii or csv", converter = ReportOutputTypeParameterConverter.class)
-  private ReportOutputType outputType = ReportOutputType.ASCII_TABLE;
+  @Parameter(names = {"-f", "--format"}, description = "Report output format, ascii or csv", converter = ReportOutputFormatParameterConverter.class)
+  private ReportOutputFormat format = ReportOutputFormat.ASCII_TABLE;
 
   @Parameter(names = {"-h", "--help"}, description = "Displays this message", help = true)
   private boolean help;
@@ -89,7 +92,7 @@ public class ReportRunnerTool {
 
     Report report = reportRunner.runReport(calculationResults, template);
 
-    switch (outputType) {
+    switch (format) {
       case ASCII_TABLE:
         report.writeAsciiTable(System.out);
         break;
@@ -127,9 +130,11 @@ public class ReportRunnerTool {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private ReportRunner<ReportTemplate> getReportRunner(ReportTemplate reportTemplate) {
+    // double-casts to achieve result type, allowing report runner to be used without external knowledge of template type
     if (reportTemplate instanceof TradeReportTemplate) {
-      // double-cast to achieve result type, allowing report runner to be used without external knowledge of template type
       return (ReportRunner) new TradeReportRunner();
+    } else if (reportTemplate instanceof CashFlowReportTemplate) {
+      return (ReportRunner) new CashFlowReportRunner();
     }
     throw new IllegalArgumentException(Messages.format("Unsupported report type: {}", reportTemplate.getClass().getSimpleName()));
   }
