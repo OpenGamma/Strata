@@ -41,7 +41,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
     Set<String> validTokens = valuePathEvaluator.tokens(object);
     if (validTokens.isEmpty()) {
       if (object instanceof double[]) {
-        return Messages.format("<{}> - drilling into this type is not supported: {}",
+        return Messages.format("<{}> - {}",
             object.getClass().getSimpleName(),
             formatDoubleArray(object));
       } else {
@@ -54,7 +54,6 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
       return Messages.format("<{}> - drill down using a field: {}",
           object.getClass().getSimpleName(), orderedTokens);
     }
-
   }
 
   private String formatDoubleArray(Object object) {

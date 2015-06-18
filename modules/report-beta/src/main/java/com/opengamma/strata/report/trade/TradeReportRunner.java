@@ -50,7 +50,7 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
         .map(c -> c.getHeader())
         .toArray(i -> new String[i]);
     
-    Result<?>[][] resultsTable = new Result<?>[results.getCalculationResults().getRowCount()][reportTemplate
+    Result<?>[][] dataTable = new Result<?>[results.getCalculationResults().getRowCount()][reportTemplate
         .getColumns().size()];
 
     for (int reportColumnIdx = 0; reportColumnIdx < reportTemplate.getColumns().size(); reportColumnIdx++) {
@@ -63,8 +63,8 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
             .mapToObj(i -> Result.failure(FailureReason.INVALID_INPUT, "No value specified in report template"))
             .collect(Collectors.toList());
       }
-      for (int rowIdx = 0; rowIdx < resultsTable.length; rowIdx++) {
-        resultsTable[rowIdx][reportColumnIdx] = columnResults.get(rowIdx);
+      for (int rowIdx = 0; rowIdx < dataTable.length; rowIdx++) {
+        dataTable[rowIdx][reportColumnIdx] = columnResults.get(rowIdx);
       }
     }
 
@@ -73,7 +73,7 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
         .valuationDate(results.getValuationDate())
         .columns(reportTemplate.getColumns())
         .columnHeaders(columnHeaders)
-        .results(resultsTable)
+        .data(dataTable)
         .build();
   }
 
