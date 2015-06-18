@@ -10,10 +10,21 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.examples.finance.IsdaYieldCurveParRates;
+import com.opengamma.strata.examples.finance.IsdaYieldCurveParRatesId;
+import com.opengamma.strata.examples.finance.IsdaYieldCurveUnderlyingType;
+import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
+import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
+import com.opengamma.strata.function.credit.CurveYieldPlaceholder;
+import com.opengamma.strata.function.credit.Curves;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +175,7 @@ public abstract class MarketDataBuilder {
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadFxRates(builder);
+    loadCreditCurves(builder, marketDataDate);
     return builder.build();
   }
 
@@ -256,6 +268,51 @@ public abstract class MarketDataBuilder {
   private void loadFxRates(BaseMarketDataBuilder builder) {
     // TODO - load from CSV file - format to be defined
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
+  }
+
+  private void loadCreditCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    ImmutableList<String> raytheon20141020Ir = ImmutableList.of(
+        "1M,M,0.001535",
+        "2M,M,0.001954",
+        "3M,M,0.002281",
+        "6M,M,0.003217",
+        "1Y,M,0.005444",
+        "2Y,S,0.005905",
+        "3Y,S,0.009555",
+        "4Y,S,0.012775",
+        "5Y,S,0.015395",
+        "6Y,S,0.017445",
+        "7Y,S,0.019205",
+        "8Y,S,0.020660",
+        "9Y,S,0.021885",
+        "10Y,S,0.022940",
+        "12Y,S,0.024615",
+        "15Y,S,0.026300",
+        "20Y,S,0.027950",
+        "25Y,S,0.028715",
+        "30Y,S,0.029160"
+    );
+    double[] rates = raytheon20141020Ir
+        .stream()
+        .mapToDouble(s -> Double.valueOf(s.split(",")[2]))
+        .toArray();
+    Period[] yieldCurvePoints = raytheon20141020Ir
+        .stream()
+        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
+        .toArray(Period[]::new);
+    IsdaYieldCurveUnderlyingType[] yieldCurveInstruments = raytheon20141020Ir
+        .stream()
+        .map(s -> (s.split(",")[1].equals("M") ? IsdaYieldCurveUnderlyingType.MONEY_MARKET : IsdaYieldCurveUnderlyingType.SWAP))
+        .toArray(IsdaYieldCurveUnderlyingType[]::new);
+    builder.addValue(
+        IsdaYieldCurveParRatesId.of(Currency.USD),
+        IsdaYieldCurveParRates.of(
+            yieldCurvePoints,
+            yieldCurveInstruments,
+            rates,
+            IsdaYieldCurveConventions.northAmericanUsd
+        )
+    );
   }
 
   //-------------------------------------------------------------------------

@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.opengamma.strata.examples.finance.IsdaYieldCurveParRatesId;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
@@ -74,7 +75,8 @@ public class MarketDataBuilderTest {
       RateIndexCurveId.of(IborIndices.GBP_LIBOR_3M, DEFAULT_CURVE_GROUP),
       ZeroRateDiscountFactorsId.of(Currency.USD, DEFAULT_CURVE_GROUP, MarketDataFeed.NONE),
       ZeroRateDiscountFactorsId.of(Currency.GBP, DEFAULT_CURVE_GROUP, MarketDataFeed.NONE),
-      FxRateId.of(Currency.USD, Currency.GBP));
+      FxRateId.of(Currency.USD, Currency.GBP),
+      IsdaYieldCurveParRatesId.of(Currency.USD));
 
   public void test_directory() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();

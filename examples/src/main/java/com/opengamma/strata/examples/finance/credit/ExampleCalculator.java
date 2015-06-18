@@ -29,6 +29,7 @@ import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.finance.credit.api.Calculator;
 import com.opengamma.strata.examples.finance.credit.api.TradeSource;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
+import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -94,21 +95,17 @@ public class ExampleCalculator implements Calculator {
 
     List<Column> columns = measures.stream().map(s -> Column.of(s)).collect(Collectors.toList());
 
+    // use the built-in example market data
+    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
-        .marketDataRules(ExampleMarketData.builder().rules())
+        .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
-    // Use an empty snapshot of market data, indicating only the valuation date.
-    // The engine will attempt to source the data for us, which the example engine is
-    // configured to load from JSON resources. We could alternatively populate the snapshot
-    // with some or all of the required market data here.
-    // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
-    BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
-        .build();
+    BaseMarketData baseMarketData =  marketDataBuilder.buildSnapshot(valuationDate);
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
