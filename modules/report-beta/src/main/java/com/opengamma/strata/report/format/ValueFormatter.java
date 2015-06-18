@@ -7,6 +7,8 @@ package com.opengamma.strata.report.format;
 
 /**
  * Formats a value into a string.
+ * 
+ * @param <T>  the type of the value
  */
 public interface ValueFormatter<T> {
 

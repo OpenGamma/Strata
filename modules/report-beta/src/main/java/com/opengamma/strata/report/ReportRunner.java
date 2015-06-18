@@ -10,6 +10,8 @@ package com.opengamma.strata.report;
  * <p>
  * A report is a transformation from trade and/or aggregate calculation results into a
  * specific business format.
+ * 
+ * @param <T>  the type of the report template
  */
 public interface ReportRunner<T extends ReportTemplate> {
 
