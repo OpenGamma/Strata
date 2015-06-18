@@ -16,15 +16,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.examples.finance.IsdaYieldCurveParRates;
-import com.opengamma.strata.examples.finance.IsdaYieldCurveParRatesId;
-import com.opengamma.strata.examples.finance.IsdaYieldCurveUnderlyingType;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
-import com.opengamma.strata.function.credit.CurveYieldPlaceholder;
-import com.opengamma.strata.function.credit.Curves;
+
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
+import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

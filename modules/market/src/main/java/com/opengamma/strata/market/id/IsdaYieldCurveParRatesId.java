@@ -3,10 +3,11 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance;
+package com.opengamma.strata.market.id;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;

@@ -7,7 +7,7 @@
  *
  */
 
-package com.opengamma.strata.examples.finance;
+package com.opengamma.strata.market.curve;
 
 public enum IsdaYieldCurveUnderlyingType {
   MONEY_MARKET,

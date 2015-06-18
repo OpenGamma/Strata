@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.finance;
+package com.opengamma.strata.market.curve;
 
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import org.joda.beans.Bean;
