@@ -60,39 +60,42 @@ public class CdsPricingExample {
     calcMeasuresAndReportToAsciiToLogger();
   }
 
-  public static double calcPv() {
+  // --------------------------------------------------------------------
+  // package private helper functions for implementation and unit testing
+
+  static double calcPv() {
     return calc.calculateScalarValue(valuationDate, trades, pv);
   }
 
-  public static double calcIr01ParallelPar() {
+  static double calcIr01ParallelPar() {
     return calc.calculateScalarValue(valuationDate, trades, ir01ParallelPar);
   }
 
-  public static double[] calcIr01BucketedPar() {
+  static double[] calcIr01BucketedPar() {
     return calc.calculateVectorValue(valuationDate, trades, ir01BucketedPar);
   }
 
-  public static List<Pair<String, Double>> calcIr01BucketedParSens() {
+  static List<Pair<String, Double>> calcIr01BucketedParSens() {
     return calc.calculateSensitivityValue(valuationDate, trades, ir01BucketedPar);
   }
 
-  public static double calcCs01ParallelPar() {
+  static double calcCs01ParallelPar() {
     return calc.calculateScalarValue(valuationDate, trades, cs01ParallelPar);
   }
 
-  public static double[] calcCs01BucketedPar() {
+  static double[] calcCs01BucketedPar() {
     return calc.calculateVectorValue(valuationDate, trades, cs01BucketedPar);
   }
 
-  public static List<Pair<String, Double>> calcCs01BucketedParSens() {
+  static List<Pair<String, Double>> calcCs01BucketedParSens() {
     return calc.calculateSensitivityValue(valuationDate, trades, cs01BucketedPar);
   }
 
-  public static void calcMeasuresAndReportToAsciiToLogger() {
+  static void calcMeasuresAndReportToAsciiToLogger() {
     reporter.reportAsciiToLogger(calc.calculateReportingResults(valuationDate, trades, measures));
   }
 
-  public static void calcMeasuresAndReportToCsvToLogger() {
+  static void calcMeasuresAndReportToCsvToLogger() {
     reporter.reportCsvToLogger(calc.calculateReportingResults(valuationDate, trades, measures));
   }
 

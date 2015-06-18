@@ -111,9 +111,9 @@ public class TestHarness {
 
     public void on(LocalDate valuationDate) {
       double[] values = calculator.calculateVectorValue(valuationDate, tradeSource, measure);
-      for (double value : values) {
-        System.out.println(value + ",");
-      }
+//      for (double value : values) {
+//        System.out.println(value + ",");
+//      }
       Assert.assertEquals(Arrays.asList(values), Arrays.asList(expected));
     }
   }
