@@ -34,6 +34,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -481,7 +482,8 @@ public class DiscountingFraProductPricerTest {
     InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of("GBP-Discount", time_gbp, rate_gbp, interp);
     double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0};
     double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165};
-    InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of("GBP-GBPIBOR3M", time_index, rate_index, interp);
+    InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of(
+        CurveName.of("GBP-GBPIBOR3M"), ACT_ACT_ISDA, time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(GBP, dscCurve))

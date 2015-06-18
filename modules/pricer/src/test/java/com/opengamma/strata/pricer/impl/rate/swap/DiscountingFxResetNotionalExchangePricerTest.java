@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -62,10 +63,12 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   static {
     double[] time_gbp = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
     double[] rate_gbp = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210};
-    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of("GBP-Discount", time_gbp, rate_gbp, INTERPOLATOR);
+    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
+        CurveName.of("GBP-Discount"), ACT_ACT_ISDA, time_gbp, rate_gbp, INTERPOLATOR);
     double[] time_usd = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
     double[] rate_usd = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
-    DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of("USD-Discount", time_usd, rate_usd, INTERPOLATOR);
+    DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of(
+        CurveName.of("USD-Discount"), ACT_ACT_ISDA, time_usd, rate_usd, INTERPOLATOR);
   }
 
   private static final double EPS_FD = 1.0e-7;

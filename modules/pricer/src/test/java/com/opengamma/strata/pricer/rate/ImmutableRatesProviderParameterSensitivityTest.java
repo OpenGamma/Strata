@@ -44,6 +44,8 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -343,7 +345,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     private double discountFactor;
 
     public ConstantDiscountFactorCurve(String name, double discountFactor) {
-      this.metadata = CurveMetadata.of(name);
+      this.metadata = DefaultCurveMetadata.of(name, ACT_ACT_ISDA);
       this.discountFactor = discountFactor;
     }
 

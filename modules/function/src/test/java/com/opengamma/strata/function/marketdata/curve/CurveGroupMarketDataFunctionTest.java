@@ -8,6 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -22,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -115,8 +115,7 @@ public class CurveGroupMarketDataFunctionTest {
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
-    DiscountFactors discountFactors =
-        ZeroRateDiscountFactors.of(Currency.USD, valuationDate, DayCounts.ACT_ACT_ISDA, curve);
+    DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
         .put(discountFactorsKey, discountFactors)
@@ -163,8 +162,7 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
     Curve curve = curveGroup.getDiscountCurve(Currency.USD).get();
-    DiscountFactors discountFactors =
-        ZeroRateDiscountFactors.of(Currency.USD, valuationDate, DayCounts.ACT_ACT_ISDA, curve);
+    DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);

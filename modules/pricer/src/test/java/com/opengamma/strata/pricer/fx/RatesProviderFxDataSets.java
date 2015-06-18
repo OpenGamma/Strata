@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.fx;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 
 import java.time.LocalDate;
 
@@ -24,6 +25,7 @@ import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -51,27 +53,27 @@ public class RatesProviderFxDataSets {
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140};
-  private static final String USD_DSC_NAME = "USD Dsc";
+  private static final CurveName USD_DSC_NAME = CurveName.of("USD Dsc");
   private static final InterpolatedNodalCurve USD_DSC =
-      InterpolatedNodalCurve.of(USD_DSC_NAME, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(USD_DSC_NAME, ACT_360, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
 
   private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
-  private static final String EUR_DSC_NAME = "EUR Dsc";
+  private static final CurveName EUR_DSC_NAME = CurveName.of("EUR Dsc");
   private static final InterpolatedNodalCurve EUR_DSC =
-      InterpolatedNodalCurve.of(EUR_DSC_NAME, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(EUR_DSC_NAME, ACT_360, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
 
   private static final double[] GBP_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] GBP_DSC_RATE = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0160};
-  private static final String GBP_DSC_NAME = "GBP Dsc";
+  private static final CurveName GBP_DSC_NAME = CurveName.of("GBP Dsc");
   private static final InterpolatedNodalCurve GBP_DSC =
-      InterpolatedNodalCurve.of(GBP_DSC_NAME, GBP_DSC_TIME, GBP_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(GBP_DSC_NAME, ACT_360, GBP_DSC_TIME, GBP_DSC_RATE, INTERPOLATOR);
 
   private static final double[] KRW_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] KRW_DSC_RATE = new double[] {0.0350, 0.0325, 0.0350, 0.0375, 0.0350};
-  private static final String KRW_DSC_NAME = "KRW Dsc";
+  private static final CurveName KRW_DSC_NAME = CurveName.of("KRW Dsc");
   private static final InterpolatedNodalCurve KRW_DSC =
-      InterpolatedNodalCurve.of(KRW_DSC_NAME, KRW_DSC_TIME, KRW_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(KRW_DSC_NAME, ACT_360, KRW_DSC_TIME, KRW_DSC_RATE, INTERPOLATOR);
 
   private static final FxIndex INDEX_USD_KRW = ImmutableFxIndex.builder()
       .name("USD/KRW")

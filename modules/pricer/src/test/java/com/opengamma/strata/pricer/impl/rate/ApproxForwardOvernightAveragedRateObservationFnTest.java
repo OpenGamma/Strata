@@ -29,6 +29,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -1086,7 +1087,8 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   static {
     double[] time_usd = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
     double[] rate_usd = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
-    FED_FUND_CURVE = InterpolatedNodalCurve.of("USD-Fed-Fund", time_usd, rate_usd, INTERPOLATOR);
+    FED_FUND_CURVE = InterpolatedNodalCurve.of(
+        CurveName.of("USD-Fed-Fund"), ACT_ACT_ISDA, time_usd, rate_usd, INTERPOLATOR);
   }
   private static LocalDateDoubleTimeSeriesBuilder TIME_SERIES_BUILDER = LocalDateDoubleTimeSeries.builder();
   static {

@@ -181,7 +181,7 @@ public final class ImmutableRatesProvider
     if (curve == null) {
       throw new IllegalArgumentException("Unable to find discount curve: " + currency);
     }
-    return ZeroRateDiscountFactors.of(currency, valuationDate, dayCount, curve);
+    return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
   }
 
   //-------------------------------------------------------------------------
@@ -197,7 +197,7 @@ public final class ImmutableRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     Curve curve = indexCurve(index);
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
     return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
 
@@ -205,7 +205,7 @@ public final class ImmutableRatesProvider
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     Curve curve = indexCurve(index);
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }
 

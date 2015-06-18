@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.analytics.convention.daycount.DayCountFactory;
+import com.opengamma.analytics.env.AnalyticsEnvironment;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -28,6 +29,8 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 
 /**
@@ -163,7 +166,10 @@ public final class Legacy {
    * @return the curve
    */
   public static Curve curve(YieldAndDiscountCurve legacyCurve) {
-    return curve(legacyCurve, CurveMetadata.of(legacyCurve.getName()));
+    CurveMetadata metadata = DefaultCurveMetadata.of(
+        CurveName.of(legacyCurve.getName()),
+        Legacy.dayCount(AnalyticsEnvironment.DEFAULT.getModelDayCount()));
+    return curve(legacyCurve, metadata);
   }
 
   /**
