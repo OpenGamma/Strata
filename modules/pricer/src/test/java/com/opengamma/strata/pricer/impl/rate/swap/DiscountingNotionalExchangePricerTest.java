@@ -32,58 +32,45 @@ import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 @Test
 public class DiscountingNotionalExchangePricerTest {
 
+  private static final LocalDate VAL_DATE = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate().minusDays(90);
+  private static final double DISCOUNT_FACTOR = 0.98d;
+
+  //-------------------------------------------------------------------------
   public void test_presentValue() {
-    double discountFactor = 0.98d;
-    RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.discountFactor(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate()))
-        .thenReturn(discountFactor);
+    RatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
+
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
-    assertEquals(
-        test.presentValue(NOTIONAL_EXCHANGE_REC_GBP, mockProv),
-        NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * discountFactor, 0d);
+    double calculated = test.presentValue(NOTIONAL_EXCHANGE_REC_GBP, prov);
+    assertEquals(calculated, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * DISCOUNT_FACTOR, 0d);
   }
 
   public void test_futureValue() {
-    RatesProvider mockProv = mock(RatesProvider.class);
+    RatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
+
     DiscountingNotionalExchangePricer test = new DiscountingNotionalExchangePricer();
-    assertEquals(
-        test.futureValue(NOTIONAL_EXCHANGE_REC_GBP, mockProv),
-        NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), 0d);
+    double calculated = test.futureValue(NOTIONAL_EXCHANGE_REC_GBP, prov);
+    assertEquals(calculated, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), 0d);
   }
 
-  /**
-  * Test present value sensitivity.
-  */
+  //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    double discountFactor = 0.98d;
-    LocalDate valDate = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate().minusDays(90);
-    double paymentTime = ACT_360.relativeYearFraction(valDate, NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate());
-    DiscountFactors mockDf = mock(DiscountFactors.class);
-    SimpleRatesProvider simpleProv = new SimpleRatesProvider(valDate, mockDf);
-    simpleProv.setDayCount(ACT_360);
+    SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
-    LocalDate paymentDate = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
-    when(mockDf.discountFactor(paymentDate)).thenReturn(discountFactor);
-    ZeroRateSensitivity builder = ZeroRateSensitivity.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(),
-        paymentDate, -discountFactor * paymentTime); // this is implemented in provider
-    when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(builder);
-    DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, simpleProv).build();
+    DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
+    PointSensitivities senseComputed = test.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, prov).build();
 
     double eps = 1.0e-7;
-    PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(simpleProv,
+    PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(prov,
         NOTIONAL_EXCHANGE_REC_GBP, eps));
     assertTrue(senseComputed.equalWithTolerance(
         senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
   }
 
-  /**
-  * Test future value sensitivity.
-  */
   public void test_futureValueSensitivity() {
-    RatesProvider mockProv = mock(RatesProvider.class);
-    DiscountingNotionalExchangePricer pricer = DiscountingNotionalExchangePricer.DEFAULT;
-    PointSensitivities senseComputed = pricer.futureValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, mockProv).build();
+    SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
+
+    DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
+    PointSensitivities senseComputed = test.futureValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, prov).build();
 
     double eps = 1.0e-12;
     PointSensitivities senseExpected = PointSensitivities.empty();
@@ -108,4 +95,21 @@ public class DiscountingNotionalExchangePricerTest {
     zeroRateSensi.add(ZeroRateSensitivity.of(currency, paymentDate, res));
     return zeroRateSensi;
   }
+
+  //-------------------------------------------------------------------------
+  // creates a simple provider
+  private SimpleRatesProvider createProvider(NotionalExchange ne) {
+    LocalDate paymentDate = ne.getPaymentDate();
+    double paymentTime = ACT_360.relativeYearFraction(VAL_DATE, ne.getPaymentDate());
+    Currency currency = ne.getCurrency();
+
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    when(mockDf.discountFactor(paymentDate)).thenReturn(DISCOUNT_FACTOR);
+    ZeroRateSensitivity sens = ZeroRateSensitivity.of(currency, paymentDate, -DISCOUNT_FACTOR * paymentTime);
+    when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(sens);
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
+    prov.setDayCount(ACT_360);
+    return prov;
+  }
+
 }
