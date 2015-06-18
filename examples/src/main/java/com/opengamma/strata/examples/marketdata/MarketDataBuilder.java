@@ -23,14 +23,22 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
+import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
+import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
+import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
+import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
@@ -180,7 +188,8 @@ public abstract class MarketDataBuilder {
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadFxRates(builder);
-    loadCreditCurves(builder, marketDataDate);
+    loadCdsYieldCurves(builder, marketDataDate);
+    loadCdsSpreadCurves(builder, marketDataDate);
     return builder.build();
   }
 
@@ -275,11 +284,10 @@ public abstract class MarketDataBuilder {
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
   }
 
-  private void loadCreditCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+  private void loadCdsYieldCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
     String name = "USD ISDA Yield Curve";
     Currency currency = Currency.USD;
     IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.northAmericanUsd;
-    double recoveryRate = .40D;
     ImmutableList<String> raytheon20141020Ir = ImmutableList.of(
         "1M,M,0.001535",
         "2M,M,0.001954",
@@ -322,8 +330,7 @@ public abstract class MarketDataBuilder {
             yieldCurvePoints,
             yieldCurveInstruments,
             rates,
-            curveConvention,
-            recoveryRate
+            curveConvention
         )
     );
   }
@@ -337,6 +344,53 @@ public abstract class MarketDataBuilder {
       default:
         throw new IllegalStateException("Unknown underlying type, only M or S allowed: " + type);
     }
+  }
+
+  private void loadCdsSpreadCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    String name = "Raytheon Credit Curve";
+    Currency currency = Currency.USD;
+    double recoveryRate = .40D;
+    // ParSpreadQuote
+    ImmutableList<String> raytheon20141020Cr = ImmutableList.of(
+        "6M,0.0028",
+        "1Y,0.0028",
+        "2Y,0.0028",
+        "3Y,0.0028",
+        "4Y,0.0028",
+        "5Y,0.0028",
+        "7Y,0.0028",
+        "10Y,0.0028"
+    );
+
+    double[] rates = raytheon20141020Cr
+        .stream()
+        .mapToDouble(s -> Double.valueOf(s.split(",")[1]))
+        .toArray();
+
+    Period[] creditCurvePoints = raytheon20141020Cr
+        .stream()
+        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
+        .toArray(Period[]::new);
+
+    StandardCdsConvention cdsConvention = StandardCdsConventions.northAmericanUsd();
+    builder.addValue(
+        IsdaSingleNameCreditCurveParRatesId.of(
+            SingleNameReferenceInformation.of(
+                MarkitRedCode.id("AH98A7"),
+                SeniorityLevel.SeniorUnsecuredForeign,
+                currency,
+                RestructuringClause.NoRestructuring2003
+            )
+        ),
+        IsdaCreditCurveParRates.of(
+            name,
+            marketDataDate,
+            creditCurvePoints,
+            rates,
+            cdsConvention,
+            recoveryRate
+        )
+    );
   }
 
   //-------------------------------------------------------------------------

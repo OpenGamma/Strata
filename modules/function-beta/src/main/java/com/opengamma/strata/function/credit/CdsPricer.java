@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -34,55 +35,55 @@ public class CdsPricer {
 
   public MultiCurrencyAmount presentValue(
       ExpandedCds product,
-      IsdaYieldCurveParRates parRates,
+      IsdaYieldCurveParRates yieldCurveParRates,
+      IsdaCreditCurveParRates creditCurveParRates,
       DefaultSingleCalculationMarketData provider
   ) {
     LocalDate valuationDate = provider.getValuationDate();
-    CurveCreditPlaceholder creditCurve = Curves.creditCurve();
-    double recoveryRate = Curves.recoveryRate();
-    return CdsAnalyticsWrapper.price(valuationDate, product, parRates, creditCurve, recoveryRate);
+    double recoveryRate = creditCurveParRates.getRecoveryRate();
+    return CdsAnalyticsWrapper.price(valuationDate, product, yieldCurveParRates, creditCurveParRates, recoveryRate);
   }
 
   public MultiCurrencyAmount ir01ParallelPar(
       ExpandedCds product,
-      IsdaYieldCurveParRates parRates,
+      IsdaYieldCurveParRates yieldCurveParRates,
+      IsdaCreditCurveParRates creditCurveParRates,
       DefaultSingleCalculationMarketData provider
   ) {
     LocalDate valuationDate = provider.getValuationDate();
-    CurveCreditPlaceholder creditCurve = Curves.creditCurve();
-    double recoveryRate = Curves.recoveryRate();
+    double recoveryRate = creditCurveParRates.getRecoveryRate();
     return CdsAnalyticsWrapper
-        .price(valuationDate, product, parRates.parallelShiftParRatesinBps(ONE_BPS), creditCurve, recoveryRate)
-        .minus(presentValue(product, parRates, provider));
+        .price(valuationDate, product, yieldCurveParRates.parallelShiftParRatesinBps(ONE_BPS), creditCurveParRates, recoveryRate)
+        .minus(presentValue(product, yieldCurveParRates, creditCurveParRates, provider));
   }
 
   public CurveCurrencyParameterSensitivities ir01BucketedPar(
       ExpandedCds product,
-      IsdaYieldCurveParRates parRates,
+      IsdaYieldCurveParRates yieldCurveParRates,
+      IsdaCreditCurveParRates creditCurveParRates,
       DefaultSingleCalculationMarketData provider
   ) {
-    int points = parRates.getNumberOfPoints();
+    int points = yieldCurveParRates.getNumberOfPoints();
     double[] sensitivities = new double[points];
     List<TenorCurveNodeMetadata> metaData = Lists.newArrayList();
     for (int i = 0; i < points; i++) {
       LocalDate valuationDate = provider.getValuationDate();
-      CurveCreditPlaceholder creditCurve = Curves.creditCurve();
-      double recoveryRate = Curves.recoveryRate();
+      double recoveryRate = creditCurveParRates.getRecoveryRate();
       MultiCurrencyAmount sensitivity = CdsAnalyticsWrapper
           .price(
               valuationDate,
               product,
-              parRates.bucketedShiftParRatesinBps(i, ONE_BPS),
-              creditCurve,
+              yieldCurveParRates.bucketedShiftParRatesinBps(i, ONE_BPS),
+              creditCurveParRates,
               recoveryRate)
-          .minus(presentValue(product, parRates, provider));
+          .minus(presentValue(product, yieldCurveParRates, creditCurveParRates, provider));
       sensitivities[i] = sensitivity.getAmount(product.getCurrency()).getAmount();
-      Period period = parRates.getYieldCurvePoints()[i];
+      Period period = yieldCurveParRates.getYieldCurvePoints()[i];
       LocalDate pointDate = valuationDate.plus(period);
       Tenor tenor = Tenor.of(period);
       metaData.add(TenorCurveNodeMetadata.of(pointDate, tenor));
     }
-    CurveMetadata curveMetadata = CurveMetadata.of(parRates.getName(), metaData);
+    CurveMetadata curveMetadata = CurveMetadata.of(yieldCurveParRates.getName(), metaData);
     return CurveCurrencyParameterSensitivities.of(
         ImmutableList.of(
             CurveCurrencyParameterSensitivity.of(
@@ -96,39 +97,39 @@ public class CdsPricer {
 
   public MultiCurrencyAmount cs01ParallelPar(
       ExpandedCds product,
-      IsdaYieldCurveParRates parRates,
+      IsdaYieldCurveParRates yieldCurveParRates,
+      IsdaCreditCurveParRates creditCurveParRates,
       DefaultSingleCalculationMarketData provider
   ) {
     LocalDate valuationDate = provider.getValuationDate();
-    CurveCreditPlaceholder creditCurve = Curves.creditCurvePar(0.0001D);
-    double recoveryRate = Curves.recoveryRate();
+    double recoveryRate = creditCurveParRates.getRecoveryRate();
     return CdsAnalyticsWrapper
-        .price(valuationDate, product, parRates, creditCurve, recoveryRate)
-        .minus(presentValue(product, parRates, provider));
+        .price(valuationDate, product, yieldCurveParRates, creditCurveParRates.parallelShiftParRatesinBps(ONE_BPS), recoveryRate)
+        .minus(presentValue(product, yieldCurveParRates, creditCurveParRates, provider));
   }
 
   public CurveCurrencyParameterSensitivities cs01BucketedPar(
       ExpandedCds product,
-      IsdaYieldCurveParRates parRates,
+      IsdaYieldCurveParRates yieldCurveParRates,
+      IsdaCreditCurveParRates creditCurveParRates,
       DefaultSingleCalculationMarketData provider
   ) {
-    int points = Curves.numOfCreditCurvePoints();
+    int points = creditCurveParRates.getNumberOfPoints();
     double[] sensitivities = new double[points];
     List<TenorCurveNodeMetadata> metaData = Lists.newArrayList();
     for (int i = 0; i < points; i++) {
       LocalDate valuationDate = provider.getValuationDate();
-      CurveCreditPlaceholder creditCurve = Curves.creditCurveParBucket(i, 0.0001D);
-      double recoveryRate = Curves.recoveryRate();
+      double recoveryRate = creditCurveParRates.getRecoveryRate();
       MultiCurrencyAmount sensitivity = CdsAnalyticsWrapper
-          .price(valuationDate, product, parRates, creditCurve, recoveryRate)
-          .minus(presentValue(product, parRates, provider));
+          .price(valuationDate, product, yieldCurveParRates, creditCurveParRates.bucketedShiftParRatesinBps(i, ONE_BPS), recoveryRate)
+          .minus(presentValue(product, yieldCurveParRates, creditCurveParRates, provider));
       sensitivities[i] = sensitivity.getAmount(product.getCurrency()).getAmount();
-      Period period = creditCurve.getCreditCurvePoints()[i];
+      Period period = creditCurveParRates.getCreditCurvePoints()[i];
       LocalDate pointDate = valuationDate.plus(period);
       Tenor tenor = Tenor.of(period);
       metaData.add(TenorCurveNodeMetadata.of(pointDate, tenor));
     }
-    CurveMetadata curveMetadata = CurveMetadata.of("credit curve", metaData);
+    CurveMetadata curveMetadata = CurveMetadata.of(creditCurveParRates.getName(), metaData);
     return CurveCurrencyParameterSensitivities.of(
         ImmutableList.of(
             CurveCurrencyParameterSensitivity.of(

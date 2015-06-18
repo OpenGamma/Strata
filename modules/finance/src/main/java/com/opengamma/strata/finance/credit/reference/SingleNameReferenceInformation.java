@@ -68,7 +68,7 @@ public final class SingleNameReferenceInformation
     return ReferenceInformationType.SINGLE_NAME;
   }
 
-  public static ReferenceInformation of(
+  public static SingleNameReferenceInformation of(
       StandardId referenceEntityId,
       SeniorityLevel seniority,
       Currency currency,

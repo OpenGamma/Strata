@@ -12,6 +12,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
+import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.pricer.PricingException;
@@ -51,14 +52,17 @@ public class CdsAnalyticsWrapper {
       LocalDate valuationDate,
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurve,
-      CurveCreditPlaceholder creditCurve,
+      IsdaCreditCurveParRates creditCurve,
       double recoveryRate
   ) {
+
     CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
+
     ISDACompliantYieldCurve yieldCurveAnalytics = toIsdaDiscountCurve(
         valuationDate,
         yieldCurve
     );
+
     ISDACompliantCreditCurve creditCurveAnalytics = toIsdaCreditCurve(
         valuationDate,
         creditCurve,
@@ -67,6 +71,7 @@ public class CdsAnalyticsWrapper {
     );
 
     double coupon = product.getCoupon();
+
     double pv = s_calculator.pv(
         cdsAnalytic,
         yieldCurveAnalytics,
@@ -82,8 +87,10 @@ public class CdsAnalyticsWrapper {
     double upfrontFeeAmount = priceUpfrontFee(
         valuationDate, product.upfrontFeeAmount, product.getUpfrontFeePaymentDate(), yieldCurveAnalytics) * sign;
     double adjustedPlusFee = adjusted + upfrontFeeAmount;
+
     CurrencyAmount currencyAmount = CurrencyAmount.of(product.getCurrency(), adjustedPlusFee);
     return MultiCurrencyAmount.of(currencyAmount);
+
   }
 
   /**
@@ -156,7 +163,7 @@ public class CdsAnalyticsWrapper {
 
   private static ISDACompliantCreditCurve toIsdaCreditCurve(
       LocalDate valuationDate,
-      CurveCreditPlaceholder curveCurve,
+      IsdaCreditCurveParRates curveCurve,
       ISDACompliantYieldCurve yieldCurve,
       double recoveryRate
   ) {
@@ -171,7 +178,7 @@ public class CdsAnalyticsWrapper {
           cdsConvention.calcAdjustedSettleDate(valuationDate),
           cdsConvention.calcAdjustedStartDate(valuationDate),
           curveCurve.getCreditCurveEndDatePoints(valuationDate),
-          curveCurve.getFractionalParSpreads(),
+          curveCurve.getParRates(),
           cdsConvention.isPayAccOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
           translateStubType(cdsConvention.getStubConvention()),
