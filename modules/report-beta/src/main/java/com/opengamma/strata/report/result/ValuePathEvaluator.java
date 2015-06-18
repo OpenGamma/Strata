@@ -43,6 +43,7 @@ public class ValuePathEvaluator {
       new CurrencyAmountTokenEvaluator(),
       new MapTokenEvaluator(),
       new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
+      new CurveCurrencyParameterSensitivityTokenEvaluator(),
       new BeanTokenEvaluator(),
       new IterableTokenEvaluator());
 
