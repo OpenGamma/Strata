@@ -41,7 +41,9 @@ public class CdsPricingExample {
   static final ImmutableList<Measure> measures = ImmutableList.of(
       pv,
       ir01ParallelPar,
-      cs01ParallelPar
+      cs01ParallelPar,
+      ir01BucketedPar,
+      cs01BucketedPar
   );
   static final Calculator calc = ExampleCalculator.of();
   static final Reporter reporter = ExampleReporter.of("cds-report-template");
@@ -52,6 +54,9 @@ public class CdsPricingExample {
     logger.info("IR01 bucketed par is " + join(calcIr01BucketedParSens()));
     logger.info("CS01 parallel par is " + calcCs01ParallelPar());
     logger.info("CS01 bucketed par is " + join(calcCs01BucketedParSens()));
+    logger.info("=== CSV Report ===");
+    calcMeasuresAndReportToCsvToLogger();
+    logger.info("=== ASCII Report ===");
     calcMeasuresAndReportToAsciiToLogger();
   }
 
@@ -85,6 +90,10 @@ public class CdsPricingExample {
 
   public static void calcMeasuresAndReportToAsciiToLogger() {
     reporter.reportAsciiToLogger(calc.calculateReportingResults(valuationDate, trades, measures));
+  }
+
+  public static void calcMeasuresAndReportToCsvToLogger() {
+    reporter.reportCsvToLogger(calc.calculateReportingResults(valuationDate, trades, measures));
   }
 
   private static String join(double[] d) {

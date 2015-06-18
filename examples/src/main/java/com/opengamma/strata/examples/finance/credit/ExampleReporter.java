@@ -53,6 +53,29 @@ public class ExampleReporter implements Reporter {
     tradeReport.writeAsciiTable(out);
   }
 
+  @Override
+  public String reportCsvAsString(final ReportCalculationResults reportCalculationResults) {
+    final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    reportCsv(reportCalculationResults, buffer);
+    return buffer.toString();
+  }
+
+  @Override
+  public void reportCsvToScreen(final ReportCalculationResults reportCalculationResults) {
+    reportCsv(reportCalculationResults, System.out);
+  }
+
+  @Override
+  public void reportCsvToLogger(final ReportCalculationResults reportCalculationResults) {
+    logger.info("\n" + reportCsvAsString(reportCalculationResults));
+  }
+
+  @Override
+  public void reportCsv(final ReportCalculationResults reportCalculationResults, final OutputStream out) {
+    final TradeReport tradeReport = TradeReport.of(reportCalculationResults, reportTemplate);
+    tradeReport.writeCsv(out);
+  }
+
   public static Reporter of(final String tradeReportTemplatePath) {
     return new ExampleReporter(tradeReportTemplatePath);
   }

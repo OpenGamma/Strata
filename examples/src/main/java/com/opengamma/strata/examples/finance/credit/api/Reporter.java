@@ -33,4 +33,22 @@ public interface Reporter {
       OutputStream out
   );
 
+  String reportCsvAsString(
+      ReportCalculationResults reportCalculationResults
+  );
+
+  void reportCsvToScreen(
+      ReportCalculationResults reportCalculationResults
+  );
+
+  void reportCsvToLogger(
+      ReportCalculationResults reportCalculationResults
+  );
+
+  void reportCsv(
+      ReportCalculationResults reportCalculationResults,
+      OutputStream out
+  );
+
+
 }
