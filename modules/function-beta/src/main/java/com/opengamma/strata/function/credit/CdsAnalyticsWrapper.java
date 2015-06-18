@@ -1,14 +1,7 @@
 package com.opengamma.strata.function.credit;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
+import com.google.common.collect.Lists;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.*;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -18,6 +11,8 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.pricer.PricingException;
 
 import java.time.LocalDate;
@@ -53,7 +48,7 @@ public class CdsAnalyticsWrapper {
   public static MultiCurrencyAmount price(
       LocalDate valuationDate,
       ExpandedCds product,
-      CurveYieldPlaceholder yieldCurve,
+      IsdaYieldCurveParRates yieldCurve,
       CurveCreditPlaceholder creditCurve,
       double recoveryRate
   ) {
@@ -109,10 +104,10 @@ public class CdsAnalyticsWrapper {
     return discountFactor * amount;
   }
 
-  public static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, CurveYieldPlaceholder yieldCurve) {
+  public static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, IsdaYieldCurveParRates yieldCurve) {
     try {
       // model does not use floating leg of underlying IRS
-      IsdaYieldCurveConvention curveConvention = yieldCurve.getCurveConvention();
+      IsdaYieldCurveConvention curveConvention = yieldCurve.get_curveConvention();
       Period swapInterval = curveConvention.getFixedPaymentFrequency().getPeriod();
       DayCount mmDayCount = curveConvention.getMmDayCount();
       DayCount swapDayCount = curveConvention.getFixedDayCount();
@@ -122,18 +117,19 @@ public class CdsAnalyticsWrapper {
 
       LocalDate spotDate = curveConvention.getSpotDateAsOf(valuationDate);
 
+      ISDAInstrumentTypes[] types = Lists.newArrayList(yieldCurve.get_yieldCurveInstruments()).stream().map(s -> s == IsdaYieldCurveUnderlyingType.MONEY_MARKET ? ISDAInstrumentTypes.MoneyMarket : ISDAInstrumentTypes.Swap).toArray(ISDAInstrumentTypes[]::new);
       return new ISDACompliantYieldCurveBuild(
           valuationDate,
           spotDate,
-          yieldCurve.getYieldCurveInstruments(),
-          yieldCurve.getYieldCurvePoints(),
+          types,
+          yieldCurve.get_yieldCurvePoints(),
           translateDayCount(mmDayCount),
           translateDayCount(swapDayCount),
           swapInterval,
           translateDayCount(s_curveDayCount),
           convention,
           holidayCalendar
-      ).build(yieldCurve.getParRates());
+      ).build(yieldCurve.get_parRates());
     } catch (Exception e) {
       throw new PricingException("Error converting the Isda Discount Curve: " + e.getMessage(), e);
     }

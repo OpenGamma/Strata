@@ -17,7 +17,10 @@ import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 
 import java.util.Optional;
@@ -66,7 +69,7 @@ public abstract class AbstractCdsFunction<T>
   public ScenarioResult<T> execute(CdsTrade trade, CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
-        .map(provider -> execute(trade.getProduct().expand(), provider))
+        .map(provider -> execute(trade, provider))
         .collect(toScenarioResult(isConvertCurrencies()));
   }
 
@@ -92,13 +95,13 @@ public abstract class AbstractCdsFunction<T>
 //            .map(DiscountFactorsKey::of)
 //            .collect(toImmutableSet());
 
-    Set<DiscountFactorsKey> rateCurveKey = ImmutableSet.of(MarketDataKeys.discountFactors(notionalCurrency), MarketDataKeys.discountFactors(feeCurrency));
+    Set<MarketDataKey<?>> rateCurveKeys = ImmutableSet.of(IsdaYieldCurveParRatesKey.of(notionalCurrency), IsdaYieldCurveParRatesKey.of(feeCurrency));
 
     Set<MarketDataKey<?>> spreadCurveKey = ImmutableSet.of();
 
     // TODO recovery rate and index factor
     return CalculationRequirements.builder()
-        .singleValueRequirements(Sets.union(rateCurveKey, spreadCurveKey))
+        .singleValueRequirements(Sets.union(rateCurveKeys, spreadCurveKey))
         .outputCurrencies(ImmutableSet.of(notionalCurrency, feeCurrency))
         .build();
 
@@ -132,6 +135,14 @@ public abstract class AbstractCdsFunction<T>
   }
 
   // execute for a single product
-  protected abstract T execute(ExpandedCds product, DefaultSingleCalculationMarketData provider);
+  protected T execute(CdsTrade trade, DefaultSingleCalculationMarketData provider) {
+    IsdaYieldCurveParRatesKey parRatesKey = IsdaYieldCurveParRatesKey.of(trade.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());
+    IsdaYieldCurveParRates parRates = provider.getValue(parRatesKey);
+    return execute(trade.getProduct().expand(), parRates, provider);
+  }
 
-}
+  // execute for a single product
+  protected abstract T execute(ExpandedCds product, IsdaYieldCurveParRates parRates, DefaultSingleCalculationMarketData provider);
+
+
+  }
