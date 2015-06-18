@@ -1,34 +1,16 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
-
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
-import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
@@ -41,13 +23,29 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
+import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -57,33 +55,41 @@ import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
  * <p>
  * The directory structure must look like:
  * <ul>
- *   <li>root
- *   <ul>
- *     <li>curves
- *     <ul>
- *       <li>groups.csv
- *       <li>settings.csv
- *       <li>one or more curve CSV files
- *     </ul>
- *     <li>historical-fixings
- *     <ul>
- *       <li>one or more time-series CSV files
- *     </ul>
- *   </ul>
+ * <li>root
+ * <ul>
+ * <li>curves
+ * <ul>
+ * <li>groups.csv
+ * <li>settings.csv
+ * <li>one or more curve CSV files
+ * </ul>
+ * <li>historical-fixings
+ * <ul>
+ * <li>one or more time-series CSV files
+ * </ul>
+ * </ul>
  * </ul>
  */
 public abstract class MarketDataBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataBuilder.class);
 
-  /** The name of the subdirectory containing historical fixings. */
+  /**
+   * The name of the subdirectory containing historical fixings.
+   */
   private static final String HISTORICAL_FIXINGS_DIR = "historical-fixings";
 
-  /** The name of the subdirectory containing calibrated rates curves. */
+  /**
+   * The name of the subdirectory containing calibrated rates curves.
+   */
   private static final String CURVES_DIR = "curves";
-  /** The name of the curve groups file. */
+  /**
+   * The name of the curve groups file.
+   */
   private static final String CURVES_GROUPS_FILE = "groups.csv";
-  /** The name of the curve settings file. */
+  /**
+   * The name of the curve settings file.
+   */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
 
   /**
@@ -92,8 +98,8 @@ public abstract class MarketDataBuilder {
    * <p>
    * This is designed to handle resource roots which may physically correspond to a directory on
    * disk, or be located within a jar file.
-   * 
-   * @param resourceRoot  the resource root path
+   *
+   * @param resourceRoot the resource root path
    * @return the market data builder
    */
   public static MarketDataBuilder ofResource(String resourceRoot) {
@@ -106,8 +112,8 @@ public abstract class MarketDataBuilder {
    * <p>
    * This is designed to handle resource roots which may physically correspond to a directory on
    * disk, or be located within a jar file.
-   * 
-   * @param resourceRoot  the resource root path
+   *
+   * @param resourceRoot the resource root path
    * @param classLoader  the class loader with which to find the resource
    * @return the market data builder
    */
@@ -152,8 +158,8 @@ public abstract class MarketDataBuilder {
 
   /**
    * Creates an instance from a given directory root.
-   * 
-   * @param rootPath  the root directory
+   *
+   * @param rootPath the root directory
    * @return the market data builder
    */
   public static MarketDataBuilder ofPath(Path rootPath) {
@@ -161,10 +167,11 @@ public abstract class MarketDataBuilder {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Builds a market data snapshot from this environment.
-   * 
-   * @param marketDataDate  the date of the market data
+   *
+   * @param marketDataDate the date of the market data
    * @return the snapshot
    */
   public BaseMarketData buildSnapshot(LocalDate marketDataDate) {
@@ -178,7 +185,7 @@ public abstract class MarketDataBuilder {
 
   /**
    * Gets the market data rules to use with this environment.
-   * 
+   *
    * @return the market data rules
    */
   public MarketDataRules rules() {
@@ -299,11 +306,13 @@ public abstract class MarketDataBuilder {
         .toArray(Period[]::new);
     IsdaYieldCurveUnderlyingType[] yieldCurveInstruments = raytheon20141020Ir
         .stream()
-        .map(s -> (s.split(",")[1].equals("M") ? IsdaYieldCurveUnderlyingType.MONEY_MARKET : IsdaYieldCurveUnderlyingType.SWAP))
+        .map(s -> s.split(",")[1])
+        .map(this::mapUnderlyingType)
         .toArray(IsdaYieldCurveUnderlyingType[]::new);
     builder.addValue(
         IsdaYieldCurveParRatesId.of(Currency.USD),
         IsdaYieldCurveParRates.of(
+            "USD ISDA Yield Curve",
             yieldCurvePoints,
             yieldCurveInstruments,
             rates,
@@ -312,28 +321,40 @@ public abstract class MarketDataBuilder {
     );
   }
 
+  private IsdaYieldCurveUnderlyingType mapUnderlyingType(String type) {
+    switch (type) {
+      case "M":
+        return IsdaYieldCurveUnderlyingType.IsdaMoneyMarket;
+      case "S":
+        return IsdaYieldCurveUnderlyingType.IsdaSwap;
+      default:
+        throw new IllegalStateException("Unknown underlying type, only M or S allowed: " + type);
+    }
+  }
+
   //-------------------------------------------------------------------------
+
   /**
    * Gets all available resources from a given subdirectory.
-   * 
-   * @param subdirectoryName  the name of the subdirectory
+   *
+   * @param subdirectoryName the name of the subdirectory
    * @return a collection of locators for the resources in the subdirectory
    */
   protected abstract Collection<ResourceLocator> getAllResources(String subdirectoryName);
 
   /**
    * Gets a specific resource from a given subdirectory.
-   * 
-   * @param subdirectoryName  the name of the subdirectory
-   * @param resourceName  the name of the resource
+   *
+   * @param subdirectoryName the name of the subdirectory
+   * @param resourceName     the name of the resource
    * @return a locator for the requested resource
    */
   protected abstract ResourceLocator getResource(String subdirectoryName, String resourceName);
 
   /**
    * Checks whether a specific subdirectory exists.
-   * 
-   * @param subdirectoryName  the name of the subdirectory
+   *
+   * @param subdirectoryName the name of the subdirectory
    * @return whether the subdirectory exists
    */
   protected abstract boolean subdirectoryExists(String subdirectoryName);

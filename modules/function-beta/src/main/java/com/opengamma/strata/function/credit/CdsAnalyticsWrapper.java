@@ -107,7 +107,7 @@ public class CdsAnalyticsWrapper {
   public static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, IsdaYieldCurveParRates yieldCurve) {
     try {
       // model does not use floating leg of underlying IRS
-      IsdaYieldCurveConvention curveConvention = yieldCurve.get_curveConvention();
+      IsdaYieldCurveConvention curveConvention = yieldCurve.getCurveConvention();
       Period swapInterval = curveConvention.getFixedPaymentFrequency().getPeriod();
       DayCount mmDayCount = curveConvention.getMmDayCount();
       DayCount swapDayCount = curveConvention.getFixedDayCount();
@@ -117,22 +117,38 @@ public class CdsAnalyticsWrapper {
 
       LocalDate spotDate = curveConvention.getSpotDateAsOf(valuationDate);
 
-      ISDAInstrumentTypes[] types = Lists.newArrayList(yieldCurve.get_yieldCurveInstruments()).stream().map(s -> s == IsdaYieldCurveUnderlyingType.MONEY_MARKET ? ISDAInstrumentTypes.MoneyMarket : ISDAInstrumentTypes.Swap).toArray(ISDAInstrumentTypes[]::new);
+      ISDAInstrumentTypes[] types = Lists
+          .newArrayList(yieldCurve.getYieldCurveInstruments())
+          .stream()
+          .map(CdsAnalyticsWrapper::mapInstrumentType)
+      .toArray(ISDAInstrumentTypes[]::new);
       return new ISDACompliantYieldCurveBuild(
           valuationDate,
           spotDate,
           types,
-          yieldCurve.get_yieldCurvePoints(),
+          yieldCurve.getYieldCurvePoints(),
           translateDayCount(mmDayCount),
           translateDayCount(swapDayCount),
           swapInterval,
           translateDayCount(s_curveDayCount),
           convention,
           holidayCalendar
-      ).build(yieldCurve.get_parRates());
+      ).build(yieldCurve.getParRates());
     } catch (Exception e) {
       throw new PricingException("Error converting the Isda Discount Curve: " + e.getMessage(), e);
     }
+  }
+
+  private static ISDAInstrumentTypes mapInstrumentType(IsdaYieldCurveUnderlyingType input) {
+    switch (input) {
+      case IsdaMoneyMarket:
+        return ISDAInstrumentTypes.MoneyMarket;
+      case IsdaSwap:
+        return ISDAInstrumentTypes.Swap;
+      default:
+        throw new IllegalStateException("Unexpected underlying type, only MoneyMarket and Swap supported: " + input);
+    }
+
   }
 
   private static ISDACompliantCreditCurve toIsdaCreditCurve(

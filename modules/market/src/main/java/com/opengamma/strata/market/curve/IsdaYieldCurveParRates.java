@@ -34,24 +34,29 @@ public final class IsdaYieldCurveParRates
     implements ImmutableBean, Serializable {
 
   @PropertyDefinition(validate = "notNull")
-  private final Period[] _yieldCurvePoints;
+  private final String name;
 
   @PropertyDefinition(validate = "notNull")
-  private final IsdaYieldCurveUnderlyingType[] _yieldCurveInstruments;
+  private final Period[] yieldCurvePoints;
 
   @PropertyDefinition(validate = "notNull")
-  private final double[] _parRates;
+  private final IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
 
   @PropertyDefinition(validate = "notNull")
-  private final IsdaYieldCurveConvention _curveConvention;
+  private final double[] parRates;
+
+  @PropertyDefinition(validate = "notNull")
+  private final IsdaYieldCurveConvention curveConvention;
 
   public static IsdaYieldCurveParRates of(
+      String name,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
       IsdaYieldCurveConvention curveConvention
   ) {
     return new IsdaYieldCurveParRates(
+        name,
         yieldCurvePoints,
         yieldCurveInstruments,
         parRates,
@@ -59,13 +64,37 @@ public final class IsdaYieldCurveParRates
     );
   }
 
+  public IsdaYieldCurveParRates parallelShiftParRatesinBps(double shift) {
+    double[] shiftedRates = parRates.clone();
+    for (int i = 0; i < shiftedRates.length; i++) {
+      shiftedRates[i] = shiftedRates[i] + shift;
+    }
+    return applyShift(shiftedRates);
+  }
+
+  public IsdaYieldCurveParRates bucketedShiftParRatesinBps(int index, double shift) {
+    double[] shiftedRates = parRates.clone();
+    shiftedRates[index] = shiftedRates[index] + shift;
+    return applyShift(shiftedRates);
+  }
+
+  private IsdaYieldCurveParRates applyShift(double[] shiftedRates) {
+    return IsdaYieldCurveParRates.of(
+        name,
+        yieldCurvePoints.clone(),
+        yieldCurveInstruments.clone(),
+        shiftedRates,
+        curveConvention
+    );
+  }
+
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    if (_yieldCurvePoints.length <= 0) {
+    if (yieldCurvePoints.length <= 0) {
       throw new IllegalArgumentException("Cannot have zero points");
     }
-    if (_yieldCurvePoints.length != _yieldCurveInstruments.length || _yieldCurvePoints.length != _parRates.length) {
+    if (yieldCurvePoints.length != yieldCurveInstruments.length || yieldCurvePoints.length != parRates.length) {
       throw new IllegalArgumentException("points do not line up");
     }
   }
@@ -90,18 +119,21 @@ public final class IsdaYieldCurveParRates
   private static final long serialVersionUID = 1L;
 
   private IsdaYieldCurveParRates(
-      Period[] _yieldCurvePoints,
-      IsdaYieldCurveUnderlyingType[] _yieldCurveInstruments,
-      double[] _parRates,
-      IsdaYieldCurveConvention _curveConvention) {
-    JodaBeanUtils.notNull(_yieldCurvePoints, "_yieldCurvePoints");
-    JodaBeanUtils.notNull(_yieldCurveInstruments, "_yieldCurveInstruments");
-    JodaBeanUtils.notNull(_parRates, "_parRates");
-    JodaBeanUtils.notNull(_curveConvention, "_curveConvention");
-    this._yieldCurvePoints = _yieldCurvePoints;
-    this._yieldCurveInstruments = _yieldCurveInstruments;
-    this._parRates = _parRates.clone();
-    this._curveConvention = _curveConvention;
+      String name,
+      Period[] yieldCurvePoints,
+      IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
+      double[] parRates,
+      IsdaYieldCurveConvention curveConvention) {
+    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(yieldCurvePoints, "yieldCurvePoints");
+    JodaBeanUtils.notNull(yieldCurveInstruments, "yieldCurveInstruments");
+    JodaBeanUtils.notNull(parRates, "parRates");
+    JodaBeanUtils.notNull(curveConvention, "curveConvention");
+    this.name = name;
+    this.yieldCurvePoints = yieldCurvePoints;
+    this.yieldCurveInstruments = yieldCurveInstruments;
+    this.parRates = parRates.clone();
+    this.curveConvention = curveConvention;
     validate();
   }
 
@@ -122,38 +154,47 @@ public final class IsdaYieldCurveParRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the _yieldCurvePoints.
+   * Gets the name.
    * @return the value of the property, not null
    */
-  public Period[] get_yieldCurvePoints() {
-    return _yieldCurvePoints;
+  public String getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the _yieldCurveInstruments.
+   * Gets the yieldCurvePoints.
    * @return the value of the property, not null
    */
-  public IsdaYieldCurveUnderlyingType[] get_yieldCurveInstruments() {
-    return _yieldCurveInstruments;
+  public Period[] getYieldCurvePoints() {
+    return yieldCurvePoints;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the _parRates.
+   * Gets the yieldCurveInstruments.
    * @return the value of the property, not null
    */
-  public double[] get_parRates() {
-    return (_parRates != null ? _parRates.clone() : null);
+  public IsdaYieldCurveUnderlyingType[] getYieldCurveInstruments() {
+    return yieldCurveInstruments;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the _curveConvention.
+   * Gets the parRates.
    * @return the value of the property, not null
    */
-  public IsdaYieldCurveConvention get_curveConvention() {
-    return _curveConvention;
+  public double[] getParRates() {
+    return (parRates != null ? parRates.clone() : null);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the curveConvention.
+   * @return the value of the property, not null
+   */
+  public IsdaYieldCurveConvention getCurveConvention() {
+    return curveConvention;
   }
 
   //-----------------------------------------------------------------------
@@ -164,10 +205,11 @@ public final class IsdaYieldCurveParRates
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaYieldCurveParRates other = (IsdaYieldCurveParRates) obj;
-      return JodaBeanUtils.equal(get_yieldCurvePoints(), other.get_yieldCurvePoints()) &&
-          JodaBeanUtils.equal(get_yieldCurveInstruments(), other.get_yieldCurveInstruments()) &&
-          JodaBeanUtils.equal(get_parRates(), other.get_parRates()) &&
-          JodaBeanUtils.equal(get_curveConvention(), other.get_curveConvention());
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getYieldCurvePoints(), other.getYieldCurvePoints()) &&
+          JodaBeanUtils.equal(getYieldCurveInstruments(), other.getYieldCurveInstruments()) &&
+          JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
+          JodaBeanUtils.equal(getCurveConvention(), other.getCurveConvention());
     }
     return false;
   }
@@ -175,21 +217,23 @@ public final class IsdaYieldCurveParRates
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(get_yieldCurvePoints());
-    hash = hash * 31 + JodaBeanUtils.hashCode(get_yieldCurveInstruments());
-    hash = hash * 31 + JodaBeanUtils.hashCode(get_parRates());
-    hash = hash * 31 + JodaBeanUtils.hashCode(get_curveConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurvePoints());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveInstruments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveConvention());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("IsdaYieldCurveParRates{");
-    buf.append("_yieldCurvePoints").append('=').append(get_yieldCurvePoints()).append(',').append(' ');
-    buf.append("_yieldCurveInstruments").append('=').append(get_yieldCurveInstruments()).append(',').append(' ');
-    buf.append("_parRates").append('=').append(get_parRates()).append(',').append(' ');
-    buf.append("_curveConvention").append('=').append(JodaBeanUtils.toString(get_curveConvention()));
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("yieldCurvePoints").append('=').append(getYieldCurvePoints()).append(',').append(' ');
+    buf.append("yieldCurveInstruments").append('=').append(getYieldCurveInstruments()).append(',').append(' ');
+    buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
+    buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(getCurveConvention()));
     buf.append('}');
     return buf.toString();
   }
@@ -205,34 +249,40 @@ public final class IsdaYieldCurveParRates
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code _yieldCurvePoints} property.
+     * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<Period[]> _yieldCurvePoints = DirectMetaProperty.ofImmutable(
-        this, "_yieldCurvePoints", IsdaYieldCurveParRates.class, Period[].class);
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", IsdaYieldCurveParRates.class, String.class);
     /**
-     * The meta-property for the {@code _yieldCurveInstruments} property.
+     * The meta-property for the {@code yieldCurvePoints} property.
      */
-    private final MetaProperty<IsdaYieldCurveUnderlyingType[]> _yieldCurveInstruments = DirectMetaProperty.ofImmutable(
-        this, "_yieldCurveInstruments", IsdaYieldCurveParRates.class, IsdaYieldCurveUnderlyingType[].class);
+    private final MetaProperty<Period[]> yieldCurvePoints = DirectMetaProperty.ofImmutable(
+        this, "yieldCurvePoints", IsdaYieldCurveParRates.class, Period[].class);
     /**
-     * The meta-property for the {@code _parRates} property.
+     * The meta-property for the {@code yieldCurveInstruments} property.
      */
-    private final MetaProperty<double[]> _parRates = DirectMetaProperty.ofImmutable(
-        this, "_parRates", IsdaYieldCurveParRates.class, double[].class);
+    private final MetaProperty<IsdaYieldCurveUnderlyingType[]> yieldCurveInstruments = DirectMetaProperty.ofImmutable(
+        this, "yieldCurveInstruments", IsdaYieldCurveParRates.class, IsdaYieldCurveUnderlyingType[].class);
     /**
-     * The meta-property for the {@code _curveConvention} property.
+     * The meta-property for the {@code parRates} property.
      */
-    private final MetaProperty<IsdaYieldCurveConvention> _curveConvention = DirectMetaProperty.ofImmutable(
-        this, "_curveConvention", IsdaYieldCurveParRates.class, IsdaYieldCurveConvention.class);
+    private final MetaProperty<double[]> parRates = DirectMetaProperty.ofImmutable(
+        this, "parRates", IsdaYieldCurveParRates.class, double[].class);
+    /**
+     * The meta-property for the {@code curveConvention} property.
+     */
+    private final MetaProperty<IsdaYieldCurveConvention> curveConvention = DirectMetaProperty.ofImmutable(
+        this, "curveConvention", IsdaYieldCurveParRates.class, IsdaYieldCurveConvention.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "_yieldCurvePoints",
-        "_yieldCurveInstruments",
-        "_parRates",
-        "_curveConvention");
+        "name",
+        "yieldCurvePoints",
+        "yieldCurveInstruments",
+        "parRates",
+        "curveConvention");
 
     /**
      * Restricted constructor.
@@ -243,14 +293,16 @@ public final class IsdaYieldCurveParRates
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 410778436:  // _yieldCurvePoints
-          return _yieldCurvePoints;
-        case -1811394645:  // _yieldCurveInstruments
-          return _yieldCurveInstruments;
-        case 1247747281:  // _parRates
-          return _parRates;
-        case 540110721:  // _curveConvention
-          return _curveConvention;
+        case 3373707:  // name
+          return name;
+        case 695376101:  // yieldCurvePoints
+          return yieldCurvePoints;
+        case -1469575510:  // yieldCurveInstruments
+          return yieldCurveInstruments;
+        case 1157229426:  // parRates
+          return parRates;
+        case 1796217280:  // curveConvention
+          return curveConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -272,49 +324,59 @@ public final class IsdaYieldCurveParRates
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code _yieldCurvePoints} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Period[]> _yieldCurvePoints() {
-      return _yieldCurvePoints;
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
-     * The meta-property for the {@code _yieldCurveInstruments} property.
+     * The meta-property for the {@code yieldCurvePoints} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IsdaYieldCurveUnderlyingType[]> _yieldCurveInstruments() {
-      return _yieldCurveInstruments;
+    public MetaProperty<Period[]> yieldCurvePoints() {
+      return yieldCurvePoints;
     }
 
     /**
-     * The meta-property for the {@code _parRates} property.
+     * The meta-property for the {@code yieldCurveInstruments} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<double[]> _parRates() {
-      return _parRates;
+    public MetaProperty<IsdaYieldCurveUnderlyingType[]> yieldCurveInstruments() {
+      return yieldCurveInstruments;
     }
 
     /**
-     * The meta-property for the {@code _curveConvention} property.
+     * The meta-property for the {@code parRates} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IsdaYieldCurveConvention> _curveConvention() {
-      return _curveConvention;
+    public MetaProperty<double[]> parRates() {
+      return parRates;
+    }
+
+    /**
+     * The meta-property for the {@code curveConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<IsdaYieldCurveConvention> curveConvention() {
+      return curveConvention;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 410778436:  // _yieldCurvePoints
-          return ((IsdaYieldCurveParRates) bean).get_yieldCurvePoints();
-        case -1811394645:  // _yieldCurveInstruments
-          return ((IsdaYieldCurveParRates) bean).get_yieldCurveInstruments();
-        case 1247747281:  // _parRates
-          return ((IsdaYieldCurveParRates) bean).get_parRates();
-        case 540110721:  // _curveConvention
-          return ((IsdaYieldCurveParRates) bean).get_curveConvention();
+        case 3373707:  // name
+          return ((IsdaYieldCurveParRates) bean).getName();
+        case 695376101:  // yieldCurvePoints
+          return ((IsdaYieldCurveParRates) bean).getYieldCurvePoints();
+        case -1469575510:  // yieldCurveInstruments
+          return ((IsdaYieldCurveParRates) bean).getYieldCurveInstruments();
+        case 1157229426:  // parRates
+          return ((IsdaYieldCurveParRates) bean).getParRates();
+        case 1796217280:  // curveConvention
+          return ((IsdaYieldCurveParRates) bean).getCurveConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -336,10 +398,11 @@ public final class IsdaYieldCurveParRates
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IsdaYieldCurveParRates> {
 
-    private Period[] _yieldCurvePoints;
-    private IsdaYieldCurveUnderlyingType[] _yieldCurveInstruments;
-    private double[] _parRates;
-    private IsdaYieldCurveConvention _curveConvention;
+    private String name;
+    private Period[] yieldCurvePoints;
+    private IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
+    private double[] parRates;
+    private IsdaYieldCurveConvention curveConvention;
 
     /**
      * Restricted constructor.
@@ -351,14 +414,16 @@ public final class IsdaYieldCurveParRates
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 410778436:  // _yieldCurvePoints
-          return _yieldCurvePoints;
-        case -1811394645:  // _yieldCurveInstruments
-          return _yieldCurveInstruments;
-        case 1247747281:  // _parRates
-          return _parRates;
-        case 540110721:  // _curveConvention
-          return _curveConvention;
+        case 3373707:  // name
+          return name;
+        case 695376101:  // yieldCurvePoints
+          return yieldCurvePoints;
+        case -1469575510:  // yieldCurveInstruments
+          return yieldCurveInstruments;
+        case 1157229426:  // parRates
+          return parRates;
+        case 1796217280:  // curveConvention
+          return curveConvention;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -367,17 +432,20 @@ public final class IsdaYieldCurveParRates
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 410778436:  // _yieldCurvePoints
-          this._yieldCurvePoints = (Period[]) newValue;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
-        case -1811394645:  // _yieldCurveInstruments
-          this._yieldCurveInstruments = (IsdaYieldCurveUnderlyingType[]) newValue;
+        case 695376101:  // yieldCurvePoints
+          this.yieldCurvePoints = (Period[]) newValue;
           break;
-        case 1247747281:  // _parRates
-          this._parRates = (double[]) newValue;
+        case -1469575510:  // yieldCurveInstruments
+          this.yieldCurveInstruments = (IsdaYieldCurveUnderlyingType[]) newValue;
           break;
-        case 540110721:  // _curveConvention
-          this._curveConvention = (IsdaYieldCurveConvention) newValue;
+        case 1157229426:  // parRates
+          this.parRates = (double[]) newValue;
+          break;
+        case 1796217280:  // curveConvention
+          this.curveConvention = (IsdaYieldCurveConvention) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -412,21 +480,23 @@ public final class IsdaYieldCurveParRates
     @Override
     public IsdaYieldCurveParRates build() {
       return new IsdaYieldCurveParRates(
-          _yieldCurvePoints,
-          _yieldCurveInstruments,
-          _parRates,
-          _curveConvention);
+          name,
+          yieldCurvePoints,
+          yieldCurveInstruments,
+          parRates,
+          curveConvention);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("IsdaYieldCurveParRates.Builder{");
-      buf.append("_yieldCurvePoints").append('=').append(JodaBeanUtils.toString(_yieldCurvePoints)).append(',').append(' ');
-      buf.append("_yieldCurveInstruments").append('=').append(JodaBeanUtils.toString(_yieldCurveInstruments)).append(',').append(' ');
-      buf.append("_parRates").append('=').append(JodaBeanUtils.toString(_parRates)).append(',').append(' ');
-      buf.append("_curveConvention").append('=').append(JodaBeanUtils.toString(_curveConvention));
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("yieldCurvePoints").append('=').append(JodaBeanUtils.toString(yieldCurvePoints)).append(',').append(' ');
+      buf.append("yieldCurveInstruments").append('=').append(JodaBeanUtils.toString(yieldCurveInstruments)).append(',').append(' ');
+      buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
+      buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention));
       buf.append('}');
       return buf.toString();
     }
