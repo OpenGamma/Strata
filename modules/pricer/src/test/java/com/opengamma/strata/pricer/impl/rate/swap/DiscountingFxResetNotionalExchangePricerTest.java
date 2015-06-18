@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP;
@@ -22,6 +23,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
@@ -31,6 +33,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -44,6 +47,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 public class DiscountingFxResetNotionalExchangePricerTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
+  private static final double DISCOUNT_FACTOR = 0.98d;
   private static final LocalDateDoubleTimeSeries EMPTY_TIME_SERIES = LocalDateDoubleTimeSeries.empty();
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, 1.6d);
 
@@ -65,21 +69,11 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
-    double discountFactor = 0.98d;
-    FxResetNotionalExchange ne = FX_RESET_NOTIONAL_EXCHANGE_REC_USD;
-
-    DiscountFactors mockDf = mock(DiscountFactors.class);
-    when(mockDf.discountFactor(ne.getPaymentDate())).thenReturn(discountFactor);
-
-    FxIndexRates mockFxRates = mock(FxIndexRates.class);
-    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(1.6d);
-
-    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
-    prov.setDiscountFactors(mockDf);
-    prov.setFxIndexRates(mockFxRates);
+    SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
-    assertEquals(test.presentValue(ne, prov), ne.getNotional() * 1.6d * discountFactor, 0d);
+    double calculated = test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
+    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * 1.6d * DISCOUNT_FACTOR, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -109,16 +103,11 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValue() {
-    FxResetNotionalExchange ne = FX_RESET_NOTIONAL_EXCHANGE_REC_USD;
-
-    FxIndexRates mockFxRates = mock(FxIndexRates.class);
-    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(1.6d);
-
-    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
-    prov.setFxIndexRates(mockFxRates);
+    SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
-    assertEquals(test.futureValue(ne, prov), ne.getNotional() * 1.6d, 0d);
+    double calculated = test.futureValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
+    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * 1.6d, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -144,6 +133,26 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       assertTrue(parameterSensitivityComputed.equalWithTolerance(
           parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // creates a simple provider
+  private SimpleRatesProvider createProvider(FxResetNotionalExchange ne) {
+    LocalDate paymentDate = ne.getPaymentDate();
+    double paymentTime = ACT_360.relativeYearFraction(VAL_DATE, ne.getPaymentDate());
+    Currency currency = ne.getCurrency();
+
+    DiscountFactors mockDf = mock(DiscountFactors.class);
+    when(mockDf.discountFactor(paymentDate)).thenReturn(DISCOUNT_FACTOR);
+    ZeroRateSensitivity sens = ZeroRateSensitivity.of(currency, paymentDate, -DISCOUNT_FACTOR * paymentTime);
+    when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(sens);
+    FxIndexRates mockFxRates = mock(FxIndexRates.class);
+    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(1.6d);
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    prov.setDiscountFactors(mockDf);
+    prov.setFxIndexRates(mockFxRates);
+    prov.setDayCount(ACT_360);
+    return prov;
   }
 
 }
