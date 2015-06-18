@@ -20,7 +20,7 @@ public class CurveCurrencyParameterSensitivityValueFormatter
     implements ValueFormatter<CurveCurrencyParameterSensitivity> {
 
   private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
-  
+
   @Override
   public String formatForCsv(CurveCurrencyParameterSensitivity sensitivity) {
     return getSensitivityString(sensitivity, d -> doubleFormatter.formatForCsv(d));

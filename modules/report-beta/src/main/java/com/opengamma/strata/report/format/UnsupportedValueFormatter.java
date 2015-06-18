@@ -25,7 +25,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
   public static final UnsupportedValueFormatter INSTANCE = new UnsupportedValueFormatter();
 
   private final ValuePathEvaluator valuePathEvaluator = new ValuePathEvaluator();
-  
+
   @Override
   public String formatForCsv(Object object) {
     if (object instanceof double[]) {
@@ -60,7 +60,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
     // prepare a better error message for case where we have a vector of doubles
     // this is a common case and we want a descriptive error message where the
     // user can see the data in the array
-    double[] data = (double[])object;
+    double[] data = (double[]) object;
     return Lists
         .newArrayList(ArrayUtils.toObject(data))
         .stream()

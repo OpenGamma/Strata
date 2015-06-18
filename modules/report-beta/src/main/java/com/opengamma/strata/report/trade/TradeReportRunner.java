@@ -26,7 +26,7 @@ import com.opengamma.strata.report.result.ValuePathEvaluator;
  * showing a value for that trade.
  */
 public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
-  
+
   /** The evaluator for the report column's value field */
   private final ValuePathEvaluator valuePathEvaluator = new ValuePathEvaluator();
 
@@ -38,7 +38,7 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
         .filter(m -> m.isPresent())
         .map(m -> Column.of(m.get()))
         .collect(Collectors.toList());
-    
+
     return ReportRequirements.builder()
         .tradeMeasureRequirements(measureRequirements)
         .build();
@@ -49,7 +49,7 @@ public class TradeReportRunner implements ReportRunner<TradeReportTemplate> {
     String[] columnHeaders = reportTemplate.getColumns().stream()
         .map(c -> c.getHeader())
         .toArray(i -> new String[i]);
-    
+
     Result<?>[][] dataTable = new Result<?>[results.getCalculationResults().getRowCount()][reportTemplate
         .getColumns().size()];
 

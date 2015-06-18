@@ -43,7 +43,7 @@ public class TradeReport implements Report, ImmutableBean {
   /** The instant at which the report was run. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Instant runInstant;
-  
+
   /** The report columns, which may contain information required for formatting. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<TradeReportColumn> columns;
@@ -60,12 +60,12 @@ public class TradeReport implements Report, ImmutableBean {
     TradeReportRunner reportRunner = new TradeReportRunner();
     return reportRunner.runReport(calculationResults, reportTemplate);
   }
-  
+
   @Override
   public int getRowCount() {
     return data.length;
   }
-  
+
   @Override
   public void writeCsv(OutputStream out) {
     TradeReportFormatter.INSTANCE.writeCsv(this, out);

@@ -25,7 +25,7 @@ import com.opengamma.strata.report.ReportTemplateIniLoader;
 public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<TradeReportTemplate> {
 
   private static final String REPORT_TYPE = "trade";
-  
+
   private static final String VALUE_PROPERTY = "value";
   private static final String IGNORE_FAILURES_PROPERTY = "ignoreFailures";
 
@@ -33,7 +33,7 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
   public String getReportType() {
     return REPORT_TYPE;
   }
-  
+
   @Override
   public TradeReportTemplate load(IniFile iniFile) {
     List<TradeReportColumn> reportColumns = new ArrayList<TradeReportColumn>();

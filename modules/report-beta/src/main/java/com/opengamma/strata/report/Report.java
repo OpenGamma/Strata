@@ -33,21 +33,21 @@ public interface Report {
    * @return the run instant
    */
   Instant getRunInstant();
-  
+
   /**
    * Gets the number of rows in the report table.
    * 
    * @return the number of rows in the report table
    */
   int getRowCount();
-  
+
   /**
    * Gets the report column headers.
    * 
    * @return the column headers
    */
   String[] getColumnHeaders();
-  
+
   /**
    * Writes this report out in a CSV format.
    * 
@@ -61,7 +61,7 @@ public interface Report {
    * @param out  the output stream to write to
    */
   void writeAsciiTable(OutputStream out);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the number of columns in the report table.
@@ -71,7 +71,7 @@ public interface Report {
   public default int getColumnCount() {
     return getColumnHeaders().length;
   }
-  
+
   /**
    * Gets this report as an ASCII table string.
    * 
@@ -82,5 +82,5 @@ public interface Report {
     writeAsciiTable(os);
     return os.toString();
   }
-  
+
 }

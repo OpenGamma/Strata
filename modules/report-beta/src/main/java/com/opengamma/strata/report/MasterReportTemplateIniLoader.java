@@ -22,7 +22,7 @@ public class MasterReportTemplateIniLoader {
   private final Set<ReportTemplateIniLoader<?>> LOADERS = ImmutableSet.of(
       new TradeReportTemplateIniLoader(),
       new CashFlowReportTemplateIniLoader());
-  
+
   @SuppressWarnings("unchecked")
   public ReportTemplate load(IniFile iniFile) {
     String settingsSectionKey = iniFile.keys().stream()

@@ -9,6 +9,8 @@ import com.opengamma.strata.collect.io.IniFile;
 
 /**
  * Loads a report template from an ini-based file format.
+ * 
+ * @param <T>  the report template type
  */
 public interface ReportTemplateIniLoader<T extends ReportTemplate> {
 
@@ -23,7 +25,7 @@ public interface ReportTemplateIniLoader<T extends ReportTemplate> {
    * @return the type of report handled by this loader
    */
   String getReportType();
-  
+
   /**
    * Loads the report template.
    * 

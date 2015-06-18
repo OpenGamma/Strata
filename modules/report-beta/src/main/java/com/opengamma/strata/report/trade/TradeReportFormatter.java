@@ -25,11 +25,11 @@ public class TradeReportFormatter extends ReportFormatter<TradeReport> {
    * The static instance.
    */
   public static TradeReportFormatter INSTANCE = new TradeReportFormatter();
-  
+
   public TradeReportFormatter() {
     super(FormatSettings.of(FormatCategory.TEXT, ValueFormatter.unsupported()));
   }
-  
+
   @Override
   protected List<Class<?>> getColumnTypes(TradeReport report) {
     List<Class<?>> columnTypes = new ArrayList<Class<?>>(report.getColumnHeaders().length);
@@ -47,7 +47,7 @@ public class TradeReportFormatter extends ReportFormatter<TradeReport> {
     }
     return columnTypes;
   }
-  
+
   @Override
   protected String formatData(TradeReport report, int rowIdx, int colIdx, ReportOutputFormat format) {
     TradeReportColumn templateColumn = report.getColumns().get(colIdx);
@@ -58,5 +58,5 @@ public class TradeReportFormatter extends ReportFormatter<TradeReport> {
     Object value = result.getValue();
     return formatValue(value, format);
   }
-  
+
 }

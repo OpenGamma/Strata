@@ -21,6 +21,8 @@ import com.opengamma.strata.report.Report;
 
 /**
  * Common base class for formatting reports into ASCII tables or CSV format.
+ * 
+ * @param <R>  the report type
  */
 public abstract class ReportFormatter<R extends Report> {
 
@@ -30,7 +32,7 @@ public abstract class ReportFormatter<R extends Report> {
   public ReportFormatter(FormatSettings fallbackSettings) {
     this.fallbackSettings = fallbackSettings;
   }
-  
+
   /**
    * Outputs the report table in CSV format.
    * 
@@ -69,7 +71,7 @@ public abstract class ReportFormatter<R extends Report> {
     pw.println(asciiTable);
     pw.flush();
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the type of the data in each report column.
@@ -89,7 +91,7 @@ public abstract class ReportFormatter<R extends Report> {
    * @return the formatted data
    */
   protected abstract String formatData(R report, int rowIdx, int colIdx, ReportOutputFormat format);
-  
+
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   protected String formatValue(Object value, ReportOutputFormat format) {
@@ -105,7 +107,7 @@ public abstract class ReportFormatter<R extends Report> {
       return formatter.formatForDisplay(formatValue);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   private ASCIITableHeader toAsciiTableHeader(String header, Class<?> columnType) {
     FormatSettings formatSettings = formatSettingsProvider.getSettings(columnType, fallbackSettings);
@@ -130,5 +132,5 @@ public abstract class ReportFormatter<R extends Report> {
     }
     return tableRow;
   }
-  
+
 }

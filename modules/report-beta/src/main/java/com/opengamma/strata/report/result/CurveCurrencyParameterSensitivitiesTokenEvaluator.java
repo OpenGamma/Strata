@@ -19,7 +19,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
  */
 public class CurveCurrencyParameterSensitivitiesTokenEvaluator
     extends TokenEvaluator<CurveCurrencyParameterSensitivities> {
-  
+
   @Override
   public Class<?> getTargetType() {
     return CurveCurrencyParameterSensitivities.class;

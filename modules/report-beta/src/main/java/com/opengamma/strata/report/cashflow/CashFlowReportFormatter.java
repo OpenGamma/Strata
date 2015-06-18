@@ -24,12 +24,11 @@ public class CashFlowReportFormatter extends ReportFormatter<CashFlowReport> {
    * The static instance.
    */
   public static CashFlowReportFormatter INSTANCE = new CashFlowReportFormatter();
-  
-  
+
   public CashFlowReportFormatter() {
     super(FormatSettings.of(FormatCategory.TEXT, ValueFormatter.defaultToString()));
   }
-  
+
   @Override
   protected List<Class<?>> getColumnTypes(CashFlowReport report) {
     return IntStream.range(0, report.getColumnCount())

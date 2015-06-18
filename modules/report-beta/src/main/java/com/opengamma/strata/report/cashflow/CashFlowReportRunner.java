@@ -41,16 +41,16 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
   public Report runReport(ReportCalculationResults calculationResults, CashFlowReportTemplate reportTemplate) {
     Result<?> result = calculationResults.getCalculationResults().get(0, 0);
     ExplainMap explainMap = (ExplainMap) result.getValue();
-    
+
     List<ExplainMap> flatMap = flatten(explainMap);
-    
+
     List<ExplainKey<?>> keys = getKeys(flatMap);
     String[] headers = keys.stream()
         .map(k -> k.toString())
         .toArray(size -> new String[size]);
-    
+
     Object[][] data = getData(flatMap, keys);
-    
+
     return CashFlowReport.builder()
         .runInstant(Instant.now())
         .valuationDate(calculationResults.getValuationDate())
@@ -59,23 +59,23 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
         .data(data)
         .build();
   }
-  
+
   private List<ExplainMap> flatten(ExplainMap explainMap) {
     List<ExplainMap> flattenedMap = new ArrayList<ExplainMap>();
     flatten(explainMap, ImmutableMap.of(), flattenedMap);
     return flattenedMap;
   }
-  
+
   @SuppressWarnings("unchecked")
   private void flatten(ExplainMap explainMap, Map<ExplainKey<?>, Object> expandedParentRow, List<ExplainMap> accumulator) {
     Set<ExplainKey<List<ExplainMap>>> nestedListKeys = explainMap.getMap().keySet().stream()
         .filter(k -> List.class.isAssignableFrom(explainMap.get(k).get().getClass()))
         .map(k -> (ExplainKey<List<ExplainMap>>) k)
         .collect(Collectors.toSet());
-    
+
     ImmutableMap.Builder<ExplainKey<?>, Object> rowBuilder = ImmutableMap.builder();
     rowBuilder.putAll(expandedParentRow);
-    
+
     if (!nestedListKeys.isEmpty()) {
       if (nestedListKeys.size() > 1) {
         throw new IllegalArgumentException();
@@ -85,21 +85,21 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
       List<ExplainMap> nestedList = explainMap.get(nestedListKey).get();
       Map<ExplainKey<?>, Object> currentRow = rowBuilder.build();
       for (ExplainMap nestedListItem : nestedList) {
-        flatten(nestedListItem, currentRow, accumulator);        
+        flatten(nestedListItem, currentRow, accumulator);
       }
     } else {
       rowBuilder.putAll(explainMap.getMap());
       accumulator.add(ExplainMap.of(rowBuilder.build()));
     }
   }
-  
+
   private List<ExplainKey<?>> getKeys(List<ExplainMap> explainMap) {
     return explainMap.stream()
         .flatMap(m -> m.getMap().keySet().stream())
         .distinct()
         .collect(Collectors.toList());
   }
-  
+
   private Object[][] getData(List<ExplainMap> flatMap, List<ExplainKey<?>> keys) {
     Object[][] data = new Object[flatMap.size()][keys.size()];
     for (int rowIdx = 0; rowIdx < data.length; rowIdx++) {

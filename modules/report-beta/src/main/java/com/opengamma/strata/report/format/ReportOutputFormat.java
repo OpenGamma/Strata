@@ -18,5 +18,5 @@ public enum ReportOutputFormat {
    * CSV
    */
   CSV
-  
+
 }
