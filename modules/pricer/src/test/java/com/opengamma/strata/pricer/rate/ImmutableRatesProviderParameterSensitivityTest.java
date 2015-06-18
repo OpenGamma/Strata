@@ -149,7 +149,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(USD), list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(MULTICURVE.getName(USD), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(CurveMetadata.of(MULTICURVE.getName(USD)), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -160,7 +160,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(EUR), list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(MULTICURVE.getName(EUR), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(CurveMetadata.of(MULTICURVE.getName(EUR)), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -177,7 +177,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.iborIndex(USD_LIBOR_3M));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(curveName, USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(CurveMetadata.of(curveName), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -194,7 +194,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.overnightIndex(USD_FED_FUND));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(curveName, USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(CurveMetadata.of(curveName), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -210,7 +210,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.overnightIndex(USD_FED_FUND));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(curveName, USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(CurveMetadata.of(curveName), USD, vectorExpected));
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 

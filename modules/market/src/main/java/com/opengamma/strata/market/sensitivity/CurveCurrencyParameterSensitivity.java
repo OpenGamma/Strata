@@ -68,30 +68,6 @@ public final class CurveCurrencyParameterSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the curve name, currency and sensitivity.
-   * 
-   * @param curveName  the curve name
-   * @param currency  the currency of the sensitivity
-   * @param sensitivity  the sensitivity values, one for each node in the curve
-   * @return the sensitivity object
-   */
-  public static CurveCurrencyParameterSensitivity of(String curveName, Currency currency, double[] sensitivity) {
-    return of(CurveMetadata.of(curveName), currency, sensitivity);
-  }
-
-  /**
-   * Obtains an instance from the curve name, currency and sensitivity.
-   * 
-   * @param curveName  the curve name
-   * @param currency  the currency of the sensitivity
-   * @param sensitivity  the sensitivity values, one for each node in the curve
-   * @return the sensitivity object
-   */
-  public static CurveCurrencyParameterSensitivity of(CurveName curveName, Currency currency, double[] sensitivity) {
-    return of(CurveMetadata.of(curveName), currency, sensitivity);
-  }
-
-  /**
    * Obtains an instance from the curve metadata, currency and sensitivity.
    * 
    * @param metadata  the curve metadata
