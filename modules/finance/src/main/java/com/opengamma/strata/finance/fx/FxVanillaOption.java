@@ -19,6 +19,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -31,6 +32,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A vanilla FX option.
@@ -46,7 +50,7 @@ import com.opengamma.strata.basics.PutCall;
  * A put on the same exchange is the option to pay EUR 1.00 and receive USD 1.41.
  */
 @BeanDefinition
-public class FxVanillaOption
+public final class FxVanillaOption
     implements FxVanillaOptionProduct, ImmutableBean, Serializable {
 
   /**
@@ -55,7 +59,7 @@ public class FxVanillaOption
    * A call gives the owner the right, but not obligation, to exercise the underlying foreign exchange.
    * A put gives a similar option to exercise the inverse of the underlying.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final PutCall putCall;
   /**
    * Whether the option is long or short.
@@ -63,7 +67,7 @@ public class FxVanillaOption
    * Long indicates that the owner wants the option to be in the money at expiry.
    * Short indicates that the owner wants the option to be out of the money at expiry.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
    * The expiry date of the option.  
@@ -95,11 +99,56 @@ public class FxVanillaOption
    */
   @PropertyDefinition(validate = "notNull")
   private final Fx underlying;
+  /**
+   * The strike of the option.
+   * <p>
+   * The moneyness of the option is determined based on this strike. 
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final FxRate strike;
+
+  //  //-------------------------------------------------------------------------
+  //  public static FxVanillaOption of(
+  //      PutCall putCall,
+  //      LongShort longShort,
+  //      LocalDate expiryDate,
+  //      LocalTime expiryTime,
+  //      ZoneId zoneId,
+  //      Fx underlying,
+  //      FxRate strike) {
+  //
+  //    return new FxVanillaOption(putCall, longShort, expiryDate, expiryTime, zoneId, underlying, strike);
+  //  }
+  //
+  //  public static FxVanillaOption of(
+  //      PutCall putCall,
+  //      LongShort longShort,
+  //      LocalDate expiryDate,
+  //      LocalTime expiryTime,
+  //      ZoneId zoneId,
+  //      CurrencyAmount notionalAmount,
+  //      FxRate spot,
+  //      LocalDate paymentDate,
+  //      FxRate strike) {
+  //    Fx underlying = Fx.of(notionalAmount, spot, paymentDate);
+  //    return new FxVanillaOption(putCall, longShort, expiryDate, expiryTime, zoneId, underlying, strike);
+  //  }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
+    ArgChecker.isTrue(strike.getPair().equals(underlying.getCurrencyPair())
+        || strike.getPair().isInverse(underlying.getCurrencyPair()),
+        "currency pair mismatch between strike and underlying");
     inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.valueDate");
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    // set the directions of strike and underlying to be the same
+    if (!builder.strike.getPair().getBase().equals(builder.underlying.getReceiveCurrency())) {
+      builder.strike = builder.strike.inverse();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -114,6 +163,28 @@ public class FxVanillaOption
    */
   public ZonedDateTime getExpiryDateTime() {
     return expiryDate.atTime(expiryTime).atZone(expiryZone);
+  }
+
+  /**
+   * Gets the receiving currency amount of the underlying. 
+   * <p>
+   * By construction the results must be positive. 
+   * 
+   * @return the amount
+   */
+  public double getAmount() {
+    return underlying.getReceiveCurrency().equals(underlying.getBaseCurrencyAmount().getCurrency()) ?
+        underlying.getBaseCurrencyAmount().getAmount() :
+        underlying.getCounterCurrencyAmount().getAmount();
+  }
+
+  /**
+   * Gets the currency on which the payoff occurs. 
+   * 
+   * @return the payoff currency
+   */
+  public Currency getPayoffCurrency() {
+    return strike.getPair().getCounter();
   }
 
   //-------------------------------------------------------------------------
@@ -154,21 +225,28 @@ public class FxVanillaOption
     return new FxVanillaOption.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FxVanillaOption(FxVanillaOption.Builder builder) {
-    JodaBeanUtils.notNull(builder.expiryDate, "expiryDate");
-    JodaBeanUtils.notNull(builder.expiryTime, "expiryTime");
-    JodaBeanUtils.notNull(builder.expiryZone, "expiryZone");
-    JodaBeanUtils.notNull(builder.underlying, "underlying");
-    this.putCall = builder.putCall;
-    this.longShort = builder.longShort;
-    this.expiryDate = builder.expiryDate;
-    this.expiryTime = builder.expiryTime;
-    this.expiryZone = builder.expiryZone;
-    this.underlying = builder.underlying;
+  private FxVanillaOption(
+      PutCall putCall,
+      LongShort longShort,
+      LocalDate expiryDate,
+      LocalTime expiryTime,
+      ZoneId expiryZone,
+      Fx underlying,
+      FxRate strike) {
+    JodaBeanUtils.notNull(putCall, "putCall");
+    JodaBeanUtils.notNull(longShort, "longShort");
+    JodaBeanUtils.notNull(expiryDate, "expiryDate");
+    JodaBeanUtils.notNull(expiryTime, "expiryTime");
+    JodaBeanUtils.notNull(expiryZone, "expiryZone");
+    JodaBeanUtils.notNull(underlying, "underlying");
+    JodaBeanUtils.notNull(strike, "strike");
+    this.putCall = putCall;
+    this.longShort = longShort;
+    this.expiryDate = expiryDate;
+    this.expiryTime = expiryTime;
+    this.expiryZone = expiryZone;
+    this.underlying = underlying;
+    this.strike = strike;
     validate();
   }
 
@@ -193,7 +271,7 @@ public class FxVanillaOption
    * <p>
    * A call gives the owner the right, but not obligation, to exercise the underlying foreign exchange.
    * A put gives a similar option to exercise the inverse of the underlying.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public PutCall getPutCall() {
     return putCall;
@@ -205,7 +283,7 @@ public class FxVanillaOption
    * <p>
    * Long indicates that the owner wants the option to be in the money at expiry.
    * Short indicates that the owner wants the option to be out of the money at expiry.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public LongShort getLongShort() {
     return longShort;
@@ -259,6 +337,17 @@ public class FxVanillaOption
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the strike of the option.
+   * <p>
+   * The moneyness of the option is determined based on this strike.
+   * @return the value of the property, not null
+   */
+  public FxRate getStrike() {
+    return strike;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -278,7 +367,8 @@ public class FxVanillaOption
           JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
           JodaBeanUtils.equal(getExpiryTime(), other.getExpiryTime()) &&
           JodaBeanUtils.equal(getExpiryZone(), other.getExpiryZone()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying());
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike());
     }
     return false;
   }
@@ -292,36 +382,30 @@ public class FxVanillaOption
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryTime());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryZone());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("FxVanillaOption{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("putCall").append('=').append(getPutCall()).append(',').append(' ');
+    buf.append("longShort").append('=').append(getLongShort()).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(getExpiryTime()).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(getExpiryZone()).append(',').append(' ');
+    buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("putCall").append('=').append(JodaBeanUtils.toString(getPutCall())).append(',').append(' ');
-    buf.append("longShort").append('=').append(JodaBeanUtils.toString(getLongShort())).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(getExpiryDate())).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(getExpiryTime())).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(getExpiryZone())).append(',').append(' ');
-    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FxVanillaOption}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -358,6 +442,11 @@ public class FxVanillaOption
     private final MetaProperty<Fx> underlying = DirectMetaProperty.ofImmutable(
         this, "underlying", FxVanillaOption.class, Fx.class);
     /**
+     * The meta-property for the {@code strike} property.
+     */
+    private final MetaProperty<FxRate> strike = DirectMetaProperty.ofImmutable(
+        this, "strike", FxVanillaOption.class, FxRate.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -367,12 +456,13 @@ public class FxVanillaOption
         "expiryDate",
         "expiryTime",
         "expiryZone",
-        "underlying");
+        "underlying",
+        "strike");
 
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -390,6 +480,8 @@ public class FxVanillaOption
           return expiryZone;
         case -1770633379:  // underlying
           return underlying;
+        case -891985998:  // strike
+          return strike;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -414,7 +506,7 @@ public class FxVanillaOption
      * The meta-property for the {@code putCall} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PutCall> putCall() {
+    public MetaProperty<PutCall> putCall() {
       return putCall;
     }
 
@@ -422,7 +514,7 @@ public class FxVanillaOption
      * The meta-property for the {@code longShort} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LongShort> longShort() {
+    public MetaProperty<LongShort> longShort() {
       return longShort;
     }
 
@@ -430,7 +522,7 @@ public class FxVanillaOption
      * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> expiryDate() {
+    public MetaProperty<LocalDate> expiryDate() {
       return expiryDate;
     }
 
@@ -438,7 +530,7 @@ public class FxVanillaOption
      * The meta-property for the {@code expiryTime} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalTime> expiryTime() {
+    public MetaProperty<LocalTime> expiryTime() {
       return expiryTime;
     }
 
@@ -446,7 +538,7 @@ public class FxVanillaOption
      * The meta-property for the {@code expiryZone} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZoneId> expiryZone() {
+    public MetaProperty<ZoneId> expiryZone() {
       return expiryZone;
     }
 
@@ -454,8 +546,16 @@ public class FxVanillaOption
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Fx> underlying() {
+    public MetaProperty<Fx> underlying() {
       return underlying;
+    }
+
+    /**
+     * The meta-property for the {@code strike} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FxRate> strike() {
+      return strike;
     }
 
     //-----------------------------------------------------------------------
@@ -474,6 +574,8 @@ public class FxVanillaOption
           return ((FxVanillaOption) bean).getExpiryZone();
         case -1770633379:  // underlying
           return ((FxVanillaOption) bean).getUnderlying();
+        case -891985998:  // strike
+          return ((FxVanillaOption) bean).getStrike();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -493,7 +595,7 @@ public class FxVanillaOption
   /**
    * The bean-builder for {@code FxVanillaOption}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<FxVanillaOption> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FxVanillaOption> {
 
     private PutCall putCall;
     private LongShort longShort;
@@ -501,24 +603,26 @@ public class FxVanillaOption
     private LocalTime expiryTime;
     private ZoneId expiryZone;
     private Fx underlying;
+    private FxRate strike;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(FxVanillaOption beanToCopy) {
+    private Builder(FxVanillaOption beanToCopy) {
       this.putCall = beanToCopy.getPutCall();
       this.longShort = beanToCopy.getLongShort();
       this.expiryDate = beanToCopy.getExpiryDate();
       this.expiryTime = beanToCopy.getExpiryTime();
       this.expiryZone = beanToCopy.getExpiryZone();
       this.underlying = beanToCopy.getUnderlying();
+      this.strike = beanToCopy.getStrike();
     }
 
     //-----------------------------------------------------------------------
@@ -537,6 +641,8 @@ public class FxVanillaOption
           return expiryZone;
         case -1770633379:  // underlying
           return underlying;
+        case -891985998:  // strike
+          return strike;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -562,6 +668,9 @@ public class FxVanillaOption
           break;
         case -1770633379:  // underlying
           this.underlying = (Fx) newValue;
+          break;
+        case -891985998:  // strike
+          this.strike = (FxRate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -595,26 +704,36 @@ public class FxVanillaOption
 
     @Override
     public FxVanillaOption build() {
-      return new FxVanillaOption(this);
+      preBuild(this);
+      return new FxVanillaOption(
+          putCall,
+          longShort,
+          expiryDate,
+          expiryTime,
+          expiryZone,
+          underlying,
+          strike);
     }
 
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code putCall} property in the builder.
-     * @param putCall  the new value
+     * @param putCall  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder putCall(PutCall putCall) {
+      JodaBeanUtils.notNull(putCall, "putCall");
       this.putCall = putCall;
       return this;
     }
 
     /**
      * Sets the {@code longShort} property in the builder.
-     * @param longShort  the new value
+     * @param longShort  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder longShort(LongShort longShort) {
+      JodaBeanUtils.notNull(longShort, "longShort");
       this.longShort = longShort;
       return this;
     }
@@ -663,27 +782,31 @@ public class FxVanillaOption
       return this;
     }
 
+    /**
+     * Sets the {@code strike} property in the builder.
+     * @param strike  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder strike(FxRate strike) {
+      JodaBeanUtils.notNull(strike, "strike");
+      this.strike = strike;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("FxVanillaOption.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
       buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
+      buf.append("strike").append('=').append(JodaBeanUtils.toString(strike));
+      buf.append('}');
+      return buf.toString();
     }
 
   }
