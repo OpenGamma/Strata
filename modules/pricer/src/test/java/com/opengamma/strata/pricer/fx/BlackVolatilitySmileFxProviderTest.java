@@ -37,16 +37,9 @@ import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
  */
 @Test
 public class BlackVolatilitySmileFxProviderTest {
-
-  //    private static final Interpolator1D DQUAD_LINEAR =
-  //        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
-  //            Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-  //  private static final Interpolator1D DQUAD_LINEAR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
   private static final Interpolator1D LINEAR_FLAT =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  //  private static final Interpolator1D DQUAD_LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
-  //  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
   private static final double[] TIME_TO_EXPIRY = new double[] {0.01, 0.252, 0.501, 1.0, 2.0, 5.0 };
   private static final double[] ATM = new double[] {0.175, 0.185, 0.18, 0.17, 0.16, 0.16 };
@@ -57,14 +50,6 @@ public class BlackVolatilitySmileFxProviderTest {
     {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } };
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
       new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
-  //  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
-  //      new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
-
-  //  private static final double[] TIMES = new double[] {0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00 };
-  //  private static final double[] STRIKES = new double[] {0.7, 0.7, 0.7, 0.8, 0.8, 0.8, 0.9, 0.9, 0.9 };
-  //  private static final double[] VOLS = new double[] {0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014 };
-  //  private static final InterpolatedDoublesSurface SURFACE =
-  //      new InterpolatedDoublesSurface(TIMES, STRIKES, VOLS, INTERPOLATOR_2D);
   private static final LocalDate VALUATION_DATE = date(2015, 2, 17);
   private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
@@ -74,16 +59,10 @@ public class BlackVolatilitySmileFxProviderTest {
   private static final BlackVolatilitySmileFxProvider PROVIDER =
       BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
   private static final LocalDate[] TEST_EXPIRY = new LocalDate[] {
-    date(2015, 2, 18), date(2015, 5, 17),
-    //    date(2015, 10, 17), 
-    date(2016, 2, 17),
-    date(2017, 12, 17), date(2020, 10, 17) };
+    date(2015, 2, 18), date(2015, 5, 17), date(2015, 10, 17), date(2017, 12, 17), date(2020, 10, 17) };
   private static final double[] FORWARD = new double[] {1.4, 1.395, 1.39, 1.38, 1.35 };
   private static final int NB_EXPIRY = TEST_EXPIRY.length;
-  private static final double[] TEST_STRIKE = new double[] {1.1, 1.28,
-    //    1.45,
-    1.415,
-    1.62, 1.8 };
+  private static final double[] TEST_STRIKE = new double[] {1.1, 1.28, 1.45, 1.62, 1.8 };
   private static final int NB_STRIKE = TEST_STRIKE.length;
 
   private static final double TOLERANCE = 1.0E-12;
