@@ -3,18 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.examples.report;
+package com.opengamma.strata.report.format;
 
 /**
- * Enumerates the supported report output types.
+ * Enumerates the report output formats.
  */
-public enum ReportOutputType {
+public enum ReportOutputFormat {
 
   /**
    * ASCII table
    */
   ASCII_TABLE,
-
   /**
    * CSV
    */

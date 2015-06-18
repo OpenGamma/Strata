@@ -39,6 +39,9 @@ public final class Measure
   
   /** Measure representing the Bucketed Gamma PV01 of the calculation target. */
   public static final Measure BUCKETED_GAMMA_PV01 = Measure.of("BucketedGammaPV01");
+  
+  /** Measure representing a break-down of the present value calculation on the target. */
+  public static final Measure EXPLAIN_PRESENT_VALUE = Measure.of("ExplainPresentValue");
 
   /** Measure representing the initial notional amount of each leg of the calculation target. */
   public static final Measure LEG_INITIAL_NOTIONAL = Measure.of("LegInitialNotional");
