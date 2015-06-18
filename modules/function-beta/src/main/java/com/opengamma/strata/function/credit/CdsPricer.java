@@ -25,19 +25,29 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+// TODO move to pricer
 public class CdsPricer {
 
   public static final CdsPricer DEFAULT = new CdsPricer();
+
   private static final double ONE_BPS = 0.0001D;
 
-  public MultiCurrencyAmount presentValue(ExpandedCds product, IsdaYieldCurveParRates parRates, DefaultSingleCalculationMarketData provider) {
+  public MultiCurrencyAmount presentValue(
+      ExpandedCds product,
+      IsdaYieldCurveParRates parRates,
+      DefaultSingleCalculationMarketData provider
+  ) {
     LocalDate valuationDate = provider.getValuationDate();
     CurveCreditPlaceholder creditCurve = Curves.creditCurve();
     double recoveryRate = Curves.recoveryRate();
     return CdsAnalyticsWrapper.price(valuationDate, product, parRates, creditCurve, recoveryRate);
   }
 
-  public MultiCurrencyAmount ir01ParallelPar(ExpandedCds product, IsdaYieldCurveParRates parRates, DefaultSingleCalculationMarketData provider) {
+  public MultiCurrencyAmount ir01ParallelPar(
+      ExpandedCds product,
+      IsdaYieldCurveParRates parRates,
+      DefaultSingleCalculationMarketData provider
+  ) {
     LocalDate valuationDate = provider.getValuationDate();
     CurveCreditPlaceholder creditCurve = Curves.creditCurve();
     double recoveryRate = Curves.recoveryRate();
@@ -51,7 +61,7 @@ public class CdsPricer {
       IsdaYieldCurveParRates parRates,
       DefaultSingleCalculationMarketData provider
   ) {
-    int points = Curves.numOfYieldCurvePoints();
+    int points = parRates.getNumberOfPoints();
     double[] sensitivities = new double[points];
     List<TenorCurveNodeMetadata> metaData = Lists.newArrayList();
     for (int i = 0; i < points; i++) {
@@ -84,7 +94,11 @@ public class CdsPricer {
     );
   }
 
-  public MultiCurrencyAmount cs01ParallelPar(ExpandedCds product, IsdaYieldCurveParRates parRates, DefaultSingleCalculationMarketData provider) {
+  public MultiCurrencyAmount cs01ParallelPar(
+      ExpandedCds product,
+      IsdaYieldCurveParRates parRates,
+      DefaultSingleCalculationMarketData provider
+  ) {
     LocalDate valuationDate = provider.getValuationDate();
     CurveCreditPlaceholder creditCurve = Curves.creditCurvePar(0.0001D);
     double recoveryRate = Curves.recoveryRate();
@@ -93,7 +107,11 @@ public class CdsPricer {
         .minus(presentValue(product, parRates, provider));
   }
 
-  public CurveCurrencyParameterSensitivities cs01BucketedPar(ExpandedCds product, IsdaYieldCurveParRates parRates, DefaultSingleCalculationMarketData provider) {
+  public CurveCurrencyParameterSensitivities cs01BucketedPar(
+      ExpandedCds product,
+      IsdaYieldCurveParRates parRates,
+      DefaultSingleCalculationMarketData provider
+  ) {
     int points = Curves.numOfCreditCurvePoints();
     double[] sensitivities = new double[points];
     List<TenorCurveNodeMetadata> metaData = Lists.newArrayList();

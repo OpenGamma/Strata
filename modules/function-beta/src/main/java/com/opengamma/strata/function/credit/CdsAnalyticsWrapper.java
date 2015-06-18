@@ -8,6 +8,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
@@ -18,9 +19,10 @@ import com.opengamma.strata.pricer.PricingException;
 import java.time.LocalDate;
 import java.time.Period;
 
-import static com.opengamma.strata.function.credit.Converters.translateDayCount;
-import static com.opengamma.strata.function.credit.Converters.translateStubType;
-
+/**
+ * Single point for interacting with the underlying Analytics layer
+ */
+// TODO put all of this behind interfaces
 public class CdsAnalyticsWrapper {
 
   /**
@@ -86,8 +88,9 @@ public class CdsAnalyticsWrapper {
 
   /**
    * The fee is always calculated as being payable by the protection buyer.
+   * If the seller should pay the fee, then a negative amount is used.
    */
-  protected static double priceUpfrontFee(
+  private static double priceUpfrontFee(
       LocalDate valuationDate,
       double amount,
       LocalDate paymentDate,
@@ -104,7 +107,7 @@ public class CdsAnalyticsWrapper {
     return discountFactor * amount;
   }
 
-  public static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, IsdaYieldCurveParRates yieldCurve) {
+  private static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, IsdaYieldCurveParRates yieldCurve) {
     try {
       // model does not use floating leg of underlying IRS
       IsdaYieldCurveConvention curveConvention = yieldCurve.getCurveConvention();
@@ -121,7 +124,7 @@ public class CdsAnalyticsWrapper {
           .newArrayList(yieldCurve.getYieldCurveInstruments())
           .stream()
           .map(CdsAnalyticsWrapper::mapInstrumentType)
-      .toArray(ISDAInstrumentTypes[]::new);
+          .toArray(ISDAInstrumentTypes[]::new);
       return new ISDACompliantYieldCurveBuild(
           valuationDate,
           spotDate,
@@ -201,6 +204,32 @@ public class CdsAnalyticsWrapper {
       );
     } catch (Exception e) {
       throw new PricingException("Error converting the trade to an analytic: " + e.getMessage(), e);
+    }
+  }
+
+  private static com.opengamma.analytics.convention.daycount.DayCount translateDayCount(DayCount from) {
+    switch (from.getName()) {
+      case "Act/365F":
+        return com.opengamma.analytics.convention.daycount.DayCounts.ACT_365F;
+      case "30E/360":
+        return com.opengamma.analytics.convention.daycount.DayCounts.THIRTY_E_360;
+      case "30/360 ISDA":
+        return com.opengamma.analytics.convention.daycount.DayCounts.THIRTY_E_360;
+      case "Act/360":
+        return com.opengamma.analytics.convention.daycount.DayCounts.ACT_360;
+      default:
+        throw new IllegalStateException("Unknown daycount " + from);
+    }
+  }
+
+  private static com.opengamma.analytics.financial.credit.isdastandardmodel.StubType translateStubType(StubConvention from) {
+    switch (from) {
+      case SHORT_INITIAL:
+        return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.FRONTSHORT;
+      case SHORT_FINAL:
+        return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.BACKSHORT;
+      default:
+        throw new IllegalStateException("Unknown stub convention: " + from);
     }
   }
 

@@ -23,6 +23,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
+import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
@@ -275,6 +276,10 @@ public abstract class MarketDataBuilder {
   }
 
   private void loadCreditCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    String name = "USD ISDA Yield Curve";
+    Currency currency = Currency.USD;
+    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.northAmericanUsd;
+    double recoveryRate = .40D;
     ImmutableList<String> raytheon20141020Ir = ImmutableList.of(
         "1M,M,0.001535",
         "2M,M,0.001954",
@@ -310,13 +315,15 @@ public abstract class MarketDataBuilder {
         .map(this::mapUnderlyingType)
         .toArray(IsdaYieldCurveUnderlyingType[]::new);
     builder.addValue(
-        IsdaYieldCurveParRatesId.of(Currency.USD),
+        IsdaYieldCurveParRatesId.of(currency),
         IsdaYieldCurveParRates.of(
-            "USD ISDA Yield Curve",
+            name,
+            marketDataDate,
             yieldCurvePoints,
             yieldCurveInstruments,
             rates,
-            IsdaYieldCurveConventions.northAmericanUsd
+            curveConvention,
+            recoveryRate
         )
     );
   }

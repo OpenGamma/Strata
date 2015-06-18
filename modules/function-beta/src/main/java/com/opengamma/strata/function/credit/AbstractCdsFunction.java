@@ -18,10 +18,7 @@ import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
-import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
-import com.opengamma.strata.market.key.MarketDataKeys;
 
 import java.util.Optional;
 import java.util.Set;
@@ -56,7 +53,7 @@ public abstract class AbstractCdsFunction<T>
   }
 
   /**
-   * Returns the Swap pricer.
+   * Returns the Cds pricer.
    *
    * @return the pricer
    */

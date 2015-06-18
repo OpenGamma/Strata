@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -37,6 +38,9 @@ public final class IsdaYieldCurveParRates
   private final String name;
 
   @PropertyDefinition(validate = "notNull")
+  private final LocalDate marketDateDate;
+
+  @PropertyDefinition(validate = "notNull")
   private final Period[] yieldCurvePoints;
 
   @PropertyDefinition(validate = "notNull")
@@ -48,19 +52,28 @@ public final class IsdaYieldCurveParRates
   @PropertyDefinition(validate = "notNull")
   private final IsdaYieldCurveConvention curveConvention;
 
+  // TODO the recovery rate is not really a part of the curve, but the data is available along side when
+  // TODO as parsing the curves, so it is convenient to put it here for the moment.
+  @PropertyDefinition(validate = "notNull")
+  private final double recoveryRate;
+
   public static IsdaYieldCurveParRates of(
       String name,
+      LocalDate marketDateDate,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
-      IsdaYieldCurveConvention curveConvention
+      IsdaYieldCurveConvention curveConvention,
+      double recoveryRate
   ) {
     return new IsdaYieldCurveParRates(
         name,
+        marketDateDate,
         yieldCurvePoints,
         yieldCurveInstruments,
         parRates,
-        curveConvention
+        curveConvention,
+        recoveryRate
     );
   }
 
@@ -78,13 +91,19 @@ public final class IsdaYieldCurveParRates
     return applyShift(shiftedRates);
   }
 
+  public int getNumberOfPoints() {
+    return yieldCurvePoints.length;
+  }
+
   private IsdaYieldCurveParRates applyShift(double[] shiftedRates) {
     return IsdaYieldCurveParRates.of(
         name,
+        marketDateDate,
         yieldCurvePoints.clone(),
         yieldCurveInstruments.clone(),
         shiftedRates,
-        curveConvention
+        curveConvention,
+        recoveryRate
     );
   }
 
@@ -120,20 +139,26 @@ public final class IsdaYieldCurveParRates
 
   private IsdaYieldCurveParRates(
       String name,
+      LocalDate marketDateDate,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
-      IsdaYieldCurveConvention curveConvention) {
+      IsdaYieldCurveConvention curveConvention,
+      double recoveryRate) {
     JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(marketDateDate, "marketDateDate");
     JodaBeanUtils.notNull(yieldCurvePoints, "yieldCurvePoints");
     JodaBeanUtils.notNull(yieldCurveInstruments, "yieldCurveInstruments");
     JodaBeanUtils.notNull(parRates, "parRates");
     JodaBeanUtils.notNull(curveConvention, "curveConvention");
+    JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
     this.name = name;
+    this.marketDateDate = marketDateDate;
     this.yieldCurvePoints = yieldCurvePoints;
     this.yieldCurveInstruments = yieldCurveInstruments;
     this.parRates = parRates.clone();
     this.curveConvention = curveConvention;
+    this.recoveryRate = recoveryRate;
     validate();
   }
 
@@ -159,6 +184,15 @@ public final class IsdaYieldCurveParRates
    */
   public String getName() {
     return name;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the marketDateDate.
+   * @return the value of the property, not null
+   */
+  public LocalDate getMarketDateDate() {
+    return marketDateDate;
   }
 
   //-----------------------------------------------------------------------
@@ -198,6 +232,15 @@ public final class IsdaYieldCurveParRates
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the recoveryRate.
+   * @return the value of the property, not null
+   */
+  public double getRecoveryRate() {
+    return recoveryRate;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -206,10 +249,12 @@ public final class IsdaYieldCurveParRates
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaYieldCurveParRates other = (IsdaYieldCurveParRates) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getMarketDateDate(), other.getMarketDateDate()) &&
           JodaBeanUtils.equal(getYieldCurvePoints(), other.getYieldCurvePoints()) &&
           JodaBeanUtils.equal(getYieldCurveInstruments(), other.getYieldCurveInstruments()) &&
           JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
-          JodaBeanUtils.equal(getCurveConvention(), other.getCurveConvention());
+          JodaBeanUtils.equal(getCurveConvention(), other.getCurveConvention()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate());
     }
     return false;
   }
@@ -218,22 +263,26 @@ public final class IsdaYieldCurveParRates
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDateDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurvePoints());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveInstruments());
     hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurveConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("IsdaYieldCurveParRates{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("marketDateDate").append('=').append(getMarketDateDate()).append(',').append(' ');
     buf.append("yieldCurvePoints").append('=').append(getYieldCurvePoints()).append(',').append(' ');
     buf.append("yieldCurveInstruments").append('=').append(getYieldCurveInstruments()).append(',').append(' ');
     buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
-    buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(getCurveConvention()));
+    buf.append("curveConvention").append('=').append(getCurveConvention()).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate()));
     buf.append('}');
     return buf.toString();
   }
@@ -253,6 +302,11 @@ public final class IsdaYieldCurveParRates
      */
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", IsdaYieldCurveParRates.class, String.class);
+    /**
+     * The meta-property for the {@code marketDateDate} property.
+     */
+    private final MetaProperty<LocalDate> marketDateDate = DirectMetaProperty.ofImmutable(
+        this, "marketDateDate", IsdaYieldCurveParRates.class, LocalDate.class);
     /**
      * The meta-property for the {@code yieldCurvePoints} property.
      */
@@ -274,15 +328,22 @@ public final class IsdaYieldCurveParRates
     private final MetaProperty<IsdaYieldCurveConvention> curveConvention = DirectMetaProperty.ofImmutable(
         this, "curveConvention", IsdaYieldCurveParRates.class, IsdaYieldCurveConvention.class);
     /**
+     * The meta-property for the {@code recoveryRate} property.
+     */
+    private final MetaProperty<Double> recoveryRate = DirectMetaProperty.ofImmutable(
+        this, "recoveryRate", IsdaYieldCurveParRates.class, Double.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
+        "marketDateDate",
         "yieldCurvePoints",
         "yieldCurveInstruments",
         "parRates",
-        "curveConvention");
+        "curveConvention",
+        "recoveryRate");
 
     /**
      * Restricted constructor.
@@ -295,6 +356,8 @@ public final class IsdaYieldCurveParRates
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 846252248:  // marketDateDate
+          return marketDateDate;
         case 695376101:  // yieldCurvePoints
           return yieldCurvePoints;
         case -1469575510:  // yieldCurveInstruments
@@ -303,6 +366,8 @@ public final class IsdaYieldCurveParRates
           return parRates;
         case 1796217280:  // curveConvention
           return curveConvention;
+        case 2002873877:  // recoveryRate
+          return recoveryRate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -329,6 +394,14 @@ public final class IsdaYieldCurveParRates
      */
     public MetaProperty<String> name() {
       return name;
+    }
+
+    /**
+     * The meta-property for the {@code marketDateDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> marketDateDate() {
+      return marketDateDate;
     }
 
     /**
@@ -363,12 +436,22 @@ public final class IsdaYieldCurveParRates
       return curveConvention;
     }
 
+    /**
+     * The meta-property for the {@code recoveryRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> recoveryRate() {
+      return recoveryRate;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((IsdaYieldCurveParRates) bean).getName();
+        case 846252248:  // marketDateDate
+          return ((IsdaYieldCurveParRates) bean).getMarketDateDate();
         case 695376101:  // yieldCurvePoints
           return ((IsdaYieldCurveParRates) bean).getYieldCurvePoints();
         case -1469575510:  // yieldCurveInstruments
@@ -377,6 +460,8 @@ public final class IsdaYieldCurveParRates
           return ((IsdaYieldCurveParRates) bean).getParRates();
         case 1796217280:  // curveConvention
           return ((IsdaYieldCurveParRates) bean).getCurveConvention();
+        case 2002873877:  // recoveryRate
+          return ((IsdaYieldCurveParRates) bean).getRecoveryRate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -399,10 +484,12 @@ public final class IsdaYieldCurveParRates
   private static final class Builder extends DirectFieldsBeanBuilder<IsdaYieldCurveParRates> {
 
     private String name;
+    private LocalDate marketDateDate;
     private Period[] yieldCurvePoints;
     private IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
     private double[] parRates;
     private IsdaYieldCurveConvention curveConvention;
+    private double recoveryRate;
 
     /**
      * Restricted constructor.
@@ -416,6 +503,8 @@ public final class IsdaYieldCurveParRates
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case 846252248:  // marketDateDate
+          return marketDateDate;
         case 695376101:  // yieldCurvePoints
           return yieldCurvePoints;
         case -1469575510:  // yieldCurveInstruments
@@ -424,6 +513,8 @@ public final class IsdaYieldCurveParRates
           return parRates;
         case 1796217280:  // curveConvention
           return curveConvention;
+        case 2002873877:  // recoveryRate
+          return recoveryRate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -434,6 +525,9 @@ public final class IsdaYieldCurveParRates
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
+          break;
+        case 846252248:  // marketDateDate
+          this.marketDateDate = (LocalDate) newValue;
           break;
         case 695376101:  // yieldCurvePoints
           this.yieldCurvePoints = (Period[]) newValue;
@@ -446,6 +540,9 @@ public final class IsdaYieldCurveParRates
           break;
         case 1796217280:  // curveConvention
           this.curveConvention = (IsdaYieldCurveConvention) newValue;
+          break;
+        case 2002873877:  // recoveryRate
+          this.recoveryRate = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -481,22 +578,26 @@ public final class IsdaYieldCurveParRates
     public IsdaYieldCurveParRates build() {
       return new IsdaYieldCurveParRates(
           name,
+          marketDateDate,
           yieldCurvePoints,
           yieldCurveInstruments,
           parRates,
-          curveConvention);
+          curveConvention,
+          recoveryRate);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("IsdaYieldCurveParRates.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("marketDateDate").append('=').append(JodaBeanUtils.toString(marketDateDate)).append(',').append(' ');
       buf.append("yieldCurvePoints").append('=').append(JodaBeanUtils.toString(yieldCurvePoints)).append(',').append(' ');
       buf.append("yieldCurveInstruments").append('=').append(JodaBeanUtils.toString(yieldCurveInstruments)).append(',').append(' ');
       buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
-      buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention));
+      buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention)).append(',').append(' ');
+      buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(recoveryRate));
       buf.append('}');
       return buf.toString();
     }
