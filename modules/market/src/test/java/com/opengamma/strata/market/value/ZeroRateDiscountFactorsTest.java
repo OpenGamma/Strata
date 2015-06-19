@@ -66,36 +66,36 @@ public class ZeroRateDiscountFactorsTest {
   //-------------------------------------------------------------------------
   public void test_discountFactor() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double expected = YIELD_CURVE.getDiscountFactor(relativeTime);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double expected = YIELD_CURVE.getDiscountFactor(relativeYearFraction);
     assertEquals(test.discountFactor(DATE_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_zeroRatePointSensitivity() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double df = YIELD_CURVE.getDiscountFactor(relativeTime);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, -df * relativeTime);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double df = YIELD_CURVE.getDiscountFactor(relativeYearFraction);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, -df * relativeYearFraction);
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER), expected);
   }
 
   public void test_zeroRatePointSensitivity_sensitivityCurrency() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    double df = YIELD_CURVE.getDiscountFactor(relativeTime);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, USD, DATE_AFTER, -df * relativeTime);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double df = YIELD_CURVE.getDiscountFactor(relativeYearFraction);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, USD, DATE_AFTER, -df * relativeYearFraction);
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER, USD), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_unitParameterSensitivity() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
         CurveUnitParameterSensitivity.of(
             METADATA,
-            YIELD_CURVE.getInterestRateParameterSensitivity(relativeTime)));
+            YIELD_CURVE.getInterestRateParameterSensitivity(relativeYearFraction)));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
