@@ -20,6 +20,8 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+
 import org.testng.annotations.Test;
 
 /**
@@ -44,6 +46,8 @@ public class FxResetNotionalExchangeTest {
     assertEquals(test.getIndex(), WM_GBP_USD);
     assertEquals(test.getFixingDate(), DATE_2014_03_28);
     assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getNotional(), 1000d);
+    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, 1000d));
   }
 
   public void test_invalidCurrency() {

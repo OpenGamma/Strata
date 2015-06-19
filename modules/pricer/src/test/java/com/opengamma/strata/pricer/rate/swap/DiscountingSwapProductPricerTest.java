@@ -60,6 +60,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
+import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
@@ -70,6 +71,8 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -592,6 +595,47 @@ public class DiscountingSwapProductPricerTest {
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(pricerTrade.cashFlows(SWAP_TRADE, MOCK_PROV), pricerSwap.cashFlows(expanded, MOCK_PROV));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_explainPresentValue_singleCurrency() {
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    when(mockPeriod.presentValue(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
+        .thenReturn(1000d);
+    when(mockPeriod.presentValue(FIXED_RATE_PAYMENT_PERIOD_PAY_GBP, MOCK_PROV))
+        .thenReturn(-500d);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    when(mockEvent.presentValue(NOTIONAL_EXCHANGE_REC_GBP, MOCK_PROV))
+        .thenReturn(35d);
+    when(mockEvent.presentValue(NOTIONAL_EXCHANGE_PAY_GBP, MOCK_PROV))
+        .thenReturn(-30d);
+
+    DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    assertEquals(pricerSwap.presentValue(SWAP, MOCK_PROV), MultiCurrencyAmount.of(GBP, 505d));
+
+    ExplainMap explain = pricerSwap.explainPresentValue(SWAP, MOCK_PROV);
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Swap");
+
+    assertEquals(explain.get(ExplainKey.LEGS).get().size(), 2);
+    ExplainMap explainLeg0 = explain.get(ExplainKey.LEGS).get().get(0);
+    ExpandedSwapLeg leg0 = (ExpandedSwapLeg) SWAP.getLegs().get(0);
+    double fv0 = pricerLeg.futureValue(leg0, MOCK_PROV).getAmount();
+    assertEquals(explainLeg0.get(ExplainKey.ENTRY_TYPE).get(), "Leg");
+    assertEquals(explainLeg0.get(ExplainKey.ENTRY_INDEX).get().intValue(), 0);
+    assertEquals(explainLeg0.get(ExplainKey.PAYMENT_PERIODS).get().size(), 1);
+    assertEquals(explainLeg0.get(ExplainKey.PAYMENT_EVENTS).get().size(), 1);
+    assertEquals(explainLeg0.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), leg0.getCurrency());
+    assertEquals(explainLeg0.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv0, TOLERANCE_RATE);
+    ExplainMap explainLeg1 = explain.get(ExplainKey.LEGS).get().get(1);
+    ExpandedSwapLeg leg1 = (ExpandedSwapLeg) SWAP.getLegs().get(0);
+    double fv1 = pricerLeg.futureValue(leg1, MOCK_PROV).getAmount();
+    assertEquals(explainLeg1.get(ExplainKey.ENTRY_TYPE).get(), "Leg");
+    assertEquals(explainLeg1.get(ExplainKey.ENTRY_INDEX).get().intValue(), 1);
+    assertEquals(explainLeg1.get(ExplainKey.PAYMENT_PERIODS).get().size(), 1);
+    assertEquals(explainLeg1.get(ExplainKey.PAYMENT_EVENTS).get().size(), 1);
+    assertEquals(explainLeg1.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), leg1.getCurrency());
+    assertEquals(explainLeg1.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv1, TOLERANCE_RATE);
   }
 
 }

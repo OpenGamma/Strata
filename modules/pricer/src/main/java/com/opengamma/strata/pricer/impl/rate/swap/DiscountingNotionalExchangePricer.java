@@ -5,7 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import java.time.LocalDate;
+
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -34,7 +40,7 @@ public class DiscountingNotionalExchangePricer
   @Override
   public double presentValue(NotionalExchange event, RatesProvider provider) {
     // futureValue * discountFactor
-    double df = provider.discountFactor(event.getPaymentAmount().getCurrency(), event.getPaymentDate());
+    double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
     return futureValue(event, provider) * df;
   }
 
@@ -55,6 +61,26 @@ public class DiscountingNotionalExchangePricer
   @Override
   public PointSensitivityBuilder futureValueSensitivity(NotionalExchange event, RatesProvider provider) {
     return PointSensitivityBuilder.none();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void explainPresentValue(NotionalExchange event, RatesProvider provider, ExplainMapBuilder builder) {
+    Currency currency = event.getCurrency();
+    LocalDate paymentDate = event.getPaymentDate();
+    
+    builder.put(ExplainKey.ENTRY_TYPE, "NotionalExchange");
+    builder.put(ExplainKey.PAYMENT_DATE, paymentDate);
+    builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
+    builder.put(ExplainKey.TRADE_NOTIONAL, event.getPaymentAmount());
+    if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
+    } else {
+      builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
+      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(event, provider)));
+      builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(event, provider)));
+    }
   }
 
 }

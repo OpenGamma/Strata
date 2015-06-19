@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
@@ -82,6 +83,17 @@ public class DispatchingPaymentPeriodPricer
       return ratePaymentPeriodPricer.futureValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void explainPresentValue(PaymentPeriod paymentPeriod, RatesProvider provider, ExplainMapBuilder builder) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      ratePaymentPeriodPricer.explainPresentValue((RatePaymentPeriod) paymentPeriod, provider, builder);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentPeriod.getClass().getSimpleName());
     }
   }
 

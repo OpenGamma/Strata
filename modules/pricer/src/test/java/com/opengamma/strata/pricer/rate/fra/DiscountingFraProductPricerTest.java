@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -574,16 +575,17 @@ public class DiscountingFraProductPricerTest {
     CurrencyAmount pvExpected = test.presentValue(fraExp, prov);
 
     ExplainMap explain = test.explainPresentValue(fraExp, prov);
+    Currency currency = fraExp.getCurrency();
+    int daysBetween = (int) DAYS.between(fraExp.getStartDate(), fraExp.getEndDate());
     assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FRA");
     assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), fraExp.getPaymentDate());
     assertEquals(explain.get(ExplainKey.START_DATE).get(), fraExp.getStartDate());
     assertEquals(explain.get(ExplainKey.END_DATE).get(), fraExp.getEndDate());
     assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), fraExp.getYearFraction());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(),
-        (Integer) (int) DAYS.between(fraExp.getStartDate(), fraExp.getEndDate()));
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), fraExp.getCurrency());
+    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) (int) daysBetween);
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
     assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.CONTRACT_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
 
     assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
     ExplainMap explainObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
@@ -593,10 +595,12 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explainObs.get(ExplainKey.OBSERVED_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
     assertEquals(explain.get(ExplainKey.FIXED_RATE).get(), fraExp.getFixedRate(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_RATE).get(), FORWARD_RATE, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.COMBINED_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.UNIT_AMOUNT).get(), fvExpected.getAmount() / fraExp.getNotional(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fvExpected.getAmount(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
