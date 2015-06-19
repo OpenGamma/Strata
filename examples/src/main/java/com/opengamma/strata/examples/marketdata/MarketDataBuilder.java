@@ -279,7 +279,7 @@ public abstract class MarketDataBuilder {
   private void loadCdsYieldCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
     String name = "USD ISDA Yield Curve";
     Currency currency = Currency.USD;
-    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.northAmericanUsd;
+    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.NORTH_AMERICAN_USD;
     ImmutableList<String> usd20141020Ir = ImmutableList.of(
         "1M,M,0.001535",
         "2M,M,0.001954",
