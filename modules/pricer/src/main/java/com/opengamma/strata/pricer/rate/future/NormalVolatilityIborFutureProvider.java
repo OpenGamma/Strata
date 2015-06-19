@@ -45,13 +45,13 @@ public interface NormalVolatilityIborFutureProvider
   public abstract IborIndex getFutureIndex();
 
   /**
-   * Converts a date to a relative {@code double} time.
+   * Converts a date to a relative year fraction.
    * 
-   * @param date  the date to find the relative time of
-   * @param time  the time to find the relative time of
+   * @param date  the date to find the relative year fraction of
+   * @param time  the time to find the relative year fraction of
    * @param zone  the time zone
-   * @return the relative time
+   * @return the relative year fraction
    */
-  public abstract double relativeTime(LocalDate date, LocalTime time, ZoneId zone);
+  public abstract double relativeYearFraction(LocalDate date, LocalTime time, ZoneId zone);
 
 }

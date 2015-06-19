@@ -75,7 +75,7 @@ public interface DiscountFactors {
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
    * used to determine the discount factor.
-   * The sensitivity typically has the value {@code (-discountFactor * relativeTime)}.
+   * The sensitivity typically has the value {@code (-discountFactor * relativeYearFraction)}.
    * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * 
    * @param date  the date to discount to
@@ -91,7 +91,7 @@ public interface DiscountFactors {
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
    * used to determine the discount factor.
-   * The sensitivity typically has the value {@code (-discountFactor * relativeTime)}.
+   * The sensitivity typically has the value {@code (-discountFactor * relativeYearFraction)}.
    * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * <p>
    * This method allows the currency of the sensitivity to differ from the currency of the curve.

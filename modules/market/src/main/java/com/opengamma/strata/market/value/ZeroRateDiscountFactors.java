@@ -122,36 +122,37 @@ public final class ZeroRateDiscountFactors
   //-------------------------------------------------------------------------
   @Override
   public double discountFactor(LocalDate date) {
-    return discountFactor(relativeTime(date));
+    double relativeYearFraction = relativeYearFraction(date);
+    return discountFactor(relativeYearFraction);
   }
 
   // calculates the discount factor at a given time
-  private double discountFactor(double relativeTime) {
+  private double discountFactor(double relativeYearFraction) {
     // short cut rate lookup
-    if (relativeTime == 0) {
+    if (relativeYearFraction == 0) {
       return 1.0;
     }
-    return Math.exp(-relativeTime * curve.yValue(relativeTime));
+    return Math.exp(-relativeYearFraction * curve.yValue(relativeYearFraction));
   }
 
   // calculate the relative time between the valuation date and the specified date
-  private double relativeTime(LocalDate date) {
+  private double relativeYearFraction(LocalDate date) {
     return dayCount.relativeYearFraction(valuationDate, date);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    double relativeTime = relativeTime(date);
-    double discountFactor = discountFactor(relativeTime);
-    return ZeroRateSensitivity.of(currency, sensitivityCurrency, date, -discountFactor * relativeTime);
+    double relativeYearFraction = relativeYearFraction(date);
+    double discountFactor = discountFactor(relativeYearFraction);
+    return ZeroRateSensitivity.of(currency, sensitivityCurrency, date, -discountFactor * relativeYearFraction);
   }
 
   @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
-    double relativeTime = relativeTime(date);
+    double relativeYearFraction = relativeYearFraction(date);
     return CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(curve.getMetadata(), curve.yValueParameterSensitivity(relativeTime)));
+        CurveUnitParameterSensitivity.of(curve.getMetadata(), curve.yValueParameterSensitivity(relativeYearFraction)));
   }
 
   @Override

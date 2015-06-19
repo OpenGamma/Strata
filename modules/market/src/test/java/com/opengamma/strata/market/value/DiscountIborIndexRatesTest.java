@@ -169,17 +169,17 @@ public class DiscountIborIndexRatesTest {
 
   public void test_unitParameterSensitivity_onValuation_noFixing() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeTime)));
+        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
     assertEquals(test.unitParameterSensitivity(DATE_VAL), expected);
   }
 
   public void test_unitParameterSensitivity_afterValuation() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeTime)));
+        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
