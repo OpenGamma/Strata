@@ -37,11 +37,12 @@ public class CdsPricer {
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      DefaultSingleCalculationMarketData provider
-  ) {
+      DefaultSingleCalculationMarketData provider) {
+
     LocalDate valuationDate = provider.getValuationDate();
     double recoveryRate = creditCurveParRates.getRecoveryRate();
     return CdsAnalyticsWrapper.price(valuationDate, product, yieldCurveParRates, creditCurveParRates, recoveryRate);
+
   }
 
   public MultiCurrencyAmount ir01ParallelPar(
@@ -61,8 +62,8 @@ public class CdsPricer {
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      DefaultSingleCalculationMarketData provider
-  ) {
+      DefaultSingleCalculationMarketData provider) {
+
     int points = yieldCurveParRates.getNumberOfPoints();
     double[] sensitivities = new double[points];
     List<TenorCurveNodeMetadata> metaData = Lists.newArrayList();

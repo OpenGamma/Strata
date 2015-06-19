@@ -98,7 +98,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   @Override
   public double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
-    double expiryTime = relativeTime(expiryDate, null, null); // TODO: time and zone
+    double expiryTime = relativeYearFraction(expiryDate, null, null); // TODO: time and zone
     return parameters.getZValue(expiryTime, simpleMoneyness);
   }
 
@@ -109,7 +109,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double relativeTime(LocalDate date, LocalTime time, ZoneId zone) {
+  public double relativeYearFraction(LocalDate date, LocalTime time, ZoneId zone) {
     ArgChecker.notNull(date, "date");
     return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), date);
   }
@@ -125,7 +125,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     // TODO: should this be on the interface?
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
-    double expiryTime = relativeTime(point.getExpiryDate(), null, null); // TODO: time and zone
+    double expiryTime = relativeYearFraction(point.getExpiryDate(), null, null); // TODO: time and zone
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = parameters.getInterpolator().getNodeSensitivitiesForValue(
         (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(),

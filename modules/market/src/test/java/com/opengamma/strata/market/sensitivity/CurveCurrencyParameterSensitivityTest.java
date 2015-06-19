@@ -34,33 +34,16 @@ public class CurveCurrencyParameterSensitivityTest {
   private static final Currency EUR = Currency.EUR;
   private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.5d);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
+  private static final CurveMetadata METADATA1 = CurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
+  private static final CurveMetadata METADATA2 = CurveMetadata.of(NAME2);
 
   //-------------------------------------------------------------------------
-  public void test_of_stringName() {
-    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_USD1);
-    assertThat(test.getMetadata()).isEqualTo(CurveMetadata.of("Name"));
-    assertThat(test.getCurrency()).isEqualTo(USD);
-    assertThat(test.getCurveName()).isEqualTo(CurveName.of("Name"));
-    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.length);
-    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
-  }
-
-  public void test_of_curveName() {
-    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(CurveName.of("Name"), USD, VECTOR_USD1);
-    assertThat(test.getMetadata()).isEqualTo(CurveMetadata.of("Name"));
-    assertThat(test.getCurrency()).isEqualTo(USD);
-    assertThat(test.getCurveName()).isEqualTo(CurveName.of("Name"));
-    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.length);
-    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
-  }
-
   public void test_of_metadata() {
-    CurveMetadata metadata = CurveMetadata.of("Name", CurveParameterMetadata.listOfEmpty(VECTOR_USD1.length));
-    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(metadata, USD, VECTOR_USD1);
-    assertThat(test.getMetadata()).isEqualTo(metadata);
+    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
+    assertThat(test.getMetadata()).isEqualTo(METADATA1);
     assertThat(test.getCurrency()).isEqualTo(USD);
-    assertThat(test.getCurveName()).isEqualTo(CurveName.of("Name"));
+    assertThat(test.getCurveName()).isEqualTo(NAME1);
     assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.length);
     assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
   }
@@ -72,29 +55,29 @@ public class CurveCurrencyParameterSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_convertedTo() {
-    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of("Name", EUR, VECTOR_EUR1);
+    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of(METADATA1, EUR, VECTOR_EUR1);
     CurveCurrencyParameterSensitivity test = base.convertedTo(USD, FX_RATE);
-    assertThat(test).isEqualTo(CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_EUR1_IN_USD));
+    assertThat(test).isEqualTo(CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_EUR1_IN_USD));
   }
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_USD1);
+    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     CurveCurrencyParameterSensitivity test = base.multipliedBy(FACTOR1);
-    assertThat(test).isEqualTo(CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_USD_FACTOR));
+    assertThat(test).isEqualTo(CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD_FACTOR));
   }
 
   //-------------------------------------------------------------------------
   public void test_withSensitivity() {
-    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_USD1);
+    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     CurveCurrencyParameterSensitivity test = base.withSensitivity(VECTOR_USD_FACTOR);
-    assertThat(test).isEqualTo(CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_USD_FACTOR));
+    assertThat(test).isEqualTo(CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD_FACTOR));
     assertThrowsIllegalArg(() -> base.withSensitivity(new double[] {1d}));
   }
 
   //-------------------------------------------------------------------------
   public void test_total() {
-    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of("Name", USD, VECTOR_USD1);
+    CurveCurrencyParameterSensitivity base = CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     CurrencyAmount test = base.total();
     assertThat(test.getCurrency()).isEqualTo(USD);
     assertThat(test.getAmount()).isEqualTo(VECTOR_USD1[0] + VECTOR_USD1[1] + VECTOR_USD1[2] + VECTOR_USD1[3]);
@@ -102,9 +85,9 @@ public class CurveCurrencyParameterSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(NAME1, USD, VECTOR_USD1);
+    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     coverImmutableBean(test);
-    CurveCurrencyParameterSensitivity test2 = CurveCurrencyParameterSensitivity.of(NAME2, EUR, VECTOR_EUR1);
+    CurveCurrencyParameterSensitivity test2 = CurveCurrencyParameterSensitivity.of(METADATA2, EUR, VECTOR_EUR1);
     coverBeanEquals(test, test2);
   }
 

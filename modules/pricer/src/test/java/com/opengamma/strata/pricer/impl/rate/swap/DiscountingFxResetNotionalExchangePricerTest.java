@@ -30,7 +30,11 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -48,6 +52,8 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
   private static final double DISCOUNT_FACTOR = 0.98d;
+  private static final double FX_RATE = 1.6d;
+  private static final double TOLERANCE = 1.0e-10;
   private static final LocalDateDoubleTimeSeries EMPTY_TIME_SERIES = LocalDateDoubleTimeSeries.empty();
   private static final FxMatrix FX_MATRIX = FxMatrix.of(GBP, USD, 1.6d);
 
@@ -57,10 +63,12 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   static {
     double[] time_gbp = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
     double[] rate_gbp = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210};
-    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of("GBP-Discount", time_gbp, rate_gbp, INTERPOLATOR);
+    DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
+        CurveName.of("GBP-Discount"), ACT_ACT_ISDA, time_gbp, rate_gbp, INTERPOLATOR);
     double[] time_usd = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
     double[] rate_usd = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
-    DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of("USD-Discount", time_usd, rate_usd, INTERPOLATOR);
+    DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of(
+        CurveName.of("USD-Discount"), ACT_ACT_ISDA, time_usd, rate_usd, INTERPOLATOR);
   }
 
   private static final double EPS_FD = 1.0e-7;
@@ -73,7 +81,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     double calculated = test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
-    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * 1.6d * DISCOUNT_FACTOR, 0d);
+    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE * DISCOUNT_FACTOR, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -83,7 +91,6 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, EMPTY_TIME_SERIES))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     FxResetNotionalExchange[] expanded =
         new FxResetNotionalExchange[] {FX_RESET_NOTIONAL_EXCHANGE_REC_USD, FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP};
@@ -107,7 +114,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     double calculated = test.futureValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
-    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * 1.6d, 0d);
+    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -117,7 +124,6 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, EMPTY_TIME_SERIES))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     FxResetNotionalExchange[] expanded =
         new FxResetNotionalExchange[] {FX_RESET_NOTIONAL_EXCHANGE_REC_USD, FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP};
@@ -136,6 +142,54 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_explainPresentValue() {
+    SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
+
+    DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
+    ExplainMapBuilder builder = ExplainMap.builder();
+    test.explainPresentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov, builder);
+    ExplainMap explain = builder.build();
+
+    Currency paymentCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getCurrency();
+    Currency notionalCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getReferenceCurrency();
+    double notional = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional();
+    double convertedNotional = notional * FX_RATE;
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FxResetNotionalExchange");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), notionalCurrency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), convertedNotional, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), convertedNotional * DISCOUNT_FACTOR, TOLERANCE);
+  }
+
+  public void test_explainPresentValue_paymentDateInPast() {
+    SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
+    prov.setValuationDate(VAL_DATE.plusYears(1));
+
+    DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
+    ExplainMapBuilder builder = ExplainMap.builder();
+    test.explainPresentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov, builder);
+    ExplainMap explain = builder.build();
+
+    Currency paymentCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getCurrency();
+    Currency notionalCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getReferenceCurrency();
+    double notional = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional();
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FxResetNotionalExchange");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), notionalCurrency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), paymentCurrency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d * DISCOUNT_FACTOR, TOLERANCE);
+  }
+
+  //-------------------------------------------------------------------------
   // creates a simple provider
   private SimpleRatesProvider createProvider(FxResetNotionalExchange ne) {
     LocalDate paymentDate = ne.getPaymentDate();
@@ -147,7 +201,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     ZeroRateSensitivity sens = ZeroRateSensitivity.of(currency, paymentDate, -DISCOUNT_FACTOR * paymentTime);
     when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(sens);
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
-    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(1.6d);
+    when(mockFxRates.rate(ne.getReferenceCurrency(), ne.getFixingDate())).thenReturn(FX_RATE);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
     prov.setDiscountFactors(mockDf);
     prov.setFxIndexRates(mockFxRates);

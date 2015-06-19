@@ -12,7 +12,6 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -54,7 +53,6 @@ public final class MarketDataUtils {
 
     return ImmutableRatesProvider.builder()
         .valuationDate(marketData.getValuationDate())
-        .dayCount(DayCounts.ACT_ACT_ISDA)
         .discountCurves(ImmutableMap.of(currency, curveOverride))
         .indexCurves(indices.stream()
             .collect(toImmutableMap(Function.identity(), k -> curveOverride)))

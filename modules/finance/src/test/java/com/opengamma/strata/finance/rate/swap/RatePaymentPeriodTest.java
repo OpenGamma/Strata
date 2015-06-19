@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 
@@ -69,6 +70,7 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFxReset(), Optional.empty());
     assertEquals(test.getNotional(), 1000d, 0d);
+    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(GBP, 1000d));
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
     assertEquals(test.isCompoundingApplicable(), false);
   }

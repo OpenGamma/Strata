@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.type.TypedString;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 
 /**
  * A key for the map of explanatory values.
@@ -48,6 +49,10 @@ public final class ExplainKey<T>
    * The list of legs.
    */
   public static final ExplainKey<List<ExplainMap>> LEGS = of("Legs");
+  /**
+   * The list of payment events.
+   */
+  public static final ExplainKey<List<ExplainMap>> PAYMENT_EVENTS = of("PaymentEvents");
   /**
    * The list of payment periods.
    */
@@ -83,10 +88,10 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<CurrencyAmount> NOTIONAL = of("Notional");
   /**
-   * The notional, as defined in the contract.
-   * This is the notional in the contract, which may be converted to the actual notional by FX reset.
+   * The notional, as defined in the trade.
+   * This is the notional in the trade, which may be converted to the actual notional by FX reset.
    */
-  public static final ExplainKey<CurrencyAmount> CONTRACT_NOTIONAL = of("ContractNotional");
+  public static final ExplainKey<CurrencyAmount> TRADE_NOTIONAL = of("TradeNotional");
 
   /**
    * The payment date, adjusted to be a valid business day if necessary.
@@ -170,14 +175,18 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Double> GEARING = of("Gearing");
   /**
-   * The forecast rate, which includes adjustments like weighting, spread and gearing.
+   * The pay-off rate, which includes adjustments like weighting, spread and gearing.
    */
-  public static final ExplainKey<Double> FORECAST_RATE = of("ForecastRate");
+  public static final ExplainKey<Double> PAY_OFF_RATE = of("PayOffRate");
   /**
    * The unit amount.
-   * This is the amount before multiplication by the notional.
+   * This is typically the rate multiplied by the year fraction, before multiplication by the notional.
    */
   public static final ExplainKey<Double> UNIT_AMOUNT = of("UnitAmount");
+  /**
+   * The method of compounding.
+   */
+  public static final ExplainKey<CompoundingMethod> COMPOUNDING = of("ComooundingMethod");
 
   //-------------------------------------------------------------------------
   /**

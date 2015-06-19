@@ -12,7 +12,6 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static org.testng.Assert.assertEquals;
 
@@ -248,7 +247,6 @@ public class SwapCrossCurrencyEnd2EndTest {
             USD_LIBOR_3M, TS_EMTPY,
             EUR_EURIBOR_3M, TS_EMTPY,
             WM_EUR_USD, TS_EMTPY))
-        .dayCount(ACT_ACT_ISDA)
         .build();
   }
 

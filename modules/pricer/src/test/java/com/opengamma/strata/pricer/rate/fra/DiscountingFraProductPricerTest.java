@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.rate.fra;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.rate.fra.FraDummyData.FRA;
 import static com.opengamma.strata.pricer.rate.fra.FraDummyData.FRA_AFMA;
@@ -25,7 +24,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.IborRateObservation;
@@ -33,6 +35,7 @@ import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -57,6 +60,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 public class DiscountingFraProductPricerTest {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 22);
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final double TOLERANCE = 1E-12;
   private static final double DISCOUNT_FACTOR = 0.98d;
   private static final double FORWARD_RATE = 0.02;
@@ -278,7 +282,7 @@ public class DiscountingFraProductPricerTest {
     PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, simpleProv);
     double eps = 1.e-7;
     double fdDscSense = dscSensitivity(FRA, forwardRate, discountFactor, paymentTime, eps);
-    double fdSense = presentValueFwdSensitivity(FRA, forwardRate, discountFactor, paymentTime, eps);
+    double fdSense = presentValueFwdSensitivity(FRA, forwardRate, discountFactor, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 2);
@@ -324,7 +328,7 @@ public class DiscountingFraProductPricerTest {
     PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, simpleProv);
     double eps = 1.e-7;
     double fdDscSense = dscSensitivity(FRA_NONE, forwardRate, discountFactor, paymentTime, eps);
-    double fdSense = presentValueFwdSensitivity(FRA_NONE, forwardRate, discountFactor, paymentTime, eps);
+    double fdSense = presentValueFwdSensitivity(FRA_NONE, forwardRate, discountFactor, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 2);
@@ -366,7 +370,7 @@ public class DiscountingFraProductPricerTest {
     PointSensitivities sensitivity = test.presentValueSensitivity(fraExp, simpleProv);
     double eps = 1.e-7;
     double fdDscSense = dscSensitivity(FRA_AFMA, forwardRate, discountFactor, paymentTime, eps);
-    double fdSense = presentValueFwdSensitivity(FRA_AFMA, forwardRate, discountFactor, paymentTime, eps);
+    double fdSense = presentValueFwdSensitivity(FRA_AFMA, forwardRate, discountFactor, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
     assertEquals(sensitivities.size(), 2);
@@ -480,12 +484,12 @@ public class DiscountingFraProductPricerTest {
     InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of("GBP-Discount", time_gbp, rate_gbp, interp);
     double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0};
     double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165};
-    InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of("GBP-GBPIBOR3M", time_index, rate_index, interp);
+    InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of(
+        CurveName.of("GBP-GBPIBOR3M"), DAY_COUNT, time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(GBP, dscCurve))
         .indexCurves(ImmutableMap.of(GBP_LIBOR_3M, indexCurve))
-        .dayCount(ACT_ACT_ISDA)
         .timeSeries(ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
         .build();
   }
@@ -574,16 +578,17 @@ public class DiscountingFraProductPricerTest {
     CurrencyAmount pvExpected = test.presentValue(fraExp, prov);
 
     ExplainMap explain = test.explainPresentValue(fraExp, prov);
+    Currency currency = fraExp.getCurrency();
+    int daysBetween = (int) DAYS.between(fraExp.getStartDate(), fraExp.getEndDate());
     assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FRA");
     assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), fraExp.getPaymentDate());
     assertEquals(explain.get(ExplainKey.START_DATE).get(), fraExp.getStartDate());
     assertEquals(explain.get(ExplainKey.END_DATE).get(), fraExp.getEndDate());
     assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), fraExp.getYearFraction());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(),
-        (Integer) (int) DAYS.between(fraExp.getStartDate(), fraExp.getEndDate()));
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), fraExp.getCurrency());
+    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) (int) daysBetween);
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
     assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.CONTRACT_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
 
     assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
     ExplainMap explainObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
@@ -593,10 +598,12 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explainObs.get(ExplainKey.OBSERVED_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
     assertEquals(explain.get(ExplainKey.FIXED_RATE).get(), fraExp.getFixedRate(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_RATE).get(), FORWARD_RATE, TOLERANCE);
+    assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.COMBINED_RATE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.UNIT_AMOUNT).get(), fvExpected.getAmount() / fraExp.getNotional(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fvExpected.getAmount(), TOLERANCE);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
@@ -633,8 +640,7 @@ public class DiscountingFraProductPricerTest {
     return upValue.minus(downValue).multipliedBy(0.5 / eps).getAmount();
   }
 
-  private double presentValueFwdSensitivity(
-      Fra fra, double forwardRate, double discountFactor, double paymentTime, double eps) {
+  private double presentValueFwdSensitivity(Fra fra, double forwardRate, double discountFactor, double eps) {
 
     RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
     RatesProvider provNew = mock(RatesProvider.class);
@@ -642,8 +648,6 @@ public class DiscountingFraProductPricerTest {
     ExpandedFra fraExp = fra.expand();
     when(provNew.discountFactor(fra.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
-    when(provNew.relativeTime(fraExp.getPaymentDate()))
-        .thenReturn(paymentTime);
     when(obsFuncNew.rate(fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))
         .thenReturn(forwardRate + eps);
     CurrencyAmount upValue = new DiscountingFraProductPricer(obsFuncNew).presentValue(fraExp, provNew);

@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
 
@@ -154,6 +155,22 @@ public final class RatePaymentPeriod
   @Override
   public LocalDate getEndDate() {
     return accrualPeriods.get(accrualPeriods.size() - 1).getEndDate();
+  }
+
+  /**
+   * Gets the notional as a {@code CurrencyAmount}.
+   * <p>
+   * The notional amount applicable during the period.
+   * The currency of the notional is specified by {@code currency} unless there
+   * is the {@code fxReset} property is present.
+   * 
+   * @return the notional as a  {@code CurrencyAmount}
+   */
+  public CurrencyAmount getNotionalAmount() {
+    if (fxReset != null) {
+      return CurrencyAmount.of(fxReset.getReferenceCurrency(), notional);
+    }
+    return CurrencyAmount.of(currency, notional);
   }
 
   /**

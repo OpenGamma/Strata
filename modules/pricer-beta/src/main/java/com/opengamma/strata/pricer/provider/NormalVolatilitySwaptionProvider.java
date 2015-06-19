@@ -37,12 +37,12 @@ public interface NormalVolatilitySwaptionProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Converts a time and date to a relative {@code double} time.
+   * Converts a time and date to a relative year fraction.
    * 
-   * @param date  the date/time to find the relative time of
-   * @return the relative time
+   * @param date  the date/time to find the relative year fraction of
+   * @return the relative year fraction
    */
-  public abstract double relativeTime(ZonedDateTime date);
+  public abstract double relativeYearFraction(ZonedDateTime date);
   
   /**
    * Returns the tenor of the swap based on its start date and end date.

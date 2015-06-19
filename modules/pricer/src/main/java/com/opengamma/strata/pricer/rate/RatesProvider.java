@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.rate;
 
-import java.time.LocalDate;
-
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
@@ -120,16 +118,5 @@ public interface RatesProvider
    * @return the sensitivity to the curve parameters
    */
   CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts a date to a relative {@code double} time.
-   * <p>
-   * This uses the day-count of the provider to determine the year fraction.
-   * 
-   * @param date  the date to find the relative time of
-   * @return the relative time
-   */
-  public abstract double relativeTime(LocalDate date);
 
 }

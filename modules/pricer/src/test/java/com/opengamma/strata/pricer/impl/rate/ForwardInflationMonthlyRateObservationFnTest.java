@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
@@ -117,7 +116,6 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     ForwardPriceIndexValues values = ForwardPriceIndexValues.of(GB_RPIX, VAL_MONTH, timeSeries, curve);
     return ImmutableRatesProvider.builder()
         .valuationDate(DUMMY_ACCRUAL_END_DATE)
-        .dayCount(DayCounts.ACT_360)
         .priceIndexValues(ImmutableMap.of(GB_RPIX, values))
         .build();
   }

@@ -12,13 +12,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
@@ -39,28 +39,32 @@ public class CurveCurrencyParameterSensitivitiesTest {
   private static final Currency EUR = Currency.EUR;
   private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.6d);
   private static final CurveName NAME0 = CurveName.of("NAME-0");
+  private static final CurveMetadata METADATA0 = CurveMetadata.of(NAME0);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
+  private static final CurveMetadata METADATA1 = CurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
+  private static final CurveMetadata METADATA2 = CurveMetadata.of(NAME2);
   private static final CurveName NAME3 = CurveName.of("NAME-3");
+  private static final CurveMetadata METADATA3 = CurveMetadata.of(NAME3);
 
   private static final CurveCurrencyParameterSensitivity ENTRY_USD =
-      CurveCurrencyParameterSensitivity.of(NAME1, USD, VECTOR_USD1);
+      CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
   private static final CurveCurrencyParameterSensitivity ENTRY_USD2 =
-      CurveCurrencyParameterSensitivity.of(NAME1, USD, VECTOR_USD2);
+      CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD2);
   private static final CurveCurrencyParameterSensitivity ENTRY_USD_TOTAL =
-      CurveCurrencyParameterSensitivity.of(NAME1, USD, TOTAL_USD);
+      CurveCurrencyParameterSensitivity.of(METADATA1, USD, TOTAL_USD);
   private static final CurveCurrencyParameterSensitivity ENTRY_USD_SMALL =
-      CurveCurrencyParameterSensitivity.of(NAME1, USD, new double[] {100d});
+      CurveCurrencyParameterSensitivity.of(METADATA1, USD, new double[] {100d});
   private static final CurveCurrencyParameterSensitivity ENTRY_USD2_IN_EUR =
-      CurveCurrencyParameterSensitivity.of(NAME1, EUR, VECTOR_USD2_IN_EUR);
+      CurveCurrencyParameterSensitivity.of(METADATA1, EUR, VECTOR_USD2_IN_EUR);
   private static final CurveCurrencyParameterSensitivity ENTRY_EUR =
-      CurveCurrencyParameterSensitivity.of(NAME2, EUR, VECTOR_EUR1);
+      CurveCurrencyParameterSensitivity.of(METADATA2, EUR, VECTOR_EUR1);
   private static final CurveCurrencyParameterSensitivity ENTRY_EUR_IN_USD =
-      CurveCurrencyParameterSensitivity.of(NAME2, USD, VECTOR_EUR1_IN_USD);
+      CurveCurrencyParameterSensitivity.of(METADATA2, USD, VECTOR_EUR1_IN_USD);
   private static final CurveCurrencyParameterSensitivity ENTRY_ZERO0 =
-      CurveCurrencyParameterSensitivity.of(NAME0, USD, VECTOR_ZERO);
+      CurveCurrencyParameterSensitivity.of(METADATA0, USD, VECTOR_ZERO);
   private static final CurveCurrencyParameterSensitivity ENTRY_ZERO3 =
-      CurveCurrencyParameterSensitivity.of(NAME3, USD, VECTOR_ZERO);
+      CurveCurrencyParameterSensitivity.of(METADATA3, USD, VECTOR_ZERO);
 
   private static final CurveCurrencyParameterSensitivities SENSI_1 = CurveCurrencyParameterSensitivities.of(ENTRY_USD);
   private static final CurveCurrencyParameterSensitivities SENSI_2 =

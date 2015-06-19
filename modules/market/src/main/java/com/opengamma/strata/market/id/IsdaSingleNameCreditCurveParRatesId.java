@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.id;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;

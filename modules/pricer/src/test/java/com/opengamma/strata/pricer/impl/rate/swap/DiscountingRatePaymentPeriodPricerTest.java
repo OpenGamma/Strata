@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
@@ -35,6 +37,9 @@ import com.opengamma.strata.finance.rate.swap.FxReset;
 import com.opengamma.strata.finance.rate.swap.NegativeRateMethod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -55,6 +60,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 public class DiscountingRatePaymentPeriodPricerTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final LocalDate FX_DATE_1 = LocalDate.of(2014, 1, 22);
   private static final LocalDate CPN_DATE_1 = LocalDate.of(2014, 1, 24);
   private static final LocalDate CPN_DATE_2 = LocalDate.of(2014, 4, 24);
@@ -363,10 +369,10 @@ public class DiscountingRatePaymentPeriodPricerTest {
   */
   public void test_presentValueSensitivity_ibor_noCompounding() {
     LocalDate valDate = PAYMENT_PERIOD_FLOATING.getPaymentDate().minusDays(90);
-    double paymentTime = ACT_360.relativeYearFraction(valDate, PAYMENT_PERIOD_FLOATING.getPaymentDate());
+    double paymentTime = DAY_COUNT.relativeYearFraction(valDate, PAYMENT_PERIOD_FLOATING.getPaymentDate());
     DiscountFactors mockDf = mock(DiscountFactors.class);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(valDate, mockDf);
-    simpleProv.setDayCount(ACT_360);
+    simpleProv.setDayCount(DAY_COUNT);
     RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
 
     when(mockDf.discountFactor(PAYMENT_PERIOD_FLOATING.getPaymentDate()))
@@ -548,7 +554,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     LocalDate valuationDate = provider.getValuationDate();
     LocalDate paymentDate = payment.getPaymentDate();
     double discountFactor = provider.discountFactor(payment.getCurrency(), paymentDate);
-    double paymentTime = provider.relativeTime(paymentDate);
+    double paymentTime = DAY_COUNT.relativeYearFraction(valuationDate, paymentDate);
     Currency currency = payment.getCurrency();
 
     RatesProvider provUp = mock(RatesProvider.class);
@@ -581,6 +587,170 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_explainPresentValue_single() {
+    RatesProvider prov = createProvider();
+
+    DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ExplainMapBuilder builder = ExplainMap.builder();
+    test.explainPresentValue(PAYMENT_PERIOD_1, prov, builder);
+    ExplainMap explain = builder.build();
+
+    Currency currency = PAYMENT_PERIOD_1.getCurrency();
+    double ua = RATE_1 * ACCRUAL_FACTOR_1;
+    double fv = ua * NOTIONAL_100;
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "RatePaymentPeriod");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD_1.getPaymentDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.COMPOUNDING).get(), PAYMENT_PERIOD_1.getCompoundingMethod());
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
+
+    assertEquals(explain.get(ExplainKey.ACCRUAL_PERIODS).get().size(), 1);
+    ExplainMap explainAccrual = explain.get(ExplainKey.ACCRUAL_PERIODS).get().get(0);
+    RateAccrualPeriod ap = PAYMENT_PERIOD_1.getAccrualPeriods().get(0);
+    int daysBetween = (int) DAYS.between(ap.getStartDate(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.START_DATE).get(), ap.getStartDate());
+    assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_START_DATE).get(), ap.getUnadjustedStartDate());
+    assertEquals(explainAccrual.get(ExplainKey.END_DATE).get(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_END_DATE).get(), ap.getUnadjustedEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), ap.getYearFraction());
+    assertEquals(explainAccrual.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
+    assertEquals(explainAccrual.get(ExplainKey.GEARING).get(), ap.getGearing(), TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.SPREAD).get(), ap.getSpread(), TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), RATE_1, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+  }
+
+  public void test_explainPresentValue_single_paymentDateInPast() {
+    SimpleRatesProvider prov = createProvider();
+    prov.setValuationDate(VAL_DATE.plusYears(1));
+
+    DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ExplainMapBuilder builder = ExplainMap.builder();
+    test.explainPresentValue(PAYMENT_PERIOD_1, prov, builder);
+    ExplainMap explain = builder.build();
+
+    Currency currency = PAYMENT_PERIOD_1.getCurrency();
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "RatePaymentPeriod");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD_1.getPaymentDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), 0d, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, TOLERANCE_PV);
+  }
+
+  public void test_explainPresentValue_single_fx() {
+    RatesProvider prov = createProvider();
+
+    DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ExplainMapBuilder builder = ExplainMap.builder();
+    test.explainPresentValue(PAYMENT_PERIOD_1_FX, prov, builder);
+    ExplainMap explain = builder.build();
+
+    FxReset fxReset = PAYMENT_PERIOD_1_FX.getFxReset().get();
+    Currency currency = PAYMENT_PERIOD_1_FX.getCurrency();
+    Currency referenceCurrency = fxReset.getReferenceCurrency();
+    double ua = RATE_1 * ACCRUAL_FACTOR_1;
+    double fv = ua * NOTIONAL_100 * RATE_FX;
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "RatePaymentPeriod");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD_1_FX.getPaymentDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), NOTIONAL_100 * RATE_FX, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), referenceCurrency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.COMPOUNDING).get(), PAYMENT_PERIOD_1_FX.getCompoundingMethod());
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
+    ExplainMap explainFxObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
+    assertEquals(explainFxObs.get(ExplainKey.OBSERVED_INDEX).get(), fxReset.getIndex());
+    assertEquals(explainFxObs.get(ExplainKey.FIXING_DATE).get(), fxReset.getFixingDate());
+    assertEquals(explainFxObs.get(ExplainKey.OBSERVED_RATE).get(), RATE_FX, TOLERANCE_PV);
+
+    assertEquals(explain.get(ExplainKey.ACCRUAL_PERIODS).get().size(), 1);
+    ExplainMap explainAccrual = explain.get(ExplainKey.ACCRUAL_PERIODS).get().get(0);
+    RateAccrualPeriod ap = PAYMENT_PERIOD_1_FX.getAccrualPeriods().get(0);
+    int daysBetween = (int) DAYS.between(ap.getStartDate(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.START_DATE).get(), ap.getStartDate());
+    assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_START_DATE).get(), ap.getUnadjustedStartDate());
+    assertEquals(explainAccrual.get(ExplainKey.END_DATE).get(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_END_DATE).get(), ap.getUnadjustedEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), ap.getYearFraction());
+    assertEquals(explainAccrual.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
+    assertEquals(explainAccrual.get(ExplainKey.GEARING).get(), ap.getGearing(), TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.SPREAD).get(), ap.getSpread(), TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), RATE_1, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+  }
+
+  public void test_explainPresentValue_single_gearingSpread() {
+    RatesProvider prov = createProvider();
+
+    DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
+    ExplainMapBuilder builder = ExplainMap.builder();
+    test.explainPresentValue(PAYMENT_PERIOD_1_GS, prov, builder);
+    ExplainMap explain = builder.build();
+
+    Currency currency = PAYMENT_PERIOD_1_GS.getCurrency();
+    double payOffRate = RATE_1 * GEARING + SPREAD;
+    double ua = payOffRate * ACCRUAL_FACTOR_1;
+    double fv = ua * NOTIONAL_100;
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "RatePaymentPeriod");
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD_1_GS.getPaymentDate());
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), NOTIONAL_100, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.COMPOUNDING).get(), PAYMENT_PERIOD_1_GS.getCompoundingMethod());
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
+
+    assertEquals(explain.get(ExplainKey.ACCRUAL_PERIODS).get().size(), 1);
+    ExplainMap explainAccrual = explain.get(ExplainKey.ACCRUAL_PERIODS).get().get(0);
+    RateAccrualPeriod ap = PAYMENT_PERIOD_1_GS.getAccrualPeriods().get(0);
+    int daysBetween = (int) DAYS.between(ap.getStartDate(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.START_DATE).get(), ap.getStartDate());
+    assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_START_DATE).get(), ap.getUnadjustedStartDate());
+    assertEquals(explainAccrual.get(ExplainKey.END_DATE).get(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_END_DATE).get(), ap.getUnadjustedEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), ap.getYearFraction());
+    assertEquals(explainAccrual.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) daysBetween);
+    assertEquals(explainAccrual.get(ExplainKey.GEARING).get(), ap.getGearing(), TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.SPREAD).get(), ap.getSpread(), TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), payOffRate, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
+    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
+    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
   // creates a simple provider
   private SimpleRatesProvider createProvider() {
     DiscountFactors mockDf = mock(DiscountFactors.class);
@@ -588,6 +758,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
     when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    prov.setDayCount(DAY_COUNT);
     prov.setDiscountFactors(mockDf);
     prov.setFxIndexRates(mockFxRates);
     return prov;

@@ -10,9 +10,11 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
@@ -28,24 +30,28 @@ public class CurveUnitParameterSensitivitiesTest {
   private static final double[] TOTAL_USD = new double[] {1100, 450, 621, 246};
   private static final double[] VECTOR3 = new double[] {1000, 250, 321, 123, 321};
   private static final CurveName NAME0 = CurveName.of("NAME-0");
+  private static final CurveMetadata METADATA0 = CurveMetadata.of(NAME0);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
+  private static final CurveMetadata METADATA1 = CurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
+  private static final CurveMetadata METADATA2 = CurveMetadata.of(NAME2);
   private static final CurveName NAME3 = CurveName.of("NAME-3");
+  private static final CurveMetadata METADATA3 = CurveMetadata.of(NAME3);
 
   private static final CurveUnitParameterSensitivity ENTRY1 =
-      CurveUnitParameterSensitivity.of(NAME1, VECTOR1);
+      CurveUnitParameterSensitivity.of(METADATA1, VECTOR1);
   private static final CurveUnitParameterSensitivity ENTRY2 =
-      CurveUnitParameterSensitivity.of(NAME1, VECTOR2);
+      CurveUnitParameterSensitivity.of(METADATA1, VECTOR2);
   private static final CurveUnitParameterSensitivity ENTRY_TOTAL_1_2 =
-      CurveUnitParameterSensitivity.of(NAME1, TOTAL_USD);
+      CurveUnitParameterSensitivity.of(METADATA1, TOTAL_USD);
   private static final CurveUnitParameterSensitivity ENTRY_SMALL =
-      CurveUnitParameterSensitivity.of(NAME1, new double[] {100d});
+      CurveUnitParameterSensitivity.of(METADATA1, new double[] {100d});
   private static final CurveUnitParameterSensitivity ENTRY3 =
-      CurveUnitParameterSensitivity.of(NAME2, VECTOR3);
+      CurveUnitParameterSensitivity.of(METADATA2, VECTOR3);
   private static final CurveUnitParameterSensitivity ENTRY_ZERO0 =
-      CurveUnitParameterSensitivity.of(NAME0, VECTOR_ZERO);
+      CurveUnitParameterSensitivity.of(METADATA0, VECTOR_ZERO);
   private static final CurveUnitParameterSensitivity ENTRY_ZERO3 =
-      CurveUnitParameterSensitivity.of(NAME3, VECTOR_ZERO);
+      CurveUnitParameterSensitivity.of(METADATA3, VECTOR_ZERO);
 
   private static final CurveUnitParameterSensitivities SENSI_1 = CurveUnitParameterSensitivities.of(ENTRY1);
   private static final CurveUnitParameterSensitivities SENSI_2 =

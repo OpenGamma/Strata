@@ -8,7 +8,6 @@ package com.opengamma.strata.market.value;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -55,17 +54,13 @@ public class DiscountFxIndexRatesTest {
   private static final CurveName NAME1 = CurveName.of("TestCurve");
   private static final CurveName NAME2 = CurveName.of("TestCurveUSD");
   private static final InterpolatedNodalCurve CURVE1 =
-      InterpolatedNodalCurve.of(NAME1, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(NAME1, ACT_365F, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
-      InterpolatedNodalCurve.of(NAME2, new double[] {0, 10}, new double[] {0.015, 0.025}, INTERPOLATOR);
-  private static final ZeroRateDiscountFactors DFCURVE_GBP =
-      ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE1);
-  private static final ZeroRateDiscountFactors DFCURVE_GBP2 =
-      ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE2);
-  private static final ZeroRateDiscountFactors DFCURVE_USD =
-      ZeroRateDiscountFactors.of(USD, DATE_VAL, ACT_360, CURVE2);
-  private static final ZeroRateDiscountFactors DFCURVE_USD2 =
-      ZeroRateDiscountFactors.of(USD, DATE_VAL, ACT_360, CURVE1);
+      InterpolatedNodalCurve.of(NAME2, ACT_365F, new double[] {0, 10}, new double[] {0.015, 0.025}, INTERPOLATOR);
+  private static final ZeroRateDiscountFactors DFCURVE_GBP = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE1);
+  private static final ZeroRateDiscountFactors DFCURVE_GBP2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE2);
+  private static final ZeroRateDiscountFactors DFCURVE_USD = ZeroRateDiscountFactors.of(USD, DATE_VAL, CURVE2);
+  private static final ZeroRateDiscountFactors DFCURVE_USD2 = ZeroRateDiscountFactors.of(USD, DATE_VAL, CURVE1);
 
   private static final double RATE_BEFORE = 0.013d;
   private static final double RATE_VAL = 0.014d;
@@ -101,7 +96,7 @@ public class DiscountFxIndexRatesTest {
   }
 
   public void test_of_nonMatchingValuationDates() {
-    DiscountFactors curve2 = ZeroRateDiscountFactors.of(USD, DATE_AFTER, ACT_360, CURVE2);
+    DiscountFactors curve2 = ZeroRateDiscountFactors.of(USD, DATE_AFTER, CURVE2);
     assertThrowsIllegalArg(() -> DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, curve2));
   }
 

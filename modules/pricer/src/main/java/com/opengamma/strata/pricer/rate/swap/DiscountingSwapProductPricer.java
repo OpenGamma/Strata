@@ -23,8 +23,12 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+
 
 /**
  * Pricer for for rate swap products.
@@ -298,10 +302,32 @@ public class DiscountingSwapProductPricer {
    * @return the cash flow
    */
   public CashFlows cashFlows(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap expanded = product.expand();
-    return expanded.getLegs().stream()
+    ExpandedSwap swap = product.expand();
+    return swap.getLegs().stream()
         .map(leg -> legPricer.cashFlows(leg, provider))
         .reduce(CashFlows.NONE, CashFlows::combinedWith);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of the swap product.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param product  the swap product for which present value should be computed
+   * @param provider  the rates provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap swap = product.expand();
+
+    ExplainMapBuilder builder = ExplainMap.builder();
+    builder.put(ExplainKey.ENTRY_TYPE, "Swap");
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      builder.addListEntryWithIndex(
+          ExplainKey.LEGS, child -> legPricer.explainPresentValueInternal(leg, provider, child));
+    }
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------

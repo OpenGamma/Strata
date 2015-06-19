@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.function;
 
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -15,7 +13,6 @@ import org.joda.beans.JodaBeanUtils;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
@@ -56,17 +53,17 @@ public final class MarketDataRatesProvider
    */
   private static final long serialVersionUID = 1L;
   /**
-   * The day count applicable to the models.
-   */
-  private final DayCount dayCount = ACT_ACT_ISDA;
-  /**
    * The set of market data for the calculations.
    */
   private final SingleCalculationMarketData marketData;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param marketData  the underlying market data
+   */
   public MarketDataRatesProvider(SingleCalculationMarketData marketData) {
     JodaBeanUtils.notNull(marketData, "marketData");
-    JodaBeanUtils.notNull(dayCount, "dayCount");
     this.marketData = marketData;
   }
 
@@ -126,7 +123,7 @@ public final class MarketDataRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
     return DiscountIborIndexRates.of(index, timeSeries, dfc);
   }
 
@@ -135,7 +132,7 @@ public final class MarketDataRatesProvider
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
     Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), dayCount, curve);
+    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
     return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
   }
 
@@ -145,11 +142,4 @@ public final class MarketDataRatesProvider
     return marketData.getValue(PriceIndexValuesKey.of(index));
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public double relativeTime(LocalDate date) {
-    return (date.isBefore(marketData.getValuationDate()) ?
-        -dayCount.yearFraction(date, marketData.getValuationDate()) :
-        dayCount.yearFraction(marketData.getValuationDate(), date));
-  }
 }

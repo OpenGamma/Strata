@@ -82,7 +82,7 @@ public class NormalSwaptionProductPricerBeta {
     double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilities.getVolatility(expiryDateTime, tenor, strike, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
-    double expiry = volatilities.relativeTime(expiryDateTime);
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
@@ -135,7 +135,7 @@ public class NormalSwaptionProductPricerBeta {
     double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilities.getVolatility(expiryDateTime, tenor, strike, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, 1.0d, volatility);
-    double expiry = volatilities.relativeTime(expiryDateTime);
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
@@ -171,7 +171,7 @@ public class NormalSwaptionProductPricerBeta {
     double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilities.getVolatility(expiryDateTime, tenor, strike, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
-    double expiry = volatilities.relativeTime(expiryDateTime);
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);

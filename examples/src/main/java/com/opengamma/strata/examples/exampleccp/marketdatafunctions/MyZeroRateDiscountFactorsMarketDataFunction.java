@@ -1,15 +1,11 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.exampleccp.marketdatafunctions;
 
-import java.time.LocalDate;
-
-import com.opengamma.analytics.env.AnalyticsEnvironment;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketDataLookup;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
@@ -20,7 +16,8 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
-import com.opengamma.strata.pricer.impl.Legacy;
+
+import java.time.LocalDate;
 
 /**
  * Market data function that builds discount factors.
@@ -63,8 +60,7 @@ public class MyZeroRateDiscountFactorsMarketDataFunction
       LocalDate valuationDate,
       Curve curve) {
 
-    DayCount modelDayCount = Legacy.dayCount(AnalyticsEnvironment.getInstance().getModelDayCount());
-    return ZeroRateDiscountFactors.of(currency, valuationDate, modelDayCount, curve);
+    return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
   }
 
   public static MarketDataFunction<?, ?> create() {

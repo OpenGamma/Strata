@@ -8,8 +8,6 @@ package com.opengamma.strata.examples.marketdata;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
@@ -270,13 +268,7 @@ public abstract class MarketDataBuilder {
   }
 
   private ZeroRateDiscountFactors toZeroRateDiscountFactors(DiscountCurveId curveId, Curve curve, LocalDate valuationDate) {
-    // TODO - why is DayCount needed?
-    // It's already encoded in the year fractions in the curve.
-    // Should be exposed via the Curve interface if required.
-    // Hard-coding here for now.
-    DayCount dayCount = DayCounts.ACT_ACT_ISDA;
-
-    return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, dayCount, curve);
+    return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, curve);
   }
 
   private void loadFxRates(BaseMarketDataBuilder builder) {
@@ -349,7 +341,6 @@ public abstract class MarketDataBuilder {
   private void loadCdsSpreadCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
     loadRaytheon(builder, marketDataDate);
     loadPenney(builder, marketDataDate);
-    loadPenney2(builder, marketDataDate);
   }
 
   private void loadRaytheon(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
@@ -431,55 +422,8 @@ public abstract class MarketDataBuilder {
             SingleNameReferenceInformation.of(
                 MarkitRedCode.id("UB78A0"),
                 SeniorityLevel.SeniorUnsecuredForeign,
-                Currency.USD,
+                currency,
                 RestructuringClause.NoRestructuring2014
-            )
-        ),
-        IsdaCreditCurveParRates.of(
-            name,
-            marketDataDate,
-            creditCurvePoints,
-            rates,
-            cdsConvention,
-            recoveryRate
-        )
-    );
-  }
-
-  private void loadPenney2(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
-    String name = "JC Penney Credit Curve2";
-    Currency currency = Currency.USD;
-    double recoveryRate = .40D;
-    // ParSpreadQuote
-    ImmutableList<String> raytheon20141020Cr = ImmutableList.of(
-        "6M,0.0476",
-        "1Y,0.0486",
-        "2Y,0.0496",
-        "3Y,0.0506",
-        "4Y,0.0516",
-        "5Y,0.0526",
-        "7Y,0.0536",
-        "10Y,0.0546"
-    );
-
-    double[] rates = raytheon20141020Cr
-        .stream()
-        .mapToDouble(s -> Double.valueOf(s.split(",")[1]))
-        .toArray();
-
-    Period[] creditCurvePoints = raytheon20141020Cr
-        .stream()
-        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
-        .toArray(Period[]::new);
-
-    StandardCdsConvention cdsConvention = StandardCdsConventions.northAmericanUsd();
-    builder.addValue(
-        IsdaSingleNameCreditCurveParRatesId.of(
-            SingleNameReferenceInformation.of(
-                MarkitRedCode.id("UB78A0"),
-                SeniorityLevel.SeniorUnsecuredForeign,
-                Currency.USD,
-                RestructuringClause.NoRestructuring2003
             )
         ),
         IsdaCreditCurveParRates.of(

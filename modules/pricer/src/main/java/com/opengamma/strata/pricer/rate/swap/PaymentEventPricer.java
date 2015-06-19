@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -60,6 +61,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    */
   public abstract PointSensitivityBuilder presentValueSensitivity(T event, RatesProvider provider);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the future value of a single payment event.
    * <p>
@@ -86,5 +88,20 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * @return the future value curve sensitivity of the event
    */
   public abstract PointSensitivityBuilder futureValueSensitivity(T event, RatesProvider provider);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of a single payment event.
+   * <p>
+   * This adds information to the {@link ExplainMapBuilder} to aid understanding of the calculation.
+   * 
+   * @param event  the event to price
+   * @param provider  the rates provider
+   * @param builder  the builder to populate
+   */
+  public abstract void explainPresentValue(
+      T event,
+      RatesProvider provider,
+      ExplainMapBuilder builder);
 
 }

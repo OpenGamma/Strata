@@ -92,6 +92,20 @@ public class ExplainMapTest {
     assertEquals(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ACCRUAL_DAYS), Optional.of(3));
   }
 
+  public void test_builder_addListEntryWithIndex() {
+    ExplainMapBuilder base = ExplainMap.builder();
+    ExplainMapBuilder result1 = base.addListEntryWithIndex(ExplainKey.LEGS, child -> child.put(ExplainKey.ACCRUAL_DAYS, 2));
+    ExplainMapBuilder result2 = result1.addListEntryWithIndex(ExplainKey.LEGS, child -> child.put(ExplainKey.ACCRUAL_DAYS, 3));
+    ExplainMap test = result2.build();
+    assertEquals(test.getMap().size(), 1);
+    assertEquals(test.get(ExplainKey.LEGS).isPresent(), true);
+    assertEquals(test.get(ExplainKey.LEGS).get().size(), 2);
+    assertEquals(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ENTRY_INDEX), Optional.of(0));
+    assertEquals(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS), Optional.of(2));
+    assertEquals(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ENTRY_INDEX), Optional.of(1));
+    assertEquals(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ACCRUAL_DAYS), Optional.of(3));
+  }
+
   //-------------------------------------------------------------------------
   public void test_explanationString() {
     Map<ExplainKey<?>, Object> child1map = new LinkedHashMap<>();

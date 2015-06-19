@@ -13,6 +13,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
@@ -33,10 +34,13 @@ public class MarketQuoteSensitivityCalculator {
 
   //TODO: The method internally uses DoubleMatrix1D and DoubleMatrix2D. This should be reviewed.
 
-  public CurveCurrencyParameterSensitivities fromParameterSensitivity(CurveCurrencyParameterSensitivities parameterSensitivity,
+  public CurveCurrencyParameterSensitivities fromParameterSensitivity(
+      CurveCurrencyParameterSensitivities parameterSensitivity,
       CurveBuildingBlockBundle blocks) {
+
     ArgChecker.notNull(parameterSensitivity, "Sensitivity");
     ArgChecker.notNull(blocks, "Units");
+
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (CurveCurrencyParameterSensitivity entry : parameterSensitivity.getSensitivities()) {
       Pair<CurveBuildingBlock, DoubleMatrix2D> blockEntry = blocks.getBlock(entry.getCurveName().toString());
@@ -45,12 +49,13 @@ public class MarketQuoteSensitivityCalculator {
       double[] keySensi = ((DoubleMatrix1D) MATRIX_ALGEBRA
           .multiply(parameterSensitivityEntryMatrix, blockEntry.getSecond())).getData();
       // split between different curves
-      for (final String name2 : blockEntry.getFirst().getAllNames()) {
-        int nbParameters = blockEntry.getFirst().getNbParameters(name2);
-        int start = blockEntry.getFirst().getStart(name2);
+      for (final String name : blockEntry.getFirst().getAllNames()) {
+        int nbParameters = blockEntry.getFirst().getNbParameters(name);
+        int start = blockEntry.getFirst().getStart(name);
         double[] sensiName2 = new double[nbParameters];
         System.arraycopy(keySensi, start, sensiName2, 0, nbParameters);
-        result = result.combinedWith(CurveCurrencyParameterSensitivity.of(name2, entry.getCurrency(), sensiName2));
+        result = result.combinedWith(CurveCurrencyParameterSensitivity.of(
+            CurveMetadata.of(name), entry.getCurrency(), sensiName2));
       }
     }
     return result;

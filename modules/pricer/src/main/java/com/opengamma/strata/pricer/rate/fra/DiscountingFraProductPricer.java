@@ -208,9 +208,9 @@ public class DiscountingFraProductPricer {
    */
   public ExplainMap explainPresentValue(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    Currency currency = fra.getCurrency();
 
     ExplainMapBuilder builder = ExplainMap.builder();
+    Currency currency = fra.getCurrency();
     builder.put(ExplainKey.ENTRY_TYPE, "FRA");
     builder.put(ExplainKey.PAYMENT_DATE, fra.getPaymentDate());
     builder.put(ExplainKey.START_DATE, fra.getStartDate());
@@ -219,7 +219,7 @@ public class DiscountingFraProductPricer {
     builder.put(ExplainKey.ACCRUAL_DAYS, (int) DAYS.between(fra.getStartDate(), fra.getEndDate()));
     builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
     builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
-    builder.put(ExplainKey.CONTRACT_NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
+    builder.put(ExplainKey.TRADE_NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
       builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
@@ -228,10 +228,10 @@ public class DiscountingFraProductPricer {
           fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provider, builder);
       builder.put(ExplainKey.FIXED_RATE, fra.getFixedRate());
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, fra.getPaymentDate()));
-      builder.put(ExplainKey.FORECAST_RATE, rate);
+      builder.put(ExplainKey.PAY_OFF_RATE, rate);
       builder.put(ExplainKey.UNIT_AMOUNT, unitAmount(fra, provider));
       builder.put(ExplainKey.FUTURE_VALUE, futureValue(fra, provider));
-      builder.put(ExplainKey.PRESENT_VALUE, presentValue(product, provider));
+      builder.put(ExplainKey.PRESENT_VALUE, presentValue(fra, provider));
     }
     return builder.build();
   }

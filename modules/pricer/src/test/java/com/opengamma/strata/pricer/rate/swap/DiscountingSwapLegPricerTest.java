@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -409,7 +408,6 @@ public class DiscountingSwapLegPricerTest {
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
         .priceIndexValues(map)
         .discountCurves(dscCurve)
-        .dayCount(ACT_ACT_ISDA)
         .build();
     // test futureValue and presentValue
     CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
@@ -453,7 +451,6 @@ public class DiscountingSwapLegPricerTest {
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
         .priceIndexValues(map)
         .discountCurves(dscCurve)
-        .dayCount(ACT_ACT_ISDA)
         .build();
     // test futureValue and presentValue
     CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
@@ -546,7 +543,6 @@ public class DiscountingSwapLegPricerTest {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .discountCurves(dscCurve)
-        .dayCount(ACT_ACT_ISDA)
         .build();
     // test futureValue and presentValue
     CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);

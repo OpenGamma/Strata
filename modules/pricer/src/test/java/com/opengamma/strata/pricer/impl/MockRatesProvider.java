@@ -109,11 +109,6 @@ public class MockRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double relativeTime(LocalDate date) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public LocalDate getValuationDate() {
     if (valuationDate == null) {
       throw new UnsupportedOperationException();
