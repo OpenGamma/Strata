@@ -10,8 +10,8 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.finance.credit.ExpandedCds;
+import com.opengamma.strata.finance.credit.type.CdsConvention;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
-import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
@@ -178,7 +178,7 @@ public class CdsAnalyticsWrapper {
       double recoveryRate
   ) {
     try {
-      StandardCdsConvention cdsConvention = curveCurve.getCdsConvention();
+      CdsConvention cdsConvention = curveCurve.getCdsConvention();
       return new FastCreditCurveBuilder(
           AccrualOnDefaultFormulae.OrignalISDA,
           ISDACompliantCreditCurveBuilder.ArbitrageHandling.Fail
@@ -189,7 +189,7 @@ public class CdsAnalyticsWrapper {
           cdsConvention.calcAdjustedStartDate(valuationDate),
           curveCurve.getCreditCurveEndDatePoints(valuationDate),
           curveCurve.getParRates(),
-          cdsConvention.isPayAccOnDefault(),
+          cdsConvention.getPayAccOnDefault(),
           cdsConvention.getPaymentFrequency().getPeriod(),
           translateStubType(cdsConvention.getStubConvention()),
           s_protectStart,

@@ -1,171 +1,186 @@
+/*
+ * *
+ *  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *  *
+ *  * Please see distribution for license.
+ *
+ *
+ */
+
 package com.opengamma.strata.finance.credit.type;
 
+
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 
-public class StandardCdsConventions {
+/**
+ * Standard CDS market conventions
+ * <p>
+ * See cdsmodel.com for details
+ */
+enum StandardCdsConventions implements CdsConvention {
+
+  NORTH_AMERICAN_USD(
+      "NorthAmericanUsd",
+      Currency.USD,
+      DayCounts.ACT_360,
+      BusinessDayConventions.FOLLOWING,
+      Frequency.P3M,
+      RollConventions.DAY_20,
+      true,
+      HolidayCalendars.USNY,
+      StubConvention.SHORT_INITIAL,
+      1,
+      3),
+  EUROPEAN_GBP(
+      "EuropeanGbp",
+      Currency.GBP,
+      DayCounts.ACT_360,
+      BusinessDayConventions.FOLLOWING,
+      Frequency.P3M,
+      RollConventions.DAY_20,
+      true,
+      HolidayCalendars.GBLO,
+      StubConvention.SHORT_INITIAL,
+      1,
+      3),
+  EUROPEAN_CHF(
+      "EuropeanChf",
+      Currency.CHF,
+      DayCounts.ACT_360,
+      BusinessDayConventions.FOLLOWING,
+      Frequency.P3M,
+      RollConventions.DAY_20,
+      true,
+      HolidayCalendars.GBLO.combineWith(HolidayCalendars.CHZU),
+      StubConvention.SHORT_INITIAL,
+      1,
+      3),
+  EUROPEAN_USD(
+      "EuropeanUsd",
+      Currency.USD,
+      DayCounts.ACT_360,
+      BusinessDayConventions.FOLLOWING,
+      Frequency.P3M,
+      RollConventions.DAY_20,
+      true,
+      HolidayCalendars.GBLO.combineWith(HolidayCalendars.USNY),
+      StubConvention.SHORT_INITIAL,
+      1,
+      3);
 
   /**
-   * http://www.cdsmodel.com/cdsmodel/fee-computations.html?
-   * http://www.cdsmodel.com/cdsmodel/assets/cds-model/docs/Standard%20CDS%20Contract%20Specification.pdf
+   * Standard European contracts
    * <p>
-   * CDS Dates: 20th of Mar/Jun/Sep/Dec
-   * • Business Day Count Actual/360: see 2003 ISDA Credit Derivative Definitions
-   * • Business Day Convention Following: see 2003 ISDA Credit Derivative Definitions
-   * Contract Specification
-   * With respect to trade date T:
-   * • Maturity Date: A CDS Date, unadjusted
-   * • Coupon Rate: 100bp or 500bp
-   * • Protection Leg:
-   * o Legal Protection Effective Date: today -60 days for credit events and today –
-   * 90 days for succession events, unadjusted
-   * o Protection Maturity Date: Maturity Date
-   * o Protection Payoff: Par Minus Recovery
-   * • Premium Leg:
-   * o Payment Frequency: quarterly
-   * o Daycount Basis: Actual/360
-   * o Pay Accrued On Default: true
-   * o Business Day Calendar: currency dependent
-   * o Adjusted CDS Dates: CDS Dates, business day adjusted Following
-   * o First Coupon Payment Date: earliest Adjusted CDS Date after T+1 calendar
-   * o Accrual Begin Date: latest Adjusted CDS Date on or before T+1 calendar
-   * o Accrual Dates: CDS dates business day adjusted Following except for the last
-   * accrual date (Maturity Date) which remains unadjusted
-   * o Accrual Periods: From previous accrual date, inclusive, to the next accrual
-   * date, exclusive, except for the last accrual period where the accrual end date
-   * (Maturity Date) is included
-   * o Payment Dates: CDS dates, business day adjusted Following including the last
-   * payment day (Maturity Date).
+   * See cdsmodel.com for details
    */
 
-  public static StandardCdsConvention northAmericanUsd() {
-    return StandardCdsConvention
-        .builder()
-        .currency(Currency.USD)
-        .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.FOLLOWING)
-        .paymentFrequency(Frequency.P3M)
-        .payAccOnDefault(true)
-        .calendar(HolidayCalendars.SAT_SUN)
-        .stubConvention(StubConvention.SHORT_INITIAL)
-        .rollConvention(RollConventions.DAY_20)
-        .stepIn(1)
-        .settleLag(3)
-        .build();
+  private final String name;
+  private final Currency currency;
+  private final DayCount dayCount;
+  private final BusinessDayConvention dayConvention;
+  private final Frequency paymentFrequency;
+  private final RollConvention rollConvention;
+  private final boolean payAccOnDefault;
+  private final HolidayCalendar calendar;
+  private final StubConvention stubConvention;
+  private final int stepIn;
+  private final int settleLag;
+
+  //create
+  StandardCdsConventions(
+      String name,
+      Currency currency,
+      DayCount dayCount,
+      BusinessDayConvention dayConvention,
+      Frequency paymentFrequency,
+      RollConvention rollConvention,
+      boolean payAccOnDefault,
+      HolidayCalendar calendar,
+      StubConvention stubConvention,
+      int stepIn,
+      int settleLag) {
+
+    this.name = name;
+    this.currency = currency;
+    this.dayCount = dayCount;
+    this.dayConvention = dayConvention;
+    this.paymentFrequency = paymentFrequency;
+    this.rollConvention = rollConvention;
+    this.payAccOnDefault = payAccOnDefault;
+    this.calendar = calendar;
+    this.stubConvention = stubConvention;
+    this.stepIn = stepIn;
+    this.settleLag = settleLag;
   }
 
-  /**
-   * CDS Dates: 20th of Mar/Jun/Sep/Dec
-   • Business Day Count Actual/360: see 2003 ISDA Credit Derivative Definitions
-   * • Business Day Convention Following: see 2003 ISDA Credit Derivative Definitions
-   * Contract Specification
-   * With respect to trade date T:
-   * • Maturity Date: A CDS Date, unadjusted
-   * • Coupon Rate:
-   * o Trading: 25bp, 100bp, 500bp or 1000bp
-   * o Backloading: 25bp, 100bp, 300bp, 500bp, 750bp or 1000bp
-   * • Protection Leg:
-   * o Legal Protection Effective Date: T-60 days for credit events, T-90 days for
-   * successions events, unadjusted
-   * o Protection Maturity Date: Maturity Date
-   * o Protection Payoff: Par Minus Recovery
-   * • Premium Leg:
-   * o Payment Frequency: quarterly
-   * o Daycount Basis: Actual/360
-   * o Pay Accrued On Default: true
-   * o Business Day Calendar: currency dependent
-   * o Adjusted CDS Dates: CDS Dates, business day adjusted Following
-   * o First Coupon Payment Date: earliest Adjusted CDS Date after T+1 calendar
-   * o Accrual Begin Date: latest Adjusted CDS Date on or before T+1 calendar
-   * o Accrual Dates: CDS dates business day adjusted Following except for the last
-   * accrual date (Maturity Date) which remains unadjusted
-   * o Accrual Periods: From previous accrual date, inclusive, to the next accrual
-   * date, exclusive, except for the last accrual period where the accrual end date
-   * (Maturity Date) is included
-   * o Payment Dates: CDS dates, business day adjusted Following including the last
-   * payment day (Maturity Date)
-   * 1
-   * Version: May 5, 2009
-   * Contacts: shuwie.chen@barcap.com, ozgur.kaya@barcap.com, marco.naldi@barcap.com,
-   * claus.pedersen@barcap.com, ryan.mccorvie@gs.com, jacob.eliosoff@gs.com, keith.jia@jpmorgan.com,
-   * marc.barrachin@markit.com, manish.mehra@markit.com, manfung.chow@markit.com,
-   * kevin.krabbenhoeft@markit.com
-   * 1
-   * • Currencies: EUR, GBP, CHF, USD
-   * • Business Calendars: determined by currency:
-   * o EUR: London and TARGET Settlement Day
-   * o GBP: London
-   * o CHF: London and Zurich
-   * o USD: London and New York 
-   */
-
-  public static StandardCdsConvention europeanEur() {
-    return StandardCdsConvention
-        .builder()
-        .currency(Currency.EUR)
-        .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.FOLLOWING)
-        .paymentFrequency(Frequency.P3M)
-        .payAccOnDefault(true)
-        .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.EUTA))
-        .stubConvention(StubConvention.SHORT_INITIAL)
-        .rollConvention(RollConventions.DAY_20)
-        .stepIn(1)
-        .settleLag(3)
-        .build();
+  @Override
+  public Currency getCurrency() {
+    return currency;
   }
 
-  public static StandardCdsConvention europeanGbp() {
-    return StandardCdsConvention
-        .builder()
-        .currency(Currency.GBP)
-        .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.FOLLOWING)
-        .paymentFrequency(Frequency.P3M)
-        .payAccOnDefault(true)
-        .calendar(HolidayCalendars.GBLO)
-        .stubConvention(StubConvention.SHORT_INITIAL)
-        .rollConvention(RollConventions.DAY_20)
-        .stepIn(1)
-        .settleLag(3)
-        .build();
+  @Override
+  public DayCount getDayCount() {
+    return dayCount;
   }
 
-  public static StandardCdsConvention europeanChf() {
-    return StandardCdsConvention
-        .builder()
-        .currency(Currency.CHF)
-        .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.FOLLOWING)
-        .paymentFrequency(Frequency.P3M)
-        .payAccOnDefault(true)
-        .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.CHZU))
-        .stubConvention(StubConvention.SHORT_INITIAL)
-        .rollConvention(RollConventions.DAY_20)
-        .stepIn(1)
-        .settleLag(3)
-        .build();
+  @Override
+  public BusinessDayConvention getDayConvention() {
+    return dayConvention;
   }
 
-  public static StandardCdsConvention europeanUsd() {
-    return StandardCdsConvention
-        .builder()
-        .currency(Currency.USD)
-        .dayCount(DayCounts.ACT_360)
-        .dayConvention(BusinessDayConventions.FOLLOWING)
-        .paymentFrequency(Frequency.P3M)
-        .payAccOnDefault(true)
-        .calendar(HolidayCalendars.GBLO.combineWith(HolidayCalendars.USNY))
-        .stubConvention(StubConvention.SHORT_INITIAL)
-        .rollConvention(RollConventions.DAY_20)
-        .stepIn(1)
-        .settleLag(3)
-        .build();
+  @Override
+  public Frequency getPaymentFrequency() {
+    return paymentFrequency;
+  }
+
+  @Override
+  public RollConvention getRollConvention() {
+    return rollConvention;
+  }
+
+  @Override
+  public boolean getPayAccOnDefault() {
+    return payAccOnDefault;
+  }
+
+  @Override
+  public HolidayCalendar getCalendar() {
+    return calendar;
+  }
+
+  @Override
+  public StubConvention getStubConvention() {
+    return stubConvention;
+  }
+
+  @Override
+  public int getStepIn() {
+    return stepIn;
+  }
+
+  @Override
+  public int getSettleLag() {
+    return settleLag;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 
 }

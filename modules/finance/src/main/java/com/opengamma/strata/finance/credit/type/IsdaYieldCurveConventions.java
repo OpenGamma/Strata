@@ -16,11 +16,24 @@ public final class IsdaYieldCurveConventions {
 
   static final ExtendedEnum<IsdaYieldCurveConvention> ENUM_LOOKUP = ExtendedEnum.of(IsdaYieldCurveConvention.class);
 
-  public static final IsdaYieldCurveConvention NORTH_AMERICAN_USD =
-      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.NORTH_AMERICAN_USD.getName());
+  public static final IsdaYieldCurveConvention ISDA_USD =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_USD.getName());
+
+  public static final IsdaYieldCurveConvention ISDA_EUR =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_EUR.getName());
+
+  public static final IsdaYieldCurveConvention ISDA_GBP =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_GBP.getName());
+
+  public static final IsdaYieldCurveConvention ISDA_CHF =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_CHF.getName());
+
+  public static final IsdaYieldCurveConvention ISDA_JPY =
+      IsdaYieldCurveConvention.of(StandardIsdaYieldCurveConventions.ISDA_JPY.getName());
 
   /**
    * Restricted constructor.
    */
-  private IsdaYieldCurveConventions() {}
+  private IsdaYieldCurveConventions() {
+  }
 }

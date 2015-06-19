@@ -19,84 +19,74 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
 
+/**
+ * Standard CDS yield curve conventions
+ * <p>
+ * See cdsmodel.com and Markit website for details
+ */
 enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
 
-  NORTH_AMERICAN_USD(
-      "NorthAmericanUsd",
+  ISDA_USD(
+      "ISDA_USD",
       Currency.USD,
       DayCounts.ACT_360,
       DayCounts.THIRTY_E_360,
       2,
       Frequency.P6M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
-      HolidayCalendars.SAT_SUN);
+      HolidayCalendars.SAT_SUN),
+  ISDA_EUR(
+      "ISDA_EUR",
+      Currency.EUR,
+      DayCounts.ACT_360,
+      DayCounts.THIRTY_E_360,
+      2,
+      Frequency.P12M,
+      BusinessDayConventions.MODIFIED_FOLLOWING,
+      HolidayCalendars.SAT_SUN),
+  ISDA_GBP(
+      "ISDA_GBP",
+      Currency.GBP,
+      DayCounts.ACT_365F,
+      DayCounts.ACT_365F,
+      2,
+      Frequency.P6M,
+      BusinessDayConventions.MODIFIED_FOLLOWING,
+      HolidayCalendars.SAT_SUN),
+  ISDA_CHF(
+      "ISDA_CHF",
+      Currency.CHF,
+      DayCounts.ACT_360,
+      DayCounts.THIRTY_360_ISDA,
+      2,
+      Frequency.P12M,
+      BusinessDayConventions.MODIFIED_FOLLOWING,
+      HolidayCalendars.SAT_SUN),
+  ISDA_JPY(
+      "ISDA_JPY",
+      Currency.JPY,
+      DayCounts.ACT_360,
+      DayCounts.THIRTY_E_360,
+      2,
+      Frequency.P6M,
+      BusinessDayConventions.MODIFIED_FOLLOWING,
+      HolidayCalendars.JPTO);
 
-  /*
-    public static final IsdaYieldCurveConvention europeanEur =
-      IsdaYieldCurveConvention
-          .builder()
-          .currency(Currency.EUR)
-          .mmDayCount(DayCounts.ACT_360)
-          .fixedDayCount(DayCounts.THIRTY_360_ISDA)
-          .spotDays(2)
-          .fixedPaymentFrequency(Frequency.P12M)
-          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
-          .holidayCalendar(HolidayCalendars.SAT_SUN)
-          .build();
-
-  public static final IsdaYieldCurveConvention europeanGbp =
-      IsdaYieldCurveConvention
-          .builder()
-          .currency(Currency.GBP)
-          .mmDayCount(DayCounts.ACT_365F)
-          .fixedDayCount(DayCounts.ACT_365F)
-          .spotDays(2)
-          .fixedPaymentFrequency(Frequency.P6M)
-          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
-          .holidayCalendar(HolidayCalendars.SAT_SUN)
-          .build();
-
-  public static final IsdaYieldCurveConvention europeanChf =
-      IsdaYieldCurveConvention
-          .builder()
-          .currency(Currency.CHF)
-          .mmDayCount(DayCounts.ACT_360)
-          .fixedDayCount(DayCounts.THIRTY_360_ISDA)
-          .spotDays(2)
-          .fixedPaymentFrequency(Frequency.P12M)
-          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
-          .holidayCalendar(HolidayCalendars.SAT_SUN)
-          .build();
-
-  public static final IsdaYieldCurveConvention asianJPY =
-      IsdaYieldCurveConvention
-          .builder()
-          .currency(Currency.JPY)
-          .mmDayCount(DayCounts.ACT_360)
-          .fixedDayCount(DayCounts.THIRTY_E_360)
-          .spotDays(2)
-          .fixedPaymentFrequency(Frequency.P6M)
-          .badDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
-          .holidayCalendar(HolidayCalendars.JPTO)
-          .build();
-   */
-
-  // name
   private final String name;
 
-  Currency currency;
+  private final Currency currency;
 
-  DayCount mmDayCount;
+  private final DayCount mmDayCount;
 
-  DayCount fixedDayCount;
+  private final DayCount fixedDayCount;
 
-  int spotDays;
+  private final int spotDays;
 
-  Frequency fixedPaymentFrequency;
+  private final Frequency fixedPaymentFrequency;
 
-  BusinessDayConvention badDayConvention;
+  private final BusinessDayConvention badDayConvention;
 
-  HolidayCalendar holidayCalendar;
+  private final HolidayCalendar holidayCalendar;
 
   // create
   StandardIsdaYieldCurveConventions(String name,

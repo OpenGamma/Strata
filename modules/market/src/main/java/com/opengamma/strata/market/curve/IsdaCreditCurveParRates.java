@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve;
 
 import com.google.common.collect.Lists;
-import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
+import com.opengamma.strata.finance.credit.type.CdsConvention;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -47,7 +47,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
   private final double[] parRates;
 
   @PropertyDefinition(validate = "notNull")
-  private final StandardCdsConvention cdsConvention;
+  private final CdsConvention cdsConvention;
 
   // TODO the recovery rate is not really a part of the curve, but the data is available along side when
   // TODO as parsing the curves, so it is convenient to put it here for the moment.
@@ -59,7 +59,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
       LocalDate marketDateDate,
       Period[] creditCurvePoints,
       double[] parRates,
-      StandardCdsConvention cdsConvention,
+      CdsConvention cdsConvention,
       double recoveryRate
   ) {
     return new IsdaCreditCurveParRates(
@@ -144,7 +144,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
       LocalDate marketDateDate,
       Period[] creditCurvePoints,
       double[] parRates,
-      StandardCdsConvention cdsConvention,
+      CdsConvention cdsConvention,
       double recoveryRate) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(marketDateDate, "marketDateDate");
@@ -217,7 +217,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
    * Gets the cdsConvention.
    * @return the value of the property, not null
    */
-  public StandardCdsConvention getCdsConvention() {
+  public CdsConvention getCdsConvention() {
     return cdsConvention;
   }
 
@@ -307,8 +307,8 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
     /**
      * The meta-property for the {@code cdsConvention} property.
      */
-    private final MetaProperty<StandardCdsConvention> cdsConvention = DirectMetaProperty.ofImmutable(
-        this, "cdsConvention", IsdaCreditCurveParRates.class, StandardCdsConvention.class);
+    private final MetaProperty<CdsConvention> cdsConvention = DirectMetaProperty.ofImmutable(
+        this, "cdsConvention", IsdaCreditCurveParRates.class, CdsConvention.class);
     /**
      * The meta-property for the {@code recoveryRate} property.
      */
@@ -403,7 +403,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
      * The meta-property for the {@code cdsConvention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardCdsConvention> cdsConvention() {
+    public MetaProperty<CdsConvention> cdsConvention() {
       return cdsConvention;
     }
 
@@ -456,7 +456,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
     private LocalDate marketDateDate;
     private Period[] creditCurvePoints;
     private double[] parRates;
-    private StandardCdsConvention cdsConvention;
+    private CdsConvention cdsConvention;
     private double recoveryRate;
 
     /**
@@ -502,7 +502,7 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
           this.parRates = (double[]) newValue;
           break;
         case 288334147:  // cdsConvention
-          this.cdsConvention = (StandardCdsConvention) newValue;
+          this.cdsConvention = (CdsConvention) newValue;
           break;
         case 2002873877:  // recoveryRate
           this.recoveryRate = (Double) newValue;

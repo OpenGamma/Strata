@@ -17,8 +17,8 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
-import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
-import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
+import com.opengamma.strata.finance.credit.type.CdsConventions;
+import com.opengamma.strata.finance.credit.type.CdsTemplate;
 
 import java.time.LocalDate;
 
@@ -30,8 +30,8 @@ public class ExampleTradeSource implements TradeSource {
   @Override
   public ImmutableList<Trade> trades() {
     return ImmutableList.of(
-        StandardCdsTemplate
-            .of(StandardCdsConventions.northAmericanUsd())
+        CdsTemplate
+            .of(CdsConventions.NORTH_AMERICAN_USD)
             .toSingleNameTrade(
                 StandardId.of("tradeid", "62726762"),
                 LocalDate.of(2014, 9, 22),
@@ -45,8 +45,8 @@ public class ExampleTradeSource implements TradeSource {
                 3_694_117.73D,
                 LocalDate.of(2014, 10, 21)
             ),
-        StandardCdsTemplate
-            .of(StandardCdsConventions.northAmericanUsd())
+        CdsTemplate
+            .of(CdsConventions.NORTH_AMERICAN_USD)
             .toSingleNameTrade(
                 StandardId.of("tradeid", "62726763"),
                 LocalDate.of(2014, 9, 22),

@@ -18,8 +18,8 @@ import com.opengamma.strata.examples.finance.credit.api.TradeSource;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
-import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
-import com.opengamma.strata.finance.credit.type.StandardCdsTemplate;
+import com.opengamma.strata.finance.credit.type.CdsConventions;
+import com.opengamma.strata.finance.credit.type.CdsTemplate;
 import org.testng.Assert;
 
 import java.time.LocalDate;
@@ -35,8 +35,8 @@ public class TestHarness {
 
     private TradeFactory(BuySell buySell, double feeAmount, LocalDate cashSettleDate) {
       tradeSource = () -> ImmutableList.of(
-          StandardCdsTemplate
-              .of(StandardCdsConventions.northAmericanUsd())
+          CdsTemplate
+              .of(CdsConventions.NORTH_AMERICAN_USD)
               .toSingleNameTrade(
                   StandardId.of("tradeid", "62726762"),
                   LocalDate.of(2014, 9, 22),

@@ -25,10 +25,10 @@ import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
 import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.finance.credit.type.CdsConventions;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
-import com.opengamma.strata.finance.credit.type.StandardCdsConvention;
-import com.opengamma.strata.finance.credit.type.StandardCdsConventions;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -279,7 +279,7 @@ public abstract class MarketDataBuilder {
   private void loadCdsYieldCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
     String name = "USD ISDA Yield Curve";
     Currency currency = Currency.USD;
-    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.NORTH_AMERICAN_USD;
+    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.ISDA_USD;
     ImmutableList<String> usd20141020Ir = ImmutableList.of(
         "1M,M,0.001535",
         "2M,M,0.001954",
@@ -369,7 +369,7 @@ public abstract class MarketDataBuilder {
         .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
         .toArray(Period[]::new);
 
-    StandardCdsConvention cdsConvention = StandardCdsConventions.northAmericanUsd();
+    CdsConvention cdsConvention = CdsConventions.NORTH_AMERICAN_USD;
     builder.addValue(
         IsdaSingleNameCreditCurveParRatesId.of(
             SingleNameReferenceInformation.of(
@@ -416,7 +416,7 @@ public abstract class MarketDataBuilder {
         .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
         .toArray(Period[]::new);
 
-    StandardCdsConvention cdsConvention = StandardCdsConventions.northAmericanUsd();
+    CdsConvention cdsConvention = CdsConventions.NORTH_AMERICAN_USD;
     builder.addValue(
         IsdaSingleNameCreditCurveParRatesId.of(
             SingleNameReferenceInformation.of(
