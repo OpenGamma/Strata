@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.credit;
+package com.opengamma.strata.function.calculation.credit;
 
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;

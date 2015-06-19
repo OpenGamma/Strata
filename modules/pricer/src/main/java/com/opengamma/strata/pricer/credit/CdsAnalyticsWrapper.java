@@ -1,4 +1,4 @@
-package com.opengamma.strata.function.credit;
+package com.opengamma.strata.pricer.credit;
 
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.*;
@@ -21,9 +21,13 @@ import java.time.LocalDate;
 import java.time.Period;
 
 /**
- * Single point for interacting with the underlying Analytics layer
+ * Single point for interacting with the underlying Analytics layer for CDS pricing
+ * <p>
+ * Translation from Strata business objects such as DayCount and StubMethod is done here
+ * The translation of underlying types for the yield curve is performed here
+ * Par rate representations of the curves are calibrated and converted to ISDA calibrated curves
+ * Present value of the expanded CDS product (single name or index) is calculated here
  */
-// TODO put all of this behind interfaces
 public class CdsAnalyticsWrapper {
 
   /**
@@ -48,13 +52,22 @@ public class CdsAnalyticsWrapper {
    */
   private final static AnalyticCDSPricer s_calculator = new AnalyticCDSPricer();
 
+  /**
+   * Calculate present value on the specified valuation date
+   *
+   * @param valuationDate date that present value is calculated on, also date that curves will be calibrated to
+   * @param product       expanded cds product
+   * @param yieldCurve    par rates representation of the ISDA yield curve
+   * @param creditCurve   par rates representaion of the ISDA credit curve
+   * @param recoveryRate  recovery rate for the reference entity/issue
+   * @return Present value of the expanded CDS product
+   */
   public static MultiCurrencyAmount price(
       LocalDate valuationDate,
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurve,
       IsdaCreditCurveParRates creditCurve,
-      double recoveryRate
-  ) {
+      double recoveryRate) {
 
     CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
 
@@ -101,8 +114,8 @@ public class CdsAnalyticsWrapper {
       LocalDate valuationDate,
       double amount,
       LocalDate paymentDate,
-      ISDACompliantYieldCurve yieldCurve
-  ) {
+      ISDACompliantYieldCurve yieldCurve) {
+
     if (amount == 0D) {
       return 0D; // no fee
     }
@@ -114,7 +127,13 @@ public class CdsAnalyticsWrapper {
     return discountFactor * amount;
   }
 
-  private static ISDACompliantYieldCurve toIsdaDiscountCurve(LocalDate valuationDate, IsdaYieldCurveParRates yieldCurve) {
+  /**
+   * convert the interest rate curve par rates to the corresponding analytics form (calibration is performed here)
+   */
+  private static ISDACompliantYieldCurve toIsdaDiscountCurve(
+      LocalDate valuationDate,
+      IsdaYieldCurveParRates yieldCurve) {
+
     try {
       // model does not use floating leg of underlying IRS
       IsdaYieldCurveConvention curveConvention = yieldCurve.getCurveConvention();
@@ -149,18 +168,9 @@ public class CdsAnalyticsWrapper {
     }
   }
 
-  private static ISDAInstrumentTypes mapInstrumentType(IsdaYieldCurveUnderlyingType input) {
-    switch (input) {
-      case IsdaMoneyMarket:
-        return ISDAInstrumentTypes.MoneyMarket;
-      case IsdaSwap:
-        return ISDAInstrumentTypes.Swap;
-      default:
-        throw new IllegalStateException("Unexpected underlying type, only MoneyMarket and Swap supported: " + input);
-    }
-
-  }
-
+  /**
+   * convert the credit curve par rates to the corresponding analytics form (calibration is performed here)
+   */
   private static ISDACompliantCreditCurve toIsdaCreditCurve(
       LocalDate valuationDate,
       IsdaCreditCurveParRates curveCurve,
@@ -191,6 +201,9 @@ public class CdsAnalyticsWrapper {
     }
   }
 
+  /**
+   * convert the expanded cds product to the corresponding analytics form
+   */
   private static CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
     try {
       return new CDSAnalytic(
@@ -214,6 +227,25 @@ public class CdsAnalyticsWrapper {
     }
   }
 
+  //------------------------------------------------------------------------------------------
+
+  /**
+   * convert type of interest curve underlying to the corresponding analytics value
+   */
+  private static ISDAInstrumentTypes mapInstrumentType(IsdaYieldCurveUnderlyingType input) {
+    switch (input) {
+      case IsdaMoneyMarket:
+        return ISDAInstrumentTypes.MoneyMarket;
+      case IsdaSwap:
+        return ISDAInstrumentTypes.Swap;
+      default:
+        throw new IllegalStateException("Unexpected underlying type, only MoneyMarket and Swap supported: " + input);
+    }
+  }
+
+  /**
+   * convert day count to corresponding analytics value
+   */
   private static com.opengamma.analytics.convention.daycount.DayCount translateDayCount(DayCount from) {
     switch (from.getName()) {
       case "Act/365F":
@@ -229,6 +261,9 @@ public class CdsAnalyticsWrapper {
     }
   }
 
+  /**
+   * convert stub type to corresponding analytics value
+   */
   private static com.opengamma.analytics.financial.credit.isdastandardmodel.StubType translateStubType(StubConvention from) {
     switch (from) {
       case SHORT_INITIAL:

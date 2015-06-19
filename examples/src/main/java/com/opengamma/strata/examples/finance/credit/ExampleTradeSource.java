@@ -59,23 +59,7 @@ public class ExampleTradeSource implements TradeSource {
                 RestructuringClause.NoRestructuring2014,
                 -1_370_582.00D,
                 LocalDate.of(2014, 10, 21)
-            ),
-        StandardCdsTemplate
-            .of(StandardCdsConventions.northAmericanUsd())
-            .toSingleNameTrade(
-                StandardId.of("tradeid", "62726763"),
-                LocalDate.of(2014, 9, 22),
-                LocalDate.of(2019, 12, 20),
-                BuySell.BUY,
-                100_000_000D,
-                0.0500,
-                MarkitRedCode.id("UB78A0"), // JC Penney
-                SeniorityLevel.SeniorUnsecuredForeign,
-                RestructuringClause.NoRestructuring2003,
-                -3_694_117.73D,
-                LocalDate.of(2014, 10, 21)
             )
-
     );
   }
 

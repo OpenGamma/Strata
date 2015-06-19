@@ -1,10 +1,11 @@
-package com.opengamma.strata.function.credit;
+package com.opengamma.strata.function.calculation.credit;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+
+import java.time.LocalDate;
 
 public class CdsIr01ParallelParFunction extends AbstractCdsFunction<MultiCurrencyAmount> {
 
@@ -13,9 +14,9 @@ public class CdsIr01ParallelParFunction extends AbstractCdsFunction<MultiCurrenc
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      DefaultSingleCalculationMarketData provider
+      LocalDate valuationDate
   ) {
-    return pricer().ir01ParallelPar(product, yieldCurveParRates,creditCurveParRates, provider);
+    return pricer().ir01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate);
   }
 
 }

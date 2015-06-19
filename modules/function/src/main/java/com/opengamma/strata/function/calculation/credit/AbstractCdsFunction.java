@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.credit;
+package com.opengamma.strata.function.calculation.credit;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -26,7 +26,9 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.key.IsdaIndexCreditCurveParRatesKey;
 import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveParRatesKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
+import com.opengamma.strata.pricer.credit.CdsPricer;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -88,6 +90,10 @@ public abstract class AbstractCdsFunction<T>
 
     ReferenceInformation referenceInformation = cds.getReferenceInformation();
     ReferenceInformationType cdsType = referenceInformation.getType();
+    // TODO the only real difference between single name and index trades is how the credit curves are keyed and the
+    // TODO application of an index factor. We have two switch statements currently to handle this
+    // TODO we should be able to handle that a bit more gracefully, but there seems little point in duplicating
+    // TODO all of the engine functions and the entire trade model when the vast majority of behavior is common
     Set<MarketDataKey<?>> spreadCurveKey;
     switch (cdsType) {
       case SINGLE_NAME:
@@ -129,6 +135,7 @@ public abstract class AbstractCdsFunction<T>
 
     ReferenceInformation referenceInformation = trade.getProduct().getReferenceInformation();
     ReferenceInformationType cdsType = referenceInformation.getType();
+    // TODO see comment above on the other switch statement
     IsdaCreditCurveParRates creditCurveParRates;
     switch (cdsType) {
       case SINGLE_NAME:
@@ -144,7 +151,7 @@ public abstract class AbstractCdsFunction<T>
       default:
         throw new IllegalStateException("unknown reference information type: " + cdsType);
     }
-    return execute(trade.getProduct().expand(), yieldCurveParRates, creditCurveParRates, provider);
+    return execute(trade.getProduct().expand(), yieldCurveParRates, creditCurveParRates, provider.getValuationDate());
   }
 
   // execute for a single product
@@ -152,7 +159,7 @@ public abstract class AbstractCdsFunction<T>
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      DefaultSingleCalculationMarketData provider
+      LocalDate valuationDate
   );
 
 

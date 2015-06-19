@@ -11,7 +11,7 @@ import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.function.credit.CdsFunctionGroups;
+import com.opengamma.strata.function.calculation.credit.CdsFunctionGroups;
 import com.opengamma.strata.function.rate.fra.FraFunctionGroups;
 import com.opengamma.strata.function.rate.swap.SwapFunctionGroups;
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata;
@@ -62,19 +62,19 @@ import java.util.stream.Collectors;
  * <p>
  * The directory structure must look like:
  * <ul>
- * <li>root
- * <ul>
- * <li>curves
- * <ul>
- * <li>groups.csv
- * <li>settings.csv
- * <li>one or more curve CSV files
- * </ul>
- * <li>historical-fixings
- * <ul>
- * <li>one or more time-series CSV files
- * </ul>
- * </ul>
+ *   <li>root
+ *   <ul>
+ *     <li>curves
+ *     <ul>
+ *       <li>groups.csv
+ *       <li>settings.csv
+ *       <li>one or more curve CSV files
+ *     </ul>
+ *     <li>historical-fixings
+ *     <ul>
+ *       <li>one or more time-series CSV files
+ *     </ul>
+ *   </ul>
  * </ul>
  */
 public abstract class MarketDataBuilder {
