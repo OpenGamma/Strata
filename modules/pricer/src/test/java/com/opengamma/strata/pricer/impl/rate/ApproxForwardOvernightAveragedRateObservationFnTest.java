@@ -1109,7 +1109,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
           .valuationDate(valuationDate[loopvaldate])
           .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
           .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
-          .dayCount(ACT_ACT_ISDA)
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
@@ -1132,7 +1131,6 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
           .valuationDate(valuationDate[loopvaldate])
           .indexCurves(ImmutableMap.of(USD_FED_FUND, FED_FUND_CURVE))
           .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
-          .dayCount(ACT_ACT_ISDA)
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);

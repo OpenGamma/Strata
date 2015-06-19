@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.function;
 
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -144,11 +142,4 @@ public final class MarketDataRatesProvider
     return marketData.getValue(PriceIndexValuesKey.of(index));
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public double relativeTime(LocalDate date) {
-    return (date.isBefore(marketData.getValuationDate()) ?
-        -ACT_ACT_ISDA.yearFraction(date, marketData.getValuationDate()) :
-        ACT_ACT_ISDA.yearFraction(marketData.getValuationDate(), date));
-  }
 }

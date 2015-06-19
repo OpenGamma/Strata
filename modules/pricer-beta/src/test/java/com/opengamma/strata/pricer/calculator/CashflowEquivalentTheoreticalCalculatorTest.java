@@ -141,17 +141,14 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
   private static final ImmutableRatesProvider RATES_1 = 
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_1)
-      .dayCount(ACT_360)
       .build();
   private static final ImmutableRatesProvider RATES_2 = 
       ImmutableRatesProvider.builder()
       .valuationDate(IBOR_FIXING_DATE)
-      .dayCount(ACT_360)
       .build();
   private static final ImmutableRatesProvider RATES_3 = 
       ImmutableRatesProvider.builder()
       .valuationDate(START_DATE)
-      .dayCount(ACT_360)
       .build();
   private static final double IBOR_FIXING_VALUE = 0.02;
   private static final LocalDateDoubleTimeSeries TS_EURIBOR6M = 
@@ -190,14 +187,12 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_4)
       .timeSeries(MAP_TS)
-      .dayCount(ACT_360)
       .indexCurves(MAP_IND_CURVE)
       .build();
   private static final ImmutableRatesProvider RATES_5 = 
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_5)
       .timeSeries(MAP_TS)
-      .dayCount(ACT_360)
       .indexCurves(MAP_IND_CURVE)
       .build();
   /* Tolerance */

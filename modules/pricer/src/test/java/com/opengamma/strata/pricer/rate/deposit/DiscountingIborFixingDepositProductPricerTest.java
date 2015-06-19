@@ -78,7 +78,6 @@ public class DiscountingIborFixingDepositProductPricerTest {
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
-        .dayCount(ACT_ACT_ISDA)
         .timeSeries(ImmutableMap.of(EUR_EURIBOR_6M, LocalDateDoubleTimeSeries.empty()))
         .build();
   }

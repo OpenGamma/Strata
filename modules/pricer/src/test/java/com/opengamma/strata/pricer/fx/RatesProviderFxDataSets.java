@@ -17,7 +17,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
@@ -92,7 +91,6 @@ public class RatesProviderFxDataSets {
    */
   public static RatesProvider createProvider() {
     return ImmutableRatesProvider.builder()
-        .dayCount(DayCounts.ACT_360)
         .valuationDate(LocalDate.of(2011, 11, 10))
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
@@ -108,7 +106,6 @@ public class RatesProviderFxDataSets {
   public static RatesProvider createProviderEURUSD() {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
     return ImmutableRatesProvider.builder()
-        .dayCount(DayCounts.ACT_360)
         .valuationDate(LocalDate.of(2011, 11, 10))
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)

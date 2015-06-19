@@ -331,7 +331,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
           .valuationDate(valuationDate[loopvaldate])
           .indexCurves(ImmutableMap.of(USD_FED_FUND, ON_INDEX_CURVE))
           .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
-          .dayCount(ACT_ACT_ISDA)
           .build();
       OvernightAveragedRateObservation ro =
           OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
@@ -357,7 +356,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
           .valuationDate(valuationDate[loopvaldate])
           .indexCurves(ImmutableMap.of(CHF_TOIS, ON_INDEX_CURVE))
           .timeSeries(ImmutableMap.of(CHF_TOIS, TIME_SERIES_BUILDER.build()))
-          .dayCount(ACT_ACT_ISDA)
           .build();
       OvernightAveragedRateObservation ro =
           OvernightAveragedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);

@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate.deposit;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
@@ -74,7 +73,6 @@ public class DiscountingTermDepositProductPricerTest {
     IMM_PROV = ImmutableRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
-        .dayCount(ACT_ACT_ISDA)
         .build();
   }
   private static final double DF_START = 0.99;
