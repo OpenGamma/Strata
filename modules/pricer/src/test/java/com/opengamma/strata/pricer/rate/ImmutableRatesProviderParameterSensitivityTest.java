@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.rate;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
@@ -39,11 +38,14 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -65,6 +67,7 @@ import com.opengamma.strata.pricer.impl.Legacy;
 public class ImmutableRatesProviderParameterSensitivityTest {
 
   private static final LocalDate DATE_VAL = LocalDate.of(2014, 1, 22);
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final Currency USD = Currency.USD;
   private static final Currency EUR = Currency.EUR;
   private static final LocalDate DATE_1 = LocalDate.of(2015, 12, 21);
@@ -137,14 +140,13 @@ public class ImmutableRatesProviderParameterSensitivityTest {
           USD_LIBOR_3M, TS_EMTPY,
           EUR_EONIA, TS_EMTPY,
           USD_FED_FUND, TS_EMTPY))
-      .dayCount(ACT_ACT_ISDA)
       .build();
 
   private static final double TOLERANCE_SENSI = 1.0E-8;
 
   public void pointToParameterOnePointZero() {
     CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_ZERO_1);
-    DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
+    DoublesPair pair = DoublesPair.of(DAY_COUNT.relativeYearFraction(DATE_VAL, DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(USD), list);
@@ -155,7 +157,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
   public void pointToParameterOnePointZeroTwoCurrency() {
     CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_ZERO_4);
-    DoublesPair pair = DoublesPair.of(PROVIDER.relativeTime(DATE_1), AMOUNT_1);
+    DoublesPair pair = DoublesPair.of(DAY_COUNT.relativeYearFraction(DATE_VAL, DATE_1), AMOUNT_1);
     List<DoublesPair> list = new ArrayList<>();
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(EUR), list);
@@ -168,8 +170,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_IBOR_1);
     LocalDate startDate = USD_LIBOR_3M.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_LIBOR_3M.calculateMaturityFromEffective(startDate);
-    double startTime = PROVIDER.relativeTime(startDate);
-    double endTime = PROVIDER.relativeTime(endDate);
+    double startTime = DAY_COUNT.relativeYearFraction(DATE_VAL, startDate);
+    double endTime = DAY_COUNT.relativeYearFraction(DATE_VAL, endDate);
     double af = USD_LIBOR_3M.getDayCount().yearFraction(startDate, endDate);
     ForwardSensitivity fwd = new SimplyCompoundedForwardSensitivity(startTime, endTime, af, AMOUNT_1);
     List<ForwardSensitivity> list = new ArrayList<>();
@@ -185,8 +187,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     CurveCurrencyParameterSensitivities ps = PROVIDER.curveParameterSensitivity(POINT_ON_1);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
     LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(startDate);
-    double startTime = PROVIDER.relativeTime(startDate);
-    double endTime = PROVIDER.relativeTime(endDate);
+    double startTime = DAY_COUNT.relativeYearFraction(DATE_VAL, startDate);
+    double endTime = DAY_COUNT.relativeYearFraction(DATE_VAL, endDate);
     double af = USD_FED_FUND.getDayCount().yearFraction(startDate, endDate);
     ForwardSensitivity fwd = new SimplyCompoundedForwardSensitivity(startTime, endTime, af, AMOUNT_1);
     List<ForwardSensitivity> list = new ArrayList<>();
@@ -201,8 +203,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   public void pointToParameterOnePointOnTwoDates() {
     CurveCurrencyParameterSensitivities psComputed = PROVIDER.curveParameterSensitivity(POINT_ON_2);
     LocalDate startDate = USD_FED_FUND.calculateEffectiveFromFixing(DATE_1);
-    double startTime = PROVIDER.relativeTime(startDate);
-    double endTime = PROVIDER.relativeTime(DATE_2);
+    double startTime = DAY_COUNT.relativeYearFraction(DATE_VAL, startDate);
+    double endTime = DAY_COUNT.relativeYearFraction(DATE_VAL, DATE_2);
     double af = USD_FED_FUND.getDayCount().yearFraction(startDate, DATE_2);
     ForwardSensitivity fwd = new SimplyCompoundedForwardSensitivity(startTime, endTime, af, AMOUNT_1);
     List<ForwardSensitivity> list = new ArrayList<>();
@@ -242,38 +244,33 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder()
         .valuationDate(DATE_VAL)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder()
         .valuationDate(DATE_VAL)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder()
         .valuationDate(DATE_VAL)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder()
         .valuationDate(DATE_VAL)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
-        .dayCount(ACT_ACT_ISDA)
         .build();
     LocalDate matuirtyDate = WM_GBP_USD.calculateMaturityFromFixing(DATE_VAL);
-    double maturityTime = test.relativeTime(matuirtyDate);
+    double maturityTime = DAY_COUNT.relativeYearFraction(DATE_VAL, matuirtyDate);
     // GBP based
     PointSensitivityBuilder sensiBuildCmpGBP = test.fxIndexRates(WM_GBP_USD).ratePointSensitivity(GBP, DATE_VAL);
     FxIndexSensitivity sensiBuildExpGBP = FxIndexSensitivity.of(WM_GBP_USD, USD, GBP, DATE_VAL, 1.0);
@@ -318,7 +315,6 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         interpCurve);
     ImmutableRatesProvider provider = ImmutableRatesProvider.builder()
         .valuationDate(DATE_VAL)
-        .dayCount(ACT_ACT_ISDA)
         .priceIndexValues(ImmutableMap.of(GB_RPI, values))
         .build();
 
@@ -343,7 +339,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     private double discountFactor;
 
     public ConstantDiscountFactorCurve(String name, double discountFactor) {
-      this.metadata = CurveMetadata.of(name);
+      this.metadata = DefaultCurveMetadata.of(name, DAY_COUNT);
       this.discountFactor = discountFactor;
     }
 

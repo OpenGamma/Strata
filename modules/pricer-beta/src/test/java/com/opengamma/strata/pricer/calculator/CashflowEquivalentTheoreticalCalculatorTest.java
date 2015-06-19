@@ -32,6 +32,7 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -140,17 +141,14 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
   private static final ImmutableRatesProvider RATES_1 = 
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_1)
-      .dayCount(ACT_360)
       .build();
   private static final ImmutableRatesProvider RATES_2 = 
       ImmutableRatesProvider.builder()
       .valuationDate(IBOR_FIXING_DATE)
-      .dayCount(ACT_360)
       .build();
   private static final ImmutableRatesProvider RATES_3 = 
       ImmutableRatesProvider.builder()
       .valuationDate(START_DATE)
-      .dayCount(ACT_360)
       .build();
   private static final double IBOR_FIXING_VALUE = 0.02;
   private static final LocalDateDoubleTimeSeries TS_EURIBOR6M = 
@@ -160,7 +158,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     MAP_TS.put(EUR_EURIBOR_6M, TS_EURIBOR6M);
   }
   private static final Map<Index, Curve> MAP_IND_CURVE = new HashMap<>();
-  private static final Curve DUMMY_CURVE = ConstantNodalCurve.of("EUR-EURIBOR6M", 0.0);
+  private static final Curve DUMMY_CURVE = ConstantNodalCurve.of(DefaultCurveMetadata.of("EUR-EURIBOR6M", ACT_360), 0.0);
   static {
     MAP_IND_CURVE.put(EUR_EURIBOR_6M, DUMMY_CURVE);
   }  
@@ -189,14 +187,12 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_4)
       .timeSeries(MAP_TS)
-      .dayCount(ACT_360)
       .indexCurves(MAP_IND_CURVE)
       .build();
   private static final ImmutableRatesProvider RATES_5 = 
       ImmutableRatesProvider.builder()
       .valuationDate(VAlUATION_DATE_5)
       .timeSeries(MAP_TS)
-      .dayCount(ACT_360)
       .indexCurves(MAP_IND_CURVE)
       .build();
   /* Tolerance */

@@ -30,6 +30,7 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.id.DiscountCurveId;
@@ -262,7 +263,8 @@ public final class RatesCurvesCsvLoader {
     }
 
     // create metadata
-    CurveMetadata curveMetadata = CurveMetadata.of(curveKey.getCurveName(), pointsMetadata);
+    CurveMetadata curveMetadata = DefaultCurveMetadata.of(
+        curveKey.getCurveName(), curveSettings.getDayCount(), pointsMetadata);
     return InterpolatedNodalCurve.builder()
         .metadata(curveMetadata)
         .xValues(xValues)

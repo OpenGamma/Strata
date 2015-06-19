@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
@@ -210,7 +209,6 @@ public class DiscountingSwapProductPricerTest {
         .valuationDate(VAL_DATE)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
-        .dayCount(ACT_ACT_ISDA)
         .build();
     double parRateComputed = pricerSwap.parRate(SWAP_INFLATION, prov);
     RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
@@ -264,7 +262,6 @@ public class DiscountingSwapProductPricerTest {
         .valuationDate(VAL_DATE)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
-        .dayCount(ACT_ACT_ISDA)
         .build();
     double parRateComputed = pricerSwap.parRate(swap, prov);
     RateCalculationSwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
@@ -362,7 +359,6 @@ public class DiscountingSwapProductPricerTest {
         .valuationDate(VAL_DATE)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
-        .dayCount(ACT_ACT_ISDA)
         .build();
     LocalDate paymentDate = SWAP_INFLATION.getLegs().get(0).expand().getPaymentPeriods().get(0).getPaymentDate();
     double fixedRate = ((FixedRateCalculation) INFLATION_FIXED_SWAP_LEG_PAY_GBP.getCalculation())
@@ -422,7 +418,6 @@ public class DiscountingSwapProductPricerTest {
         .valuationDate(VAL_DATE)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
-        .dayCount(ACT_ACT_ISDA)
         .build();
     MultiCurrencyAmount fvComputed = pricerSwap.futureValue(SWAP_INFLATION, prov);
     double fixedRate = ((FixedRateCalculation) INFLATION_FIXED_SWAP_LEG_PAY_GBP.getCalculation())
@@ -502,7 +497,6 @@ public class DiscountingSwapProductPricerTest {
         .valuationDate(VAL_DATE)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
-        .dayCount(ACT_ACT_ISDA)
         .build();
     PointSensitivityBuilder pvSensiComputed = pricerSwap.presentValueSensitivity(SWAP_INFLATION, prov);
     PointSensitivityBuilder pvSensiInflationLeg =
@@ -555,7 +549,6 @@ public class DiscountingSwapProductPricerTest {
         .valuationDate(VAL_DATE)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
-        .dayCount(ACT_ACT_ISDA)
         .build();
     PointSensitivityBuilder fvSensiComputed = pricerSwap.futureValueSensitivity(SWAP_INFLATION, prov);
     PointSensitivityBuilder fvSensiInflationLeg =

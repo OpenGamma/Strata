@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
@@ -27,6 +26,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
@@ -59,6 +60,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 public class DiscountingRatePaymentPeriodPricerTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final LocalDate FX_DATE_1 = LocalDate.of(2014, 1, 22);
   private static final LocalDate CPN_DATE_1 = LocalDate.of(2014, 1, 24);
   private static final LocalDate CPN_DATE_2 = LocalDate.of(2014, 4, 24);
@@ -367,10 +369,10 @@ public class DiscountingRatePaymentPeriodPricerTest {
   */
   public void test_presentValueSensitivity_ibor_noCompounding() {
     LocalDate valDate = PAYMENT_PERIOD_FLOATING.getPaymentDate().minusDays(90);
-    double paymentTime = ACT_360.relativeYearFraction(valDate, PAYMENT_PERIOD_FLOATING.getPaymentDate());
+    double paymentTime = DAY_COUNT.relativeYearFraction(valDate, PAYMENT_PERIOD_FLOATING.getPaymentDate());
     DiscountFactors mockDf = mock(DiscountFactors.class);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(valDate, mockDf);
-    simpleProv.setDayCount(ACT_360);
+    simpleProv.setDayCount(DAY_COUNT);
     RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
 
     when(mockDf.discountFactor(PAYMENT_PERIOD_FLOATING.getPaymentDate()))
@@ -552,7 +554,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     LocalDate valuationDate = provider.getValuationDate();
     LocalDate paymentDate = payment.getPaymentDate();
     double discountFactor = provider.discountFactor(payment.getCurrency(), paymentDate);
-    double paymentTime = provider.relativeTime(paymentDate);
+    double paymentTime = DAY_COUNT.relativeYearFraction(valuationDate, paymentDate);
     Currency currency = payment.getCurrency();
 
     RatesProvider provUp = mock(RatesProvider.class);
@@ -756,6 +758,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
     when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    prov.setDayCount(DAY_COUNT);
     prov.setDiscountFactors(mockDf);
     prov.setFxIndexRates(mockFxRates);
     return prov;

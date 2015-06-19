@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,6 +19,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -37,6 +38,7 @@ import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 public class DiscountingNotionalExchangePricerTest {
 
   private static final LocalDate VAL_DATE = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate().minusDays(90);
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final double DISCOUNT_FACTOR = 0.98d;
   private static final double TOLERANCE = 1.0e-10;
 
@@ -87,7 +89,7 @@ public class DiscountingNotionalExchangePricerTest {
     Currency currency = event.getCurrency();
     LocalDate paymentDate = event.getPaymentDate();
     double discountFactor = provider.discountFactor(currency, paymentDate);
-    double paymentTime = provider.relativeTime(paymentDate);
+    double paymentTime = DAY_COUNT.relativeYearFraction(VAL_DATE, paymentDate);
     RatesProvider provUp = mock(RatesProvider.class);
     RatesProvider provDw = mock(RatesProvider.class);
     when(provUp.discountFactor(currency, paymentDate)).thenReturn(discountFactor * Math.exp(-eps * paymentTime));
@@ -150,7 +152,7 @@ public class DiscountingNotionalExchangePricerTest {
   // creates a simple provider
   private SimpleRatesProvider createProvider(NotionalExchange ne) {
     LocalDate paymentDate = ne.getPaymentDate();
-    double paymentTime = ACT_360.relativeYearFraction(VAL_DATE, ne.getPaymentDate());
+    double paymentTime = DAY_COUNT.relativeYearFraction(VAL_DATE, ne.getPaymentDate());
     Currency currency = ne.getCurrency();
 
     DiscountFactors mockDf = mock(DiscountFactors.class);
@@ -158,7 +160,7 @@ public class DiscountingNotionalExchangePricerTest {
     ZeroRateSensitivity sens = ZeroRateSensitivity.of(currency, paymentDate, -DISCOUNT_FACTOR * paymentTime);
     when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(sens);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
-    prov.setDayCount(ACT_360);
+    prov.setDayCount(DAY_COUNT);
     return prov;
   }
 

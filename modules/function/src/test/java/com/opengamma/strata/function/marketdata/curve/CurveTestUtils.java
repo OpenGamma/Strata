@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+
 import java.time.Period;
 import java.util.List;
 
@@ -82,6 +84,7 @@ final class CurveTestUtils {
 
     return InterpolatedCurveConfig.builder()
         .name(curveName)
+        .dayCount(ACT_ACT_ISDA)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)
@@ -107,6 +110,7 @@ final class CurveTestUtils {
 
     return InterpolatedCurveConfig.builder()
         .name(curveName)
+        .dayCount(ACT_ACT_ISDA)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)

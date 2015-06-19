@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
@@ -135,6 +136,29 @@ public final class InterpolatedNodalCurve
       CurveInterpolator interpolator) {
 
     return of(CurveMetadata.of(name), xValues, yValues, interpolator);
+  }
+
+  /**
+   * Creates an interpolated curve with no parameter metadata.
+   * <p>
+   * The extrapolators will be flat.
+   * For more control, use the builder.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param xValues  the x-values
+   * @param yValues  the y-values
+   * @param interpolator  the interpolator
+   * @return the curve
+   */
+  public static InterpolatedNodalCurve of(
+      CurveName name,
+      DayCount dayCount,
+      double[] xValues,
+      double[] yValues,
+      CurveInterpolator interpolator) {
+
+    return of(DefaultCurveMetadata.of(name, dayCount), xValues, yValues, interpolator);
   }
 
   /**

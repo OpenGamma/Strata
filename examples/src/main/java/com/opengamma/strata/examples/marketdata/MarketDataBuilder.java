@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
@@ -244,13 +242,7 @@ public abstract class MarketDataBuilder {
   }
 
   private ZeroRateDiscountFactors toZeroRateDiscountFactors(DiscountCurveId curveId, Curve curve, LocalDate valuationDate) {
-    // TODO - why is DayCount needed?
-    // It's already encoded in the year fractions in the curve.
-    // Should be exposed via the Curve interface if required.
-    // Hard-coding here for now.
-    DayCount dayCount = DayCounts.ACT_ACT_ISDA;
-
-    return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, dayCount, curve);
+    return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, curve);
   }
 
   private void loadFxRates(BaseMarketDataBuilder builder) {
