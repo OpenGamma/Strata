@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
@@ -93,7 +94,7 @@ public class ZeroRateDiscountFactorsTest {
     double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
         CurveUnitParameterSensitivity.of(
-            YIELD_CURVE.getName(),
+            CurveMetadata.of(YIELD_CURVE.getName()),
             YIELD_CURVE.getInterestRateParameterSensitivity(relativeTime)));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
