@@ -46,7 +46,7 @@ public class TestHarness {
                   0.0100,
                   MarkitRedCode.id("AH98A7"),
                   SeniorityLevel.SeniorUnsecuredForeign,
-                  RestructuringClause.NoRestructuring2003,
+                  RestructuringClause.NoRestructuring2014,
                   feeAmount,
                   cashSettleDate
               )

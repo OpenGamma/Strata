@@ -83,10 +83,18 @@ public class MarketDataBuilderTest {
       IsdaYieldCurveParRatesId.of(Currency.USD),
       IsdaSingleNameCreditCurveParRatesId.of(
           SingleNameReferenceInformation.of(
-              MarkitRedCode.id("AH98A7"),
+              MarkitRedCode.id("AH98A7"), // Raytheon
               SeniorityLevel.SeniorUnsecuredForeign,
               Currency.USD,
-              RestructuringClause.NoRestructuring2003
+              RestructuringClause.NoRestructuring2014
+          )
+      ),
+      IsdaSingleNameCreditCurveParRatesId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("UB78A0"), // JC Penney
+              SeniorityLevel.SeniorUnsecuredForeign,
+              Currency.USD,
+              RestructuringClause.NoRestructuring2014
           )
       )
   );

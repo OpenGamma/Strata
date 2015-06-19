@@ -288,7 +288,7 @@ public abstract class MarketDataBuilder {
     String name = "USD ISDA Yield Curve";
     Currency currency = Currency.USD;
     IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.northAmericanUsd;
-    ImmutableList<String> raytheon20141020Ir = ImmutableList.of(
+    ImmutableList<String> usd20141020Ir = ImmutableList.of(
         "1M,M,0.001535",
         "2M,M,0.001954",
         "3M,M,0.002281",
@@ -309,15 +309,15 @@ public abstract class MarketDataBuilder {
         "25Y,S,0.028715",
         "30Y,S,0.029160"
     );
-    double[] rates = raytheon20141020Ir
+    double[] rates = usd20141020Ir
         .stream()
         .mapToDouble(s -> Double.valueOf(s.split(",")[2]))
         .toArray();
-    Period[] yieldCurvePoints = raytheon20141020Ir
+    Period[] yieldCurvePoints = usd20141020Ir
         .stream()
         .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
         .toArray(Period[]::new);
-    IsdaYieldCurveUnderlyingType[] yieldCurveInstruments = raytheon20141020Ir
+    IsdaYieldCurveUnderlyingType[] yieldCurveInstruments = usd20141020Ir
         .stream()
         .map(s -> s.split(",")[1])
         .map(this::mapUnderlyingType)
@@ -347,6 +347,12 @@ public abstract class MarketDataBuilder {
   }
 
   private void loadCdsSpreadCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    loadRaytheon(builder, marketDataDate);
+    loadPenney(builder, marketDataDate);
+    loadPenney2(builder, marketDataDate);
+  }
+
+  private void loadRaytheon(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
     String name = "Raytheon Credit Curve";
     Currency currency = Currency.USD;
     double recoveryRate = .40D;
@@ -379,6 +385,100 @@ public abstract class MarketDataBuilder {
                 MarkitRedCode.id("AH98A7"),
                 SeniorityLevel.SeniorUnsecuredForeign,
                 currency,
+                RestructuringClause.NoRestructuring2014
+            )
+        ),
+        IsdaCreditCurveParRates.of(
+            name,
+            marketDataDate,
+            creditCurvePoints,
+            rates,
+            cdsConvention,
+            recoveryRate
+        )
+    );
+  }
+
+  private void loadPenney(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    String name = "JC Penney Credit Curve";
+    Currency currency = Currency.USD;
+    double recoveryRate = .40D;
+    // ParSpreadQuote
+    ImmutableList<String> raytheon20141020Cr = ImmutableList.of(
+        "6M,0.0476",
+        "1Y,0.0476",
+        "2Y,0.0476",
+        "3Y,0.0476",
+        "4Y,0.0476",
+        "5Y,0.0476",
+        "7Y,0.0476",
+        "10Y,0.0476"
+    );
+
+    double[] rates = raytheon20141020Cr
+        .stream()
+        .mapToDouble(s -> Double.valueOf(s.split(",")[1]))
+        .toArray();
+
+    Period[] creditCurvePoints = raytheon20141020Cr
+        .stream()
+        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
+        .toArray(Period[]::new);
+
+    StandardCdsConvention cdsConvention = StandardCdsConventions.northAmericanUsd();
+    builder.addValue(
+        IsdaSingleNameCreditCurveParRatesId.of(
+            SingleNameReferenceInformation.of(
+                MarkitRedCode.id("UB78A0"),
+                SeniorityLevel.SeniorUnsecuredForeign,
+                Currency.USD,
+                RestructuringClause.NoRestructuring2014
+            )
+        ),
+        IsdaCreditCurveParRates.of(
+            name,
+            marketDataDate,
+            creditCurvePoints,
+            rates,
+            cdsConvention,
+            recoveryRate
+        )
+    );
+  }
+
+  private void loadPenney2(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    String name = "JC Penney Credit Curve2";
+    Currency currency = Currency.USD;
+    double recoveryRate = .40D;
+    // ParSpreadQuote
+    ImmutableList<String> raytheon20141020Cr = ImmutableList.of(
+        "6M,0.0476",
+        "1Y,0.0486",
+        "2Y,0.0496",
+        "3Y,0.0506",
+        "4Y,0.0516",
+        "5Y,0.0526",
+        "7Y,0.0536",
+        "10Y,0.0546"
+    );
+
+    double[] rates = raytheon20141020Cr
+        .stream()
+        .mapToDouble(s -> Double.valueOf(s.split(",")[1]))
+        .toArray();
+
+    Period[] creditCurvePoints = raytheon20141020Cr
+        .stream()
+        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
+        .toArray(Period[]::new);
+
+    StandardCdsConvention cdsConvention = StandardCdsConventions.northAmericanUsd();
+    builder.addValue(
+        IsdaSingleNameCreditCurveParRatesId.of(
+            SingleNameReferenceInformation.of(
+                MarkitRedCode.id("UB78A0"),
+                SeniorityLevel.SeniorUnsecuredForeign,
+                Currency.USD,
                 RestructuringClause.NoRestructuring2003
             )
         ),
