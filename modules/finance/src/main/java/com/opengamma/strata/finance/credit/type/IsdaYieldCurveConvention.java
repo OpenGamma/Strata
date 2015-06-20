@@ -23,6 +23,9 @@ import org.joda.convert.ToString;
 
 import java.time.LocalDate;
 
+/**
+ * CDS Standard model definition for parameters required to bootstrap an ISDA yield curve
+ */
 public interface IsdaYieldCurveConvention extends Named {
 
   @FromString

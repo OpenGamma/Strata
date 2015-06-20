@@ -6,8 +6,6 @@
 package com.opengamma.strata.finance.credit;
 
 /**
- * http://www.fpml.org/coding-scheme/credit-seniority
- * <p>
  * Specifies the repayment precedence of a debt instrument.
  * Aka Tier
  */

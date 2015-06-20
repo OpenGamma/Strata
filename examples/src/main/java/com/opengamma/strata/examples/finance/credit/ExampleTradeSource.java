@@ -16,7 +16,7 @@ import com.opengamma.strata.examples.finance.credit.api.TradeSource;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
+import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.finance.credit.type.CdsConventions;
 import com.opengamma.strata.finance.credit.type.CdsTemplate;
 

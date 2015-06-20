@@ -11,6 +11,9 @@ package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
+/**
+ * Market conventions used to bootstrap an ISDA yield curve
+ */
 public final class IsdaYieldCurveConventions {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
 

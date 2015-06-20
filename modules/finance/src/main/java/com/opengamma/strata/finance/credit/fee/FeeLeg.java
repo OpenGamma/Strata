@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 /**

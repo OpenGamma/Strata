@@ -7,16 +7,22 @@
  *
  */
 
-package com.opengamma.strata.finance.credit.markit;
+package com.opengamma.strata.examples.marketdata.credit.markit;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.finance.credit.RestructuringClause;
+import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
+import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -43,6 +49,7 @@ public class MarkitSingleNameCreditCurveDataParser {
   private static final int s_currency = 5;
   private static final int s_docclause = 6;
   private static final int s_firstspreadcolumn = 8;
+  private static final int s_recovery = 19;
 
   private static final List<Tenor> s_tenors = ImmutableList.of(
       Tenor.TENOR_6M,
@@ -58,8 +65,8 @@ public class MarkitSingleNameCreditCurveDataParser {
       Tenor.TENOR_30Y
   );
 
-  public static Map<MarkitSingleNameDataKey, List<Pair<Tenor, Double>>> parse(InputStream source) {
-    Map<MarkitSingleNameDataKey, List<Pair<Tenor, Double>>> result = Maps.newHashMap();
+  public static Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> parse(InputStream source, CdsConvention cdsConvention) {
+    Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> result = Maps.newHashMap();
     Scanner scanner = new Scanner(source);
 
     while (scanner.hasNextLine()) {
@@ -68,27 +75,39 @@ public class MarkitSingleNameCreditCurveDataParser {
       String[] columns = line.split(",");
 
       MarkitRedCode redCode = MarkitRedCode.of(columns[s_redcode]);
-      MarkitSeniorityLevel seniorityLevel = MarkitSeniorityLevel.valueOf(columns[s_tier]);
+      SeniorityLevel seniorityLevel = MarkitSeniorityLevel.valueOf(columns[s_tier]).translate();
       Currency currency = Currency.parse(columns[s_currency]);
-      MarkitRestructuringClause restructuringClause = MarkitRestructuringClause.valueOf(columns[s_docclause]);
+      RestructuringClause restructuringClause = MarkitRestructuringClause.valueOf(columns[s_docclause]).translate();
+      double recoveryRate = parseRate(columns[s_recovery]);
 
-      MarkitSingleNameDataKey key = MarkitSingleNameDataKey
-          .builder()
-          .currency(currency)
-          .restructuringClause(restructuringClause)
-          .seniorityLevel(seniorityLevel)
-          .entityId(redCode)
-          .build();
-      List<Pair<Tenor, Double>> value = Lists.newArrayList();
+      IsdaSingleNameCreditCurveParRatesId id = IsdaSingleNameCreditCurveParRatesId.of(
+          SingleNameReferenceInformation.of(
+              redCode.toStandardId(),
+              seniorityLevel,
+              currency,
+              restructuringClause
+          )
+      );
 
+      Period[] periods = new Period[s_tenors.size()];
+      double[] rates = new double[s_tenors.size()];
       for (int i = 0; i < s_tenors.size(); i++) {
-        Tenor tenor = s_tenors.get(i);
-        Double rate = parseSpreadRate(columns[s_firstspreadcolumn + i]);
-        Pair<Tenor, Double> curvePoint = Pair.of(tenor, rate);
-        value.add(curvePoint);
+        periods[i] = s_tenors.get(i).getPeriod();
+        rates[i] = parseRate(columns[s_firstspreadcolumn + i]);
       }
 
-      result.put(key, value);
+      String creditCurveName = "";
+
+      IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
+          creditCurveName,
+          LocalDate.now(),
+          periods,
+          rates,
+          cdsConvention,
+          recoveryRate
+      );
+
+      result.put(id, parRates);
 
     }
 
@@ -102,7 +121,7 @@ public class MarkitSingleNameCreditCurveDataParser {
    *
    * @return double representation of the interest data
    */
-  private static Double parseSpreadRate(String input) {
+  private static Double parseRate(String input) {
     return Double.parseDouble(input.replace("%", "")) / 100D;
   }
 

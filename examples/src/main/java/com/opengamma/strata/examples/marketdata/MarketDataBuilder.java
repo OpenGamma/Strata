@@ -23,7 +23,7 @@ import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.markit.MarkitRedCode;
+import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
 import com.opengamma.strata.finance.credit.type.CdsConventions;

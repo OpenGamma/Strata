@@ -93,8 +93,6 @@ public class ExampleCalculator implements Calculator {
   @Override
   public Results calculateResults(LocalDate valuationDate, TradeSource tradeSource, List<Measure> measures) {
 
-    List<Column> columns = measures.stream().map(s -> Column.of(s)).collect(Collectors.toList());
-
     // use the built-in example market data
     MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
@@ -106,6 +104,8 @@ public class ExampleCalculator implements Calculator {
         .build();
 
     BaseMarketData baseMarketData =  marketDataBuilder.buildSnapshot(valuationDate);
+
+    List<Column> columns = measures.stream().map(s -> Column.of(s)).collect(Collectors.toList());
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();

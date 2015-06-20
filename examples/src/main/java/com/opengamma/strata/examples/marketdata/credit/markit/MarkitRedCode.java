@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.markit;
+package com.opengamma.strata.examples.marketdata.credit.markit;
 
 import com.google.common.base.Preconditions;
 import com.opengamma.strata.collect.id.StandardId;
@@ -28,6 +28,7 @@ public final class MarkitRedCode extends TypedString<MarkitRedCode> {
 
   /**
    * MarkitRedCode representation of the id
+   *
    * @param name RED code
    * @return Typed string MarkitRedCode
    */
@@ -40,8 +41,13 @@ public final class MarkitRedCode extends TypedString<MarkitRedCode> {
     return new MarkitRedCode(name);
   }
 
+  public StandardId toStandardId() {
+    return StandardId.of(MARKIT_REDCODE_SCHEME, this.toString());
+  }
+
   /**
    * Convert from a StandardId once the schema is validated
+   *
    * @param id standard id identifying a RED code
    * @return MarkitRedCode representation of the id
    */
@@ -52,6 +58,7 @@ public final class MarkitRedCode extends TypedString<MarkitRedCode> {
 
   /**
    * Creates a StandardId using the proper Markit RED code scheme
+   *
    * @param name Markit RED code, 6 or 9 characters long
    * @return StandardId of the Markit RED code with proper scheme
    */

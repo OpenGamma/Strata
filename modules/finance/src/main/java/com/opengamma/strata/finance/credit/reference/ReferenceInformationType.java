@@ -7,8 +7,8 @@ package com.opengamma.strata.finance.credit.reference;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.RestructuringClause;
 
 /**
  * Supported types of underlyings for a credit default swap

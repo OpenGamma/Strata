@@ -7,8 +7,8 @@ package com.opengamma.strata.finance.credit.reference;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.credit.RestructuringClause;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -28,6 +28,9 @@ import java.util.Set;
 
 /**
  * Contains all the terms relevant to defining the reference entity and reference obligation(s)
+ *  * <p>
+ * e.g. ShortName MarkitRedCode Tier Ccy DocClause
+ * Agilent Tech Inc 008CA0 SNRFOR USD XR14
  */
 @BeanDefinition
 public final class SingleNameReferenceInformation

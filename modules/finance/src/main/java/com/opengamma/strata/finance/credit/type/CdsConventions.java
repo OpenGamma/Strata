@@ -11,6 +11,11 @@ package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
+/**
+ * Standard CDS market conventions
+ * <p>
+ * See cdsmodel.com for details
+ */
 public final class CdsConventions {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
 

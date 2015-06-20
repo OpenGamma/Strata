@@ -7,14 +7,13 @@ package com.opengamma.strata.finance.credit.type;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Template;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
+import com.opengamma.strata.finance.Template;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -30,6 +29,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+/**
+ * Template that when used in conjunction with a {link @CdsConvention} allows
+ * for creation of standard {@link CdsTrade} objects
+ */
 @BeanDefinition
 public final class CdsTemplate
     implements Template, ImmutableBean, Serializable {
@@ -42,6 +45,9 @@ public final class CdsTemplate
 
   //-------------------------------------------------------------------------
 
+  /**
+   * Create a single name CDS with no fee
+   */
   public CdsTrade toSingleNameTrade(
       StandardId id,
       LocalDate startDate,
@@ -68,6 +74,9 @@ public final class CdsTemplate
     );
   }
 
+  /**
+   * Create a single name CDS with an upfront fee
+   */
   public CdsTrade toSingleNameTrade(
       StandardId id,
       LocalDate startDate,
@@ -97,6 +106,9 @@ public final class CdsTemplate
     );
   }
 
+  /**
+   * Create a index CDS with no upfront fee
+   */
   public CdsTrade toIndexTrade(
       StandardId id,
       LocalDate startDate,
@@ -124,7 +136,9 @@ public final class CdsTemplate
     );
   }
 
-
+  /**
+   * Create a index CDS with an upfront fee
+   */
   public CdsTrade toIndexTrade(
       StandardId id,
       LocalDate startDate,
@@ -192,7 +206,6 @@ public final class CdsTemplate
       CdsConvention convention) {
     JodaBeanUtils.notNull(convention, "convention");
     this.convention = convention;
-    validate();
   }
 
   @Override

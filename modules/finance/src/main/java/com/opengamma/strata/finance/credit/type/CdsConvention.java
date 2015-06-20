@@ -24,24 +24,27 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsDatesLogic;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
 import com.opengamma.strata.finance.credit.fee.SinglePayment;
 import com.opengamma.strata.finance.credit.reference.IndexReferenceInformation;
 import com.opengamma.strata.finance.credit.reference.ReferenceInformation;
 import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.TradeInfo;
+import com.opengamma.strata.finance.credit.fee.FeeLeg;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * A market convention for how CDS trades are structured in different regions and currencies
+ */
 public interface CdsConvention extends Named {
 
   @FromString

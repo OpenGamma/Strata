@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.markit;
+package com.opengamma.strata.examples.marketdata.credit.markit;
 
 import com.opengamma.strata.finance.credit.RestructuringClause;
 
@@ -43,6 +43,33 @@ public enum MarkitRestructuringClause {
   XR14;
 
 
+  public RestructuringClause translate() {
+    switch (this) {
+      case MM:
+        return RestructuringClause.ModModRestructuring2003;
+      case MM14:
+        return RestructuringClause.ModModRestructuring2014;
+      case MR:
+        return RestructuringClause.ModifiedRestructuring2003;
+      case MR14:
+        return RestructuringClause.ModifiedRestructuring2014;
+      case CR:
+        return RestructuringClause.CumRestructuring2003;
+      case CR14:
+        return RestructuringClause.CumRestructuring2014;
+      case XR:
+        return RestructuringClause.NoRestructuring2003;
+      case XR14:
+        return RestructuringClause.NoRestructuring2014;
+      default:
+        throw new IllegalStateException("Unmapped restructuring clause. Do not have mapping for " + this);
+
+    }
+  }
+
+  /**
+   * Map from Strata enum to
+   */
   public static MarkitRestructuringClause from(RestructuringClause restructuringClause) {
     switch (restructuringClause) {
       case ModModRestructuring2003:

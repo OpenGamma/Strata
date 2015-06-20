@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
