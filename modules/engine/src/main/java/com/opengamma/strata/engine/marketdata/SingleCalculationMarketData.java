@@ -24,27 +24,34 @@ import com.opengamma.strata.engine.config.MarketDataRules;
 public interface SingleCalculationMarketData {
 
   /**
+   * Gets the valuation date of the market data.
+   * <p>
+   * All values accessible through this interface have the same valuation date.
+   * 
    * @return the valuation dates of the calculation
    */
   public abstract LocalDate getValuationDate();
 
   /**
-   * Returns a list of market data values, one from each scenario.
+   * Returns the market data value identified by the specified key.
    * <p>
-   * The date of the market data is the same as the valuation date of the scenario.
+   * The result will be a single piece of market data valid for the valuation date.
+   * The value will be for the scenario that this object represents.
    *
    * @param key  key identifying the market data
    * @param <T>  type of the market data
    * @param <K>  type of the market data key
-   * @return a list of market data values, one from each scenario
+   * @return the market data value
+   * @throws RuntimeException if the value cannot be returned
    */
   public abstract <T, K extends MarketDataKey<T>> T getValue(K key);
 
   /**
-   * Returns a list of market data time series, one from each scenario.
+   * Returns the time series identified by the specified key.
    *
    * @param key  key identifying the market data
-   * @return a list of market data time series, one from each scenario
+   * @return the time series
+   * @throws RuntimeException if the time-series cannot be returned
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
 }
