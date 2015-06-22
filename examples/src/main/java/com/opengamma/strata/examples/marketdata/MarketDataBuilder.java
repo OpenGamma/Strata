@@ -1,14 +1,12 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
@@ -19,22 +17,15 @@ import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.credit.markit.ISDAYieldCurveDataParser;
+import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
-import com.opengamma.strata.finance.credit.type.CdsConventions;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
@@ -45,11 +36,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,6 +91,12 @@ public abstract class MarketDataBuilder {
    * The name of the curve settings file.
    */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
+  /**
+   * The name of the directory containing cds IDS yield and credit curve data.
+   */
+  private static final String CREDIT_DIR = "credit";
+  private static final String CDS_YIELD_CURVES_FILE = "cds.yieldCurves.csv";
+  private static final String SINGLE_NAME_CREDIT_CURVES_FILE = "singleName.creditCurves.csv";
 
   /**
    * Creates an instance from a given classpath resource root location using the class loader
@@ -186,8 +185,7 @@ public abstract class MarketDataBuilder {
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadFxRates(builder);
-    loadCdsYieldCurves(builder, marketDataDate);
-    loadCdsSpreadCurves(builder, marketDataDate);
+    loadCreditMarketData(builder, marketDataDate);
     return builder.build();
   }
 
@@ -276,165 +274,72 @@ public abstract class MarketDataBuilder {
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
   }
 
-  private void loadCdsYieldCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
-    String name = "USD ISDA Yield Curve";
-    Currency currency = Currency.USD;
-    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.ISDA_USD;
-    ImmutableList<String> usd20141020Ir = ImmutableList.of(
-        "1M,M,0.001535",
-        "2M,M,0.001954",
-        "3M,M,0.002281",
-        "6M,M,0.003217",
-        "1Y,M,0.005444",
-        "2Y,S,0.005905",
-        "3Y,S,0.009555",
-        "4Y,S,0.012775",
-        "5Y,S,0.015395",
-        "6Y,S,0.017445",
-        "7Y,S,0.019205",
-        "8Y,S,0.020660",
-        "9Y,S,0.021885",
-        "10Y,S,0.022940",
-        "12Y,S,0.024615",
-        "15Y,S,0.026300",
-        "20Y,S,0.027950",
-        "25Y,S,0.028715",
-        "30Y,S,0.029160"
+  private void loadCreditMarketData(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    if (!subdirectoryExists(CREDIT_DIR)) {
+      s_logger.debug("No credit curves directory found");
+      return;
+    }
+
+    String creditMarketDataDateDirectory = String.format(
+        "%s/%s",
+        CREDIT_DIR,
+        marketDataDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
     );
-    double[] rates = usd20141020Ir
-        .stream()
-        .mapToDouble(s -> Double.valueOf(s.split(",")[2]))
-        .toArray();
-    Period[] yieldCurvePoints = usd20141020Ir
-        .stream()
-        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
-        .toArray(Period[]::new);
-    IsdaYieldCurveUnderlyingType[] yieldCurveInstruments = usd20141020Ir
-        .stream()
-        .map(s -> s.split(",")[1])
-        .map(this::mapUnderlyingType)
-        .toArray(IsdaYieldCurveUnderlyingType[]::new);
-    builder.addValue(
-        IsdaYieldCurveParRatesId.of(currency),
-        IsdaYieldCurveParRates.of(
-            name,
-            marketDataDate,
-            yieldCurvePoints,
-            yieldCurveInstruments,
-            rates,
-            curveConvention
-        )
-    );
+
+    if (!subdirectoryExists(creditMarketDataDateDirectory)) {
+      s_logger.debug("Unable to load market data: directory not found at {}", creditMarketDataDateDirectory);
+      return;
+    }
+
+    loadCdsYieldCurves(builder, creditMarketDataDateDirectory);
+    loadCdsSpreadCurves(builder, creditMarketDataDateDirectory);
+
   }
 
-  private IsdaYieldCurveUnderlyingType mapUnderlyingType(String type) {
-    switch (type) {
-      case "M":
-        return IsdaYieldCurveUnderlyingType.IsdaMoneyMarket;
-      case "S":
-        return IsdaYieldCurveUnderlyingType.IsdaSwap;
-      default:
-        throw new IllegalStateException("Unknown underlying type, only M or S allowed: " + type);
+  private void loadCdsYieldCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+
+    ResourceLocator cdsYieldCurvesResource = getResource(creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE);
+    if (cdsYieldCurvesResource == null) {
+      s_logger.debug("Unable to load cds yield curves: file not found at {}/{}", creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE);
+      return;
+    }
+
+    try {
+      Reader inputReadable = cdsYieldCurvesResource.getCharSource().openStream();
+      Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> yieldCuves = ISDAYieldCurveDataParser.parse(inputReadable);
+
+      for (IsdaYieldCurveParRatesId id : yieldCuves.keySet()) {
+        IsdaYieldCurveParRates parRates = yieldCuves.get(id);
+        builder.addValue(id, parRates);
+      }
+
+    } catch (IOException e) {
+      throw new RuntimeException(String.format("Unable to read cds yield curves: exception at %s/%s", creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE), e);
     }
   }
 
-  private void loadCdsSpreadCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
-    loadRaytheon(builder, marketDataDate);
-    loadPenney(builder, marketDataDate);
-  }
 
-  private void loadRaytheon(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
-    String name = "Raytheon Credit Curve";
-    Currency currency = Currency.USD;
-    double recoveryRate = .40D;
-    // ParSpreadQuote
-    ImmutableList<String> raytheon20141020Cr = ImmutableList.of(
-        "6M,0.0028",
-        "1Y,0.0028",
-        "2Y,0.0028",
-        "3Y,0.0028",
-        "4Y,0.0028",
-        "5Y,0.0028",
-        "7Y,0.0028",
-        "10Y,0.0028"
-    );
+  private void loadCdsSpreadCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
 
-    double[] rates = raytheon20141020Cr
-        .stream()
-        .mapToDouble(s -> Double.valueOf(s.split(",")[1]))
-        .toArray();
+    ResourceLocator singleNameCurvesResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE);
+    if (singleNameCurvesResource == null) {
+      s_logger.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE);
+      return;
+    }
 
-    Period[] creditCurvePoints = raytheon20141020Cr
-        .stream()
-        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
-        .toArray(Period[]::new);
+    try {
+      Reader inputReadable = singleNameCurvesResource.getCharSource().openStream();
+      Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitSingleNameCreditCurveDataParser.parse(inputReadable);
 
-    CdsConvention cdsConvention = CdsConventions.NORTH_AMERICAN_USD;
-    builder.addValue(
-        IsdaSingleNameCreditCurveParRatesId.of(
-            SingleNameReferenceInformation.of(
-                MarkitRedCode.id("AH98A7"),
-                SeniorityLevel.SeniorUnsecuredForeign,
-                currency,
-                RestructuringClause.NoRestructuring2014
-            )
-        ),
-        IsdaCreditCurveParRates.of(
-            name,
-            marketDataDate,
-            creditCurvePoints,
-            rates,
-            cdsConvention,
-            recoveryRate
-        )
-    );
-  }
+      for (IsdaSingleNameCreditCurveParRatesId id : creditCurves.keySet()) {
+        IsdaCreditCurveParRates parRates = creditCurves.get(id);
+        builder.addValue(id, parRates);
+      }
 
-  private void loadPenney(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
-    String name = "JC Penney Credit Curve";
-    Currency currency = Currency.USD;
-    double recoveryRate = .40D;
-    // ParSpreadQuote
-    ImmutableList<String> raytheon20141020Cr = ImmutableList.of(
-        "6M,0.0476",
-        "1Y,0.0476",
-        "2Y,0.0476",
-        "3Y,0.0476",
-        "4Y,0.0476",
-        "5Y,0.0476",
-        "7Y,0.0476",
-        "10Y,0.0476"
-    );
+    } catch (IOException e) {
+      throw new RuntimeException(String.format("Unable to read single name spread curves: exception at %s/%s", creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE), e);
+    }
 
-    double[] rates = raytheon20141020Cr
-        .stream()
-        .mapToDouble(s -> Double.valueOf(s.split(",")[1]))
-        .toArray();
-
-    Period[] creditCurvePoints = raytheon20141020Cr
-        .stream()
-        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
-        .toArray(Period[]::new);
-
-    CdsConvention cdsConvention = CdsConventions.NORTH_AMERICAN_USD;
-    builder.addValue(
-        IsdaSingleNameCreditCurveParRatesId.of(
-            SingleNameReferenceInformation.of(
-                MarkitRedCode.id("UB78A0"),
-                SeniorityLevel.SeniorUnsecuredForeign,
-                currency,
-                RestructuringClause.NoRestructuring2014
-            )
-        ),
-        IsdaCreditCurveParRates.of(
-            name,
-            marketDataDate,
-            creditCurvePoints,
-            rates,
-            cdsConvention,
-            recoveryRate
-        )
-    );
   }
 
   //-------------------------------------------------------------------------

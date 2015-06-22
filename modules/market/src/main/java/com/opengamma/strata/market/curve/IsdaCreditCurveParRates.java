@@ -38,9 +38,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
   private final String name;
 
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate marketDateDate;
-
-  @PropertyDefinition(validate = "notNull")
   private final Period[] creditCurvePoints;
 
   @PropertyDefinition(validate = "notNull")
@@ -56,7 +53,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
 
   public static IsdaCreditCurveParRates of(
       String name,
-      LocalDate marketDateDate,
       Period[] creditCurvePoints,
       double[] parRates,
       CdsConvention cdsConvention,
@@ -64,7 +60,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
   ) {
     return new IsdaCreditCurveParRates(
         name,
-        marketDateDate,
         creditCurvePoints,
         parRates,
         cdsConvention,
@@ -101,7 +96,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
   private IsdaCreditCurveParRates applyShift(double[] shiftedRates) {
     return IsdaCreditCurveParRates.of(
         name,
-        marketDateDate,
         creditCurvePoints.clone(),
         shiftedRates,
         cdsConvention,
@@ -141,19 +135,16 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
 
   private IsdaCreditCurveParRates(
       String name,
-      LocalDate marketDateDate,
       Period[] creditCurvePoints,
       double[] parRates,
       CdsConvention cdsConvention,
       double recoveryRate) {
     JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(marketDateDate, "marketDateDate");
     JodaBeanUtils.notNull(creditCurvePoints, "creditCurvePoints");
     JodaBeanUtils.notNull(parRates, "parRates");
     JodaBeanUtils.notNull(cdsConvention, "cdsConvention");
     JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
     this.name = name;
-    this.marketDateDate = marketDateDate;
     this.creditCurvePoints = creditCurvePoints;
     this.parRates = parRates.clone();
     this.cdsConvention = cdsConvention;
@@ -183,15 +174,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
    */
   public String getName() {
     return name;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the marketDateDate.
-   * @return the value of the property, not null
-   */
-  public LocalDate getMarketDateDate() {
-    return marketDateDate;
   }
 
   //-----------------------------------------------------------------------
@@ -239,7 +221,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaCreditCurveParRates other = (IsdaCreditCurveParRates) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getMarketDateDate(), other.getMarketDateDate()) &&
           JodaBeanUtils.equal(getCreditCurvePoints(), other.getCreditCurvePoints()) &&
           JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
           JodaBeanUtils.equal(getCdsConvention(), other.getCdsConvention()) &&
@@ -252,7 +233,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDateDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCreditCurvePoints());
     hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCdsConvention());
@@ -262,10 +242,9 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("IsdaCreditCurveParRates{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("marketDateDate").append('=').append(getMarketDateDate()).append(',').append(' ');
     buf.append("creditCurvePoints").append('=').append(getCreditCurvePoints()).append(',').append(' ');
     buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
     buf.append("cdsConvention").append('=').append(getCdsConvention()).append(',').append(' ');
@@ -289,11 +268,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
      */
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", IsdaCreditCurveParRates.class, String.class);
-    /**
-     * The meta-property for the {@code marketDateDate} property.
-     */
-    private final MetaProperty<LocalDate> marketDateDate = DirectMetaProperty.ofImmutable(
-        this, "marketDateDate", IsdaCreditCurveParRates.class, LocalDate.class);
     /**
      * The meta-property for the {@code creditCurvePoints} property.
      */
@@ -320,7 +294,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
-        "marketDateDate",
         "creditCurvePoints",
         "parRates",
         "cdsConvention",
@@ -337,8 +310,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 846252248:  // marketDateDate
-          return marketDateDate;
         case -1771294215:  // creditCurvePoints
           return creditCurvePoints;
         case 1157229426:  // parRates
@@ -373,14 +344,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
      */
     public MetaProperty<String> name() {
       return name;
-    }
-
-    /**
-     * The meta-property for the {@code marketDateDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> marketDateDate() {
-      return marketDateDate;
     }
 
     /**
@@ -421,8 +384,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((IsdaCreditCurveParRates) bean).getName();
-        case 846252248:  // marketDateDate
-          return ((IsdaCreditCurveParRates) bean).getMarketDateDate();
         case -1771294215:  // creditCurvePoints
           return ((IsdaCreditCurveParRates) bean).getCreditCurvePoints();
         case 1157229426:  // parRates
@@ -453,7 +414,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
   private static final class Builder extends DirectFieldsBeanBuilder<IsdaCreditCurveParRates> {
 
     private String name;
-    private LocalDate marketDateDate;
     private Period[] creditCurvePoints;
     private double[] parRates;
     private CdsConvention cdsConvention;
@@ -471,8 +431,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 846252248:  // marketDateDate
-          return marketDateDate;
         case -1771294215:  // creditCurvePoints
           return creditCurvePoints;
         case 1157229426:  // parRates
@@ -491,9 +449,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
-          break;
-        case 846252248:  // marketDateDate
-          this.marketDateDate = (LocalDate) newValue;
           break;
         case -1771294215:  // creditCurvePoints
           this.creditCurvePoints = (Period[]) newValue;
@@ -541,7 +496,6 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
     public IsdaCreditCurveParRates build() {
       return new IsdaCreditCurveParRates(
           name,
-          marketDateDate,
           creditCurvePoints,
           parRates,
           cdsConvention,
@@ -551,10 +505,9 @@ public final class IsdaCreditCurveParRates implements ImmutableBean, Serializabl
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("IsdaCreditCurveParRates.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
-      buf.append("marketDateDate").append('=').append(JodaBeanUtils.toString(marketDateDate)).append(',').append(' ');
       buf.append("creditCurvePoints").append('=').append(JodaBeanUtils.toString(creditCurvePoints)).append(',').append(' ');
       buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
       buf.append("cdsConvention").append('=').append(JodaBeanUtils.toString(cdsConvention)).append(',').append(' ');

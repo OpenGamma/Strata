@@ -111,7 +111,7 @@ public class CdsPricingExample {
         .stream()
         .map(
             s -> String.format(
-                "%s -> %s",
+                "%s -> %.16f",
                 s.getFirst(),
                 s.getSecond()
             )

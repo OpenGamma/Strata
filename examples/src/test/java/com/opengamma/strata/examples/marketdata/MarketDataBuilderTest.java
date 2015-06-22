@@ -83,7 +83,7 @@ public class MarketDataBuilderTest {
       IsdaYieldCurveParRatesId.of(Currency.USD),
       IsdaSingleNameCreditCurveParRatesId.of(
           SingleNameReferenceInformation.of(
-              MarkitRedCode.id("AH98A7"), // Raytheon
+              MarkitRedCode.id("008CA0"), // Agilent
               SeniorityLevel.SeniorUnsecuredForeign,
               Currency.USD,
               RestructuringClause.NoRestructuring2014
@@ -95,6 +95,30 @@ public class MarketDataBuilderTest {
               SeniorityLevel.SeniorUnsecuredForeign,
               Currency.USD,
               RestructuringClause.NoRestructuring2014
+          )
+      ),
+      IsdaSingleNameCreditCurveParRatesId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("7CA622"), // Raytheon
+              SeniorityLevel.SeniorUnsecuredForeign,
+              Currency.USD,
+              RestructuringClause.NoRestructuring2014
+          )
+      ),
+      IsdaSingleNameCreditCurveParRatesId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("HQHEFU"), // Zurich
+              SeniorityLevel.SeniorUnsecuredForeign,
+              Currency.EUR,
+              RestructuringClause.ModModRestructuring2014
+          )
+      ),
+      IsdaSingleNameCreditCurveParRatesId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("HQHEFU"), // Zurich
+              SeniorityLevel.SubordinateLowerTier2,
+              Currency.EUR,
+              RestructuringClause.ModModRestructuring2014
           )
       )
   );

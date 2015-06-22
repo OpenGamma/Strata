@@ -13,7 +13,7 @@
                 <businessDayConvention>Following</businessDayConvention>
                 <holidayCalendar>Sat/Sun</holidayCalendar>
                 <referenceInformation type="com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation">
-                    <referenceEntityId>MarkitRedCode~AH98A7</referenceEntityId>
+                    <referenceEntityId>MarkitRedCode~7CA622</referenceEntityId>
                     <seniority>SeniorUnsecuredForeign</seniority>
                     <currency>USD</currency>
                     <restructuringClause>NoRestructuring2014</restructuringClause>

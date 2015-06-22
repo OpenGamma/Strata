@@ -9,18 +9,22 @@
 
 package com.opengamma.strata.examples.marketdata.credit.markit;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.opengamma.analytics.util.ArrayUtils;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.finance.credit.type.CdsConventions;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -65,15 +69,26 @@ public class MarkitSingleNameCreditCurveDataParser {
       Tenor.TENOR_30Y
   );
 
-  public static Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> parse(InputStream source, CdsConvention cdsConvention) {
+  public static Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> parse(Reader source) {
     Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> result = Maps.newHashMap();
     Scanner scanner = new Scanner(source);
 
     while (scanner.hasNextLine()) {
 
       String line = scanner.nextLine();
+      // skip over header rows
+      if (line.startsWith("V5 CDS Composites by Convention") ||
+          line.trim().isEmpty() ||
+          line.startsWith("\"Date\",")) {
+        continue;
+      }
       String[] columns = line.split(",");
+      for (int i=0; i<columns.length; i++) {
+        // get rid of quotes and trim the string
+        columns[i] = columns[i].replaceFirst("^\"","").replaceFirst("\"$", "").trim();
+      }
 
+      // TODO validate date
       MarkitRedCode redCode = MarkitRedCode.of(columns[s_redcode]);
       SeniorityLevel seniorityLevel = MarkitSeniorityLevel.valueOf(columns[s_tier]).translate();
       Currency currency = Currency.parse(columns[s_currency]);
@@ -89,18 +104,28 @@ public class MarkitSingleNameCreditCurveDataParser {
           )
       );
 
-      Period[] periods = new Period[s_tenors.size()];
-      double[] rates = new double[s_tenors.size()];
+      List<Period> periodsList = Lists.newArrayList();
+      List<Double> ratesList = Lists.newArrayList();
       for (int i = 0; i < s_tenors.size(); i++) {
-        periods[i] = s_tenors.get(i).getPeriod();
-        rates[i] = parseRate(columns[s_firstspreadcolumn + i]);
+        String rateString = columns[s_firstspreadcolumn + i];
+        if (rateString.isEmpty()) {
+          // no data at this point
+          continue;
+        }
+        periodsList.add(s_tenors.get(i).getPeriod());
+        ratesList.add(parseRate(rateString));
       }
 
-      String creditCurveName = "";
+      Period[] periods = periodsList.stream().toArray(Period[]::new);
+      double[] rates = ratesList.stream().mapToDouble(s -> s).toArray();
+
+      String creditCurveName = id.toString();
+
+      // TODO hardcoded
+      CdsConvention cdsConvention = CdsConventions.NORTH_AMERICAN_USD;
 
       IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
           creditCurveName,
-          LocalDate.now(),
           periods,
           rates,
           cdsConvention,

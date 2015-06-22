@@ -39,7 +39,7 @@ public class ExampleTradeSource implements TradeSource {
                 BuySell.BUY,
                 100_000_000D,
                 0.0100,
-                MarkitRedCode.id("AH98A7"), // Raytheon
+                MarkitRedCode.id("7CA622"), // Raytheon
                 SeniorityLevel.SeniorUnsecuredForeign,
                 RestructuringClause.NoRestructuring2014,
                 3_694_117.73D,

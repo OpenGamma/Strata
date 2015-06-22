@@ -37,9 +37,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
   private final String name;
 
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate marketDateDate;
-
-  @PropertyDefinition(validate = "notNull")
   private final Period[] yieldCurvePoints;
 
   @PropertyDefinition(validate = "notNull")
@@ -53,7 +50,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   public static IsdaYieldCurveParRates of(
       String name,
-      LocalDate marketDateDate,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
@@ -61,7 +57,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
   ) {
     return new IsdaYieldCurveParRates(
         name,
-        marketDateDate,
         yieldCurvePoints,
         yieldCurveInstruments,
         parRates,
@@ -90,7 +85,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
   private IsdaYieldCurveParRates applyShift(double[] shiftedRates) {
     return IsdaYieldCurveParRates.of(
         name,
-        marketDateDate,
         yieldCurvePoints.clone(),
         yieldCurveInstruments.clone(),
         shiftedRates,
@@ -130,19 +124,16 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   private IsdaYieldCurveParRates(
       String name,
-      LocalDate marketDateDate,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
       IsdaYieldCurveConvention curveConvention) {
     JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(marketDateDate, "marketDateDate");
     JodaBeanUtils.notNull(yieldCurvePoints, "yieldCurvePoints");
     JodaBeanUtils.notNull(yieldCurveInstruments, "yieldCurveInstruments");
     JodaBeanUtils.notNull(parRates, "parRates");
     JodaBeanUtils.notNull(curveConvention, "curveConvention");
     this.name = name;
-    this.marketDateDate = marketDateDate;
     this.yieldCurvePoints = yieldCurvePoints;
     this.yieldCurveInstruments = yieldCurveInstruments;
     this.parRates = parRates.clone();
@@ -172,15 +163,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
    */
   public String getName() {
     return name;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the marketDateDate.
-   * @return the value of the property, not null
-   */
-  public LocalDate getMarketDateDate() {
-    return marketDateDate;
   }
 
   //-----------------------------------------------------------------------
@@ -228,7 +210,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
     if (obj != null && obj.getClass() == this.getClass()) {
       IsdaYieldCurveParRates other = (IsdaYieldCurveParRates) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getMarketDateDate(), other.getMarketDateDate()) &&
           JodaBeanUtils.equal(getYieldCurvePoints(), other.getYieldCurvePoints()) &&
           JodaBeanUtils.equal(getYieldCurveInstruments(), other.getYieldCurveInstruments()) &&
           JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
@@ -241,7 +222,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDateDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurvePoints());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveInstruments());
     hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
@@ -251,10 +231,9 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("IsdaYieldCurveParRates{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("marketDateDate").append('=').append(getMarketDateDate()).append(',').append(' ');
     buf.append("yieldCurvePoints").append('=').append(getYieldCurvePoints()).append(',').append(' ');
     buf.append("yieldCurveInstruments").append('=').append(getYieldCurveInstruments()).append(',').append(' ');
     buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
@@ -278,11 +257,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
      */
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", IsdaYieldCurveParRates.class, String.class);
-    /**
-     * The meta-property for the {@code marketDateDate} property.
-     */
-    private final MetaProperty<LocalDate> marketDateDate = DirectMetaProperty.ofImmutable(
-        this, "marketDateDate", IsdaYieldCurveParRates.class, LocalDate.class);
     /**
      * The meta-property for the {@code yieldCurvePoints} property.
      */
@@ -309,7 +283,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
-        "marketDateDate",
         "yieldCurvePoints",
         "yieldCurveInstruments",
         "parRates",
@@ -326,8 +299,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 846252248:  // marketDateDate
-          return marketDateDate;
         case 695376101:  // yieldCurvePoints
           return yieldCurvePoints;
         case -1469575510:  // yieldCurveInstruments
@@ -362,14 +333,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
      */
     public MetaProperty<String> name() {
       return name;
-    }
-
-    /**
-     * The meta-property for the {@code marketDateDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> marketDateDate() {
-      return marketDateDate;
     }
 
     /**
@@ -410,8 +373,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((IsdaYieldCurveParRates) bean).getName();
-        case 846252248:  // marketDateDate
-          return ((IsdaYieldCurveParRates) bean).getMarketDateDate();
         case 695376101:  // yieldCurvePoints
           return ((IsdaYieldCurveParRates) bean).getYieldCurvePoints();
         case -1469575510:  // yieldCurveInstruments
@@ -442,7 +403,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
   private static final class Builder extends DirectFieldsBeanBuilder<IsdaYieldCurveParRates> {
 
     private String name;
-    private LocalDate marketDateDate;
     private Period[] yieldCurvePoints;
     private IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
     private double[] parRates;
@@ -460,8 +420,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 846252248:  // marketDateDate
-          return marketDateDate;
         case 695376101:  // yieldCurvePoints
           return yieldCurvePoints;
         case -1469575510:  // yieldCurveInstruments
@@ -480,9 +438,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
-          break;
-        case 846252248:  // marketDateDate
-          this.marketDateDate = (LocalDate) newValue;
           break;
         case 695376101:  // yieldCurvePoints
           this.yieldCurvePoints = (Period[]) newValue;
@@ -530,7 +485,6 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
     public IsdaYieldCurveParRates build() {
       return new IsdaYieldCurveParRates(
           name,
-          marketDateDate,
           yieldCurvePoints,
           yieldCurveInstruments,
           parRates,
@@ -540,10 +494,9 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("IsdaYieldCurveParRates.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
-      buf.append("marketDateDate").append('=').append(JodaBeanUtils.toString(marketDateDate)).append(',').append(' ');
       buf.append("yieldCurvePoints").append('=').append(JodaBeanUtils.toString(yieldCurvePoints)).append(',').append(' ');
       buf.append("yieldCurveInstruments").append('=').append(JodaBeanUtils.toString(yieldCurveInstruments)).append(',').append(' ');
       buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
