@@ -8,12 +8,19 @@ package com.opengamma.strata.examples.report;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
@@ -24,6 +31,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -41,6 +49,8 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  */
 public class ReportRunnerTool {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ReportRunnerTool.class);
+  
   @Parameter(names = {"-t", "--template"}, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
   private ReportTemplate template;
 
@@ -55,6 +65,9 @@ public class ReportRunnerTool {
 
   @Parameter(names = {"-f", "--format"}, description = "Report output format, ascii or csv", converter = ReportOutputFormatParameterConverter.class)
   private ReportOutputFormat format = ReportOutputFormat.ASCII_TABLE;
+  
+  @Parameter(names = {"-i", "--id"}, description = "An ID to filter the portfolio by")
+  private String idSearch;
 
   @Parameter(names = {"-h", "--help"}, description = "Displays this message", help = true)
   private boolean help;
@@ -119,13 +132,32 @@ public class ReportRunnerTool {
     BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     CalculationEngine calculationEngine = ExampleEngine.create();
-    Results results = calculationEngine.calculate(portfolio.getTrades(), columns, rules, snapshot);
+    
+    List<Trade> trades;
+    if (StringUtils.isBlank(idSearch)) {
+      trades = portfolio.getTrades();
+    } else {
+      trades = portfolio.getTrades().stream()
+          .filter(this::isIncluded)
+          .collect(Collectors.toList());
+    }
+    
+    Results results = calculationEngine.calculate(trades, columns, rules, snapshot);
     return ReportCalculationResults.builder()
         .valuationDate(valuationDate)
-        .trades(portfolio.getTrades())
+        .trades(trades)
         .columns(requirements.getTradeMeasureRequirements())
         .calculationResults(results)
         .build();
+  }
+  
+  private boolean isIncluded(Trade t) {
+    Optional<StandardId> tradeId = t.getTradeInfo().getId();
+    boolean match = tradeId.isPresent() && tradeId.get().getValue().contains(idSearch);
+    if (s_logger.isDebugEnabled() && match) {
+      s_logger.debug("ID search {} matched trade {}", idSearch, tradeId.get());
+    }
+    return match;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})

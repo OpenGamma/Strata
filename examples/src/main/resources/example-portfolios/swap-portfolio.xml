@@ -3,6 +3,7 @@
  <trades>
   <item type="com.opengamma.strata.finance.rate.swap.SwapTrade">
    <tradeInfo>
+    <id>example~1</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -107,6 +108,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~2</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -222,6 +224,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+     <id>example~3</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -330,6 +333,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~4</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2013-09-12</settlementDate>
     <attributes>
@@ -434,6 +438,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~5</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-17</settlementDate>
     <attributes>
@@ -532,6 +537,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~6</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -637,6 +643,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~7</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -743,6 +750,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~8</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -853,6 +861,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~9</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -963,6 +972,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~10</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -1067,6 +1077,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~11</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-02-05</settlementDate>
     <attributes>
@@ -1165,6 +1176,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~12</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
@@ -1269,6 +1281,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~13</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-08-27</settlementDate>
     <attributes>
@@ -1380,6 +1393,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~14</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-24</settlementDate>
     <attributes>
@@ -1495,6 +1509,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~15</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-24</settlementDate>
     <attributes>
@@ -1599,6 +1614,7 @@
   </item>
   <item type="SwapTrade">
    <tradeInfo>
+    <id>example~16</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-24</settlementDate>
     <attributes>
