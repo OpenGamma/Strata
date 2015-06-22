@@ -96,14 +96,16 @@ public class ForwardIborInterpolatedRateObservationFn
     double rate2 = provider.iborIndexRates(index2).rate(fixingDate);
     DoublesPair weights = weights(index1, index2, fixingDate, endDate);
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
         .put(ExplainKey.FIXING_DATE, fixingDate)
-        .put(ExplainKey.OBSERVED_INDEX, index1)
-        .put(ExplainKey.OBSERVED_RATE, rate1)
+        .put(ExplainKey.INDEX, index1)
+        .put(ExplainKey.INDEX_VALUE, rate1)
         .put(ExplainKey.WEIGHT, weights.getFirst()));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
         .put(ExplainKey.FIXING_DATE, fixingDate)
-        .put(ExplainKey.OBSERVED_INDEX, index2)
-        .put(ExplainKey.OBSERVED_RATE, rate2)
+        .put(ExplainKey.INDEX, index2)
+        .put(ExplainKey.INDEX_VALUE, rate2)
         .put(ExplainKey.WEIGHT, weights.getSecond()));
     double rate = rate(observation, startDate, endDate, provider);
     builder.put(ExplainKey.COMBINED_RATE, rate);

@@ -98,9 +98,10 @@ public class ForwardIborAveragedRateObservationFn
     IborIndexRates rates = provider.iborIndexRates(observation.getIndex());
     for (IborAveragedFixing fixing : observation.getFixings()) {
       builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+          .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
           .put(ExplainKey.FIXING_DATE, fixing.getFixingDate())
-          .put(ExplainKey.OBSERVED_INDEX, observation.getIndex())
-          .put(ExplainKey.OBSERVED_RATE, fixing.getFixedRate().orElse(rates.rate(fixing.getFixingDate())))
+          .put(ExplainKey.INDEX, observation.getIndex())
+          .put(ExplainKey.INDEX_VALUE, fixing.getFixedRate().orElse(rates.rate(fixing.getFixingDate())))
           .put(ExplainKey.WEIGHT, fixing.getWeight()));
     }
     double rate = rate(observation, startDate, endDate, provider);

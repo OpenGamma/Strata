@@ -69,12 +69,12 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 2);
     ExplainMap explain0 = built.get(ExplainKey.OBSERVATIONS).get().get(0);
     assertEquals(explain0.get(ExplainKey.FIXING_DATE), Optional.of(REFERENCE_START_MONTH.atEndOfMonth()));
-    assertEquals(explain0.get(ExplainKey.OBSERVED_INDEX), Optional.of(GB_RPIX));
-    assertEquals(explain0.get(ExplainKey.OBSERVED_RATE), Optional.of(RATE_START));
+    assertEquals(explain0.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain0.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_START));
     ExplainMap explain1 = built.get(ExplainKey.OBSERVATIONS).get().get(1);
     assertEquals(explain1.get(ExplainKey.FIXING_DATE), Optional.of(REFERENCE_END_MONTH.atEndOfMonth()));
-    assertEquals(explain1.get(ExplainKey.OBSERVED_INDEX), Optional.of(GB_RPIX));
-    assertEquals(explain1.get(ExplainKey.OBSERVED_RATE), Optional.of(RATE_END));
+    assertEquals(explain1.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
+    assertEquals(explain1.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_END));
     assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, EPS);
   }
 

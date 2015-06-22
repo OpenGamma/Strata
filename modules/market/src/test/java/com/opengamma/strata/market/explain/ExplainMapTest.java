@@ -110,11 +110,11 @@ public class ExplainMapTest {
   public void test_explanationString() {
     Map<ExplainKey<?>, Object> child1map = new LinkedHashMap<>();
     child1map.put(ExplainKey.PAYMENT_PERIODS, ImmutableList.of(ExplainMap.of(ImmutableMap.of())));
-    child1map.put(ExplainKey.OBSERVED_RATE, 1.2d);
+    child1map.put(ExplainKey.INDEX_VALUE, 1.2d);
     child1map.put(ExplainKey.COMBINED_RATE, 1.4d);
 
     Map<ExplainKey<?>, Object> child2map = new LinkedHashMap<>();
-    child2map.put(ExplainKey.OBSERVED_RATE, 2.3d);
+    child2map.put(ExplainKey.INDEX_VALUE, 2.3d);
 
     List<ExplainMap> list1 = new ArrayList<>();
     List<ExplainMap> list2 = new ArrayList<>();
@@ -137,10 +137,10 @@ public class ExplainMapTest {
         "  Observations = [{" + EOL +
         "    PaymentPeriods = [{" + EOL +
         "    }]," + EOL +
-        "    ObservedRate = 1.2," + EOL +
+        "    IndexValue = 1.2," + EOL +
         "    CombinedRate = 1.4" + EOL +
         "  },{" + EOL +
-        "    ObservedRate = 2.3" + EOL +
+        "    IndexValue = 2.3" + EOL +
         "  }]," + EOL +
         "  PresentValue = GBP 1000" + EOL +
         "}" + EOL);

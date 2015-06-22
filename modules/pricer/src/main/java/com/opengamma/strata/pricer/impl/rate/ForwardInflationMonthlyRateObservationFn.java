@@ -85,13 +85,15 @@ public class ForwardInflationMonthlyRateObservationFn
     double indexEnd = values.value(observation.getReferenceEndMonth());
 
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, observation.getReferenceStartMonth().atEndOfMonth())
-        .put(ExplainKey.OBSERVED_INDEX, index)
-        .put(ExplainKey.OBSERVED_RATE, indexStart));
+        .put(ExplainKey.INDEX, index)
+        .put(ExplainKey.INDEX_VALUE, indexStart));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, observation.getReferenceEndMonth().atEndOfMonth())
-        .put(ExplainKey.OBSERVED_INDEX, index)
-        .put(ExplainKey.OBSERVED_RATE, indexEnd));
+        .put(ExplainKey.INDEX, index)
+        .put(ExplainKey.INDEX_VALUE, indexEnd));
     double rate = rate(observation, startDate, endDate, provider);
     builder.put(ExplainKey.COMBINED_RATE, rate);
     return rate;

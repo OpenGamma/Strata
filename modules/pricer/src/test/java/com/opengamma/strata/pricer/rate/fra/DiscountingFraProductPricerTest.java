@@ -593,9 +593,9 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
     ExplainMap explainObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
     IborRateObservation floatingRate = (IborRateObservation) fraExp.getFloatingRate();
-    assertEquals(explainObs.get(ExplainKey.OBSERVED_INDEX).get(), floatingRate.getIndex());
+    assertEquals(explainObs.get(ExplainKey.INDEX).get(), floatingRate.getIndex());
     assertEquals(explainObs.get(ExplainKey.FIXING_DATE).get(), floatingRate.getFixingDate());
-    assertEquals(explainObs.get(ExplainKey.OBSERVED_RATE).get(), FORWARD_RATE, TOLERANCE);
+    assertEquals(explainObs.get(ExplainKey.INDEX_VALUE).get(), FORWARD_RATE, TOLERANCE);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
     assertEquals(explain.get(ExplainKey.FIXED_RATE).get(), fraExp.getFixedRate(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);

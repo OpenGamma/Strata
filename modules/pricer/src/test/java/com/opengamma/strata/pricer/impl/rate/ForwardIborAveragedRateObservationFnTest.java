@@ -86,8 +86,8 @@ public class ForwardIborAveragedRateObservationFnTest {
     for (int i = 0; i < 4; i++) {
       ExplainMap childMap = built.get(ExplainKey.OBSERVATIONS).get().get(i);
       assertEquals(childMap.get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATES[i]));
-      assertEquals(childMap.get(ExplainKey.OBSERVED_INDEX), Optional.of(GBP_LIBOR_3M));
-      assertEquals(childMap.get(ExplainKey.OBSERVED_RATE), Optional.of(FIXING_VALUES[i]));
+      assertEquals(childMap.get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
+      assertEquals(childMap.get(ExplainKey.INDEX_VALUE), Optional.of(FIXING_VALUES[i]));
       assertEquals(childMap.get(ExplainKey.WEIGHT), Optional.of(WEIGHTS[i]));
     }
     assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(rateExpected));

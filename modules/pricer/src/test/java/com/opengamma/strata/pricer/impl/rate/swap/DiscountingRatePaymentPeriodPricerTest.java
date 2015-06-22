@@ -616,6 +616,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     ExplainMap explainAccrual = explain.get(ExplainKey.ACCRUAL_PERIODS).get().get(0);
     RateAccrualPeriod ap = PAYMENT_PERIOD_1.getAccrualPeriods().get(0);
     int daysBetween = (int) DAYS.between(ap.getStartDate(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.ENTRY_TYPE).get(), "AccrualPeriod");
     assertEquals(explainAccrual.get(ExplainKey.START_DATE).get(), ap.getStartDate());
     assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_START_DATE).get(), ap.getUnadjustedStartDate());
     assertEquals(explainAccrual.get(ExplainKey.END_DATE).get(), ap.getEndDate());
@@ -682,14 +683,16 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), fv * DISCOUNT_FACTOR, TOLERANCE_PV);
     assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
     ExplainMap explainFxObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
-    assertEquals(explainFxObs.get(ExplainKey.OBSERVED_INDEX).get(), fxReset.getIndex());
+    assertEquals(explainFxObs.get(ExplainKey.ENTRY_TYPE).get(), "FxObservation");
+    assertEquals(explainFxObs.get(ExplainKey.INDEX).get(), fxReset.getIndex());
     assertEquals(explainFxObs.get(ExplainKey.FIXING_DATE).get(), fxReset.getFixingDate());
-    assertEquals(explainFxObs.get(ExplainKey.OBSERVED_RATE).get(), RATE_FX, TOLERANCE_PV);
+    assertEquals(explainFxObs.get(ExplainKey.INDEX_VALUE).get(), RATE_FX, TOLERANCE_PV);
 
     assertEquals(explain.get(ExplainKey.ACCRUAL_PERIODS).get().size(), 1);
     ExplainMap explainAccrual = explain.get(ExplainKey.ACCRUAL_PERIODS).get().get(0);
     RateAccrualPeriod ap = PAYMENT_PERIOD_1_FX.getAccrualPeriods().get(0);
     int daysBetween = (int) DAYS.between(ap.getStartDate(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.ENTRY_TYPE).get(), "AccrualPeriod");
     assertEquals(explainAccrual.get(ExplainKey.START_DATE).get(), ap.getStartDate());
     assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_START_DATE).get(), ap.getUnadjustedStartDate());
     assertEquals(explainAccrual.get(ExplainKey.END_DATE).get(), ap.getEndDate());
@@ -735,6 +738,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     ExplainMap explainAccrual = explain.get(ExplainKey.ACCRUAL_PERIODS).get().get(0);
     RateAccrualPeriod ap = PAYMENT_PERIOD_1_GS.getAccrualPeriods().get(0);
     int daysBetween = (int) DAYS.between(ap.getStartDate(), ap.getEndDate());
+    assertEquals(explainAccrual.get(ExplainKey.ENTRY_TYPE).get(), "AccrualPeriod");
     assertEquals(explainAccrual.get(ExplainKey.START_DATE).get(), ap.getStartDate());
     assertEquals(explainAccrual.get(ExplainKey.UNADJUSTED_START_DATE).get(), ap.getUnadjustedStartDate());
     assertEquals(explainAccrual.get(ExplainKey.END_DATE).get(), ap.getEndDate());

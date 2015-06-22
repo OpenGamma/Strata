@@ -333,9 +333,10 @@ public class DiscountingRatePaymentPeriodPricer
     } else {
       paymentPeriod.getFxReset().ifPresent(fxReset -> {
         builder.addListEntry(ExplainKey.OBSERVATIONS, child -> {
-          child.put(ExplainKey.OBSERVED_INDEX, fxReset.getIndex());
+          child.put(ExplainKey.ENTRY_TYPE, "FxObservation");
+          child.put(ExplainKey.INDEX, fxReset.getIndex());
           child.put(ExplainKey.FIXING_DATE, fxReset.getFixingDate());
-          child.put(ExplainKey.OBSERVED_RATE, fxRate);
+          child.put(ExplainKey.INDEX_VALUE, fxRate);
         });
       });
       for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
@@ -362,6 +363,7 @@ public class DiscountingRatePaymentPeriodPricer
     double payOffRate = rawRate * accrualPeriod.getGearing() + accrualPeriod.getSpread();
     double ua = unitNotionalAccrual(accrualPeriod, accrualPeriod.getSpread(), provider);
     double fv = ua * notional;
+    builder.put(ExplainKey.ENTRY_TYPE, "AccrualPeriod");
     builder.put(ExplainKey.START_DATE, accrualPeriod.getStartDate());
     builder.put(ExplainKey.UNADJUSTED_START_DATE, accrualPeriod.getUnadjustedStartDate());
     builder.put(ExplainKey.END_DATE, accrualPeriod.getEndDate());
