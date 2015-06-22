@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 
+import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
 /**
@@ -34,7 +36,8 @@ public class BeanTokenEvaluator extends TokenEvaluator<Bean> {
         .findFirst();
     if (propertyName.isPresent()) {
       Object propertyValue = bean.property(propertyName.get()).get();
-      return Result.success(propertyValue);
+      return propertyValue != null ? Result.success(propertyValue) : Result.failure(FailureReason.INVALID_INPUT,
+          Messages.format("Property '{}' not set", token));
     }
     return invalidTokenFailure(bean, token);
   }

@@ -403,6 +403,8 @@ public class DiscountingSwapLegPricer {
   // explains the present value of the leg
   void explainPresentValueInternal(ExpandedSwapLeg leg, RatesProvider provider, ExplainMapBuilder builder) {
     builder.put(ExplainKey.ENTRY_TYPE, "Leg");
+    builder.put(ExplainKey.PAY_RECEIVE, leg.getPayReceive());
+    builder.put(ExplainKey.LEG_TYPE, leg.getType().toString());
     for (PaymentPeriod period : leg.getPaymentPeriods()) {
       builder.addListEntry(
           ExplainKey.PAYMENT_PERIODS, child -> paymentPeriodPricer.explainPresentValue(period, provider, child));

@@ -92,9 +92,10 @@ public class DiscountingFxResetNotionalExchangePricer
       builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
     } else {
       builder.addListEntry(ExplainKey.OBSERVATIONS, child -> {
-        child.put(ExplainKey.OBSERVED_INDEX, event.getIndex());
+        child.put(ExplainKey.ENTRY_TYPE, "FxObservation");
+        child.put(ExplainKey.INDEX, event.getIndex());
         child.put(ExplainKey.FIXING_DATE, event.getFixingDate());
-        child.put(ExplainKey.OBSERVED_RATE, fxRate(event, provider));
+        child.put(ExplainKey.INDEX_VALUE, fxRate(event, provider));
       });
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
       builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(event, provider)));

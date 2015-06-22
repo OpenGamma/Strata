@@ -8,6 +8,9 @@ package com.opengamma.strata.examples.report;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -24,6 +27,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
+import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -40,7 +44,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  * Tool for running a report from the command line.
  */
 public class ReportRunnerTool {
-
+  
   @Parameter(names = {"-t", "--template"}, description = "Report template input file", required = true, converter = ReportTemplateParameterConverter.class)
   private ReportTemplate template;
 
@@ -55,6 +59,9 @@ public class ReportRunnerTool {
 
   @Parameter(names = {"-f", "--format"}, description = "Report output format, ascii or csv", converter = ReportOutputFormatParameterConverter.class)
   private ReportOutputFormat format = ReportOutputFormat.ASCII_TABLE;
+  
+  @Parameter(names = {"-i", "--id"}, description = "An ID by which to select a single trade")
+  private String idSearch;
 
   @Parameter(names = {"-h", "--help"}, description = "Displays this message", help = true)
   private boolean help;
@@ -79,7 +86,12 @@ public class ReportRunnerTool {
     if (reportRunner.help) {
       commander.usage();
     } else {
-      reportRunner.run();
+      try {
+        reportRunner.run();
+      } catch (Exception e) {
+        System.err.println(Messages.format("Error: {}\n", e.getMessage()));
+        commander.usage();
+      }
     }
   }
 
@@ -119,10 +131,27 @@ public class ReportRunnerTool {
     BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     CalculationEngine calculationEngine = ExampleEngine.create();
-    Results results = calculationEngine.calculate(portfolio.getTrades(), columns, rules, snapshot);
+    
+    List<Trade> trades;
+    if (StringUtils.isBlank(idSearch)) {
+      trades = portfolio.getTrades();
+    } else {
+      trades = portfolio.getTrades().stream()
+          .filter(t -> t.getTradeInfo().getId().isPresent() && t.getTradeInfo().getId().get().getValue().equals(idSearch))
+          .collect(Collectors.toList());
+      if (trades.size() > 1) {
+        throw new IllegalArgumentException(
+            Messages.format("More than one trade found matching ID: '{}'", idSearch));
+      }
+    }
+    if (trades.isEmpty()) {
+      throw new IllegalArgumentException("No trades found. Please check the input portfolio or trade ID filter.");
+    }
+    
+    Results results = calculationEngine.calculate(trades, columns, rules, snapshot);
     return ReportCalculationResults.builder()
         .valuationDate(valuationDate)
-        .trades(portfolio.getTrades())
+        .trades(trades)
         .columns(requirements.getTradeMeasureRequirements())
         .calculationResults(results)
         .build();

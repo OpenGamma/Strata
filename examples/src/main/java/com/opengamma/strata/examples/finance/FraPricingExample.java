@@ -55,7 +55,8 @@ public class FraPricingExample {
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.PV01),
         Column.of(Measure.PAR_RATE),
-        Column.of(Measure.PAR_SPREAD));
+        Column.of(Measure.PAR_SPREAD),
+        Column.of(Measure.BUCKETED_PV01));
 
     // use the built-in example market data
     MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
@@ -102,8 +103,9 @@ public class FraPricingExample {
     return FraTrade.builder()
         .product(fra)
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "0x3 FRA"))
-            .counterparty(StandardId.of("mn", "Dealer B"))
+            .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
         .build();

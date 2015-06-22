@@ -68,9 +68,10 @@ public class ForwardIborRateObservationFn
     double rate = rate(observation, startDate, endDate, provider);
     LocalDate fixingDate = observation.getFixingDate();
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
         .put(ExplainKey.FIXING_DATE, fixingDate)
-        .put(ExplainKey.OBSERVED_INDEX, observation.getIndex())
-        .put(ExplainKey.OBSERVED_RATE, rate));
+        .put(ExplainKey.INDEX, observation.getIndex())
+        .put(ExplainKey.INDEX_VALUE, rate));
     builder.put(ExplainKey.COMBINED_RATE, rate);
     return rate;
   }

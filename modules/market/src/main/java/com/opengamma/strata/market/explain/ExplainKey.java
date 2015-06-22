@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.joda.convert.FromString;
 
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
@@ -84,6 +85,15 @@ public final class ExplainKey<T>
    */
   public static final ExplainKey<Currency> PAYMENT_CURRENCY = of("PaymentCurrency");
   /**
+   * Whether the entry is being paid or received.
+   */
+  public static final ExplainKey<PayReceive> PAY_RECEIVE = of("PayReceive");
+  /**
+   * An indication of the pay-off formula that applies to the leg.
+   * For example, this could be used to distinguish between fixed, overnight, IBOR and inflation.
+   */
+  public static final ExplainKey<String> LEG_TYPE = of("LegType");
+  /**
    * The effective notional, which may be converted from the contract notional in the case of FX reset.
    */
   public static final ExplainKey<CurrencyAmount> NOTIONAL = of("Notional");
@@ -144,16 +154,16 @@ public final class ExplainKey<T>
   /**
    * The observed index, such as an Ibor or Overnight index.
    */
-  public static final ExplainKey<Index> OBSERVED_INDEX = of("ObservedIndex");
+  public static final ExplainKey<Index> INDEX = of("Index");
   /**
    * The fixing date.
    */
   public static final ExplainKey<LocalDate> FIXING_DATE = of("FixingDate");
   /**
-   * The observed forward rate, typically derived from a curve.
+   * The observed index value, typically derived from a curve.
    * This may be known exactly if the fixing has occurred.
    */
-  public static final ExplainKey<Double> OBSERVED_RATE = of("ObservedRate");
+  public static final ExplainKey<Double> INDEX_VALUE = of("IndexValue");
   /**
    * The weight of this observation.
    * Weighting applies when averaging more than one observation to produce the final rate.
@@ -186,7 +196,7 @@ public final class ExplainKey<T>
   /**
    * The method of compounding.
    */
-  public static final ExplainKey<CompoundingMethod> COMPOUNDING = of("ComooundingMethod");
+  public static final ExplainKey<CompoundingMethod> COMPOUNDING = of("CompoundingMethod");
 
   //-------------------------------------------------------------------------
   /**

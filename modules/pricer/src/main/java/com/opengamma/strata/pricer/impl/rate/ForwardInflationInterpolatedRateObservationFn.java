@@ -107,24 +107,28 @@ public class ForwardInflationInterpolatedRateObservationFn
     double w2 = 1d - w1;
 
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, startMonth.atEndOfMonth())
-        .put(ExplainKey.OBSERVED_INDEX, index)
-        .put(ExplainKey.OBSERVED_RATE, values.value(startMonth))
+        .put(ExplainKey.INDEX, index)
+        .put(ExplainKey.INDEX_VALUE, values.value(startMonth))
         .put(ExplainKey.WEIGHT, w1));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, startInterpolationMonth.atEndOfMonth())
-        .put(ExplainKey.OBSERVED_INDEX, index)
-        .put(ExplainKey.OBSERVED_RATE, values.value(startInterpolationMonth))
+        .put(ExplainKey.INDEX, index)
+        .put(ExplainKey.INDEX_VALUE, values.value(startInterpolationMonth))
         .put(ExplainKey.WEIGHT, w2));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, endMonth.atEndOfMonth())
-        .put(ExplainKey.OBSERVED_INDEX, index)
-        .put(ExplainKey.OBSERVED_RATE, values.value(endMonth))
+        .put(ExplainKey.INDEX, index)
+        .put(ExplainKey.INDEX_VALUE, values.value(endMonth))
         .put(ExplainKey.WEIGHT, w1));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, endInterpolationMonth.atEndOfMonth())
-        .put(ExplainKey.OBSERVED_INDEX, index)
-        .put(ExplainKey.OBSERVED_RATE, values.value(endInterpolationMonth))
+        .put(ExplainKey.INDEX, index)
+        .put(ExplainKey.INDEX_VALUE, values.value(endInterpolationMonth))
         .put(ExplainKey.WEIGHT, w2));
     double rate = rate(observation, startDate, endDate, provider);
     builder.put(ExplainKey.COMBINED_RATE, rate);

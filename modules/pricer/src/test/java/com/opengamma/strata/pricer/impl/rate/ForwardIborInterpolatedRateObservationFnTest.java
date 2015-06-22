@@ -74,12 +74,12 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 2);
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATE));
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.OBSERVED_INDEX), Optional.of(GBP_LIBOR_3M));
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.OBSERVED_RATE), Optional.of(RATE3));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.INDEX_VALUE), Optional.of(RATE3));
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.WEIGHT), Optional.of(weight3M));
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATE));
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.OBSERVED_INDEX), Optional.of(GBP_LIBOR_6M));
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.OBSERVED_RATE), Optional.of(RATE6));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_6M));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.INDEX_VALUE), Optional.of(RATE6));
     assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.WEIGHT), Optional.of(weight6M));
     assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(rateExpected));
   }

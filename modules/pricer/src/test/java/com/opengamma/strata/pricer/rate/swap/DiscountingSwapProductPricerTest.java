@@ -616,6 +616,8 @@ public class DiscountingSwapProductPricerTest {
     double fv0 = pricerLeg.futureValue(leg0, MOCK_PROV).getAmount();
     assertEquals(explainLeg0.get(ExplainKey.ENTRY_TYPE).get(), "Leg");
     assertEquals(explainLeg0.get(ExplainKey.ENTRY_INDEX).get().intValue(), 0);
+    assertEquals(explainLeg0.get(ExplainKey.PAY_RECEIVE).get(), leg0.getPayReceive());
+    assertEquals(explainLeg0.get(ExplainKey.LEG_TYPE).get(), leg0.getType().toString());
     assertEquals(explainLeg0.get(ExplainKey.PAYMENT_PERIODS).get().size(), 1);
     assertEquals(explainLeg0.get(ExplainKey.PAYMENT_EVENTS).get().size(), 1);
     assertEquals(explainLeg0.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), leg0.getCurrency());

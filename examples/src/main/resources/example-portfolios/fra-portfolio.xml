@@ -3,6 +3,7 @@
  <trades>
   <item type="com.opengamma.strata.finance.rate.fra.FraTrade">
    <tradeInfo>
+    <id>example~1</id>
     <counterparty>mn~Dealer B</counterparty>
     <settlementDate>2014-09-14</settlementDate>
     <attributes>
