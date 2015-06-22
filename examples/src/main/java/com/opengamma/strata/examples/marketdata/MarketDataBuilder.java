@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
@@ -304,18 +305,14 @@ public abstract class MarketDataBuilder {
       return;
     }
 
-    try {
-      Reader inputReadable = cdsYieldCurvesResource.getCharSource().openStream();
-      Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> yieldCuves = ISDAYieldCurveDataParser.parse(inputReadable);
+    CharSource charSource = cdsYieldCurvesResource.getCharSource();
+    Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> yieldCuves = ISDAYieldCurveDataParser.parse(charSource);
 
-      for (IsdaYieldCurveParRatesId id : yieldCuves.keySet()) {
-        IsdaYieldCurveParRates parRates = yieldCuves.get(id);
-        builder.addValue(id, parRates);
-      }
-
-    } catch (IOException e) {
-      throw new RuntimeException(String.format("Unable to read cds yield curves: exception at %s/%s", creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE), e);
+    for (IsdaYieldCurveParRatesId id : yieldCuves.keySet()) {
+      IsdaYieldCurveParRates parRates = yieldCuves.get(id);
+      builder.addValue(id, parRates);
     }
+
   }
 
 

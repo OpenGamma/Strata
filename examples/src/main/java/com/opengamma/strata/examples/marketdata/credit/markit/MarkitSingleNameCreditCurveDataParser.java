@@ -12,7 +12,6 @@ package com.opengamma.strata.examples.marketdata.credit.markit;
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.util.ArrayUtils;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.finance.credit.RestructuringClause;
@@ -23,9 +22,7 @@ import com.opengamma.strata.finance.credit.type.CdsConventions;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 
-import java.io.InputStream;
 import java.io.Reader;
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;

@@ -11,7 +11,7 @@
                 <endDate>2019-12-20</endDate>
                 <buySellProtection>Buy</buySellProtection>
                 <businessDayConvention>Following</businessDayConvention>
-                <holidayCalendar>Sat/Sun</holidayCalendar>
+                <holidayCalendar>USNY</holidayCalendar>
                 <referenceInformation type="com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation">
                     <referenceEntityId>MarkitRedCode~7CA622</referenceEntityId>
                     <seniority>SeniorUnsecuredForeign</seniority>
@@ -26,6 +26,40 @@
                     <periodicPayments>
                         <notional>USD 100000000</notional>
                         <coupon>0.01</coupon>
+                        <dayCount>Act/360</dayCount>
+                        <paymentFrequency>P3M</paymentFrequency>
+                        <stubConvention>ShortInitial</stubConvention>
+                        <rollConvention>Day20</rollConvention>
+                    </periodicPayments>
+                </feeLeg>
+                <payAccOnDefault>true</payAccOnDefault>
+            </product>
+        </item>
+        <item type="com.opengamma.strata.finance.credit.CdsTrade">
+            <tradeInfo>
+                <id>tradeid~62726763</id>
+                <attributes/>
+            </tradeInfo>
+            <product>
+                <startDate>2014-09-22</startDate>
+                <endDate>2019-12-20</endDate>
+                <buySellProtection>Buy</buySellProtection>
+                <businessDayConvention>Following</businessDayConvention>
+                <holidayCalendar>USNY</holidayCalendar>
+                <referenceInformation type="com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation">
+                    <referenceEntityId>MarkitRedCode~UB78A0</referenceEntityId>
+                    <seniority>SeniorUnsecuredForeign</seniority>
+                    <currency>USD</currency>
+                    <restructuringClause>NoRestructuring2014</restructuringClause>
+                </referenceInformation>
+                <feeLeg>
+                    <upfrontFee>
+                        <fixedAmount>USD -1370582.00</fixedAmount>
+                        <paymentDate>2014-10-21</paymentDate>
+                    </upfrontFee>
+                    <periodicPayments>
+                        <notional>USD 100000000</notional>
+                        <coupon>0.05</coupon>
                         <dayCount>Act/360</dayCount>
                         <paymentFrequency>P3M</paymentFrequency>
                         <stubConvention>ShortInitial</stubConvention>

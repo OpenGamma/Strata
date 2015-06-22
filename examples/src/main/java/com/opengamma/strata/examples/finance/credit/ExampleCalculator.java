@@ -14,8 +14,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.CalculationEngine;
@@ -103,7 +101,7 @@ public class ExampleCalculator implements Calculator {
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
-    BaseMarketData baseMarketData =  marketDataBuilder.buildSnapshot(valuationDate);
+    BaseMarketData baseMarketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     List<Column> columns = measures.stream().map(s -> Column.of(s)).collect(Collectors.toList());
 

@@ -9,74 +9,80 @@
 
 package com.opengamma.strata.examples.marketdata.credit.markit;
 
-import com.google.common.collect.ImmutableList;
+import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.strata.basics.currency.Currency;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.examples.marketdata.CsvFile;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConventions;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 
-import java.io.Reader;
 import java.time.Period;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * Parser to load daily yield curve information provided by Markit
+ * <p>
+ * Valuation Date,Tenor,Instrument Type,Rate,Curve Convention
+ */
 public class ISDAYieldCurveDataParser {
 
-  public static Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> parse(Reader source) {
+  private static final String s_tenor = "Tenor";
+  private static final String s_instrument = "Instrument Type";
+  private static final String s_rate = "Rate";
+  private static final String s_convention = "Curve Convention";
+
+  public static Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> parse(CharSource source) {
+    Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
+
+    CsvFile csv = CsvFile.of(source, true);
+
+    for (int i = 0; i < csv.lineCount(); i++) {
+
+      String tenorText = csv.field(i, s_tenor);
+      String instrumentText = csv.field(i, s_instrument);
+      String rateText = csv.field(i, s_rate);
+      String conventionText = csv.field(i, s_convention);
+
+      Point point = Point.of(
+          Tenor.parse(tenorText),
+          mapUnderlyingType(instrumentText),
+          Double.parseDouble(rateText)
+      );
+
+      IsdaYieldCurveConvention convention = IsdaYieldCurveConvention.of(conventionText);
+
+      List<Point> points = curveData.get(convention);
+      if (points == null) {
+        points = Lists.newArrayList();
+        curveData.put(convention, points);
+      }
+
+      points.add(point);
+
+    }
+
     Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> result = Maps.newHashMap();
 
-    Currency currency = Currency.USD;
-    IsdaYieldCurveConvention curveConvention = IsdaYieldCurveConventions.ISDA_USD;
-    ImmutableList<String> usd20141020Ir = ImmutableList.of(
-        "1M,M,0.001535",
-        "2M,M,0.001954",
-        "3M,M,0.002281",
-        "6M,M,0.003217",
-        "1Y,M,0.005444",
-        "2Y,S,0.005905",
-        "3Y,S,0.009555",
-        "4Y,S,0.012775",
-        "5Y,S,0.015395",
-        "6Y,S,0.017445",
-        "7Y,S,0.019205",
-        "8Y,S,0.020660",
-        "9Y,S,0.021885",
-        "10Y,S,0.022940",
-        "12Y,S,0.024615",
-        "15Y,S,0.026300",
-        "20Y,S,0.027950",
-        "25Y,S,0.028715",
-        "30Y,S,0.029160"
-    );
-    double[] rates = usd20141020Ir
-        .stream()
-        .mapToDouble(s -> Double.valueOf(s.split(",")[2]))
-        .toArray();
-    Period[] yieldCurvePoints = usd20141020Ir
-        .stream()
-        .map(s -> Tenor.parse(s.split(",")[0]).getPeriod())
-        .toArray(Period[]::new);
-    IsdaYieldCurveUnderlyingType[] yieldCurveInstruments = usd20141020Ir
-        .stream()
-        .map(s -> s.split(",")[1])
-        .map(ISDAYieldCurveDataParser::mapUnderlyingType)
-        .toArray(IsdaYieldCurveUnderlyingType[]::new);
+    for (IsdaYieldCurveConvention convention : curveData.keySet()) {
+      List<Point> points = curveData.get(convention);
 
-    String name = curveConvention.getName();
+      result.put(IsdaYieldCurveParRatesId.of(convention.getCurrency()),
+          IsdaYieldCurveParRates.of(
+              convention.getName(),
+              points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new),
+              points.stream().map(s -> s.getInstrumentType()).toArray(IsdaYieldCurveUnderlyingType[]::new),
+              points.stream().mapToDouble(s -> s.getRate()).toArray(),
+              convention
+          ));
 
-    result.put(IsdaYieldCurveParRatesId.of(currency),
-        IsdaYieldCurveParRates.of(
-            name,
-            yieldCurvePoints,
-            yieldCurveInstruments,
-            rates,
-            curveConvention
-        ));
+    }
 
     return result;
+
   }
 
   private static IsdaYieldCurveUnderlyingType mapUnderlyingType(String type) {
@@ -87,6 +93,36 @@ public class ISDAYieldCurveDataParser {
         return IsdaYieldCurveUnderlyingType.IsdaSwap;
       default:
         throw new IllegalStateException("Unknown underlying type, only M or S allowed: " + type);
+    }
+  }
+
+  private static class Point {
+    private final Tenor tenor;
+
+    private final IsdaYieldCurveUnderlyingType instrumentType;
+
+    private final double rate;
+
+    private Point(Tenor tenor, IsdaYieldCurveUnderlyingType instrumentType, double rate) {
+      this.tenor = tenor;
+      this.instrumentType = instrumentType;
+      this.rate = rate;
+    }
+
+    public Tenor getTenor() {
+      return tenor;
+    }
+
+    public IsdaYieldCurveUnderlyingType getInstrumentType() {
+      return instrumentType;
+    }
+
+    public double getRate() {
+      return rate;
+    }
+
+    public static Point of(Tenor tenor, IsdaYieldCurveUnderlyingType instrumentType, double rate) {
+      return new Point(tenor, instrumentType, rate);
     }
   }
 
