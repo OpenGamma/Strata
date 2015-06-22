@@ -92,7 +92,12 @@ public class ReportRunnerTool {
     if (reportRunner.help) {
       commander.usage();
     } else {
-      reportRunner.run();
+      try {
+        reportRunner.run();
+      } catch (Exception e) {
+        System.err.println(Messages.format("Error: {}\n", e.getMessage()));
+        commander.usage();
+      }
     }
   }
 
@@ -140,6 +145,9 @@ public class ReportRunnerTool {
       trades = portfolio.getTrades().stream()
           .filter(this::isIncluded)
           .collect(Collectors.toList());
+    }
+    if (trades.isEmpty()) {
+      throw new IllegalArgumentException("No trades found. Please check the input portfolio or trade ID filter.");
     }
     
     Results results = calculationEngine.calculate(trades, columns, rules, snapshot);
