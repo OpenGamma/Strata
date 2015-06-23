@@ -186,6 +186,32 @@ public abstract class MarketDataBuilder {
                 .curveGroup(CurveGroupName.of("Default"))
                 .build()));
   }
+  
+  /**
+   * Gets all rates curves.
+   * 
+   * @return the map of all rates curves
+   */
+  public Map<LocalDate, Map<RateCurveId, Curve>> loadAllRatesCurves() {
+    if (!subdirectoryExists(CURVES_DIR)) {
+      throw new IllegalArgumentException(
+          Messages.format("No rates curves directory found"));
+    }
+
+    ResourceLocator curveGroupsResource = getResource(CURVES_DIR, CURVES_GROUPS_FILE);
+    if (curveGroupsResource == null) {
+      throw new IllegalArgumentException(
+          Messages.format("Unable to load rates curves: curve groups file not found at {}/{}", CURVES_DIR, CURVES_GROUPS_FILE));
+    }
+
+    ResourceLocator curveSettingsResource = getResource(CURVES_DIR, CURVES_SETTINGS_FILE);
+    if (curveSettingsResource == null) {
+      throw new IllegalArgumentException(
+          Messages.format("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE));
+    }
+    
+    return RatesCurvesCsvLoader.loadAllCurves(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
+  }
 
   //-------------------------------------------------------------------------
   private void loadFixingSeries(BaseMarketDataBuilder builder) {
@@ -221,10 +247,7 @@ public abstract class MarketDataBuilder {
     }
 
     try {
-      Collection<ResourceLocator> curvesResources = getAllResources(CURVES_DIR).stream()
-          .filter(res ->
-              !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
-          .collect(Collectors.toList());
+      Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
 
       Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
           .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
@@ -278,6 +301,14 @@ public abstract class MarketDataBuilder {
   private void loadFxRates(BaseMarketDataBuilder builder) {
     // TODO - load from CSV file - format to be defined
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
+  }
+  
+  //-------------------------------------------------------------------------
+  private Collection<ResourceLocator> getRatesCurvesResources() {
+    return getAllResources(CURVES_DIR).stream()
+        .filter(res ->
+            !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
+        .collect(Collectors.toList());
   }
 
   //-------------------------------------------------------------------------

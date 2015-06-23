@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
@@ -41,6 +42,7 @@ public class RatesCurvesCsvLoaderTest {
   private static final String SETTINGS_1 = "classpath:test-marketdata-complete/curves/settings.csv";
   private static final String CURVES_1 = "classpath:test-marketdata-complete/curves/curves-1.csv";
   private static final String CURVES_2 = "classpath:test-marketdata-complete/curves/curves-2.csv";
+  private static final String CURVES_3 = "classpath:test-marketdata-complete/curves/curves-3.csv";
   private static final String CURVES_1_AND_2 = "classpath:test-marketdata-additional/curves/curves-1-and-2.csv";
 
   private static final String SETTINGS_INVALID_DAY_COUNT = "classpath:test-marketdata-additional/curves/settings-invalid-day-count.csv";
@@ -57,6 +59,7 @@ public class RatesCurvesCsvLoaderTest {
 
   // curve date used in the test data
   private static final LocalDate CURVE_DATE = LocalDate.of(2009, 7, 31);
+  private static final LocalDate CURVE_DATE_CURVES_3 = LocalDate.of(2009, 7, 30);
 
   // tolerance
   private static final double TOLERANCE = 1.0E-4;
@@ -166,14 +169,7 @@ public class RatesCurvesCsvLoaderTest {
         CURVE_DATE);
 
     assertEquals(curves.size(), 2);
-
-    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
-    Curve usdDisc = curves.get(discountCurveId);
-    assertUsdDisc(usdDisc);
-
-    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
-    Curve usd3ml = curves.get(libor3mCurveId);
-    assertUsd3ml(usd3ml);
+    assertCurves(curves);
   }
 
   public void test_multiple_curves_multiple_files() {
@@ -184,14 +180,7 @@ public class RatesCurvesCsvLoaderTest {
         CURVE_DATE);
 
     assertEquals(curves.size(), 2);
-
-    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
-    Curve usdDisc = curves.get(discountCurveId);
-    assertUsdDisc(usdDisc);
-
-    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
-    Curve usd3ml = curves.get(libor3mCurveId);
-    assertUsd3ml(usd3ml);
+    assertCurves(curves);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -202,8 +191,62 @@ public class RatesCurvesCsvLoaderTest {
         ImmutableList.of(ResourceLocator.of(CURVES_INVALID_DUPLICATE_POINTS)),
         CURVE_DATE);
   }
+  
+  //-------------------------------------------------------------------------
+  public void test_load_all_curves() {
+    Map<LocalDate, Map<RateCurveId, Curve>> allCurves = RatesCurvesCsvLoader.loadAllCurves(
+        ResourceLocator.of(GROUPS_1),
+        ResourceLocator.of(SETTINGS_1),
+        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)));
+    
+    assertEquals(allCurves.size(), 2);
+    assertCurves(allCurves.get(CURVE_DATE));
+    
+    Map<RateCurveId, Curve> curves3 = allCurves.get(CURVE_DATE_CURVES_3);
+    assertEquals(curves3.size(), 2);
+    
+    // All curve points are set to 0 in test data to ensure these are really different curve instances
+    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
+    Curve usdDisc = curves3.get(discountCurveId);
+    InterpolatedNodalCurve usdDiscNodal = (InterpolatedNodalCurve) usdDisc;
+    assertEquals(usdDiscNodal.getMetadata().getCurveName(), CurveName.of("USD-Disc"));
+    for (double yValue : usdDiscNodal.getYValues()) {
+      assertEquals(yValue, 0d);
+    }
+    
+    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
+    Curve usd3ml = curves3.get(libor3mCurveId);
+    InterpolatedNodalCurve usd3mlNodal = (InterpolatedNodalCurve) usd3ml;
+    assertEquals(usd3mlNodal.getMetadata().getCurveName(), CurveName.of("USD-3ML"));
+    for (double yValue : usd3mlNodal.getYValues()) {
+      assertEquals(yValue, 0d);
+    }
+  }
+  
+  public void test_load_curves_date_filtering() {
+    Map<RateCurveId, Curve> curves = RatesCurvesCsvLoader.loadCurves(
+        ResourceLocator.of(GROUPS_1),
+        ResourceLocator.of(SETTINGS_1),
+        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2), ResourceLocator.of(CURVES_3)),
+        CURVE_DATE);
+
+    assertEquals(curves.size(), 2);
+    assertCurves(curves);
+  }
 
   //-------------------------------------------------------------------------
+  private void assertCurves(Map<RateCurveId, Curve> curves) {
+    assertNotNull(curves);
+    
+    DiscountCurveId discountCurveId = DiscountCurveId.of(Currency.USD, CurveGroupName.of("Default"));
+    Curve usdDisc = curves.get(discountCurveId);
+    assertUsdDisc(usdDisc);
+
+    RateIndexCurveId libor3mCurveId = RateIndexCurveId.of(IborIndices.USD_LIBOR_3M, CurveGroupName.of("Default"));
+    Curve usd3ml = curves.get(libor3mCurveId);
+    assertUsd3ml(usd3ml);
+  }
+  
   private void assertUsdDisc(Curve curve) {
     assertTrue(curve instanceof InterpolatedNodalCurve);
     InterpolatedNodalCurve nodalCurve = (InterpolatedNodalCurve) curve;
