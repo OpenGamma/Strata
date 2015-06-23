@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -40,6 +41,7 @@ import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilde
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
 
@@ -74,7 +76,10 @@ public class MarketDataBuilderTest {
       RateIndexCurveId.of(IborIndices.GBP_LIBOR_3M, DEFAULT_CURVE_GROUP),
       ZeroRateDiscountFactorsId.of(Currency.USD, DEFAULT_CURVE_GROUP, MarketDataFeed.NONE),
       ZeroRateDiscountFactorsId.of(Currency.GBP, DEFAULT_CURVE_GROUP, MarketDataFeed.NONE),
-      FxRateId.of(Currency.USD, Currency.GBP));
+      FxRateId.of(Currency.USD, Currency.GBP),
+      QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
+      QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150")),
+      QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14")));
 
   public void test_directory() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();
