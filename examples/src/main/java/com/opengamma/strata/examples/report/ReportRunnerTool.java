@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
@@ -125,7 +124,7 @@ public class ReportRunnerTool {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(pricingRules)
         .marketDataRules(marketDataBuilder.rules())
-        .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
+        .reportingRules(ReportingRules.empty())
         .build();
 
     BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
