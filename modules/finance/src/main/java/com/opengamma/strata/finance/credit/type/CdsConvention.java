@@ -27,19 +27,20 @@ import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsDatesLogic;
 import com.opengamma.strata.finance.credit.CdsTrade;
+import com.opengamma.strata.finance.credit.FeeLeg;
+import com.opengamma.strata.finance.credit.IndexReferenceInformation;
+import com.opengamma.strata.finance.credit.PeriodicPayments;
+import com.opengamma.strata.finance.credit.ReferenceInformation;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
-import com.opengamma.strata.finance.credit.fee.FeeLeg;
-import com.opengamma.strata.finance.credit.fee.PeriodicPayments;
-import com.opengamma.strata.finance.credit.fee.SinglePayment;
-import com.opengamma.strata.finance.credit.reference.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.reference.ReferenceInformation;
-import com.opengamma.strata.finance.credit.reference.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
+import com.opengamma.strata.finance.credit.SinglePayment;
 
 /**
  * A market convention for how CDS trades are structured in different regions and currencies.
  */
-public interface CdsConvention extends Named {
+public interface CdsConvention
+    extends Named {
 
   /**
    * Looks up the convention corresponding to a given name.
@@ -62,6 +63,7 @@ public interface CdsConvention extends Named {
     return CdsConventions.ENUM_LOOKUP;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the currency.
    * 
@@ -123,7 +125,7 @@ public interface CdsConvention extends Named {
   /**
    * Gets the settlement lag in days.
    * <p>
-   * This is the number of days after the start date that any up-front fees are paid.
+   * This is the number of days after the start date that any upfront fees are paid.
    * 
    * @return the settlement lag in days
    */
@@ -146,8 +148,8 @@ public interface CdsConvention extends Named {
    * @param referenceEntityId  the identifier of the reference entity
    * @param seniorityLevel  the seniority level
    * @param restructuringClause  the restructuring clause
-   * @param upfrontFeeAmount  the amount of the up-front fee
-   * @param upfrontFeePaymentDate  the payment date of the up-front fee
+   * @param upfrontFeeAmount  the amount of the upfront fee
+   * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the single-name CDS
    */
   default CdsTrade toSingleNameTrade(
@@ -189,8 +191,8 @@ public interface CdsConvention extends Named {
    * @param indexSeries  the index series
    * @param indexAnnexVersion  the index annex version
    * @param restructuringClause  the restructuring clause
-   * @param upfrontFeeAmount  the amount of the up-front fee
-   * @param upfrontFeePaymentDate  the payment date of the up-front fee
+   * @param upfrontFeeAmount  the amount of the upfront fee
+   * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the index CDS trade
    */
   default CdsTrade toIndexTrade(
@@ -230,8 +232,8 @@ public interface CdsConvention extends Named {
    * @param notional  the notional amount
    * @param coupon  the coupon amount
    * @param referenceInformation  the reference information of the CDS
-   * @param upfrontFeeAmount  the amount of the up-front fee
-   * @param upfrontFeePaymentDate  the payment date of the up-front fee
+   * @param upfrontFeeAmount  the amount of the upfront fee
+   * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the CDS trade
    */
   default CdsTrade toTrade(
@@ -270,6 +272,7 @@ public interface CdsConvention extends Named {
   }
 
   //-------------------------------------------------------------------------
+  // TODO: move these static methods elsewhere
   /**
    * Used in curve point calculation.
    *

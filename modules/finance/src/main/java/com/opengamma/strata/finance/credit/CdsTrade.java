@@ -27,10 +27,19 @@ import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
- * A trade in a credit default swap.
+ * A trade in a credit default swap (CDS).
  * <p>
  * An Over-The-Counter (OTC) trade in a {@link Cds}.
  * <p>
+ * A CDS is a financial instrument where the protection seller agrees to compensate
+ * the protection buyer if a specified specified company or Sovereign entity experiences
+ * a credit event, indicating it is or may be unable to service its debts.
+ * The protection seller is typically paid a fee and/or premium, expressed as an annualized
+ * percentage of the notional in basis points, regularly over the life of the transaction or
+ * otherwise as agreed by the parties.
+ * <p>
+ * For example, a company engaged in another financial instrument with a counterparty may
+ * wish to protect itself against the risk of the counterparty defaulting.
  */
 @BeanDefinition
 public final class CdsTrade
@@ -44,7 +53,7 @@ public final class CdsTrade
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo tradeInfo;
   /**
-   * The details of the credit default swap that was agreed when the trade occurred.
+   * The credit default swap that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    */
@@ -122,7 +131,7 @@ public final class CdsTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the details of the credit default swap that was agreed when the trade occurred.
+   * Gets the credit default swap that was agreed when the trade occurred.
    * <p>
    * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null

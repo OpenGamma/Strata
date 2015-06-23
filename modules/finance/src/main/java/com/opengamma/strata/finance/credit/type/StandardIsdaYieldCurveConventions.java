@@ -19,8 +19,12 @@ import com.opengamma.strata.basics.schedule.Frequency;
  * <p>
  * See cdsmodel.com and Markit website for details
  */
-enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
+enum StandardIsdaYieldCurveConventions
+    implements IsdaYieldCurveConvention {
 
+  /**
+   * The ISDA USD curve.
+   */
   ISDA_USD(
       "ISDA_USD",
       Currency.USD,
@@ -30,6 +34,9 @@ enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
       Frequency.P6M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
       HolidayCalendars.SAT_SUN),
+  /**
+   * The ISDA EUR curve.
+   */
   ISDA_EUR(
       "ISDA_EUR",
       Currency.EUR,
@@ -39,6 +46,9 @@ enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
       Frequency.P12M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
       HolidayCalendars.SAT_SUN),
+  /**
+   * The ISDA GBP curve.
+   */
   ISDA_GBP(
       "ISDA_GBP",
       Currency.GBP,
@@ -48,6 +58,9 @@ enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
       Frequency.P6M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
       HolidayCalendars.SAT_SUN),
+  /**
+   * The ISDA CHF curve.
+   */
   ISDA_CHF(
       "ISDA_CHF",
       Currency.CHF,
@@ -57,6 +70,9 @@ enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
       Frequency.P12M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
       HolidayCalendars.SAT_SUN),
+  /**
+   * The ISDA JPY curve.
+   */
   ISDA_JPY(
       "ISDA_JPY",
       Currency.JPY,
@@ -68,19 +84,12 @@ enum StandardIsdaYieldCurveConventions implements IsdaYieldCurveConvention {
       HolidayCalendars.JPTO);
 
   private final String name;
-
   private final Currency currency;
-
   private final DayCount mmDayCount;
-
   private final DayCount fixedDayCount;
-
   private final int spotDays;
-
   private final Frequency fixedPaymentFrequency;
-
   private final BusinessDayConvention badDayConvention;
-
   private final HolidayCalendar holidayCalendar;
 
   // create

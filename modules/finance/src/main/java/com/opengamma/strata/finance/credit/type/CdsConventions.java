@@ -10,11 +10,11 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 /**
  * Constants for standard CDS market conventions.
  * <p>
- * See cdsmodel.com for details
+ * See ISDA CDS documentation for more details.
  */
 public final class CdsConventions {
-
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
+
   /**
    * The extended enum lookup from name to instance.
    */
@@ -25,19 +25,16 @@ public final class CdsConventions {
    */
   public static final CdsConvention NORTH_AMERICAN_USD =
       CdsConvention.of(StandardCdsConventions.NORTH_AMERICAN_USD.getName());
-
   /**
    * The European GBP CDS convention.
    */
   public static final CdsConvention EUROPEAN_GBP =
       CdsConvention.of(StandardCdsConventions.EUROPEAN_GBP.getName());
-
   /**
    * The European CHF CDS convention.
    */
   public static final CdsConvention EUROPEAN_CHF =
       CdsConvention.of(StandardCdsConventions.EUROPEAN_CHF.getName());
-
   /**
    * The European USD CDS convention.
    */

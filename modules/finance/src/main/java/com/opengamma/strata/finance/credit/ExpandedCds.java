@@ -36,19 +36,44 @@ import com.opengamma.strata.basics.schedule.StubConvention;
  * Representation of the CdsProduct that is normalized for submitting to a pricer
  */
 @BeanDefinition
-public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
+public class ExpandedCds
+    implements CdsProduct, ImmutableBean, Serializable {
 
+  /**
+   * Whether the CDS is buy or sell.
+   * <p>
+   * A value of 'Buy' implies that the fee leg payments are being paid, and protection is being bought.
+   * A value of 'Sell' implies that the fee leg payments are being received, and protection is being sold.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final BuySell buySellProtection;
+  /**
+   * The primary currency.
+   * <p>
+   * This is the currency of the CDS and the currency that payments are made in.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Currency currency;
+  /**
+   * The notional amount used to calculate fee payments.
+   */
+  @PropertyDefinition(validate = "notNull")
+  public final double notional;
+  /**
+   * The coupon used to calculate fee payments.
+   */
+  @PropertyDefinition(validate = "notNull")
+  public final double coupon;
   /**
    * The date that the CDS nominally starts in terms of premium payments.
    * <p>
-   * The the number of days in the first period (and thus the amount of the first premium payment)
+   * The number of days in the first period, and thus the amount of the first premium payment,
    * is counted from this date.
    * <p>
-   * This should be adjusted according business day and holidays
+   * This should be adjusted according business day and holidays.
    */
   @PropertyDefinition(validate = "notNull")
   public final LocalDate startDate;
-
   /**
    * The date that the contract expires and protection ends.
    * <p>
@@ -59,76 +84,53 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
    */
   @PropertyDefinition(validate = "notNull")
   public final LocalDate endDate;
-
-  /**
-   * Whether the accrued premium is paid in the event of a default.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final boolean payAccruedOnDefault;
-
-  /**
-   * The nominal period between premium payments (e.g. 3 months, 6 months).
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final Period paymentInterval;
-
-  /**
-   * The stub convention to use.
-   * <p>
-   * This may be short initial, long initial, short final, or long final. None is not allowed.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final StubConvention stubConvention;
-
   /**
    * The business day adjustment to apply to the start and end dates.
    */
   @PropertyDefinition(validate = "notNull")
   public final BusinessDayAdjustment businessDayAdjustment;
-
+  /**
+   * Whether the accrued premium is paid in the event of a default.
+   */
+  @PropertyDefinition(validate = "notNull")
+  public final boolean payAccruedOnDefault;
+  /**
+   * The nominal period between premium payments, such as 3 months or 6 months.
+   * <p>
+   * Regular payments will be made at the specified periodic frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  public final Period paymentInterval;
+  /**
+   * The stub convention to use.
+   * <p>
+   * This may be 'ShortInitial', 'LongInitial', 'ShortFinal', or 'LongFinal'.
+   * The values 'None' and 'Both' are not allowed.
+   */
+  @PropertyDefinition(validate = "notNull")
+  public final StubConvention stubConvention;
   /**
    * The day count convention to be used for calculating the accrual.
    */
   @PropertyDefinition(validate = "notNull")
   public final DayCount accrualDayCount;
-
   /**
-   * Whether protection is being bought (fees paid) or sold (fees received).
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final BuySell buySellProtection;
-
-  /**
-   * The optional up-front fee amount.
+   * The upfront fee amount, optional.
    */
   @PropertyDefinition(get = "optional")
   public final Double upfrontFeeAmount;
-
   /**
-   * The optional up-front fee date.
+   * The upfront fee date, optional.
    */
   @PropertyDefinition(get = "optional")
   public final LocalDate upfrontFeePaymentDate;
 
-  /**
-   * The coupon used to calculate fee payments.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final double coupon;
-
-  /**
-   * The notional amount used to calculate fee payments.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final double notional;
-
-  /**
-   * The currency that fees are paid in.
-   */
-  @PropertyDefinition(validate = "notNull")
-  public final Currency currency;
-
   //-------------------------------------------------------------------------
+  /**
+   * Expands this CDS, trivially returning {@code this}.
+   * 
+   * @return this CDS
+   */
   @Override
   public ExpandedCds expand() {
     return this;
@@ -166,30 +168,30 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
    * @param builder  the builder to copy from, not null
    */
   protected ExpandedCds(ExpandedCds.Builder builder) {
+    JodaBeanUtils.notNull(builder.buySellProtection, "buySellProtection");
+    JodaBeanUtils.notNull(builder.currency, "currency");
+    JodaBeanUtils.notNull(builder.notional, "notional");
+    JodaBeanUtils.notNull(builder.coupon, "coupon");
     JodaBeanUtils.notNull(builder.startDate, "startDate");
     JodaBeanUtils.notNull(builder.endDate, "endDate");
+    JodaBeanUtils.notNull(builder.businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(builder.payAccruedOnDefault, "payAccruedOnDefault");
     JodaBeanUtils.notNull(builder.paymentInterval, "paymentInterval");
     JodaBeanUtils.notNull(builder.stubConvention, "stubConvention");
-    JodaBeanUtils.notNull(builder.businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(builder.accrualDayCount, "accrualDayCount");
-    JodaBeanUtils.notNull(builder.buySellProtection, "buySellProtection");
-    JodaBeanUtils.notNull(builder.coupon, "coupon");
-    JodaBeanUtils.notNull(builder.notional, "notional");
-    JodaBeanUtils.notNull(builder.currency, "currency");
+    this.buySellProtection = builder.buySellProtection;
+    this.currency = builder.currency;
+    this.notional = builder.notional;
+    this.coupon = builder.coupon;
     this.startDate = builder.startDate;
     this.endDate = builder.endDate;
+    this.businessDayAdjustment = builder.businessDayAdjustment;
     this.payAccruedOnDefault = builder.payAccruedOnDefault;
     this.paymentInterval = builder.paymentInterval;
     this.stubConvention = builder.stubConvention;
-    this.businessDayAdjustment = builder.businessDayAdjustment;
     this.accrualDayCount = builder.accrualDayCount;
-    this.buySellProtection = builder.buySellProtection;
     this.upfrontFeeAmount = builder.upfrontFeeAmount;
     this.upfrontFeePaymentDate = builder.upfrontFeePaymentDate;
-    this.coupon = builder.coupon;
-    this.notional = builder.notional;
-    this.currency = builder.currency;
   }
 
   @Override
@@ -209,12 +211,53 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether the CDS is buy or sell.
+   * <p>
+   * A value of 'Buy' implies that the fee leg payments are being paid, and protection is being bought.
+   * A value of 'Sell' implies that the fee leg payments are being received, and protection is being sold.
+   * @return the value of the property, not null
+   */
+  public BuySell getBuySellProtection() {
+    return buySellProtection;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the primary currency.
+   * <p>
+   * This is the currency of the CDS and the currency that payments are made in.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount used to calculate fee payments.
+   * @return the value of the property, not null
+   */
+  public double getNotional() {
+    return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the coupon used to calculate fee payments.
+   * @return the value of the property, not null
+   */
+  public double getCoupon() {
+    return coupon;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the date that the CDS nominally starts in terms of premium payments.
    * <p>
-   * The the number of days in the first period (and thus the amount of the first premium payment)
+   * The number of days in the first period, and thus the amount of the first premium payment,
    * is counted from this date.
    * <p>
-   * This should be adjusted according business day and holidays
+   * This should be adjusted according business day and holidays.
    * @return the value of the property, not null
    */
   public LocalDate getStartDate() {
@@ -237,6 +280,15 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the business day adjustment to apply to the start and end dates.
+   * @return the value of the property, not null
+   */
+  public BusinessDayAdjustment getBusinessDayAdjustment() {
+    return businessDayAdjustment;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets whether the accrued premium is paid in the event of a default.
    * @return the value of the property, not null
    */
@@ -246,7 +298,9 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the nominal period between premium payments (e.g. 3 months, 6 months).
+   * Gets the nominal period between premium payments, such as 3 months or 6 months.
+   * <p>
+   * Regular payments will be made at the specified periodic frequency.
    * @return the value of the property, not null
    */
   public Period getPaymentInterval() {
@@ -257,20 +311,12 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   /**
    * Gets the stub convention to use.
    * <p>
-   * This may be short initial, long initial, short final, or long final. None is not allowed.
+   * This may be 'ShortInitial', 'LongInitial', 'ShortFinal', or 'LongFinal'.
+   * The values 'None' and 'Both' are not allowed.
    * @return the value of the property, not null
    */
   public StubConvention getStubConvention() {
     return stubConvention;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the business day adjustment to apply to the start and end dates.
-   * @return the value of the property, not null
-   */
-  public BusinessDayAdjustment getBusinessDayAdjustment() {
-    return businessDayAdjustment;
   }
 
   //-----------------------------------------------------------------------
@@ -284,16 +330,7 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether protection is being bought (fees paid) or sold (fees received).
-   * @return the value of the property, not null
-   */
-  public BuySell getBuySellProtection() {
-    return buySellProtection;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the optional up-front fee amount.
+   * Gets the upfront fee amount, optional.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getUpfrontFeeAmount() {
@@ -302,38 +339,11 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional up-front fee date.
+   * Gets the upfront fee date, optional.
    * @return the optional value of the property, not null
    */
   public Optional<LocalDate> getUpfrontFeePaymentDate() {
     return Optional.ofNullable(upfrontFeePaymentDate);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the coupon used to calculate fee payments.
-   * @return the value of the property, not null
-   */
-  public double getCoupon() {
-    return coupon;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the notional amount used to calculate fee payments.
-   * @return the value of the property, not null
-   */
-  public double getNotional() {
-    return notional;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currency that fees are paid in.
-   * @return the value of the property, not null
-   */
-  public Currency getCurrency() {
-    return currency;
   }
 
   //-----------------------------------------------------------------------
@@ -352,19 +362,19 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedCds other = (ExpandedCds) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+      return JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
           (isPayAccruedOnDefault() == other.isPayAccruedOnDefault()) &&
           JodaBeanUtils.equal(getPaymentInterval(), other.getPaymentInterval()) &&
           JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
-          JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
           JodaBeanUtils.equal(getAccrualDayCount(), other.getAccrualDayCount()) &&
-          JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
           JodaBeanUtils.equal(upfrontFeeAmount, other.upfrontFeeAmount) &&
-          JodaBeanUtils.equal(upfrontFeePaymentDate, other.upfrontFeePaymentDate) &&
-          JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
+          JodaBeanUtils.equal(upfrontFeePaymentDate, other.upfrontFeePaymentDate);
     }
     return false;
   }
@@ -372,19 +382,19 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
     hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccruedOnDefault());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentInterval());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualDayCount());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
     hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFeeAmount);
     hash = hash * 31 + JodaBeanUtils.hashCode(upfrontFeePaymentDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     return hash;
   }
 
@@ -402,19 +412,19 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
   }
 
   protected void toString(StringBuilder buf) {
+    buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(getBuySellProtection())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
     buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(getBusinessDayAdjustment())).append(',').append(' ');
     buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(isPayAccruedOnDefault())).append(',').append(' ');
     buf.append("paymentInterval").append('=').append(JodaBeanUtils.toString(getPaymentInterval())).append(',').append(' ');
     buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(getStubConvention())).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(getBusinessDayAdjustment())).append(',').append(' ');
     buf.append("accrualDayCount").append('=').append(JodaBeanUtils.toString(getAccrualDayCount())).append(',').append(' ');
-    buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(getBuySellProtection())).append(',').append(' ');
     buf.append("upfrontFeeAmount").append('=').append(JodaBeanUtils.toString(upfrontFeeAmount)).append(',').append(' ');
     buf.append("upfrontFeePaymentDate").append('=').append(JodaBeanUtils.toString(upfrontFeePaymentDate)).append(',').append(' ');
-    buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
-    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -428,6 +438,26 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code buySellProtection} property.
+     */
+    private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
+        this, "buySellProtection", ExpandedCds.class, BuySell.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", ExpandedCds.class, Currency.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", ExpandedCds.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code coupon} property.
+     */
+    private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
+        this, "coupon", ExpandedCds.class, Double.TYPE);
+    /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
@@ -437,6 +467,11 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", ExpandedCds.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "businessDayAdjustment", ExpandedCds.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code payAccruedOnDefault} property.
      */
@@ -453,20 +488,10 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     private final MetaProperty<StubConvention> stubConvention = DirectMetaProperty.ofImmutable(
         this, "stubConvention", ExpandedCds.class, StubConvention.class);
     /**
-     * The meta-property for the {@code businessDayAdjustment} property.
-     */
-    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", ExpandedCds.class, BusinessDayAdjustment.class);
-    /**
      * The meta-property for the {@code accrualDayCount} property.
      */
     private final MetaProperty<DayCount> accrualDayCount = DirectMetaProperty.ofImmutable(
         this, "accrualDayCount", ExpandedCds.class, DayCount.class);
-    /**
-     * The meta-property for the {@code buySellProtection} property.
-     */
-    private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
-        this, "buySellProtection", ExpandedCds.class, BuySell.class);
     /**
      * The meta-property for the {@code upfrontFeeAmount} property.
      */
@@ -478,38 +503,23 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     private final MetaProperty<LocalDate> upfrontFeePaymentDate = DirectMetaProperty.ofImmutable(
         this, "upfrontFeePaymentDate", ExpandedCds.class, LocalDate.class);
     /**
-     * The meta-property for the {@code coupon} property.
-     */
-    private final MetaProperty<Double> coupon = DirectMetaProperty.ofImmutable(
-        this, "coupon", ExpandedCds.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", ExpandedCds.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", ExpandedCds.class, Currency.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "buySellProtection",
+        "currency",
+        "notional",
+        "coupon",
         "startDate",
         "endDate",
+        "businessDayAdjustment",
         "payAccruedOnDefault",
         "paymentInterval",
         "stubConvention",
-        "businessDayAdjustment",
         "accrualDayCount",
-        "buySellProtection",
         "upfrontFeeAmount",
-        "upfrontFeePaymentDate",
-        "coupon",
-        "notional",
-        "currency");
+        "upfrontFeePaymentDate");
 
     /**
      * Restricted constructor.
@@ -520,32 +530,32 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          return buySellProtection;
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
+        case -1354573786:  // coupon
+          return coupon;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -43782841:  // payAccruedOnDefault
           return payAccruedOnDefault;
         case -230746901:  // paymentInterval
           return paymentInterval;
         case -31408449:  // stubConvention
           return stubConvention;
-        case -1065319863:  // businessDayAdjustment
-          return businessDayAdjustment;
         case -1387075166:  // accrualDayCount
           return accrualDayCount;
-        case -405622799:  // buySellProtection
-          return buySellProtection;
         case 2020904624:  // upfrontFeeAmount
           return upfrontFeeAmount;
         case 508500860:  // upfrontFeePaymentDate
           return upfrontFeePaymentDate;
-        case -1354573786:  // coupon
-          return coupon;
-        case 1585636160:  // notional
-          return notional;
-        case 575402001:  // currency
-          return currency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -567,6 +577,38 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code buySellProtection} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BuySell> buySellProtection() {
+      return buySellProtection;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return notional;
+    }
+
+    /**
+     * The meta-property for the {@code coupon} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> coupon() {
+      return coupon;
+    }
+
+    /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
@@ -580,6 +622,14 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
      */
     public final MetaProperty<LocalDate> endDate() {
       return endDate;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+      return businessDayAdjustment;
     }
 
     /**
@@ -607,27 +657,11 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
 
     /**
-     * The meta-property for the {@code businessDayAdjustment} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
-      return businessDayAdjustment;
-    }
-
-    /**
      * The meta-property for the {@code accrualDayCount} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<DayCount> accrualDayCount() {
       return accrualDayCount;
-    }
-
-    /**
-     * The meta-property for the {@code buySellProtection} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BuySell> buySellProtection() {
-      return buySellProtection;
     }
 
     /**
@@ -646,60 +680,36 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
       return upfrontFeePaymentDate;
     }
 
-    /**
-     * The meta-property for the {@code coupon} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> coupon() {
-      return coupon;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> notional() {
-      return notional;
-    }
-
-    /**
-     * The meta-property for the {@code currency} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Currency> currency() {
-      return currency;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          return ((ExpandedCds) bean).getBuySellProtection();
+        case 575402001:  // currency
+          return ((ExpandedCds) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((ExpandedCds) bean).getNotional();
+        case -1354573786:  // coupon
+          return ((ExpandedCds) bean).getCoupon();
         case -2129778896:  // startDate
           return ((ExpandedCds) bean).getStartDate();
         case -1607727319:  // endDate
           return ((ExpandedCds) bean).getEndDate();
+        case -1065319863:  // businessDayAdjustment
+          return ((ExpandedCds) bean).getBusinessDayAdjustment();
         case -43782841:  // payAccruedOnDefault
           return ((ExpandedCds) bean).isPayAccruedOnDefault();
         case -230746901:  // paymentInterval
           return ((ExpandedCds) bean).getPaymentInterval();
         case -31408449:  // stubConvention
           return ((ExpandedCds) bean).getStubConvention();
-        case -1065319863:  // businessDayAdjustment
-          return ((ExpandedCds) bean).getBusinessDayAdjustment();
         case -1387075166:  // accrualDayCount
           return ((ExpandedCds) bean).getAccrualDayCount();
-        case -405622799:  // buySellProtection
-          return ((ExpandedCds) bean).getBuySellProtection();
         case 2020904624:  // upfrontFeeAmount
           return ((ExpandedCds) bean).upfrontFeeAmount;
         case 508500860:  // upfrontFeePaymentDate
           return ((ExpandedCds) bean).upfrontFeePaymentDate;
-        case -1354573786:  // coupon
-          return ((ExpandedCds) bean).getCoupon();
-        case 1585636160:  // notional
-          return ((ExpandedCds) bean).getNotional();
-        case 575402001:  // currency
-          return ((ExpandedCds) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -721,19 +731,19 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
    */
   public static class Builder extends DirectFieldsBeanBuilder<ExpandedCds> {
 
+    private BuySell buySellProtection;
+    private Currency currency;
+    private double notional;
+    private double coupon;
     private LocalDate startDate;
     private LocalDate endDate;
+    private BusinessDayAdjustment businessDayAdjustment;
     private boolean payAccruedOnDefault;
     private Period paymentInterval;
     private StubConvention stubConvention;
-    private BusinessDayAdjustment businessDayAdjustment;
     private DayCount accrualDayCount;
-    private BuySell buySellProtection;
     private Double upfrontFeeAmount;
     private LocalDate upfrontFeePaymentDate;
-    private double coupon;
-    private double notional;
-    private Currency currency;
 
     /**
      * Restricted constructor.
@@ -746,51 +756,51 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
      * @param beanToCopy  the bean to copy from, not null
      */
     protected Builder(ExpandedCds beanToCopy) {
+      this.buySellProtection = beanToCopy.getBuySellProtection();
+      this.currency = beanToCopy.getCurrency();
+      this.notional = beanToCopy.getNotional();
+      this.coupon = beanToCopy.getCoupon();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
+      this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.payAccruedOnDefault = beanToCopy.isPayAccruedOnDefault();
       this.paymentInterval = beanToCopy.getPaymentInterval();
       this.stubConvention = beanToCopy.getStubConvention();
-      this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.accrualDayCount = beanToCopy.getAccrualDayCount();
-      this.buySellProtection = beanToCopy.getBuySellProtection();
       this.upfrontFeeAmount = beanToCopy.upfrontFeeAmount;
       this.upfrontFeePaymentDate = beanToCopy.upfrontFeePaymentDate;
-      this.coupon = beanToCopy.getCoupon();
-      this.notional = beanToCopy.getNotional();
-      this.currency = beanToCopy.getCurrency();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          return buySellProtection;
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
+        case -1354573786:  // coupon
+          return coupon;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -43782841:  // payAccruedOnDefault
           return payAccruedOnDefault;
         case -230746901:  // paymentInterval
           return paymentInterval;
         case -31408449:  // stubConvention
           return stubConvention;
-        case -1065319863:  // businessDayAdjustment
-          return businessDayAdjustment;
         case -1387075166:  // accrualDayCount
           return accrualDayCount;
-        case -405622799:  // buySellProtection
-          return buySellProtection;
         case 2020904624:  // upfrontFeeAmount
           return upfrontFeeAmount;
         case 508500860:  // upfrontFeePaymentDate
           return upfrontFeePaymentDate;
-        case -1354573786:  // coupon
-          return coupon;
-        case 1585636160:  // notional
-          return notional;
-        case 575402001:  // currency
-          return currency;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -799,11 +809,26 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          this.buySellProtection = (BuySell) newValue;
+          break;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
+          break;
+        case -1354573786:  // coupon
+          this.coupon = (Double) newValue;
+          break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
           break;
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
+          break;
+        case -1065319863:  // businessDayAdjustment
+          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         case -43782841:  // payAccruedOnDefault
           this.payAccruedOnDefault = (Boolean) newValue;
@@ -814,29 +839,14 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
         case -31408449:  // stubConvention
           this.stubConvention = (StubConvention) newValue;
           break;
-        case -1065319863:  // businessDayAdjustment
-          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
-          break;
         case -1387075166:  // accrualDayCount
           this.accrualDayCount = (DayCount) newValue;
-          break;
-        case -405622799:  // buySellProtection
-          this.buySellProtection = (BuySell) newValue;
           break;
         case 2020904624:  // upfrontFeeAmount
           this.upfrontFeeAmount = (Double) newValue;
           break;
         case 508500860:  // upfrontFeePaymentDate
           this.upfrontFeePaymentDate = (LocalDate) newValue;
-          break;
-        case -1354573786:  // coupon
-          this.coupon = (Double) newValue;
-          break;
-        case 1585636160:  // notional
-          this.notional = (Double) newValue;
-          break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -875,6 +885,50 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     /**
+     * Sets the {@code buySellProtection} property in the builder.
+     * @param buySellProtection  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder buySellProtection(BuySell buySellProtection) {
+      JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
+      this.buySellProtection = buySellProtection;
+      return this;
+    }
+
+    /**
+     * Sets the {@code currency} property in the builder.
+     * @param currency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      JodaBeanUtils.notNull(notional, "notional");
+      this.notional = notional;
+      return this;
+    }
+
+    /**
+     * Sets the {@code coupon} property in the builder.
+     * @param coupon  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder coupon(double coupon) {
+      JodaBeanUtils.notNull(coupon, "coupon");
+      this.coupon = coupon;
+      return this;
+    }
+
+    /**
      * Sets the {@code startDate} property in the builder.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
@@ -893,6 +947,17 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     public Builder endDate(LocalDate endDate) {
       JodaBeanUtils.notNull(endDate, "endDate");
       this.endDate = endDate;
+      return this;
+    }
+
+    /**
+     * Sets the {@code businessDayAdjustment} property in the builder.
+     * @param businessDayAdjustment  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
+      this.businessDayAdjustment = businessDayAdjustment;
       return this;
     }
 
@@ -930,17 +995,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
-     * @param businessDayAdjustment  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
-      JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
-      this.businessDayAdjustment = businessDayAdjustment;
-      return this;
-    }
-
-    /**
      * Sets the {@code accrualDayCount} property in the builder.
      * @param accrualDayCount  the new value, not null
      * @return this, for chaining, not null
@@ -948,17 +1002,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     public Builder accrualDayCount(DayCount accrualDayCount) {
       JodaBeanUtils.notNull(accrualDayCount, "accrualDayCount");
       this.accrualDayCount = accrualDayCount;
-      return this;
-    }
-
-    /**
-     * Sets the {@code buySellProtection} property in the builder.
-     * @param buySellProtection  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder buySellProtection(BuySell buySellProtection) {
-      JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
-      this.buySellProtection = buySellProtection;
       return this;
     }
 
@@ -982,39 +1025,6 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
       return this;
     }
 
-    /**
-     * Sets the {@code coupon} property in the builder.
-     * @param coupon  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder coupon(double coupon) {
-      JodaBeanUtils.notNull(coupon, "coupon");
-      this.coupon = coupon;
-      return this;
-    }
-
-    /**
-     * Sets the {@code notional} property in the builder.
-     * @param notional  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder notional(double notional) {
-      JodaBeanUtils.notNull(notional, "notional");
-      this.notional = notional;
-      return this;
-    }
-
-    /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
@@ -1030,19 +1040,19 @@ public class ExpandedCds implements CdsProduct, ImmutableBean, Serializable {
     }
 
     protected void toString(StringBuilder buf) {
+      buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(payAccruedOnDefault)).append(',').append(' ');
       buf.append("paymentInterval").append('=').append(JodaBeanUtils.toString(paymentInterval)).append(',').append(' ');
       buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
-      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("accrualDayCount").append('=').append(JodaBeanUtils.toString(accrualDayCount)).append(',').append(' ');
-      buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
       buf.append("upfrontFeeAmount").append('=').append(JodaBeanUtils.toString(upfrontFeeAmount)).append(',').append(' ');
       buf.append("upfrontFeePaymentDate").append('=').append(JodaBeanUtils.toString(upfrontFeePaymentDate)).append(',').append(' ');
-      buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     }
 
   }

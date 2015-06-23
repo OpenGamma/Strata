@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.common;
+package com.opengamma.strata.finance.credit;
 
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.finance.credit.CdsDatesLogic.getCdsDateSet;
 import static com.opengamma.strata.finance.credit.CdsDatesLogic.getNextCdsDate;
 import static com.opengamma.strata.finance.credit.CdsDatesLogic.getNextIndexRollDate;
@@ -20,6 +21,8 @@ import java.time.Month;
 import java.time.Period;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.finance.credit.CdsDatesLogic;
 
 /**
  * Test.
@@ -173,6 +176,11 @@ public class CdsDatesLogicTest {
     for (int i = 0; i < dates.length; ++i) {
       assertEquals(getNextIndexRollDate(dates[i]), datesExp[i]);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(CdsDatesLogic.class);
   }
 
 }

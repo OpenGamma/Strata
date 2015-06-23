@@ -14,174 +14,182 @@ import com.opengamma.strata.collect.ArgChecker;
  * Utility for producing sets of CDS dates.
  * These are always quarterly on Mar, Jun, Sep, Dec on the 20th of each month
  */
-public abstract class CdsDatesLogic {
+public final class CdsDatesLogic {
 
-  private static final int s_roll_day = 20;
-  private static final int[] s_qtr_months = new int[] {3, 6, 9, 12};
-  private static final int[] s_index_roll_months = new int[] {3, 9};
+  private static final int ROLL_DAY = 20;
+  private static final int[] QUARTER_MONTHS = new int[] {3, 6, 9, 12};
+  private static final int[] INDEX_ROLL_MONTHS = new int[] {3, 9};
 
   /**
-   * CDS dates are 20th March, June, September and December
+   * Restricted constructor.
+   */
+  private CdsDatesLogic() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the specified date is a CDS date.
+   * <p>
+   * CDS dates are the 20th of March, June, September and December.
    *
    * @param date the date
    * @return true is date is an CDS date
    */
-  public static boolean isCdsDate(final LocalDate date) {
-    return date.getDayOfMonth() == s_roll_day && (date.getMonthValue() % 3) == 0;
+  public static boolean isCdsDate(LocalDate date) {
+    return date.getDayOfMonth() == ROLL_DAY && (date.getMonthValue() % 3) == 0;
   }
 
   /**
-   * Index roll dates are 20th March and September
+   * Checks if the specified date is an index roll date.
+   * <p>
+   * Index roll dates are the 20th of March and September.
    *
    * @param date the date
    * @return true is date is an CDS date
    */
-  public static boolean isIndexRollDate(final LocalDate date) {
-    if (date.getDayOfMonth() != s_roll_day) {
+  public static boolean isIndexRollDate(LocalDate date) {
+    if (date.getDayOfMonth() != ROLL_DAY) {
       return false;
     }
-    final int month = date.getMonthValue();
-    return month == s_index_roll_months[0] || month == s_index_roll_months[1];
+    int month = date.getMonthValue();
+    return month == INDEX_ROLL_MONTHS[0] || month == INDEX_ROLL_MONTHS[1];
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Get a set of CDS dates fixed periods from an initial CDS date.
+   * Gets a set of CDS dates fixed periods from an initial CDS date.
+   * <p>
+   * The specified date must be a CDS date.
    *
-   * @param baseCdsDate The base CDS date (all dates are some interval on from this)
-   * @param tenors      The periods (typically this would look like 6M, 1Y, 2Y, 3Y, 5Y, 10Y)
-   * @return Set of CDS dates
+   * @param baseCdsDate  the base CDS date, where all dates are some interval on from this
+   * @param tenors  the periods, typically this would look like 6M, 1Y, 2Y, 3Y, 5Y, 10Y
+   * @return the list of CDS dates
    */
-  public static LocalDate[] getCdsDateSet(final LocalDate baseCdsDate, final Period[] tenors) {
+  public static LocalDate[] getCdsDateSet(LocalDate baseCdsDate, Period[] tenors) {
+    // TODO: use lists not arrays?
     ArgChecker.notNull(baseCdsDate, "baseCdsDate");
+    ArgChecker.isTrue(isCdsDate(baseCdsDate), "Start date must be a CDS date");
     ArgChecker.noNulls(tenors, "tenors");
-    final int n = tenors.length;
-    ArgChecker.isTrue(isCdsDate(baseCdsDate), "start is not an CDS date");
-    final LocalDate[] res = new LocalDate[n];
-    for (int i = 0; i < n; i++) {
-      res[i] = baseCdsDate.plus(tenors[i]);
+    int size = tenors.length;
+    LocalDate[] result = new LocalDate[size];
+    for (int i = 0; i < size; i++) {
+      result[i] = baseCdsDate.plus(tenors[i]);
     }
-    return res;
+    return result;
   }
 
   /**
-   * Get a complete set of CDS dates from some starting CDS date
+   * Gets a complete set of CDS dates from some starting CDS date.
+   * <p>
+   * The specified date will be the first date in the array.
    *
-   * @param startCdsDate The starting CDS date (this will be the first entry)
-   * @param size         number of dates
-   * @return set of CDS dates
+   * @param startCdsDate  the starting CDS date
+   * @param size  the number of dates
+   * @return the list of CDS dates, including the specified date
    */
-  public static LocalDate[] getCdsDateSet(final LocalDate startCdsDate, final int size) {
-    ArgChecker.isTrue(isCdsDate(startCdsDate), "start is not an CDS date");
-    final LocalDate[] res = new LocalDate[size];
-    res[0] = startCdsDate;
+  public static LocalDate[] getCdsDateSet(LocalDate startCdsDate, int size) {
+    // TODO: use lists not arrays?
+    ArgChecker.notNull(startCdsDate, "startCdsDate");
+    ArgChecker.isTrue(isCdsDate(startCdsDate), "Start date must be a CDS date");
+    LocalDate[] result = new LocalDate[size];
+    result[0] = startCdsDate;
     for (int i = 1; i < size; i++) {
-      final int tMonth = res[i - 1].getMonthValue();
-      final int tYear = res[i - 1].getYear();
-      if (tMonth != 12) {
-        res[i] = LocalDate.of(tYear, tMonth + 3, s_roll_day);
-      } else {
-        res[i] = LocalDate.of(tYear + 1, 3, s_roll_day);
-      }
+      result[i] = result[i - 1].plusMonths(3);
     }
-    return res;
+    return result;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * CDS dates are 20th March, June, September and December. This returns the next CDS date from the given date - if the date
-   * is an CDS date the next CDS date (i.e. 3 months on) is returned.
+   * Finds the next CDS date after the specified date.
+   * <p>
+   * This returns the next CDS date from the given date.
+   * If the date is already a CDS date then the next CDS date is returned, 3 months later.
+   * <p>
+   * CDS dates are the 20th of March, June, September and December.
    *
-   * @param date a given date
+   * @param date  the date to start from
    * @return the next CDS date
    */
-  public static LocalDate getNextCdsDate(final LocalDate date) {
-
-    final int day = date.getDayOfMonth();
-    final int month = date.getMonthValue();
-    final int year = date.getYear();
-    if (month % 3 == 0) { //in an CDS month
-      if (day < s_roll_day) {
-        return LocalDate.of(year, month, s_roll_day);
+  public static LocalDate getNextCdsDate(LocalDate date) {
+    int year = date.getYear();
+    int month = date.getMonthValue();
+    int day = date.getDayOfMonth();
+    if (month % 3 == 0) { //in a CDS month
+      if (day < ROLL_DAY) {
+        return LocalDate.of(year, month, ROLL_DAY);
       } else {
-        if (month != 12) {
-          return LocalDate.of(year, month + 3, s_roll_day);
-        } else {
-          return LocalDate.of(year + 1, s_qtr_months[0], s_roll_day);
-        }
+        return date.withDayOfMonth(ROLL_DAY).plusMonths(3);
       }
     } else {
-      return LocalDate.of(year, s_qtr_months[month / 3], s_roll_day);
+      return LocalDate.of(year, QUARTER_MONTHS[month / 3], ROLL_DAY);
     }
   }
 
   /**
-   * CDS dates are 20th March, June, September and December. This returns the previous CDS date from the given date - if the date
-   * is an CDS date the previous CDS date (i.e. 3 months before) is returned.
+   * Finds the previous CDS date after the specified date.
+   * <p>
+   * This returns the previous CDS date from the given date.
+   * If the date is already a CDS date then the previous CDS date is returned, 3 months earlier.
+   * <p>
+   * CDS dates are the 20th of March, June, September and December.
    *
-   * @param date a given date
-   * @return the next CDS date
+   * @param date  the date to start from
+   * @return the previous CDS date
    */
-  public static LocalDate getPrevCdsDate(final LocalDate date) {
-
-    final int day = date.getDayOfMonth();
-    final int month = date.getMonthValue();
-    final int year = date.getYear();
-    if (month % 3 == 0) { //in an CDS month
-      if (day > s_roll_day) {
-        return LocalDate.of(year, month, s_roll_day);
+  public static LocalDate getPrevCdsDate(LocalDate date) {
+    // TODO: rename to previous
+    int year = date.getYear();
+    int month = date.getMonthValue();
+    int day = date.getDayOfMonth();
+    if (month % 3 == 0) { //in a CDS month
+      if (day > ROLL_DAY) {
+        return LocalDate.of(year, month, ROLL_DAY);
       } else {
-        if (month != 3) {
-          return LocalDate.of(year, month - 3, s_roll_day);
-        } else {
-          return LocalDate.of(year - 1, s_qtr_months[3], s_roll_day);
-        }
+        return date.withDayOfMonth(ROLL_DAY).minusMonths(3);
       }
     } else {
-      final int i = month / 3;
-      if (i == 0) {
-        return LocalDate.of(year - 1, s_qtr_months[3], s_roll_day);
-      } else {
-        return LocalDate.of(year, s_qtr_months[i - 1], s_roll_day);
-      }
+      return LocalDate.of(year, QUARTER_MONTHS[month / 3], ROLL_DAY).minusMonths(3);
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Index roll dates  are 20th March and September. This returns the next roll date from the given date - if the date
-   * is a roll date the next roll date (i.e. 6 months on) is returned.
+   * Finds the next CDS index roll date after the specified date.
+   * <p>
+   * This returns the next CDS index roll date from the given date.
+   * If the date is already a CDS index roll date then the next date is returned, 6 months later.
+   * <p>
+   * CDS index roll dates are the 20th of March and September.
    *
-   * @param date a given date
-   * @return the next Index roll date
+   * @param date  the date to start from
+   * @return the next CDS index roll date
    */
-  public static LocalDate getNextIndexRollDate(final LocalDate date) {
-
-    final int day = date.getDayOfMonth();
-    final int month = date.getMonthValue();
-    final int year = date.getYear();
-    if (isIndexRollDate(date)) { //on an index roll 
-      if (month == s_index_roll_months[0]) {
-        return LocalDate.of(year, s_index_roll_months[1], s_roll_day);
-      } else {
-        return LocalDate.of(year + 1, s_index_roll_months[0], s_roll_day);
-      }
+  public static LocalDate getNextIndexRollDate(LocalDate date) {
+    int year = date.getYear();
+    int month = date.getMonthValue();
+    int day = date.getDayOfMonth();
+    if (isIndexRollDate(date)) { // on an index roll 
+      return date.plusMonths(6);
     } else {
-      if (month < s_index_roll_months[0]) {
-        return LocalDate.of(year, s_index_roll_months[0], s_roll_day);
-      } else if (month == s_index_roll_months[0]) {
-        if (day < s_roll_day) {
-          return LocalDate.of(year, month, s_roll_day);
+      if (month < INDEX_ROLL_MONTHS[0]) {
+        return LocalDate.of(year, INDEX_ROLL_MONTHS[0], ROLL_DAY);
+      } else if (month == INDEX_ROLL_MONTHS[0]) {
+        if (day < ROLL_DAY) {
+          return LocalDate.of(year, month, ROLL_DAY);
         } else {
-          return LocalDate.of(year, s_index_roll_months[1], s_roll_day);
+          return LocalDate.of(year, INDEX_ROLL_MONTHS[1], ROLL_DAY);
         }
-      } else if (month < s_index_roll_months[1]) {
-        return LocalDate.of(year, s_index_roll_months[1], s_roll_day);
-      } else if (month == s_index_roll_months[1]) {
-        if (day < s_roll_day) {
-          return LocalDate.of(year, month, s_roll_day);
+      } else if (month < INDEX_ROLL_MONTHS[1]) {
+        return LocalDate.of(year, INDEX_ROLL_MONTHS[1], ROLL_DAY);
+      } else if (month == INDEX_ROLL_MONTHS[1]) {
+        if (day < ROLL_DAY) {
+          return LocalDate.of(year, month, ROLL_DAY);
         } else {
-          return LocalDate.of(year + 1, s_index_roll_months[0], s_roll_day);
+          return LocalDate.of(year + 1, INDEX_ROLL_MONTHS[0], ROLL_DAY);
         }
       } else {
-        return LocalDate.of(year + 1, s_index_roll_months[0], s_roll_day);
+        return LocalDate.of(year + 1, INDEX_ROLL_MONTHS[0], ROLL_DAY);
       }
     }
   }

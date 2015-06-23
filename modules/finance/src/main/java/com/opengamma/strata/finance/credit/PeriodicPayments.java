@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.fee;
+package com.opengamma.strata.finance.credit;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -29,15 +29,13 @@ import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
- * Specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller on
- * the fixed rate payer payment dates.
+ * Specifies a periodic schedule of fixed amounts
  * <p>
- * The fixed amount to be paid on each payment date can be
- * specified in terms of a known currency amount or as an amount calculated on a formula basis
- * by reference to a per annum fixed rate. The applicable business day convention and business
- * day for adjusting any fixed rate payer payment date if it would otherwise fall on a day that
- * is not a business day are those specified in the dateAdjustments element within the
- * generalTerms component.
+ * The payments are made from the protection buyer to the protection seller.
+ * Payments occur on a regular schedule of dates, defined here.
+ * <p>
+ * The amount to be paid on each payment date is calculated based on a notional, fixed rate
+ * and day count convention. Payment dates are adjusted by business day convention.
  */
 @BeanDefinition
 public final class PeriodicPayments
@@ -46,44 +44,63 @@ public final class PeriodicPayments
   /**
    * The notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis,
    * i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction.
+   * <p>
    * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
    */
   @PropertyDefinition(validate = "notNull")
   final CurrencyAmount notional;
-
   /**
-   * Coupon. Also known as coupon
-   * The calculation period fixed rate. A per annum rate, expressed as a decimal.
+   * The coupon.
+   * <p>
+   * The fixed rate to be paid relative to the notional. This is a per annum rate, expressed as a decimal.
    * A fixed rate of 5% would be represented as 0.05.
    */
   @PropertyDefinition(validate = "notNull")
   final double coupon;
-
   /**
-   * The day count fraction. ISDA 2003 Term: Fixed Rate Day Count Fraction.
+   * The day count convention.
+   * <p>
+   * ISDA 2003 Term: Fixed Rate Day Count Fraction.
    */
   @PropertyDefinition(validate = "notNull")
   final DayCount dayCount;
-
   /**
-   * The time interval between regular fixed rate payer payment dates.
+   * The periodic frequency defining when payments are made.
+   * <p>
+   * This represents the time interval between regular fixed rate payer payment dates.
    */
   @PropertyDefinition(validate = "notNull")
   final Frequency paymentFrequency;
-
   /**
-   * Stub convention to use when the maturity date does not land precisely on an cds date
-   * and a stub period is created
+   * The stub convention to use.
+   * <p>
+   * This is needed when the maturity date does not land precisely on a CDS date.
+   * <p>
+   * This may be 'ShortInitial', 'LongInitial', 'ShortFinal', or 'LongFinal'.
+   * The values 'None' and 'Both' are not allowed.
    */
   @PropertyDefinition(validate = "notNull")
   final StubConvention stubConvention;
-
   /**
-   * Roll convention used to calculate payment schedule
+   * The roll convention
+   * <p>
+   * This is used to calculate payment schedule.
    */
   @PropertyDefinition(validate = "notNull")
   final RollConvention rollConvention;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param notional  the notional
+   * @param coupon  the coupon, expressed as a decimal rate
+   * @param dayCount  the day count convention
+   * @param paymentFrequency  the payment frequency
+   * @param stubConvention  the stub convention to use
+   * @param rollConvention  the roll convention to use
+   * @return the payment instance
+   */
   public static PeriodicPayments of(
       CurrencyAmount notional,
       double coupon,
@@ -168,6 +185,7 @@ public final class PeriodicPayments
   /**
    * Gets the notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis,
    * i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction.
+   * <p>
    * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
    * @return the value of the property, not null
    */
@@ -177,8 +195,9 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
-   * Gets coupon. Also known as coupon
-   * The calculation period fixed rate. A per annum rate, expressed as a decimal.
+   * Gets the coupon.
+   * <p>
+   * The fixed rate to be paid relative to the notional. This is a per annum rate, expressed as a decimal.
    * A fixed rate of 5% would be represented as 0.05.
    * @return the value of the property, not null
    */
@@ -188,7 +207,9 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count fraction. ISDA 2003 Term: Fixed Rate Day Count Fraction.
+   * Gets the day count convention.
+   * <p>
+   * ISDA 2003 Term: Fixed Rate Day Count Fraction.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -197,7 +218,9 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time interval between regular fixed rate payer payment dates.
+   * Gets the periodic frequency defining when payments are made.
+   * <p>
+   * This represents the time interval between regular fixed rate payer payment dates.
    * @return the value of the property, not null
    */
   public Frequency getPaymentFrequency() {
@@ -206,8 +229,12 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
-   * Gets stub convention to use when the maturity date does not land precisely on an cds date
-   * and a stub period is created
+   * Gets the stub convention to use.
+   * <p>
+   * This is needed when the maturity date does not land precisely on a CDS date.
+   * <p>
+   * This may be 'ShortInitial', 'LongInitial', 'ShortFinal', or 'LongFinal'.
+   * The values 'None' and 'Both' are not allowed.
    * @return the value of the property, not null
    */
   public StubConvention getStubConvention() {
@@ -216,7 +243,9 @@ public final class PeriodicPayments
 
   //-----------------------------------------------------------------------
   /**
-   * Gets roll convention used to calculate payment schedule
+   * Gets the roll convention
+   * <p>
+   * This is used to calculate payment schedule.
    * @return the value of the property, not null
    */
   public RollConvention getRollConvention() {

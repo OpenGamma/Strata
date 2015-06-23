@@ -5,12 +5,15 @@
  */
 package com.opengamma.strata.finance.credit.type;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -19,7 +22,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 /**
  * Enumerates the standard CDS market conventions.
  * <p>
- * See cdsmodel.com for details
+ * See ISDA CDS documentation for more details.
  */
 public enum StandardCdsConventions implements CdsConvention {
 
@@ -30,8 +33,7 @@ public enum StandardCdsConventions implements CdsConvention {
       "NorthAmericanUsd",
       Currency.USD,
       DayCounts.ACT_360,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING,
-          HolidayCalendars.USNY),
+      BusinessDayAdjustment.of(FOLLOWING, USNY),
       Frequency.P3M,
       RollConventions.DAY_20,
       true,
@@ -46,8 +48,7 @@ public enum StandardCdsConventions implements CdsConvention {
       "EuropeanGbp",
       Currency.GBP,
       DayCounts.ACT_360,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING,
-          HolidayCalendars.GBLO),
+      BusinessDayAdjustment.of(FOLLOWING, GBLO),
       Frequency.P3M,
       RollConventions.DAY_20,
       true,
@@ -62,8 +63,7 @@ public enum StandardCdsConventions implements CdsConvention {
       "EuropeanChf",
       Currency.CHF,
       DayCounts.ACT_360,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING,
-          HolidayCalendars.GBLO.combineWith(HolidayCalendars.CHZU)),
+      BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(CHZU)),
       Frequency.P3M,
       RollConventions.DAY_20,
       true,
@@ -78,8 +78,7 @@ public enum StandardCdsConventions implements CdsConvention {
       "EuropeanUsd",
       Currency.USD,
       DayCounts.ACT_360,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING,
-          HolidayCalendars.GBLO.combineWith(HolidayCalendars.USNY)),
+      BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(USNY)),
       Frequency.P3M,
       RollConventions.DAY_20,
       true,

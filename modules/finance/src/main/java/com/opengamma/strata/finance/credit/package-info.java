@@ -1,17 +1,11 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit;
-
-import org.joda.beans.ImmutableBean;
-
-import com.opengamma.strata.finance.Expandable;
-import com.opengamma.strata.finance.Product;
 
 /**
- * A product representing a credit default swap (CDS), including single-name and index swaps.
+ * Entity objects describing a credit default swap (CDS).
  * <p>
  * A CDS is a financial instrument where the protection seller agrees to compensate
  * the protection buyer if a specified specified company or Sovereign entity experiences
@@ -19,13 +13,6 @@ import com.opengamma.strata.finance.Product;
  * The protection seller is typically paid a fee and/or premium, expressed as an annualized
  * percentage of the notional in basis points, regularly over the life of the transaction or
  * otherwise as agreed by the parties.
- * <p>
- * For example, a company engaged in another financial instrument with a counterparty may
- * wish to protect itself against the risk of the counterparty defaulting.
- * <p>
- * Implementations must be immutable and thread-safe beans.
  */
-public interface CdsProduct
-    extends Product, Expandable<ExpandedCds>, ImmutableBean {
+package com.opengamma.strata.finance.credit;
 
-}

@@ -10,6 +10,8 @@ package com.opengamma.strata.finance.credit;
  * Also called DocClause
  */
 public enum RestructuringClause {
+  // TODO: constants should be UPPER_CASE
+  // TODO: constants all need Javadoc
 
   /**
    * Restructuring (Section 4.7) and Modified Restructuring Maturity Limitation and

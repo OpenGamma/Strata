@@ -37,6 +37,8 @@ import com.opengamma.strata.finance.credit.SeniorityLevel;
 @BeanDefinition
 public final class CdsTemplate
     implements Template, ImmutableBean, Serializable {
+  // TODO: template should correspond to something that can be quoted for
+  // as defined, this adds nothing above the convention
 
   /**
    * The market convention of the swap.
@@ -45,9 +47,8 @@ public final class CdsTemplate
   private final CdsConvention convention;
 
   //-------------------------------------------------------------------------
-
   /**
-   * Creates a single name CDS trade with no fee.
+   * Creates a single-name CDS trade with no upfront fee.
    * 
    * @param startDate  the date that the CDS starts
    * @param endDate  the date that the CDS ends
@@ -68,6 +69,7 @@ public final class CdsTemplate
       StandardId referenceEntityId,
       SeniorityLevel seniorityLevel,
       RestructuringClause restructuringClause) {
+    // TODO: need optional fee, not LocalDate.MIN
 
     return convention.toSingleNameTrade(
         startDate,
@@ -83,7 +85,7 @@ public final class CdsTemplate
   }
 
   /**
-   * Creates a single name CDS with an up-front fee.
+   * Creates a single-name CDS with an upfront fee.
    * 
    * @param startDate  the date that the CDS starts
    * @param endDate  the date that the CDS ends
@@ -93,8 +95,8 @@ public final class CdsTemplate
    * @param referenceEntityId  the identifier of the reference entity
    * @param seniorityLevel  the seniority level
    * @param restructuringClause  the restructuring clause
-   * @param upfrontFeeAmount  the amount of the up-front fee
-   * @param upfrontFeePaymentDate  the payment date of the up-front fee
+   * @param upfrontFeeAmount  the amount of the upfront fee
+   * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the single-name CDS
    */
   public CdsTrade toSingleNameTrade(
@@ -122,6 +124,7 @@ public final class CdsTemplate
         upfrontFeePaymentDate);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an index CDS with no upfront fee.
    * 
@@ -146,6 +149,7 @@ public final class CdsTemplate
       int indexSeries,
       int indexAnnexVersion,
       RestructuringClause restructuringClause) {
+    // TODO: need optional fee, not LocalDate.MIN
 
     return convention.toIndexTrade(
         startDate,
@@ -173,8 +177,8 @@ public final class CdsTemplate
    * @param indexSeries  the index series
    * @param indexAnnexVersion  the index annex version
    * @param restructuringClause  the restructuring clause
-   * @param upfrontFeeAmount  the amount of the up-front fee
-   * @param upfrontFeePaymentDate  the payment date of the up-front fee
+   * @param upfrontFeeAmount  the amount of the upfront fee
+   * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the index CDS trade
    */
   public CdsTrade toIndexTrade(

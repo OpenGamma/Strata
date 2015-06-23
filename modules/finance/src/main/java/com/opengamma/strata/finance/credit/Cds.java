@@ -29,50 +29,52 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.finance.credit.fee.FeeLeg;
-import com.opengamma.strata.finance.credit.reference.ReferenceInformation;
 
 /**
- * A credit default swap (single name and index).
+ * A credit default swap (CDS), including single-name and index swaps.
  * <p>
- * In a credit default swap one party (the protection seller) agrees to compensate another party
- * (the protection buyer) if a specified company or Sovereign entity (the reference entity)
- * experiences a credit event, indicating it is or may be unable to service its debts.
+ * A CDS is a financial instrument where the protection seller agrees to compensate
+ * the protection buyer if a specified specified company or Sovereign entity experiences
+ * a credit event, indicating it is or may be unable to service its debts.
  * The protection seller is typically paid a fee and/or premium, expressed as an annualized
  * percentage of the notional in basis points, regularly over the life of the transaction or
  * otherwise as agreed by the parties.
+ * <p>
+ * For example, a company engaged in another financial instrument with a counterparty may
+ * wish to protect itself against the risk of the counterparty defaulting.
  */
 @BeanDefinition
 public final class Cds
     implements CdsProduct, ImmutableBean, Serializable {
 
   /**
-   * The first date of the term of the trade. This day may be subject to adjustment in accordance
-   * with a business day convention. ISDA 2003 Term: Effective Date.
+   * Whether the CDS is buy or sell.
    * <p>
-   * This is typically the previous CDS (quarter on 20th) date before the trade date, adjusted.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate startDate;
-
-  /**
-   * The scheduled date on which the credit protection will lapse. This day may be subject to
-   * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
-   * <p>
-   * This is typically an unadjusted CDS date.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate endDate;
-
-  /**
-   * Indicator of whether the protection is being bought or sold.
-   * <p>
-   * Buy means the fee leg payments are being paid, so the protection is being bought.
-   * Sell means the fee leg payments are being received, so the protection is being sold.
+   * A value of 'Buy' implies that the fee leg payments are being paid, and protection is being bought.
+   * A value of 'Sell' implies that the fee leg payments are being received, and protection is being sold.
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySellProtection;
-
+  /**
+   * The first date of the term of the trade.
+   * <p>
+   * This day may be subject to adjustment in accordance with a business day convention.
+   * This is typically the previous CDS date (quarter on 20th) before the trade date, adjusted.
+   * <p>
+   * ISDA 2003 Term: Effective Date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate startDate;
+  /**
+   * The scheduled date on which the credit protection will lapse.
+   * <p>
+   * This day may be subject to adjustment in accordance with a business day convention.
+   * This is typically an unadjusted CDS date.
+   * <p>
+   * ISDA 2003 Term: Scheduled Termination Date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate endDate;
   /**
    * The business day adjustment to apply to the start and end dates.
    * <p>
@@ -80,29 +82,38 @@ public final class Cds
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
-
   /**
-   * Contains information on the reference entity/issue for single name or index information
-   * for index trades.
+   * The reference against which protection applies.
+   * <p>
+   * For a single-name CDS, this contains information on the entity/issue
+   * For a CDS index, this contains information about the index.
    */
   @PropertyDefinition(validate = "notNull")
   private final ReferenceInformation referenceInformation;
-
   /**
-   * Contains all the terms relevant to defining the fixed amounts/payments per the applicable
-   * ISDA definitions.
+   * The fee leg.
+   * <p>
+   * This contains all the terms relevant to defining the fixed amounts/payments
+   * per the applicable ISDA definitions.
    */
   @PropertyDefinition(validate = "notNull")
   private final FeeLeg feeLeg;
-
   /**
-   * a
-   * <p>
-   * This value is needed by the ISDA Standard model and does not occur in FpML.
+   * Whether the accrued premium is paid in the event of a default.
    */
   @PropertyDefinition(validate = "notNull")
   private final boolean payAccruedOnDefault;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Expands this CDS.
+   * <p>
+   * Expanding a CDS causes the dates to be adjusted according to the relevant
+   * holiday calendar. Other one-off calculations may also be performed.
+   * 
+   * @return the equivalent expanded CDS
+   * @throws RuntimeException if unable to expand due to an invalid definition
+   */
   @Override
   public ExpandedCds expand() {
     Period paymentInterval = getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
@@ -116,20 +127,20 @@ public final class Cds
 
     return ExpandedCds
         .builder()
+        .buySellProtection(buySellProtection)
+        .currency(currency)
+        .notional(notional)
+        .coupon(coupon)
         .startDate(startDate)
         .endDate(endDate)
+        .businessDayAdjustment(businessDayAdjustment)
         .payAccruedOnDefault(payAccruedOnDefault)
         .paymentInterval(paymentInterval)
         .stubConvention(stubConvention)
-        .businessDayAdjustment(businessDayAdjustment)
         .accrualDayCount(accrualDayCount)
-        .buySellProtection(buySellProtection)
         .accrualDayCount(accrualDayCount)
         .upfrontFeeAmount(upfrontFeeAmount)
         .upfrontFeePaymentDate(upfrontFeePaymentDate)
-        .coupon(coupon)
-        .notional(notional)
-        .currency(currency)
         .build();
   }
 
@@ -163,23 +174,23 @@ public final class Cds
   }
 
   private Cds(
+      BuySell buySellProtection,
       LocalDate startDate,
       LocalDate endDate,
-      BuySell buySellProtection,
       BusinessDayAdjustment businessDayAdjustment,
       ReferenceInformation referenceInformation,
       FeeLeg feeLeg,
       boolean payAccruedOnDefault) {
+    JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
-    JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
     JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(referenceInformation, "referenceInformation");
     JodaBeanUtils.notNull(feeLeg, "feeLeg");
     JodaBeanUtils.notNull(payAccruedOnDefault, "payAccruedOnDefault");
+    this.buySellProtection = buySellProtection;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.buySellProtection = buySellProtection;
     this.businessDayAdjustment = businessDayAdjustment;
     this.referenceInformation = referenceInformation;
     this.feeLeg = feeLeg;
@@ -203,10 +214,24 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first date of the term of the trade. This day may be subject to adjustment in accordance
-   * with a business day convention. ISDA 2003 Term: Effective Date.
+   * Gets whether the CDS is buy or sell.
    * <p>
-   * This is typically the previous CDS (quarter on 20th) date before the trade date, adjusted.
+   * A value of 'Buy' implies that the fee leg payments are being paid, and protection is being bought.
+   * A value of 'Sell' implies that the fee leg payments are being received, and protection is being sold.
+   * @return the value of the property, not null
+   */
+  public BuySell getBuySellProtection() {
+    return buySellProtection;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the first date of the term of the trade.
+   * <p>
+   * This day may be subject to adjustment in accordance with a business day convention.
+   * This is typically the previous CDS date (quarter on 20th) before the trade date, adjusted.
+   * <p>
+   * ISDA 2003 Term: Effective Date.
    * @return the value of the property, not null
    */
   public LocalDate getStartDate() {
@@ -215,26 +240,16 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the scheduled date on which the credit protection will lapse. This day may be subject to
-   * adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.
+   * Gets the scheduled date on which the credit protection will lapse.
    * <p>
+   * This day may be subject to adjustment in accordance with a business day convention.
    * This is typically an unadjusted CDS date.
+   * <p>
+   * ISDA 2003 Term: Scheduled Termination Date.
    * @return the value of the property, not null
    */
   public LocalDate getEndDate() {
     return endDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets indicator of whether the protection is being bought or sold.
-   * <p>
-   * Buy means the fee leg payments are being paid, so the protection is being bought.
-   * Sell means the fee leg payments are being received, so the protection is being sold.
-   * @return the value of the property, not null
-   */
-  public BuySell getBuySellProtection() {
-    return buySellProtection;
   }
 
   //-----------------------------------------------------------------------
@@ -250,8 +265,10 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets contains information on the reference entity/issue for single name or index information
-   * for index trades.
+   * Gets the reference against which protection applies.
+   * <p>
+   * For a single-name CDS, this contains information on the entity/issue
+   * For a CDS index, this contains information about the index.
    * @return the value of the property, not null
    */
   public ReferenceInformation getReferenceInformation() {
@@ -260,8 +277,10 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets contains all the terms relevant to defining the fixed amounts/payments per the applicable
-   * ISDA definitions.
+   * Gets the fee leg.
+   * <p>
+   * This contains all the terms relevant to defining the fixed amounts/payments
+   * per the applicable ISDA definitions.
    * @return the value of the property, not null
    */
   public FeeLeg getFeeLeg() {
@@ -270,9 +289,7 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets a
-   * <p>
-   * This value is needed by the ISDA Standard model and does not occur in FpML.
+   * Gets whether the accrued premium is paid in the event of a default.
    * @return the value of the property, not null
    */
   public boolean isPayAccruedOnDefault() {
@@ -295,9 +312,9 @@ public final class Cds
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Cds other = (Cds) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+      return JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getBuySellProtection(), other.getBuySellProtection()) &&
           JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
           JodaBeanUtils.equal(getReferenceInformation(), other.getReferenceInformation()) &&
           JodaBeanUtils.equal(getFeeLeg(), other.getFeeLeg()) &&
@@ -309,9 +326,9 @@ public final class Cds
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySellProtection());
     hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceInformation());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFeeLeg());
@@ -323,9 +340,9 @@ public final class Cds
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("Cds{");
+    buf.append("buySellProtection").append('=').append(getBuySellProtection()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("buySellProtection").append('=').append(getBuySellProtection()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
     buf.append("referenceInformation").append('=').append(getReferenceInformation()).append(',').append(' ');
     buf.append("feeLeg").append('=').append(getFeeLeg()).append(',').append(' ');
@@ -345,6 +362,11 @@ public final class Cds
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code buySellProtection} property.
+     */
+    private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
+        this, "buySellProtection", Cds.class, BuySell.class);
+    /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
@@ -354,11 +376,6 @@ public final class Cds
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", Cds.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code buySellProtection} property.
-     */
-    private final MetaProperty<BuySell> buySellProtection = DirectMetaProperty.ofImmutable(
-        this, "buySellProtection", Cds.class, BuySell.class);
     /**
      * The meta-property for the {@code businessDayAdjustment} property.
      */
@@ -384,9 +401,9 @@ public final class Cds
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "buySellProtection",
         "startDate",
         "endDate",
-        "buySellProtection",
         "businessDayAdjustment",
         "referenceInformation",
         "feeLeg",
@@ -401,12 +418,12 @@ public final class Cds
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          return buySellProtection;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -405622799:  // buySellProtection
-          return buySellProtection;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
         case -2117930783:  // referenceInformation
@@ -436,6 +453,14 @@ public final class Cds
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code buySellProtection} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BuySell> buySellProtection() {
+      return buySellProtection;
+    }
+
+    /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
@@ -449,14 +474,6 @@ public final class Cds
      */
     public MetaProperty<LocalDate> endDate() {
       return endDate;
-    }
-
-    /**
-     * The meta-property for the {@code buySellProtection} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<BuySell> buySellProtection() {
-      return buySellProtection;
     }
 
     /**
@@ -495,12 +512,12 @@ public final class Cds
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          return ((Cds) bean).getBuySellProtection();
         case -2129778896:  // startDate
           return ((Cds) bean).getStartDate();
         case -1607727319:  // endDate
           return ((Cds) bean).getEndDate();
-        case -405622799:  // buySellProtection
-          return ((Cds) bean).getBuySellProtection();
         case -1065319863:  // businessDayAdjustment
           return ((Cds) bean).getBusinessDayAdjustment();
         case -2117930783:  // referenceInformation
@@ -530,9 +547,9 @@ public final class Cds
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Cds> {
 
+    private BuySell buySellProtection;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BuySell buySellProtection;
     private BusinessDayAdjustment businessDayAdjustment;
     private ReferenceInformation referenceInformation;
     private FeeLeg feeLeg;
@@ -549,9 +566,9 @@ public final class Cds
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Cds beanToCopy) {
+      this.buySellProtection = beanToCopy.getBuySellProtection();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
-      this.buySellProtection = beanToCopy.getBuySellProtection();
       this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.referenceInformation = beanToCopy.getReferenceInformation();
       this.feeLeg = beanToCopy.getFeeLeg();
@@ -562,12 +579,12 @@ public final class Cds
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          return buySellProtection;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -405622799:  // buySellProtection
-          return buySellProtection;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
         case -2117930783:  // referenceInformation
@@ -584,14 +601,14 @@ public final class Cds
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case -405622799:  // buySellProtection
+          this.buySellProtection = (BuySell) newValue;
+          break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
           break;
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
-          break;
-        case -405622799:  // buySellProtection
-          this.buySellProtection = (BuySell) newValue;
           break;
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
@@ -638,9 +655,9 @@ public final class Cds
     @Override
     public Cds build() {
       return new Cds(
+          buySellProtection,
           startDate,
           endDate,
-          buySellProtection,
           businessDayAdjustment,
           referenceInformation,
           feeLeg,
@@ -648,6 +665,17 @@ public final class Cds
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code buySellProtection} property in the builder.
+     * @param buySellProtection  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder buySellProtection(BuySell buySellProtection) {
+      JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
+      this.buySellProtection = buySellProtection;
+      return this;
+    }
+
     /**
      * Sets the {@code startDate} property in the builder.
      * @param startDate  the new value, not null
@@ -667,17 +695,6 @@ public final class Cds
     public Builder endDate(LocalDate endDate) {
       JodaBeanUtils.notNull(endDate, "endDate");
       this.endDate = endDate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code buySellProtection} property in the builder.
-     * @param buySellProtection  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder buySellProtection(BuySell buySellProtection) {
-      JodaBeanUtils.notNull(buySellProtection, "buySellProtection");
-      this.buySellProtection = buySellProtection;
       return this;
     }
 
@@ -730,9 +747,9 @@ public final class Cds
     public String toString() {
       StringBuilder buf = new StringBuilder(256);
       buf.append("Cds.Builder{");
+      buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("buySellProtection").append('=').append(JodaBeanUtils.toString(buySellProtection)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation)).append(',').append(' ');
       buf.append("feeLeg").append('=').append(JodaBeanUtils.toString(feeLeg)).append(',').append(' ');

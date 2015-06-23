@@ -3,20 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.finance.credit.reference;
+package com.opengamma.strata.finance.credit;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.RestructuringClause;
-import com.opengamma.strata.finance.credit.SeniorityLevel;
 
 /**
- * Enumerates the supported types of underlying for a credit default swap
+ * Defines the type of the CDS underlying that protection applies to.
  */
 public enum ReferenceInformationType {
 
   /**
-   * A single name CDS.
+   * A single-name CDS.
    */
   SINGLE_NAME,
   /**
@@ -24,6 +22,16 @@ public enum ReferenceInformationType {
    */
   INDEX;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance for a single-name.
+   * 
+   * @param referenceEntityId  the identifier of the single-name entity that protection applies to
+   * @param currency  the currency of the single-name
+   * @param seniority  the applicable seniority
+   * @param restructuringClause  the restructuring clause
+   * @return the reference
+   */
   public static ReferenceInformation singleName(
       StandardId referenceEntityId,
       Currency currency,
@@ -37,6 +45,15 @@ public enum ReferenceInformationType {
         restructuringClause);
   }
 
+  /**
+   * Creates an instance for a CDS index.
+   * 
+   * @param indexId  the identifier of the index that protection applies to
+   * @param indexSeries  the series of the index
+   * @param indexAnnexVersion  the version of the index
+   * @param restructuringClause  the restructuring clause
+   * @return the reference
+   */
   public static ReferenceInformation index(
       StandardId indexId,
       int indexSeries,
@@ -49,4 +66,5 @@ public enum ReferenceInformationType {
         indexAnnexVersion,
         restructuringClause);
   }
+
 }
