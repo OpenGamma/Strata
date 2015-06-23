@@ -84,7 +84,7 @@ public class GenericFutureOptionTest {
     assertEquals(test.getTickValue(), USD_10);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getUnderlyingQuantity(), 1L);
-    assertEquals(test.getUnderlyingLink(), RESOLVABLE_LINK);
+    assertEquals(test.getUnderlyingLink(), Optional.of(RESOLVABLE_LINK));
     assertThrows(() -> test.getUnderlyingSecurity(), IllegalStateException.class);
     assertThrows(() -> test.getUnderlying(), IllegalStateException.class);
   }
@@ -109,9 +109,33 @@ public class GenericFutureOptionTest {
     assertEquals(test.getTickValue(), USD_10);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getUnderlyingQuantity(), 1L);
-    assertEquals(test.getUnderlyingLink(), RESOLVED_LINK);
-    assertEquals(test.getUnderlyingSecurity(), SECURITY);
-    assertEquals(test.getUnderlying(), PRODUCT);
+    assertEquals(test.getUnderlyingLink(), Optional.of(RESOLVED_LINK));
+    assertEquals(test.getUnderlyingSecurity(), Optional.of(SECURITY));
+    assertEquals(test.getUnderlying(), Optional.of(PRODUCT));
+  }
+
+  public void test_builder_noUnderlying() {
+    GenericFutureOption test = GenericFutureOption.builder()
+        .productId(SYMBOL)
+        .putCall(CALL)
+        .strikePrice(1.51)
+        .expirationMonth(YM_2015_06)
+        .expirationDate(DATE_2015_06)
+        .tickSize(0.0001)
+        .tickValue(USD_10)
+        .build();
+    assertEquals(test.getProductId(), SYMBOL);
+    assertEquals(test.getExpirationMonth(), YM_2015_06);
+    assertEquals(test.getPutCall(), CALL);
+    assertEquals(test.getStrikePrice(), 1.51d);
+    assertEquals(test.getExpirationDate(), Optional.of(DATE_2015_06));
+    assertEquals(test.getTickSize(), 0.0001);
+    assertEquals(test.getTickValue(), USD_10);
+    assertEquals(test.getCurrency(), USD);
+    assertEquals(test.getUnderlyingQuantity(), 1L);
+    assertEquals(test.getUnderlyingLink(), Optional.empty());
+    assertEquals(test.getUnderlyingSecurity(), Optional.empty());
+    assertEquals(test.getUnderlying(), Optional.empty());
   }
 
   //-------------------------------------------------------------------------
@@ -157,6 +181,26 @@ public class GenericFutureOptionTest {
         .tickSize(0.0001)
         .tickValue(USD_10)
         .underlyingLink(RESOLVED_LINK)
+        .build();
+    LinkResolver resolver = new LinkResolver() {
+      @Override
+      public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
+        fail();  // not invoked because link is already resolved
+        return null;
+      }
+    };
+    assertSame(test.resolveLinks(resolver), test);
+  }
+
+  public void test_resolveLinks_noUnderlying() {
+    GenericFutureOption test = GenericFutureOption.builder()
+        .productId(SYMBOL)
+        .putCall(CALL)
+        .strikePrice(1.51)
+        .expirationMonth(YM_2015_06)
+        .expirationDate(DATE_2015_06)
+        .tickSize(0.0001)
+        .tickValue(USD_10)
         .build();
     LinkResolver resolver = new LinkResolver() {
       @Override

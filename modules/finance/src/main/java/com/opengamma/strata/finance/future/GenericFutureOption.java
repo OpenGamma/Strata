@@ -132,7 +132,7 @@ public final class GenericFutureOption
    * This property returns a link to the security via a {@link StandardId}.
    * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(get = "optional")
   private final SecurityLink<GenericFuture> underlyingLink;
 
   //-------------------------------------------------------------------------
@@ -172,8 +172,8 @@ public final class GenericFutureOption
    * @return full details of the security
    * @throws LinkResolutionException if the security is not resolved
    */
-  public Security<GenericFuture> getUnderlyingSecurity() {
-    return underlyingLink.resolvedTarget();
+  public Optional<Security<GenericFuture>> getUnderlyingSecurity() {
+    return getUnderlyingLink().map(link -> link.resolvedTarget());
   }
 
   /**
@@ -195,8 +195,8 @@ public final class GenericFutureOption
    * @return the product underlying the option
    * @throws LinkResolutionException if the security is not resolved
    */
-  public GenericFuture getUnderlying() {
-    return getUnderlyingSecurity().getProduct();
+  public Optional<GenericFuture> getUnderlying() {
+    return getUnderlyingLink().map(link -> link.resolvedTarget().getProduct());
   }
 
   //-------------------------------------------------------------------------
@@ -245,7 +245,6 @@ public final class GenericFutureOption
     JodaBeanUtils.notNull(productId, "productId");
     JodaBeanUtils.notNull(expirationMonth, "expirationMonth");
     JodaBeanUtils.notNull(tickValue, "tickValue");
-    JodaBeanUtils.notNull(underlyingLink, "underlyingLink");
     this.productId = productId;
     this.expirationMonth = expirationMonth;
     this.putCall = putCall;
@@ -384,10 +383,10 @@ public final class GenericFutureOption
    * <p>
    * This property returns a link to the security via a {@link StandardId}.
    * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
-   * @return the value of the property, not null
+   * @return the optional value of the property, not null
    */
-  public SecurityLink<GenericFuture> getUnderlyingLink() {
-    return underlyingLink;
+  public Optional<SecurityLink<GenericFuture>> getUnderlyingLink() {
+    return Optional.ofNullable(underlyingLink);
   }
 
   //-----------------------------------------------------------------------
@@ -414,7 +413,7 @@ public final class GenericFutureOption
           JodaBeanUtils.equal(getTickSize(), other.getTickSize()) &&
           JodaBeanUtils.equal(getTickValue(), other.getTickValue()) &&
           (getUnderlyingQuantity() == other.getUnderlyingQuantity()) &&
-          JodaBeanUtils.equal(getUnderlyingLink(), other.getUnderlyingLink());
+          JodaBeanUtils.equal(underlyingLink, other.underlyingLink);
     }
     return false;
   }
@@ -430,7 +429,7 @@ public final class GenericFutureOption
     hash = hash * 31 + JodaBeanUtils.hashCode(getTickSize());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTickValue());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingQuantity());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingLink);
     return hash;
   }
 
@@ -446,7 +445,7 @@ public final class GenericFutureOption
     buf.append("tickSize").append('=').append(getTickSize()).append(',').append(' ');
     buf.append("tickValue").append('=').append(getTickValue()).append(',').append(' ');
     buf.append("underlyingQuantity").append('=').append(getUnderlyingQuantity()).append(',').append(' ');
-    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(getUnderlyingLink()));
+    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink));
     buf.append('}');
     return buf.toString();
   }
@@ -662,7 +661,7 @@ public final class GenericFutureOption
         case 1331585800:  // underlyingQuantity
           return ((GenericFutureOption) bean).getUnderlyingQuantity();
         case 1497199863:  // underlyingLink
-          return ((GenericFutureOption) bean).getUnderlyingLink();
+          return ((GenericFutureOption) bean).underlyingLink;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -713,7 +712,7 @@ public final class GenericFutureOption
       this.tickSize = beanToCopy.getTickSize();
       this.tickValue = beanToCopy.getTickValue();
       this.underlyingQuantity = beanToCopy.getUnderlyingQuantity();
-      this.underlyingLink = beanToCopy.getUnderlyingLink();
+      this.underlyingLink = beanToCopy.underlyingLink;
     }
 
     //-----------------------------------------------------------------------
@@ -905,11 +904,10 @@ public final class GenericFutureOption
 
     /**
      * Sets the {@code underlyingLink} property in the builder.
-     * @param underlyingLink  the new value, not null
+     * @param underlyingLink  the new value
      * @return this, for chaining, not null
      */
     public Builder underlyingLink(SecurityLink<GenericFuture> underlyingLink) {
-      JodaBeanUtils.notNull(underlyingLink, "underlyingLink");
       this.underlyingLink = underlyingLink;
       return this;
     }
