@@ -35,6 +35,7 @@ import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilde
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
@@ -75,6 +76,11 @@ public abstract class MarketDataBuilder {
   private static final String CURVES_GROUPS_FILE = "groups.csv";
   /** The name of the curve settings file. */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
+
+  /** The name of the subdirectory containing simple market quotes. */
+  private static final String QUOTES_DIR = "quotes";
+  /** The name of the quotes file. */
+  private static final String QUOTES_FILE = "quotes.csv";
 
   /**
    * Creates an instance from a given classpath resource root location using the class loader
@@ -161,6 +167,7 @@ public abstract class MarketDataBuilder {
     BaseMarketDataBuilder builder = BaseMarketData.builder(marketDataDate);
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
+    loadQuotes(builder, marketDataDate);
     loadFxRates(builder);
     return builder.build();
   }
@@ -243,6 +250,28 @@ public abstract class MarketDataBuilder {
 
   private ZeroRateDiscountFactors toZeroRateDiscountFactors(DiscountCurveId curveId, Curve curve, LocalDate valuationDate) {
     return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, curve);
+  }
+
+  // load quotes
+  private void loadQuotes(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    if (!subdirectoryExists(QUOTES_DIR)) {
+      s_logger.debug("No quotes directory found");
+      return;
+    }
+
+    ResourceLocator quotesResource = getResource(QUOTES_DIR, QUOTES_FILE);
+    if (quotesResource == null) {
+      s_logger.error("Unable to load quotes: quotes file not found at {}/{}", QUOTES_DIR, QUOTES_FILE);
+      return;
+    }
+
+    try {
+      Map<QuoteId, Double> quotes = QuotesCsvLoader.loadQuotes(quotesResource, marketDataDate);
+      builder.addAllValues(quotes);
+
+    } catch (Exception ex) {
+      s_logger.error("Error loading quotes", ex);
+    }
   }
 
   private void loadFxRates(BaseMarketDataBuilder builder) {

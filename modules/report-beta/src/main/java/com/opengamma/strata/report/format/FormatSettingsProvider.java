@@ -31,7 +31,9 @@ public class FormatSettingsProvider {
           .put(CurveCurrencyParameterSensitivity.class,
               FormatSettings.of(FormatCategory.TEXT, new CurveCurrencyParameterSensitivityValueFormatter()))
           .put(Double.class, FormatSettings.of(FormatCategory.NUMERIC, new DoubleValueFormatter()))
+          .put(Short.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatter.defaultToString()))
           .put(Integer.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatter.defaultToString()))
+          .put(Long.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatter.defaultToString()))
           .build();
 
   private final Map<Class<?>, FormatSettings> settingsCache = new HashMap<Class<?>, FormatSettings>();
