@@ -237,7 +237,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> timeSeriesFailureBuilder = ImmutableMap.builder();
     ScenarioMarketDataBuilder dataBuilder =
         ScenarioMarketData.builder(scenarioDefinition.getScenarioCount(), suppliedData.getValuationDate());
-    ScenarioMarketData builtData = dataBuilder.build();
 
     // Apply perturbations to the supplied observable values and add to the builder
     for (ObservableId id : requirements.getObservables()) {
@@ -265,6 +264,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
         }
       }
     }
+    // Copy time series from the supplied data into the scenario data
+    for (ObservableId id : requirements.getTimeSeries()) {
+      if (suppliedData.containsTimeSeries(id)) {
+        LocalDateDoubleTimeSeries timeSeries = suppliedData.getTimeSeries(id);
+        dataBuilder.addTimeSeries(id, timeSeries);
+      }
+    }
+    ScenarioMarketData builtData = dataBuilder.build();
+
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
     // of those nodes represent the market data required to build that data, and so on
