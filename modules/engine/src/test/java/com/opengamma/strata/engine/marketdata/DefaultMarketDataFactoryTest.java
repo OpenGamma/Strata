@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
@@ -488,6 +487,57 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
+  }
+
+  /**
+   * Test that time series from the supplied data are copied to the scenario data.
+   */
+  public void buildSuppliedTimeSeries() {
+    DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
+        new TestTimeSeriesProvider(ImmutableMap.of()),
+        ObservableMarketDataFunction.none(),
+        new TestFeedIdMapping());
+
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
+
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+        .addTimeSeries(id1, timeSeries1)
+        .addTimeSeries(id2, timeSeries2)
+        .build();
+
+    MarketDataRequirements requirements = MarketDataRequirements.builder().addTimeSeries(id1, id2).build();
+    // This mapping doesn't perturb any data but it causes three scenarios to be built
+    PerturbationMapping<Double> mapping =
+        PerturbationMapping.of(
+            Double.class,
+            new FalseFilter<>(TestObservableId.class),
+            new AbsoluteDoubleShift(1),
+            new AbsoluteDoubleShift(2),
+            new AbsoluteDoubleShift(3));
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
+    ScenarioMarketDataResult result =
+        factory.buildScenarioMarketData(
+            requirements,
+            suppliedData,
+            scenarioDefinition,
+            MARKET_DATA_CONFIG);
+    ScenarioMarketData marketData = result.getMarketData();
+
+    assertThat(marketData.getTimeSeries(id1)).isEqualTo(timeSeries1);
+    assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
   }
 
   public void perturbObservableValues() {
