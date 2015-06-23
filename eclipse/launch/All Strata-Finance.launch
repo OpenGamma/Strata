@@ -15,6 +15,7 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.finance"/>
+<listEntry value="com.opengamma.strata.finance.credit"/>
 <listEntry value="com.opengamma.strata.finance.equity"/>
 <listEntry value="com.opengamma.strata.finance.future"/>
 <listEntry value="com.opengamma.strata.finance.fx"/>
