@@ -29,12 +29,6 @@ import com.opengamma.strata.collect.id.StandardId;
  * Reference data for a CDS single-name.
  * <p>
  * The elements define the name in the context of finding suitable market data for pricing.
- * <p>
- * For example,
- * <pre>
- * Name              RedCode Tier   Ccy DocClause
- * Agilent Tech Inc  008CA0  SNRFOR USD XR14
- * </pre>
  */
 @BeanDefinition
 public final class SingleNameReferenceInformation

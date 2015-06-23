@@ -82,6 +82,7 @@ public abstract class MarketDataBuilder {
   /** The name of the quotes file. */
   private static final String QUOTES_FILE = "quotes.csv";
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance from a given classpath resource root location using the class loader
    * which created this class.

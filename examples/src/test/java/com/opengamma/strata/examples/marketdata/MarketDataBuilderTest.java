@@ -53,12 +53,12 @@ public class MarketDataBuilderTest {
 
   private static final String EXAMPLE_MARKET_DATA_CLASSPATH_ROOT = "example-marketdata";
   private static final String EXAMPLE_MARKET_DATA_DIRECTORY_ROOT = "src/main/resources/example-marketdata";
-  
+
   private static final String TEST_SPACES_DIRECTORY_ROOT = "src/test/resources/test-marketdata with spaces";
   private static final String TEST_SPACES_CLASSPATH_ROOT = "test-marketdata with spaces";
 
   private static final CurveGroupName DEFAULT_CURVE_GROUP = CurveGroupName.of("Default");
-  
+
   private static final LocalDate MARKET_DATA_DATE = LocalDate.of(2014, 1, 22);
 
   private static final Set<ObservableId> TIME_SERIES = ImmutableSet.of(
@@ -89,7 +89,7 @@ public class MarketDataBuilderTest {
 
   public void test_classpath_jar() throws IOException, NoSuchMethodException,
       SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    
+
     // Create a JAR file containing the example market data
     File tempFile = File.createTempFile(MarketDataBuilderTest.class.getSimpleName(), ".jar");
     try (FileOutputStream tempFileOut = new FileOutputStream(tempFile)) {
@@ -98,10 +98,10 @@ public class MarketDataBuilderTest {
         appendToZip(diskRoot, "zip-data", diskRoot, zipFileOut);
       }
     }
-    
+
     // Obtain a classloader which can see this JAR
-    ClassLoader classLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() });
-    
+    ClassLoader classLoader = URLClassLoader.newInstance(new URL[] {tempFile.toURI().toURL()});
+
     ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       // Test automatically finding the resource inside the JAR
@@ -117,11 +117,11 @@ public class MarketDataBuilderTest {
     MarketDataBuilder builder = MarketDataBuilder.ofPath(rootPath);
     assertBuilder(builder);
   }
-  
+
   public void test_of_path_with_spaces() {
     Path rootPath = new File(TEST_SPACES_DIRECTORY_ROOT).toPath();
     MarketDataBuilder builder = MarketDataBuilder.ofPath(rootPath);
-    
+
     BaseMarketData snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
@@ -130,10 +130,10 @@ public class MarketDataBuilderTest {
     MarketDataBuilder builder = MarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_CLASSPATH_ROOT);
     assertBuilder(builder);
   }
-  
+
   public void test_of_resource_directory_with_spaces() {
     MarketDataBuilder builder = MarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
-    
+
     BaseMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
@@ -188,7 +188,7 @@ public class MarketDataBuilderTest {
       zipOutput.closeEntry();
     }
   }
-  
+
   private String getEntryName(File sourceRootDir, String destRootPath, File currentFile) {
     return destRootPath + currentFile.getAbsolutePath().substring(sourceRootDir.getAbsolutePath().length());
   }
