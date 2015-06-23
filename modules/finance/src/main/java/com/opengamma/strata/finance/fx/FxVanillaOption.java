@@ -33,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -107,46 +108,19 @@ public final class FxVanillaOption
   @PropertyDefinition(validate = "notNull")
   private final FxRate strike;
 
-  //  //-------------------------------------------------------------------------
-  //  public static FxVanillaOption of(
-  //      PutCall putCall,
-  //      LongShort longShort,
-  //      LocalDate expiryDate,
-  //      LocalTime expiryTime,
-  //      ZoneId zoneId,
-  //      Fx underlying,
-  //      FxRate strike) {
-  //
-  //    return new FxVanillaOption(putCall, longShort, expiryDate, expiryTime, zoneId, underlying, strike);
-  //  }
-  //
-  //  public static FxVanillaOption of(
-  //      PutCall putCall,
-  //      LongShort longShort,
-  //      LocalDate expiryDate,
-  //      LocalTime expiryTime,
-  //      ZoneId zoneId,
-  //      CurrencyAmount notionalAmount,
-  //      FxRate spot,
-  //      LocalDate paymentDate,
-  //      FxRate strike) {
-  //    Fx underlying = Fx.of(notionalAmount, spot, paymentDate);
-  //    return new FxVanillaOption(putCall, longShort, expiryDate, expiryTime, zoneId, underlying, strike);
-  //  }
-
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(strike.getPair().equals(underlying.getCurrencyPair())
-        || strike.getPair().isInverse(underlying.getCurrencyPair()),
+    CurrencyPair underlyingPair = underlying.getCurrencyPair();
+    ArgChecker.isTrue(strike.getPair().equals(underlyingPair) || strike.getPair().isInverse(underlyingPair),
         "currency pair mismatch between strike and underlying");
     inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.valueDate");
   }
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    // set the directions of strike and underlying to be the same
-    if (!builder.strike.getPair().getBase().equals(builder.underlying.getReceiveCurrency())) {
+    // set the direction of the strike to be the same as the underlying.
+    if (!builder.strike.getPair().getBase().equals(builder.underlying.getReceiveCurrencyAmount().getCurrency())) {
       builder.strike = builder.strike.inverse();
     }
   }
@@ -163,19 +137,6 @@ public final class FxVanillaOption
    */
   public ZonedDateTime getExpiryDateTime() {
     return expiryDate.atTime(expiryTime).atZone(expiryZone);
-  }
-
-  /**
-   * Gets the receiving currency amount of the underlying. 
-   * <p>
-   * By construction the results must be positive. 
-   * 
-   * @return the amount
-   */
-  public double getAmount() {
-    return underlying.getReceiveCurrency().equals(underlying.getBaseCurrencyAmount().getCurrency()) ?
-        underlying.getBaseCurrencyAmount().getAmount() :
-        underlying.getCounterCurrencyAmount().getAmount();
   }
 
   /**

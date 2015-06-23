@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 
 /**
@@ -42,6 +43,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_switchOrder() {
@@ -49,6 +52,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_bothZero() {
@@ -56,6 +61,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), CurrencyAmount.zero(GBP));
     assertEquals(test.getCounterCurrencyAmount(), CurrencyAmount.zero(USD));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.zero(USD));
   }
 
   public void test_of_positiveNegative() {
@@ -75,6 +82,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_rate_switchOrder() {
@@ -82,6 +91,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_rate_bothZero() {
@@ -89,6 +100,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), CurrencyAmount.zero(GBP));
     assertEquals(test.getCounterCurrencyAmount().getAmount(), CurrencyAmount.zero(USD).getAmount(), 1e-12);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.of(USD, -0d));
   }
 
   public void test_of_rate_wrongCurrency() {
@@ -105,6 +118,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_builder_switchOrder() {
@@ -116,6 +131,8 @@ public class FxTest {
     assertEquals(test.getBaseCurrencyAmount(), GBP_P1000);
     assertEquals(test.getCounterCurrencyAmount(), USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_builder_bothPositive() {

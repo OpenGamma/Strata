@@ -94,8 +94,8 @@ public class BlackFxVanillaOptionProductPricerTest {
     assertEquals(pv.getCurrency(), USD);
     assertEquals(pv.getAmount(), expected, NOTIONAL * TOL);
 
-    // The direction of strike corrected
-    FxVanillaOption option = FxVanillaOption.builder()
+    // The direction of strike will be modified, thus the same result is expected
+    FxVanillaOption option1 = FxVanillaOption.builder()
         .putCall(CALL)
         .longShort(LONG)
         .expiryDate(EXPIRY_DATE)
@@ -104,8 +104,37 @@ public class BlackFxVanillaOptionProductPricerTest {
         .underlying(FX_PRODUCT)
         .strike(STRIKE.inverse())
         .build();
-    CurrencyAmount pvRe = PRICER.presentValue(option, RATES_PROVIDER, VOL_PROVIDER);
-    assertEquals(pvRe.getCurrency(), pv.getCurrency());
-    assertEquals(pvRe.getAmount(), pv.getAmount(), NOTIONAL * TOL);
+    CurrencyAmount pv1 = PRICER.presentValue(option1, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv1.getCurrency(), pv.getCurrency());
+    assertEquals(pv1.getAmount(), pv.getAmount(), NOTIONAL * TOL);
+
+    // check put-call relation
+    CurrencyAmount eurAmount = CurrencyAmount.of(EUR, -NOTIONAL);
+    CurrencyAmount usdAmount = CurrencyAmount.of(USD, NOTIONAL * FX_MATRIX.fxRate(EUR, USD));
+    Fx fxProduct = Fx.of(eurAmount, usdAmount, PAYMENT_DATE);
+    FxVanillaOption option2 = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(LONG)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fxProduct)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValue(option2, RATES_PROVIDER, VOL_PROVIDER).convertedTo(USD, FX_MATRIX);
+    double factor = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE) / RATES_PROVIDER.discountFactor(EUR, PAYMENT_DATE);
+
+    FxVanillaOption option3 = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(LONG)
+        .expiryDate(EXPIRY_DATE)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(FX_PRODUCT)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv3 = PRICER.presentValue(option3, RATES_PROVIDER, VOL_PROVIDER);
+    System.out.println(pv2 + "\t" + pv2.multipliedBy(factor) + "\t" + pv3);
+
   }
 }
