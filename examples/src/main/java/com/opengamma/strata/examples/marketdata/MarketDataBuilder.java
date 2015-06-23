@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -34,11 +33,8 @@ import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
-import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -248,32 +244,12 @@ public abstract class MarketDataBuilder {
 
     try {
       Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
-
       Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
           .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
-
-      Map<ZeroRateDiscountFactorsId, ZeroRateDiscountFactors> zeroRateDiscountFactors =
-          ratesCurves.entrySet().stream()
-              .filter(e -> e.getKey() instanceof DiscountCurveId)
-              .map(e -> Pair.of((DiscountCurveId) e.getKey(), e.getValue()))
-              .collect(Collectors.toMap(
-                  e -> toZeroRateDiscountFactorsId(e.getFirst()),
-                  e -> toZeroRateDiscountFactors(e.getFirst(), e.getSecond(), marketDataDate)));
-
       builder.addAllValues(ratesCurves);
-      builder.addAllValues(zeroRateDiscountFactors);
     } catch (Exception e) {
       s_logger.error("Error loading rates curves", e);
     }
-  }
-
-  private ZeroRateDiscountFactorsId toZeroRateDiscountFactorsId(DiscountCurveId curveId) {
-    return ZeroRateDiscountFactorsId.of(
-        curveId.getCurrency(), curveId.getCurveGroupName(), curveId.getMarketDataFeed());
-  }
-
-  private ZeroRateDiscountFactors toZeroRateDiscountFactors(DiscountCurveId curveId, Curve curve, LocalDate valuationDate) {
-    return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, curve);
   }
 
   // load quotes
