@@ -27,6 +27,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.finance.ProductTrade;
+import com.opengamma.strata.finance.SecurityTrade;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -44,6 +45,7 @@ public class ValuePathEvaluator {
       new MapTokenEvaluator(),
       new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
       new CurveCurrencyParameterSensitivityTokenEvaluator(),
+      new TradeTokenEvaluator(),
       new BeanTokenEvaluator(),
       new IterableTokenEvaluator());
 
@@ -62,7 +64,7 @@ public class ValuePathEvaluator {
       }
       Measure measure = Measure.of(tokens.remove());
       return Optional.of(measure);
-    } catch (Exception e) {
+    } catch (Exception ex) {
       return Optional.empty();
     }
   }
@@ -85,24 +87,16 @@ public class ValuePathEvaluator {
           rootResultSupplier = getMeasureSupplier(tokens, results);
           break;
         case PRODUCT:
-          rootResultSupplier = i -> {
-            Trade trade = results.getTrades().get(i);
-            return (trade instanceof ProductTrade)
-                ? Result.success(((ProductTrade<?>) trade).getProduct())
-                : Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
-          };
+          rootResultSupplier = getProductSupplier(results);
           break;
         case TRADE:
-          // TODO - eventually provide access to merged set of fields from both the trade itself and
-          // trade info. Using trade info for now since most information is there.
-          rootResultSupplier = i -> Result.success(results.getTrades().get(i).getTradeInfo());
+          rootResultSupplier = getTradeSupplier(results);
           break;
         default:
-          throw new IllegalArgumentException(
-              Messages.format("Unsupported root: {}", rootType.token()));
+          throw new IllegalArgumentException(Messages.format("Unsupported root: {}", rootType.token()));
       }
-    } catch (Exception e) {
-      rootResultSupplier = i -> Result.failure(FailureReason.INVALID_INPUT, e.getMessage());
+    } catch (Exception ex) {
+      rootResultSupplier = i -> Result.failure(FailureReason.INVALID_INPUT, ex.getMessage());
     }
     return IntStream.range(0, results.getCalculationResults().getRowCount())
         .mapToObj(rootResultSupplier)
@@ -143,6 +137,25 @@ public class ValuePathEvaluator {
     return new LinkedList<String>(Arrays.asList(tokens));
   }
 
+  // gets the result supplier for products
+  private IntFunction<Result<?>> getProductSupplier(ReportCalculationResults results) {
+    return i -> {
+      Trade trade = results.getTrades().get(i);
+      if (trade instanceof ProductTrade) {
+        return Result.success(((ProductTrade<?>) trade).getProduct());
+      }
+      if (trade instanceof SecurityTrade) {
+        return Result.success(((SecurityTrade<?>) trade).getProduct());
+      }
+      return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
+    };
+  }
+
+  // gets the result supplier for trades
+  private IntFunction<Result<?>> getTradeSupplier(ReportCalculationResults results) {
+    return i -> Result.success(results.getTrades().get(i));
+  }
+
   // gets the result supplier for measures
   private IntFunction<Result<?>> getMeasureSupplier(Queue<String> tokens, ReportCalculationResults results) {
     if (tokens.isEmpty() || StringUtils.isBlank(tokens.peek())) {
@@ -160,7 +173,7 @@ public class ValuePathEvaluator {
     Measure measure;
     try {
       measure = Measure.of(measureToken);
-    } catch (Exception e) {
+    } catch (Exception ex) {
       return i -> Result.failure(FailureReason.INVALID_INPUT, "Invalid measure name: {}", measureToken);
     }
     Column requiredColumn = Column.of(measure);
