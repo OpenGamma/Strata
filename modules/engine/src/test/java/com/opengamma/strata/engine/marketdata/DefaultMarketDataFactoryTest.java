@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -377,7 +376,6 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketDataB2).isEqualTo(expectedB2);
   }
 
-  // TODO Same test for scenario market data
   /**
    * Tests building market data that depends on other market data that is supplied by the user.
    *
@@ -800,15 +798,21 @@ public class DefaultMarketDataFactoryTest {
         builderB,
         builderC);
 
-    // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<String> mapping = PerturbationMapping.of(
-        String.class,
-        new FalseFilter<>(NonObservableId.class),
-        new StringAppender(""),
-        new StringAppender(""),
-        new StringAppender(""));
+    PerturbationMapping<Double> aMapping = PerturbationMapping.of(
+        Double.class,
+        new ExactIdFilter<>(new TestIdA("2")),
+        new RelativeDoubleShift(0.2),
+        new RelativeDoubleShift(0.3),
+        new RelativeDoubleShift(0.4));
 
-    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
+    PerturbationMapping<TestMarketDataC> cMapping = PerturbationMapping.of(
+        TestMarketDataC.class,
+        new ExactIdFilter<>(new TestIdC("1")),
+        new TestCPerturbation(1.1),
+        new TestCPerturbation(1.2),
+        new TestCPerturbation(1.3));
+
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(aMapping, cMapping);
     ScenarioMarketDataResult result = marketDataFactory.buildScenarioMarketData(
         requirements,
         suppliedData,
@@ -822,8 +826,15 @@ public class DefaultMarketDataFactoryTest {
     List<TestMarketDataB> marketDataB1 = marketData.getValues(new TestIdB("1"));
     List<TestMarketDataB> marketDataB2 = marketData.getValues(new TestIdB("2"));
 
-    List<TestMarketDataB> expectedB1 = Collections.nCopies(3, new TestMarketDataB(1, new TestMarketDataC(timeSeries1)));
-    List<TestMarketDataB> expectedB2 = Collections.nCopies(3, new TestMarketDataB(2, new TestMarketDataC(timeSeries2)));
+    List<TestMarketDataB> expectedB1 = ImmutableList.of(
+        new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.1))),
+        new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.2))),
+        new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.3))));
+
+    List<TestMarketDataB> expectedB2 = ImmutableList.of(
+        new TestMarketDataB(2.4, new TestMarketDataC(timeSeries2)),
+        new TestMarketDataB(2.6, new TestMarketDataC(timeSeries2)),
+        new TestMarketDataB(2.8, new TestMarketDataC(timeSeries2)));
 
     assertThat(marketDataB1).isEqualTo(expectedB1);
     assertThat(marketDataB2).isEqualTo(expectedB2);
@@ -1476,6 +1487,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * Market data function that builds a piece of non-observable market data (a string).
+   */
   private static final class NonObservableMarketDataFunction implements MarketDataFunction<String, NonObservableId> {
 
     @Override
@@ -1497,6 +1511,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * A perturbation which perturbs a string by appending another string to it.
+   */
   private static final class StringAppender implements Perturbation<String> {
 
     private final String str;
@@ -1508,6 +1525,24 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public String apply(String marketData) {
       return marketData + str;
+    }
+  }
+
+  /**
+   * Perturbation that perturbs TestMarketDataC by scaling its time series.
+   */
+  private static final class TestCPerturbation implements Perturbation<TestMarketDataC> {
+
+    private final double scaleFactor;
+
+    private TestCPerturbation(double scaleFactor) {
+      this.scaleFactor = scaleFactor;
+    }
+
+    @Override
+    public TestMarketDataC apply(TestMarketDataC marketData) {
+      LocalDateDoubleTimeSeries perturbedSeries = marketData.timeSeries.mapValues(value -> value * scaleFactor);
+      return new TestMarketDataC(perturbedSeries);
     }
   }
 }

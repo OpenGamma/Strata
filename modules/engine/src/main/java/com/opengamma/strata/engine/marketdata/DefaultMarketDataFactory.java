@@ -280,10 +280,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableMap(id -> id, this::findTimeSeries));
 
       for (Map.Entry<ObservableId, Result<LocalDateDoubleTimeSeries>> entry : timeSeriesResults.entrySet()) {
-        if (entry.getValue().isSuccess()) {
-          dataBuilder.addTimeSeries(entry.getKey(), entry.getValue().getValue());
+        ObservableId id = entry.getKey();
+        Result<LocalDateDoubleTimeSeries> result = entry.getValue();
+
+        if (result.isSuccess()) {
+          dataBuilder.addTimeSeries(id, result.getValue());
         } else {
-          timeSeriesFailureBuilder.put(entry.getKey(), entry.getValue());
+          timeSeriesFailureBuilder.put(id, result);
         }
       }
       // Copy supplied time series to the scenario data
@@ -321,12 +324,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableMap(id -> id, suppliedData::getValue));
 
       for (Map.Entry<ObservableId, Double> entry : suppliedObservables.entrySet()) {
-        Result<List<Double>> result = applyScenarios(entry.getKey(), entry.getValue(), scenarioDefinition);
+        ObservableId id = entry.getKey();
+        Result<List<Double>> result = applyScenarios(id, entry.getValue(), scenarioDefinition);
 
         if (result.isSuccess()) {
-          dataBuilder.addValues(entry.getKey(), result.getValue());
+          dataBuilder.addValues(id, result.getValue());
         } else {
-          failureBuilder.put(entry.getKey(), result);
+          failureBuilder.put(id, result);
         }
       }
 
