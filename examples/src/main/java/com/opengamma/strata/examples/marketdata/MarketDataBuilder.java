@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -12,11 +14,11 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
@@ -24,7 +26,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -34,11 +35,8 @@ import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
-import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -186,6 +184,32 @@ public abstract class MarketDataBuilder {
                 .curveGroup(CurveGroupName.of("Default"))
                 .build()));
   }
+  
+  /**
+   * Gets all rates curves.
+   * 
+   * @return the map of all rates curves
+   */
+  public ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadAllRatesCurves() {
+    if (!subdirectoryExists(CURVES_DIR)) {
+      throw new IllegalArgumentException(
+          Messages.format("No rates curves directory found"));
+    }
+
+    ResourceLocator curveGroupsResource = getResource(CURVES_DIR, CURVES_GROUPS_FILE);
+    if (curveGroupsResource == null) {
+      throw new IllegalArgumentException(
+          Messages.format("Unable to load rates curves: curve groups file not found at {}/{}", CURVES_DIR, CURVES_GROUPS_FILE));
+    }
+
+    ResourceLocator curveSettingsResource = getResource(CURVES_DIR, CURVES_SETTINGS_FILE);
+    if (curveSettingsResource == null) {
+      throw new IllegalArgumentException(
+          Messages.format("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE));
+    }
+    
+    return RatesCurvesCsvLoader.loadAllCurves(curveGroupsResource, curveSettingsResource, getRatesCurvesResources());
+  }
 
   //-------------------------------------------------------------------------
   private void loadFixingSeries(BaseMarketDataBuilder builder) {
@@ -221,36 +245,13 @@ public abstract class MarketDataBuilder {
     }
 
     try {
-      Collection<ResourceLocator> curvesResources = getAllResources(CURVES_DIR).stream()
-          .filter(res ->
-              !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
-          .collect(Collectors.toList());
-
+      Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
       Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
           .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
-
-      Map<ZeroRateDiscountFactorsId, ZeroRateDiscountFactors> zeroRateDiscountFactors =
-          ratesCurves.entrySet().stream()
-              .filter(e -> e.getKey() instanceof DiscountCurveId)
-              .map(e -> Pair.of((DiscountCurveId) e.getKey(), e.getValue()))
-              .collect(Collectors.toMap(
-                  e -> toZeroRateDiscountFactorsId(e.getFirst()),
-                  e -> toZeroRateDiscountFactors(e.getFirst(), e.getSecond(), marketDataDate)));
-
       builder.addAllValues(ratesCurves);
-      builder.addAllValues(zeroRateDiscountFactors);
     } catch (Exception e) {
       s_logger.error("Error loading rates curves", e);
     }
-  }
-
-  private ZeroRateDiscountFactorsId toZeroRateDiscountFactorsId(DiscountCurveId curveId) {
-    return ZeroRateDiscountFactorsId.of(
-        curveId.getCurrency(), curveId.getCurveGroupName(), curveId.getMarketDataFeed());
-  }
-
-  private ZeroRateDiscountFactors toZeroRateDiscountFactors(DiscountCurveId curveId, Curve curve, LocalDate valuationDate) {
-    return ZeroRateDiscountFactors.of(curveId.getCurrency(), valuationDate, curve);
   }
 
   // load quotes
@@ -278,6 +279,14 @@ public abstract class MarketDataBuilder {
   private void loadFxRates(BaseMarketDataBuilder builder) {
     // TODO - load from CSV file - format to be defined
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
+  }
+  
+  //-------------------------------------------------------------------------
+  private Collection<ResourceLocator> getRatesCurvesResources() {
+    return getAllResources(CURVES_DIR).stream()
+        .filter(res -> !res.getLocator().endsWith(CURVES_GROUPS_FILE))
+        .filter(res -> !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
+        .collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------

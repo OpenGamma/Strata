@@ -18,7 +18,6 @@ import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
@@ -65,7 +64,6 @@ public class FraPricingExample {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(marketDataBuilder.rules())
-        .reportingRules(ReportingRules.empty())
         .build();
 
     // build a market data snapshot for the valuation date
