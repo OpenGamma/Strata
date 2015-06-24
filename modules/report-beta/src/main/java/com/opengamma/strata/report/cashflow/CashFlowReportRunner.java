@@ -202,11 +202,12 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
         flatten(nestedListEntries.get(0), visible, currentRow, currentRow, level, accumulator);
       } else {
         // Add child rows
-        if (visible) {
-          accumulator.add(ExplainMap.of(currentRow));
-        }
         for (int i = 0; i < nestedListEntries.size(); i++) {
           flatten(nestedListEntries.get(i), visible, currentRow, Maps.newHashMap(), level + 1, accumulator);
+        }
+        // Add parent row after child rows (parent flows are a result of the children)
+        if (visible) {
+          accumulator.add(ExplainMap.of(currentRow));
         }
       }
     } else {
