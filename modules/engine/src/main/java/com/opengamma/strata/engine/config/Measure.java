@@ -79,7 +79,7 @@ public final class Measure
    */
   public static final Measure IR01_PARALLEL_PAR = Measure.of("IR01ParallelPar");
   /**
-   * Measure representing the (vector) PV change to series of 1 bps shift in par interest rates at each curve node.
+   * Measure representing the (vector) PV change to a series of 1 bps shifts in par interest rates at each curve node.
    */
   public static final Measure IR01_BUCKETED_PAR = Measure.of("IR01BucketedPar");
   /**
@@ -87,7 +87,7 @@ public final class Measure
    */
   public static final Measure IR01_PARALLEL_ZERO = Measure.of("IR01ParallelZero");
   /**
-   * Measure representing the (vector) PV change to series of 1 bps shift in zero interest rates at each curve node.
+   * Measure representing the (vector) PV change to a series of 1 bps shifts in zero interest rates at each curve node.
    */
   public static final Measure IR01_BUCKETED_ZERO = Measure.of("IR01BucketedZero");
   /**
@@ -95,7 +95,7 @@ public final class Measure
    */
   public static final Measure CS01_PARALLEL_PAR = Measure.of("CS01ParallelPar");
   /**
-   * Measure representing the (vector) PV change to a series of 1 bps shift in par credit rates at each curve node.
+   * Measure representing the (vector) PV change to a series of 1 bps shifts in par credit rates at each curve node.
    */
   public static final Measure CS01_BUCKETED_PAR = Measure.of("CS01BucketedPar");
   /**
@@ -103,7 +103,7 @@ public final class Measure
    */
   public static final Measure CS01_PARALLEL_HAZARD = Measure.of("CS01ParallelHazard");
   /**
-   * Measure representing the (vector) PV change to a series of 1 bps shift in hazard rates at each curve node.
+   * Measure representing the (vector) PV change to a series of 1 bps shifts in hazard rates at each curve node.
    */
   public static final Measure CS01_BUCKETED_HAZARD = Measure.of("CS01BucketedHazard");
 

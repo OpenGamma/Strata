@@ -1,9 +1,16 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.function.calculation.credit;
+
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
+
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -28,16 +35,9 @@ import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveParRatesKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
 import com.opengamma.strata.pricer.credit.CdsPricer;
 
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
-import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
-
 /**
  * Calculates a result of a {@code CdsTrade} for each of a set of scenarios.
- *
+ * 
  * @param <T>  the return type
  */
 public abstract class AbstractCdsFunction<T>
@@ -55,15 +55,15 @@ public abstract class AbstractCdsFunction<T>
    * Creates a new instance.
    *
    * @param convertCurrencies if this is true the value returned by the {@code execute} method will support
-   *                          automatic currency conversion if the underlying results support it
+   *   automatic currency conversion if the underlying results support it
    */
   protected AbstractCdsFunction(boolean convertCurrencies) {
     super(convertCurrencies);
   }
 
   /**
-   * Returns the Cds pricer.
-   *
+   * Returns the CDS pricer.
+   * 
    * @return the pricer
    */
   protected CdsPricer pricer() {
@@ -86,7 +86,9 @@ public abstract class AbstractCdsFunction<T>
     Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
     Currency feeCurrency = cds.getFeeLeg().getUpfrontFee().getFixedAmount().getCurrency();
 
-    Set<MarketDataKey<?>> rateCurveKeys = ImmutableSet.of(IsdaYieldCurveParRatesKey.of(notionalCurrency), IsdaYieldCurveParRatesKey.of(feeCurrency));
+    Set<MarketDataKey<?>> rateCurveKeys = ImmutableSet.of(
+        IsdaYieldCurveParRatesKey.of(notionalCurrency),
+        IsdaYieldCurveParRatesKey.of(feeCurrency));
 
     ReferenceInformation referenceInformation = cds.getReferenceInformation();
     ReferenceInformationType cdsType = referenceInformation.getType();
@@ -118,8 +120,8 @@ public abstract class AbstractCdsFunction<T>
   /**
    * Returns the currency of the trade.
    *
-   * @param target the swap that is the target of the calculation
-   * @return the currency of the cds
+   * @param target  the swap that is the target of the calculation
+   * @return the currency of the CDS
    */
   @Override
   public Optional<Currency> defaultReportingCurrency(CdsTrade target) {
@@ -140,12 +142,14 @@ public abstract class AbstractCdsFunction<T>
     switch (cdsType) {
       case SINGLE_NAME:
         SingleNameReferenceInformation singleNameReferenceInformation = (SingleNameReferenceInformation) referenceInformation;
-        IsdaSingleNameCreditCurveParRatesKey singleNameCreditCurveParRatesKey = IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation);
+        IsdaSingleNameCreditCurveParRatesKey singleNameCreditCurveParRatesKey =
+            IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation);
         creditCurveParRates = provider.getValue(singleNameCreditCurveParRatesKey);
         break;
       case INDEX:
         IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
-        IsdaIndexCreditCurveParRatesKey indexCreditCurveParRatesKey = IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation);
+        IsdaIndexCreditCurveParRatesKey indexCreditCurveParRatesKey =
+            IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation);
         creditCurveParRates = provider.getValue(indexCreditCurveParRatesKey);
         break;
       default:

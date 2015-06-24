@@ -51,20 +51,14 @@ public enum ReferenceInformationType {
    * @param indexId  the identifier of the index that protection applies to
    * @param indexSeries  the series of the index
    * @param indexAnnexVersion  the version of the index
-   * @param restructuringClause  the restructuring clause
    * @return the reference
    */
   public static ReferenceInformation index(
       StandardId indexId,
       int indexSeries,
-      int indexAnnexVersion,
-      RestructuringClause restructuringClause) {
+      int indexAnnexVersion) {
 
-    return IndexReferenceInformation.of(
-        indexId,
-        indexSeries,
-        indexAnnexVersion,
-        restructuringClause);
+    return IndexReferenceInformation.of(indexId, indexSeries, indexAnnexVersion);
   }
 
 }

@@ -1,11 +1,16 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
 
-import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
+import java.io.Serializable;
+import java.time.Period;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -20,40 +25,59 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.io.Serializable;
-import java.time.Period;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 
 /**
  * The par rates used when calibrating an ISDA yield curve.
  */
 @BeanDefinition(builderScope = "private")
-public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable {
+public final class IsdaYieldCurveParRates
+    implements ImmutableBean, Serializable {
 
+  /**
+   * The curve name.
+   */
   @PropertyDefinition(validate = "notNull")
   private final String name;
-
+  /**
+   * The tenor at each curve node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Period[] yieldCurvePoints;
-
+  /**
+   * The instrument type at each curve node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
-
+  /**
+   * The par rate at each curve node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double[] parRates;
-
+  /**
+   * The underlying convention.
+   */
   @PropertyDefinition(validate = "notNull")
   private final IsdaYieldCurveConvention curveConvention;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance of the par rates.
+   * 
+   * @param name  the curve name
+   * @param yieldCurvePoints  the tenor at each curve node
+   * @param yieldCurveInstruments  the instrument type at each curve node
+   * @param parRates  the par rate at each curve node
+   * @param curveConvention  the underlying convention
+   * @return the par rates
+   */
   public static IsdaYieldCurveParRates of(
       String name,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
       IsdaYieldCurveConvention curveConvention) {
-    
+
     return new IsdaYieldCurveParRates(
         name,
         yieldCurvePoints,
@@ -62,6 +86,23 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
         curveConvention);
   }
 
+  @ImmutableValidator
+  private void validate() {
+    if (yieldCurvePoints.length <= 0) {
+      throw new IllegalArgumentException("Cannot have zero points");
+    }
+    if (yieldCurvePoints.length != yieldCurveInstruments.length || yieldCurvePoints.length != parRates.length) {
+      throw new IllegalArgumentException("Points do not line up");
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Applies a parallel shift to all the nodes.
+   * 
+   * @param shift  the shift to apply
+   * @return the bumped instance
+   */
   public IsdaYieldCurveParRates parallelShiftParRatesinBps(double shift) {
     double[] shiftedRates = parRates.clone();
     for (int i = 0; i < shiftedRates.length; i++) {
@@ -70,16 +111,29 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
     return applyShift(shiftedRates);
   }
 
+  /**
+   * Applies a bucketed shift to a single node.
+   * 
+   * @param index  the index of the node to shift
+   * @param shift  the shift to apply
+   * @return the bumped instance
+   */
   public IsdaYieldCurveParRates bucketedShiftParRatesinBps(int index, double shift) {
     double[] shiftedRates = parRates.clone();
     shiftedRates[index] = shiftedRates[index] + shift;
     return applyShift(shiftedRates);
   }
 
+  /**
+   * Gets the number of nodes.
+   * 
+   * @return the number of points
+   */
   public int getNumberOfPoints() {
     return yieldCurvePoints.length;
   }
 
+  // applies the shift
   private IsdaYieldCurveParRates applyShift(double[] shiftedRates) {
     return IsdaYieldCurveParRates.of(
         name,
@@ -87,18 +141,7 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
         yieldCurveInstruments.clone(),
         shiftedRates,
         curveConvention
-    );
-  }
-
-  //-------------------------------------------------------------------------
-  @ImmutableValidator
-  private void validate() {
-    if (yieldCurvePoints.length <= 0) {
-      throw new IllegalArgumentException("Cannot have zero points");
-    }
-    if (yieldCurvePoints.length != yieldCurveInstruments.length || yieldCurvePoints.length != parRates.length) {
-      throw new IllegalArgumentException("points do not line up");
-    }
+        );
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -156,7 +199,7 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name.
+   * Gets the curve name.
    * @return the value of the property, not null
    */
   public String getName() {
@@ -165,7 +208,7 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the yieldCurvePoints.
+   * Gets the tenor at each curve node.
    * @return the value of the property, not null
    */
   public Period[] getYieldCurvePoints() {
@@ -174,7 +217,7 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the yieldCurveInstruments.
+   * Gets the instrument type at each curve node.
    * @return the value of the property, not null
    */
   public IsdaYieldCurveUnderlyingType[] getYieldCurveInstruments() {
@@ -183,7 +226,7 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the parRates.
+   * Gets the par rate at each curve node.
    * @return the value of the property, not null
    */
   public double[] getParRates() {
@@ -192,7 +235,7 @@ public final class IsdaYieldCurveParRates implements ImmutableBean, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curveConvention.
+   * Gets the underlying convention.
    * @return the value of the property, not null
    */
   public IsdaYieldCurveConvention getCurveConvention() {

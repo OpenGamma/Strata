@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
@@ -9,7 +9,7 @@ package com.opengamma.strata.market.curve;
  * Enumerates the supported types of underlying instruments on an ISDA yield curve. 
  */
 public enum IsdaYieldCurveUnderlyingType {
-  
+
   /**
    * A money market instrument.
    */
@@ -18,5 +18,5 @@ public enum IsdaYieldCurveUnderlyingType {
    * A swap.
    */
   ISDA_SWAP
-  
+
 }
