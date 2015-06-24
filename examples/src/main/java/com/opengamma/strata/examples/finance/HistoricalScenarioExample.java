@@ -39,7 +39,6 @@ import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
 import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
@@ -104,7 +103,6 @@ public class HistoricalScenarioExample {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(marketDataBuilder.rules())
-        .reportingRules(ReportingRules.empty())
         .build();
 
     // load the historical calibrated curves from which we will build our scenarios
