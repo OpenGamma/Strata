@@ -29,7 +29,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
@@ -43,7 +42,6 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
-import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
 
 /**
  * Test {@link MarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.
@@ -74,8 +72,6 @@ public class MarketDataBuilderTest {
       RateIndexCurveId.of(OvernightIndices.USD_FED_FUND, DEFAULT_CURVE_GROUP),
       DiscountCurveId.of(Currency.GBP, DEFAULT_CURVE_GROUP),
       RateIndexCurveId.of(IborIndices.GBP_LIBOR_3M, DEFAULT_CURVE_GROUP),
-      ZeroRateDiscountFactorsId.of(Currency.USD, DEFAULT_CURVE_GROUP, MarketDataFeed.NONE),
-      ZeroRateDiscountFactorsId.of(Currency.GBP, DEFAULT_CURVE_GROUP, MarketDataFeed.NONE),
       FxRateId.of(Currency.USD, Currency.GBP),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
       QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150")),
