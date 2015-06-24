@@ -33,7 +33,7 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.key.IsdaIndexCreditCurveParRatesKey;
 import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveParRatesKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
-import com.opengamma.strata.pricer.credit.CdsPricer;
+import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 
 /**
  * Calculates a result of a {@code CdsTrade} for each of a set of scenarios.
@@ -66,8 +66,8 @@ public abstract class AbstractCdsFunction<T>
    * 
    * @return the pricer
    */
-  protected CdsPricer pricer() {
-    return CdsPricer.DEFAULT;
+  protected IsdaCdsPricer pricer() {
+    return IsdaCdsPricer.DEFAULT;
   }
 
   //-------------------------------------------------------------------------

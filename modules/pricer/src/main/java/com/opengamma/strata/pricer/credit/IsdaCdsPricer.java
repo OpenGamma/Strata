@@ -26,12 +26,12 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
  * This function provides the ability to price a {@link ExpandedCds}.
  * Both single name and index swaps can be priced.
  */
-public class CdsPricer {
+public class IsdaCdsPricer {
 
   /**
    * Default implementation
    */
-  public static final CdsPricer DEFAULT = new CdsPricer();
+  public static final IsdaCdsPricer DEFAULT = new IsdaCdsPricer();
 
   /**
    * Standard one basis point for applying shifts
@@ -57,7 +57,7 @@ public class CdsPricer {
       LocalDate valuationDate) {
 
     double recoveryRate = creditCurveParRates.getRecoveryRate();
-    return CdsAnalyticsWrapper.price(valuationDate, product, yieldCurveParRates, creditCurveParRates, recoveryRate);
+    return IsdaCdsHelper.price(valuationDate, product, yieldCurveParRates, creditCurveParRates, recoveryRate);
   }
 
   //-------------------------------------------------------------------------

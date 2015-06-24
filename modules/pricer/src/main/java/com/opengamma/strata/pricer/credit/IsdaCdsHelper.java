@@ -43,7 +43,7 @@ import com.opengamma.strata.pricer.PricingException;
  * Par rate representations of the curves are calibrated and converted to ISDA calibrated curves.
  * Present value of the expanded CDS product (single name or index) is calculated here.
  */
-public class CdsAnalyticsWrapper {
+public class IsdaCdsHelper {
 
   /**
    * DayCount used with calculating time during curve calibration.
@@ -147,7 +147,7 @@ public class CdsAnalyticsWrapper {
 
       ISDAInstrumentTypes[] types =
           Stream.of(yieldCurve.getYieldCurveInstruments())
-              .map(CdsAnalyticsWrapper::mapInstrumentType)
+              .map(IsdaCdsHelper::mapInstrumentType)
               .toArray(ISDAInstrumentTypes[]::new);
 
       ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(
