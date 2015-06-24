@@ -103,7 +103,7 @@ public final class RatesCurvesCsvLoader {
       Collection<ResourceLocator> curvesResources,
       LocalDate curveDate) {
 
-    Map<LocalDate, Map<RateCurveId, Curve>> curves = loadCurves0(groupsResource, settingsResource, curvesResources, curveDate);
+    Map<LocalDate, Map<RateCurveId, Curve>> curves = loadCurvesForDate(groupsResource, settingsResource, curvesResources, curveDate);
     return curves.get(curveDate);
   }
   
@@ -120,11 +120,11 @@ public final class RatesCurvesCsvLoader {
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curvesResources) {
     
-    return loadCurves0(groupsResource, settingsResource, curvesResources, null);
+    return loadCurvesForDate(groupsResource, settingsResource, curvesResources, null);
   }
 
   //-------------------------------------------------------------------------
-  private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadCurves0(
+  private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadCurvesForDate(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curvesResources,

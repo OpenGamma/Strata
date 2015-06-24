@@ -49,7 +49,7 @@ public final class LoadedCurveKey implements ImmutableBean {
   private final CurveName curveName;
   
   /**
-   * Creates an instance from strings.
+   * Creates an instance.
    * 
    * @param curveDate  the curve date
    * @param curveGroup  the curve group
@@ -61,7 +61,7 @@ public final class LoadedCurveKey implements ImmutableBean {
   }
   
   /**
-   * Creates an instance from typed strings.
+   * Creates an instance from typed strings where applicable.
    * 
    * @param curveDate  the curve date
    * @param curveGroup  the curve group

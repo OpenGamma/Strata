@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -12,7 +14,6 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,9 +284,9 @@ public abstract class MarketDataBuilder {
   //-------------------------------------------------------------------------
   private Collection<ResourceLocator> getRatesCurvesResources() {
     return getAllResources(CURVES_DIR).stream()
-        .filter(res ->
-            !res.getLocator().endsWith(CURVES_GROUPS_FILE) && !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
-        .collect(Collectors.toList());
+        .filter(res -> !res.getLocator().endsWith(CURVES_GROUPS_FILE))
+        .filter(res -> !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
+        .collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------
