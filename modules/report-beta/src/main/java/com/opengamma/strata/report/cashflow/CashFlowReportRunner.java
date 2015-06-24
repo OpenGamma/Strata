@@ -38,7 +38,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
   // TODO - when the cashflow report INI file supports specific columns, the following maps should
   // be represented by a built-in report template INI file.
   
-  private static final ExplainKey<?> CALCULATED_AMOUNT_KEY = ExplainKey.of("CalculatedAmount");
+  private static final ExplainKey<?> INTERIM_AMOUNT_KEY = ExplainKey.of("InterimAmount");
   
   private static final Map<ExplainKey<?>, String> HEADER_MAP = ImmutableMap.of(
       ExplainKey.ENTRY_TYPE, "Flow Type",
@@ -73,7 +73,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
       .add(ExplainKey.ACCRUAL_YEAR_FRACTION)
       .add(ExplainKey.COMPOUNDING)
       .add(ExplainKey.UNIT_AMOUNT)
-      .add(CALCULATED_AMOUNT_KEY)
+      .add(INTERIM_AMOUNT_KEY)
       .add(ExplainKey.FUTURE_VALUE)
       .add(ExplainKey.DISCOUNT_FACTOR)
       .add(ExplainKey.PRESENT_VALUE)
@@ -172,7 +172,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
           continue;
         } else if (isFlow) {
           // This is first child flow row, so flow is equal to, and replaces, calculated amount
-          currentRow.remove(CALCULATED_AMOUNT_KEY);
+          currentRow.remove(INTERIM_AMOUNT_KEY);
         }
       }
       ExplainKey<?> mappedKey = mapKey(key, isFlow);
@@ -230,7 +230,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
   
   private ExplainKey<?> mapKey(ExplainKey<?> key, boolean isFlow) {
     if (!isFlow && key.equals(ExplainKey.FUTURE_VALUE)) {
-      return CALCULATED_AMOUNT_KEY;
+      return INTERIM_AMOUNT_KEY;
     }
     return key;
   }
