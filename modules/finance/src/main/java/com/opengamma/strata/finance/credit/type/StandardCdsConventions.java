@@ -7,6 +7,7 @@ package com.opengamma.strata.finance.credit.type;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 
@@ -24,7 +25,9 @@ import com.opengamma.strata.basics.schedule.StubConvention;
  * <p>
  * See ISDA CDS documentation for more details.
  */
-public enum StandardCdsConventions implements CdsConvention {
+public enum StandardCdsConventions
+    implements CdsConvention {
+  // TODO: constants using upper case currencies
 
   /**
    * The North-American USD convention.
@@ -34,6 +37,21 @@ public enum StandardCdsConventions implements CdsConvention {
       Currency.USD,
       DayCounts.ACT_360,
       BusinessDayAdjustment.of(FOLLOWING, USNY),
+      Frequency.P3M,
+      RollConventions.DAY_20,
+      true,
+      StubConvention.SHORT_INITIAL,
+      1,
+      3),
+
+  /**
+   * The European EUR convention.
+   */
+  EUROPEAN_EUR(
+      "EuropeanEur",
+      Currency.EUR,
+      DayCounts.ACT_360,
+      BusinessDayAdjustment.of(FOLLOWING, EUTA),
       Frequency.P3M,
       RollConventions.DAY_20,
       true,

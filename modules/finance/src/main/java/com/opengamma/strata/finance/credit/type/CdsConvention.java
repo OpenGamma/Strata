@@ -190,7 +190,6 @@ public interface CdsConvention
    * @param indexId  the identifier of the index
    * @param indexSeries  the index series
    * @param indexAnnexVersion  the index annex version
-   * @param restructuringClause  the restructuring clause
    * @param upfrontFeeAmount  the amount of the upfront fee
    * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the index CDS trade
@@ -204,7 +203,6 @@ public interface CdsConvention
       StandardId indexId,
       int indexSeries,
       int indexAnnexVersion,
-      RestructuringClause restructuringClause,
       double upfrontFeeAmount,
       LocalDate upfrontFeePaymentDate) {
 
@@ -214,11 +212,7 @@ public interface CdsConvention
         buySell,
         notional,
         coupon,
-        IndexReferenceInformation.of(
-            indexId,
-            indexSeries,
-            indexAnnexVersion,
-            restructuringClause),
+        IndexReferenceInformation.of(indexId, indexSeries, indexAnnexVersion),
         upfrontFeeAmount,
         upfrontFeePaymentDate);
   }
@@ -287,7 +281,7 @@ public interface CdsConvention
   /**
    * Gets the unadjusted maturity date.
    * <p>
-   * Standard maturity dates are unadjusted – always Mar/Jun/Sep/Dec 20th.
+   * Standard maturity dates are unadjusted, always Mar/Jun/Sep/Dec 20th.
    * For example, from February 2009 the 1y standard CDS contract would protect the buyer until 20 March 2010.
    * 
    * @param valuationDate  the valuation date

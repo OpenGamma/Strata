@@ -26,6 +26,11 @@ public final class CdsConventions {
   public static final CdsConvention NORTH_AMERICAN_USD =
       CdsConvention.of(StandardCdsConventions.NORTH_AMERICAN_USD.getName());
   /**
+   * The European EUR CDS convention.
+   */
+  public static final CdsConvention EUROPEAN_EUR =
+      CdsConvention.of(StandardCdsConventions.EUROPEAN_EUR.getName());
+  /**
    * The European GBP CDS convention.
    */
   public static final CdsConvention EUROPEAN_GBP =

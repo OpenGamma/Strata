@@ -136,7 +136,6 @@ public final class CdsTemplate
    * @param indexId  the identifier of the index
    * @param indexSeries  the index series
    * @param indexAnnexVersion  the index annex version
-   * @param restructuringClause  the restructuring clause
    * @return the index CDS trade
    */
   public CdsTrade toIndexTrade(
@@ -147,8 +146,7 @@ public final class CdsTemplate
       double coupon,
       StandardId indexId,
       int indexSeries,
-      int indexAnnexVersion,
-      RestructuringClause restructuringClause) {
+      int indexAnnexVersion) {
     // TODO: need optional fee, not LocalDate.MIN
 
     return convention.toIndexTrade(
@@ -160,8 +158,7 @@ public final class CdsTemplate
         indexId,
         indexSeries,
         indexAnnexVersion,
-        restructuringClause,
-        0D,
+        0d,
         LocalDate.MIN);
   }
 
@@ -176,7 +173,6 @@ public final class CdsTemplate
    * @param indexId  the identifier of the index
    * @param indexSeries  the index series
    * @param indexAnnexVersion  the index annex version
-   * @param restructuringClause  the restructuring clause
    * @param upfrontFeeAmount  the amount of the upfront fee
    * @param upfrontFeePaymentDate  the payment date of the upfront fee
    * @return the index CDS trade
@@ -190,7 +186,6 @@ public final class CdsTemplate
       StandardId indexId,
       int indexSeries,
       int indexAnnexVersion,
-      RestructuringClause restructuringClause,
       double upfrontFeeAmount,
       LocalDate upfrontFeePaymentDate) {
 
@@ -203,7 +198,6 @@ public final class CdsTemplate
         indexId,
         indexSeries,
         indexAnnexVersion,
-        restructuringClause,
         upfrontFeeAmount,
         upfrontFeePaymentDate);
   }
