@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
@@ -228,7 +229,6 @@ public abstract class MarketDataBuilder {
       Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
           .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
 
-      /*
       Map<ZeroRateDiscountFactorsId, ZeroRateDiscountFactors> zeroRateDiscountFactors =
           ratesCurves.entrySet().stream()
               .filter(e -> e.getKey() instanceof DiscountCurveId)
@@ -236,10 +236,9 @@ public abstract class MarketDataBuilder {
               .collect(Collectors.toMap(
                   e -> toZeroRateDiscountFactorsId(e.getFirst()),
                   e -> toZeroRateDiscountFactors(e.getFirst(), e.getSecond(), marketDataDate)));
-      */
 
       builder.addAllValues(ratesCurves);
-      //builder.addAllValues(zeroRateDiscountFactors);
+      builder.addAllValues(zeroRateDiscountFactors);
     } catch (Exception e) {
       s_logger.error("Error loading rates curves", e);
     }
