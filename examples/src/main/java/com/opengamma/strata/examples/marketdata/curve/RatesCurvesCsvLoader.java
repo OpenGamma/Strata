@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata.curve;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.collect.Guavate.toImmutableSortedMap;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.RateIndex;
@@ -114,7 +115,7 @@ public final class RatesCurvesCsvLoader {
    * @param curvesResources  the CSV resources for curves
    * @return the loaded curves, mapped by date and identifier
    */
-  public static Map<LocalDate, Map<RateCurveId, Curve>> loadAllCurves(
+  public static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadAllCurves(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curvesResources) {
@@ -123,7 +124,7 @@ public final class RatesCurvesCsvLoader {
   }
 
   //-------------------------------------------------------------------------
-  private static Map<LocalDate, Map<RateCurveId, Curve>> loadCurves0(
+  private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadCurves0(
       ResourceLocator groupsResource,
       ResourceLocator settingsResource,
       Collection<ResourceLocator> curvesResources,
@@ -141,12 +142,11 @@ public final class RatesCurvesCsvLoader {
     // load curve groups
     Map<LoadedCurveName, Set<RateCurveId>> curveGroups = loadCurveGroups(groupsResource);
 
-    Map<LocalDate, Map<RateCurveId, Curve>> mappedCurves = mapCurves(curveGroups, curves);
-    return mappedCurves;
+    return mapCurves(curveGroups, curves);
   }
   
   // uses the curve groups to form the resolved map of curve id to curve
-  private static Map<LocalDate, Map<RateCurveId, Curve>> mapCurves(
+  private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> mapCurves(
       Map<LoadedCurveName, Set<RateCurveId>> curveGroupMappings,
       Map<LoadedCurveKey, Curve> curves) {
     
@@ -171,7 +171,7 @@ public final class RatesCurvesCsvLoader {
     }
     
     return resultBuilder.entrySet().stream()
-        .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().build()));
+        .collect(toImmutableSortedMap(e -> e.getKey(), e -> e.getValue().build()));
   }
 
   // loads the curve settings CSV file

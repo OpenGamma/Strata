@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
@@ -188,7 +189,7 @@ public abstract class MarketDataBuilder {
    * 
    * @return the map of all rates curves
    */
-  public Map<LocalDate, Map<RateCurveId, Curve>> loadAllRatesCurves() {
+  public ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadAllRatesCurves() {
     if (!subdirectoryExists(CURVES_DIR)) {
       throw new IllegalArgumentException(
           Messages.format("No rates curves directory found"));
