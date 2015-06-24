@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.examples.marketdata.curve;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +23,6 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.examples.marketdata.CsvFile;
@@ -170,7 +171,7 @@ public final class RatesCurvesCsvLoader {
     }
     
     return resultBuilder.entrySet().stream()
-        .collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue().build()));
+        .collect(toImmutableMap(e -> e.getKey(), e -> e.getValue().build()));
   }
 
   // loads the curve settings CSV file
