@@ -65,8 +65,7 @@ import com.opengamma.strata.market.curve.Curve;
  * Present value and PV01 are calculated for a single swap. The present value from the second scenario
  * is compared to the sum of the present value and PV01 from the base scenario.
  * <p>
- * This makes use of the example engine which sources the required market data from
- * JSON resources.
+ * This makes use of the example engine and the example market data environment.
  */
 public class CurveScenarioExample {
 

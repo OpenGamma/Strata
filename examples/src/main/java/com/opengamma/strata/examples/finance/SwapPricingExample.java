@@ -57,8 +57,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 /**
  * Example to illustrate using the engine to price a swap.
  * <p>
- * This makes use of the example engine which sources the required market data from
- * JSON resources.
+ * This makes use of the example engine and the example market data environment.
  */
 public class SwapPricingExample {
 

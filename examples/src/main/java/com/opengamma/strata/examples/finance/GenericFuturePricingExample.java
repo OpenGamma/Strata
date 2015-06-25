@@ -42,7 +42,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 /**
  * Example to illustrate using the engine to price generic Futures.
  * <p>
- * This makes use of the example engine to source the required market data.
+ * This makes use of the example engine and the example market data environment.
  */
 public class GenericFuturePricingExample {
 
