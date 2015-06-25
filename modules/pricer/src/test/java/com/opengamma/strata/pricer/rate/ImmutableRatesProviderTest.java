@@ -33,8 +33,10 @@ import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
 import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * Test {@link ImmutableRatesProvider}.
@@ -140,6 +142,21 @@ public class ImmutableRatesProviderTest {
         .build();
     assertEquals(test.fxIndexRates(WM_GBP_USD).getIndex(), WM_GBP_USD);
     assertEquals(test.fxIndexRates(WM_GBP_USD).getTimeSeries(), ts);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_fxForwardRates() {
+    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
+        .valuationDate(VAL_DATE)
+        .fxMatrix(FX_MATRIX)
+        .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
+        .build();
+    DiscountFxForwardRates res = (DiscountFxForwardRates) test.fxForwardRates(CurrencyPair.of(GBP, USD));
+    assertEquals(res.getBaseCurrencyDiscountFactors(), ZeroRateDiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
+    assertEquals(res.getCounterCurrencyDiscountFactors(), ZeroRateDiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
+    assertEquals(res.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(res.getFxRateProvider(), FX_MATRIX);
+    assertEquals(res.getValuationDate(), VAL_DATE);
   }
 
   //-------------------------------------------------------------------------
