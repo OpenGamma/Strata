@@ -16,6 +16,7 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.pricer"/>
 <listEntry value="com.opengamma.strata.pricer.datasets"/>
+<listEntry value="com.opengamma.strata.pricer.fx"/>
 <listEntry value="com.opengamma.strata.pricer.impl"/>
 <listEntry value="com.opengamma.strata.pricer.impl.rate"/>
 <listEntry value="com.opengamma.strata.pricer.impl.rate.swap"/>

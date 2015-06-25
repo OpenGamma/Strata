@@ -6,24 +6,33 @@
 package com.opengamma.strata.report.trade;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
-import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.report.ReportTemplateIniLoader;
 
 /**
- * Loader for trade report templates in the standard INI file format.
+ * Loads a trade report template from the standard INI file format.
+ * <p>
+ * In a trade report template, the sections in the INI file (other than the special settings
+ * section) correspond to the columns in the report, in the order they are declared.
+ * <p>
+ * Each section can specify the following properties:
+ * <li>value - identifies the value to display in the column's cells
+ * <li>ignoreFailures - optional boolean flag to disable failure messages in this column
  */
 public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<TradeReportTemplate> {
 
+  private static final String REPORT_TYPE = "trade";
+
   private static final String VALUE_PROPERTY = "value";
   private static final String IGNORE_FAILURES_PROPERTY = "ignoreFailures";
-  private static final String PATH_SEPARATOR = "\\.";
+
+  @Override
+  public String getReportType() {
+    return REPORT_TYPE;
+  }
 
   @Override
   public TradeReportTemplate load(IniFile iniFile) {
@@ -44,30 +53,13 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
     TradeReportColumn.Builder columnBuilder = TradeReportColumn.builder();
     columnBuilder.header(columnName);
 
-    String measureText;
-    try {
-      measureText = properties.getValue(VALUE_PROPERTY);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(
-          Messages.format("Report template for column '{}' does not contain required property '{}'", columnName, VALUE_PROPERTY));
-    }
-    String[] measureBits = measureText.split(PATH_SEPARATOR);
-    List<String> measurePath = Arrays.stream(measureBits).collect(Collectors.toList());
-    String measureName = measurePath.remove(0);
-    try {
-      Measure measure = Measure.of(measureName);
-      columnBuilder.measure(measure);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(
-          Messages.format("Report template for column '{}' contains invalid measure name '{}'", columnName, measureText));
-    }
-    if (!measurePath.isEmpty()) {
-      columnBuilder.path(measurePath);
+    if (properties.contains(VALUE_PROPERTY)) {
+      columnBuilder.value(properties.getValue(VALUE_PROPERTY));
     }
     if (properties.contains(IGNORE_FAILURES_PROPERTY)) {
-      String ignoreFailureValue = properties.getValue(IGNORE_FAILURES_PROPERTY);
-      boolean ignoreFailure = Boolean.valueOf(ignoreFailureValue);
-      columnBuilder.ignoreFailure(ignoreFailure);
+      String ignoreFailuresValue = properties.getValue(IGNORE_FAILURES_PROPERTY);
+      boolean ignoresFailure = Boolean.valueOf(ignoreFailuresValue);
+      columnBuilder.ignoreFailures(ignoresFailure);
     }
     return columnBuilder.build();
   }

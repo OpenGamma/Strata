@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -409,7 +408,6 @@ public class DiscountingSwapLegPricerTest {
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
         .priceIndexValues(map)
         .discountCurves(dscCurve)
-        .dayCount(ACT_ACT_ISDA)
         .build();
     // test futureValue and presentValue
     CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
@@ -453,7 +451,6 @@ public class DiscountingSwapLegPricerTest {
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
         .priceIndexValues(map)
         .discountCurves(dscCurve)
-        .dayCount(ACT_ACT_ISDA)
         .build();
     // test futureValue and presentValue
     CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
@@ -546,7 +543,6 @@ public class DiscountingSwapLegPricerTest {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .discountCurves(dscCurve)
-        .dayCount(ACT_ACT_ISDA)
         .build();
     // test futureValue and presentValue
     CurrencyAmount fvComputed = pricer.futureValue(swapLeg, prov);
@@ -592,9 +588,9 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, eventPricer);
 
     CashFlows computed = pricer.cashFlows(expSwapLeg, mockProv);
-    CashFlow flow1 = CashFlow.of(period1.getPaymentDate(), GBP, fv1, df1);
-    CashFlow flow2 = CashFlow.of(period2.getPaymentDate(), GBP, fv2, df2);
-    CashFlow flow3 = CashFlow.of(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
+    CashFlow flow1 = CashFlow.ofFutureValue(period1.getPaymentDate(), GBP, fv1, df1);
+    CashFlow flow2 = CashFlow.ofFutureValue(period2.getPaymentDate(), GBP, fv2, df2);
+    CashFlow flow3 = CashFlow.ofFutureValue(event.getPaymentDate(), GBP, event.getPaymentAmount().getAmount(), df);
     CashFlows expected = CashFlows.of(ImmutableList.of(flow1, flow2, flow3));
     assertEquals(computed, expected);
   }

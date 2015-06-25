@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate.deposit;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
@@ -27,6 +26,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -68,11 +68,11 @@ public class DiscountingTermDepositProductPricerTest {
     CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
     double[] time_eur = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
     double[] rate_eur = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210};
-    InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of("EUR-Discount", time_eur, rate_eur, interp);
+    InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of(
+        CurveName.of("EUR-Discount"), ACT_360, time_eur, rate_eur, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
-        .dayCount(ACT_ACT_ISDA)
         .build();
   }
   private static final double DF_START = 0.99;

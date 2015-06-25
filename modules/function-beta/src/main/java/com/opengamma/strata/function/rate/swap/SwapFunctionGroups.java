@@ -10,6 +10,8 @@ import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.rate.swap.SwapBucketedPv01Function;
+import com.opengamma.strata.function.calculation.rate.swap.SwapBucketedGammaPv01Function;
+import com.opengamma.strata.function.calculation.rate.swap.SwapExplainPvFunction;
 import com.opengamma.strata.function.calculation.rate.swap.SwapLegPvFunction;
 import com.opengamma.strata.function.calculation.rate.swap.SwapParRateFunction;
 import com.opengamma.strata.function.calculation.rate.swap.SwapPv01Function;
@@ -30,9 +32,11 @@ public final class SwapFunctionGroups {
       DefaultFunctionGroup.builder(SwapTrade.class).name("SwapDiscounting")
           .addFunction(Measure.LEG_INITIAL_NOTIONAL, SwapLegNotionalFunction.class)
           .addFunction(Measure.PRESENT_VALUE, SwapPvFunction.class)
+          .addFunction(Measure.EXPLAIN_PRESENT_VALUE, SwapExplainPvFunction.class)
           .addFunction(Measure.LEG_PRESENT_VALUE, SwapLegPvFunction.class)
           .addFunction(Measure.PV01, SwapPv01Function.class)
           .addFunction(Measure.BUCKETED_PV01, SwapBucketedPv01Function.class)
+          .addFunction(Measure.BUCKETED_GAMMA_PV01, SwapBucketedGammaPv01Function.class)
           .addFunction(Measure.PAR_RATE, SwapParRateFunction.class)
           .addFunction(Measure.ACCRUED_INTEREST, SwapAccruedInterestFunction.class)
           .build();
@@ -54,6 +58,7 @@ public final class SwapFunctionGroups {
    *   <li>{@linkplain Measure#PRESENT_VALUE Present value}
    *   <li>{@linkplain Measure#LEG_PRESENT_VALUE Leg present value}
    *   <li>{@linkplain Measure#PV01 PV01}
+   *   <li>{@linkplain Measure#BUCKETED_GAMMA_PV01 Gamma PV01}
    *   <li>{@linkplain Measure#PAR_RATE Par rate}
    *   <li>{@linkplain Measure#ACCRUED_INTEREST Accrued interest}
    * </ul>

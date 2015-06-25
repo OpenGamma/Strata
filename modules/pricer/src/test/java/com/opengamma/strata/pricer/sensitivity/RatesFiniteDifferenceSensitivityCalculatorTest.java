@@ -18,7 +18,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -53,17 +52,17 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     double[] times2 = RatesProviderDataSets.TIMES_2;
     double[] times3 = RatesProviderDataSets.TIMES_3;
     assertEquals(sensiComputed.size(), 3);
-    double[] s1 = sensiComputed.getSensitivity(CurveName.of(RatesProviderDataSets.USD_DSC_NAME), USD).getSensitivity();
+    double[] s1 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_DSC_NAME, USD).getSensitivity();
     assertEquals(s1.length, times1.length);
     for (int i = 0; i < times1.length; i++) {
       assertEquals(times1[i] * 2.0d, s1[i], TOLERANCE_DELTA);
     }
-    double[] s2 = sensiComputed.getSensitivity(CurveName.of(RatesProviderDataSets.USD_L3_NAME), USD).getSensitivity();
+    double[] s2 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L3_NAME, USD).getSensitivity();
     assertEquals(s2.length, times2.length);
     for (int i = 0; i < times2.length; i++) {
       assertEquals(times2[i], s2[i], TOLERANCE_DELTA);
     }
-    double[] s3 = sensiComputed.getSensitivity(CurveName.of(RatesProviderDataSets.USD_L6_NAME), USD).getSensitivity();
+    double[] s3 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_L6_NAME, USD).getSensitivity();
     assertEquals(s3.length, times3.length);
     for (int i = 0; i < times3.length; i++) {
       assertEquals(times3[i], s3[i], TOLERANCE_DELTA);

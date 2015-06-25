@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
  */
 @Test
 public class FxSwapTest {
+
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
   private static final CurrencyAmount USD_P1550 = CurrencyAmount.of(USD, 1_550);
@@ -94,4 +95,5 @@ public class FxSwapTest {
     FxSwap test = FxSwap.of(NEAR_LEG, FAR_LEG);
     assertSerialization(test);
   }
+
 }

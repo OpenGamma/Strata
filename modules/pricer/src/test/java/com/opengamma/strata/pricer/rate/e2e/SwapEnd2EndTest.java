@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
@@ -805,7 +804,6 @@ public class SwapEnd2EndTest {
             USD_LIBOR_3M, TS_USDLIBOR3M,
             USD_LIBOR_6M, TS_USDLIBOR6M,
             USD_FED_FUND, TS_USDON))
-        .dayCount(ACT_ACT_ISDA)
         .build();
   }
 

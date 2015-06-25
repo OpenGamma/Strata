@@ -14,14 +14,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
-import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -37,6 +35,7 @@ import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
+import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
@@ -75,42 +74,40 @@ public class SwapPricingExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measure.TRADE_INFO),
-        Column.of(Measure.PRODUCT),
         Column.of(Measure.LEG_INITIAL_NOTIONAL),
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.LEG_PRESENT_VALUE),
         Column.of(Measure.PV01),
         Column.of(Measure.PAR_RATE),
-        Column.of(Measure.ACCRUED_INTEREST));
+        Column.of(Measure.ACCRUED_INTEREST),
+        Column.of(Measure.BUCKETED_PV01),
+        Column.of(Measure.BUCKETED_GAMMA_PV01));
+
+    // use the built-in example market data
+    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
-        .marketDataRules(ExampleMarketData.rules())
+        .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.empty())
         .build();
 
-    // Use an empty snapshot of market data, indicating only the valuation date.
-    // The engine will attempt to source the data for us, which the example engine is
-    // configured to load from JSON resources. We could alternatively populate the snapshot
-    // with some or all of the required market data here.
+    // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
-    BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
-        .build();
+    BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, baseMarketData);
+    Results results = engine.calculate(trades, columns, rules, snapshot);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
+        trades,
         columns,
         results);
-    
+
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
@@ -178,6 +175,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -227,6 +225,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "Libor 3m + spread vs Libor 6m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -278,6 +277,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "3"))
             .attributes(ImmutableMap.of("description", "Fed Funds averaged + spread vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -324,6 +324,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "4"))
             .attributes(ImmutableMap.of("description", "Fixed vs libor 3m (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2013, 9, 12))
@@ -374,6 +375,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "5"))
             .attributes(ImmutableMap.of("description", "Fixed vs ON (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 17))
@@ -421,6 +423,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "6"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m (3m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -469,6 +472,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "7"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m (1m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -520,6 +524,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "8"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 6m (interpolated 3m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -571,6 +576,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "9"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 6m (interpolated 4m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -619,6 +625,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "10"))
             .attributes(ImmutableMap.of("description", "Zero-coupon fixed vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -666,6 +673,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "11"))
             .attributes(ImmutableMap.of("description", "Compounding fixed vs fed funds"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 2, 5))
@@ -715,6 +723,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "12"))
             .attributes(ImmutableMap.of("description", "Compounding fed funds vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
@@ -762,6 +771,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "13"))
             .attributes(ImmutableMap.of("description", "Compounding libor 6m vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 8, 27))
@@ -806,6 +816,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "14"))
             .attributes(ImmutableMap.of("description", "GBP Libor 3m vs USD Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
@@ -850,6 +861,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "15"))
             .attributes(ImmutableMap.of("description", "USD fixed vs GBP Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
@@ -904,6 +916,7 @@ public class SwapPricingExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "16"))
             .attributes(ImmutableMap.of("description", "USD fixed vs GBP Libor 3m (notional exchange)"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))

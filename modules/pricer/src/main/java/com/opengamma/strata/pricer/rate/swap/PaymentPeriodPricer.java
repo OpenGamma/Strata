@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate.swap;
 
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.rate.swap.DispatchingPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -60,6 +61,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    */
   public abstract PointSensitivityBuilder presentValueSensitivity(T period, RatesProvider provider);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the future value of a single payment period.
    * <p>
@@ -86,5 +88,20 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * @return the future value curve sensitivity of the period
    */
   public abstract PointSensitivityBuilder futureValueSensitivity(T period, RatesProvider provider);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of a single payment period.
+   * <p>
+   * This adds information to the {@link ExplainMapBuilder} to aid understanding of the calculation.
+   * 
+   * @param period  the period to price
+   * @param provider  the rates provider
+   * @param builder  the builder to populate
+   */
+  public abstract void explainPresentValue(
+      T period,
+      RatesProvider provider,
+      ExplainMapBuilder builder);
 
 }

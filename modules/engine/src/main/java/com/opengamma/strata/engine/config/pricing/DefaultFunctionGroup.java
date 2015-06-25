@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.engine.config.FunctionConfig;
@@ -92,6 +93,11 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
     return targetType.isInstance(target) ?
         Optional.ofNullable(this.functionConfig.get(measure)) :
         Optional.empty();
+  }
+
+  @Override
+  public ImmutableSet<Measure> configuredMeasures(CalculationTarget target) {
+    return functionConfig.keySet();
   }
 
   // TODO Method to return parameter metadata for parameters that can be specified in config.

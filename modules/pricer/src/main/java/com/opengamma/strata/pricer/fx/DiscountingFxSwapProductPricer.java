@@ -44,7 +44,7 @@ public class DiscountingFxSwapProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value.
+   * Calculates the present value of the FX swap product.
    * <p>
    * This discounts each payment on each leg in its own currency.
    * 
@@ -60,7 +60,25 @@ public class DiscountingFxSwapProductPricer {
   }
 
   /**
-   * Calculates the currency exposure.
+   * Calculates the present value sensitivity of the FX swap product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the present value sensitivity
+   */
+  public PointSensitivities presentValueSensitivity(FxSwapProduct product, RatesProvider provider) {
+    ExpandedFxSwap fx = product.expand();
+    PointSensitivities nearSens = fxPricer.presentValueSensitivity(fx.getNearLeg(), provider);
+    PointSensitivities farSens = fxPricer.presentValueSensitivity(fx.getFarLeg(), provider);
+    return nearSens.combinedWith(farSens);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the FX swap product.
    * <p>
    * This discounts each payment on each leg in its own currency.
    * 
@@ -73,7 +91,7 @@ public class DiscountingFxSwapProductPricer {
   }
 
   /**
-   * Calculates the par spread is the spread that should be added to the forex forward points to have a zero value.
+   * Calculates the par spread is the spread that should be added to the FX forward points to have a zero value.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -87,21 +105,6 @@ public class DiscountingFxSwapProductPricer {
     double dfEnd = provider.discountFactor(counterPaymentNear.getCurrency(), fx.getFarLeg().getPaymentDate());
     double notionalBaseCcy = fx.getNearLeg().getBaseCurrencyPayment().getAmount();
     return -pvCounterCcy / (notionalBaseCcy * dfEnd);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the present value sensitivity.
-   * 
-   * @param product  the product to price
-   * @param provider  the rates provider
-   * @return the present value sensitivity
-   */
-  public PointSensitivities presentValueSensitivity(FxSwapProduct product, RatesProvider provider) {
-    ExpandedFxSwap fx = product.expand();
-    PointSensitivities nearSens = fxPricer.presentValueSensitivity(fx.getNearLeg(), provider);
-    PointSensitivities farSens = fxPricer.presentValueSensitivity(fx.getFarLeg(), provider);
-    return nearSens.combinedWith(farSens);
   }
 
 }

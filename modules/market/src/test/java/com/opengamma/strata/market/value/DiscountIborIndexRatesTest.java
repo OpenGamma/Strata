@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.value;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -43,11 +42,9 @@ public class DiscountIborIndexRatesTest {
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("TestCurve");
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(NAME, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
-  private static final ZeroRateDiscountFactors DFCURVE =
-      ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_365F, CURVE);
-  private static final ZeroRateDiscountFactors DFCURVE2 =
-      ZeroRateDiscountFactors.of(GBP, DATE_VAL, ACT_360, CURVE);
+      InterpolatedNodalCurve.of(NAME, ACT_365F, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
+  private static final ZeroRateDiscountFactors DFCURVE = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
+  private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
 
   private static final double RATE_BEFORE = 0.013d;
   private static final double RATE_VAL = 0.014d;
@@ -172,17 +169,17 @@ public class DiscountIborIndexRatesTest {
 
   public void test_unitParameterSensitivity_onValuation_noFixing() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getName(), CURVE.yValueParameterSensitivity(relativeTime)));
+        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
     assertEquals(test.unitParameterSensitivity(DATE_VAL), expected);
   }
 
   public void test_unitParameterSensitivity_afterValuation() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    double relativeTime = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getName(), CURVE.yValueParameterSensitivity(relativeTime)));
+        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 

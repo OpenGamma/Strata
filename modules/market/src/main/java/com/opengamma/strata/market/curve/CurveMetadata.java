@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
@@ -31,6 +32,7 @@ public interface CurveMetadata
    * Creates a metadata instance without parameter information.
    * <p>
    * The resulting metadata will have no parameter metadata.
+   * For more control, see {@link DefaultCurveMetadata}.
    * 
    * @param name  the curve name
    * @return the metadata
@@ -43,6 +45,7 @@ public interface CurveMetadata
    * Creates a metadata instance without parameter information.
    * <p>
    * The resulting metadata will have no parameter metadata.
+   * For more control, see {@link DefaultCurveMetadata}.
    * 
    * @param name  the curve name
    * @return the metadata
@@ -56,6 +59,7 @@ public interface CurveMetadata
    * <p>
    * The parameter metadata must match the number of parameters on the curve.
    * An empty list is accepted and interpreted as meaning that no parameter metadata is present.
+   * For more control, see {@link DefaultCurveMetadata}.
    * 
    * @param name  the curve name
    * @param parameters  the parameter metadata
@@ -70,6 +74,7 @@ public interface CurveMetadata
    * <p>
    * The parameter metadata must match the number of parameters on the curve.
    * An empty list is accepted and interpreted as meaning that no parameter metadata is present.
+   * For more control, see {@link DefaultCurveMetadata}.
    * 
    * @param name  the curve name
    * @param parameters  the parameter metadata
@@ -86,6 +91,16 @@ public interface CurveMetadata
    * @return the curve name
    */
   public abstract CurveName getCurveName();
+
+  /**
+   * Gets the day count, optional.
+   * <p>
+   * If the x-value of the curve represents time as a year fraction, the day count
+   * can be specified to define how the year fraction is calculated.
+   * 
+   * @return the day count
+   */
+  public abstract Optional<DayCount> getDayCount();
 
   /**
    * Gets metadata about each parameter underlying the curve, optional.

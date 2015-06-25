@@ -23,6 +23,7 @@ import com.opengamma.strata.finance.TradeInfo;
  */
 @Test
 public class FxSwapTradeTest {
+
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
   private static final CurrencyAmount USD_P1550 = CurrencyAmount.of(USD, 1_550);
@@ -31,6 +32,7 @@ public class FxSwapTradeTest {
   private static final Fx FAR_LEG = Fx.of(GBP_M1000, USD_P1550, date(2011, 12, 21));
   private static final FxSwap PRODUCT = FxSwap.of(NEAR_LEG, FAR_LEG);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2011, 11, 14)).build();
+
   //-------------------------------------------------------------------------
   public void test_builder() {
     FxSwapTrade test = FxSwapTrade.builder()
@@ -61,4 +63,5 @@ public class FxSwapTradeTest {
         .build();
     assertSerialization(test);
   }
+
 }

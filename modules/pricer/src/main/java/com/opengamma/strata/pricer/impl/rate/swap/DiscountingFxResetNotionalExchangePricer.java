@@ -5,7 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import java.time.LocalDate;
+
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.FxIndexRates;
@@ -55,9 +61,13 @@ public class DiscountingFxResetNotionalExchangePricer
   @Override
   public double futureValue(FxResetNotionalExchange event, RatesProvider provider) {
     // notional * fxRate
+    return event.getNotional() * fxRate(event, provider);
+  }
+
+  // obtains the FX rate
+  private double fxRate(FxResetNotionalExchange event, RatesProvider provider) {
     FxIndexRates rates = provider.fxIndexRates(event.getIndex());
-    double fxRate = rates.rate(event.getReferenceCurrency(), event.getFixingDate());
-    return event.getNotional() * fxRate;
+    return rates.rate(event.getReferenceCurrency(), event.getFixingDate());
   }
 
   @Override
@@ -65,6 +75,32 @@ public class DiscountingFxResetNotionalExchangePricer
     FxIndexRates rates = provider.fxIndexRates(event.getIndex());
     return rates.ratePointSensitivity(event.getReferenceCurrency(), event.getFixingDate())
         .multipliedBy(event.getNotional());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void explainPresentValue(FxResetNotionalExchange event, RatesProvider provider, ExplainMapBuilder builder) {
+    Currency currency = event.getCurrency();
+    LocalDate paymentDate = event.getPaymentDate();
+
+    builder.put(ExplainKey.ENTRY_TYPE, "FxResetNotionalExchange");
+    builder.put(ExplainKey.PAYMENT_DATE, paymentDate);
+    builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
+    builder.put(ExplainKey.TRADE_NOTIONAL, event.getNotionalAmount());
+    if (paymentDate.isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
+    } else {
+      builder.addListEntry(ExplainKey.OBSERVATIONS, child -> {
+        child.put(ExplainKey.ENTRY_TYPE, "FxObservation");
+        child.put(ExplainKey.INDEX, event.getIndex());
+        child.put(ExplainKey.FIXING_DATE, event.getFixingDate());
+        child.put(ExplainKey.INDEX_VALUE, fxRate(event, provider));
+      });
+      builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
+      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.of(currency, futureValue(event, provider)));
+      builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.of(currency, presentValue(event, provider)));
+    }
   }
 
 }

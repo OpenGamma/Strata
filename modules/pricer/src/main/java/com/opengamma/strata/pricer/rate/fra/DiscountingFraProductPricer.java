@@ -5,8 +5,11 @@
  */
 package com.opengamma.strata.pricer.rate.fra;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
@@ -14,6 +17,9 @@ import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraProduct;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.DiscountFactors;
@@ -64,7 +70,7 @@ public class DiscountingFraProductPricer {
     // futureValue * discountFactor
     ExpandedFra fra = product.expand();
     double df = provider.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    double pv = futureValue(fra, provider) * df;
+    double pv = futureValue0(fra, provider) * df;
     return CurrencyAmount.of(fra.getCurrency(), pv);
   }
 
@@ -104,7 +110,7 @@ public class DiscountingFraProductPricer {
    */
   public CurrencyAmount futureValue(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
-    double fv = futureValue(fra, provider);
+    double fv = futureValue0(fra, provider);
     return CurrencyAmount.of(fra.getCurrency(), fv);
   }
 
@@ -184,15 +190,55 @@ public class DiscountingFraProductPricer {
   public CashFlows cashFlows(FraProduct product, RatesProvider provider) {
     ExpandedFra fra = product.expand();
     LocalDate paymentDate = fra.getPaymentDate();
-    double futureValue = futureValue(fra, provider);
+    double futureValue = futureValue0(fra, provider);
     double df = provider.discountFactor(fra.getCurrency(), paymentDate);
-    CashFlow cashFlow = CashFlow.of(paymentDate, fra.getCurrency(), futureValue, df);
+    CashFlow cashFlow = CashFlow.ofFutureValue(paymentDate, fra.getCurrency(), futureValue, df);
     return CashFlows.of(cashFlow);
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of the FRA product.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param product  the FRA product for which present value should be computed
+   * @param provider  the rates provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(FraProduct product, RatesProvider provider) {
+    ExpandedFra fra = product.expand();
+
+    ExplainMapBuilder builder = ExplainMap.builder();
+    Currency currency = fra.getCurrency();
+    builder.put(ExplainKey.ENTRY_TYPE, "FRA");
+    builder.put(ExplainKey.PAYMENT_DATE, fra.getPaymentDate());
+    builder.put(ExplainKey.START_DATE, fra.getStartDate());
+    builder.put(ExplainKey.END_DATE, fra.getEndDate());
+    builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, fra.getYearFraction());
+    builder.put(ExplainKey.ACCRUAL_DAYS, (int) DAYS.between(fra.getStartDate(), fra.getEndDate()));
+    builder.put(ExplainKey.PAYMENT_CURRENCY, currency);
+    builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
+    builder.put(ExplainKey.TRADE_NOTIONAL, CurrencyAmount.of(currency, fra.getNotional()));
+    if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
+      builder.put(ExplainKey.FUTURE_VALUE, CurrencyAmount.zero(currency));
+      builder.put(ExplainKey.PRESENT_VALUE, CurrencyAmount.zero(currency));
+    } else {
+      double rate = rateObservationFn.explainRate(
+          fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provider, builder);
+      builder.put(ExplainKey.FIXED_RATE, fra.getFixedRate());
+      builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, fra.getPaymentDate()));
+      builder.put(ExplainKey.PAY_OFF_RATE, rate);
+      builder.put(ExplainKey.UNIT_AMOUNT, unitAmount(fra, provider));
+      builder.put(ExplainKey.FUTURE_VALUE, futureValue(fra, provider));
+      builder.put(ExplainKey.PRESENT_VALUE, presentValue(fra, provider));
+    }
+    return builder.build();
+  }
+
+  //-------------------------------------------------------------------------
   // calculates the future value
-  private double futureValue(ExpandedFra fra, RatesProvider provider) {
+  private double futureValue0(ExpandedFra fra, RatesProvider provider) {
     if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
       return 0d;
     }

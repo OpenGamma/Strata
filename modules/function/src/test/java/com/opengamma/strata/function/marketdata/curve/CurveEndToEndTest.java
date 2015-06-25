@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
@@ -13,6 +14,7 @@ import static com.opengamma.strata.engine.calculations.function.FunctionUtils.to
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -147,6 +149,7 @@ public class CurveEndToEndTest {
 
     InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
         .name(curveName)
+        .dayCount(ACT_ACT_ISDA)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)

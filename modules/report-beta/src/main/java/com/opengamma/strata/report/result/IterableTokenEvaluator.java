@@ -8,19 +8,22 @@ package com.opengamma.strata.report.result;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.beans.Bean;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 
 /**
  * 
  */
-public class IterableTokenEvaluator implements TokenEvaluator<Iterable<?>> {
+public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
 
   private static final Set<Class<?>> SUPPORTED_FIELD_TYPES = ImmutableSet.of(
       Currency.class,
@@ -35,7 +38,7 @@ public class IterableTokenEvaluator implements TokenEvaluator<Iterable<?>> {
   @Override
   public Set<String> tokens(Iterable<?> iterable) {
     Multiset<String> tokens = HashMultiset.create();
-    int index = 1;
+    int index = 0;
     for (Object item : iterable) {
       tokens.add(String.valueOf(index++));
       tokens.addAll(fieldValues(item));
@@ -46,17 +49,25 @@ public class IterableTokenEvaluator implements TokenEvaluator<Iterable<?>> {
   }
 
   @Override
-  public Object evaluate(Iterable<?> iterable, String token) {
+  public Result<?> evaluate(Iterable<?> iterable, String token) {
+    if (NumberUtils.isDigits(token)) {
+      int index = Integer.parseInt(token);
+      try {
+        return Result.success(Iterables.get(iterable, index));
+      } catch (IndexOutOfBoundsException e) {
+        return invalidTokenFailure(iterable, token);
+      }
+    }
     for (Object item : iterable) {
       if (!fieldValues(item).contains(token)) {
         continue;
       }
       if (!tokens(iterable).contains(token)) {
-        throw new TokenException(token, TokenError.AMBIGUOUS, tokens(iterable));
+        return ambiguousTokenFailure(iterable, token);
       }
-      return item;
+      return Result.success(item);
     }
-    throw new TokenException(token, TokenError.INVALID, tokens(iterable));
+    return invalidTokenFailure(iterable, token);
   }
 
   //-------------------------------------------------------------------------

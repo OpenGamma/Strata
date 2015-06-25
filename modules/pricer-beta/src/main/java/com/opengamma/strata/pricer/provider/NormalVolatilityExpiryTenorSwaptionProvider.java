@@ -86,13 +86,13 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
 
   @Override
   public double getVolatility(ZonedDateTime expiryDate, double tenor, double strike, double forwardRate) {
-    double expiryTime = relativeTime(expiryDate);
+    double expiryTime = relativeYearFraction(expiryDate);
     double volatility = surface.getZValue(expiryTime, tenor);
     return volatility;
   }
 
   @Override
-  public double relativeTime(ZonedDateTime date) {
+  public double relativeYearFraction(ZonedDateTime date) {
     // TODO: The time and zone are currently not used. Expiry should also be date/time/zone.
     return dayCount.yearFraction(valuationDate, date.toLocalDate());
   }

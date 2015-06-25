@@ -126,7 +126,7 @@ public class NormalSwaptionProductPricerTest {
     double volatility = NORMAL_VOL_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(), 
         SWAP_TENOR_YEAR, STRIKE, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
-    double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
+    double expiry = NORMAL_VOL_SWAPTION_PROVIDER_USD.relativeYearFraction(SWAPTION_LONG_REC.getExpiryDateTime());
     EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, expiry, false);
     double pvExpected = NORMAL.getPriceFunction(option).evaluate(normalData);
     CurrencyAmount pvComputed = 

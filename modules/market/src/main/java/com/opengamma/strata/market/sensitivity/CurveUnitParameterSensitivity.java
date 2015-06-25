@@ -60,28 +60,6 @@ public final class CurveUnitParameterSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the curve name and sensitivity.
-   * 
-   * @param curveName  the curve name
-   * @param sensitivity  the sensitivity values, one for each node in the curve
-   * @return the sensitivity object
-   */
-  public static CurveUnitParameterSensitivity of(String curveName, double[] sensitivity) {
-    return of(CurveMetadata.of(curveName), sensitivity);
-  }
-
-  /**
-   * Obtains an instance from the curve name and sensitivity.
-   * 
-   * @param curveName  the curve name
-   * @param sensitivity  the sensitivity values, one for each node in the curve
-   * @return the sensitivity object
-   */
-  public static CurveUnitParameterSensitivity of(CurveName curveName, double[] sensitivity) {
-    return of(CurveMetadata.of(curveName), sensitivity);
-  }
-
-  /**
    * Obtains an instance from the curve metadata and sensitivity.
    * 
    * @param metadata  the curve metadata

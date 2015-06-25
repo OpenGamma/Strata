@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
@@ -83,6 +85,28 @@ public class ForwardIborAveragedRateObservationFn
 
     return rates.ratePointSensitivity(fixing.getFixingDate())
         .multipliedBy(fixing.getWeight() / totalWeight);
+  }
+
+  @Override
+  public double explainRate(
+      IborAveragedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider,
+      ExplainMapBuilder builder) {
+
+    IborIndexRates rates = provider.iborIndexRates(observation.getIndex());
+    for (IborAveragedFixing fixing : observation.getFixings()) {
+      builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+          .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
+          .put(ExplainKey.FIXING_DATE, fixing.getFixingDate())
+          .put(ExplainKey.INDEX, observation.getIndex())
+          .put(ExplainKey.INDEX_VALUE, fixing.getFixedRate().orElse(rates.rate(fixing.getFixingDate())))
+          .put(ExplainKey.WEIGHT, fixing.getWeight()));
+    }
+    double rate = rate(observation, startDate, endDate, provider);
+    builder.put(ExplainKey.COMBINED_RATE, rate);
+    return rate;
   }
 
 }

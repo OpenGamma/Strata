@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * Point sensitivity to a forward rate of an FX rate for a currency pair.
+ * Point sensitivity to a forward rate of an FX rate for an FX index.
  * <p>
  * Holds the sensitivity to the {@link FxIndex} curve at a fixing date.
  */
@@ -134,6 +134,19 @@ public final class FxIndexSensitivity
   public Currency getReferenceCounterCurrency() {
     boolean inverse = referenceCurrency.equals(index.getCurrencyPair().getBase());
     return inverse ? index.getCurrencyPair().getCounter() : index.getCurrencyPair().getBase();
+  }
+
+  /**
+   * Create {@code FxForwardSensitivity} from this instance. 
+   * <p>
+   * The time series, fixing date and FX index are aborted by this conversion. 
+   * Instead, maturity date and currency pair are contained in {@link FxForwardSensitivity}.
+   * 
+   * @return the FX forward sensitivity
+   */
+  public FxForwardSensitivity toFxForwardSensitivity() {
+    LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
+    return FxForwardSensitivity.of(index.getCurrencyPair(), currency, referenceCurrency, maturityDate, sensitivity);
   }
 
   //-------------------------------------------------------------------------

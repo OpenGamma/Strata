@@ -309,7 +309,7 @@ public class NormalIborFutureOptionMarginedProductPricer extends IborFutureOptio
       NormalVolatilityIborFutureProvider volatilityProvider) {
 
     double strike = futureOption.getStrikePrice();
-    double timeToExpiry = volatilityProvider.relativeTime(
+    double timeToExpiry = volatilityProvider.relativeYearFraction(
         futureOption.getExpirationDate(), futureOption.getExpirationTime(), futureOption.getExpirationZone());
     boolean isCall = futureOption.getPutCall().isCall();
     return new EuropeanVanillaOption(strike, timeToExpiry, isCall);

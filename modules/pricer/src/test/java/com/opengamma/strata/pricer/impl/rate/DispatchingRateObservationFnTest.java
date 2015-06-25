@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -34,6 +35,9 @@ import com.opengamma.strata.finance.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -214,6 +218,17 @@ public class DispatchingRateObservationFnTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_explainRate_FixedRateObservation() {
+    FixedRateObservation ro = FixedRateObservation.of(0.0123d);
+    DispatchingRateObservationFn test = DispatchingRateObservationFn.DEFAULT;
+    ExplainMapBuilder builder = ExplainMap.builder();
+    assertEquals(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder), 0.0123d, 0d);
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.FIXED_RATE), Optional.of(0.0123d));
+    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(0.0123d));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
         MOCK_IBOR_EMPTY,
@@ -248,6 +263,17 @@ public class DispatchingRateObservationFnTest {
     ignoreThrows(() -> test.rateSensitivity(inflationMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(inflationInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(mock, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
+
+    ExplainMapBuilder explain = ExplainMap.builder();
+    ignoreThrows(() -> test.explainRate(fixed, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(ibor, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(iborInt, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(iborAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(onCpd, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(onAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(inflationMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(inflationInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(mock, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
   }
 
 }

@@ -15,9 +15,10 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.market"/>
-<listEntry value="com.opengamma.strata.market.cashflow"/>
+<listEntry value="com.opengamma.strata.market.amount"/>
 <listEntry value="com.opengamma.strata.market.curve"/>
 <listEntry value="com.opengamma.strata.market.curve.config"/>
+<listEntry value="com.opengamma.strata.market.explain"/>
 <listEntry value="com.opengamma.strata.market.id"/>
 <listEntry value="com.opengamma.strata.market.key"/>
 <listEntry value="com.opengamma.strata.market.sensitivity"/>

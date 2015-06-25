@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.function.rate.fra;
 
+import static com.opengamma.strata.function.calculation.AbstractCalculationFunction.ONE_BASIS_POINT;
+
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -20,7 +22,7 @@ public class FraPv01Function
   @Override
   protected MultiCurrencyAmount execute(ExpandedFra product, RatesProvider provider) {
     PointSensitivities pointSensitivity = pricer().presentValueSensitivity(product, provider);
-    return provider.curveParameterSensitivity(pointSensitivity).total();
+    return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
 }

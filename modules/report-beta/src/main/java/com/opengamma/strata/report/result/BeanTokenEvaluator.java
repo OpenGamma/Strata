@@ -10,10 +10,14 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 
+import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.Result;
+
 /**
  * Evaluates a token against a bean to produce another object.
  */
-public class BeanTokenEvaluator implements TokenEvaluator<Bean> {
+public class BeanTokenEvaluator extends TokenEvaluator<Bean> {
 
   @Override
   public Class<Bean> getTargetType() {
@@ -26,14 +30,16 @@ public class BeanTokenEvaluator implements TokenEvaluator<Bean> {
   }
 
   @Override
-  public Object evaluate(Bean bean, String token) {
+  public Result<?> evaluate(Bean bean, String token) {
     Optional<String> propertyName = bean.propertyNames().stream()
         .filter(p -> p.toLowerCase().equals(token))
         .findFirst();
     if (propertyName.isPresent()) {
-      return bean.property(propertyName.get()).get();
+      Object propertyValue = bean.property(propertyName.get()).get();
+      return propertyValue != null ? Result.success(propertyValue) : Result.failure(FailureReason.INVALID_INPUT,
+          Messages.format("Property '{}' not set", token));
     }
-    throw new TokenException(token, TokenError.INVALID, tokens(bean));
+    return invalidTokenFailure(bean, token);
   }
 
 }

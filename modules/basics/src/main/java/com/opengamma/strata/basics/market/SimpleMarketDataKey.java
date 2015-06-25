@@ -25,6 +25,8 @@ package com.opengamma.strata.basics.market;
  * This interface should be implemented by keys for these types of simple market data. The calculation
  * engine has built-in support for this interface which means the user does not need to specify a market data rule
  * for any types implementing this interface.
+ * 
+ * @param <T>  the type of the market data identified by the key
  */
 public interface SimpleMarketDataKey<T> extends MarketDataKey<T> {
 
@@ -35,4 +37,5 @@ public interface SimpleMarketDataKey<T> extends MarketDataKey<T> {
    * @return a market data ID identifying the same market data value as this key
    */
   public abstract MarketDataId<T> toMarketDataId(MarketDataFeed marketDataFeed);
+
 }

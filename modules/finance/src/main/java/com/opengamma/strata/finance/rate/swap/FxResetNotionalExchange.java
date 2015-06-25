@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.Messages;
 
@@ -126,6 +127,17 @@ public final class FxResetNotionalExchange
     Currency indexBase = index.getCurrencyPair().getBase();
     Currency indexCounter = index.getCurrencyPair().getCounter();
     return (referenceCurrency.equals(indexBase) ? indexCounter : indexBase);
+  }
+
+  /**
+   * Gets the notional as a {@code CurrencyAmount}.
+   * <p>
+   * The notional is expressed in the reference currency, prior to FX conversion.
+   * 
+   * @return the notional as a  {@code CurrencyAmount}
+   */
+  public CurrencyAmount getNotionalAmount() {
+    return CurrencyAmount.of(referenceCurrency, notional);
   }
 
   //-------------------------------------------------------------------------

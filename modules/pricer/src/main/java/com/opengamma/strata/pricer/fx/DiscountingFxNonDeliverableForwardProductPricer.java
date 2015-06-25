@@ -63,22 +63,6 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
   }
 
   /**
-   * Calculates the forward exchange rate.
-   * 
-   * @param product  the product to price
-   * @param provider  the rates provider
-   * @return the forward rate
-   */
-  public FxRate forwardFxRate(FxNonDeliverableForwardProduct product, RatesProvider provider) {
-    ExpandedFxNonDeliverableForward ndf = product.expand();
-    Currency ccySettle = ndf.getSettlementCurrency();
-    Currency ccyOther = ndf.getNonDeliverableCurrency();
-    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
-    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
-    return FxRate.of(ccySettle, ccyOther, forwardRate);
-  }
-
-  /**
    * Calculates the present value curve sensitivity of the NDF product.
    * <p>
    * The present value sensitivity of the product is the sensitivity of the present value to
@@ -108,6 +92,23 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     PointSensitivityBuilder sensiFx = provider.fxIndexRates(ndf.getIndex())
         .ratePointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(fxBar);
     return sensiDsc.combinedWith(sensiFx).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward exchange rate.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the forward rate
+   */
+  public FxRate forwardFxRate(FxNonDeliverableForwardProduct product, RatesProvider provider) {
+    ExpandedFxNonDeliverableForward ndf = product.expand();
+    Currency ccySettle = ndf.getSettlementCurrency();
+    Currency ccyOther = ndf.getNonDeliverableCurrency();
+    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
+    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
+    return FxRate.of(ccySettle, ccyOther, forwardRate);
   }
 
 }

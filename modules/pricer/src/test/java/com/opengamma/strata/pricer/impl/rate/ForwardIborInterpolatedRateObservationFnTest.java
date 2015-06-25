@@ -13,11 +13,15 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -61,6 +65,23 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     double rateExpected = (weight3M * RATE3 + weight6M * RATE6);
     double rateComputed = obs.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv);
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
+
+    // explain
+    ExplainMapBuilder builder = ExplainMap.builder();
+    assertEquals(obs.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, mockProv, builder), rateExpected, TOLERANCE_RATE);
+
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 2);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATE));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.INDEX_VALUE), Optional.of(RATE3));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(0).get(ExplainKey.WEIGHT), Optional.of(weight3M));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATE));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_6M));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.INDEX_VALUE), Optional.of(RATE6));
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().get(1).get(ExplainKey.WEIGHT), Optional.of(weight6M));
+    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(rateExpected));
   }
 
   public void test_rateSensitivity() {

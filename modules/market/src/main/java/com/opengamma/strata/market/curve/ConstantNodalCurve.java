@@ -86,6 +86,17 @@ public final class ConstantNodalCurve
     return new ConstantNodalCurve(CurveMetadata.of(name), yValue);
   }
 
+  /**
+   * Creates a constant curve with a specific value.
+   * 
+   * @param metadata  the curve metadata
+   * @param yValue  the constant y-value
+   * @return the curve
+   */
+  public static ConstantNodalCurve of(CurveMetadata metadata, double yValue) {
+    return new ConstantNodalCurve(metadata, yValue);
+  }
+
   //-------------------------------------------------------------------------
   // restricted constructor
   @ImmutableConstructor

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<assembly
+    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <formats>
+    <format>zip</format>
+  </formats>
+  <id>report-tool</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <files>
+    <file>
+      <source>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</source>
+      <outputDirectory>/</outputDirectory>
+      <destName>strata-report-tool.jar</destName>
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+      <directory>src/main/resources/example-marketdata</directory>
+      <outputDirectory>example-marketdata</outputDirectory>
+      <lineEnding>crlf</lineEnding>
+    </fileSet>
+    <fileSet>
+      <directory>src/main/resources/example-portfolios</directory>
+      <outputDirectory>example-portfolios</outputDirectory>
+      <lineEnding>crlf</lineEnding>
+    </fileSet>
+    <fileSet>
+      <directory>src/main/resources/example-reports</directory>
+      <outputDirectory>example-reports</outputDirectory>
+      <lineEnding>crlf</lineEnding>
+    </fileSet>
+  </fileSets>
+</assembly>
+

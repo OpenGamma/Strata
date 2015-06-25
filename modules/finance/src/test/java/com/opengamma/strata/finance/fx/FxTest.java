@@ -163,8 +163,8 @@ public class FxTest {
   public void test_expand() {
     Fx fwd = Fx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     ExpandedFx test = fwd.expand();
-    assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(DATE_2015_06_30, GBP_P1000));
-    assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(DATE_2015_06_30, USD_M1600));
+    assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(GBP_P1000, DATE_2015_06_30));
+    assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(USD_M1600, DATE_2015_06_30));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 

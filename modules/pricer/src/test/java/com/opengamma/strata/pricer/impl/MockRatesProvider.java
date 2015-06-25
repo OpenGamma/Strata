@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
@@ -16,6 +17,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -86,6 +88,12 @@ public class MockRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
+  public FxForwardRates fxForwardRates(CurrencyPair currencyPair) {
+    throw new UnsupportedOperationException();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
     throw new UnsupportedOperationException();
   }
@@ -108,11 +116,6 @@ public class MockRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public double relativeTime(LocalDate date) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public LocalDate getValuationDate() {
     if (valuationDate == null) {

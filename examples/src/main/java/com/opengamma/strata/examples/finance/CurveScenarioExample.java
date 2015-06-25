@@ -17,13 +17,11 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.id.StandardId;
@@ -40,6 +38,7 @@ import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
+import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
@@ -87,41 +86,41 @@ public class CurveScenarioExample {
         Column.of(Measure.PRESENT_VALUE),
         Column.of(Measure.PV01));
 
+    // use the built-in example market data
+    MarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
-        .marketDataRules(ExampleMarketData.rules())
+        .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
-    // Two perturbations affecting curves
+    // two perturbations that can be applied to curves
     List<Perturbation<Curve>> curvePerturbations = ImmutableList.of(
-        Perturbation.none(),                  // No shift for the base scenario
-        CurveParallelShift.absolute(ONE_BP)); // 1bp absolute shift to calibrated curves
+        Perturbation.none(),                  // no shift for the base scenario
+        CurveParallelShift.absolute(ONE_BP)); // 1bp absolute shift to calibrated curves (zeros)
 
-    // A mapping for perturbing curves. The filter matches any curve.
+    // mappings that select which market data to apply perturbations to
+    // this applies the perturbations above to all curves
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         Curve.class,
         AnyCurveFilter.INSTANCE,
         curvePerturbations);
 
-    // Create a scenario definition containing the single mapping.
-    // This creates two scenarios, one for each perturbation in  the mapping
+    // create a scenario definition containing the single mapping above
+    // this creates two scenarios - one for each perturbation in the mapping
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);
 
-    // Use an empty snapshot of market data, indicating only the valuation date.
-    // The engine will attempt to source the data for us, which the example engine is
-    // configured to load from JSON resources. We could alternatively populate the snapshot
-    // with some or all of the required market data here.
+    // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
-    // TODO The rate is for automatic conversion to the reporting currency. Where should it come from?
-    BaseMarketData baseMarketData = BaseMarketData.builder(valuationDate)
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61))
-        .build();
+    BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
-    Results results = engine.calculate(trades, columns, rules, baseMarketData, scenarioDefinition);
+    Results results = engine.calculate(trades, columns, rules, snapshot, scenarioDefinition);
+
+    // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 
     // The results are lists of currency amounts containing one value for each scenario
     ScenarioResult<?> pvList = (ScenarioResult<?>) results.get(0, 0).getValue();
@@ -132,7 +131,6 @@ public class CurveScenarioExample {
     double pv01Base = ((CurrencyAmount) pv01List.get(0)).getAmount();
     NumberFormat numberFormat = new DecimalFormat("###,##0.00");
 
-    // TODO Replace these with a report once the reporting framework supports scenarios
     System.out.println("                         PV (base) = " + numberFormat.format(pvBase));
     System.out.println("             PV (1 bp curve shift) = " + numberFormat.format(pvShifted));
     System.out.println("PV01 (algorithmic differentiation) = " + numberFormat.format(pv01Base));

@@ -38,7 +38,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * An FX swap is a financial instrument that represents the exchange of an equivalent amount
  * in two different currencies between counterparties on two different dates.
  * <p>
- * The two exchanges are based on the same currency pair, and the two payment flows are in the opposite directions. 
+ * The two exchanges are based on the same currency pair, with the two payment flows in the opposite directions.
  * <p>
  * For example, an FX swap might represent the payment of USD 1,000 and the receipt of EUR 932
  * on one date, and the payment of EUR 941 and the receipt of USD 1,000 at a later date.

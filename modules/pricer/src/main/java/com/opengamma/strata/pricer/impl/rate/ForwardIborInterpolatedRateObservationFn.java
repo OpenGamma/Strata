@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
@@ -77,6 +79,37 @@ public class ForwardIborInterpolatedRateObservationFn
     PointSensitivityBuilder sens2 = ratesIndex2.ratePointSensitivity(fixingDate)
         .multipliedBy(weights.getSecond() / totalWeight);
     return sens1.combinedWith(sens2);
+  }
+
+  @Override
+  public double explainRate(
+      IborInterpolatedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider,
+      ExplainMapBuilder builder) {
+
+    LocalDate fixingDate = observation.getFixingDate();
+    IborIndex index1 = observation.getShortIndex();
+    IborIndex index2 = observation.getLongIndex();
+    double rate1 = provider.iborIndexRates(index1).rate(fixingDate);
+    double rate2 = provider.iborIndexRates(index2).rate(fixingDate);
+    DoublesPair weights = weights(index1, index2, fixingDate, endDate);
+    builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
+        .put(ExplainKey.FIXING_DATE, fixingDate)
+        .put(ExplainKey.INDEX, index1)
+        .put(ExplainKey.INDEX_VALUE, rate1)
+        .put(ExplainKey.WEIGHT, weights.getFirst()));
+    builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
+        .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
+        .put(ExplainKey.FIXING_DATE, fixingDate)
+        .put(ExplainKey.INDEX, index2)
+        .put(ExplainKey.INDEX_VALUE, rate2)
+        .put(ExplainKey.WEIGHT, weights.getSecond()));
+    double rate = rate(observation, startDate, endDate, provider);
+    builder.put(ExplainKey.COMBINED_RATE, rate);
+    return rate;
   }
 
   // computes the weights related to the two indices

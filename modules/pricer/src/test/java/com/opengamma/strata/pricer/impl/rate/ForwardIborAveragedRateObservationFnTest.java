@@ -14,12 +14,16 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.finance.rate.IborAveragedFixing;
 import com.opengamma.strata.finance.rate.IborAveragedRateObservation;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -71,6 +75,22 @@ public class ForwardIborAveragedRateObservationFnTest {
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
     double rateComputed = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
+
+    // explain
+    ExplainMapBuilder builder = ExplainMap.builder();
+    assertEquals(obsFn.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov, builder), rateExpected, TOLERANCE_RATE);
+
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), FIXING_DATES.length);
+    for (int i = 0; i < 4; i++) {
+      ExplainMap childMap = built.get(ExplainKey.OBSERVATIONS).get().get(i);
+      assertEquals(childMap.get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATES[i]));
+      assertEquals(childMap.get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
+      assertEquals(childMap.get(ExplainKey.INDEX_VALUE), Optional.of(FIXING_VALUES[i]));
+      assertEquals(childMap.get(ExplainKey.WEIGHT), Optional.of(WEIGHTS[i]));
+    }
+    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(rateExpected));
   }
 
   public void test_rateSensitivity() {
@@ -143,7 +163,6 @@ public class ForwardIborAveragedRateObservationFnTest {
       double resExpected = 0.5 * (rateUp - rateDw) / eps;
       assertEquals(test.build().getSensitivities().get(i).getSensitivity(), resExpected, eps);
     }
-
   }
 
 }
