@@ -47,7 +47,7 @@ public class TestHarness {
                   0.0100,
                   MarkitRedCode.id("COMP01"),
                   SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                  RestructuringClause.NoRestructuring2014,
+                  RestructuringClause.NO_RESTRUCTURING_2014,
                   feeAmount,
                   cashSettleDate);
       return new TradeFactory(tradeSource);
@@ -64,7 +64,7 @@ public class TestHarness {
                   0.0500,
                   MarkitRedCode.id("COMP02"),
                   SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-                  RestructuringClause.NoRestructuring2014,
+                  RestructuringClause.NO_RESTRUCTURING_2014,
                   -1_370_582.00D,
                   LocalDate.of(2014, 10, 21));
       return new TradeFactory(tradeSource);

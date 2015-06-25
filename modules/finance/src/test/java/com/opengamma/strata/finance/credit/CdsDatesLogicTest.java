@@ -22,8 +22,6 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.finance.credit.CdsDatesLogic;
-
 /**
  * Test.
  */

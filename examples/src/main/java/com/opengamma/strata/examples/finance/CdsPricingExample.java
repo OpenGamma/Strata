@@ -104,7 +104,7 @@ public class CdsPricingExample {
             0.0100,
             MarkitRedCode.id("COMP01"),
             SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-            RestructuringClause.NoRestructuring2014,
+            RestructuringClause.NO_RESTRUCTURING_2014,
             3_694_117.73d,
             LocalDate.of(2014, 10, 21));
   }
@@ -120,7 +120,7 @@ public class CdsPricingExample {
             0.0500,
             MarkitRedCode.id("COMP02"),
             SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
-            RestructuringClause.NoRestructuring2014,
+            RestructuringClause.NO_RESTRUCTURING_2014,
             -1_370_582.00d,
             LocalDate.of(2014, 10, 21));
   }

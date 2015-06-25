@@ -7,7 +7,6 @@ package com.opengamma.strata.finance.credit.type;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -15,6 +14,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
