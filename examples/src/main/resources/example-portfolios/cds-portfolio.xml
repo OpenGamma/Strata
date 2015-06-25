@@ -17,7 +17,7 @@
                     <referenceEntityId>MarkitRedCode~COMP01</referenceEntityId>
                     <seniority>SENIOR_UNSECURED_FOREIGN</seniority>
                     <currency>USD</currency>
-                    <restructuringClause>NoRestructuring2014</restructuringClause>
+                    <restructuringClause>NO_RESTRUCTURING_2014</restructuringClause>
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>
@@ -52,7 +52,7 @@
                     <referenceEntityId>MarkitRedCode~COMP02</referenceEntityId>
                     <seniority>SENIOR_UNSECURED_FOREIGN</seniority>
                     <currency>USD</currency>
-                    <restructuringClause>NoRestructuring2014</restructuringClause>
+                    <restructuringClause>NO_RESTRUCTURING_2014</restructuringClause>
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>
