@@ -24,6 +24,8 @@
           <archive>
             <manifest>
               <mainClass>com.opengamma.strata.examples.report.ReportRunnerTool</mainClass>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
             </manifest>
           </archive>
           <descriptorRefs>
