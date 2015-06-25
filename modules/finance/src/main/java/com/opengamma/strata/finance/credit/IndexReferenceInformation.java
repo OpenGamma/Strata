@@ -32,24 +32,23 @@ import com.opengamma.strata.collect.id.StandardId;
 @BeanDefinition
 public final class IndexReferenceInformation
     implements ReferenceInformation, ImmutableBean, Serializable {
-  // TODO: package scoped?
 
   /**
    * The CDS index identifier, such as a RED pair code.
    */
   @PropertyDefinition(validate = "notNull")
-  final StandardId indexId;
+  private final StandardId indexId;
   /**
    * The CDS index series identifier.
    */
   @PropertyDefinition
-  final int indexSeries;
+  private final int indexSeries;
   /**
    * The CDS index series version identifier.
    * Used to identify the version of the index over time.
    */
   @PropertyDefinition
-  final int indexAnnexVersion;
+  private final int indexAnnexVersion;
 
   //-------------------------------------------------------------------------
   /**

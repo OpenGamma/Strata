@@ -5,6 +5,12 @@
  */
 package com.opengamma.strata.finance.credit;
 
+import org.testng.annotations.Test;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Period;
+
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.finance.credit.CdsDatesLogic.getCdsDateSet;
 import static com.opengamma.strata.finance.credit.CdsDatesLogic.getNextCdsDate;
@@ -15,14 +21,6 @@ import static com.opengamma.strata.finance.credit.CdsDatesLogic.isIndexRollDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Period;
-
-import org.testng.annotations.Test;
-
-import com.opengamma.strata.finance.credit.CdsDatesLogic;
 
 /**
  * Test.
