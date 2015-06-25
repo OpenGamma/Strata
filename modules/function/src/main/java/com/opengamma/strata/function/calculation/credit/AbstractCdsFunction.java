@@ -105,12 +105,11 @@ public abstract class AbstractCdsFunction<T>
       case INDEX:
         IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
         spreadCurveKey = ImmutableSet.of(IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation));
-        // TODO Index Factor?
         break;
       default:
         throw new IllegalStateException("unknown reference information type: " + cdsType);
     }
-    // TODO recovery rate and index factor
+    // TODO recovery rate and index factor as timeseries or their own market data values
     return CalculationRequirements.builder()
         .singleValueRequirements(Sets.union(rateCurveKeys, spreadCurveKey))
         .outputCurrencies(ImmutableSet.of(notionalCurrency, feeCurrency))
