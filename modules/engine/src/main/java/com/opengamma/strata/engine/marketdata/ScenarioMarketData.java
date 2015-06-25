@@ -151,14 +151,13 @@ public class ScenarioMarketData implements ImmutableBean {
    *
    * @param id  ID of the market data
    * @param <T>  type of the market data
-   * @param <I>  type of the market data ID
    * @return a list of market data values, one from each scenario
    * @throws IllegalArgumentException if there are no values for the specified ID
    */
   public <T> List<T> getValues(MarketDataId<T> id) {
     // Special handling of these special ID types to provide more helpful error messages
     if (id instanceof NoMatchingRuleId) {
-      MarketDataKey key = ((NoMatchingRuleId) id).getKey();
+      MarketDataKey<?> key = ((NoMatchingRuleId) id).getKey();
       throw new IllegalArgumentException("No market data rules were available to build the market data for " + key);
     }
     if (id instanceof MissingMappingId) {
@@ -200,7 +199,6 @@ public class ScenarioMarketData implements ImmutableBean {
    *
    * @param id  ID of the market data
    * @param <T>  type of the market data
-   * @param <I>  type of the market data ID
    * @return the market data value
    * @throws IllegalArgumentException if there is no value for the specified ID
    */

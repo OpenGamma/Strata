@@ -42,8 +42,7 @@ import com.opengamma.strata.collect.Guavate;
  * Each entry identifies the date that the curve was queried and the resulting multiplier.
  * <p>
  * When creating an instance, consider using {@link MutablePointSensitivities}.
- * 
- * @implNote
+ * <p>
  * One way of viewing this class is as a {@code Map} from a specific sensitivity
  * key to a {@code double} sensitivity value. However, instead or being structured
  * as a {@code Map}, the data is structured as a {@code List}, with the key and

@@ -54,8 +54,7 @@ import com.opengamma.strata.market.curve.CurveName;
  * two entries, one for the Ibor forward curve and one for the discount curve.
  * Each entry identifies the curve that was queried and the resulting sensitivity values,
  * one for each node on the curve.
- * 
- * @implNote
+ * <p>
  * One way of viewing this class is as a {@code Map} from a specific sensitivity key to
  * {@code double[]} sensitivity values. However, instead or being structured as a {@code Map},
  * the data is structured as a {@code List}, with the key and value in each entry.
