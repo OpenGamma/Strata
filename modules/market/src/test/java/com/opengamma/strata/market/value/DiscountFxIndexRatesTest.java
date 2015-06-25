@@ -77,8 +77,8 @@ public class DiscountFxIndexRatesTest {
     assertEquals(test.getIndex(), WM_GBP_USD);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES_EMPTY);
-    assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
-    assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD);
+    assertEquals(test.getForwardFxIndexRates(),
+        DiscountFxForwardRates.of(WM_GBP_USD.getCurrencyPair(), FX_RATE, DFCURVE_GBP, DFCURVE_USD));
   }
 
   public void test_of_withFixings() {
@@ -86,8 +86,8 @@ public class DiscountFxIndexRatesTest {
     assertEquals(test.getIndex(), WM_GBP_USD);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES);
-    assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
-    assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD);
+    assertEquals(test.getForwardFxIndexRates(),
+        DiscountFxForwardRates.of(WM_GBP_USD.getCurrencyPair(), FX_RATE, DFCURVE_GBP, DFCURVE_USD));
   }
 
   public void test_of_nonMatchingCurrency() {
@@ -107,8 +107,8 @@ public class DiscountFxIndexRatesTest {
     assertEquals(test.getIndex(), WM_GBP_USD);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getTimeSeries(), SERIES);
-    assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP2);
-    assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD2);
+    assertEquals(test.getForwardFxIndexRates(),
+        DiscountFxForwardRates.of(WM_GBP_USD.getCurrencyPair(), FX_RATE, DFCURVE_GBP2, DFCURVE_USD2));
   }
 
   //-------------------------------------------------------------------------
@@ -184,7 +184,7 @@ public class DiscountFxIndexRatesTest {
   }
 
   //-------------------------------------------------------------------------
-  // proper end-to-end tests are elsewhere
+  //proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
     DiscountFxIndexRates test = DiscountFxIndexRates.of(WM_GBP_USD, SERIES, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     FxIndexSensitivity point = FxIndexSensitivity.of(WM_GBP_USD, GBP, DATE_VAL, 1d);
