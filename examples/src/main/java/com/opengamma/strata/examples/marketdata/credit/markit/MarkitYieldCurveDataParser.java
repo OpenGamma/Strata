@@ -1,0 +1,120 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.examples.marketdata.credit.markit;
+
+import java.time.Period;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.CharSource;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.examples.marketdata.CsvFile;
+import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
+import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
+
+/**
+ * Parser to load daily yield curve information provided by Markit.
+ * <p>
+ * The columns are defined as
+ * {@code Valuation Date,Tenor,Instrument Type,Rate,Curve Convention}.
+ */
+public class MarkitYieldCurveDataParser {
+
+  private static final String TENOR = "Tenor";
+  private static final String INSTRUMENT = "Instrument Type";
+  private static final String RATE = "Rate";
+  private static final String CONVENTION = "Curve Convention";
+
+  /**
+   * Parses the specified source.
+   * 
+   * @param source  the source to parse
+   * @return the map of parsed yield curve par rates
+   */
+  public static Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> parse(CharSource source) {
+    // parse the curve data
+    Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
+    CsvFile csv = CsvFile.of(source, true);
+    for (int i = 0; i < csv.lineCount(); i++) {
+      String tenorText = csv.field(i, TENOR);
+      String instrumentText = csv.field(i, INSTRUMENT);
+      String rateText = csv.field(i, RATE);
+      String conventionText = csv.field(i, CONVENTION);
+
+      Point point = new Point(
+          Tenor.parse(tenorText),
+          mapUnderlyingType(instrumentText),
+          Double.parseDouble(rateText));
+      IsdaYieldCurveConvention convention = IsdaYieldCurveConvention.of(conventionText);
+
+      List<Point> points = curveData.get(convention);
+      if (points == null) {
+        points = Lists.newArrayList();
+        curveData.put(convention, points);
+      }
+      points.add(point);
+    }
+
+    // convert the curve data into the result map
+    Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> result = Maps.newHashMap();
+    for (IsdaYieldCurveConvention convention : curveData.keySet()) {
+      List<Point> points = curveData.get(convention);
+      result.put(IsdaYieldCurveParRatesId.of(convention.getCurrency()),
+          IsdaYieldCurveParRates.of(
+              convention.getName(),
+              points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new),
+              points.stream().map(s -> s.getInstrumentType()).toArray(IsdaYieldCurveUnderlyingType[]::new),
+              points.stream().mapToDouble(s -> s.getRate()).toArray(),
+              convention));
+    }
+    return result;
+  }
+
+  // parse the M/S instrument type flag
+  private static IsdaYieldCurveUnderlyingType mapUnderlyingType(String type) {
+    switch (type) {
+      case "M":
+        return IsdaYieldCurveUnderlyingType.ISDA_MONEY_MARKET;
+      case "S":
+        return IsdaYieldCurveUnderlyingType.ISDA_SWAP;
+      default:
+        throw new IllegalStateException("Unknown underlying type, only M or S allowed: " + type);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Stores the parsed data points.
+   */
+  private static class Point {
+    private final Tenor tenor;
+    private final IsdaYieldCurveUnderlyingType instrumentType;
+    private final double rate;
+
+    private Point(Tenor tenor, IsdaYieldCurveUnderlyingType instrumentType, double rate) {
+      this.tenor = tenor;
+      this.instrumentType = instrumentType;
+      this.rate = rate;
+    }
+
+    public Tenor getTenor() {
+      return tenor;
+    }
+
+    public IsdaYieldCurveUnderlyingType getInstrumentType() {
+      return instrumentType;
+    }
+
+    public double getRate() {
+      return rate;
+    }
+  }
+
+}

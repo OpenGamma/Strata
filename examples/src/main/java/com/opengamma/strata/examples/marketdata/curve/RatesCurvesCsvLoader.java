@@ -104,7 +104,7 @@ public final class RatesCurvesCsvLoader {
       LocalDate curveDate) {
 
     Map<LocalDate, Map<RateCurveId, Curve>> curves = loadCurvesForDate(groupsResource, settingsResource, curvesResources, curveDate);
-    return curves.get(curveDate);
+    return curves.getOrDefault(curveDate, ImmutableMap.of());
   }
   
   /**

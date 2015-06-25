@@ -7,6 +7,7 @@ package com.opengamma.strata.finance.credit.type;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -104,15 +105,16 @@ public interface IsdaYieldCurveConvention
   /**
    * Apply the spot days settlement lag and adjust using the conventions
    *
-   * @param asOfDate base asOfDate
-   * @return adjusted spot date
+   * @param asOfDate  the base date to adjust
+   * @return the adjusted spot date
    */
   default LocalDate getSpotDateAsOf(LocalDate asOfDate) {
-    BusinessDayAdjustment adjustment = BusinessDayAdjustment.of(
-        getBadDayConvention(),
-        getHolidayCalendar());
+    DaysAdjustment adjustment = DaysAdjustment.ofBusinessDays(
+        getSpotDays(),
+        getHolidayCalendar(),
+        BusinessDayAdjustment.of(getBadDayConvention(), getHolidayCalendar()));
 
-    return adjustment.adjust(asOfDate.plusDays(getSpotDays()));
+    return adjustment.adjust(asOfDate);
   }
 
   @ToString
