@@ -200,7 +200,7 @@ public class HistoricalScenarioExample {
     PerturbationMapping<Curve> libor6mMappings = PerturbationMapping.of(
         Curve.class,
         CurveRateIndexFilter.of(IborIndices.USD_LIBOR_6M),
-        curvePerturbations.get(libor3mCurveId));
+        curvePerturbations.get(libor6mCurveId));
 
     // create a scenario definition from these mappings
     return ScenarioDefinition.ofMappings(
@@ -226,13 +226,13 @@ public class HistoricalScenarioExample {
   //-------------------------------------------------------------------------
   // create a libor 3m vs libor 6m swap
   private static Trade createTrade() {
-    NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
+    NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 1_000_000);
 
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2015, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
+            .startDate(LocalDate.of(2015, 9, 11))
+            .endDate(LocalDate.of(2021, 9, 11))
             .frequency(Frequency.P3M)
             .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
             .build())
@@ -247,8 +247,8 @@ public class HistoricalScenarioExample {
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2015, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
+            .startDate(LocalDate.of(2015, 9, 11))
+            .endDate(LocalDate.of(2021, 9, 11))
             .frequency(Frequency.P6M)
             .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
             .build())
@@ -266,7 +266,7 @@ public class HistoricalScenarioExample {
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Libor 3m vs Libor 6m"))
             .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2015, 9, 12))
+            .settlementDate(LocalDate.of(2015, 9, 11))
             .build())
         .build();
   }
