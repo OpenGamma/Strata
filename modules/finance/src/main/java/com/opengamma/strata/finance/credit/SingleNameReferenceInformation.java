@@ -33,31 +33,30 @@ import com.opengamma.strata.collect.id.StandardId;
 @BeanDefinition
 public final class SingleNameReferenceInformation
     implements ReferenceInformation, ImmutableBean, Serializable {
-  // TODO: package scoped?
 
   /**
    * The CDS single-name identifier, such as a RED entity code.
    * This identifies the legal entity.
    */
   @PropertyDefinition(validate = "notNull")
-  final StandardId referenceEntityId;
+  private final StandardId referenceEntityId;
   /**
    * The seniority.
    * This is a property of the reference obligation. Senior obligations will have
    * a higher recovery rate applied during pricing than subordinate securities.
    */
   @PropertyDefinition(validate = "notNull")
-  final SeniorityLevel seniority;
+  private final SeniorityLevel seniority;
   /**
    * The currency of the reference.
    */
   @PropertyDefinition(validate = "notNull")
-  final Currency currency;
+  private final Currency currency;
   /**
    * The applicable restructuring.
    */
   @PropertyDefinition(validate = "notNull")
-  final RestructuringClause restructuringClause;
+  private final RestructuringClause restructuringClause;
 
   //-------------------------------------------------------------------------
   /**

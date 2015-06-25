@@ -56,24 +56,23 @@ public enum MarkitRestructuringClause {
   public RestructuringClause translate() {
     switch (this) {
       case MM:
-        return RestructuringClause.ModModRestructuring2003;
+        return RestructuringClause.MOD_MOD_RESTRUCTURING_2003;
       case MM14:
-        return RestructuringClause.ModModRestructuring2014;
+        return RestructuringClause.MOD_MOD_RESTRUCTURING_2014;
       case MR:
-        return RestructuringClause.ModifiedRestructuring2003;
+        return RestructuringClause.MODIFIED_RESTRUCTURING_2003;
       case MR14:
-        return RestructuringClause.ModifiedRestructuring2014;
+        return RestructuringClause.MODIFIED_RESTRUCTURING_2014;
       case CR:
-        return RestructuringClause.CumRestructuring2003;
+        return RestructuringClause.CUM_RESTRUCTURING_2003;
       case CR14:
-        return RestructuringClause.CumRestructuring2014;
+        return RestructuringClause.CUM_RESTRUCTURING_2014;
       case XR:
-        return RestructuringClause.NoRestructuring2003;
+        return RestructuringClause.NO_RESTRUCTURING_2003;
       case XR14:
-        return RestructuringClause.NoRestructuring2014;
+        return RestructuringClause.NO_RESTRUCTURING_2014;
       default:
         throw new IllegalStateException("Unmapped restructuring clause. Do not have mapping for " + this);
-
     }
   }
 
@@ -85,21 +84,21 @@ public enum MarkitRestructuringClause {
    */
   public static MarkitRestructuringClause from(RestructuringClause restructuringClause) {
     switch (restructuringClause) {
-      case ModModRestructuring2003:
+      case MOD_MOD_RESTRUCTURING_2003:
         return MM;
-      case ModModRestructuring2014:
+      case MOD_MOD_RESTRUCTURING_2014:
         return MM14;
-      case ModifiedRestructuring2003:
+      case MODIFIED_RESTRUCTURING_2003:
         return MR;
-      case ModifiedRestructuring2014:
+      case MODIFIED_RESTRUCTURING_2014:
         return MR14;
-      case CumRestructuring2003:
+      case CUM_RESTRUCTURING_2003:
         return CR;
-      case CumRestructuring2014:
+      case CUM_RESTRUCTURING_2014:
         return CR14;
-      case NoRestructuring2003:
+      case NO_RESTRUCTURING_2003:
         return XR;
-      case NoRestructuring2014:
+      case NO_RESTRUCTURING_2014:
         return XR14;
       default:
         throw new UnsupportedOperationException("Unknown restructuring clause. Do not have mapping for " + restructuringClause);

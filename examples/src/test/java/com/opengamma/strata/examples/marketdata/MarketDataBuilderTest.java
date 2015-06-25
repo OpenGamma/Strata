@@ -90,31 +90,31 @@ public class MarketDataBuilderTest {
               MarkitRedCode.id("COMP10"),
               SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
               Currency.USD,
-              RestructuringClause.NoRestructuring2014)),
+              RestructuringClause.NO_RESTRUCTURING_2014)),
       IsdaSingleNameCreditCurveParRatesId.of(
           SingleNameReferenceInformation.of(
               MarkitRedCode.id("COMP02"),
               SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
               Currency.USD,
-              RestructuringClause.NoRestructuring2014)),
+              RestructuringClause.NO_RESTRUCTURING_2014)),
       IsdaSingleNameCreditCurveParRatesId.of(
           SingleNameReferenceInformation.of(
               MarkitRedCode.id("COMP01"),
               SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
               Currency.USD,
-              RestructuringClause.NoRestructuring2014)),
+              RestructuringClause.NO_RESTRUCTURING_2014)),
       IsdaSingleNameCreditCurveParRatesId.of(
           SingleNameReferenceInformation.of(
               MarkitRedCode.id("COMP11"),
               SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
               Currency.EUR,
-              RestructuringClause.ModModRestructuring2014)),
+              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
       IsdaSingleNameCreditCurveParRatesId.of(
           SingleNameReferenceInformation.of(
               MarkitRedCode.id("COMP11"),
               SeniorityLevel.SUBORDINATE_LOWER_TIER_2,
               Currency.EUR,
-              RestructuringClause.ModModRestructuring2014)),
+              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
       IsdaIndexCreditCurveParRatesId.of(
           IndexReferenceInformation.of(
               MarkitRedCode.id("INDEX0001"),
