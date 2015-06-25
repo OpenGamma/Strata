@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
@@ -30,11 +32,19 @@ import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditCurveDataParser;
+import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
+import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
 import com.opengamma.strata.examples.marketdata.curve.RatesCurvesCsvLoader;
 import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
+import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
 
@@ -74,6 +84,14 @@ public abstract class MarketDataBuilder {
   private static final String CURVES_GROUPS_FILE = "groups.csv";
   /** The name of the curve settings file. */
   private static final String CURVES_SETTINGS_FILE = "settings.csv";
+
+  /** The name of the directory containing CDS ISDA yield curve, credit curve and static data. */
+  private static final String CREDIT_DIR = "credit";
+  private static final String CDS_YIELD_CURVES_FILE = "cds.yieldCurves.csv";
+  private static final String SINGLE_NAME_CREDIT_CURVES_FILE = "singleName.creditCurves.csv";
+  private static final String SINGLE_NAME_STATIC_DATA_FILE = "singleName.staticData.csv";
+  private static final String INDEX_CREDIT_CURVES_FILE = "index.creditCurves.csv";
+  private static final String INDEX_STATIC_DATA_FILE = "index.staticData.csv";
 
   /** The name of the subdirectory containing simple market quotes. */
   private static final String QUOTES_DIR = "quotes";
@@ -168,6 +186,7 @@ public abstract class MarketDataBuilder {
     loadRatesCurves(builder, marketDataDate);
     loadQuotes(builder, marketDataDate);
     loadFxRates(builder);
+    loadCreditMarketData(builder, marketDataDate);
     return builder.build();
   }
 
@@ -242,8 +261,8 @@ public abstract class MarketDataBuilder {
 
     try {
       Collection<ResourceLocator> curvesResources = getRatesCurvesResources();
-      Map<RateCurveId, Curve> ratesCurves = RatesCurvesCsvLoader
-          .loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
+      Map<RateCurveId, Curve> ratesCurves =
+          RatesCurvesCsvLoader.loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
       builder.addAllValues(ratesCurves);
     } catch (Exception e) {
       s_logger.error("Error loading rates curves", e);
@@ -283,6 +302,104 @@ public abstract class MarketDataBuilder {
         .filter(res -> !res.getLocator().endsWith(CURVES_GROUPS_FILE))
         .filter(res -> !res.getLocator().endsWith(CURVES_SETTINGS_FILE))
         .collect(toImmutableList());
+  }
+
+  private void loadCreditMarketData(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+    if (!subdirectoryExists(CREDIT_DIR)) {
+      s_logger.debug("No credit curves directory found");
+      return;
+    }
+
+    String creditMarketDataDateDirectory = String.format(
+        "%s" + File.separator + "%s",
+        CREDIT_DIR,
+        marketDataDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+    if (!subdirectoryExists(creditMarketDataDateDirectory)) {
+      s_logger.debug("Unable to load market data: directory not found at {}", creditMarketDataDateDirectory);
+      return;
+    }
+
+    loadCdsYieldCurves(builder, creditMarketDataDateDirectory);
+    loadCdsSingleNameSpreadCurves(builder, creditMarketDataDateDirectory);
+    loadCdsIndexSpreadCurves(builder, creditMarketDataDateDirectory);
+  }
+
+  private void loadCdsYieldCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+    ResourceLocator cdsYieldCurvesResource = getResource(creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE);
+    if (cdsYieldCurvesResource == null) {
+      s_logger.debug("Unable to load cds yield curves: file not found at {}/{}", creditMarketDataDateDirectory,
+          CDS_YIELD_CURVES_FILE);
+      return;
+    }
+
+    CharSource inputSource = cdsYieldCurvesResource.getCharSource();
+    Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> yieldCuves = MarkitYieldCurveDataParser.parse(inputSource);
+
+    for (IsdaYieldCurveParRatesId id : yieldCuves.keySet()) {
+      IsdaYieldCurveParRates parRates = yieldCuves.get(id);
+      builder.addValue(id, parRates);
+    }
+  }
+
+  private void loadCdsSingleNameSpreadCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+    ResourceLocator singleNameCurvesResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE);
+    if (singleNameCurvesResource == null) {
+      s_logger.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
+          SINGLE_NAME_CREDIT_CURVES_FILE);
+      return;
+    }
+
+    ResourceLocator singleNameStaticDataResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_STATIC_DATA_FILE);
+    if (singleNameStaticDataResource == null) {
+      s_logger.debug("Unable to load single name static data: file not found at {}/{}", creditMarketDataDateDirectory,
+          SINGLE_NAME_STATIC_DATA_FILE);
+      return;
+    }
+
+    try {
+      CharSource inputCreditCurvesSource = singleNameCurvesResource.getCharSource();
+      CharSource inputStaticDataSource = singleNameStaticDataResource.getCharSource();
+      Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitSingleNameCreditCurveDataParser
+          .parse(inputCreditCurvesSource, inputStaticDataSource);
+
+      for (IsdaSingleNameCreditCurveParRatesId id : creditCurves.keySet()) {
+        IsdaCreditCurveParRates parRates = creditCurves.get(id);
+        builder.addValue(id, parRates);
+      }
+
+    } catch (Exception ex) {
+      throw new RuntimeException(String.format("Unable to read single name spread curves: exception at %s/%s",
+          creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE), ex);
+    }
+  }
+
+  private void loadCdsIndexSpreadCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+
+    ResourceLocator inputCurvesResource = getResource(creditMarketDataDateDirectory, INDEX_CREDIT_CURVES_FILE);
+    if (inputCurvesResource == null) {
+      s_logger.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
+          INDEX_CREDIT_CURVES_FILE);
+      return;
+    }
+
+    ResourceLocator inputStaticDataResource = getResource(creditMarketDataDateDirectory, INDEX_STATIC_DATA_FILE);
+    if (inputStaticDataResource == null) {
+      s_logger.debug("Unable to load index static data: file not found at {}/{}", creditMarketDataDateDirectory,
+          INDEX_STATIC_DATA_FILE);
+      return;
+    }
+
+    CharSource indexCreditCurvesSource = inputCurvesResource.getCharSource();
+    CharSource indexStaticDataSource = inputStaticDataResource.getCharSource();
+    Map<IsdaIndexCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitIndexCreditCurveDataParser
+        .parse(indexCreditCurvesSource, indexStaticDataSource);
+
+    for (IsdaIndexCreditCurveParRatesId id : creditCurves.keySet()) {
+      IsdaCreditCurveParRates parRates = creditCurves.get(id);
+      builder.addValue(id, parRates);
+    }
+
   }
 
   //-------------------------------------------------------------------------
