@@ -124,9 +124,6 @@
       <activation>
         <property><name>dist</name></property>
       </activation>
-      <modules>
-        <module>${analytics.dir.path}</module>
-      </modules>
       <build>
         <plugins>
           <!-- Create aggregate Javadoc -->
