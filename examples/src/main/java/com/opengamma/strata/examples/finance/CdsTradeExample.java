@@ -24,8 +24,17 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.finance.credit.RestructuringClause.NO_RESTRUCTURING_2014;
 import static com.opengamma.strata.finance.credit.SeniorityLevel.SENIOR_UNSECURED_FOREIGN;
 
+/**
+ * An example application showing how to load the example portfolio from the classpath
+ * as well as build an equivalent portfolio using the Strata API.
+ */
 public class CdsTradeExample {
 
+  /**
+   * Runs the example, serializing and deserializing the portfolio and printing to the screen.
+   *
+   * @param args  ignored
+   */
   public static void main(String[] args) {
 
     String xmlString = serializePretty(portfolio);
