@@ -63,6 +63,9 @@ public class ReportRunnerTool {
 
   @Parameter(names = {"-h", "--help"}, description = "Displays this message", help = true)
   private boolean help;
+  
+  @Parameter(names = {"-v", "--version"}, description = "Prints the version of this tool", help = true)
+  private boolean version;
 
   /**
    * Runs the tool.
@@ -83,6 +86,12 @@ public class ReportRunnerTool {
     }
     if (reportRunner.help) {
       commander.usage();
+    } else if (reportRunner.version) {
+      String versionName = ReportRunnerTool.class.getPackage().getImplementationVersion();
+      if (versionName == null) {
+        versionName = "unknown";
+      }
+      System.out.println("Strata Report Runner Tool, version " + versionName);
     } else {
       try {
         reportRunner.run();
