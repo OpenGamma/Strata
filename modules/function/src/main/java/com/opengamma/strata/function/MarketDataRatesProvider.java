@@ -28,9 +28,11 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -117,6 +119,15 @@ public final class MarketDataRatesProvider
     FxRate fxRate = FxRate.of(pair, fxRate(pair));
     return DiscountFxIndexRates.of(index, timeSeries(index), fxRate, base, counter);
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public FxForwardRates fxForwardRates(CurrencyPair currencyPair) {
+    DiscountFactors base = discountFactors(currencyPair.getBase());
+    DiscountFactors counter = discountFactors(currencyPair.getCounter());
+    FxRate fxRate = FxRate.of(currencyPair, fxRate(currencyPair));
+    return DiscountFxForwardRates.of(currencyPair, fxRate, base, counter);
+  };
 
   //-------------------------------------------------------------------------
   @Override
