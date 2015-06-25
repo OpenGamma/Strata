@@ -355,7 +355,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // Copy supplied data to the scenario data after applying perturbations
       Map<MarketDataId<?>, Object> suppliedNonObservables = leafRequirements.getNonObservables().stream()
           .filter(suppliedData::containsValue)
-          .collect(toImmutableMap(id -> id, id -> suppliedData.getValue(id)));
+          .collect(toImmutableMap(id -> id,
+              (MarketDataId<?> id) -> suppliedData.getValue(id)));  // redundant cast to make the Eclipse compiler happy
 
       for (Map.Entry<MarketDataId<?>, Object> entry : suppliedNonObservables.entrySet()) {
         MarketDataId<?> id = entry.getKey();
