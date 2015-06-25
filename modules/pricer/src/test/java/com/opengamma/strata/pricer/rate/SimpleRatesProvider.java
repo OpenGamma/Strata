@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -31,6 +32,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -51,6 +53,8 @@ public class SimpleRatesProvider
   private DiscountFactors discountFactors;
   @PropertyDefinition
   private FxIndexRates fxIndexRates;
+  @PropertyDefinition
+  private FxForwardRates fxForwardRates;
   @PropertyDefinition
   private IborIndexRates iborRates;
   @PropertyDefinition
@@ -107,6 +111,11 @@ public class SimpleRatesProvider
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
     return fxIndexRates;
+  }
+
+  @Override
+  public FxForwardRates fxForwardRates(CurrencyPair currencyPair) {
+    return fxForwardRates;
   }
 
   @Override
@@ -261,6 +270,31 @@ public class SimpleRatesProvider
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the fxForwardRates.
+   * @return the value of the property
+   */
+  public FxForwardRates getFxForwardRates() {
+    return fxForwardRates;
+  }
+
+  /**
+   * Sets the fxForwardRates.
+   * @param fxForwardRates  the new value of the property
+   */
+  public void setFxForwardRates(FxForwardRates fxForwardRates) {
+    this.fxForwardRates = fxForwardRates;
+  }
+
+  /**
+   * Gets the the {@code fxForwardRates} property.
+   * @return the property, not null
+   */
+  public final Property<FxForwardRates> fxForwardRates() {
+    return metaBean().fxForwardRates().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the iborRates.
    * @return the value of the property
    */
@@ -351,6 +385,7 @@ public class SimpleRatesProvider
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
           JodaBeanUtils.equal(getFxIndexRates(), other.getFxIndexRates()) &&
+          JodaBeanUtils.equal(getFxForwardRates(), other.getFxForwardRates()) &&
           JodaBeanUtils.equal(getIborRates(), other.getIborRates()) &&
           JodaBeanUtils.equal(getOvernightRates(), other.getOvernightRates()) &&
           JodaBeanUtils.equal(getPriceIndexValues(), other.getPriceIndexValues());
@@ -365,6 +400,7 @@ public class SimpleRatesProvider
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFxIndexRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxForwardRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIborRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getOvernightRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPriceIndexValues());
@@ -373,7 +409,7 @@ public class SimpleRatesProvider
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("SimpleRatesProvider{");
     int len = buf.length();
     toString(buf);
@@ -389,6 +425,7 @@ public class SimpleRatesProvider
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
     buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
     buf.append("fxIndexRates").append('=').append(JodaBeanUtils.toString(getFxIndexRates())).append(',').append(' ');
+    buf.append("fxForwardRates").append('=').append(JodaBeanUtils.toString(getFxForwardRates())).append(',').append(' ');
     buf.append("iborRates").append('=').append(JodaBeanUtils.toString(getIborRates())).append(',').append(' ');
     buf.append("overnightRates").append('=').append(JodaBeanUtils.toString(getOvernightRates())).append(',').append(' ');
     buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(getPriceIndexValues())).append(',').append(' ');
@@ -425,6 +462,11 @@ public class SimpleRatesProvider
     private final MetaProperty<FxIndexRates> fxIndexRates = DirectMetaProperty.ofReadWrite(
         this, "fxIndexRates", SimpleRatesProvider.class, FxIndexRates.class);
     /**
+     * The meta-property for the {@code fxForwardRates} property.
+     */
+    private final MetaProperty<FxForwardRates> fxForwardRates = DirectMetaProperty.ofReadWrite(
+        this, "fxForwardRates", SimpleRatesProvider.class, FxForwardRates.class);
+    /**
      * The meta-property for the {@code iborRates} property.
      */
     private final MetaProperty<IborIndexRates> iborRates = DirectMetaProperty.ofReadWrite(
@@ -448,6 +490,7 @@ public class SimpleRatesProvider
         "dayCount",
         "discountFactors",
         "fxIndexRates",
+        "fxForwardRates",
         "iborRates",
         "overnightRates",
         "priceIndexValues");
@@ -469,6 +512,8 @@ public class SimpleRatesProvider
           return discountFactors;
         case 2123789395:  // fxIndexRates
           return fxIndexRates;
+        case -1002932800:  // fxForwardRates
+          return fxForwardRates;
         case 1263680567:  // iborRates
           return iborRates;
         case 300027439:  // overnightRates
@@ -528,6 +573,14 @@ public class SimpleRatesProvider
     }
 
     /**
+     * The meta-property for the {@code fxForwardRates} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FxForwardRates> fxForwardRates() {
+      return fxForwardRates;
+    }
+
+    /**
      * The meta-property for the {@code iborRates} property.
      * @return the meta-property, not null
      */
@@ -563,6 +616,8 @@ public class SimpleRatesProvider
           return ((SimpleRatesProvider) bean).getDiscountFactors();
         case 2123789395:  // fxIndexRates
           return ((SimpleRatesProvider) bean).getFxIndexRates();
+        case -1002932800:  // fxForwardRates
+          return ((SimpleRatesProvider) bean).getFxForwardRates();
         case 1263680567:  // iborRates
           return ((SimpleRatesProvider) bean).getIborRates();
         case 300027439:  // overnightRates
@@ -587,6 +642,9 @@ public class SimpleRatesProvider
           return;
         case 2123789395:  // fxIndexRates
           ((SimpleRatesProvider) bean).setFxIndexRates((FxIndexRates) newValue);
+          return;
+        case -1002932800:  // fxForwardRates
+          ((SimpleRatesProvider) bean).setFxForwardRates((FxForwardRates) newValue);
           return;
         case 1263680567:  // iborRates
           ((SimpleRatesProvider) bean).setIborRates((IborIndexRates) newValue);

@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -39,9 +40,11 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -185,6 +188,14 @@ public final class ImmutableRatesProvider
     DiscountFactors counter = discountFactors(index.getCurrencyPair().getCounter());
     return DiscountFxIndexRates.of(index, timeSeries(index), fxMatrix, base, counter);
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public FxForwardRates fxForwardRates(CurrencyPair currencyPair) {
+    DiscountFactors base = discountFactors(currencyPair.getBase());
+    DiscountFactors counter = discountFactors(currencyPair.getCounter());
+    return DiscountFxForwardRates.of(currencyPair, fxMatrix, base, counter);
+  };
 
   //-------------------------------------------------------------------------
   @Override

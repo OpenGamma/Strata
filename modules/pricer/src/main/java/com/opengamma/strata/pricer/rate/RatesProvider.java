@@ -5,12 +5,14 @@
  */
 package com.opengamma.strata.pricer.rate;
 
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -62,6 +64,20 @@ public interface RatesProvider
    * @throws IllegalArgumentException if the rates are not available
    */
   public abstract FxIndexRates fxIndexRates(FxIndex index);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the rates for a currency pair.
+   * <p>
+   * This returns an object that can provide forward rates for the specified currency pair.
+   * <p>
+   * An FX rate is the conversion rate between two currencies.
+   * 
+   * @param currencyPair  the currency pair to find forward rates for
+   * @return the forward rates for the specified currency pair
+   * @throws IllegalArgumentException if the rates are not available
+   */
+  public abstract FxForwardRates fxForwardRates(CurrencyPair currencyPair);
 
   //-------------------------------------------------------------------------
   /**
