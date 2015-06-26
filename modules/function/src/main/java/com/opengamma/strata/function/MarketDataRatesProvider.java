@@ -113,11 +113,9 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
-    CurrencyPair pair = index.getCurrencyPair();
-    DiscountFactors base = discountFactors(pair.getBase());
-    DiscountFactors counter = discountFactors(pair.getCounter());
-    FxRate fxRate = FxRate.of(pair, fxRate(pair));
-    return DiscountFxIndexRates.of(index, timeSeries(index), fxRate, base, counter);
+    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
+    FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
+    return DiscountFxIndexRates.of(index, timeSeries, fxForwardRates);
   }
 
   //-------------------------------------------------------------------------

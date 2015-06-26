@@ -67,11 +67,10 @@ public interface RatesProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the rates for a currency pair.
+   * Gets the forward FX rates for a currency pair.
    * <p>
    * This returns an object that can provide forward rates for the specified currency pair.
-   * <p>
-   * An FX rate is the conversion rate between two currencies.
+   * See {@link #fxIndexRates(FxIndex)} for forward rates with daily fixings.
    * 
    * @param currencyPair  the currency pair to find forward rates for
    * @return the forward rates for the specified currency pair
