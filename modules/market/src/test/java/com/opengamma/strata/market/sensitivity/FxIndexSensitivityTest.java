@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 
 /**
  * Test {@link FxIndexSensitivity}.
@@ -96,6 +97,14 @@ public class FxIndexSensitivityTest {
     assertEquals(e.compareExcludingSensitivity(a1) < 0, true);
     assertEquals(a1.compareExcludingSensitivity(other) < 0, true);
     assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toFxForwardSensitivity() {
+    FxIndexSensitivity test = FxIndexSensitivity.of(WM_GBP_USD, USD, GBP, FIXING_DATE, SENSITIVITY_VALUE);
+    FxForwardSensitivity expected = FxForwardSensitivity.of(
+        CurrencyPair.of(GBP, USD), USD, GBP, WM_GBP_USD.calculateMaturityFromFixing(FIXING_DATE), SENSITIVITY_VALUE);
+    assertEquals(test.toFxForwardSensitivity(), expected);
   }
 
   //-------------------------------------------------------------------------

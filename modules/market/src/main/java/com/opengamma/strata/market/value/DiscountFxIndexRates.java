@@ -16,8 +16,8 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -36,15 +35,13 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
  * Provides access to discount factors for a currency.
  * <p>
- * This provides discount factors for a single currency.
+ * This provides discount factors for a single currency pair.
  * <p>
- * This implementation is based on an underlying curve that is stored with maturities
- * and zero-coupon continuously-compounded rates.
+ * This implementation is based on an underlying {@link FxForwardRates} instance.
  */
 @BeanDefinition(builderScope = "private")
 public final class DiscountFxIndexRates
@@ -62,24 +59,10 @@ public final class DiscountFxIndexRates
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDateDoubleTimeSeries timeSeries;
   /**
-   * The provider of FX rates.
+   * The underlying FX forward rates.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxRateProvider fxRateProvider;
-  /**
-   * The discount factors for the base currency of the index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DiscountFactors baseCurrencyDiscountFactors;
-  /**
-   * The discount factors for the counter currency of the index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DiscountFactors counterCurrencyDiscountFactors;
-  /**
-   * The valuation date.
-   */
-  private final LocalDate valuationDate;  // not a property, derived and cached from input data
+  private final FxForwardRates fxForwardRates;
 
   //-------------------------------------------------------------------------
   /**
@@ -88,18 +71,11 @@ public final class DiscountFxIndexRates
    * The instance is based on the discount factors for each currency.
    * 
    * @param index  the index
-   * @param fxRateProvider  the provider of FX rates
-   * @param baseCurrencyFactors  the discount factors in the base currency of the index
-   * @param counterCurrencyFactors  the discount factors in the counter currency of the index
+   * @param fxForwardRates  the underlying forward FX rates
    * @return the rates instance
    */
-  public static DiscountFxIndexRates of(
-      FxIndex index,
-      FxRateProvider fxRateProvider,
-      DiscountFactors baseCurrencyFactors,
-      DiscountFactors counterCurrencyFactors) {
-
-    return of(index, LocalDateDoubleTimeSeries.empty(), fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
+  public static DiscountFxIndexRates of(FxIndex index, FxForwardRates fxForwardRates) {
+    return of(index, LocalDateDoubleTimeSeries.empty(), fxForwardRates);
   }
 
   /**
@@ -109,20 +85,11 @@ public final class DiscountFxIndexRates
    * 
    * @param index  the index
    * @param fixings  the known historical fixings
-   * @param fxRateProvider  the provider of FX rates
-   * @param baseCurrencyFactors  the discount factors in the base currency of the index
-   * @param counterCurrencyFactors  the discount factors in the counter currency of the index
+   * @param fxForwardRates  the underlying forward FX rates
    * @return the rates instance
    */
-  public static DiscountFxIndexRates of(
-      FxIndex index,
-      LocalDateDoubleTimeSeries fixings,
-      FxRateProvider fxRateProvider,
-      DiscountFactors baseCurrencyFactors,
-      DiscountFactors counterCurrencyFactors) {
-
-    return new DiscountFxIndexRates(
-        index, fixings, fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
+  public static DiscountFxIndexRates of(FxIndex index, LocalDateDoubleTimeSeries fixings, FxForwardRates fxForwardRates) {
+    return new DiscountFxIndexRates(index, fixings, fxForwardRates);
   }
 
   //-------------------------------------------------------------------------
@@ -131,47 +98,17 @@ public final class DiscountFxIndexRates
     builder.timeSeries = LocalDateDoubleTimeSeries.empty();
   }
 
-  //-------------------------------------------------------------------------
-  // restricted constructor
-  @ImmutableConstructor
-  private DiscountFxIndexRates(
-      FxIndex index,
-      LocalDateDoubleTimeSeries timeSeries,
-      FxRateProvider fxRateProvider,
-      DiscountFactors baseCurrencyDiscountFactors,
-      DiscountFactors counterCurrencyDiscountFactors) {
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(timeSeries, "timeSeries");
-    JodaBeanUtils.notNull(fxRateProvider, "fxRateProvider");
-    JodaBeanUtils.notNull(baseCurrencyDiscountFactors, "baseCurrencyDiscountFactors");
-    JodaBeanUtils.notNull(counterCurrencyDiscountFactors, "counterCurrencyDiscountFactors");
-    if (!baseCurrencyDiscountFactors.getCurrency().equals(index.getCurrencyPair().getBase())) {
-      throw new IllegalArgumentException(Messages.format(
-          "Index base currency {} did not match discount factor base currency {}",
-          index.getCurrencyPair().getBase(),
-          baseCurrencyDiscountFactors.getCurrency()));
+  @ImmutableValidator
+  private void validate() {
+    if (!index.getCurrencyPair().equals(fxForwardRates.getCurrencyPair())) {
+      throw new IllegalArgumentException("Underlying FxForwardRates must have same currency pair");
     }
-    if (!counterCurrencyDiscountFactors.getCurrency().equals(index.getCurrencyPair().getCounter())) {
-      throw new IllegalArgumentException(Messages.format(
-          "Index counter currency {} did not match discount factor counter currency {}",
-          index.getCurrencyPair().getCounter(),
-          counterCurrencyDiscountFactors.getCurrency()));
-    }
-    if (!baseCurrencyDiscountFactors.getValuationDate().equals(counterCurrencyDiscountFactors.getValuationDate())) {
-      throw new IllegalArgumentException("Curves must have the same valuation date");
-    }
-    this.index = index;
-    this.timeSeries = timeSeries;
-    this.fxRateProvider = fxRateProvider;
-    this.baseCurrencyDiscountFactors = baseCurrencyDiscountFactors;
-    this.counterCurrencyDiscountFactors = counterCurrencyDiscountFactors;
-    this.valuationDate = baseCurrencyDiscountFactors.getValuationDate();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public LocalDate getValuationDate() {
-    return valuationDate;
+    return fxForwardRates.getValuationDate();
   }
 
   //-------------------------------------------------------------------------
@@ -181,8 +118,9 @@ public final class DiscountFxIndexRates
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);
 
-    double fxIndexRate = !fixingDate.isAfter(valuationDate) ? historicRate(fixingDate) : forwardRate(fixingDate);
+    double fxIndexRate = !fixingDate.isAfter(getValuationDate()) ? historicRate(fixingDate) : forwardRate(fixingDate);
     boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
+
     return (inverse ? 1d / fxIndexRate : fxIndexRate);
   }
 
@@ -191,7 +129,7 @@ public final class DiscountFxIndexRates
     OptionalDouble fixedRate = timeSeries.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
-    } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
+    } else if (fixingDate.isBefore(getValuationDate())) { // the fixing is required
       if (timeSeries.isEmpty()) {
         throw new IllegalArgumentException(
             Messages.format("Unable to get fixing for {} on date {}, no time-series supplied", index, fixingDate));
@@ -204,22 +142,19 @@ public final class DiscountFxIndexRates
 
   // forward rate
   private double forwardRate(LocalDate fixingDate) {
-    // derive rate from discount factors based off index currency pair
-    // inverse dealt with outside this method
     LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
-    double dfCcyBaseAtMaturity = baseCurrencyDiscountFactors.discountFactor(maturityDate);
-    double dfCcyCounterAtMaturity = counterCurrencyDiscountFactors.discountFactor(maturityDate);
-    return fxRateProvider.fxRate(index.getCurrencyPair()) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+    return fxForwardRates.rate(index.getCurrencyPair().getBase(), maturityDate);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate fixingDate) {
     ArgChecker.isTrue(
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);
 
-    if (fixingDate.isBefore(valuationDate) ||
-        (fixingDate.equals(valuationDate) && timeSeries.get(fixingDate).isPresent())) {
+    if (fixingDate.isBefore(getValuationDate()) ||
+        (fixingDate.equals(getValuationDate()) && timeSeries.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
     return FxIndexSensitivity.of(index, baseCurrency, fixingDate, 1d);
@@ -227,45 +162,8 @@ public final class DiscountFxIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity fxRateSensitivity) {
-    // use the specified base currency to determine the desired currency pair
-    // then derive sensitivity from discount factors based off desired currency pair, not that of the index
-    FxIndex index = fxRateSensitivity.getIndex();
-    Currency refBaseCurrency = fxRateSensitivity.getReferenceCurrency();
-    Currency refCounterCurrency = fxRateSensitivity.getReferenceCounterCurrency();
-    Currency sensitivityCurrency = fxRateSensitivity.getCurrency();
-    LocalDate maturityDate = index.calculateMaturityFromFixing(fxRateSensitivity.getFixingDate());
-
-    boolean inverse = refBaseCurrency.equals(index.getCurrencyPair().getCounter());
-    DiscountFactors discountFactorsRefBase = (inverse ? counterCurrencyDiscountFactors : baseCurrencyDiscountFactors);
-    DiscountFactors discountFactorsRefCounter = (inverse ? baseCurrencyDiscountFactors : counterCurrencyDiscountFactors);
-    double dfCcyBaseAtMaturity = discountFactorsRefBase.discountFactor(maturityDate);
-    double dfCcyCounterAtMaturityInv = 1.0 / discountFactorsRefCounter.discountFactor(maturityDate);
-
-    double fxRate = fxRateProvider.fxRate(refBaseCurrency, refCounterCurrency);
-    ZeroRateSensitivity dfCcyBaseAtMaturitySensitivity =
-        discountFactorsRefBase.zeroRatePointSensitivity(maturityDate, sensitivityCurrency)
-            .multipliedBy(fxRate * dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
-
-    ZeroRateSensitivity dfCcyCounterAtMaturitySensitivity =
-        discountFactorsRefCounter.zeroRatePointSensitivity(maturityDate, sensitivityCurrency)
-            .multipliedBy(-fxRate * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
-                dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
-
-    return discountFactorsRefBase.curveParameterSensitivity(dfCcyBaseAtMaturitySensitivity)
-        .combinedWith(discountFactorsRefCounter.curveParameterSensitivity(dfCcyCounterAtMaturitySensitivity));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a new instance with different discount factors.
-   * 
-   * @param baseCurrencyFactors  the new base currency discount factors
-   * @param counterCurrencyFactors  the new counter currency discount factors
-   * @return the new instance
-   */
-  public DiscountFxIndexRates withDiscountFactors(DiscountFactors baseCurrencyFactors, DiscountFactors counterCurrencyFactors) {
-    return new DiscountFxIndexRates(index, timeSeries, fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity pointSensitivity) {
+    return fxForwardRates.curveParameterSensitivity(pointSensitivity.toFxForwardSensitivity());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -286,6 +184,19 @@ public final class DiscountFxIndexRates
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
+
+  private DiscountFxIndexRates(
+      FxIndex index,
+      LocalDateDoubleTimeSeries timeSeries,
+      FxForwardRates fxForwardRates) {
+    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(timeSeries, "timeSeries");
+    JodaBeanUtils.notNull(fxForwardRates, "fxForwardRates");
+    this.index = index;
+    this.timeSeries = timeSeries;
+    this.fxForwardRates = fxForwardRates;
+    validate();
+  }
 
   @Override
   public DiscountFxIndexRates.Meta metaBean() {
@@ -325,29 +236,11 @@ public final class DiscountFxIndexRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the provider of FX rates.
+   * Gets the underlying FX forward rates.
    * @return the value of the property, not null
    */
-  public FxRateProvider getFxRateProvider() {
-    return fxRateProvider;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the discount factors for the base currency of the index.
-   * @return the value of the property, not null
-   */
-  public DiscountFactors getBaseCurrencyDiscountFactors() {
-    return baseCurrencyDiscountFactors;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the discount factors for the counter currency of the index.
-   * @return the value of the property, not null
-   */
-  public DiscountFactors getCounterCurrencyDiscountFactors() {
-    return counterCurrencyDiscountFactors;
+  public FxForwardRates getFxForwardRates() {
+    return fxForwardRates;
   }
 
   //-----------------------------------------------------------------------
@@ -360,9 +253,7 @@ public final class DiscountFxIndexRates
       DiscountFxIndexRates other = (DiscountFxIndexRates) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getFxRateProvider(), other.getFxRateProvider()) &&
-          JodaBeanUtils.equal(getBaseCurrencyDiscountFactors(), other.getBaseCurrencyDiscountFactors()) &&
-          JodaBeanUtils.equal(getCounterCurrencyDiscountFactors(), other.getCounterCurrencyDiscountFactors());
+          JodaBeanUtils.equal(getFxForwardRates(), other.getFxForwardRates());
     }
     return false;
   }
@@ -372,21 +263,17 @@ public final class DiscountFxIndexRates
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getFxRateProvider());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrencyDiscountFactors());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrencyDiscountFactors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxForwardRates());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("DiscountFxIndexRates{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("fxRateProvider").append('=').append(getFxRateProvider()).append(',').append(' ');
-    buf.append("baseCurrencyDiscountFactors").append('=').append(getBaseCurrencyDiscountFactors()).append(',').append(' ');
-    buf.append("counterCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(getCounterCurrencyDiscountFactors()));
+    buf.append("fxForwardRates").append('=').append(JodaBeanUtils.toString(getFxForwardRates()));
     buf.append('}');
     return buf.toString();
   }
@@ -412,20 +299,10 @@ public final class DiscountFxIndexRates
     private final MetaProperty<LocalDateDoubleTimeSeries> timeSeries = DirectMetaProperty.ofImmutable(
         this, "timeSeries", DiscountFxIndexRates.class, LocalDateDoubleTimeSeries.class);
     /**
-     * The meta-property for the {@code fxRateProvider} property.
+     * The meta-property for the {@code fxForwardRates} property.
      */
-    private final MetaProperty<FxRateProvider> fxRateProvider = DirectMetaProperty.ofImmutable(
-        this, "fxRateProvider", DiscountFxIndexRates.class, FxRateProvider.class);
-    /**
-     * The meta-property for the {@code baseCurrencyDiscountFactors} property.
-     */
-    private final MetaProperty<DiscountFactors> baseCurrencyDiscountFactors = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyDiscountFactors", DiscountFxIndexRates.class, DiscountFactors.class);
-    /**
-     * The meta-property for the {@code counterCurrencyDiscountFactors} property.
-     */
-    private final MetaProperty<DiscountFactors> counterCurrencyDiscountFactors = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyDiscountFactors", DiscountFxIndexRates.class, DiscountFactors.class);
+    private final MetaProperty<FxForwardRates> fxForwardRates = DirectMetaProperty.ofImmutable(
+        this, "fxForwardRates", DiscountFxIndexRates.class, FxForwardRates.class);
     /**
      * The meta-properties.
      */
@@ -433,9 +310,7 @@ public final class DiscountFxIndexRates
         this, null,
         "index",
         "timeSeries",
-        "fxRateProvider",
-        "baseCurrencyDiscountFactors",
-        "counterCurrencyDiscountFactors");
+        "fxForwardRates");
 
     /**
      * Restricted constructor.
@@ -450,12 +325,8 @@ public final class DiscountFxIndexRates
           return index;
         case 779431844:  // timeSeries
           return timeSeries;
-        case -1499624221:  // fxRateProvider
-          return fxRateProvider;
-        case 1151357473:  // baseCurrencyDiscountFactors
-          return baseCurrencyDiscountFactors;
-        case -453959018:  // counterCurrencyDiscountFactors
-          return counterCurrencyDiscountFactors;
+        case -1002932800:  // fxForwardRates
+          return fxForwardRates;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -493,27 +364,11 @@ public final class DiscountFxIndexRates
     }
 
     /**
-     * The meta-property for the {@code fxRateProvider} property.
+     * The meta-property for the {@code fxForwardRates} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxRateProvider> fxRateProvider() {
-      return fxRateProvider;
-    }
-
-    /**
-     * The meta-property for the {@code baseCurrencyDiscountFactors} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DiscountFactors> baseCurrencyDiscountFactors() {
-      return baseCurrencyDiscountFactors;
-    }
-
-    /**
-     * The meta-property for the {@code counterCurrencyDiscountFactors} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DiscountFactors> counterCurrencyDiscountFactors() {
-      return counterCurrencyDiscountFactors;
+    public MetaProperty<FxForwardRates> fxForwardRates() {
+      return fxForwardRates;
     }
 
     //-----------------------------------------------------------------------
@@ -524,12 +379,8 @@ public final class DiscountFxIndexRates
           return ((DiscountFxIndexRates) bean).getIndex();
         case 779431844:  // timeSeries
           return ((DiscountFxIndexRates) bean).getTimeSeries();
-        case -1499624221:  // fxRateProvider
-          return ((DiscountFxIndexRates) bean).getFxRateProvider();
-        case 1151357473:  // baseCurrencyDiscountFactors
-          return ((DiscountFxIndexRates) bean).getBaseCurrencyDiscountFactors();
-        case -453959018:  // counterCurrencyDiscountFactors
-          return ((DiscountFxIndexRates) bean).getCounterCurrencyDiscountFactors();
+        case -1002932800:  // fxForwardRates
+          return ((DiscountFxIndexRates) bean).getFxForwardRates();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -553,9 +404,7 @@ public final class DiscountFxIndexRates
 
     private FxIndex index;
     private LocalDateDoubleTimeSeries timeSeries;
-    private FxRateProvider fxRateProvider;
-    private DiscountFactors baseCurrencyDiscountFactors;
-    private DiscountFactors counterCurrencyDiscountFactors;
+    private FxForwardRates fxForwardRates;
 
     /**
      * Restricted constructor.
@@ -572,12 +421,8 @@ public final class DiscountFxIndexRates
           return index;
         case 779431844:  // timeSeries
           return timeSeries;
-        case -1499624221:  // fxRateProvider
-          return fxRateProvider;
-        case 1151357473:  // baseCurrencyDiscountFactors
-          return baseCurrencyDiscountFactors;
-        case -453959018:  // counterCurrencyDiscountFactors
-          return counterCurrencyDiscountFactors;
+        case -1002932800:  // fxForwardRates
+          return fxForwardRates;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -592,14 +437,8 @@ public final class DiscountFxIndexRates
         case 779431844:  // timeSeries
           this.timeSeries = (LocalDateDoubleTimeSeries) newValue;
           break;
-        case -1499624221:  // fxRateProvider
-          this.fxRateProvider = (FxRateProvider) newValue;
-          break;
-        case 1151357473:  // baseCurrencyDiscountFactors
-          this.baseCurrencyDiscountFactors = (DiscountFactors) newValue;
-          break;
-        case -453959018:  // counterCurrencyDiscountFactors
-          this.counterCurrencyDiscountFactors = (DiscountFactors) newValue;
+        case -1002932800:  // fxForwardRates
+          this.fxForwardRates = (FxForwardRates) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -636,21 +475,17 @@ public final class DiscountFxIndexRates
       return new DiscountFxIndexRates(
           index,
           timeSeries,
-          fxRateProvider,
-          baseCurrencyDiscountFactors,
-          counterCurrencyDiscountFactors);
+          fxForwardRates);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("DiscountFxIndexRates.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
-      buf.append("fxRateProvider").append('=').append(JodaBeanUtils.toString(fxRateProvider)).append(',').append(' ');
-      buf.append("baseCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(baseCurrencyDiscountFactors)).append(',').append(' ');
-      buf.append("counterCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(counterCurrencyDiscountFactors));
+      buf.append("fxForwardRates").append('=').append(JodaBeanUtils.toString(fxForwardRates));
       buf.append('}');
       return buf.toString();
     }
