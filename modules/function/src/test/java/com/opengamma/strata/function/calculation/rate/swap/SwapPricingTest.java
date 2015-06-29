@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -58,9 +57,9 @@ import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.MarketEnvironmentResult;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
@@ -135,7 +134,7 @@ public class SwapPricingTest {
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg)).build();
 
-    BaseMarketData suppliedData = BaseMarketData.builder(LocalDate.of(2014, 1, 22))
+    MarketEnvironment suppliedData = MarketEnvironment.builder(LocalDate.of(2014, 1, 22))
         .addValue(CurveGroupId.of(CURVE_GROUP_NAME), CURVE_GROUP)
         .build();
 
@@ -174,12 +173,12 @@ public class SwapPricingTest {
         calculationRunner.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
     CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
-    BaseMarketDataResult marketDataResult = marketDataFactory.buildBaseMarketData(
+    MarketEnvironmentResult marketDataResult = marketDataFactory.buildBaseMarketData(
         calculationTasks.getMarketDataRequirements(),
         suppliedData,
         MarketDataConfig.empty());
 
-    BaseMarketData marketData = marketDataResult.getMarketData();
+    MarketEnvironment marketData = marketDataResult.getMarketData();
     Results results = calculationRunner.calculate(calculationTasks, marketData);
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();

@@ -16,7 +16,7 @@ import com.opengamma.strata.engine.config.MarketDataRules;
 /**
  * A source of market data provided to an engine function and used for a calculation across multiple scenarios.
  * <p>
- * The set of data provided by this interface is a subset of the set provided by {@link ScenarioMarketData}.
+ * The set of data provided by this interface is a subset of the set provided by {@link ScenarioCalculationEnvironment}.
  * For example a function might request a USD discounting curve, but the scenario market data can contain
  * multiple curve groups, each with a USD discounting curve.
  * <p>

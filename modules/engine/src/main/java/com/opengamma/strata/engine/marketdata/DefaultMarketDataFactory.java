@@ -114,16 +114,24 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     this.functions = ImmutableMap.copyOf(builderMap);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public BaseMarketDataResult buildBaseMarketData(
+  public MarketEnvironmentResult buildMarketEnvironment(
       MarketDataRequirements requirements,
-      BaseMarketData suppliedData,
+      MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
-    ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder = ImmutableMap.builder();
-    ImmutableMap.Builder<MarketDataId<?>, Result<?>> timeSeriesFailureBuilder = ImmutableMap.builder();
-    BaseMarketData builtData = suppliedData;
+    // TODO Call buildCalculationEnvironment and only return the types that belong in MarketEnvironment
+    throw new UnsupportedOperationException();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public CalculationEnvironment buildCalculationEnvironment(
+      MarketDataRequirements requirements,
+      MarketEnvironment suppliedData,
+      MarketDataConfig marketDataConfig) {
+
+    CalculationEnvironment builtData = CalculationEnvironment.of(suppliedData);
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -154,90 +162,59 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // The requirements contained in the leaf nodes
       MarketDataRequirements leafRequirements = pair.getSecond();
 
-      BaseMarketDataBuilder dataBuilder = builtData.toBuilder();
+      CalculationEnvironmentBuilder dataBuilder = builtData.toBuilder();
 
       // Time series of observable data ------------------------------------------------------------
 
       // Build any time series that are required but not available in the built data
-      Map<ObservableId, Result<LocalDateDoubleTimeSeries>> timeSeriesResults =
-          leafRequirements.getTimeSeries().stream()
-              .filter(not(builtData::containsTimeSeries))
-              .collect(toImmutableMap(id -> id, this::findTimeSeries));
-
-      for (Map.Entry<ObservableId, Result<LocalDateDoubleTimeSeries>> entry : timeSeriesResults.entrySet()) {
-        if (entry.getValue().isSuccess()) {
-          dataBuilder.addTimeSeries(entry.getKey(), entry.getValue().getValue());
-        } else {
-          timeSeriesFailureBuilder.put(entry.getKey(), entry.getValue());
-        }
-      }
+      leafRequirements.getTimeSeries().stream()
+          .filter(not(builtData::containsTimeSeries))
+          .forEach(id -> dataBuilder.addTimeSeriesResult(id, findTimeSeries(id)));
 
       // Single values of observable data -----------------------------------------------------------
 
       // Filter out IDs for the data that is already present in the built data
-      Set<ObservableId> observableIds =
-          leafRequirements.getObservables().stream()
-              .filter(not(builtData::containsValue))
-              .collect(toImmutableSet());
+      Set<ObservableId> observableIds = leafRequirements.getObservables().stream()
+          .filter(not(builtData::containsValue))
+          .collect(toImmutableSet());
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
       Map<ObservableId, Result<Double>> observableResults = buildObservableData(observableIds);
-
-      for (Map.Entry<ObservableId, Result<Double>> entry : observableResults.entrySet()) {
-        if (entry.getValue().isSuccess()) {
-          dataBuilder.addValue(entry.getKey(), entry.getValue().getValue());
-        } else {
-          failureBuilder.put(entry.getKey(), entry.getValue());
-        }
-      }
+      dataBuilder.addResults(observableResults);
 
       // Non-observable data -----------------------------------------------------------------------
 
       // Need to copy to an effectively final var to satisfy the compiler
-      BaseMarketData tmpData = builtData;
+      CalculationEnvironment tmpData = builtData;
 
       // Filter out IDs for the data that is already present in builtData and build the rest
-      Map<MarketDataId<?>, Result<?>> nonObservableResults =
-          leafRequirements.getNonObservables().stream()
-              .filter(not(tmpData::containsValue))
-              .collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, tmpData, marketDataConfig)));
-
-      for (Map.Entry<MarketDataId<?>, Result<?>> entry : nonObservableResults.entrySet()) {
-        if (entry.getValue().isSuccess()) {
-          dataBuilder.addValueUnsafe(entry.getKey(), entry.getValue().getValue());
-        } else {
-          failureBuilder.put(entry.getKey(), entry.getValue());
-        }
-      }
+      leafRequirements.getNonObservables().stream()
+          .filter(not(tmpData::containsValue))
+          .forEach(id -> dataBuilder.addResultUnsafe(id, buildNonObservableData(id, tmpData, marketDataConfig)));
 
       // --------------------------------------------------------------------------------------------
 
-      // Put the data built so far into a BaseMarketData that will be used in the next phase of building data
+      // Put the data built so far into a CalculationEnvironment that will be used in the next phase of building data
       builtData = dataBuilder.build();
 
       // A copy of the dependency tree not including the leaf nodes
       root = pair.getFirst();
     }
-    return BaseMarketDataResult.builder()
-        .marketData(builtData)
-        .singleValueFailures(failureBuilder.build())
-        .timeSeriesFailures(timeSeriesFailureBuilder.build())
-        .build();
+    return builtData;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public ScenarioMarketDataResult buildScenarioMarketData(
+  public ScenarioCalculationEnvironment buildScenarioCalculationEnvironment(
       MarketDataRequirements requirements,
-      BaseMarketData suppliedData,
+      MarketEnvironment suppliedData,
       ScenarioDefinition scenarioDefinition,
       MarketDataConfig marketDataConfig) {
 
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> timeSeriesFailureBuilder = ImmutableMap.builder();
     ScenarioMarketDataBuilder dataBuilder =
-        ScenarioMarketData.builder(scenarioDefinition.getScenarioCount(), suppliedData.getValuationDate());
-    ScenarioMarketData builtData = dataBuilder.build();
+        ScenarioCalculationEnvironment.builder(scenarioDefinition.getScenarioCount(), suppliedData.getValuationDate());
+    ScenarioCalculationEnvironment builtData = dataBuilder.build();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -263,7 +240,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // The result of this method also contains details of the problems for market data can't be built or found.
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
-      ScenarioMarketData marketData = builtData;
+      ScenarioCalculationEnvironment marketData = builtData;
 
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
@@ -355,8 +332,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // Copy supplied data to the scenario data after applying perturbations
       Map<MarketDataId<?>, Object> suppliedNonObservables = leafRequirements.getNonObservables().stream()
           .filter(suppliedData::containsValue)
-          .collect(toImmutableMap(id -> id,
-              (MarketDataId<?> id) -> suppliedData.getValue(id)));  // redundant cast to make the Eclipse compiler happy
+          // The second argument could be a method reference but the Eclipse compiler doesn't like it.
+          // The explicit type for the second ID argument is also there to satisfy Eclipse.
+          .collect(toImmutableMap(id -> id, (MarketDataId<?> id) -> suppliedData.getValue(id)));
 
       for (Map.Entry<MarketDataId<?>, Object> entry : suppliedNonObservables.entrySet()) {
         MarketDataId<?> id = entry.getKey();
@@ -377,11 +355,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // A copy of the dependency tree not including the leaf nodes
       root = pair.getFirst();
     }
-    return ScenarioMarketDataResult.builder()
-        .marketData(builtData)
-        .singleValueFailures(failureBuilder.build())
-        .timeSeriesFailures(timeSeriesFailureBuilder.build())
-        .build();
+    return builtData;
   }
 
   /**
@@ -497,7 +471,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    */
   private Map<MarketDataId<?>, Result<List<?>>> buildNonObservableScenarioData(
       List<MarketDataId<?>> ids,
-      ScenarioMarketData marketData,
+      ScenarioCalculationEnvironment marketData,
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 

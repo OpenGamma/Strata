@@ -28,7 +28,7 @@ import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**
@@ -141,7 +141,7 @@ public class CalculationTask {
    * @param scenarioData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
    */
-  public CalculationResult execute(ScenarioMarketData scenarioData) {
+  public CalculationResult execute(ScenarioCalculationEnvironment scenarioData) {
     CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
     Result<?> result;
 

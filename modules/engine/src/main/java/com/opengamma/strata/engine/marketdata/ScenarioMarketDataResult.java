@@ -34,7 +34,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
 
   /** The market data that was successfully built. */
   @PropertyDefinition(validate = "notNull")
-  private final ScenarioMarketData marketData;
+  private final ScenarioCalculationEnvironment marketData;
 
   /** Details of failures when building single market data values. */
   @PropertyDefinition(validate = "notNull")
@@ -67,7 +67,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
   }
 
   private ScenarioMarketDataResult(
-      ScenarioMarketData marketData,
+      ScenarioCalculationEnvironment marketData,
       Map<MarketDataId<?>, Result<?>> singleValueFailures,
       Map<MarketDataId<?>, Result<?>> timeSeriesFailures) {
     JodaBeanUtils.notNull(marketData, "marketData");
@@ -98,7 +98,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
    * Gets the market data that was successfully built.
    * @return the value of the property, not null
    */
-  public ScenarioMarketData getMarketData() {
+  public ScenarioCalculationEnvironment getMarketData() {
     return marketData;
   }
 
@@ -176,8 +176,8 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
     /**
      * The meta-property for the {@code marketData} property.
      */
-    private final MetaProperty<ScenarioMarketData> marketData = DirectMetaProperty.ofImmutable(
-        this, "marketData", ScenarioMarketDataResult.class, ScenarioMarketData.class);
+    private final MetaProperty<ScenarioCalculationEnvironment> marketData = DirectMetaProperty.ofImmutable(
+        this, "marketData", ScenarioMarketDataResult.class, ScenarioCalculationEnvironment.class);
     /**
      * The meta-property for the {@code singleValueFailures} property.
      */
@@ -238,7 +238,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
      * The meta-property for the {@code marketData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ScenarioMarketData> marketData() {
+    public MetaProperty<ScenarioCalculationEnvironment> marketData() {
       return marketData;
     }
 
@@ -289,7 +289,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ScenarioMarketDataResult> {
 
-    private ScenarioMarketData marketData;
+    private ScenarioCalculationEnvironment marketData;
     private Map<MarketDataId<?>, Result<?>> singleValueFailures = ImmutableMap.of();
     private Map<MarketDataId<?>, Result<?>> timeSeriesFailures = ImmutableMap.of();
 
@@ -329,7 +329,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1116764678:  // marketData
-          this.marketData = (ScenarioMarketData) newValue;
+          this.marketData = (ScenarioCalculationEnvironment) newValue;
           break;
         case -1633495726:  // singleValueFailures
           this.singleValueFailures = (Map<MarketDataId<?>, Result<?>>) newValue;
@@ -381,7 +381,7 @@ public final class ScenarioMarketDataResult implements ImmutableBean {
      * @param marketData  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder marketData(ScenarioMarketData marketData) {
+    public Builder marketData(ScenarioCalculationEnvironment marketData) {
       JodaBeanUtils.notNull(marketData, "marketData");
       this.marketData = marketData;
       return this;

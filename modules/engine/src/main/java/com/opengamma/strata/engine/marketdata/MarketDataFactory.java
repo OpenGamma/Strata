@@ -9,8 +9,8 @@ import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 
 /**
- * A market data factory supplies the market data used in calculations. It can source observable data from
- * a data provider, and it can also build higher level market data, for example calibrated curves or volatility
+ * A market data factory build market data. It can source observable data from a data provider,
+ * and it can also build higher level market data, for example calibrated curves or volatility
  * surfaces.
  */
 public interface MarketDataFactory {
@@ -26,9 +26,25 @@ public interface MarketDataFactory {
    * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
    * @return the market data required by the calculations plus details of any data that could not be built
    */
-  public abstract BaseMarketDataResult buildBaseMarketData(
+  public abstract MarketEnvironmentResult buildMarketEnvironment(
       MarketDataRequirements requirements,
-      BaseMarketData suppliedData,
+      MarketEnvironment suppliedData,
+      MarketDataConfig marketDataConfig);
+
+  /**
+   * Builds the market data required for performing calculations over a portfolio.
+   * <p>
+   * If the calculations require any data not provided in the {@code suppliedData} it is built by the
+   * engine.
+   *
+   * @param requirements  the market data required for the calculations
+   * @param suppliedData  market data supplied by the caller
+   * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
+   * @return the market data required by the calculations plus details of any data that could not be built
+   */
+  public abstract CalculationEnvironment buildCalculationEnvironment(
+      MarketDataRequirements requirements,
+      MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig);
 
   /**
@@ -50,9 +66,9 @@ public interface MarketDataFactory {
    * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
    * @return the market data required by the calculations
    */
-  public abstract ScenarioMarketDataResult buildScenarioMarketData(
+  public abstract ScenarioCalculationEnvironment buildScenarioCalculationEnvironment(
       MarketDataRequirements requirements,
-      BaseMarketData suppliedData,
+      MarketEnvironment suppliedData,
       ScenarioDefinition scenarioDefinition,
       MarketDataConfig marketDataConfig);
 }

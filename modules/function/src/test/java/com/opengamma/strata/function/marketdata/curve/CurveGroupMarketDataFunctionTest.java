@@ -8,7 +8,6 @@ package com.opengamma.strata.function.marketdata.curve;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -32,9 +31,9 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
@@ -103,7 +102,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
     LocalDate valuationDate = date(2011, 3, 8);
-    BaseMarketData marketData = BaseMarketData.builder(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
     Result<CurveGroup> result = function.buildCurveGroup(groupConfig, marketData, MarketDataFeed.NONE);
@@ -154,7 +153,7 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     ParRates parRates = ParRates.of(parRateData, CurveMetadata.of(curveName));
-    BaseMarketData marketData = BaseMarketData.builder(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
 
@@ -259,7 +258,7 @@ public class CurveGroupMarketDataFunctionTest {
     LocalDate valuationDate = date(2011, 3, 8);
     ParRates fraParRates = ParRates.of(fraParRateData, fraCurveConfig.metadata(valuationDate));
     ParRates fraSwapParRates = ParRates.of(fraSwapParRateData, fraCurveConfig.metadata(valuationDate));
-    BaseMarketData marketData = BaseMarketData.builder(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, fraCurveConfig.getName(), MarketDataFeed.NONE), fraParRates)
         .addValue(ParRatesId.of(groupName, fraSwapCurveConfig.getName(), MarketDataFeed.NONE), fraSwapParRates)
         .build();

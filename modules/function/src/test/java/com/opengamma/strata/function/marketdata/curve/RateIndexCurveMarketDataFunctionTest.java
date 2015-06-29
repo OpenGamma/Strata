@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -43,7 +43,7 @@ public class RateIndexCurveMarketDataFunctionTest {
         .name(CurveGroupName.of("groupName"))
         .forwardCurves(curveMap)
         .build();
-    BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
     Result<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
@@ -66,7 +66,7 @@ public class RateIndexCurveMarketDataFunctionTest {
         .name(CurveGroupName.of("groupName"))
         .forwardCurves(curveMap)
         .build();
-    BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     RateIndexCurveMarketDataFunction builder = new RateIndexCurveMarketDataFunction();
 
     Result<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
@@ -108,7 +108,7 @@ public class RateIndexCurveMarketDataFunctionTest {
         .forwardCurves(curveMap2)
         .build();
 
-    BaseMarketData marketData = BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(groupId1, curveGroup1)
         .addValue(groupId2, curveGroup2)
         .build();

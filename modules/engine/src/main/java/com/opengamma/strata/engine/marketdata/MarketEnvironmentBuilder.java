@@ -15,9 +15,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A mutable builder for building up {@link BaseMarketData} instances.
+ * A mutable builder for building up {@link MarketEnvironment} instances.
  */
-public final class BaseMarketDataBuilder {
+public final class MarketEnvironmentBuilder {
 
   /** The valuation date associated with the market data. */
   private LocalDate valuationDate;
@@ -33,7 +33,7 @@ public final class BaseMarketDataBuilder {
    *
    * @param valuationDate  the valuation date associated with the market data
    */
-  BaseMarketDataBuilder(LocalDate valuationDate) {
+  MarketEnvironmentBuilder(LocalDate valuationDate) {
     this.valuationDate = valuationDate;
   }
 
@@ -44,7 +44,7 @@ public final class BaseMarketDataBuilder {
    * @param values  the single value market data items, keyed by ID
    * @param timeSeries  time series of observable market data values, keyed by ID
    */
-  BaseMarketDataBuilder(
+  MarketEnvironmentBuilder(
       LocalDate valuationDate,
       Map<? extends MarketDataId<?>, Object> values,
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
@@ -63,7 +63,7 @@ public final class BaseMarketDataBuilder {
    * @param <I>  the type of the market data ID
    * @return this builder
    */
-  public <T, I extends MarketDataId<T>> BaseMarketDataBuilder addValue(I id, T value) {
+  public <T, I extends MarketDataId<T>> MarketEnvironmentBuilder addValue(I id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, value);
@@ -80,7 +80,7 @@ public final class BaseMarketDataBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  <T> BaseMarketDataBuilder addValueUnsafe(MarketDataId<T> id, Object value) {
+  <T> MarketEnvironmentBuilder addValueUnsafe(MarketDataId<T> id, Object value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, id.getMarketDataType().cast(value));
@@ -93,7 +93,7 @@ public final class BaseMarketDataBuilder {
    * @param values  the items of market data, keyed by ID
    * @return this builder
    */
-  public BaseMarketDataBuilder addAllValues(Map<? extends MarketDataId<?>, ?> values) {
+  public MarketEnvironmentBuilder addAllValues(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     this.values.putAll(values);
     return this;
@@ -106,7 +106,7 @@ public final class BaseMarketDataBuilder {
    * @param timeSeries  a time series of observable market data values
    * @return this builder
    */
-  public BaseMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
+  public MarketEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.put(id, timeSeries);
@@ -119,7 +119,7 @@ public final class BaseMarketDataBuilder {
    * @param series  the time series of market data, keyed by ID
    * @return this builder
    */
-  public BaseMarketDataBuilder addAllTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> series) {
+  public MarketEnvironmentBuilder addAllTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> series) {
     ArgChecker.notNull(series, "series");
     timeSeries.putAll(series);
     return this;
@@ -131,7 +131,7 @@ public final class BaseMarketDataBuilder {
    * @param valuationDate  the valuation date associated with the market data
    * @return this builder
    */
-  public BaseMarketDataBuilder valuationDate(LocalDate valuationDate) {
+  public MarketEnvironmentBuilder valuationDate(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.valuationDate = valuationDate;
     return this;
@@ -145,7 +145,7 @@ public final class BaseMarketDataBuilder {
    *
    * @return a set of market data from the data in this builder
    */
-  public BaseMarketData build() {
-    return new BaseMarketData(valuationDate, values, timeSeries);
+  public MarketEnvironment build() {
+    return new MarketEnvironment(valuationDate, values, timeSeries);
   }
 }

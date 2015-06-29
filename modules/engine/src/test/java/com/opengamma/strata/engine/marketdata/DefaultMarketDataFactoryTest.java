@@ -80,12 +80,12 @@ public class DefaultMarketDataFactoryTest {
         MarketDataRequirements.builder()
             .addTimeSeries(id1, id2)
             .build();
-    BaseMarketDataResult result =
+    MarketEnvironmentResult result =
         marketDataFactory.buildBaseMarketData(
             requirements,
-            BaseMarketData.empty(date(2015, 3, 25)),
+            MarketEnvironment.empty(date(2015, 3, 25)),
             MARKET_DATA_CONFIG);
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getTimeSeries(id1)).isEqualTo(timeSeries1);
     assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
@@ -97,8 +97,8 @@ public class DefaultMarketDataFactoryTest {
   public void buildSuppliedNonObservableValues() {
     TestId id1 = TestId.of("1");
     TestId id2 = TestId.of("2");
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id1, "foo")
             .addValue(id2, "bar")
             .build();
@@ -111,8 +111,8 @@ public class DefaultMarketDataFactoryTest {
         MarketDataRequirements.builder()
             .addValues(id1, id2)
             .build();
-    BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironmentResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+    MarketEnvironment marketData = result.getMarketData();
     assertThat(marketData.getValue(id1)).isEqualTo("foo");
     assertThat(marketData.getValue(id2)).isEqualTo("bar");
   }
@@ -130,8 +130,8 @@ public class DefaultMarketDataFactoryTest {
             .put(date(2012, 4, 10), 30)
             .build();
 
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addTimeSeries(idA, timeSeries)
             .build();
     DefaultMarketDataFactory marketDataFactory =
@@ -145,8 +145,8 @@ public class DefaultMarketDataFactoryTest {
         MarketDataRequirements.builder()
             .addValues(idC)
             .build();
-    BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironmentResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+    MarketEnvironment marketData = result.getMarketData();
     assertThat(marketData.getValue(idC)).isEqualTo(new TestMarketDataC(timeSeries));
   }
 
@@ -160,12 +160,12 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
-    BaseMarketDataResult result = factory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironmentResult result = factory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+    MarketEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValue(id1)).isEqualTo(1d);
     assertThat(marketData.getValue(id2)).isEqualTo(2d);
@@ -184,14 +184,14 @@ public class DefaultMarketDataFactoryTest {
     TestObservableId id1 = TestObservableId.of("a");
     TestObservableId id2 = TestObservableId.of("b");
 
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id1, 1d)
             .addValue(id2, 2d)
             .build();
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
-    BaseMarketDataResult result = factory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironmentResult result = factory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+    MarketEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValue(id1)).isEqualTo(1d);
     assertThat(marketData.getValue(id2)).isEqualTo(2d);
@@ -210,8 +210,8 @@ public class DefaultMarketDataFactoryTest {
     TestObservableKey key = TestObservableKey.of("1");
     MissingMappingId missingId = MissingMappingId.of(key);
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(missingId).build();
-    BaseMarketDataResult result =
-        factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
+    MarketEnvironmentResult result =
+        factory.buildBaseMarketData(requirements, MarketEnvironment.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
     Result<?> missingResult = failures.get(missingId);
 
@@ -237,10 +237,10 @@ public class DefaultMarketDataFactoryTest {
             Optional::of);
 
     MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addValues(requirements).build();
-    BaseMarketDataResult result =
-        factory.buildBaseMarketData(marketDataRequirements, BaseMarketData.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
+    MarketEnvironmentResult result =
+        factory.buildBaseMarketData(marketDataRequirements, MarketEnvironment.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironment marketData = result.getMarketData();
 
     assertThat(failures.get(id3)).hasFailureMessageMatching("No market data rule.*");
     assertThat(failures.get(id4)).hasFailureMessageMatching("No market data rule.*");
@@ -263,8 +263,8 @@ public class DefaultMarketDataFactoryTest {
             Optional::of);
 
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1).build();
-    BaseMarketDataResult result =
-        factory.buildBaseMarketData(requirements, BaseMarketData.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
+    MarketEnvironmentResult result =
+        factory.buildBaseMarketData(requirements, MarketEnvironment.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> singleValueFailures = result.getSingleValueFailures();
     assertThat(singleValueFailures.get(id1)).hasFailureMessageMatching("No market data rule.*");
   }
@@ -304,10 +304,10 @@ public class DefaultMarketDataFactoryTest {
             Optional::of);
 
     MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addTimeSeries(requirements).build();
-    BaseMarketDataResult result =
-        factory.buildBaseMarketData(marketDataRequirements, BaseMarketData.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
+    MarketEnvironmentResult result =
+        factory.buildBaseMarketData(marketDataRequirements, MarketEnvironment.empty(date(2011, 3, 8)), MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> failures = result.getTimeSeriesFailures();
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getTimeSeries(ID1)).isEqualTo(libor1mTimeSeries);
     assertThat(marketData.getTimeSeries(ID2)).isEqualTo(libor3mTimeSeries);
@@ -356,16 +356,16 @@ public class DefaultMarketDataFactoryTest {
             builderB,
             builderC);
 
-    BaseMarketDataResult result =
+    MarketEnvironmentResult result =
         marketDataFactory.buildBaseMarketData(
             requirements,
-            BaseMarketData.empty(date(2011, 3, 8)),
+            MarketEnvironment.empty(date(2011, 3, 8)),
             MARKET_DATA_CONFIG);
 
     assertThat(result.getSingleValueFailures()).isEmpty();
     assertThat(result.getTimeSeriesFailures()).isEmpty();
 
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironment marketData = result.getMarketData();
     TestMarketDataB marketDataB1 = marketData.getValue(new TestIdB("1"));
     TestMarketDataB marketDataB2 = marketData.getValue(new TestIdB("2"));
 
@@ -412,7 +412,7 @@ public class DefaultMarketDataFactoryTest {
     TestIdA idA1 = new TestIdA("1");
     TestIdA idA2 = new TestIdA("2");
 
-    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8))
         .addTimeSeries(idA1, timeSeries1)
         .addTimeSeries(idA2, timeSeries2)
         .addValue(idA1, 1d)
@@ -426,12 +426,12 @@ public class DefaultMarketDataFactoryTest {
         builderB,
         builderC);
 
-    BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+    MarketEnvironmentResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
 
     assertThat(result.getSingleValueFailures()).isEmpty();
     assertThat(result.getTimeSeriesFailures()).isEmpty();
 
-    BaseMarketData marketData = result.getMarketData();
+    MarketEnvironment marketData = result.getMarketData();
     TestMarketDataB marketDataB1 = marketData.getValue(new TestIdB("1"));
     TestMarketDataB marketDataB2 = marketData.getValue(new TestIdB("2"));
 
@@ -464,10 +464,10 @@ public class DefaultMarketDataFactoryTest {
             FeedIdMapping.identity(),
             builder);
 
-    BaseMarketDataResult result =
+    MarketEnvironmentResult result =
         marketDataFactory.buildBaseMarketData(
             requirements,
-            BaseMarketData.empty(date(2011, 3, 8)),
+            MarketEnvironment.empty(date(2011, 3, 8)),
             MARKET_DATA_CONFIG);
     Map<MarketDataId<?>, Result<?>> failures = result.getSingleValueFailures();
 
@@ -492,7 +492,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
@@ -511,7 +511,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
@@ -528,8 +528,8 @@ public class DefaultMarketDataFactoryTest {
             new TestFeedIdMapping());
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id1, 1d)
             .addValue(id2, 2d)
             .build();
@@ -549,7 +549,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
@@ -579,7 +579,7 @@ public class DefaultMarketDataFactoryTest {
         .put(date(2011, 3, 10), 30)
         .build();
 
-    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8))
         .addTimeSeries(id1, timeSeries1)
         .addTimeSeries(id2, timeSeries2)
         .build();
@@ -600,7 +600,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getTimeSeries(id1)).isEqualTo(timeSeries1);
     assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
@@ -613,7 +613,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
@@ -631,7 +631,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(2d, 3d, 4d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
@@ -647,7 +647,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
 
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
@@ -672,7 +672,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2.2d, 2.4d, 2.6d));
@@ -688,7 +688,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
             new NonObservableMarketDataFunction());
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
@@ -709,7 +709,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("1.0", "1.0", "1.0"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("2.0", "2.0", "2.0"));
@@ -726,8 +726,8 @@ public class DefaultMarketDataFactoryTest {
             new TestFeedIdMapping());
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id1, "value1")
             .addValue(id2, "value2")
             .build();
@@ -747,7 +747,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("value1", "value1", "value1"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("value2", "value2", "value2"));
@@ -784,7 +784,7 @@ public class DefaultMarketDataFactoryTest {
     TestIdA idA1 = new TestIdA("1");
     TestIdA idA2 = new TestIdA("2");
 
-    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8))
         .addTimeSeries(idA1, timeSeries1)
         .addTimeSeries(idA2, timeSeries2)
         .addValue(idA1, 1d)
@@ -822,7 +822,7 @@ public class DefaultMarketDataFactoryTest {
     assertThat(result.getSingleValueFailures()).isEmpty();
     assertThat(result.getTimeSeriesFailures()).isEmpty();
 
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
     List<TestMarketDataB> marketDataB1 = marketData.getValues(new TestIdB("1"));
     List<TestMarketDataB> marketDataB2 = marketData.getValues(new TestIdB("2"));
 
@@ -850,7 +850,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
             new NonObservableMarketDataFunction());
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
@@ -870,7 +870,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("1.0foo", "1.0bar", "1.0baz"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("2.0", "2.0", "2.0"));
@@ -886,7 +886,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
             new NonObservableMarketDataFunction());
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
@@ -913,7 +913,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("1.0FOO", "1.0BAR", "1.0BAZ"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("2.0", "2.0", "2.0"));
@@ -929,7 +929,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping(),
             new NonObservableMarketDataFunction());
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
 
     MarketDataId<?> id1 = new NonObservableId("a");
     MarketDataId<?> id2 = new NonObservableId("b");
@@ -950,7 +950,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("1.0", "1.0", "1.0"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("2.2", "2.4", "2.6"));
@@ -966,7 +966,7 @@ public class DefaultMarketDataFactoryTest {
             new TestTimeSeriesProvider(ImmutableMap.of()),
             new TestObservableMarketDataFunction(),
             new TestFeedIdMapping());
-    BaseMarketData suppliedData = BaseMarketData.empty(date(2011, 3, 8));
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
@@ -993,7 +993,7 @@ public class DefaultMarketDataFactoryTest {
     assertThat(failures.get(id1)).hasFailureMessageMatching("No market data function available.*");
     assertThat(failures.get(id2)).hasFailureMessageMatching("No market data function available.*");
 
-    ScenarioMarketData marketData = result.getMarketData();
+    ScenarioCalculationEnvironment marketData = result.getMarketData();
     assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No values available for.*");
     assertThrows(() -> marketData.getValues(id2), IllegalArgumentException.class, "No values available for.*");
   }
@@ -1016,8 +1016,8 @@ public class DefaultMarketDataFactoryTest {
             new StringAppender("Bar"),
             new StringAppender("Baz"));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id, "value")
             .build();
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id).build();
@@ -1027,7 +1027,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData scenarioData = result.getMarketData();
+    ScenarioCalculationEnvironment scenarioData = result.getMarketData();
     List<String> values = scenarioData.getValues(id);
     List<String> expectedValues = ImmutableList.of("valueFoo", "valueBar", "valueBaz");
     assertThat(values).isEqualTo(expectedValues);
@@ -1052,8 +1052,8 @@ public class DefaultMarketDataFactoryTest {
             new RelativeDoubleShift(0.2),
             new RelativeDoubleShift(0.3));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
-    BaseMarketData suppliedData =
-        BaseMarketData.builder(date(2011, 3, 8))
+    MarketEnvironment suppliedData =
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id, 2d)
             .build();
     ScenarioMarketDataResult result =
@@ -1062,7 +1062,7 @@ public class DefaultMarketDataFactoryTest {
             suppliedData,
             scenarioDefinition,
             MARKET_DATA_CONFIG);
-    ScenarioMarketData scenarioData = result.getMarketData();
+    ScenarioCalculationEnvironment scenarioData = result.getMarketData();
     List<Double> values = scenarioData.getValues(id);
     List<Double> expectedValues = ImmutableList.of(2.2, 2.4, 2.6);
     assertThat(values).isEqualTo(expectedValues);

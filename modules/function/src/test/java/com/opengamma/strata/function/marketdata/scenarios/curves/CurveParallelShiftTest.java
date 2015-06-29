@@ -16,10 +16,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.TestHelper;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketDataResult;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
@@ -59,7 +59,7 @@ public class CurveParallelShiftTest {
         CurveParallelShift.absolute(0.2),
         CurveParallelShift.absolute(0.3));
     DiscountCurveId curveId = DiscountCurveId.of(Currency.GBP, curveGroupName);
-    BaseMarketData marketData = BaseMarketData.builder(TestHelper.date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);
@@ -73,7 +73,7 @@ public class CurveParallelShiftTest {
         marketData,
         scenarioDefinition,
         MarketDataConfig.empty());
-    ScenarioMarketData scenarioData = result.getMarketData();
+    ScenarioCalculationEnvironment scenarioData = result.getMarketData();
     List<Curve> curves = scenarioData.getValues(curveId);
     assertThat(curves).hasSize(3);
     checkCurveValues(curves.get(0), 2.1);

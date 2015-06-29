@@ -37,11 +37,11 @@ import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestObservableKey;
 import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
@@ -163,13 +163,14 @@ public class DefaultCalculationRunnerTest {
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     LocalDate valuationDate = date(2011, 3, 8);
 
-    Results results1 = runner.calculate(tasks, BaseMarketData.empty(valuationDate));
+    Results results1 = runner.calculate(tasks, MarketEnvironment.empty(valuationDate));
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    ScenarioMarketData scenarioMarketData = ScenarioMarketData.builder(2, valuationDate).build();
-    Results results2 = runner.calculate(tasks, scenarioMarketData);
+    ScenarioCalculationEnvironment
+        scenarioCalculationEnvironment = ScenarioCalculationEnvironment.builder(2, valuationDate).build();
+    Results results2 = runner.calculate(tasks, scenarioCalculationEnvironment);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -189,14 +190,15 @@ public class DefaultCalculationRunnerTest {
     LocalDate valuationDate = date(2011, 3, 8);
     Listener listener = new Listener();
 
-    runner.calculateAsync(tasks, BaseMarketData.empty(valuationDate), listener);
+    runner.calculateAsync(tasks, MarketEnvironment.empty(valuationDate), listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    ScenarioMarketData scenarioMarketData = ScenarioMarketData.builder(2, valuationDate).build();
-    runner.calculateAsync(tasks, scenarioMarketData, listener);
+    ScenarioCalculationEnvironment
+        scenarioCalculationEnvironment = ScenarioCalculationEnvironment.builder(2, valuationDate).build();
+    runner.calculateAsync(tasks, scenarioCalculationEnvironment, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

@@ -15,7 +15,7 @@ import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -65,7 +65,7 @@ public class CdsPricingExample {
 
     // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 10, 16);
-    BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketEnvironment snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();

@@ -16,9 +16,9 @@ import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.MarketEnvironmentResult;
 import com.opengamma.strata.engine.marketdata.ScenarioMarketDataResult;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 
@@ -82,7 +82,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData marketData) {
+      MarketEnvironment marketData) {
 
     // create the tasks to be run
     CalculationTasksConfig config =
@@ -95,7 +95,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
-    BaseMarketDataResult marketDataResult =
+    MarketEnvironmentResult marketDataResult =
         marketDataFactory.buildBaseMarketData(
             tasks.getMarketDataRequirements(),
             marketData,
@@ -110,7 +110,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData suppliedMarketData,
+      MarketEnvironment suppliedMarketData,
       ScenarioDefinition scenarioDefinition) {
 
     // create the tasks to be run

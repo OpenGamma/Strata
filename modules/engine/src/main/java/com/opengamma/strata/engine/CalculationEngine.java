@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.calculations.Results;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 
 /**
@@ -55,7 +55,7 @@ public interface CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData marketData);
+      MarketEnvironment marketData);
 
   /**
    * Calculates values of measures for a set of targets over multiple scenarios.
@@ -79,7 +79,7 @@ public interface CalculationEngine {
    *   any column-specific overrides
    * @param calculationRules  the rules defining how the calculations are performed, what market data
    *   should be used for each calculation and how the results should be reported
-   * @param baseMarketData  the market data used in the calculations. If the calculations require data that is
+   * @param marketEnvironment  the market data used in the calculations. If the calculations require data that is
    *   not provided in this set, the engine will attempts to provide the missing data
    * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    *
@@ -89,6 +89,6 @@ public interface CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData baseMarketData,
+      MarketEnvironment marketEnvironment,
       ScenarioDefinition scenarioDefinition);
 }

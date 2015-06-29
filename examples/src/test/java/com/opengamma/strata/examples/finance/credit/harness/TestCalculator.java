@@ -20,7 +20,7 @@ import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
@@ -68,13 +68,13 @@ public class TestCalculator implements Calculator {
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
-    BaseMarketData baseMarketData = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketEnvironment marketEnvironment = marketDataBuilder.buildSnapshot(valuationDate);
 
     List<Column> columns = measures.stream().map(s -> Column.of(s)).collect(Collectors.toList());
 
     // create the engine and calculate the results
     CalculationEngine engine = ExampleEngine.create();
-    return engine.calculate(ImmutableList.of(tradeSource.apply()), columns, rules, baseMarketData);
+    return engine.calculate(ImmutableList.of(tradeSource.apply()), columns, rules, marketEnvironment);
 
   }
 

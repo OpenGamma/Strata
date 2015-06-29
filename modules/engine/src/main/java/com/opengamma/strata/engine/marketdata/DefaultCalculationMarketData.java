@@ -22,7 +22,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 public final class DefaultCalculationMarketData implements CalculationMarketData {
 
   /** The market data, keyed by market data ID. */
-  private final ScenarioMarketData marketData;
+  private final ScenarioCalculationEnvironment marketData;
 
   /** Mappings to convert from the market data keys passed to the methods to IDs used for looking up the market data. */
   private final MarketDataMappings marketDataMappings;
@@ -34,7 +34,7 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
    * @param marketDataMappings  mappings to convert from the market data keys passed to the methods to IDs used
    *   for looking up the market data
    */
-  public DefaultCalculationMarketData(ScenarioMarketData marketData, MarketDataMappings marketDataMappings) {
+  public DefaultCalculationMarketData(ScenarioCalculationEnvironment marketData, MarketDataMappings marketDataMappings) {
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
   }

@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A mutable builder for building an instance of {@link ScenarioMarketData}.
+ * A mutable builder for building an instance of {@link ScenarioCalculationEnvironment}.
  */
 public final class ScenarioMarketDataBuilder {
 
@@ -241,8 +241,8 @@ public final class ScenarioMarketDataBuilder {
    *
    * @return a set of scenario market data built from the data in this builder
    */
-  public ScenarioMarketData build() {
-    return new ScenarioMarketData(scenarioCount, valuationDates, values, timeSeries, globalValues);
+  public ScenarioCalculationEnvironment build() {
+    return new ScenarioCalculationEnvironment(scenarioCount, valuationDates, values, timeSeries, globalValues);
   }
 
   private void checkLength(int length, String itemName) {
