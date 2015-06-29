@@ -45,7 +45,7 @@ public class FxForwardSensitivityTest {
   }
 
   public void test_of_withCurrency() {
-    FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, USD, EUR, REFERENCE_DATE, SENSITIVITY);
+    FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, EUR, REFERENCE_DATE, USD, SENSITIVITY);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getReferenceCounterCurrency(), GBP);
@@ -56,7 +56,7 @@ public class FxForwardSensitivityTest {
 
   public void test_of_wrongRefCurrency() {
     assertThrowsIllegalArg(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, SENSITIVITY));
-    assertThrowsIllegalArg(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, USD, REFERENCE_DATE, SENSITIVITY));
+    assertThrowsIllegalArg(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, USD, SENSITIVITY));
   }
 
   //-------------------------------------------------------------------------
@@ -90,25 +90,25 @@ public class FxForwardSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_compareExcludingSensitivity() {
-    FxForwardSensitivity a1 = FxForwardSensitivity.of(CURRENCY_PAIR, EUR, GBP, REFERENCE_DATE, SENSITIVITY);
-    FxForwardSensitivity a2 = FxForwardSensitivity.of(CURRENCY_PAIR, EUR, GBP, REFERENCE_DATE, SENSITIVITY);
-    FxForwardSensitivity b = FxForwardSensitivity.of(CurrencyPair.of(GBP, USD), EUR, GBP, REFERENCE_DATE, SENSITIVITY);
-    FxForwardSensitivity c = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, EUR, REFERENCE_DATE, SENSITIVITY);
-    FxForwardSensitivity d = FxForwardSensitivity.of(CURRENCY_PAIR, JPY, GBP, REFERENCE_DATE, SENSITIVITY);
+  public void test_compareKey() {
+    FxForwardSensitivity a1 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, EUR, SENSITIVITY);
+    FxForwardSensitivity a2 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, EUR, SENSITIVITY);
+    FxForwardSensitivity b = FxForwardSensitivity.of(CurrencyPair.of(GBP, USD), GBP, REFERENCE_DATE, EUR, SENSITIVITY);
+    FxForwardSensitivity c = FxForwardSensitivity.of(CURRENCY_PAIR, EUR, REFERENCE_DATE, GBP, SENSITIVITY);
+    FxForwardSensitivity d = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, JPY, SENSITIVITY);
     FxForwardSensitivity e = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, date(2015, 9, 27), SENSITIVITY);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), SENSITIVITY);
-    assertEquals(a1.compareExcludingSensitivity(a2), 0);
-    assertEquals(a1.compareExcludingSensitivity(b) < 0, true);
-    assertEquals(b.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(c) < 0, true);
-    assertEquals(c.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(d) < 0, true);
-    assertEquals(d.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(e) > 0, true);
-    assertEquals(e.compareExcludingSensitivity(a1) < 0, true);
-    assertEquals(a1.compareExcludingSensitivity(other) < 0, true);
-    assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
+    assertEquals(a1.compareKey(a2), 0);
+    assertEquals(a1.compareKey(b) < 0, true);
+    assertEquals(b.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(c) < 0, true);
+    assertEquals(c.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(d) < 0, true);
+    assertEquals(d.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(e) > 0, true);
+    assertEquals(e.compareKey(a1) < 0, true);
+    assertEquals(a1.compareKey(other) < 0, true);
+    assertEquals(other.compareKey(a1) > 0, true);
   }
 
   //-------------------------------------------------------------------------

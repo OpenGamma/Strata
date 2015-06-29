@@ -110,12 +110,12 @@ public final class CurveCurrencyParameterSensitivity
   }
 
   /**
-   * Compares two sensitivity objects, excluding the parameter sensitivity values.
+   * Compares the key of two sensitivity objects, excluding the parameter sensitivity values.
    * 
    * @param other  the other sensitivity object
    * @return positive if greater, zero if equal, negative if less
    */
-  public int compareExcludingSensitivity(CurveCurrencyParameterSensitivity other) {
+  public int compareKey(CurveCurrencyParameterSensitivity other) {
     return ComparisonChain.start()
         .compare(metadata.getCurveName(), other.metadata.getCurveName())
         .compare(currency, other.currency)

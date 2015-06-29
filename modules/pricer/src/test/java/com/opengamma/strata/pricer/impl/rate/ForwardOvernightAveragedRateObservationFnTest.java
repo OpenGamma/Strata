@@ -112,8 +112,8 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
-      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-          FIXING_DATES[i], fixingEndDate, 1d);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_DATES[i],
+          fixingEndDate, USD_FED_FUND.getCurrency(), 1d);
       when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro = OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE,
@@ -172,8 +172,8 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
-      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-          FIXING_DATES[i], fixingEndDate, 1d);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_DATES[i],
+          fixingEndDate, USD_FED_FUND.getCurrency(), 1d);
       when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro =
@@ -233,8 +233,8 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       LocalDate fixingStartDate = CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[i]);
       LocalDate fixingEndDate = CHF_TOIS.calculateMaturityFromEffective(fixingStartDate);
-      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(CHF_TOIS, CHF_TOIS.getCurrency(),
-          FIXING_DATES[i], fixingEndDate, 1d);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(CHF_TOIS, FIXING_DATES[i],
+          fixingEndDate, CHF_TOIS.getCurrency(), 1d);
       when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro =
@@ -289,8 +289,8 @@ public class ForwardOvernightAveragedRateObservationFnTest {
       when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
       LocalDate fixingStartDate = GBP_SONIA.calculateEffectiveFromFixing(FIXING_DATES[i]);
       LocalDate fixingEndDate = GBP_SONIA.calculateMaturityFromEffective(fixingStartDate);
-      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
-          FIXING_DATES[i], fixingEndDate, 1d);
+      OvernightRateSensitivity sensitivity = OvernightRateSensitivity.of(GBP_SONIA, FIXING_DATES[i],
+          fixingEndDate, GBP_SONIA.getCurrency(), 1d);
       when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(sensitivity);
     }
     OvernightAveragedRateObservation ro =

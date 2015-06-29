@@ -51,7 +51,7 @@ public class InflationRateSensitivityTest {
   public void test_withCurrency() {
     InflationRateSensitivity base = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 3.5);
     assertEquals(base.withCurrency(CHF), base);
-    InflationRateSensitivity expected = InflationRateSensitivity.of(CH_CPI, USD, REFERENCE_MONTH, 3.5);
+    InflationRateSensitivity expected = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, USD, 3.5);
     InflationRateSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);
   }
@@ -65,22 +65,22 @@ public class InflationRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_compareExcludingSensitivity() {
+  public void test_compareKey() {
     InflationRateSensitivity a1 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 32d);
     InflationRateSensitivity a2 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 32d);
     InflationRateSensitivity b = InflationRateSensitivity.of(CH_CPI, REFERENCE_MONTH, 32d);
-    InflationRateSensitivity c = InflationRateSensitivity.of(GB_HICP, USD, REFERENCE_MONTH, 32d);
+    InflationRateSensitivity c = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, USD, 32d);
     InflationRateSensitivity d = InflationRateSensitivity.of(GB_HICP, YearMonth.of(2015, 10), 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
-    assertEquals(a1.compareExcludingSensitivity(a2), 0);
-    assertEquals(a1.compareExcludingSensitivity(b) > 0, true);
-    assertEquals(b.compareExcludingSensitivity(a1) < 0, true);
-    assertEquals(a1.compareExcludingSensitivity(c) < 0, true);
-    assertEquals(c.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(d) < 0, true);
-    assertEquals(d.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(other) < 0, true);
-    assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
+    assertEquals(a1.compareKey(a2), 0);
+    assertEquals(a1.compareKey(b) > 0, true);
+    assertEquals(b.compareKey(a1) < 0, true);
+    assertEquals(a1.compareKey(c) < 0, true);
+    assertEquals(c.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(d) < 0, true);
+    assertEquals(d.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(other) < 0, true);
+    assertEquals(other.compareKey(a1) > 0, true);
   }
 
   //-------------------------------------------------------------------------
@@ -151,7 +151,7 @@ public class InflationRateSensitivityTest {
   public void coverage() {
     InflationRateSensitivity test1 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, 1.0);
     coverImmutableBean(test1);
-    InflationRateSensitivity test2 = InflationRateSensitivity.of(GB_HICP, GBP, REFERENCE_MONTH, 22.0);
+    InflationRateSensitivity test2 = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, GBP, 22.0);
     coverBeanEquals(test1, test2);
   }
 

@@ -41,7 +41,7 @@ public class OvernightRateSensitivityTest {
 
   public void test_of() {
     OvernightRateSensitivity test = OvernightRateSensitivity.of(
-        GBP_SONIA, GBP, date(2015, 8, 27), date(2015, 10, 27), 32d);
+        GBP_SONIA, date(2015, 8, 27), date(2015, 10, 27), GBP, 32d);
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFixingDate(), date(2015, 8, 27));
@@ -51,7 +51,7 @@ public class OvernightRateSensitivityTest {
   }
 
   public void test_badDateOrder() {
-    assertThrowsIllegalArg(() -> OvernightRateSensitivity.of(GBP_SONIA, GBP, date(2015, 8, 27), date(2015, 8, 27), 32d));
+    assertThrowsIllegalArg(() -> OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), date(2015, 8, 27), GBP, 32d));
   }
 
   //-------------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class OvernightRateSensitivityTest {
     assertSame(base.withCurrency(GBP), base);
 
     LocalDate mat = GBP_SONIA.calculateMaturityFromEffective(GBP_SONIA.calculateEffectiveFromFixing(date(2015, 8, 27)));
-    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA, USD, date(2015, 8, 27), mat, 32d);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), mat, USD, 32d);
     OvernightRateSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);
   }
@@ -74,25 +74,25 @@ public class OvernightRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_compareExcludingSensitivity() {
-    OvernightRateSensitivity a1 = OvernightRateSensitivity.of(GBP_SONIA, GBP, date(2015, 8, 27), date(2015, 10, 27), 32d);
-    OvernightRateSensitivity a2 = OvernightRateSensitivity.of(GBP_SONIA, GBP, date(2015, 8, 27), date(2015, 10, 27), 32d);
-    OvernightRateSensitivity b = OvernightRateSensitivity.of(USD_FED_FUND, GBP, date(2015, 8, 27), date(2015, 10, 27), 32d);
-    OvernightRateSensitivity c = OvernightRateSensitivity.of(GBP_SONIA, USD, date(2015, 8, 27), date(2015, 10, 27), 32d);
-    OvernightRateSensitivity d = OvernightRateSensitivity.of(GBP_SONIA, GBP, date(2015, 9, 27), date(2015, 10, 27), 32d);
-    OvernightRateSensitivity e = OvernightRateSensitivity.of(GBP_SONIA, GBP, date(2015, 8, 27), date(2015, 11, 27), 32d);
+  public void test_compareKey() {
+    OvernightRateSensitivity a1 = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), date(2015, 10, 27), GBP, 32d);
+    OvernightRateSensitivity a2 = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), date(2015, 10, 27), GBP, 32d);
+    OvernightRateSensitivity b = OvernightRateSensitivity.of(USD_FED_FUND, date(2015, 8, 27), date(2015, 10, 27), GBP, 32d);
+    OvernightRateSensitivity c = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), date(2015, 10, 27), USD, 32d);
+    OvernightRateSensitivity d = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 9, 27), date(2015, 10, 27), GBP, 32d);
+    OvernightRateSensitivity e = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), date(2015, 11, 27), GBP, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
-    assertEquals(a1.compareExcludingSensitivity(a2), 0);
-    assertEquals(a1.compareExcludingSensitivity(b) < 0, true);
-    assertEquals(b.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(c) < 0, true);
-    assertEquals(c.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(e) < 0, true);
-    assertEquals(d.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(d) < 0, true);
-    assertEquals(e.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(other) < 0, true);
-    assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
+    assertEquals(a1.compareKey(a2), 0);
+    assertEquals(a1.compareKey(b) < 0, true);
+    assertEquals(b.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(c) < 0, true);
+    assertEquals(c.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(e) < 0, true);
+    assertEquals(d.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(d) < 0, true);
+    assertEquals(e.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(other) < 0, true);
+    assertEquals(other.compareKey(a1) > 0, true);
   }
 
   //-------------------------------------------------------------------------

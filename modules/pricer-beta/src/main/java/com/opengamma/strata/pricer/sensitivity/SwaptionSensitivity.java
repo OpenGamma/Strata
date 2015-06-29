@@ -69,7 +69,7 @@ public final class SwaptionSensitivity
   @PropertyDefinition
   private final double forward;
   /**
-   * The currency for which the sensitivity is computed.
+   * The currency of the sensitivity.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
@@ -88,7 +88,7 @@ public final class SwaptionSensitivity
    * @param tenor  the underlying swap tenor
    * @param strike  the swaption strike rate
    * @param forward  the underlying swap forward rate
-   * @param currency  the currency of the sensitivity
+   * @param sensitivityCurrency  the currency of the sensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
@@ -98,10 +98,10 @@ public final class SwaptionSensitivity
       double tenor,
       double strike,
       double forward,
-      Currency currency,
+      Currency sensitivityCurrency,
       double sensitivity) {
 
-    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, currency, sensitivity);
+    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -116,7 +116,7 @@ public final class SwaptionSensitivity
   }
 
   @Override
-  public int compareExcludingSensitivity(PointSensitivity other) {
+  public int compareKey(PointSensitivity other) {
     if (other instanceof SwaptionSensitivity) {
       SwaptionSensitivity otherIbor = (SwaptionSensitivity) other;
       return ComparisonChain.start()
@@ -252,7 +252,7 @@ public final class SwaptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency for which the sensitivity is computed.
+   * Gets the currency of the sensitivity.
    * @return the value of the property, not null
    */
   @Override

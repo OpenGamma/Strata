@@ -109,7 +109,7 @@ public final class CurveUnitParameterSensitivities
       this.sensitivities = ImmutableList.copyOf(sensitivities);
     } else {
       List<CurveUnitParameterSensitivity> mutable = new ArrayList<>(sensitivities);
-      mutable.sort(CurveUnitParameterSensitivity::compareExcludingSensitivity);
+      mutable.sort(CurveUnitParameterSensitivity::compareKey);
       this.sensitivities = ImmutableList.copyOf(mutable);
     }
   }
@@ -182,7 +182,7 @@ public final class CurveUnitParameterSensitivities
   // merges the entry with an existing entry if the key matches
   private static void insert(List<CurveUnitParameterSensitivity> mutable, CurveUnitParameterSensitivity addition) {
     int index = Collections.binarySearch(
-        mutable, addition, CurveUnitParameterSensitivity::compareExcludingSensitivity);
+        mutable, addition, CurveUnitParameterSensitivity::compareKey);
     if (index >= 0) {
       CurveUnitParameterSensitivity base = mutable.get(index);
       double[] combined = DoubleArrayMath.combineByAddition(base.getSensitivity(), addition.getSensitivity());
@@ -266,7 +266,7 @@ public final class CurveUnitParameterSensitivities
     // for each sensitivity in this instance, find matching in other instance
     for (CurveUnitParameterSensitivity sens1 : sensitivities) {
       // list is already sorted so binary search is safe
-      int index = Collections.binarySearch(mutable, sens1, CurveUnitParameterSensitivity::compareExcludingSensitivity);
+      int index = Collections.binarySearch(mutable, sens1, CurveUnitParameterSensitivity::compareKey);
       if (index >= 0) {
         // matched, so must be equal
         CurveUnitParameterSensitivity sens2 = mutable.get(index);

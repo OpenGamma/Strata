@@ -169,7 +169,7 @@ public final class DiscountOvernightIndexRates
     }
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixingDate, fixingEndDate, 1d);
+    return OvernightRateSensitivity.of(index, fixingDate, fixingEndDate, index.getCurrency(), 1d);
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +186,7 @@ public final class DiscountOvernightIndexRates
   public PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate) {
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(getValuationDate(), startDate, "valuationDate", "startDate");
-    return OvernightRateSensitivity.of(index, index.getCurrency(), startDate, endDate, 1d);
+    return OvernightRateSensitivity.of(index, startDate, endDate, index.getCurrency(), 1d);
   }
 
   //-------------------------------------------------------------------------
