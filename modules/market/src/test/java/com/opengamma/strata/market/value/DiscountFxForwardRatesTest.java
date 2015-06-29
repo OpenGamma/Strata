@@ -70,6 +70,13 @@ public class DiscountFxForwardRatesTest {
     assertThrowsIllegalArg(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, curve2));
   }
 
+  public void test_builder() {
+    assertThrowsIllegalArg(() -> DiscountFxForwardRates.meta().builder()
+        .setString(DiscountFxForwardRates.meta().currencyPair(), "GBP/USD").build());
+    assertThrowsIllegalArg(() -> DiscountFxForwardRates.meta().builder()
+        .setString(DiscountFxForwardRates.meta().currencyPair().name(), "GBP/USD").build());
+  }
+
   //-------------------------------------------------------------------------
   public void test_withDiscountFactors() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
@@ -111,18 +118,18 @@ public class DiscountFxForwardRatesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_rateSpotSensitivity() {
+  public void test_rateFxSpotSensitivity() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF);
     double expected = dfCcyBaseAtMaturity / dfCcyCounterAtMaturity;
-    assertEquals(test.rateSpotSensitivity(GBP, DATE_REF), expected, 1e-12);
-    assertEquals(test.rateSpotSensitivity(USD, DATE_REF), 1d / expected, 1e-12);
+    assertEquals(test.rateFxSpotSensitivity(GBP, DATE_REF), expected, 1e-12);
+    assertEquals(test.rateFxSpotSensitivity(USD, DATE_REF), 1d / expected, 1e-12);
   }
 
-  public void test_rateSpotSensitivity_nonMatchingCurrency() {
+  public void test_rateFxSpotSensitivity_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertThrowsIllegalArg(() -> test.rateSpotSensitivity(EUR, DATE_VAL));
+    assertThrowsIllegalArg(() -> test.rateFxSpotSensitivity(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------

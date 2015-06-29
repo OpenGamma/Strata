@@ -158,7 +158,7 @@ public class DiscountingFxProductPricer {
   public double forwardFxRateSpotSensitivity(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
     FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
-    double forwardRateSpotSensitivity = fxForwardRates.rateSpotSensitivity(
+    double forwardRateSpotSensitivity = fxForwardRates.rateFxSpotSensitivity(
         fx.getReceiveCurrencyAmount().getCurrency(), fx.getPaymentDate());
     return forwardRateSpotSensitivity;
   }

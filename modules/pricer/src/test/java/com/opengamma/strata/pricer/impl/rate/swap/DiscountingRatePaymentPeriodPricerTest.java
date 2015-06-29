@@ -628,8 +628,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), RATE_1, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
-    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
   }
 
   public void test_explainPresentValue_single_paymentDateInPast() {
@@ -704,8 +702,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), RATE_1, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
-    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
   }
 
   public void test_explainPresentValue_single_gearingSpread() {
@@ -750,8 +746,6 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(explainAccrual.get(ExplainKey.FIXED_RATE).get(), RATE_1, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.PAY_OFF_RATE).get(), payOffRate, TOLERANCE_PV);
     assertEquals(explainAccrual.get(ExplainKey.UNIT_AMOUNT).get(), ua, TOLERANCE_PV);
-    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getCurrency(), currency);
-    assertEquals(explainAccrual.get(ExplainKey.FUTURE_VALUE).get().getAmount(), fv, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------

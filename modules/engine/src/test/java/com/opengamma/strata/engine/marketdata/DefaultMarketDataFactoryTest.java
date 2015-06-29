@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
@@ -378,6 +377,72 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
+   * Tests building market data that depends on other market data that is supplied by the user.
+   *
+   * This tests that supplied data is included in scenario data if it is not in the requirements but it is
+   * needed to build data that is in the requirements.
+   *
+   * For example, par rates are required to build curves but are not used directly by functions so the
+   * requirements will not contain par rates IDs. The requirements contain curve IDs and the curve
+   * building function will declare that it requires par rates.
+   */
+  public void buildDataFromSuppliedData() {
+    TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
+    TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
+
+    MarketDataRequirements requirements =
+        MarketDataRequirements.builder()
+            .addValues(new TestIdB("1"), new TestIdB("2"))
+            .build();
+
+    LocalDateDoubleTimeSeries timeSeries1 =
+        LocalDateDoubleTimeSeries.builder()
+            .put(date(2011, 3, 8), 1)
+            .put(date(2011, 3, 9), 2)
+            .put(date(2011, 3, 10), 3)
+            .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 =
+        LocalDateDoubleTimeSeries.builder()
+            .put(date(2011, 3, 8), 10)
+            .put(date(2011, 3, 9), 20)
+            .put(date(2011, 3, 10), 30)
+            .build();
+
+    TestIdA idA1 = new TestIdA("1");
+    TestIdA idA2 = new TestIdA("2");
+
+    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+        .addTimeSeries(idA1, timeSeries1)
+        .addTimeSeries(idA2, timeSeries2)
+        .addValue(idA1, 1d)
+        .addValue(idA2, 2d)
+        .build();
+
+    DefaultMarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
+        TimeSeriesProvider.none(),
+        ObservableMarketDataFunction.none(),
+        FeedIdMapping.identity(),
+        builderB,
+        builderC);
+
+    BaseMarketDataResult result = marketDataFactory.buildBaseMarketData(requirements, suppliedData, MARKET_DATA_CONFIG);
+
+    assertThat(result.getSingleValueFailures()).isEmpty();
+    assertThat(result.getTimeSeriesFailures()).isEmpty();
+
+    BaseMarketData marketData = result.getMarketData();
+    TestMarketDataB marketDataB1 = marketData.getValue(new TestIdB("1"));
+    TestMarketDataB marketDataB2 = marketData.getValue(new TestIdB("2"));
+
+    TestMarketDataB expectedB1 = new TestMarketDataB(1, new TestMarketDataC(timeSeries1));
+    TestMarketDataB expectedB2 = new TestMarketDataB(2, new TestMarketDataC(timeSeries2));
+
+    assertThat(marketDataB1).isEqualTo(expectedB1);
+    assertThat(marketDataB2).isEqualTo(expectedB2);
+  }
+
+  /**
    * Tests failures when there is no builder for an ID type.
    */
   public void noMarketDataBuilderAvailable() {
@@ -488,6 +553,57 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
+  }
+
+  /**
+   * Test that time series from the supplied data are copied to the scenario data.
+   */
+  public void buildSuppliedTimeSeries() {
+    DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
+        new TestTimeSeriesProvider(ImmutableMap.of()),
+        ObservableMarketDataFunction.none(),
+        new TestFeedIdMapping());
+
+    TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
+    TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
+
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+        .addTimeSeries(id1, timeSeries1)
+        .addTimeSeries(id2, timeSeries2)
+        .build();
+
+    MarketDataRequirements requirements = MarketDataRequirements.builder().addTimeSeries(id1, id2).build();
+    // This mapping doesn't perturb any data but it causes three scenarios to be built
+    PerturbationMapping<Double> mapping =
+        PerturbationMapping.of(
+            Double.class,
+            new FalseFilter<>(TestObservableId.class),
+            new AbsoluteDoubleShift(1),
+            new AbsoluteDoubleShift(2),
+            new AbsoluteDoubleShift(3));
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
+    ScenarioMarketDataResult result =
+        factory.buildScenarioMarketData(
+            requirements,
+            suppliedData,
+            scenarioDefinition,
+            MARKET_DATA_CONFIG);
+    ScenarioMarketData marketData = result.getMarketData();
+
+    assertThat(marketData.getTimeSeries(id1)).isEqualTo(timeSeries1);
+    assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
   }
 
   public void perturbObservableValues() {
@@ -635,6 +751,93 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("value1", "value1", "value1"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("value2", "value2", "value2"));
+  }
+
+  /**
+   * Tests building scenario data from values that are supplied by the user but aren't directly required
+   * by the functions.
+   *
+   * For example, par rates are required to build curves but are not used directly by functions so the
+   * requirements will not contain par rates IDs. The requirements contain curve IDs and the curve
+   * building function will declare that it requires par rates.
+   */
+  public void buildScenarioValuesFromSuppliedData() {
+    TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
+    TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
+
+    MarketDataRequirements requirements = MarketDataRequirements.builder()
+        .addValues(new TestIdB("1"), new TestIdB("2"))
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    TestIdA idA1 = new TestIdA("1");
+    TestIdA idA2 = new TestIdA("2");
+
+    BaseMarketData suppliedData = BaseMarketData.builder(date(2011, 3, 8))
+        .addTimeSeries(idA1, timeSeries1)
+        .addTimeSeries(idA2, timeSeries2)
+        .addValue(idA1, 1d)
+        .addValue(idA2, 2d)
+        .build();
+
+    DefaultMarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
+        TimeSeriesProvider.none(),
+        ObservableMarketDataFunction.none(),
+        FeedIdMapping.identity(),
+        builderB,
+        builderC);
+
+    PerturbationMapping<Double> aMapping = PerturbationMapping.of(
+        Double.class,
+        new ExactIdFilter<>(new TestIdA("2")),
+        new RelativeDoubleShift(0.2),
+        new RelativeDoubleShift(0.3),
+        new RelativeDoubleShift(0.4));
+
+    PerturbationMapping<TestMarketDataC> cMapping = PerturbationMapping.of(
+        TestMarketDataC.class,
+        new ExactIdFilter<>(new TestIdC("1")),
+        new TestCPerturbation(1.1),
+        new TestCPerturbation(1.2),
+        new TestCPerturbation(1.3));
+
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(aMapping, cMapping);
+    ScenarioMarketDataResult result = marketDataFactory.buildScenarioMarketData(
+        requirements,
+        suppliedData,
+        scenarioDefinition,
+        MARKET_DATA_CONFIG);
+
+    assertThat(result.getSingleValueFailures()).isEmpty();
+    assertThat(result.getTimeSeriesFailures()).isEmpty();
+
+    ScenarioMarketData marketData = result.getMarketData();
+    List<TestMarketDataB> marketDataB1 = marketData.getValues(new TestIdB("1"));
+    List<TestMarketDataB> marketDataB2 = marketData.getValues(new TestIdB("2"));
+
+    List<TestMarketDataB> expectedB1 = ImmutableList.of(
+        new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.1))),
+        new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.2))),
+        new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.3))));
+
+    List<TestMarketDataB> expectedB2 = ImmutableList.of(
+        new TestMarketDataB(2.4, new TestMarketDataC(timeSeries2)),
+        new TestMarketDataB(2.6, new TestMarketDataC(timeSeries2)),
+        new TestMarketDataB(2.8, new TestMarketDataC(timeSeries2)));
+
+    assertThat(marketDataB1).isEqualTo(expectedB1);
+    assertThat(marketDataB2).isEqualTo(expectedB2);
   }
 
   /**
@@ -1102,6 +1305,7 @@ public class DefaultMarketDataFactoryTest {
 
   /**
    * Function for building TestMarketDataB.
+   * Requires a value with ID TestIdA(id.str) and TestMarketDataC with ID TestIdC(id.str)
    */
   private final class TestMarketDataFunctionB implements MarketDataFunction<TestMarketDataB, TestIdB> {
 
@@ -1165,6 +1369,7 @@ public class DefaultMarketDataFactoryTest {
 
   /**
    * Function for building TestMarketDataC.
+   * Requires a time series with ID TestIdA(id.str)
    */
   private static final class TestMarketDataFunctionC implements MarketDataFunction<TestMarketDataC, TestIdC> {
 
@@ -1282,6 +1487,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * Market data function that builds a piece of non-observable market data (a string).
+   */
   private static final class NonObservableMarketDataFunction implements MarketDataFunction<String, NonObservableId> {
 
     @Override
@@ -1303,6 +1511,9 @@ public class DefaultMarketDataFactoryTest {
     }
   }
 
+  /**
+   * A perturbation which perturbs a string by appending another string to it.
+   */
   private static final class StringAppender implements Perturbation<String> {
 
     private final String str;
@@ -1314,6 +1525,24 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public String apply(String marketData) {
       return marketData + str;
+    }
+  }
+
+  /**
+   * Perturbation that perturbs TestMarketDataC by scaling its time series.
+   */
+  private static final class TestCPerturbation implements Perturbation<TestMarketDataC> {
+
+    private final double scaleFactor;
+
+    private TestCPerturbation(double scaleFactor) {
+      this.scaleFactor = scaleFactor;
+    }
+
+    @Override
+    public TestMarketDataC apply(TestMarketDataC marketData) {
+      LocalDateDoubleTimeSeries perturbedSeries = marketData.timeSeries.mapValues(value -> value * scaleFactor);
+      return new TestMarketDataC(perturbedSeries);
     }
   }
 }

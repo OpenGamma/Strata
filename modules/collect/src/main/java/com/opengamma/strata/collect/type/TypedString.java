@@ -26,7 +26,7 @@ import com.opengamma.strata.collect.ArgChecker;
  *  public final class FooType
  *      extends TypedString&lt;FooType&gt; {
  *    private static final long serialVersionUID = 1L;
- *    @FromString
+ *    &#64;FromString
  *    public static FooType of(String name) {
  *      return new FooType(name);
  *    }

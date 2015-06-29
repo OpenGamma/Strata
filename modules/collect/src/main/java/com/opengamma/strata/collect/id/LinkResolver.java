@@ -108,7 +108,7 @@ public interface LinkResolver {
    * The target must be a property of the bean and the update function must be able to replace the target.
    * The update must return a new bean, leaving the original unaltered.
    * <p>
-   * If the target is not resolvable, or the target is already resolved,
+   * If the target is not resolvable, is null, or is already resolved,
    * then the specified input bean will be returned.
    * <p>
    * For example, this method might be used as follows:
@@ -120,7 +120,7 @@ public interface LinkResolver {
    * In that case, the above example would use {@code this} instead of {@code bean}.
    * 
    * @param bean  the target bean
-   * @param target  the target object within the bean
+   * @param target  the target object within the bean, may be null
    * @param updateFn  the update function
    * @return the updated bean
    */

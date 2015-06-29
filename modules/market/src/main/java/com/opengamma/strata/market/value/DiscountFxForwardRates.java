@@ -40,8 +40,8 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
  * <p>
  * This provides discount factors for a single currency pair.
  * <p>
- * This implementation is based on an underlying curve that is stored with reference times
- * and zero-coupon continuously-compounded rates.
+ * This implementation is based on two underlying {@link DiscountFactors} objects,
+ * one for each currency, and an {@link FxRateProvider}.
  */
 @BeanDefinition(builderScope = "private")
 public final class DiscountFxForwardRates
@@ -144,6 +144,7 @@ public final class DiscountFxForwardRates
     return inverse ? 1d / forwardRate : forwardRate;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate referenceDate) {
     ArgChecker.isTrue(
@@ -151,8 +152,9 @@ public final class DiscountFxForwardRates
     return FxForwardSensitivity.of(currencyPair, baseCurrency, referenceDate, 1d);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public double rateSpotSensitivity(Currency baseCurrency, LocalDate referenceDate) {
+  public double rateFxSpotSensitivity(Currency baseCurrency, LocalDate referenceDate) {
     ArgChecker.isTrue(
         currencyPair.contains(baseCurrency), "Currency {} invalid for CurrencyPair {}", baseCurrency, currencyPair);
     boolean inverse = baseCurrency.equals(currencyPair.getCounter());
@@ -164,14 +166,14 @@ public final class DiscountFxForwardRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxForwardSensitivity fxRateSensitivity) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxForwardSensitivity pointSensitivity) {
     // use the specified base currency to determine the desired currency pair
     // then derive sensitivity from discount factors based off desired currency pair, not that of the index
-    CurrencyPair currencyPair = fxRateSensitivity.getCurrencyPair();
-    Currency refBaseCurrency = fxRateSensitivity.getReferenceCurrency();
-    Currency refCounterCurrency = fxRateSensitivity.getReferenceCounterCurrency();
-    Currency sensitivityCurrency = fxRateSensitivity.getCurrency();
-    LocalDate referenceDate = fxRateSensitivity.getReferenceDate();
+    CurrencyPair currencyPair = pointSensitivity.getCurrencyPair();
+    Currency refBaseCurrency = pointSensitivity.getReferenceCurrency();
+    Currency refCounterCurrency = pointSensitivity.getReferenceCounterCurrency();
+    Currency sensitivityCurrency = pointSensitivity.getCurrency();
+    LocalDate referenceDate = pointSensitivity.getReferenceDate();
 
     boolean inverse = refBaseCurrency.equals(currencyPair.getCounter());
     DiscountFactors discountFactorsRefBase = (inverse ? counterCurrencyDiscountFactors : baseCurrencyDiscountFactors);
@@ -182,12 +184,12 @@ public final class DiscountFxForwardRates
     double fxRate = fxRateProvider.fxRate(refBaseCurrency, refCounterCurrency);
     ZeroRateSensitivity dfCcyBaseAtMaturitySensitivity =
         discountFactorsRefBase.zeroRatePointSensitivity(referenceDate, sensitivityCurrency)
-            .multipliedBy(fxRate * dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
+            .multipliedBy(fxRate * dfCcyCounterAtMaturityInv * pointSensitivity.getSensitivity());
 
     ZeroRateSensitivity dfCcyCounterAtMaturitySensitivity =
         discountFactorsRefCounter.zeroRatePointSensitivity(referenceDate, sensitivityCurrency)
             .multipliedBy(-fxRate * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
-                dfCcyCounterAtMaturityInv * fxRateSensitivity.getSensitivity());
+                dfCcyCounterAtMaturityInv * pointSensitivity.getSensitivity());
 
     return discountFactorsRefBase.curveParameterSensitivity(dfCcyBaseAtMaturitySensitivity)
         .combinedWith(discountFactorsRefCounter.curveParameterSensitivity(dfCcyCounterAtMaturitySensitivity));

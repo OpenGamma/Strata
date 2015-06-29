@@ -15,13 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
@@ -65,6 +63,9 @@ public class ReportRunnerTool {
 
   @Parameter(names = {"-h", "--help"}, description = "Displays this message", help = true)
   private boolean help;
+  
+  @Parameter(names = {"-v", "--version"}, description = "Prints the version of this tool", help = true)
+  private boolean version;
 
   /**
    * Runs the tool.
@@ -85,6 +86,12 @@ public class ReportRunnerTool {
     }
     if (reportRunner.help) {
       commander.usage();
+    } else if (reportRunner.version) {
+      String versionName = ReportRunnerTool.class.getPackage().getImplementationVersion();
+      if (versionName == null) {
+        versionName = "unknown";
+      }
+      System.out.println("Strata Report Runner Tool, version " + versionName);
     } else {
       try {
         reportRunner.run();
@@ -125,7 +132,6 @@ public class ReportRunnerTool {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(pricingRules)
         .marketDataRules(marketDataBuilder.rules())
-        .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();
 
     BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);

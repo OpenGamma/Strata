@@ -15,6 +15,7 @@ temp/
 tests/classes/
 tests/output/
 test-output/
+.DS_Store
 
 # IntelliJ config files
 *.iws

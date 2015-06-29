@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly
+    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+  <id>dist</id>
+  <formats>
+    <format>tar.gz</format>
+    <format>zip</format>
+  </formats>
+  <baseDirectory>${artifactId}-${version}</baseDirectory>
+  <fileSets>
+    <fileSet>
+      <includes>
+        <include>LICENSE.txt</include>
+        <include>README.md</include>
+        <include>pom.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/site/apidocs</directory>
+      <outputDirectory>apidocs</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+  <moduleSets>
+    <moduleSet>
+      <useAllReactorProjects>true</useAllReactorProjects>
+      <excludes>
+        <exclude>com.opengamma.strata:strata-source</exclude>
+      </excludes>
+      <binaries>
+        <outputDirectory>lib</outputDirectory>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+    <moduleSet>
+      <useAllReactorProjects>true</useAllReactorProjects>
+      <excludes>
+        <exclude>com.opengamma.strata:strata-source</exclude>
+      </excludes>
+      <binaries>
+        <attachmentClassifier>sources</attachmentClassifier>
+        <includeDependencies>false</includeDependencies>
+        <outputDirectory>src</outputDirectory>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+</assembly>

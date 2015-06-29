@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.function.DoubleFunction;
 import java.util.function.IntFunction;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
@@ -19,26 +21,32 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity
 public class CurveCurrencyParameterSensitivityValueFormatter
     implements ValueFormatter<CurveCurrencyParameterSensitivity> {
 
+  private static final int PADDED_FIELD_WIDTH = 15;
+  
   private final DoubleValueFormatter doubleFormatter = new DoubleValueFormatter();
 
   @Override
   public String formatForCsv(CurveCurrencyParameterSensitivity sensitivity) {
-    return getSensitivityString(sensitivity, d -> doubleFormatter.formatForCsv(d));
+    return getSensitivityString(sensitivity, d -> doubleFormatter.formatForCsv(d), false);
   }
 
   @Override
   public String formatForDisplay(CurveCurrencyParameterSensitivity sensitivity) {
-    return getSensitivityString(sensitivity, d -> doubleFormatter.formatForDisplay(d));
+    return getSensitivityString(sensitivity, d -> doubleFormatter.formatForDisplay(d), true);
   }
 
-  private String getSensitivityString(CurveCurrencyParameterSensitivity sensitivity, DoubleFunction<String> formatFn) {
+  private String getSensitivityString(CurveCurrencyParameterSensitivity sensitivity, DoubleFunction<String> formatFn, boolean pad) {
     StringBuilder sb = new StringBuilder();
     Optional<List<CurveParameterMetadata>> parameterMetadata = sensitivity.getMetadata().getParameters();
     IntFunction<String> labelProvider = parameterMetadata.isPresent() ?
         i -> parameterMetadata.get().get(i).getLabel() : i -> String.valueOf(i + 1);
     for (int i = 0; i < sensitivity.getSensitivity().length; i++) {
       String formattedSensitivity = formatFn.apply(sensitivity.getSensitivity()[i]);
-      sb.append(labelProvider.apply(i)).append(" = ").append(formattedSensitivity);
+      String field = labelProvider.apply(i) + " = " + formattedSensitivity;
+      if (pad) {
+        field = StringUtils.rightPad(field, PADDED_FIELD_WIDTH);
+      }
+      sb.append(field);
       if (i < sensitivity.getSensitivity().length - 1) {
         sb.append(" | ");
       }

@@ -46,8 +46,7 @@ import com.opengamma.strata.market.curve.CurveName;
  * The order of the list has no specific meaning.
  * <p>
  * For example, par rate sensitivity would be expressed using this class as there is no associated currency.
- * 
- * @implNote
+ * <p>
  * One way of viewing this class is as a {@code Map} from a specific sensitivity key to
  * {@code double[]} sensitivity values. However, instead or being structured as a {@code Map},
  * the data is structured as a {@code List}, with the key and value in each entry.

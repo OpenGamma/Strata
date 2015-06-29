@@ -30,7 +30,6 @@ import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.Measure;
-import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.engine.ExampleEngine;
@@ -58,8 +57,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 /**
  * Example to illustrate using the engine to price a swap.
  * <p>
- * This makes use of the example engine which sources the required market data from
- * JSON resources.
+ * This makes use of the example engine and the example market data environment.
  */
 public class SwapPricingExample {
 
@@ -90,7 +88,6 @@ public class SwapPricingExample {
     CalculationRules rules = CalculationRules.builder()
         .pricingRules(OpenGammaPricingRules.standard())
         .marketDataRules(marketDataBuilder.rules())
-        .reportingRules(ReportingRules.empty())
         .build();
 
     // build a market data snapshot for the valuation date

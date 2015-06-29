@@ -51,15 +51,15 @@ public final class FxForwardSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The reference currency. 
+   * The reference currency.
    * <p>
-   * This is the base currency of the FX conversion that occurs using the currency pair. 
+   * This is the base currency of the FX conversion that occurs using the currency pair.
    * The reference currency must be one of the two currencies of the currency pair.
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency referenceCurrency;
   /**
-   * The date to query the rate for
+   * The date to query the rate for.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate referenceDate;
@@ -71,12 +71,12 @@ public final class FxForwardSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FxForwardSensitivity} from currency pair, reference currency, reference date and sensitivity value. 
+   * Obtains a {@code FxForwardSensitivity} from currency pair, reference currency, reference date and sensitivity value.
    * <p>
    * The sensitivity currency is defaulted to be a currency of the currency pair that is not the reference currency.
    * 
    * @param currencyPair  the currency pair
-   * @param referenceCurrency  the reference currency 
+   * @param referenceCurrency  the reference currency
    * @param referenceDate  the reference date
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
@@ -93,12 +93,12 @@ public final class FxForwardSensitivity
   }
 
   /**
-   * Obtains a {@code FxForwardSensitivity} from currency pair, sensitivity currency, base currency, 
-   * reference date and sensitivity value. 
+   * Obtains a {@code FxForwardSensitivity} from currency pair, sensitivity currency, base currency,
+   * reference date and sensitivity value.
    * 
    * @param currencyPair  the currency pair
    * @param sensitivityCurrency  the currency of the sensitivity
-   * @param referenceCurrency  the reference currency 
+   * @param referenceCurrency  the reference currency
    * @param referenceDate  the reference date
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
@@ -128,7 +128,7 @@ public final class FxForwardSensitivity
    * The currency pair contains two currencies. One is the reference currency.
    * This method returns the other.
    * 
-   * @return the counter currency 
+   * @return the counter currency
    */
   public Currency getReferenceCounterCurrency() {
     boolean inverse = referenceCurrency.equals(currencyPair.getBase());
@@ -275,7 +275,7 @@ public final class FxForwardSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date to query the rate for
+   * Gets the date to query the rate for.
    * @return the value of the property, not null
    */
   public LocalDate getReferenceDate() {

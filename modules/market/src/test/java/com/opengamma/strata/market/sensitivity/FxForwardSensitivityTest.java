@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
  */
 @Test
 public class FxForwardSensitivityTest {
+
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, GBP);
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2015, 11, 23);
   private static final double SENSITIVITY = 1.34d;
@@ -183,7 +184,8 @@ public class FxForwardSensitivityTest {
   }
 
   public void test_serialization() {
-      FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
+    FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     assertSerialization(test);
-    }
+  }
+
 }

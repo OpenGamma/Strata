@@ -52,15 +52,15 @@ public final class FxIndexSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The reference currency. 
+   * The reference currency.
    * <p>
-   * This is the base currency of the FX conversion that occurs using the index. 
+   * This is the base currency of the FX conversion that occurs using the index.
    * The reference currency must be one of the two currencies of the index.
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency referenceCurrency;
   /**
-   * The fixing date to query the rate for
+   * The fixing date to query the rate for.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
@@ -72,12 +72,12 @@ public final class FxIndexSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FxIndexSensitivity} from index, reference currency, fixing date and sensitivity value. 
+   * Obtains a {@code FxIndexSensitivity} from index, reference currency, fixing date and sensitivity value.
    * <p>
    * The sensitivity currency is defaulted to be the index currency that is not the reference currency.
    * 
    * @param index  the index of the FX
-   * @param referenceCurrency  the reference currency 
+   * @param referenceCurrency  the reference currency
    * @param fixingDate  the fixing date
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
@@ -94,12 +94,12 @@ public final class FxIndexSensitivity
   }
 
   /**
-   * Obtains a {@code FxIndexSensitivity} from index, sensitivity currency, base currency, 
-   * fixing date and sensitivity value. 
+   * Obtains a {@code FxIndexSensitivity} from index, sensitivity currency, base currency,
+   * fixing date and sensitivity value.
    * 
    * @param index  the index of the FX
    * @param sensitivityCurrency  the currency of the sensitivity
-   * @param referenceCurrency  the reference currency 
+   * @param referenceCurrency  the reference currency
    * @param fixingDate  the fixing date
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
@@ -129,7 +129,7 @@ public final class FxIndexSensitivity
    * The index contains two currencies. One is the reference currency.
    * This method returns the other.
    * 
-   * @return the counter currency 
+   * @return the counter currency
    */
   public Currency getReferenceCounterCurrency() {
     boolean inverse = referenceCurrency.equals(index.getCurrencyPair().getBase());
@@ -137,9 +137,9 @@ public final class FxIndexSensitivity
   }
 
   /**
-   * Create {@code FxForwardSensitivity} from this instance. 
+   * Converts this sensitivity to an {@code FxForwardSensitivity}.
    * <p>
-   * The time series, fixing date and FX index are aborted by this conversion. 
+   * The time series, fixing date and FX index are lost by this conversion.
    * Instead, maturity date and currency pair are contained in {@link FxForwardSensitivity}.
    * 
    * @return the FX forward sensitivity
@@ -288,7 +288,7 @@ public final class FxIndexSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixing date to query the rate for
+   * Gets the fixing date to query the rate for.
    * @return the value of the property, not null
    */
   public LocalDate getFixingDate() {

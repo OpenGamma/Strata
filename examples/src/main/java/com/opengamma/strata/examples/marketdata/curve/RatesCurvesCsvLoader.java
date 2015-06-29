@@ -5,17 +5,20 @@
  */
 package com.opengamma.strata.examples.marketdata.curve;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.collect.Guavate.toImmutableSortedMap;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.RateIndex;
@@ -86,7 +89,7 @@ public final class RatesCurvesCsvLoader {
 
   //-------------------------------------------------------------------------
   /**
-   * Loads the available rates curves from the CSV resources.
+   * Loads the available rates curves from the CSV resources for a given curve date.
    * 
    * @param groupsResource  the curve groups CSV resource
    * @param settingsResource  the curve settings CSV resource
@@ -100,8 +103,35 @@ public final class RatesCurvesCsvLoader {
       Collection<ResourceLocator> curvesResources,
       LocalDate curveDate) {
 
+    Map<LocalDate, Map<RateCurveId, Curve>> curves = loadCurvesForDate(groupsResource, settingsResource, curvesResources, curveDate);
+    return curves.getOrDefault(curveDate, ImmutableMap.of());
+  }
+  
+  /**
+   * Loads the available rates curves from the CSV resources for all dates.
+   * 
+   * @param groupsResource  the curve groups CSV resource
+   * @param settingsResource  the curve settings CSV resource
+   * @param curvesResources  the CSV resources for curves
+   * @return the loaded curves, mapped by date and identifier
+   */
+  public static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadAllCurves(
+      ResourceLocator groupsResource,
+      ResourceLocator settingsResource,
+      Collection<ResourceLocator> curvesResources) {
+    
+    return loadCurvesForDate(groupsResource, settingsResource, curvesResources, null);
+  }
+
+  //-------------------------------------------------------------------------
+  private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> loadCurvesForDate(
+      ResourceLocator groupsResource,
+      ResourceLocator settingsResource,
+      Collection<ResourceLocator> curvesResources,
+      LocalDate curveDate) {
+    
     // load curves
-    Map<LoadedCurveKey, LoadedCurveSettings> settingsMap = loadCurveSettings(settingsResource);
+    Map<LoadedCurveName, LoadedCurveSettings> settingsMap = loadCurveSettings(settingsResource);
     ImmutableMap.Builder<LoadedCurveKey, Curve> curvesBuilder = new ImmutableMap.Builder<>();
     for (ResourceLocator curvesResource : curvesResources) {
       // builder ensures keys can only be seen once
@@ -110,25 +140,43 @@ public final class RatesCurvesCsvLoader {
     ImmutableMap<LoadedCurveKey, Curve> curves = curvesBuilder.build();
 
     // load curve groups
-    Map<RateCurveId, LoadedCurveKey> curveGroups = loadCurveGroups(groupsResource);
+    Map<LoadedCurveName, Set<RateCurveId>> curveGroups = loadCurveGroups(groupsResource);
 
     return mapCurves(curveGroups, curves);
   }
-
-  //-------------------------------------------------------------------------
+  
   // uses the curve groups to form the resolved map of curve id to curve
-  private static Map<RateCurveId, Curve> mapCurves(
-      Map<RateCurveId, LoadedCurveKey> curveGroups,
+  private static ImmutableSortedMap<LocalDate, Map<RateCurveId, Curve>> mapCurves(
+      Map<LoadedCurveName, Set<RateCurveId>> curveGroupMappings,
       Map<LoadedCurveKey, Curve> curves) {
-
-    return curveGroups.entrySet().stream()
-        .filter(e -> curves.containsKey(e.getValue()))
-        .collect(toImmutableMap(e -> e.getKey(), e -> curves.get(e.getValue())));
+    
+    Map<LocalDate, ImmutableMap.Builder<RateCurveId, Curve>> resultBuilder = new HashMap<>();
+    
+    for (Map.Entry<LoadedCurveKey, Curve> curveEntry : curves.entrySet()) {
+      LoadedCurveKey key = curveEntry.getKey();
+      Set<RateCurveId> curveUses = curveGroupMappings.get(key.toName());
+      if (curveUses == null) {
+        // Curve not mapped in any group
+        continue;
+      }
+      
+      ImmutableMap.Builder<RateCurveId, Curve> builder = resultBuilder.get(key.getCurveDate());
+      if (builder == null) {
+        builder = ImmutableMap.builder();
+        resultBuilder.put(key.getCurveDate(), builder);
+      }
+      for (RateCurveId curveUse : curveUses) {
+        builder.put(curveUse, curveEntry.getValue());
+      }
+    }
+    
+    return resultBuilder.entrySet().stream()
+        .collect(toImmutableSortedMap(e -> e.getKey(), e -> e.getValue().build()));
   }
 
   // loads the curve settings CSV file
-  private static Map<LoadedCurveKey, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
-    Map<LoadedCurveKey, LoadedCurveSettings> settingsMap = new HashMap<>();
+  private static Map<LoadedCurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
+    Map<LoadedCurveName, LoadedCurveSettings> settingsMap = new HashMap<>();
     CsvFile csv = CsvFile.of(settingsResource.getCharSource(), true);
     for (int i = 0; i < csv.lineCount(); i++) {
       String curveGroupName = csv.field(i, SETTINGS_GROUP_NAME);
@@ -139,7 +187,7 @@ public final class RatesCurvesCsvLoader {
       String rightExtrapolatorName = csv.field(i, SETTINGS_RIGHT_EXTRAPOLATOR);
       String valueTypeName = csv.field(i, SETTINGS_VALUE_TYPE);
 
-      LoadedCurveKey curveKey = LoadedCurveKey.of(curveGroupName, curveName);
+      LoadedCurveName curveKey = LoadedCurveName.of(curveGroupName, curveName);
       DayCount dayCount = DayCount.of(dayCountName);
       CurveInterpolator interpolator = CurveInterpolator.of(interpolatorName);
       CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorName);
@@ -163,8 +211,8 @@ public final class RatesCurvesCsvLoader {
   }
 
   // loads the curve groups CSV file
-  private static Map<RateCurveId, LoadedCurveKey> loadCurveGroups(ResourceLocator groupsResource) {
-    ImmutableMap.Builder<RateCurveId, LoadedCurveKey> builder = ImmutableMap.builder();
+  private static Map<LoadedCurveName, Set<RateCurveId>> loadCurveGroups(ResourceLocator groupsResource) {
+    Map<LoadedCurveName, Set<RateCurveId>> curveGroups = new HashMap<>();
     CsvFile csv = CsvFile.of(groupsResource.getCharSource(), true);
     for (int i = 0; i < csv.lineCount(); i++) {
       String curveGroupText = csv.field(i, GROUPS_NAME);
@@ -186,16 +234,21 @@ public final class RatesCurvesCsvLoader {
         throw new IllegalArgumentException(Messages.format("Unsupported curve type: {}", curveType));
       }
 
-      LoadedCurveKey curveKey = LoadedCurveKey.of(curveGroup, CurveName.of(curveName));
-      builder.put(curveId, curveKey);
+      LoadedCurveName curveKey = LoadedCurveName.of(curveGroup, CurveName.of(curveName));
+      Set<RateCurveId> curveUses = curveGroups.get(curveKey);
+      if (curveUses == null) {
+        curveUses = new HashSet<RateCurveId>();
+        curveGroups.put(curveKey, curveUses);
+      }
+      curveUses.add(curveId);
     }
-    return builder.build();
+    return curveGroups;
   }
 
   // loads a single curves CSV file
   private static Map<LoadedCurveKey, Curve> loadCurvesFile(
       ResourceLocator curvesResource,
-      Map<LoadedCurveKey, LoadedCurveSettings> settingsMap,
+      Map<LoadedCurveName, LoadedCurveSettings> settingsMap,
       LocalDate curveDate) {
 
     // parse the curve nodes
@@ -210,14 +263,14 @@ public final class RatesCurvesCsvLoader {
       String pointLabel = csv.field(i, CURVE_POINT_LABEL);
 
       LocalDate valuationDate = LocalDate.parse(valuationDateText);
-      if (!valuationDate.equals(curveDate)) {
+      if (curveDate != null && !valuationDate.equals(curveDate)) {
         continue;
       }
 
       LocalDate pointDate = LocalDate.parse(pointDateText);
       double pointValue = Double.valueOf(pointValueText);
 
-      LoadedCurveKey key = LoadedCurveKey.of(curveGroup, curveName);
+      LoadedCurveKey key = LoadedCurveKey.of(valuationDate, curveGroup, curveName);
       List<LoadedCurveNode> curveNodes = builders.get(key);
       if (curveNodes == null) {
         curveNodes = new ArrayList<LoadedCurveNode>();
@@ -231,11 +284,11 @@ public final class RatesCurvesCsvLoader {
     ImmutableMap.Builder<LoadedCurveKey, Curve> results = ImmutableMap.builder();
     for (Map.Entry<LoadedCurveKey, List<LoadedCurveNode>> builderEntry : builders.entrySet()) {
       LoadedCurveKey key = builderEntry.getKey();
-      LoadedCurveSettings settings = settingsMap.get(key);
+      LoadedCurveSettings settings = settingsMap.get(key.toName());
       if (settings == null) {
         throw new IllegalArgumentException(Messages.format("Missing settings for curve: {}", key));
       }
-      Curve curve = createCurve(key, builderEntry.getValue(), settings, curveDate);
+      Curve curve = createCurve(key, builderEntry.getValue(), settings);
       results.put(key, curve);
     }
     return results.build();
@@ -245,8 +298,7 @@ public final class RatesCurvesCsvLoader {
   private static Curve createCurve(
       LoadedCurveKey curveKey,
       List<LoadedCurveNode> curveNodes,
-      LoadedCurveSettings curveSettings,
-      LocalDate curveDate) {
+      LoadedCurveSettings curveSettings) {
 
     // build each node
     curveNodes.sort(Comparator.naturalOrder());
@@ -255,7 +307,7 @@ public final class RatesCurvesCsvLoader {
     List<CurveParameterMetadata> pointsMetadata = new ArrayList<CurveParameterMetadata>(curveNodes.size());
     for (int i = 0; i < curveNodes.size(); i++) {
       LoadedCurveNode point = curveNodes.get(i);
-      double yearFraction = curveSettings.getDayCount().yearFraction(curveDate, point.getDate());
+      double yearFraction = curveSettings.getDayCount().yearFraction(curveKey.getCurveDate(), point.getDate());
       xValues[i] = yearFraction;
       yValues[i] = point.getValue();
       CurveParameterMetadata pointMetadata = SimpleCurveNodeMetadata.of(point.getDate(), point.getLabel());
