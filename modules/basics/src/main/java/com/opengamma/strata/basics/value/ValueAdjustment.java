@@ -33,7 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * <tr>
  * <th>Type</th><th>baseValue</th><th>modifyingValue</th><th>Calculation</th>
  * </tr><tr>
- * <td>Absolute</td><td>200</td><td>220</td><td>{@code result = modifyingValue = 220}</td>
+ * <td>Replace</td><td>200</td><td>220</td><td>{@code result = modifyingValue = 220}</td>
  * </tr><tr>
  * <td>DeltaAmount</td><td>200</td><td>20</td><td>{@code result = baseValue + modifyingValue = (200 + 20) = 220}</td>
  * </tr><tr>
@@ -67,15 +67,15 @@ public final class ValueAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a value adjustment specifying the absolute amount.
+   * Obtains a value adjustment that replaces the base value.
    * <p>
    * The base value is ignored when calculating the result.
    * 
-   * @param absoluteAmount  the absolute amount that is the result of the adjustment
-   * @return the adjustment
+   * @param replacementValue  the replacement value to use as the result of the adjustment
+   * @return the adjustment, capturing the replacement value
    */
-  public static ValueAdjustment ofAbsoluteAmount(double absoluteAmount) {
-    return new ValueAdjustment(absoluteAmount, ValueAdjustmentType.ABSOLUTE);
+  public static ValueAdjustment ofReplace(double replacementValue) {
+    return new ValueAdjustment(replacementValue, ValueAdjustmentType.REPLACE);
   }
 
   /**
@@ -84,7 +84,7 @@ public final class ValueAdjustment
    * The result will be {@code (baseValue + deltaAmount)}.
    * 
    * @param deltaAmount  the amount to be added to the base value
-   * @return the adjustment
+   * @return the adjustment, capturing the delta amount
    */
   public static ValueAdjustment ofDeltaAmount(double deltaAmount) {
     return new ValueAdjustment(deltaAmount, ValueAdjustmentType.DELTA_AMOUNT);
@@ -97,7 +97,7 @@ public final class ValueAdjustment
    * 
    * @param deltaMultiplier  the multiplication factor to apply to the base amount
    *  with the result added to the base amount
-   * @return the adjustment
+   * @return the adjustment, capturing the delta multiplier
    */
   public static ValueAdjustment ofDeltaMultiplier(double deltaMultiplier) {
     return new ValueAdjustment(deltaMultiplier, ValueAdjustmentType.DELTA_MULTIPLIER);
@@ -135,7 +135,7 @@ public final class ValueAdjustment
       case MULTIPLIER:
         buf.append("input * ").append(modifyingValue);
         break;
-      case ABSOLUTE:
+      case REPLACE:
       default:
         buf.append(modifyingValue);
         break;

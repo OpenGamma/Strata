@@ -114,21 +114,6 @@ public final class ValueStep
     return new ValueStep(null, date, value);
   }
 
-  /**
-   * Obtains a value adjustment specifying an absolute value.
-   * <p>
-   * This factory obtains a step that causes the value to change at the specified date.
-   * <p>
-   * The value specified is absolute, as per {@link ValueAdjustmentType#ABSOLUTE}.
-   * 
-   * @param date  the start date of the value change
-   * @param absoluteValue  the absolute value that is the result of the adjustment
-   * @return the varying step
-   */
-  public static ValueStep ofAbsoluteAmount(LocalDate date, double absoluteValue) {
-    return new ValueStep(null, date, ValueAdjustment.ofAbsoluteAmount(absoluteValue));
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Finds the index of this value step in the schedule.

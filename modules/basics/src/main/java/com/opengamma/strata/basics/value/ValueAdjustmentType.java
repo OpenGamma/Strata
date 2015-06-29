@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <tr>
  * <th>Type</th><th>baseValue</th><th>modifyingValue</th><th>Calculation</th>
  * </tr><tr>
- * <td>Absolute</td><td>200</td><td>220</td><td>{@code result = modifyingValue = 220}</td>
+ * <td>Replace</td><td>200</td><td>220</td><td>{@code result = modifyingValue = 220}</td>
  * </tr><tr>
  * <td>DeltaAmount</td><td>200</td><td>20</td><td>{@code result = baseValue + modifyingValue = (200 + 20) = 220}</td>
  * </tr><tr>
@@ -38,12 +38,12 @@ import com.opengamma.strata.collect.ArgChecker;
 public enum ValueAdjustmentType {
 
   /**
-   * The modifying value represents the result absolutely.
+   * The modifying value replaces the base value.
    * The input base value is ignored.
    * <p>
    * The result is {@code modifyingValue}.
    */
-  ABSOLUTE {
+  REPLACE {
     @Override
     public double adjust(double baseValue, double modifyingValue) {
       return modifyingValue;
@@ -53,6 +53,8 @@ public enum ValueAdjustmentType {
    * Calculates the result by treating the modifying value as a delta, adding it to the base value.
    * <p>
    * The result is {@code (baseValue + modifyingValue)}.
+   * <p>
+   * This adjustment type can be referred to as an <i>absolute shift</i>.
    */
   DELTA_AMOUNT {
     @Override
@@ -64,6 +66,8 @@ public enum ValueAdjustmentType {
    * Calculates the result by treating the modifying value as a multiplication factor, adding it to the base value.
    * <p>
    * The result is {@code (baseValue + baseValue * modifyingValue)}.
+   * <p>
+   * This adjustment type can be referred to as a <i>relative shift</i>.
    */
   DELTA_MULTIPLIER {
     @Override
