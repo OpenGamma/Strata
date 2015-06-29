@@ -65,7 +65,7 @@ public interface FxForwardRates {
   public abstract double rate(Currency baseCurrency, LocalDate referenceDate);
 
   /**
-   * Calculates the point sensitivity of the forward rate at the specified fixing date.
+   * Calculates the point sensitivity of the forward rate at the specified date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.

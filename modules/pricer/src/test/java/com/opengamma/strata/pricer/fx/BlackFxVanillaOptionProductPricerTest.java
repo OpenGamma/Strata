@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,7 +28,12 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.finance.fx.FxVanillaOption;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
 /**
  * Test {@link BlackFxVanillaOptionProductPricer}.
@@ -65,12 +71,12 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final double STRIKE_RATE = 1.45;
   private static final FxRate STRIKE = FxRate.of(EUR, USD, STRIKE_RATE);
   private static final PutCall CALL = PutCall.CALL;
-  private static final LongShort LONG = LongShort.LONG;
+  private static final LongShort SHORT = LongShort.SHORT;
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2012, 2, 10);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(13, 10);
   private static final FxVanillaOption OPTION_PRODUCT = FxVanillaOption.builder()
       .putCall(CALL)
-      .longShort(LONG)
+      .longShort(SHORT)
       .expiryDate(EXPIRY_DATE)
       .expiryTime(EXPIRY_TIME)
       .expiryZone(ZONE)
@@ -79,25 +85,26 @@ public class BlackFxVanillaOptionProductPricerTest {
       .build();
 
   private static final BlackFxVanillaOptionProductPricer PRICER = BlackFxVanillaOptionProductPricer.DEFAULT;
-
   private static final double TOL = 1.0e-13;
 
-  public void test_presentValue() {
+  public void test_price_presentValue() {
+    double price = PRICER.price(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pv = PRICER.presentValue(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
     double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
         .fxRate(CURRENCY_PAIR);
     double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
-    double expected =
-        NOTIONAL * df * BlackFormulaRepository.price(forward, STRIKE_RATE, timeToExpiry, vol, CALL.isCall());
+    double expectedPrice = df * BlackFormulaRepository.price(forward, STRIKE_RATE, timeToExpiry, vol, CALL.isCall());
+    double expectedPv = -NOTIONAL * df
+        * BlackFormulaRepository.price(forward, STRIKE_RATE, timeToExpiry, vol, CALL.isCall());
+    assertEquals(price, expectedPrice, TOL);
     assertEquals(pv.getCurrency(), USD);
-    assertEquals(pv.getAmount(), expected, NOTIONAL * TOL);
-
+    assertEquals(pv.getAmount(), expectedPv, NOTIONAL * TOL);
     // The direction of strike will be modified, thus the same result is expected
     FxVanillaOption option1 = FxVanillaOption.builder()
         .putCall(CALL)
-        .longShort(LONG)
+        .longShort(SHORT)
         .expiryDate(EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
@@ -107,34 +114,97 @@ public class BlackFxVanillaOptionProductPricerTest {
     CurrencyAmount pv1 = PRICER.presentValue(option1, RATES_PROVIDER, VOL_PROVIDER);
     assertEquals(pv1.getCurrency(), pv.getCurrency());
     assertEquals(pv1.getAmount(), pv.getAmount(), NOTIONAL * TOL);
-
-    // check put-call relation
-    CurrencyAmount eurAmount = CurrencyAmount.of(EUR, -NOTIONAL);
-    CurrencyAmount usdAmount = CurrencyAmount.of(USD, NOTIONAL * FX_MATRIX.fxRate(EUR, USD));
-    Fx fxProduct = Fx.of(eurAmount, usdAmount, PAYMENT_DATE);
+    // long option 
     FxVanillaOption option2 = FxVanillaOption.builder()
         .putCall(CALL)
-        .longShort(LONG)
-        .expiryDate(EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .underlying(fxProduct)
-        .strike(STRIKE)
-        .build();
-    CurrencyAmount pv2 = PRICER.presentValue(option2, RATES_PROVIDER, VOL_PROVIDER).convertedTo(USD, FX_MATRIX);
-    double factor = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE) / RATES_PROVIDER.discountFactor(EUR, PAYMENT_DATE);
-
-    FxVanillaOption option3 = FxVanillaOption.builder()
-        .putCall(PutCall.PUT)
-        .longShort(LONG)
+        .longShort(LongShort.LONG)
         .expiryDate(EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
         .underlying(FX_PRODUCT)
         .strike(STRIKE)
         .build();
-    CurrencyAmount pv3 = PRICER.presentValue(option3, RATES_PROVIDER, VOL_PROVIDER);
-    System.out.println(pv2 + "\t" + pv2.multipliedBy(factor) + "\t" + pv3);
+    CurrencyAmount pv2 = PRICER.presentValue(option2, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv2.getCurrency(), pv.getCurrency());
+    assertEquals(pv2.getAmount(), -pv.getAmount(), NOTIONAL * TOL);
+  }
 
+  public void test_delta_presentValueDelta() {
+    double delta = PRICER.delta(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDelta = PRICER.presentValueDelta(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
+    double dfFor = RATES_PROVIDER.discountFactor(EUR, PAYMENT_DATE);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
+        .fxRate(CURRENCY_PAIR);
+    double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
+    double expectedDelta = dfFor * BlackFormulaRepository.delta(forward, STRIKE_RATE, timeToExpiry, vol, CALL.isCall());
+    assertEquals(delta, expectedDelta, TOL);
+    double expectedPvDelta = -NOTIONAL * dfFor
+        * BlackFormulaRepository.delta(forward, STRIKE_RATE, timeToExpiry, vol, CALL.isCall());
+    assertEquals(pvDelta.getCurrency(), USD);
+    assertEquals(pvDelta.getAmount(), expectedPvDelta, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueSensitivity() {
+    double eps = 1.0e-7;
+    RatesFiniteDifferenceSensitivityCalculator cal = new RatesFiniteDifferenceSensitivityCalculator(eps);
+    PointSensitivities point = PRICER.presentValueSensitivity(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER.curveParameterSensitivity(point);
+    CurveCurrencyParameterSensitivities expected = cal.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
+        (p) -> PRICER.presentValue(OPTION_PRODUCT, (p), VOL_PROVIDER));
+    System.out.println(OPTION_PRODUCT.getUnderlying().getReceiveCurrencyAmount().getCurrency());
+    // contribution via implied volatility, to be subtracted.
+    CurrencyAmount pvVega = PRICER.presentValueVega(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurveCurrencyParameterSensitivities impliedVolSense =
+        cal.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
+            (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(OPTION_PRODUCT, (p), VOL_PROVIDER)))
+            .multipliedBy(-pvVega.getAmount());
+    assertTrue(computed.equalWithTolerance(expected.combinedWith(impliedVolSense), NOTIONAL * eps));
+  }
+
+  public void test_gamma_presentValueGamma() {
+    double gamma = PRICER.gamma(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGamma = PRICER.presentValueGamma(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
+    double dfDom = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double dfFor = RATES_PROVIDER.discountFactor(EUR, PAYMENT_DATE);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
+        .fxRate(CURRENCY_PAIR);
+    double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
+    double expectedGamma = dfFor * dfFor / dfDom *
+        BlackFormulaRepository.gamma(forward, STRIKE_RATE, timeToExpiry, vol);
+    assertEquals(gamma, expectedGamma, TOL);
+    double expectedPvGamma = -NOTIONAL * dfFor * dfFor / dfDom *
+        BlackFormulaRepository.gamma(forward, STRIKE_RATE, timeToExpiry, vol);
+    assertEquals(pvGamma.getCurrency(), USD);
+    assertEquals(pvGamma.getAmount(), expectedPvGamma, NOTIONAL * TOL);
+  }
+
+  public void test_vega_presentValueVega() {
+    double vega = PRICER.vega(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvVega = PRICER.presentValueVega(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
+    double dfDom = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
+        .fxRate(CURRENCY_PAIR);
+    double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
+    double expectedVega = dfDom * BlackFormulaRepository.vega(forward, STRIKE_RATE, timeToExpiry, vol);
+    assertEquals(vega, expectedVega, TOL);
+    double expectedPvVega = -NOTIONAL * dfDom * BlackFormulaRepository.vega(forward, STRIKE_RATE, timeToExpiry, vol);
+    assertEquals(pvVega.getCurrency(), USD);
+    assertEquals(pvVega.getAmount(), expectedPvVega, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueSensitivityBlackVolatility() {
+    FxOptionSensitivity computed =
+        PRICER.presentValueSensitivityBlackVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
+    double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
+        .fxRate(CURRENCY_PAIR);
+    double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
+    FxOptionSensitivity expected = FxOptionSensitivity.of(CURRENCY_PAIR, EXPIRY_DATE, STRIKE_RATE, forward, USD,
+        -NOTIONAL * df * BlackFormulaRepository.vega(forward, STRIKE_RATE, timeToExpiry, vol));
+    assertEquals(computed, expected);
   }
 }
