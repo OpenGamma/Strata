@@ -35,6 +35,16 @@ public class DoubleArrayMathTest {
     assertThat(DoubleArrayMath.EMPTY_DOUBLE_OBJECT_ARRAY).contains();
   }
 
+  public void toPrimitive() {
+    assertThat(DoubleArrayMath.toPrimitive(new Double[] {})).isEqualTo(new double[] {});
+    assertThat(DoubleArrayMath.toPrimitive(new Double[] {1d, 2.5d})).isEqualTo(new double[] {1d, 2.5d});
+  }
+
+  public void toObject() {
+    assertThat(DoubleArrayMath.toObject(new double[] {})).isEqualTo(new Double[] {});
+    assertThat(DoubleArrayMath.toObject(new double[] {1d, 2.5d})).isEqualTo(new Double[] {1d, 2.5d});
+  }
+
   //-------------------------------------------------------------------------
   public void test_sum() {
     assertThat(DoubleArrayMath.sum(ARRAY_1_2)).isEqualTo(3d);

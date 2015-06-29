@@ -34,6 +34,44 @@ public final class DoubleArrayMath {
 
   //-------------------------------------------------------------------------
   /**
+   * Converts a {@code double} array to a {@code Double} array.
+   * 
+   * @param array  the array to convert
+   * @return the converted array
+   */
+  public static Double[] toObject(double[] array) {
+    if (array.length == 0) {
+      return EMPTY_DOUBLE_OBJECT_ARRAY;
+    }
+    Double[] result = new Double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = new Double(array[i]);
+    }
+    return result;
+  }
+
+  /**
+   * Converts a {@code Double} array to a {@code double} array.
+   * <p>
+   * Throws an exception if null is found.
+   * 
+   * @param array  the array to convert
+   * @return the converted array
+   * @throws NullPointerException if null found
+   */
+  public static double[] toPrimitive(Double[] array) {
+    if (array.length == 0) {
+      return EMPTY_DOUBLE_ARRAY;
+    }
+    double[] result = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = array[i].doubleValue();
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the sum total of all the elements in the array.
    * <p>
    * The input array is not mutated.
