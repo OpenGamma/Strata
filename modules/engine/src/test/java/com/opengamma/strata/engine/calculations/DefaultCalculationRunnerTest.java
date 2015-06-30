@@ -37,10 +37,10 @@ import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
-import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestObservableKey;
@@ -163,7 +163,7 @@ public class DefaultCalculationRunnerTest {
     DefaultCalculationRunner runner = new DefaultCalculationRunner(MoreExecutors.newDirectExecutorService());
     LocalDate valuationDate = date(2011, 3, 8);
 
-    Results results1 = runner.calculate(tasks, MarketEnvironment.empty(valuationDate));
+    Results results1 = runner.calculate(tasks, CalculationEnvironment.empty(valuationDate));
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
@@ -190,7 +190,7 @@ public class DefaultCalculationRunnerTest {
     LocalDate valuationDate = date(2011, 3, 8);
     Listener listener = new Listener();
 
-    runner.calculateAsync(tasks, MarketEnvironment.empty(valuationDate), listener);
+    runner.calculateAsync(tasks, CalculationEnvironment.empty(valuationDate), listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string

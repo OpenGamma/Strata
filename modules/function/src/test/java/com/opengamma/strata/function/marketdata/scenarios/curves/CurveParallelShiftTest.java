@@ -20,7 +20,6 @@ import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketDataResult;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
@@ -68,12 +67,11 @@ public class CurveParallelShiftTest {
         mock(ObservableMarketDataFunction.class),
         FeedIdMapping.identity());
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(curveId).build();
-    ScenarioMarketDataResult result = marketDataFactory.buildScenarioMarketData(
+    ScenarioCalculationEnvironment scenarioData = marketDataFactory.buildScenarioCalculationEnvironment(
         requirements,
         marketData,
         scenarioDefinition,
         MarketDataConfig.empty());
-    ScenarioCalculationEnvironment scenarioData = result.getMarketData();
     List<Curve> curves = scenarioData.getValues(curveId);
     assertThat(curves).hasSize(3);
     checkCurveValues(curves.get(0), 2.1);

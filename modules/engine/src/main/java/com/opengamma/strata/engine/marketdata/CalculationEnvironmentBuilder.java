@@ -15,6 +15,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
+// TODO Remove entries from failures when successes are added
 /**
  * A mutable builder for building up {@link MarketEnvironment} instances.
  */
@@ -54,11 +55,15 @@ public final class CalculationEnvironmentBuilder {
   CalculationEnvironmentBuilder(
       LocalDate valuationDate,
       Map<? extends MarketDataId<?>, Object> values,
-      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
+      Map<MarketDataId<?>, Result<?>> singleValueFailures,
+      Map<MarketDataId<?>, Result<?>> timeSeriesFailures) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.values.putAll(values);
     this.timeSeries.putAll(timeSeries);
+    this.singleValueFailures.putAll(singleValueFailures);
+    this.timeSeriesFailures.putAll(timeSeriesFailures);
   }
 
   /**
@@ -243,6 +248,6 @@ public final class CalculationEnvironmentBuilder {
    * @return a set of market data from the data in this builder
    */
   public CalculationEnvironment build() {
-    return new CalculationEnvironment(valuationDate, values, timeSeries);
+    return new CalculationEnvironment(valuationDate, values, timeSeries, singleValueFailures, timeSeriesFailures);
   }
 }

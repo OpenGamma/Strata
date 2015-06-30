@@ -57,9 +57,9 @@ import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
-import com.opengamma.strata.engine.marketdata.MarketEnvironmentResult;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
@@ -173,12 +173,11 @@ public class SwapPricingTest {
         calculationRunner.createCalculationConfig(trades, columns, pricingRules, marketDataRules, reportingCurrency);
     CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
-    MarketEnvironmentResult marketDataResult = marketDataFactory.buildBaseMarketData(
+    CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
         calculationTasks.getMarketDataRequirements(),
         suppliedData,
         MarketDataConfig.empty());
 
-    MarketEnvironment marketData = marketDataResult.getMarketData();
     Results results = calculationRunner.calculate(calculationTasks, marketData);
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();

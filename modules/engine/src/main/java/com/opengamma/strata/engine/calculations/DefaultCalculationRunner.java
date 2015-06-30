@@ -33,7 +33,7 @@ import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.ConfiguredFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
@@ -93,7 +93,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
   }
 
   @Override
-  public Results calculate(CalculationTasks tasks, MarketEnvironment marketData) {
+  public Results calculate(CalculationTasks tasks, CalculationEnvironment marketData) {
     // perform the calculations
     Results results = calculate(tasks, ScenarioCalculationEnvironment.of(marketData));
 
@@ -114,7 +114,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
   }
 
   @Override
-  public void calculateAsync(CalculationTasks tasks, MarketEnvironment marketData, CalculationListener listener) {
+  public void calculateAsync(CalculationTasks tasks, CalculationEnvironment marketData, CalculationListener listener) {
     // The listener is decorated to unwrap ScenarioResults containing a single result
     UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
     calculateAsync(tasks, ScenarioCalculationEnvironment.of(marketData), unwrappingListener);

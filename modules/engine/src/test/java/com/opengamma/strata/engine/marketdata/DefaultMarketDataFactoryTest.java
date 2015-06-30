@@ -158,7 +158,10 @@ public class DefaultMarketDataFactoryTest {
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(requirements, suppliedData, MARKET_DATA_CONFIG);
+    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+        requirements,
+        suppliedData,
+        MARKET_DATA_CONFIG);
 
     assertThat(marketData.getValue(id1)).isEqualTo(1d);
     assertThat(marketData.getValue(id2)).isEqualTo(2d);
@@ -182,7 +185,10 @@ public class DefaultMarketDataFactoryTest {
         .addValue(id2, 2d)
         .build();
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
-    CalculationEnvironment marketData = factory.buildCalculationEnvironment(requirements, suppliedData, MARKET_DATA_CONFIG);
+    CalculationEnvironment marketData = factory.buildCalculationEnvironment(
+        requirements,
+        suppliedData,
+        MARKET_DATA_CONFIG);
 
     assertThat(marketData.getValue(id1)).isEqualTo(1d);
     assertThat(marketData.getValue(id2)).isEqualTo(2d);
@@ -449,10 +455,11 @@ public class DefaultMarketDataFactoryTest {
     TestIdC idC2 = new TestIdC("2");
     TestMarketDataFunctionB builder = new TestMarketDataFunctionB();
 
-    MarketDataRequirements requirements =
-        MarketDataRequirements.builder()
-            .addValues(idB1, idB2)
-            .build();
+    // Market data B depends on market data C so these requirements should cause instances of C to be built.
+    // There is no market data function for building instances of C so this should cause failures.
+    MarketDataRequirements requirements = MarketDataRequirements.builder()
+        .addValues(idB1, idB2)
+        .build();
 
     DefaultMarketDataFactory marketDataFactory =
         new DefaultMarketDataFactory(
