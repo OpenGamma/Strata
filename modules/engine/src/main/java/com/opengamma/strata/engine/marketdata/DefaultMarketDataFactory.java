@@ -123,7 +123,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     throw new UnsupportedOperationException();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CalculationEnvironment buildCalculationEnvironment(
       MarketDataRequirements requirements,
@@ -202,7 +201,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     return builtData;
   }
 
-  // TODO Switch to the same style as for the single set of market data
   @Override
   public ScenarioCalculationEnvironment buildScenarioCalculationEnvironment(
       MarketDataRequirements requirements,
@@ -293,7 +291,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       Map<MarketDataId<?>, Result<List<?>>> nonObservableScenarioResults =
           buildNonObservableScenarioData(nonObservableIds, marketData, marketDataConfig, scenarioDefinition);
 
-      Seq.seq(nonObservableScenarioResults).forEach(tp -> dataBuilder.addResultUnsafe(tp.v1, tp.v2));
+      nonObservableScenarioResults.entrySet().stream().forEach(e -> dataBuilder.addResultUnsafe(e.getKey(), e.getValue()));
 
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()
