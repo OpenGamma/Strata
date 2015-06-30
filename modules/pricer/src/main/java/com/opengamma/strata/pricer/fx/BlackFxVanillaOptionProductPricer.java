@@ -25,7 +25,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This function provides the ability to price an {@link FxVanillaOptionProduct}.
  */
 public class BlackFxVanillaOptionProductPricer {
-  // TODO theta, requires fx theta, thus time sensitivity method in FxForwardRates and DiscountFactors.
   // TODO currency exposure
 
   /**
@@ -220,10 +219,18 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double fwdGamma = forwardGamma(option, ratesProvider, volatilityProvider);
+    FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
+    FxRate strike = option.getStrike();
+    CurrencyPair strikePair = strike.getPair();
+    double forwardRate = forward.fxRate(strikePair);
+    double strikeRate = strike.fxRate(strikePair);
+    double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    double forwardGamma = BlackFormulaRepository.gamma(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(underlying, ratesProvider);
-    return fwdGamma * discountFactor * fwdRateSpotSensitivity * fwdRateSpotSensitivity;
+    return forwardGamma * discountFactor * fwdRateSpotSensitivity * fwdRateSpotSensitivity;
   }
 
   /**
@@ -244,28 +251,11 @@ public class BlackFxVanillaOptionProductPricer {
     return CurrencyAmount.of(option.getPayoffCurrency(), signedNotional(option) * gamma);
   }
 
-  private double forwardGamma(
-      FxVanillaOption option,
-      RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
-    Fx underlying = option.getUnderlying();
-    FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
-    FxRate strike = option.getStrike();
-    CurrencyPair strikePair = strike.getPair();
-    double forwardRate = forward.fxRate(strikePair);
-    double strikeRate = strike.fxRate(strikePair);
-    double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
-    double forwardGamma = BlackFormulaRepository.gamma(forwardRate, strikeRate, timeToExpiry, volatility);
-    return forwardGamma;
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the vega of the foreign exchange vanilla option product.
    * <p>
-   * The delta is the first derivative of the option price with respect to volatility. 
+   * The vega is the first derivative of the option price with respect to volatility. 
    * 
    * @param option  the option product to price
    * @param ratesProvider  the rates provider
@@ -329,6 +319,55 @@ public class BlackFxVanillaOptionProductPricer {
     CurrencyAmount valueVega = presentValueVega(option, ratesProvider, volatilityProvider);
     return FxOptionSensitivity.of(strikePair, option.getExpiryDate(), strike.fxRate(strikePair),
         forward.fxRate(strikePair), valueVega.getCurrency(), valueVega.getAmount());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the Black theta of the foreign exchange vanilla option product.
+   * <p>
+   * The theta is the first derivative of the option price with respect to time parameter in Black formula, 
+   * i.e., the discounted driftless theta. 
+   * 
+   * @param option  the option product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the theta of the product
+   */
+  public double theta(
+      FxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackVolatilityFxProvider volatilityProvider) {
+    Fx underlying = option.getUnderlying();
+    FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
+    FxRate strike = option.getStrike();
+    CurrencyPair strikePair = strike.getPair();
+    double forwardRate = forward.fxRate(strikePair);
+    double strikeRate = strike.fxRate(strikePair);
+    double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    double fwdTheta = BlackFormulaRepository.driftlessTheta(forwardRate, strikeRate, timeToExpiry, volatility);
+    double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
+    return discountFactor * fwdTheta;
+  }
+
+  /**
+   * Calculates the present value theta of the foreign exchange vanilla option product.
+   * <p>
+   * The present value theta is the first derivative of the present value with time parameter in Black formula, 
+   * i.e., the driftless theta of the present value.
+   * 
+   * @param option  the option product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the present value vega of the product
+   */
+  public CurrencyAmount presentValueTheta(
+      FxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackVolatilityFxProvider volatilityProvider) {
+    double theta = theta(option, ratesProvider, volatilityProvider);
+    return CurrencyAmount.of(option.getPayoffCurrency(), signedNotional(option) * theta);
   }
 
   //-------------------------------------------------------------------------

@@ -207,4 +207,20 @@ public class BlackFxVanillaOptionProductPricerTest {
         -NOTIONAL * df * BlackFormulaRepository.vega(forward, STRIKE_RATE, timeToExpiry, vol));
     assertEquals(computed, expected);
   }
+
+  public void test_theta_presentValueTheta() {
+    double theta = PRICER.theta(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvTheta = PRICER.presentValueTheta(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
+    double dfDom = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
+        .fxRate(CURRENCY_PAIR);
+    double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
+    double expectedTheta = dfDom * BlackFormulaRepository.driftlessTheta(forward, STRIKE_RATE, timeToExpiry, vol);
+    assertEquals(theta, expectedTheta, TOL);
+    double expectedPvTheta = -NOTIONAL * dfDom *
+        BlackFormulaRepository.driftlessTheta(forward, STRIKE_RATE, timeToExpiry, vol);
+    assertEquals(pvTheta.getCurrency(), USD);
+    assertEquals(pvTheta.getAmount(), expectedPvTheta, NOTIONAL * TOL);
+  }
 }
