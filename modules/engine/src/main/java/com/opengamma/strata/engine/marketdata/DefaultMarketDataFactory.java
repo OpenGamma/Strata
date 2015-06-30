@@ -212,7 +212,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> failureBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<MarketDataId<?>, Result<?>> timeSeriesFailureBuilder = ImmutableMap.builder();
-    ScenarioMarketDataBuilder dataBuilder =
+    ScenarioCalculationEnvironmentBuilder dataBuilder =
         ScenarioCalculationEnvironment.builder(scenarioDefinition.getScenarioCount(), suppliedData.getValuationDate());
     ScenarioCalculationEnvironment builtData = dataBuilder.build();
 

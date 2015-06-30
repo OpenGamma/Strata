@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * A mutable builder for building an instance of {@link ScenarioCalculationEnvironment}.
  */
-public final class ScenarioMarketDataBuilder {
+public final class ScenarioCalculationEnvironmentBuilder {
 
   /** The number of scenarios. */
   private final int scenarioCount;
@@ -52,7 +52,7 @@ public final class ScenarioMarketDataBuilder {
    *
    * @param scenarioCount the number of scenarios
    */
-  ScenarioMarketDataBuilder(int scenarioCount) {
+  ScenarioCalculationEnvironmentBuilder(int scenarioCount) {
     this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
   }
 
@@ -62,7 +62,7 @@ public final class ScenarioMarketDataBuilder {
    * @param scenarioCount the number of scenarios
    * @param valuationDate the valuation date for all scenarios
    */
-  ScenarioMarketDataBuilder(int scenarioCount, LocalDate valuationDate) {
+  ScenarioCalculationEnvironmentBuilder(int scenarioCount, LocalDate valuationDate) {
     this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
     valuationDate(valuationDate);
   }
@@ -78,7 +78,7 @@ public final class ScenarioMarketDataBuilder {
    * @param timeSeries  the time series of market data values
    * @param globalValues  the single market data values applicable to all scenarios
    */
-  ScenarioMarketDataBuilder(
+  ScenarioCalculationEnvironmentBuilder(
       int scenarioCount,
       List<LocalDate> valuationDates,
       ListMultimap<MarketDataId<?>, ?> values,
@@ -104,7 +104,7 @@ public final class ScenarioMarketDataBuilder {
    * @param valuationDate the valuation date for all scenarios
    * @return this builder
    */
-  public ScenarioMarketDataBuilder valuationDate(LocalDate valuationDate) {
+  public ScenarioCalculationEnvironmentBuilder valuationDate(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     valuationDates.addAll(Collections.nCopies(scenarioCount, valuationDate));
     return this;
@@ -117,7 +117,7 @@ public final class ScenarioMarketDataBuilder {
    * @param valuationDates the valuation dates for the scenarios, one for each scenario
    * @return this builder
    */
-  public ScenarioMarketDataBuilder valuationDates(LocalDate... valuationDates) {
+  public ScenarioCalculationEnvironmentBuilder valuationDates(LocalDate... valuationDates) {
     ArgChecker.notNull(valuationDates, "valuationDates");
     checkLength(valuationDates.length, "valuation dates");
     this.valuationDates.clear();
@@ -132,7 +132,7 @@ public final class ScenarioMarketDataBuilder {
    * @param valuationDates the valuation dates for the scenarios, one for each scenario
    * @return this builder
    */
-  public ScenarioMarketDataBuilder valuationDates(List<LocalDate> valuationDates) {
+  public ScenarioCalculationEnvironmentBuilder valuationDates(List<LocalDate> valuationDates) {
     ArgChecker.notNull(valuationDates, "valuationDates");
     checkLength(valuationDates.size(), "valuation dates");
     this.valuationDates.clear();
@@ -150,7 +150,7 @@ public final class ScenarioMarketDataBuilder {
    * @return this builder
    */
   @SafeVarargs
-  public final <T> ScenarioMarketDataBuilder addValues(MarketDataId<T> id, T... values) {
+  public final <T> ScenarioCalculationEnvironmentBuilder addValues(MarketDataId<T> id, T... values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     checkLength(values.length, "values");
@@ -167,7 +167,7 @@ public final class ScenarioMarketDataBuilder {
    * @param <T> the type of the market data values
    * @return this builder
    */
-  public <T> ScenarioMarketDataBuilder addValues(MarketDataId<T> id, List<T> values) {
+  public <T> ScenarioCalculationEnvironmentBuilder addValues(MarketDataId<T> id, List<T> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     checkLength(values.size(), "values");
@@ -186,7 +186,7 @@ public final class ScenarioMarketDataBuilder {
    * @param <T> the type of the market data values
    * @return this builder
    */
-  <T, V> ScenarioMarketDataBuilder addValuesUnsafe(MarketDataId<T> id, List<V> values) {
+  <T, V> ScenarioCalculationEnvironmentBuilder addValuesUnsafe(MarketDataId<T> id, List<V> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     checkLength(values.size(), "values");
@@ -203,7 +203,7 @@ public final class ScenarioMarketDataBuilder {
    * @param timeSeries  the time series of market data values
    * @return this builder
    */
-  public ScenarioMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
+  public ScenarioCalculationEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.put(id, timeSeries);
@@ -216,7 +216,7 @@ public final class ScenarioMarketDataBuilder {
    * @param timeSeries  a map of time series of market data values, keyed by the ID of the market data
    * @return this builder
    */
-  public ScenarioMarketDataBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+  public ScenarioCalculationEnvironmentBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.putAll(timeSeries);
     return this;
@@ -229,7 +229,7 @@ public final class ScenarioMarketDataBuilder {
    * @param value the value to add
    * @return this builder
    */
-  public <T> ScenarioMarketDataBuilder addGlobalValue(MarketDataId<T> id, T value) {
+  public <T> ScenarioCalculationEnvironmentBuilder addGlobalValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     globalValues.put(id, value);

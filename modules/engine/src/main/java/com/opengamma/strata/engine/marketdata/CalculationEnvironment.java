@@ -63,6 +63,8 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<MarketDataId<?>, Result<?>> timeSeriesFailures;
 
+  // TODO Copy the data across
+  // TODO Unit test
   /**
    * Returns a calculation environment containing the market data from a market environment.
    *
