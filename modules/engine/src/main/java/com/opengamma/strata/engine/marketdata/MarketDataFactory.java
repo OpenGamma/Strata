@@ -16,10 +16,11 @@ import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 public interface MarketDataFactory {
 
   /**
-   * Builds the market data required for performing calculations over a portfolio.
+   * Builds a set of market data.
    * <p>
-   * If the calculations require any data not provided in the {@code suppliedData} it is built by the
+   * If the requirements specify any data not provided in the {@code suppliedData} it is built by the
    * engine.
+   * TODO Explain the difference between the two methods
    *
    * @param requirements  the market data required for the calculations
    * @param suppliedData  market data supplied by the caller

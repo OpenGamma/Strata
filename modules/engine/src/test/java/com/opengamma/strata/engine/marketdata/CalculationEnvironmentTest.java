@@ -14,13 +14,13 @@ import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
 @Test
-public class MarketEnvironmentTest {
+public class CalculationEnvironmentTest {
 
   /**
    * Tests the special handling of {@link NoMatchingRuleId}
    */
   public void handleNoMatchingRulesId() {
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder(date(2011, 3, 8)).build();
     NoMatchingRuleId id = NoMatchingRuleId.of(TestObservableKey.of("1"));
     String msgRegex = "No market data rules were available to build the market data for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
@@ -30,9 +30,11 @@ public class MarketEnvironmentTest {
    * Tests the special handling of {@link MissingMappingId}
    */
   public void handleMissingMappingsId() {
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = CalculationEnvironment.builder(date(2011, 3, 8)).build();
     MissingMappingId id = MissingMappingId.of(TestObservableKey.of("1"));
     String msgRegex = "No market data mapping found for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
   }
+
+  // TODO Test error message for failed data
 }

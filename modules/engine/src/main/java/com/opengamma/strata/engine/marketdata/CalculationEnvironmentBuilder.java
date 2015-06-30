@@ -15,9 +15,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
-// TODO Remove entries from failures when successes are added
 /**
- * A mutable builder for building up {@link MarketEnvironment} instances.
+ * A mutable builder for building up {@link CalculationEnvironment} instances.
  */
 public final class CalculationEnvironmentBuilder {
 
@@ -51,6 +50,8 @@ public final class CalculationEnvironmentBuilder {
    * @param valuationDate  the valuation date associated with the market data
    * @param values  the single value market data items, keyed by ID
    * @param timeSeries  time series of observable market data values, keyed by ID
+   * @param singleValueFailures  details of failures encountered when building market data values
+   * @param timeSeriesFailures  details of failures encountered when building time series
    */
   CalculationEnvironmentBuilder(
       LocalDate valuationDate,
@@ -78,6 +79,7 @@ public final class CalculationEnvironmentBuilder {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, value);
+    singleValueFailures.remove(id);
     return this;
   }
 
@@ -95,6 +97,7 @@ public final class CalculationEnvironmentBuilder {
 
     if (result.isSuccess()) {
       values.put(id, result.getValue());
+      // TODO Check the type of the value is compatible with the market data type of the ID
       singleValueFailures.remove(id);
     } else {
       singleValueFailures.put(id, result);

@@ -35,7 +35,9 @@ import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
 /**
- * A source of market data for a single set of calculations.
+ * A set of market data.
+ * <p>
+ * A market environment contains the market data values
  */
 @BeanDefinition(builderScope = "private")
 public final class MarketEnvironment implements ImmutableBean, MarketDataLookup {

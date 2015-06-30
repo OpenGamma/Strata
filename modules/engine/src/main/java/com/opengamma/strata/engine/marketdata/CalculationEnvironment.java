@@ -30,13 +30,27 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
 /**
- * A source of market data for a single set of calculations.
+ * A collection of market data for a single set of calculations.
+ * <p>
+ * A calculation environment contains all the data required to perform calculations. This includes the market data
+ * a user would expect to see, for example quotes and curves, and also other values derived from market data.
+ * <p>
+ * The derived values include objects used in calculations encapsulating market data and logic that operates on
+ * it, and objects with market data and metadata required by the scenario framework.
+ * <p>
+ * {@code CalculationEnvironment} should be considered an implementation detail and is not intended as a
+ * user-facing data structure.
+ * <p>
+ * {@link MarketEnvironment} should be used to store market data values that users wish to interact with.
+ *
+ * @see MarketEnvironment
  */
 @BeanDefinition(builderScope = "private")
 public final class CalculationEnvironment implements ImmutableBean, MarketDataLookup {
@@ -63,7 +77,6 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<MarketDataId<?>, Result<?>> timeSeriesFailures;
 
-  // TODO Unit test
   /**
    * Returns a calculation environment containing the market data from a market environment.
    *
@@ -143,6 +156,11 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
     Object value = values.get(id);
 
     if (value == null) {
+      Result<?> result = singleValueFailures.get(id);
+
+      if (result != null) {
+        throw new FailureException(result.getFailure());
+      }
       throw new IllegalArgumentException("No market data value available for " + id);
     }
     if (!id.getMarketDataType().isInstance(value)) {

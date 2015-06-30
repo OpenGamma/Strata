@@ -246,7 +246,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Time series of observable data ------------------------------------------------------------
 
-      // Build any time series that are required but not available in the built data
+      // Build any time series that are required but not available
       leafRequirements.getTimeSeries().stream()
           .filter(not(marketData::containsTimeSeries))
           .filter(not(suppliedData::containsTimeSeries))
@@ -259,7 +259,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Single values of observable data -----------------------------------------------------------
 
-      // Filter out IDs for the data that is already present in the built data
+      // Filter out IDs for the data that is already available
       Set<ObservableId> observableIds = leafRequirements.getObservables().stream()
           .filter(not(marketData::containsValues))
           .filter(not(suppliedData::containsValue))
@@ -282,7 +282,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Non-observable data -----------------------------------------------------------------------
 
-      // Filter out IDs for the data that is already present in the built data and build the rest
+      // Filter out IDs for the data that is already available and build the rest
       List<MarketDataId<?>> nonObservableIds = leafRequirements.getNonObservables().stream()
           .filter(not(marketData::containsValues))
           .filter(not(suppliedData::containsValue))
