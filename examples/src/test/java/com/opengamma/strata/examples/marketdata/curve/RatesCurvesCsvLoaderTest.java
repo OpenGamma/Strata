@@ -7,7 +7,6 @@ package com.opengamma.strata.examples.marketdata.curve;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -101,7 +100,7 @@ public class RatesCurvesCsvLoaderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Unsupported Value Type in curve settings: DF")
+      expectedExceptionsMessageRegExp = "Unsupported Value Type in curve settings: DS")
   public void test_invalid_settings_value_type_file() {
     testSettings(SETTINGS_INVALID_VALUE_TYPE);
   }

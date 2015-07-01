@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -308,12 +308,6 @@ public class ForwardOvernightAveragedRateObservationFnTest {
 
   //-------------------------------------------------------------------------
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
-  private static final Curve ON_INDEX_CURVE;
-  static {
-    double[] time = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
-    double[] rate = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
-    ON_INDEX_CURVE = InterpolatedNodalCurve.of(CurveName.of("ON"), ACT_ACT_ISDA, time, rate, INTERPOLATOR);
-  }
   private static LocalDateDoubleTimeSeriesBuilder TIME_SERIES_BUILDER = LocalDateDoubleTimeSeries.builder();
   static {
     for (int i = 0; i < FIXING_DATES.length; i++) {
@@ -326,10 +320,15 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   /** Test parameter sensitivity with finite difference sensitivity calculator. Two days cutoff period. */
   public void rateFedFundTwoDaysCutoffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
+    double[] time = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+    double[] rate = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
+
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      Curve onCurve = InterpolatedNodalCurve.of(
+          Curves.zeroRates("ON", ACT_ACT_ISDA), time, rate, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
           .valuationDate(valuationDate[loopvaldate])
-          .indexCurves(ImmutableMap.of(USD_FED_FUND, ON_INDEX_CURVE))
+          .indexCurves(ImmutableMap.of(USD_FED_FUND, onCurve))
           .timeSeries(ImmutableMap.of(USD_FED_FUND, TIME_SERIES_BUILDER.build()))
           .build();
       OvernightAveragedRateObservation ro =
@@ -351,10 +350,15 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   /** Test parameter sensitivity with finite difference sensitivity calculator. No cutoff period. */
   public void rateChfNoCutOffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
+    double[] time = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+    double[] rate = new double[] {0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135};
+
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      Curve onCurve = InterpolatedNodalCurve.of(
+          Curves.zeroRates("ON", ACT_ACT_ISDA), time, rate, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
           .valuationDate(valuationDate[loopvaldate])
-          .indexCurves(ImmutableMap.of(CHF_TOIS, ON_INDEX_CURVE))
+          .indexCurves(ImmutableMap.of(CHF_TOIS, onCurve))
           .timeSeries(ImmutableMap.of(CHF_TOIS, TIME_SERIES_BUILDER.build()))
           .build();
       OvernightAveragedRateObservation ro =

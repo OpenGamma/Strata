@@ -69,6 +69,7 @@ import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -114,7 +115,7 @@ public class DiscountingSwapProductPricerTest {
       VAL_MONTH_INFLATION,
       LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX),
       InterpolatedNodalCurve.of(
-          "GB_RPI_CURVE_FLAT",
+          Curves.prices("GB_RPI_CURVE_FLAT"),
           new double[] {1, 1000},
           new double[] {CONSTANT_INDEX, CONSTANT_INDEX},
           INTERPOLATOR));

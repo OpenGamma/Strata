@@ -11,6 +11,7 @@ import java.util.Map;
 import com.opengamma.analytics.convention.daycount.DayCountFactory;
 import com.opengamma.analytics.env.AnalyticsEnvironment;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -32,6 +33,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Static utilities to convert types to legacy types.
@@ -166,9 +168,14 @@ public final class Legacy {
    * @return the curve
    */
   public static Curve curve(YieldAndDiscountCurve legacyCurve) {
-    CurveMetadata metadata = DefaultCurveMetadata.of(
-        CurveName.of(legacyCurve.getName()),
-        Legacy.dayCount(AnalyticsEnvironment.DEFAULT.getModelDayCount()));
+    DayCount dayCount = Legacy.dayCount(AnalyticsEnvironment.DEFAULT.getModelDayCount());
+    ValueType yValueType = (legacyCurve instanceof DiscountCurve ? ValueType.DISCOUNT_FACTOR : ValueType.ZERO_RATE);
+    CurveMetadata metadata = DefaultCurveMetadata.builder()
+        .curveName(CurveName.of(legacyCurve.getName()))
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(yValueType)
+        .dayCount(dayCount)
+        .build();
     return curve(legacyCurve, metadata);
   }
 

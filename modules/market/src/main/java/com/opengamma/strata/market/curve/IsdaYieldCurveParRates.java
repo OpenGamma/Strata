@@ -38,7 +38,7 @@ public final class IsdaYieldCurveParRates
    * The curve name.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String name;
+  private final CurveName name;
   /**
    * The tenor at each curve node.
    */
@@ -72,7 +72,7 @@ public final class IsdaYieldCurveParRates
    * @return the par rates
    */
   public static IsdaYieldCurveParRates of(
-      String name,
+      CurveName name,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
@@ -164,7 +164,7 @@ public final class IsdaYieldCurveParRates
   private static final long serialVersionUID = 1L;
 
   private IsdaYieldCurveParRates(
-      String name,
+      CurveName name,
       Period[] yieldCurvePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
@@ -202,7 +202,7 @@ public final class IsdaYieldCurveParRates
    * Gets the curve name.
    * @return the value of the property, not null
    */
-  public String getName() {
+  public CurveName getName() {
     return name;
   }
 
@@ -296,8 +296,8 @@ public final class IsdaYieldCurveParRates
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", IsdaYieldCurveParRates.class, String.class);
+    private final MetaProperty<CurveName> name = DirectMetaProperty.ofImmutable(
+        this, "name", IsdaYieldCurveParRates.class, CurveName.class);
     /**
      * The meta-property for the {@code yieldCurvePoints} property.
      */
@@ -372,7 +372,7 @@ public final class IsdaYieldCurveParRates
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<CurveName> name() {
       return name;
     }
 
@@ -443,7 +443,7 @@ public final class IsdaYieldCurveParRates
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IsdaYieldCurveParRates> {
 
-    private String name;
+    private CurveName name;
     private Period[] yieldCurvePoints;
     private IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
     private double[] parRates;
@@ -478,7 +478,7 @@ public final class IsdaYieldCurveParRates
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (CurveName) newValue;
           break;
         case 695376101:  // yieldCurvePoints
           this.yieldCurvePoints = (Period[]) newValue;

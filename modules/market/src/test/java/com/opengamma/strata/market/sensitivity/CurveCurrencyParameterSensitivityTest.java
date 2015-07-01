@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.sensitivity;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -18,6 +19,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 
 /**
@@ -50,8 +52,9 @@ public class CurveCurrencyParameterSensitivityTest {
   }
 
   public void test_of_metadata_badMetadata() {
-    assertThrowsIllegalArg(() -> CurveCurrencyParameterSensitivity.of(
-        DefaultCurveMetadata.of("Name", CurveParameterMetadata.listOfEmpty(VECTOR_USD1.length + 1)), USD, VECTOR_USD1));
+    CurveMetadata metadata = Curves.zeroRates(
+        CurveName.of("Name"), ACT_365F, CurveParameterMetadata.listOfEmpty(VECTOR_USD1.length + 1));
+    assertThrowsIllegalArg(() -> CurveCurrencyParameterSensitivity.of(metadata, USD, VECTOR_USD1));
   }
 
   //-------------------------------------------------------------------------

@@ -45,7 +45,7 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -151,7 +151,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(USD), list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of(MULTICURVE.getName(USD)), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(Curves.zeroRates(MULTICURVE.getName(USD), DAY_COUNT), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -162,7 +162,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     list.add(pair);
     double[] vectorExpected = MULTICURVE.parameterSensitivity(MULTICURVE.getName(EUR), list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of(MULTICURVE.getName(EUR)), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(Curves.zeroRates(MULTICURVE.getName(EUR), DAY_COUNT), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -179,7 +179,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.iborIndex(USD_LIBOR_3M));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of(curveName), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(Curves.zeroRates(curveName, DAY_COUNT), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -196,7 +196,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.overnightIndex(USD_FED_FUND));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of(curveName), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(Curves.zeroRates(curveName, DAY_COUNT), USD, vectorExpected));
     assertTrue(ps.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -212,7 +212,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     String curveName = MULTICURVE.getName(Legacy.overnightIndex(USD_FED_FUND));
     double[] vectorExpected = MULTICURVE.parameterForwardSensitivity(curveName, list);
     CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of(curveName), USD, vectorExpected));
+        CurveCurrencyParameterSensitivity.of(Curves.zeroRates(curveName, DAY_COUNT), USD, vectorExpected));
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
 
@@ -307,7 +307,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     double[] y = new double[] {224.2, 262.6, 277.5};
     NaturalCubicSplineInterpolator1D interp = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
     String curveName = "GB_RPI_CURVE";
-    InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(curveName, x, y, interp);
+    InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
     PriceIndexValues values = ForwardPriceIndexValues.of(
         GB_RPI,
         valuationMonth,
@@ -339,7 +339,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     private double discountFactor;
 
     public ConstantDiscountFactorCurve(String name, double discountFactor) {
-      this.metadata = DefaultCurveMetadata.of(name, DAY_COUNT);
+      this.metadata = Curves.zeroRates(name, DAY_COUNT);
       this.discountFactor = discountFactor;
     }
 

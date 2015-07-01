@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -23,32 +24,41 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * A curve with a parallel shift applied to its Y values.
+ * A curve with a parallel shift applied to its y-values.
  * <p>
- * This class decorates another curve and applies an adjustment to the Y values when they are queried.
+ * This class decorates another curve and applies an adjustment to the y-values when they are queried.
  * The shift is either absolute or relative.
  * <p>
- * When the shift is absolute the shift amount is added to the Y value.
+ * When the shift is absolute the shift amount is added to the y-value.
  * <p>
- * When the shift is relative the Y value is scaled by the shift amount. The shift amount is interpreted
- * as a percentage. For example, a shift amount of 0.1 is a shift of +10% which multiplies the value by 1.1.
+ * When the shift is relative the y-value is scaled by the shift amount.
+ * The shift amount is interpreted as a percentage.
+ * For example, a shift amount of 0.1 is a shift of +10% which multiplies the value by 1.1.
  * A shift amount of -0.2 is a shift of -20% which multiplies the value by 0.8
  */
 @BeanDefinition(builderScope = "private")
-public final class ParallelShiftedCurve implements Curve, ImmutableBean {
+public final class ParallelShiftedCurve
+    implements Curve, ImmutableBean, Serializable {
 
-  /** The underlying curve. */
+  /**
+   * The underlying curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Curve curve;
-
-  /** The type of shift to apply to the Y values of the curve. */
+  /**
+   * The type of shift to apply to the y-values of the curve.
+   * The amount of the shift is determined by {@code #getShiftAmount()}.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType shiftType;
-
-  /** The amount by which Y values are shifted. */
+  /**
+   * The amount by which y-values are shifted.
+   * The meaning of this amount is determined by {@code #getShiftType()}.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double shiftAmount;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a curve based on an underlying curve with a fixed amount added to the Y values.
    *
@@ -56,7 +66,7 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
    * @param shiftAmount  the amount added to the Y values of the curve
    * @return a curve based on an underlying curve with a fixed amount added to the Y values.
    */
-  public static Curve absolute(Curve curve, double shiftAmount) {
+  public static ParallelShiftedCurve absolute(Curve curve, double shiftAmount) {
     return new ParallelShiftedCurve(curve, ShiftType.ABSOLUTE, shiftAmount);
   }
 
@@ -71,7 +81,7 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
    * @param shiftAmount  the percentage by which the Y values are scaled
    * @return a curve based on an underlying curve with a scaling applied to the Y values.
    */
-  public static Curve relative(Curve curve, double shiftAmount) {
+  public static ParallelShiftedCurve relative(Curve curve, double shiftAmount) {
     return new ParallelShiftedCurve(curve, ShiftType.RELATIVE, shiftAmount);
   }
 
@@ -87,6 +97,7 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
     return new ParallelShiftedCurve(curve, shiftType, shiftAmount);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public CurveMetadata getMetadata() {
     return curve.getMetadata();
@@ -115,7 +126,6 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
   @Override
   public double firstDerivative(double x) {
     double firstDerivative = curve.firstDerivative(x);
-
     switch (shiftType) {
       case ABSOLUTE:
         // If all Y values have been shifted the same amount the derivative is unaffected
@@ -141,6 +151,11 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(ParallelShiftedCurve.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private ParallelShiftedCurve(
       Curve curve,
@@ -180,7 +195,8 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of shift to apply to the Y values of the curve.
+   * Gets the type of shift to apply to the y-values of the curve.
+   * The amount of the shift is determined by {@code #getShiftAmount()}.
    * @return the value of the property, not null
    */
   public ShiftType getShiftType() {
@@ -189,7 +205,8 @@ public final class ParallelShiftedCurve implements Curve, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount by which Y values are shifted.
+   * Gets the amount by which y-values are shifted.
+   * The meaning of this amount is determined by {@code #getShiftType()}.
    * @return the value of the property, not null
    */
   public double getShiftAmount() {

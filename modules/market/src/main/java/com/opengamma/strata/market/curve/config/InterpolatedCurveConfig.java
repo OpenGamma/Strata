@@ -18,6 +18,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -36,6 +37,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Configuration specifying how to calibrate a curve.
@@ -43,36 +45,77 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
  * This class contains a list of {@link CurveNode} instances specifying the instruments which make up the curve.
  */
 @BeanDefinition
-public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean {
+public final class InterpolatedCurveConfig
+    implements CurveConfig, ImmutableBean {
 
-  /** The curve name. */
+  /**
+   * The curve name.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveName name;
-
-  /** The day count, optional. */
+  /**
+   * The x-value type, providing meaning to the x-values of the curve.
+   * <p>
+   * This type provides meaning to the x-values. For example, the x-value might
+   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ValueType xValueType;
+  /**
+   * The y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values. For example, the y-value might
+   * represent a year fraction, as represented using {@link ValueType#ZERO_RATE}.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ValueType yValueType;
+  /**
+   * The day count, optional.
+   * <p>
+   * If the x-value of the curve represents time as a year fraction, the day count
+   * can be specified to define how the year fraction is calculated.
+   */
   @PropertyDefinition(get = "optional")
   private final DayCount dayCount;
-
-  /** The nodes in the curve. */
+  /**
+   * The nodes in the curve.
+   * <p>
+   * The nodes are used to find the par rates and calibrate the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<CurveNode> nodes;
-
-  /** The interpolator used to find points on the curve. */
+  /**
+   * The interpolator used to find points on the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveInterpolator interpolator;
-
-  /** The extrapolator used to find points to the left of the leftmost point on the curve. */
+  /**
+   * The extrapolator used to find points to the left of the leftmost point on the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator leftExtrapolator;
-
-  /** The extrapolator used to find points to the right of the rightmost point on the curve. */
+  /**
+   * The extrapolator used to find points to the right of the rightmost point on the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator rightExtrapolator;
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.xValueType = ValueType.UNKNOWN;
+    builder.yValueType = ValueType.UNKNOWN;
+  }
 
   // Hand-written constructor allows wildcard parameter without a wildcard in the field type
   @ImmutableConstructor
   private InterpolatedCurveConfig(
       CurveName name,
+      ValueType xValueType,
+      ValueType yValueType,
       DayCount dayCount,
       List<? extends CurveNode> nodes,
       CurveInterpolator interpolator,
@@ -80,6 +123,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
       CurveExtrapolator rightExtrapolator) {
 
     this.name = ArgChecker.notNull(name, "name");
+    this.xValueType = xValueType;
+    this.yValueType = yValueType;
     this.dayCount = dayCount;
     this.nodes = ImmutableList.copyOf(nodes);
     this.interpolator = ArgChecker.notNull(interpolator, "interpolator");
@@ -87,12 +132,19 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     this.rightExtrapolator = ArgChecker.notNull(rightExtrapolator, "rightExtrapolator");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public CurveMetadata metadata(LocalDate valuationDate) {
     List<CurveParameterMetadata> nodeMetadata = nodes.stream()
         .map(node -> node.metadata(valuationDate))
         .collect(toImmutableList());
-    return DefaultCurveMetadata.of(name, dayCount, nodeMetadata);
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(xValueType)
+        .yValueType(yValueType)
+        .dayCount(dayCount)
+        .parameterMetadata(nodeMetadata)
+        .build();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -144,7 +196,38 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the x-value type, providing meaning to the x-values of the curve.
+   * <p>
+   * This type provides meaning to the x-values. For example, the x-value might
+   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * @return the value of the property, not null
+   */
+  public ValueType getXValueType() {
+    return xValueType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values. For example, the y-value might
+   * represent a year fraction, as represented using {@link ValueType#ZERO_RATE}.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * @return the value of the property, not null
+   */
+  public ValueType getYValueType() {
+    return yValueType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the day count, optional.
+   * <p>
+   * If the x-value of the curve represents time as a year fraction, the day count
+   * can be specified to define how the year fraction is calculated.
    * @return the optional value of the property, not null
    */
   public Optional<DayCount> getDayCount() {
@@ -154,6 +237,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
   //-----------------------------------------------------------------------
   /**
    * Gets the nodes in the curve.
+   * <p>
+   * The nodes are used to find the par rates and calibrate the curve.
    * @return the value of the property, not null
    */
   public ImmutableList<CurveNode> getNodes() {
@@ -204,6 +289,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     if (obj != null && obj.getClass() == this.getClass()) {
       InterpolatedCurveConfig other = (InterpolatedCurveConfig) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
+          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(getNodes(), other.getNodes()) &&
           JodaBeanUtils.equal(getInterpolator(), other.getInterpolator()) &&
@@ -217,6 +304,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(getNodes());
     hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
@@ -227,9 +316,11 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("InterpolatedCurveConfig{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
+    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("nodes").append('=').append(getNodes()).append(',').append(' ');
     buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
@@ -254,6 +345,16 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
      */
     private final MetaProperty<CurveName> name = DirectMetaProperty.ofImmutable(
         this, "name", InterpolatedCurveConfig.class, CurveName.class);
+    /**
+     * The meta-property for the {@code xValueType} property.
+     */
+    private final MetaProperty<ValueType> xValueType = DirectMetaProperty.ofImmutable(
+        this, "xValueType", InterpolatedCurveConfig.class, ValueType.class);
+    /**
+     * The meta-property for the {@code yValueType} property.
+     */
+    private final MetaProperty<ValueType> yValueType = DirectMetaProperty.ofImmutable(
+        this, "yValueType", InterpolatedCurveConfig.class, ValueType.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -286,6 +387,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
+        "xValueType",
+        "yValueType",
         "dayCount",
         "nodes",
         "interpolator",
@@ -303,6 +406,10 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case -868509005:  // xValueType
+          return xValueType;
+        case -1065022510:  // yValueType
+          return yValueType;
         case 1905311443:  // dayCount
           return dayCount;
         case 104993457:  // nodes
@@ -339,6 +446,22 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
      */
     public MetaProperty<CurveName> name() {
       return name;
+    }
+
+    /**
+     * The meta-property for the {@code xValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> xValueType() {
+      return xValueType;
+    }
+
+    /**
+     * The meta-property for the {@code yValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> yValueType() {
+      return yValueType;
     }
 
     /**
@@ -387,6 +510,10 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((InterpolatedCurveConfig) bean).getName();
+        case -868509005:  // xValueType
+          return ((InterpolatedCurveConfig) bean).getXValueType();
+        case -1065022510:  // yValueType
+          return ((InterpolatedCurveConfig) bean).getYValueType();
         case 1905311443:  // dayCount
           return ((InterpolatedCurveConfig) bean).dayCount;
         case 104993457:  // nodes
@@ -419,6 +546,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
   public static final class Builder extends DirectFieldsBeanBuilder<InterpolatedCurveConfig> {
 
     private CurveName name;
+    private ValueType xValueType;
+    private ValueType yValueType;
     private DayCount dayCount;
     private List<CurveNode> nodes = ImmutableList.of();
     private CurveInterpolator interpolator;
@@ -429,6 +558,7 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -437,6 +567,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
      */
     private Builder(InterpolatedCurveConfig beanToCopy) {
       this.name = beanToCopy.getName();
+      this.xValueType = beanToCopy.getXValueType();
+      this.yValueType = beanToCopy.getYValueType();
       this.dayCount = beanToCopy.dayCount;
       this.nodes = beanToCopy.getNodes();
       this.interpolator = beanToCopy.getInterpolator();
@@ -450,6 +582,10 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case -868509005:  // xValueType
+          return xValueType;
+        case -1065022510:  // yValueType
+          return yValueType;
         case 1905311443:  // dayCount
           return dayCount;
         case 104993457:  // nodes
@@ -471,6 +607,12 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (CurveName) newValue;
+          break;
+        case -868509005:  // xValueType
+          this.xValueType = (ValueType) newValue;
+          break;
+        case -1065022510:  // yValueType
+          this.yValueType = (ValueType) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -521,6 +663,8 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     public InterpolatedCurveConfig build() {
       return new InterpolatedCurveConfig(
           name,
+          xValueType,
+          yValueType,
           dayCount,
           nodes,
           interpolator,
@@ -537,6 +681,28 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     public Builder name(CurveName name) {
       JodaBeanUtils.notNull(name, "name");
       this.name = name;
+      return this;
+    }
+
+    /**
+     * Sets the {@code xValueType} property in the builder.
+     * @param xValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder xValueType(ValueType xValueType) {
+      JodaBeanUtils.notNull(xValueType, "xValueType");
+      this.xValueType = xValueType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code yValueType} property in the builder.
+     * @param yValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder yValueType(ValueType yValueType) {
+      JodaBeanUtils.notNull(yValueType, "yValueType");
+      this.yValueType = yValueType;
       return this;
     }
 
@@ -607,9 +773,11 @@ public final class InterpolatedCurveConfig implements CurveConfig, ImmutableBean
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("InterpolatedCurveConfig.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+      buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("nodes").append('=').append(JodaBeanUtils.toString(nodes)).append(',').append(' ');
       buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');

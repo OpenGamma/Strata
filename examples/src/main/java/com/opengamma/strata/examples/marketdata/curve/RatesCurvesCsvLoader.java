@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import com.opengamma.strata.market.curve.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.RateCurveId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Loads a set of rates curves into memory by reading from CSV resources.
@@ -63,11 +65,11 @@ public final class RatesCurvesCsvLoader {
 
   private static final String SETTINGS_GROUP_NAME = "Group Name";
   private static final String SETTINGS_CURVE_NAME = "Curve Name";
+  private static final String SETTINGS_VALUE_TYPE = "Value Type";
   private static final String SETTINGS_DAY_COUNT = "Day Count";
   private static final String SETTINGS_INTERPOLATOR = "Interpolator";
   private static final String SETTINGS_LEFT_EXTRAPOLATOR = "Left Extrapolator";
   private static final String SETTINGS_RIGHT_EXTRAPOLATOR = "Right Extrapolator";
-  private static final String SETTINGS_VALUE_TYPE = "Value Type";
 
   private static final String GROUPS_NAME = "Group Name";
   private static final String GROUPS_CURVE_TYPE = "Curve Type";
@@ -80,6 +82,10 @@ public final class RatesCurvesCsvLoader {
   private static final String CURVE_POINT_DATE = "Date";
   private static final String CURVE_POINT_VALUE = "Value";
   private static final String CURVE_POINT_LABEL = "Label";
+
+  private static final Map<String, ValueType> VALUE_TYPE_MAP = ImmutableMap.of(
+      "zero", ValueType.ZERO_RATE,
+      "df", ValueType.DISCOUNT_FACTOR);
 
   /**
    * Restricted constructor.
@@ -193,14 +199,14 @@ public final class RatesCurvesCsvLoader {
       CurveExtrapolator leftExtrapolator = CurveExtrapolator.of(leftExtrapolatorName);
       CurveExtrapolator rightExtrapolator = CurveExtrapolator.of(rightExtrapolatorName);
 
-      // TODO - support DFs
-      if (!"zero".equals(valueTypeName.toLowerCase())) {
+      if (!VALUE_TYPE_MAP.containsKey(valueTypeName.toLowerCase(Locale.ENGLISH))) {
         throw new IllegalArgumentException(
             Messages.format("Unsupported {} in curve settings: {}", SETTINGS_VALUE_TYPE, valueTypeName));
       }
 
       LoadedCurveSettings settings = LoadedCurveSettings.builder()
           .dayCount(dayCount)
+          .yValueType(VALUE_TYPE_MAP.get(valueTypeName.toLowerCase(Locale.ENGLISH)))
           .interpolator(interpolator)
           .leftExtrapolator(leftExtrapolator)
           .rightExtrapolator(rightExtrapolator)
@@ -315,8 +321,13 @@ public final class RatesCurvesCsvLoader {
     }
 
     // create metadata
-    CurveMetadata curveMetadata = DefaultCurveMetadata.of(
-        curveKey.getCurveName(), curveSettings.getDayCount(), pointsMetadata);
+    CurveMetadata curveMetadata = DefaultCurveMetadata.builder()
+        .curveName(curveKey.getCurveName())
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(curveSettings.getYValueType())
+        .dayCount(curveSettings.getDayCount())
+        .parameterMetadata(pointsMetadata)
+        .build();
     return InterpolatedNodalCurve.builder()
         .metadata(curveMetadata)
         .xValues(xValues)

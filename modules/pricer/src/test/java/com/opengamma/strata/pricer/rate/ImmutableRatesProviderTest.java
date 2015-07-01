@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.ForwardPriceIndexValues;
@@ -54,18 +54,18 @@ public class ImmutableRatesProviderTest {
   private static final double GBP_DSC = 0.99d;
   private static final double USD_DSC = 0.95d;
   private static final Curve DISCOUNT_CURVE_GBP = ConstantNodalCurve.of(
-      DefaultCurveMetadata.of("GBP-Discount", ACT_ACT_ISDA), GBP_DSC);
+      Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), GBP_DSC);
   private static final Curve DISCOUNT_CURVE_USD = ConstantNodalCurve.of(
-      DefaultCurveMetadata.of("USD-Discount", ACT_ACT_ISDA), USD_DSC);
+      Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), USD_DSC);
   private static final Curve USD_LIBOR_CURVE = ConstantNodalCurve.of(
-      DefaultCurveMetadata.of("USD-Discount", ACT_ACT_ISDA), 0.96d);
+      Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.96d);
   private static final Curve FED_FUND_CURVE = ConstantNodalCurve.of(
-      DefaultCurveMetadata.of("USD-Discount", ACT_ACT_ISDA), 0.97d);
+      Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.97d);
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
       VAL_MONTH,
       LocalDateDoubleTimeSeries.of(date(2013, 11, 30), 252),
-      InterpolatedNodalCurve.of("GB-RPI", new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
+      InterpolatedNodalCurve.of(Curves.prices("GB-RPI"), new double[] {1d, 10d}, new double[] {252d, 252d}, INTERPOLATOR));
 
   //-------------------------------------------------------------------------
   public void test_builder() {

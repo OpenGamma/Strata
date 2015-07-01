@@ -23,7 +23,8 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 
@@ -39,12 +40,12 @@ public class DiscountFxForwardRatesTest {
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(GBP, USD);
 
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final CurveName NAME1 = CurveName.of("TestCurve");
-  private static final CurveName NAME2 = CurveName.of("TestCurveUSD");
+  private static final CurveMetadata METADATA1 = Curves.zeroRates("TestCurve", ACT_365F);
+  private static final CurveMetadata METADATA2 = Curves.zeroRates("TestCurveUSD", ACT_365F);
   private static final InterpolatedNodalCurve CURVE1 =
-      InterpolatedNodalCurve.of(NAME1, ACT_365F, new double[] {0, 10 }, new double[] {0.01, 0.02 }, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA1, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
-      InterpolatedNodalCurve.of(NAME2, ACT_365F, new double[] {0, 10 }, new double[] {0.015, 0.025 }, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA2, new double[] {0, 10}, new double[] {0.015, 0.025}, INTERPOLATOR);
   private static final ZeroRateDiscountFactors DFCURVE_GBP = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE1);
   private static final ZeroRateDiscountFactors DFCURVE_GBP2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE2);
   private static final ZeroRateDiscountFactors DFCURVE_USD = ZeroRateDiscountFactors.of(USD, DATE_VAL, CURVE2);

@@ -73,18 +73,15 @@ public final class SimpleDiscountFactors
    * Creates a new discount factors instance.
    * <p>
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
-   * The curve is stored with discount factors.
+   * The curve must contain {@linkplain ValueType#YEAR_FRACTION year fractions}
+   * against {@linkplain ValueType#DISCOUNT_FACTOR discount factors}, and the day count must be present.
    * 
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid
    * @param underlyingCurve  the underlying curve
    * @return the curve
    */
-  public static SimpleDiscountFactors of(
-      Currency currency,
-      LocalDate valuationDate,
-      Curve underlyingCurve) {
-
+  public static SimpleDiscountFactors of(Currency currency, LocalDate valuationDate, Curve underlyingCurve) {
     return new SimpleDiscountFactors(currency, valuationDate, underlyingCurve);
   }
 
@@ -97,8 +94,12 @@ public final class SimpleDiscountFactors
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(curve, "curve");
+    curve.getMetadata().getXValueType().checkEquals(
+        ValueType.YEAR_FRACTION, "Incorrect x-value type for discount curve");
+    curve.getMetadata().getYValueType().checkEquals(
+        ValueType.DISCOUNT_FACTOR, "Incorrect y-value type for discount curve");
     if (!curve.getMetadata().getDayCount().isPresent()) {
-      throw new IllegalArgumentException("Curve must contain a DayCount in the CurveMetadata");
+      throw new IllegalArgumentException("Incorrect curve metadata, missing DayCount");
     }
     this.currency = currency;
     this.valuationDate = valuationDate;

@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
@@ -39,13 +40,12 @@ public class SimpleDiscountFactorsTest {
 
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("TestCurve");
-  private static final CurveMetadata METADATA = DefaultCurveMetadata.of(NAME, ACT_365F);
+  private static final CurveMetadata METADATA = Curves.discountFactors(NAME, ACT_365F);
+
   private static final InterpolatedNodalCurve CURVE =
       InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
       InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {2, 3}, INTERPOLATOR);
-  private static final InterpolatedNodalCurve CURVE_BAD =
-      InterpolatedNodalCurve.of(NAME, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -57,8 +57,21 @@ public class SimpleDiscountFactorsTest {
     assertEquals(test.getParameterCount(), 2);
   }
 
-  public void test_of_curveNoDayCount() {
-    assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE_BAD));
+  public void test_of_badCurve() {
+    InterpolatedNodalCurve notYearFraction = InterpolatedNodalCurve.of(
+        Curves.prices(NAME), new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+    InterpolatedNodalCurve notDiscountFactor = InterpolatedNodalCurve.of(
+        Curves.zeroRates(NAME, ACT_365F), new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+    CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
+        .curveName(NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .build();
+    InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
+        noDayCountMetadata, new double[] {0, 10}, new double[] {1, 2}, INTERPOLATOR);
+    assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, notYearFraction));
+    assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, notDiscountFactor));
+    assertThrowsIllegalArg(() -> SimpleDiscountFactors.of(GBP, DATE_VAL, notDayCount));
   }
 
   //-------------------------------------------------------------------------

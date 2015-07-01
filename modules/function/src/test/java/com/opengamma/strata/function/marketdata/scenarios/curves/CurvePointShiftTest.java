@@ -19,10 +19,13 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.ShiftType;
@@ -44,7 +47,7 @@ public class CurvePointShiftTest {
         .build();
 
     Curve curve = InterpolatedNodalCurve.of(
-        DefaultCurveMetadata.of("curve", nodeMetadata),
+        Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
         new double[] {1, 2, 3},
         new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
@@ -52,7 +55,7 @@ public class CurvePointShiftTest {
     Curve shiftedCurve = shift.apply(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
-        DefaultCurveMetadata.of("curve", nodeMetadata),
+        Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
         new double[] {1, 2, 3},
         new double[] {5.2, 6.3, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
@@ -77,7 +80,7 @@ public class CurvePointShiftTest {
         .build();
 
     Curve curve = InterpolatedNodalCurve.of(
-        DefaultCurveMetadata.of("curve", nodeMetadata),
+        Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
         new double[] {1, 2, 3},
         new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
@@ -85,7 +88,7 @@ public class CurvePointShiftTest {
     Curve shiftedCurve = shift.apply(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
-        DefaultCurveMetadata.of("curve", nodeMetadata),
+        Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
         new double[] {1, 2, 3},
         new double[] {6, 7.8, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
@@ -114,7 +117,7 @@ public class CurvePointShiftTest {
   }
 
   public void notNodalCurve() {
-    CurveMetadata metadata = DefaultCurveMetadata.of("curve", ImmutableList.of());
+    CurveMetadata metadata = Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, ImmutableList.of());
     Curve curve = mock(Curve.class);
     when(curve.getMetadata()).thenReturn(metadata);
 
