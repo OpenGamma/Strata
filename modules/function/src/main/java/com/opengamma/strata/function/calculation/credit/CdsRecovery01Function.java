@@ -13,10 +13,9 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import java.time.LocalDate;
 
 /**
- * Calculates scalar IR01 of a {@code CdsTrade} for each of a set of scenarios.
- * This calculates the scalar PV change to a 1 basis point shift in par interest rates.
+ * Calculates the recovery 01 of a {@code CdsTrade} for each of a set of scenarios.
  */
-public class CdsIr01ParallelParFunction
+public class CdsRecovery01Function
     extends AbstractCdsFunction<CurrencyAmount> {
 
   @Override
@@ -28,7 +27,7 @@ public class CdsIr01ParallelParFunction
       double recoveryRate,
       double scalingFactor) {
 
-    return pricer().ir01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
+    return pricer().recovery01(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }

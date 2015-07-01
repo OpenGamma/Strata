@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.function.calculation.credit;
-
-import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+
+import java.time.LocalDate;
 
 /**
  * Calculates the present value of a {@code CdsTrade} for each of a set of scenarios.
@@ -23,9 +23,11 @@ public class CdsPvFunction
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      LocalDate valuationDate) {
+      LocalDate valuationDate,
+      double recoveryRate,
+      double scalingFactor) {
 
-    return pricer().presentValue(product, yieldCurveParRates, creditCurveParRates, valuationDate);
+    return pricer().presentValue(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }
