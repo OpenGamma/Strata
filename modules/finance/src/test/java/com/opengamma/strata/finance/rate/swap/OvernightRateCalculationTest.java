@@ -201,8 +201,8 @@ public class OvernightRateCalculationTest {
         .accrualMethod(AVERAGED)
         .negativeRateMethod(NOT_NEGATIVE)
         .rateCutOffDays(2)
-        .gearing(ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofAbsoluteAmount(2d))))
-        .spread(ValueSchedule.of(0d, ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(-0.025d))))
+        .gearing(ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofReplace(2d))))
+        .spread(ValueSchedule.of(0d, ValueStep.of(1, ValueAdjustment.ofReplace(-0.025d))))
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))

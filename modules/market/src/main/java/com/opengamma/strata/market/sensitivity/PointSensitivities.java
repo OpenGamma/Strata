@@ -181,11 +181,11 @@ public final class PointSensitivities
       return this;
     }
     List<PointSensitivity> mutable = new ArrayList<>(sensitivities);
-    mutable.sort(PointSensitivity::compareExcludingSensitivity);
+    mutable.sort(PointSensitivity::compareKey);
     PointSensitivity last = mutable.get(0);
     for (int i = 1; i < mutable.size(); i++) {
       PointSensitivity current = mutable.get(i);
-      if (current.compareExcludingSensitivity(last) == 0) {
+      if (current.compareKey(last) == 0) {
         mutable.set(i - 1, last.withSensitivity(last.getSensitivity() + current.getSensitivity()));
         mutable.remove(i);
         i--;
@@ -229,7 +229,7 @@ public final class PointSensitivities
       return false;
     }
     for (int i1 = 0; i1 < nbList1; i1++) {
-      if (list1.get(i1).compareExcludingSensitivity(list2.get(i1)) == 0) {
+      if (list1.get(i1).compareKey(list2.get(i1)) == 0) {
         if (Math.abs(list1.get(i1).getSensitivity() - list2.get(i1).getSensitivity()) > tolerance) {
           return false;
         }

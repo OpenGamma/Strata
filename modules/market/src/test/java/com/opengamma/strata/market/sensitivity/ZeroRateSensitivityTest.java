@@ -37,7 +37,7 @@ public class ZeroRateSensitivityTest {
   public void test_withCurrency() {
     ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
     assertSame(base.withCurrency(GBP), base);
-    assertEquals(base.withCurrency(USD), ZeroRateSensitivity.of(GBP, USD, date(2015, 8, 27), 32d));
+    assertEquals(base.withCurrency(USD), ZeroRateSensitivity.of(GBP, date(2015, 8, 27), USD, 32d));
   }
 
   //-------------------------------------------------------------------------
@@ -49,19 +49,19 @@ public class ZeroRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_compareExcludingSensitivity() {
+  public void test_compareKey() {
     ZeroRateSensitivity a1 = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
     ZeroRateSensitivity a2 = ZeroRateSensitivity.of(GBP, date(2015, 8, 27), 32d);
     ZeroRateSensitivity b = ZeroRateSensitivity.of(USD, date(2015, 8, 27), 32d);
     ZeroRateSensitivity c = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
     IborRateSensitivity other = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
-    assertEquals(a1.compareExcludingSensitivity(a2), 0);
-    assertEquals(a1.compareExcludingSensitivity(b) < 0, true);
-    assertEquals(b.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(c) < 0, true);
-    assertEquals(c.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(other) > 0, true);
-    assertEquals(other.compareExcludingSensitivity(a1) < 0, true);
+    assertEquals(a1.compareKey(a2), 0);
+    assertEquals(a1.compareKey(b) < 0, true);
+    assertEquals(b.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(c) < 0, true);
+    assertEquals(c.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(other) > 0, true);
+    assertEquals(other.compareKey(a1) < 0, true);
   }
 
   //-------------------------------------------------------------------------

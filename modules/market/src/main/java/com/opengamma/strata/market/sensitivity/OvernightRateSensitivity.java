@@ -50,11 +50,6 @@ public final class OvernightRateSensitivity
   @PropertyDefinition(validate = "notNull")
   private final OvernightIndex index;
   /**
-   * The currency of the sensitivity.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final Currency currency;
-  /**
    * The fixing date that was looked up on the curve.
    */
   @PropertyDefinition(validate = "notNull")
@@ -66,6 +61,11 @@ public final class OvernightRateSensitivity
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
+  /**
+   * The currency of the sensitivity.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final Currency currency;
   /**
    * The value of the sensitivity.
    */
@@ -87,22 +87,22 @@ public final class OvernightRateSensitivity
    */
   public static OvernightRateSensitivity of(OvernightIndex index, LocalDate fixingDate, double sensitivity) {
     LocalDate endDate = index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(fixingDate));
-    return OvernightRateSensitivity.of(index, index.getCurrency(), fixingDate, endDate, sensitivity);
+    return OvernightRateSensitivity.of(index, fixingDate, endDate, index.getCurrency(), sensitivity);
   }
 
   /**
-   * Obtains an {@code OvernightRateSensitivity} from the index, currency, fixing date, end date and value.
+   * Obtains an {@code OvernightRateSensitivity} from the index, fixing date, end date, sensitivity currency and value.
    * 
    * @param index  the index of the curve
-   * @param currency  the currency of the curve
    * @param fixingDate  the fixing date
    * @param endDate  the end date of the period, if period curve lookup
+   * @param sensitivityCurrency  the currency of the sensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static OvernightRateSensitivity of(
-      OvernightIndex index, Currency currency, LocalDate fixingDate, LocalDate endDate, double sensitivity) {
-    return new OvernightRateSensitivity(index, currency, fixingDate, endDate, sensitivity);
+      OvernightIndex index, LocalDate fixingDate, LocalDate endDate, Currency sensitivityCurrency, double sensitivity) {
+    return new OvernightRateSensitivity(index, fixingDate, endDate, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -117,16 +117,16 @@ public final class OvernightRateSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new OvernightRateSensitivity(index, currency, fixingDate, endDate, sensitivity);
+    return new OvernightRateSensitivity(index, fixingDate, endDate, currency, sensitivity);
   }
 
   @Override
   public OvernightRateSensitivity withSensitivity(double sensitivity) {
-    return new OvernightRateSensitivity(index, currency, fixingDate, endDate, sensitivity);
+    return new OvernightRateSensitivity(index, fixingDate, endDate, currency, sensitivity);
   }
 
   @Override
-  public int compareExcludingSensitivity(PointSensitivity other) {
+  public int compareKey(PointSensitivity other) {
     if (other instanceof OvernightRateSensitivity) {
       OvernightRateSensitivity otherOn = (OvernightRateSensitivity) other;
       return ComparisonChain.start()
@@ -142,12 +142,12 @@ public final class OvernightRateSensitivity
   //-------------------------------------------------------------------------
   @Override
   public OvernightRateSensitivity multipliedBy(double factor) {
-    return new OvernightRateSensitivity(index, currency, fixingDate, endDate, sensitivity * factor);
+    return new OvernightRateSensitivity(index, fixingDate, endDate, currency, sensitivity * factor);
   }
 
   @Override
   public OvernightRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new OvernightRateSensitivity(index, currency, fixingDate, endDate, operator.applyAsDouble(sensitivity));
+    return new OvernightRateSensitivity(index, fixingDate, endDate, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -186,18 +186,18 @@ public final class OvernightRateSensitivity
 
   private OvernightRateSensitivity(
       OvernightIndex index,
-      Currency currency,
       LocalDate fixingDate,
       LocalDate endDate,
+      Currency currency,
       double sensitivity) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(fixingDate, "fixingDate");
     JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(currency, "currency");
     this.index = index;
-    this.currency = currency;
     this.fixingDate = fixingDate;
     this.endDate = endDate;
+    this.currency = currency;
     this.sensitivity = sensitivity;
     validate();
   }
@@ -228,16 +228,6 @@ public final class OvernightRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the sensitivity.
-   * @return the value of the property, not null
-   */
-  @Override
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the fixing date that was looked up on the curve.
    * @return the value of the property, not null
    */
@@ -254,6 +244,16 @@ public final class OvernightRateSensitivity
    */
   public LocalDate getEndDate() {
     return endDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency of the sensitivity.
+   * @return the value of the property, not null
+   */
+  @Override
+  public Currency getCurrency() {
+    return currency;
   }
 
   //-----------------------------------------------------------------------
@@ -275,9 +275,9 @@ public final class OvernightRateSensitivity
     if (obj != null && obj.getClass() == this.getClass()) {
       OvernightRateSensitivity other = (OvernightRateSensitivity) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
     }
     return false;
@@ -287,9 +287,9 @@ public final class OvernightRateSensitivity
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
     return hash;
   }
@@ -299,9 +299,9 @@ public final class OvernightRateSensitivity
     StringBuilder buf = new StringBuilder(192);
     buf.append("OvernightRateSensitivity{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
     buf.append('}');
     return buf.toString();
@@ -323,11 +323,6 @@ public final class OvernightRateSensitivity
     private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", OvernightRateSensitivity.class, OvernightIndex.class);
     /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", OvernightRateSensitivity.class, Currency.class);
-    /**
      * The meta-property for the {@code fixingDate} property.
      */
     private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
@@ -337,6 +332,11 @@ public final class OvernightRateSensitivity
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", OvernightRateSensitivity.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", OvernightRateSensitivity.class, Currency.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
@@ -348,9 +348,9 @@ public final class OvernightRateSensitivity
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "currency",
         "fixingDate",
         "endDate",
+        "currency",
         "sensitivity");
 
     /**
@@ -364,12 +364,12 @@ public final class OvernightRateSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 575402001:  // currency
-          return currency;
         case 1255202043:  // fixingDate
           return fixingDate;
         case -1607727319:  // endDate
           return endDate;
+        case 575402001:  // currency
+          return currency;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -401,14 +401,6 @@ public final class OvernightRateSensitivity
     }
 
     /**
-     * The meta-property for the {@code currency} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
      * The meta-property for the {@code fixingDate} property.
      * @return the meta-property, not null
      */
@@ -425,6 +417,14 @@ public final class OvernightRateSensitivity
     }
 
     /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
      * The meta-property for the {@code sensitivity} property.
      * @return the meta-property, not null
      */
@@ -438,12 +438,12 @@ public final class OvernightRateSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((OvernightRateSensitivity) bean).getIndex();
-        case 575402001:  // currency
-          return ((OvernightRateSensitivity) bean).getCurrency();
         case 1255202043:  // fixingDate
           return ((OvernightRateSensitivity) bean).getFixingDate();
         case -1607727319:  // endDate
           return ((OvernightRateSensitivity) bean).getEndDate();
+        case 575402001:  // currency
+          return ((OvernightRateSensitivity) bean).getCurrency();
         case 564403871:  // sensitivity
           return ((OvernightRateSensitivity) bean).getSensitivity();
       }
@@ -468,9 +468,9 @@ public final class OvernightRateSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<OvernightRateSensitivity> {
 
     private OvernightIndex index;
-    private Currency currency;
     private LocalDate fixingDate;
     private LocalDate endDate;
+    private Currency currency;
     private double sensitivity;
 
     /**
@@ -485,12 +485,12 @@ public final class OvernightRateSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 575402001:  // currency
-          return currency;
         case 1255202043:  // fixingDate
           return fixingDate;
         case -1607727319:  // endDate
           return endDate;
+        case 575402001:  // currency
+          return currency;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -504,14 +504,14 @@ public final class OvernightRateSensitivity
         case 100346066:  // index
           this.index = (OvernightIndex) newValue;
           break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
         case 1255202043:  // fixingDate
           this.fixingDate = (LocalDate) newValue;
           break;
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
+          break;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (Double) newValue;
@@ -550,9 +550,9 @@ public final class OvernightRateSensitivity
     public OvernightRateSensitivity build() {
       return new OvernightRateSensitivity(
           index,
-          currency,
           fixingDate,
           endDate,
+          currency,
           sensitivity);
     }
 
@@ -562,9 +562,9 @@ public final class OvernightRateSensitivity
       StringBuilder buf = new StringBuilder(192);
       buf.append("OvernightRateSensitivity.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();

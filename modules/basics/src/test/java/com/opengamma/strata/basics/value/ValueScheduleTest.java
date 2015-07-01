@@ -24,8 +24,8 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 public class ValueScheduleTest {
 
   private static double TOLERANCE = 1.0E-10;
-  private static ValueStep STEP1 = ValueStep.ofAbsoluteAmount(date(2014, 6, 30), 2000d);
-  private static ValueStep STEP2 = ValueStep.ofAbsoluteAmount(date(2014, 7, 30), 3000d);
+  private static ValueStep STEP1 = ValueStep.of(date(2014, 6, 30), ValueAdjustment.ofReplace(2000d));
+  private static ValueStep STEP2 = ValueStep.of(date(2014, 7, 30), ValueAdjustment.ofReplace(3000d));
 
   private static SchedulePeriod PERIOD1 = SchedulePeriod.of(date(2014, 1, 1), date(2014, 2, 1));
   private static SchedulePeriod PERIOD2 = SchedulePeriod.of(date(2014, 2, 1), date(2014, 3, 1));
@@ -91,8 +91,8 @@ public class ValueScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_resolveValues_dateBased() {
-    ValueStep step1 = ValueStep.ofAbsoluteAmount(date(2014, 2, 1), 300d);
-    ValueStep step2 = ValueStep.ofAbsoluteAmount(date(2014, 3, 1), 400d);
+    ValueStep step1 = ValueStep.of(date(2014, 2, 1), ValueAdjustment.ofReplace(300d));
+    ValueStep step2 = ValueStep.of(date(2014, 3, 1), ValueAdjustment.ofReplace(400d));
     // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
     assertEquals(test0.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 200d));
@@ -108,8 +108,8 @@ public class ValueScheduleTest {
   }
 
   public void test_resolveValues_dateBased_matchAdjusted() {
-    ValueStep step1 = ValueStep.ofAbsoluteAmount(date(2014, 2, 1), 300d);
-    ValueStep step2 = ValueStep.ofAbsoluteAmount(date(2014, 3, 2), 400d);
+    ValueStep step1 = ValueStep.of(date(2014, 2, 1), ValueAdjustment.ofReplace(300d));
+    ValueStep step2 = ValueStep.of(date(2014, 3, 2), ValueAdjustment.ofReplace(400d));
     // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
     assertEquals(test0.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 200d));
@@ -125,8 +125,8 @@ public class ValueScheduleTest {
   }
 
   public void test_resolveValues_indexBased() {
-    ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
-    ValueStep step2 = ValueStep.of(2, ValueAdjustment.ofAbsoluteAmount(400d));
+    ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
+    ValueStep step2 = ValueStep.of(2, ValueAdjustment.ofReplace(400d));
     // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
     assertEquals(test0.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 200d));
@@ -142,33 +142,33 @@ public class ValueScheduleTest {
   }
 
   public void test_resolveValues_indexBased_duplicateDefinitionValid() {
-    ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
-    ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
+    ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
+    ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertEquals(test.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 300d));
   }
 
   public void test_resolveValues_indexBased_duplicateDefinitionInvalid() {
-    ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
-    ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(400d));
+    ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
+    ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofReplace(400d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
   public void test_resolveValues_indexBased_indexTooBig() {
-    ValueStep step = ValueStep.of(3, ValueAdjustment.ofAbsoluteAmount(300d));
+    ValueStep step = ValueStep.of(3, ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
   public void test_resolveValues_dateBased_indexZeroInvalid() {
-    ValueStep step = ValueStep.ofAbsoluteAmount(date(2014, 1, 1), 300d);
+    ValueStep step = ValueStep.of(date(2014, 1, 1), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
   public void test_resolveValues_dateBased_dateInvalid() {
-    ValueStep step = ValueStep.ofAbsoluteAmount(date(2014, 4, 1), 300d);
+    ValueStep step = ValueStep.of(date(2014, 4, 1), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }

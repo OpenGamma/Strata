@@ -261,7 +261,7 @@ public class RateCalculationSwapLegTest {
             .build())
         .notionalSchedule(NotionalSchedule.builder()
             .currency(GBP)
-            .amount(ValueSchedule.of(1000d, ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(1500d))))
+            .amount(ValueSchedule.of(1000d, ValueStep.of(1, ValueAdjustment.ofReplace(1500d))))
             .initialExchange(true)
             .intermediateExchange(true)
             .finalExchange(true)

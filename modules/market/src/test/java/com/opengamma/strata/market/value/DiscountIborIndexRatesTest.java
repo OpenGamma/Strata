@@ -187,7 +187,7 @@ public class DiscountIborIndexRatesTest {
   // proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M, GBP, DATE_AFTER, 1d);
+    IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_AFTER, GBP, 1d);
     assertEquals(test.curveParameterSensitivity(point).size(), 1);
   }
 

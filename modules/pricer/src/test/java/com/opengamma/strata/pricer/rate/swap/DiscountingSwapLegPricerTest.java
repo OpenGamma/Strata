@@ -267,7 +267,7 @@ public class DiscountingSwapLegPricerTest {
     LocalDate fixingDate = IBOR_RATE_OBSERVATION.getFixingDate();
     LocalDate paymentDate = IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate();
 
-    IborRateSensitivity fwdSense = IborRateSensitivity.of(index, ccy, fixingDate, 140.0);
+    IborRateSensitivity fwdSense = IborRateSensitivity.of(index, fixingDate, ccy, 140.0);
     ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(ccy, paymentDate, -162.0);
     PointSensitivityBuilder sensiPeriod = fwdSense.combinedWith(dscSense);
     LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
@@ -347,7 +347,7 @@ public class DiscountingSwapLegPricerTest {
     IborIndex index = GBP_LIBOR_3M;
     Currency ccy = GBP_LIBOR_3M.getCurrency();
     LocalDate fixingDate = IBOR_RATE_OBSERVATION.getFixingDate();
-    PointSensitivityBuilder sensiPeriod = IborRateSensitivity.of(index, ccy, fixingDate, 140.0);
+    PointSensitivityBuilder sensiPeriod = IborRateSensitivity.of(index, fixingDate, ccy, 140.0);
     PointSensitivities expected = sensiPeriod.build();
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
