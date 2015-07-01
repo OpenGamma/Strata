@@ -1,9 +1,12 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.finance;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
@@ -26,9 +29,6 @@ import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
-
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Example to illustrate using the engine to price a credit default swap.

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata.credit.markit;
@@ -101,9 +101,7 @@ public class MarkitIndexCreditCurveDataParser {
           IndexReferenceInformation.of(
               indexId,
               indexSeries,
-              indexAnnexVersion
-          )
-      );
+              indexAnnexVersion));
 
       Tenor term = Tenor.parse(termText);
       LocalDate maturity = LocalDate.parse(maturityText, DATE_FORMAT);
