@@ -153,7 +153,7 @@ public class InterpolatedNodalCurveTest {
   public void test_shiftedBy_adjustment() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(CURVE_NAME, XVALUES, YVALUES, INTERPOLATOR);
     ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofAbsoluteAmount(3d), ValueAdjustment.ofDeltaAmount(-2d), ValueAdjustment.ofDeltaAmount(-2d));
+        ValueAdjustment.ofReplace(3d), ValueAdjustment.ofDeltaAmount(-2d), ValueAdjustment.ofDeltaAmount(-2d));
     InterpolatedNodalCurve test = base.shiftedBy(adjustments);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
@@ -167,7 +167,7 @@ public class InterpolatedNodalCurveTest {
   public void test_shiftedBy_adjustment_longList() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(CURVE_NAME, XVALUES, YVALUES, INTERPOLATOR);
     ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofAbsoluteAmount(3d),
+        ValueAdjustment.ofReplace(3d),
         ValueAdjustment.ofDeltaAmount(-2d),
         ValueAdjustment.ofDeltaAmount(-2d),
         ValueAdjustment.ofDeltaAmount(2d));
@@ -184,7 +184,7 @@ public class InterpolatedNodalCurveTest {
   public void test_shiftedBy_adjustment_shortList() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(CURVE_NAME, XVALUES, YVALUES, INTERPOLATOR);
     ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofAbsoluteAmount(3d));
+        ValueAdjustment.ofReplace(3d));
     double[] bumped = new double[] {3d, 7d, 8d};
     InterpolatedNodalCurve test = base.shiftedBy(adjustments);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);

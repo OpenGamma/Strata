@@ -56,7 +56,7 @@ public class NotionalScheduleTest {
   }
 
   public void test_of_CurrencyAndValueSchedule() {
-    ValueSchedule valueSchedule = ValueSchedule.of(1000d, ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(2000d)));
+    ValueSchedule valueSchedule = ValueSchedule.of(1000d, ValueStep.of(1, ValueAdjustment.ofReplace(2000d)));
     NotionalSchedule test = NotionalSchedule.of(GBP, valueSchedule);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getAmount(), valueSchedule);

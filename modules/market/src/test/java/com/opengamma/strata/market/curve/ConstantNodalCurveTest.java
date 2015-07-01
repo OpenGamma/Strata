@@ -107,7 +107,7 @@ public class ConstantNodalCurveTest {
 
   public void test_shiftedBy_adjustment() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.shiftedBy(ImmutableList.of(ValueAdjustment.ofAbsoluteAmount(4d)));
+    ConstantNodalCurve test = base.shiftedBy(ImmutableList.of(ValueAdjustment.ofReplace(4d)));
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
