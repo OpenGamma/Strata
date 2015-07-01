@@ -30,8 +30,8 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.config.MarketDataRule;
 import com.opengamma.strata.engine.config.MarketDataRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
@@ -180,8 +180,8 @@ public abstract class MarketDataBuilder {
    * @param marketDataDate  the date of the market data
    * @return the snapshot
    */
-  public BaseMarketData buildSnapshot(LocalDate marketDataDate) {
-    BaseMarketDataBuilder builder = BaseMarketData.builder(marketDataDate);
+  public MarketEnvironment buildSnapshot(LocalDate marketDataDate) {
+    MarketEnvironmentBuilder builder = MarketEnvironment.builder(marketDataDate);
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadQuotes(builder, marketDataDate);
@@ -227,7 +227,7 @@ public abstract class MarketDataBuilder {
   }
 
   //-------------------------------------------------------------------------
-  private void loadFixingSeries(BaseMarketDataBuilder builder) {
+  private void loadFixingSeries(MarketEnvironmentBuilder builder) {
     if (!subdirectoryExists(HISTORICAL_FIXINGS_DIR)) {
       s_logger.debug("No historical fixings directory found");
       return;
@@ -241,7 +241,7 @@ public abstract class MarketDataBuilder {
     }
   }
 
-  private void loadRatesCurves(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+  private void loadRatesCurves(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(CURVES_DIR)) {
       s_logger.debug("No rates curves directory found");
       return;
@@ -270,7 +270,7 @@ public abstract class MarketDataBuilder {
   }
 
   // load quotes
-  private void loadQuotes(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+  private void loadQuotes(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(QUOTES_DIR)) {
       s_logger.debug("No quotes directory found");
       return;
@@ -291,7 +291,7 @@ public abstract class MarketDataBuilder {
     }
   }
 
-  private void loadFxRates(BaseMarketDataBuilder builder) {
+  private void loadFxRates(MarketEnvironmentBuilder builder) {
     // TODO - load from CSV file - format to be defined
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
   }
@@ -304,7 +304,7 @@ public abstract class MarketDataBuilder {
         .collect(toImmutableList());
   }
 
-  private void loadCreditMarketData(BaseMarketDataBuilder builder, LocalDate marketDataDate) {
+  private void loadCreditMarketData(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(CREDIT_DIR)) {
       s_logger.debug("No credit curves directory found");
       return;
@@ -325,7 +325,7 @@ public abstract class MarketDataBuilder {
     loadCdsIndexSpreadCurves(builder, creditMarketDataDateDirectory);
   }
 
-  private void loadCdsYieldCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+  private void loadCdsYieldCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
     ResourceLocator cdsYieldCurvesResource = getResource(creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE);
     if (cdsYieldCurvesResource == null) {
       s_logger.debug("Unable to load cds yield curves: file not found at {}/{}", creditMarketDataDateDirectory,
@@ -342,7 +342,7 @@ public abstract class MarketDataBuilder {
     }
   }
 
-  private void loadCdsSingleNameSpreadCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+  private void loadCdsSingleNameSpreadCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
     ResourceLocator singleNameCurvesResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE);
     if (singleNameCurvesResource == null) {
       s_logger.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
@@ -374,7 +374,7 @@ public abstract class MarketDataBuilder {
     }
   }
 
-  private void loadCdsIndexSpreadCurves(BaseMarketDataBuilder builder, String creditMarketDataDateDirectory) {
+  private void loadCdsIndexSpreadCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
 
     ResourceLocator inputCurvesResource = getResource(creditMarketDataDateDirectory, INDEX_CREDIT_CURVES_FILE);
     if (inputCurvesResource == null) {

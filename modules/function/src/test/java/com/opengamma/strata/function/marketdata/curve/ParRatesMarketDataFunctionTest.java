@@ -22,8 +22,8 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
@@ -148,7 +148,7 @@ public class ParRatesMarketDataFunctionTest {
     QuoteId idB = QuoteId.of(StandardId.of("test", "b"));
     QuoteId idC = QuoteId.of(StandardId.of("test", "c"));
 
-    BaseMarketData marketData = BaseMarketData.builder(VALUATION_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder(VALUATION_DATE)
         .addValue(idA, 1d)
         .addValue(idB, 2d)
         .addValue(idC, 3d)
@@ -177,7 +177,7 @@ public class ParRatesMarketDataFunctionTest {
   public void buildMissingGroupConfig() {
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
     ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
-    BaseMarketData emptyData = BaseMarketData.empty(VALUATION_DATE);
+    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
     Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, MarketDataConfig.empty());
     assertThat(result).hasFailureMessageMatching("No configuration found for curve group .*");
   }
@@ -190,7 +190,7 @@ public class ParRatesMarketDataFunctionTest {
     ParRatesId parRatesId = ParRatesId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     CurveGroupConfig groupConfig = CurveGroupConfig.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
-    BaseMarketData emptyData = BaseMarketData.empty(VALUATION_DATE);
+    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
     Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
     assertThat(result).hasFailureMessageMatching("No curve named .*");
   }
@@ -208,7 +208,7 @@ public class ParRatesMarketDataFunctionTest {
         .addDiscountingCurve(curve, Currency.USD)
         .build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
-    BaseMarketData emptyData = BaseMarketData.empty(VALUATION_DATE);
+    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
     Result<ParRates> result = marketDataFunction.build(parRatesId, emptyData, marketDataConfig);
     assertThat(result).hasFailureMessageMatching(".*for curve configuration of type.*");
   }
@@ -238,7 +238,7 @@ public class ParRatesMarketDataFunctionTest {
         .add(groupConfig.getName(), groupConfig)
         .build();
 
-    BaseMarketData emptyData = BaseMarketData.empty(VALUATION_DATE);
+    MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
 
     ParRatesMarketDataFunction marketDataFunction = new ParRatesMarketDataFunction();
     ParRatesId parRatesId = ParRatesId.of(groupConfig.getName(), curve.getName(), MarketDataFeed.NONE);

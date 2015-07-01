@@ -33,8 +33,8 @@ import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.ConfiguredFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**
@@ -93,9 +93,9 @@ public class DefaultCalculationRunner implements CalculationRunner {
   }
 
   @Override
-  public Results calculate(CalculationTasks tasks, BaseMarketData marketData) {
+  public Results calculate(CalculationTasks tasks, CalculationEnvironment marketData) {
     // perform the calculations
-    Results results = calculate(tasks, ScenarioMarketData.of(marketData));
+    Results results = calculate(tasks, ScenarioCalculationEnvironment.of(marketData));
 
     // Unwrap the results - there is only one scenario so there is no need to
     // return a container with one result in each cell.
@@ -107,27 +107,27 @@ public class DefaultCalculationRunner implements CalculationRunner {
   }
 
   @Override
-  public Results calculate(CalculationTasks tasks, ScenarioMarketData marketData) {
+  public Results calculate(CalculationTasks tasks, ScenarioCalculationEnvironment marketData) {
     Listener listener = new Listener(tasks.getColumns());
     calculateAsync(tasks, marketData, listener);
     return listener.result();
   }
 
   @Override
-  public void calculateAsync(CalculationTasks tasks, BaseMarketData marketData, CalculationListener listener) {
+  public void calculateAsync(CalculationTasks tasks, CalculationEnvironment marketData, CalculationListener listener) {
     // The listener is decorated to unwrap ScenarioResults containing a single result
     UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
-    calculateAsync(tasks, ScenarioMarketData.of(marketData), unwrappingListener);
+    calculateAsync(tasks, ScenarioCalculationEnvironment.of(marketData), unwrappingListener);
   }
 
   @Override
-  public void calculateAsync(CalculationTasks tasks, ScenarioMarketData marketData, CalculationListener listener) {
+  public void calculateAsync(CalculationTasks tasks, ScenarioCalculationEnvironment marketData, CalculationListener listener) {
     List<CalculationTask> taskList = tasks.getTasks();
     Consumer<CalculationResult> consumer = consumerFactory.create(listener, taskList.size());
     taskList.stream().forEach(task -> runTask(task, marketData, consumer));
   }
 
-  private void runTask(CalculationTask task, ScenarioMarketData marketData, Consumer<CalculationResult> consumer) {
+  private void runTask(CalculationTask task, ScenarioCalculationEnvironment marketData, Consumer<CalculationResult> consumer) {
     // Submits a task to the executor to be run. The result of the task is passed to consumer.accept()
     CompletableFuture.supplyAsync(() -> task.execute(marketData), executor).thenAccept(consumer::accept);
   }

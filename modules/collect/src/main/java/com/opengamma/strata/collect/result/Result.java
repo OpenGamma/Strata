@@ -305,6 +305,17 @@ public final class Result<T>
   }
 
   /**
+   * Creates a failed result containing a failure.
+   *
+   * @param failure  details of the failure
+   * @param <R>  the type of the result value
+   * @return a failed result containing the specified failure
+   */
+  public static <R> Result<R> failure(Failure failure) {
+    return new Result<>(failure);
+  }
+
+  /**
    * Returns a success result containing the value if it is non-null, else returns a failure result
    * with the specified reason and message.
    * <p>

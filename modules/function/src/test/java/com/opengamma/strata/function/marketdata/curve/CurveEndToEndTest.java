@@ -14,7 +14,6 @@ import static com.opengamma.strata.engine.calculations.function.FunctionUtils.to
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -61,10 +60,10 @@ import com.opengamma.strata.engine.config.pricing.DefaultPricingRules;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
@@ -204,7 +203,7 @@ public class CurveEndToEndTest {
 
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
-    BaseMarketData marketData = BaseMarketData.empty(valuationDate);
+    MarketEnvironment marketData = MarketEnvironment.empty(valuationDate);
     List<Column> columns = ImmutableList.of(Column.of(Measure.PRESENT_VALUE));
     Results results = engine.calculate(trades, columns, calculationRules, marketData);
     results.getItems().stream().forEach(this::checkPvIsZero);

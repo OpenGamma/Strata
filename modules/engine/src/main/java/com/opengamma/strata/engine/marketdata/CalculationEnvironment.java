@@ -30,15 +30,30 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.Failure;
+import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
 /**
- * A source of market data for a single set of calculations.
+ * A collection of market data for a single set of calculations.
+ * <p>
+ * A calculation environment contains all the data required to perform calculations. This includes the market data
+ * a user would expect to see, for example quotes and curves, and also other values derived from market data.
+ * <p>
+ * The derived values include objects used in calculations encapsulating market data and logic that operates on
+ * it, and objects with market data and metadata required by the scenario framework.
+ * <p>
+ * {@code CalculationEnvironment} should be considered an implementation detail and is not intended as a
+ * user-facing data structure.
+ * <p>
+ * {@link MarketEnvironment} should be used to store market data values that users wish to interact with.
+ *
+ * @see MarketEnvironment
  */
 @BeanDefinition(builderScope = "private")
-public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
+public final class CalculationEnvironment implements ImmutableBean, MarketDataLookup {
 
   /** The valuation date associated with the data. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -54,14 +69,37 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
+  /** Details of failures when building single market data values. */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<MarketDataId<?>, Failure> singleValueFailures;
+
+  /** Details of failures when building time series of market data values. */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
+
   /**
-   * Returns an empty mutable builder for building a new instance of {@code BaseMarketData}.
+   * Returns a calculation environment containing the market data from a market environment.
+   *
+   * @param marketEnvironment  an environment whose market data is used to build a calculation environment
+   * @return a calculation environment containing the market data from a market environment
+   */
+  public static CalculationEnvironment of(MarketEnvironment marketEnvironment) {
+    return new CalculationEnvironment(
+        marketEnvironment.getValuationDate(),
+        marketEnvironment.getValues(),
+        marketEnvironment.getTimeSeries(),
+        ImmutableMap.of(),
+        ImmutableMap.of());
+  }
+
+  /**
+   * Returns an empty mutable builder for building a new instance of {@code MarketEnvironment}.
    *
    * @param valuationDate  the valuation date
-   * @return an empty mutable builder for building a new instance of {@code BaseMarketData}
+   * @return an empty mutable builder for building a new instance of {@code MarketEnvironment}
    */
-  public static BaseMarketDataBuilder builder(LocalDate valuationDate) {
-    return new BaseMarketDataBuilder(valuationDate);
+  public static CalculationEnvironmentBuilder builder(LocalDate valuationDate) {
+    return new CalculationEnvironmentBuilder(valuationDate);
   }
 
   /**
@@ -70,8 +108,8 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
    * @param valuationDate  the valuation date used for the calculations
    * @return an empty set of market data with the specified valuation date
    */
-  public static BaseMarketData empty(LocalDate valuationDate) {
-    return BaseMarketData.builder(valuationDate).build();
+  public static CalculationEnvironment empty(LocalDate valuationDate) {
+    return CalculationEnvironment.builder(valuationDate).build();
   }
 
   /**
@@ -80,16 +118,22 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
    * @param valuationDate  the valuation date of the market data
    * @param values  the single market data values
    * @param timeSeries  the time series of market data values
+   * @param singleValueFailures  details of market data that could not be found or built
+   * @param timeSeriesFailures  details of time series of market data that could not be found
    */
   @ImmutableConstructor
-  BaseMarketData(
+  CalculationEnvironment(
       LocalDate valuationDate,
       Map<? extends MarketDataId<?>, Object> values,
-      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
+      Map<MarketDataId<?>, Failure> singleValueFailures,
+      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.values = ImmutableMap.copyOf(values);
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
+    this.singleValueFailures = ImmutableMap.copyOf(singleValueFailures);
+    this.timeSeriesFailures = ImmutableMap.copyOf(timeSeriesFailures);
   }
 
   @Override
@@ -112,6 +156,11 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
     Object value = values.get(id);
 
     if (value == null) {
+      Failure failure = singleValueFailures.get(id);
+
+      if (failure != null) {
+        throw new FailureException(failure);
+      }
       throw new IllegalArgumentException("No market data value available for " + id);
     }
     if (!id.getMarketDataType().isInstance(value)) {
@@ -143,49 +192,31 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
   }
 
   /**
-   * Returns the observable market data in this set of data.
-   *
-   * @return the observable market data in this set of data
-   */
-  public Observables getObservables() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Returns a market data environment containing the calibrated market data in this data set.
-   *
-   * @return a market data environment containing the calibrated market data in this data set
-   */
-  public MarketDataEnvironment getMarketDataEnvironment() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Returns a mutable builder containing the data from this object.
    *
    * @return a mutable builder containing the data from this object
    */
-  public BaseMarketDataBuilder toBuilder() {
-    return new BaseMarketDataBuilder(valuationDate, values, timeSeries);
+  public CalculationEnvironmentBuilder toBuilder() {
+    return new CalculationEnvironmentBuilder(valuationDate, values, timeSeries, singleValueFailures, timeSeriesFailures);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code BaseMarketData}.
+   * The meta-bean for {@code CalculationEnvironment}.
    * @return the meta-bean, not null
    */
-  public static BaseMarketData.Meta meta() {
-    return BaseMarketData.Meta.INSTANCE;
+  public static CalculationEnvironment.Meta meta() {
+    return CalculationEnvironment.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(BaseMarketData.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CalculationEnvironment.Meta.INSTANCE);
   }
 
   @Override
-  public BaseMarketData.Meta metaBean() {
-    return BaseMarketData.Meta.INSTANCE;
+  public CalculationEnvironment.Meta metaBean() {
+    return CalculationEnvironment.Meta.INSTANCE;
   }
 
   @Override
@@ -227,16 +258,36 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets details of failures when building single market data values.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<MarketDataId<?>, Failure> getSingleValueFailures() {
+    return singleValueFailures;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets details of failures when building time series of market data values.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<MarketDataId<?>, Failure> getTimeSeriesFailures() {
+    return timeSeriesFailures;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BaseMarketData other = (BaseMarketData) obj;
+      CalculationEnvironment other = (CalculationEnvironment) obj;
       return JodaBeanUtils.equal(getValuationDate(), other.getValuationDate()) &&
           JodaBeanUtils.equal(getValues(), other.getValues()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
+          JodaBeanUtils.equal(getSingleValueFailures(), other.getSingleValueFailures()) &&
+          JodaBeanUtils.equal(getTimeSeriesFailures(), other.getTimeSeriesFailures());
     }
     return false;
   }
@@ -247,23 +298,27 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSingleValueFailures());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesFailures());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
-    buf.append("BaseMarketData{");
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("CalculationEnvironment{");
     buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
     buf.append("values").append('=').append(getValues()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries()));
+    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("singleValueFailures").append('=').append(getSingleValueFailures()).append(',').append(' ');
+    buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(getTimeSeriesFailures()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code BaseMarketData}.
+   * The meta-bean for {@code CalculationEnvironment}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -275,19 +330,31 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
      * The meta-property for the {@code valuationDate} property.
      */
     private final MetaProperty<LocalDate> valuationDate = DirectMetaProperty.ofImmutable(
-        this, "valuationDate", BaseMarketData.class, LocalDate.class);
+        this, "valuationDate", CalculationEnvironment.class, LocalDate.class);
     /**
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<MarketDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
-        this, "values", BaseMarketData.class, (Class) ImmutableMap.class);
+        this, "values", CalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", BaseMarketData.class, (Class) ImmutableMap.class);
+        this, "timeSeries", CalculationEnvironment.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code singleValueFailures} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures = DirectMetaProperty.ofImmutable(
+        this, "singleValueFailures", CalculationEnvironment.class, (Class) ImmutableMap.class);
+    /**
+     * The meta-property for the {@code timeSeriesFailures} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures = DirectMetaProperty.ofImmutable(
+        this, "timeSeriesFailures", CalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -295,7 +362,9 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
         this, null,
         "valuationDate",
         "values",
-        "timeSeries");
+        "timeSeries",
+        "singleValueFailures",
+        "timeSeriesFailures");
 
     /**
      * Restricted constructor.
@@ -312,18 +381,22 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
           return values;
         case 779431844:  // timeSeries
           return timeSeries;
+        case -1633495726:  // singleValueFailures
+          return singleValueFailures;
+        case -1580093459:  // timeSeriesFailures
+          return timeSeriesFailures;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends BaseMarketData> builder() {
-      return new BaseMarketData.Builder();
+    public BeanBuilder<? extends CalculationEnvironment> builder() {
+      return new CalculationEnvironment.Builder();
     }
 
     @Override
-    public Class<? extends BaseMarketData> beanType() {
-      return BaseMarketData.class;
+    public Class<? extends CalculationEnvironment> beanType() {
+      return CalculationEnvironment.class;
     }
 
     @Override
@@ -356,16 +429,36 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
       return timeSeries;
     }
 
+    /**
+     * The meta-property for the {@code singleValueFailures} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures() {
+      return singleValueFailures;
+    }
+
+    /**
+     * The meta-property for the {@code timeSeriesFailures} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures() {
+      return timeSeriesFailures;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 113107279:  // valuationDate
-          return ((BaseMarketData) bean).getValuationDate();
+          return ((CalculationEnvironment) bean).getValuationDate();
         case -823812830:  // values
-          return ((BaseMarketData) bean).getValues();
+          return ((CalculationEnvironment) bean).getValues();
         case 779431844:  // timeSeries
-          return ((BaseMarketData) bean).getTimeSeries();
+          return ((CalculationEnvironment) bean).getTimeSeries();
+        case -1633495726:  // singleValueFailures
+          return ((CalculationEnvironment) bean).getSingleValueFailures();
+        case -1580093459:  // timeSeriesFailures
+          return ((CalculationEnvironment) bean).getTimeSeriesFailures();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -383,13 +476,15 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code BaseMarketData}.
+   * The bean-builder for {@code CalculationEnvironment}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<BaseMarketData> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CalculationEnvironment> {
 
     private LocalDate valuationDate;
     private Map<MarketDataId<?>, Object> values = ImmutableMap.of();
     private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
+    private Map<MarketDataId<?>, Failure> singleValueFailures = ImmutableMap.of();
+    private Map<MarketDataId<?>, Failure> timeSeriesFailures = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -407,6 +502,10 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
           return values;
         case 779431844:  // timeSeries
           return timeSeries;
+        case -1633495726:  // singleValueFailures
+          return singleValueFailures;
+        case -1580093459:  // timeSeriesFailures
+          return timeSeriesFailures;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -424,6 +523,12 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
           break;
         case 779431844:  // timeSeries
           this.timeSeries = (Map<ObservableId, LocalDateDoubleTimeSeries>) newValue;
+          break;
+        case -1633495726:  // singleValueFailures
+          this.singleValueFailures = (Map<MarketDataId<?>, Failure>) newValue;
+          break;
+        case -1580093459:  // timeSeriesFailures
+          this.timeSeriesFailures = (Map<MarketDataId<?>, Failure>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -456,21 +561,25 @@ public final class BaseMarketData implements ImmutableBean, MarketDataLookup {
     }
 
     @Override
-    public BaseMarketData build() {
-      return new BaseMarketData(
+    public CalculationEnvironment build() {
+      return new CalculationEnvironment(
           valuationDate,
           values,
-          timeSeries);
+          timeSeries,
+          singleValueFailures,
+          timeSeriesFailures);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("BaseMarketData.Builder{");
+      StringBuilder buf = new StringBuilder(192);
+      buf.append("CalculationEnvironment.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');
-      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
+      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
+      buf.append("singleValueFailures").append('=').append(JodaBeanUtils.toString(singleValueFailures)).append(',').append(' ');
+      buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
       buf.append('}');
       return buf.toString();
     }
