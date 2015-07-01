@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.market.id;
 
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.market.value.CdsRecoveryRate;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -21,9 +22,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.finance.credit.IndexReferenceInformation;
+import com.opengamma.strata.market.value.CdsRecoveryRate;
 
 /**
  * Market data ID for a recovery rate to be used in the ISDA credit model's

@@ -5,6 +5,14 @@
  */
 package com.opengamma.strata.pricer.credit;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+import java.util.Set;
+
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
+
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
@@ -18,13 +26,6 @@ import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
-import org.joda.beans.MetaBean;
-import org.joda.beans.Property;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Pricer for for CDS products using the ISDA methodology.
@@ -45,7 +46,6 @@ public class IsdaCdsPricer {
   private static final double ONE_BPS = 0.0001d;
 
   //-------------------------------------------------------------------------
-
   /**
    * Calculates the present value of the expanded CDS product.
    * <p>
@@ -124,6 +124,7 @@ public class IsdaCdsPricer {
   }
 
   private NodalCurve convert(ISDACompliantYieldCurve yieldCurve) {
+    
     return new NodalCurve() {
       @Override
       public double[] getXValues() {
@@ -136,7 +137,9 @@ public class IsdaCdsPricer {
       }
 
       @Override
-      public NodalCurve withYValues(double[] values) {return convert(ISDACompliantYieldCurve.makeFromRT(getXValues(), values));}
+      public NodalCurve withYValues(double[] values) {
+        return convert(ISDACompliantYieldCurve.makeFromRT(getXValues(), values));
+      }
 
       @Override
       public CurveMetadata getMetadata() {
@@ -181,6 +184,7 @@ public class IsdaCdsPricer {
   }
 
   private NodalCurve convert(ISDACompliantCreditCurve creditCurve) {
+    
     return new NodalCurve() {
       @Override
       public double[] getXValues() {
@@ -193,7 +197,9 @@ public class IsdaCdsPricer {
       }
 
       @Override
-      public NodalCurve withYValues(double[] values) {return convert(ISDACompliantYieldCurve.makeFromRT(getXValues(), values));}
+      public NodalCurve withYValues(double[] values) {
+        return convert(ISDACompliantYieldCurve.makeFromRT(getXValues(), values));
+      }
 
       @Override
       public CurveMetadata getMetadata() {
@@ -238,7 +244,6 @@ public class IsdaCdsPricer {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Calculates the scalar PV change to a 1 basis point shift in par interest rates.
    *
@@ -378,7 +383,6 @@ public class IsdaCdsPricer {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Calculates the scalar PV change to a 1 basis point shift in par credit spread rates.
    *
@@ -522,7 +526,6 @@ public class IsdaCdsPricer {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Calculates the scalar PV change to a 1 basis point shift in recovery rate.
    *
@@ -548,7 +551,6 @@ public class IsdaCdsPricer {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Calculates the risk of default by subtracting from current MTM the Notional amount times Recovery Rate - 1
    *

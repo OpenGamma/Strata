@@ -5,6 +5,10 @@
  */
 package com.opengamma.strata.examples.finance.credit.harness;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -22,10 +26,6 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class TestCalculator implements Calculator {
 
