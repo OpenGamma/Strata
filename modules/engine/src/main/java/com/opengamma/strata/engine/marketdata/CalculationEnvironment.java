@@ -30,8 +30,8 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureException;
-import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
@@ -71,11 +71,11 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
 
   /** Details of failures when building single market data values. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<MarketDataId<?>, Result<?>> singleValueFailures;
+  private final ImmutableMap<MarketDataId<?>, Failure> singleValueFailures;
 
   /** Details of failures when building time series of market data values. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<MarketDataId<?>, Result<?>> timeSeriesFailures;
+  private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
 
   /**
    * Returns a calculation environment containing the market data from a market environment.
@@ -126,8 +126,8 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
       LocalDate valuationDate,
       Map<? extends MarketDataId<?>, Object> values,
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
-      Map<MarketDataId<?>, Result<?>> singleValueFailures,
-      Map<MarketDataId<?>, Result<?>> timeSeriesFailures) {
+      Map<MarketDataId<?>, Failure> singleValueFailures,
+      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.values = ImmutableMap.copyOf(values);
@@ -156,10 +156,10 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
     Object value = values.get(id);
 
     if (value == null) {
-      Result<?> result = singleValueFailures.get(id);
+      Failure failure = singleValueFailures.get(id);
 
-      if (result != null) {
-        throw new FailureException(result.getFailure());
+      if (failure != null) {
+        throw new FailureException(failure);
       }
       throw new IllegalArgumentException("No market data value available for " + id);
     }
@@ -262,7 +262,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
    * Gets details of failures when building single market data values.
    * @return the value of the property, not null
    */
-  public ImmutableMap<MarketDataId<?>, Result<?>> getSingleValueFailures() {
+  public ImmutableMap<MarketDataId<?>, Failure> getSingleValueFailures() {
     return singleValueFailures;
   }
 
@@ -271,7 +271,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
    * Gets details of failures when building time series of market data values.
    * @return the value of the property, not null
    */
-  public ImmutableMap<MarketDataId<?>, Result<?>> getTimeSeriesFailures() {
+  public ImmutableMap<MarketDataId<?>, Failure> getTimeSeriesFailures() {
     return timeSeriesFailures;
   }
 
@@ -347,13 +347,13 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
      * The meta-property for the {@code singleValueFailures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> singleValueFailures = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures = DirectMetaProperty.ofImmutable(
         this, "singleValueFailures", CalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeriesFailures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> timeSeriesFailures = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures = DirectMetaProperty.ofImmutable(
         this, "timeSeriesFailures", CalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -433,7 +433,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
      * The meta-property for the {@code singleValueFailures} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> singleValueFailures() {
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures() {
       return singleValueFailures;
     }
 
@@ -441,7 +441,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
      * The meta-property for the {@code timeSeriesFailures} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> timeSeriesFailures() {
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures() {
       return timeSeriesFailures;
     }
 
@@ -483,8 +483,8 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
     private LocalDate valuationDate;
     private Map<MarketDataId<?>, Object> values = ImmutableMap.of();
     private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
-    private Map<MarketDataId<?>, Result<?>> singleValueFailures = ImmutableMap.of();
-    private Map<MarketDataId<?>, Result<?>> timeSeriesFailures = ImmutableMap.of();
+    private Map<MarketDataId<?>, Failure> singleValueFailures = ImmutableMap.of();
+    private Map<MarketDataId<?>, Failure> timeSeriesFailures = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -525,10 +525,10 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
           this.timeSeries = (Map<ObservableId, LocalDateDoubleTimeSeries>) newValue;
           break;
         case -1633495726:  // singleValueFailures
-          this.singleValueFailures = (Map<MarketDataId<?>, Result<?>>) newValue;
+          this.singleValueFailures = (Map<MarketDataId<?>, Failure>) newValue;
           break;
         case -1580093459:  // timeSeriesFailures
-          this.timeSeriesFailures = (Map<MarketDataId<?>, Result<?>>) newValue;
+          this.timeSeriesFailures = (Map<MarketDataId<?>, Failure>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

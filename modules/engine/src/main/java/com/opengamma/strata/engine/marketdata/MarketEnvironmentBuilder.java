@@ -60,10 +60,9 @@ public final class MarketEnvironmentBuilder {
    * @param id  the ID of the market data
    * @param value  the market data value
    * @param <T>  the type of the market data value
-   * @param <I>  the type of the market data ID
    * @return this builder
    */
-  public <T, I extends MarketDataId<T>> MarketEnvironmentBuilder addValue(I id, T value) {
+  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, value);

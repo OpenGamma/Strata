@@ -10,6 +10,9 @@ import static com.opengamma.strata.collect.TestHelper.date;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.result.FailureException;
+import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
@@ -36,5 +39,17 @@ public class CalculationEnvironmentTest {
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
   }
 
-  // TODO Test error message for failed data
+  /**
+   * Tests the exception when there is a failure for an item of market data.
+   */
+  public void failureException() {
+    TestObservableId id = TestObservableId.of("1");
+    String failureMessage = "Something went wrong";
+    CalculationEnvironment marketData = CalculationEnvironment
+        .builder(date(2011, 3, 8))
+        .addResult(id, Result.failure(FailureReason.ERROR, failureMessage))
+        .build();
+
+    assertThrows(() -> marketData.getValue(id), FailureException.class, failureMessage);
+  }
 }

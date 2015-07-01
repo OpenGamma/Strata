@@ -34,7 +34,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
@@ -68,11 +68,11 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
 
   /** Details of failures when building single market data values. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<MarketDataId<?>, Result<?>> singleValueFailures;
+  private final ImmutableMap<MarketDataId<?>, Failure> singleValueFailures;
 
   /** Details of failures when building time series of market data values. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<MarketDataId<?>, Result<?>> timeSeriesFailures;
+  private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
 
   /**
    * Returns a mutable builder for building a set of scenario market data.
@@ -130,8 +130,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
       ListMultimap<MarketDataId<?>, ?> values,
       Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries,
       Map<? extends MarketDataId<?>, Object> globalValues,
-      Map<MarketDataId<?>, Result<?>> singleValueFailures,
-      Map<MarketDataId<?>, Result<?>> timeSeriesFailures) {
+      Map<MarketDataId<?>, Failure> singleValueFailures,
+      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
     JodaBeanUtils.notNull(valuationDates, "valuationDates");
@@ -339,7 +339,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    * Gets details of failures when building single market data values.
    * @return the value of the property, not null
    */
-  public ImmutableMap<MarketDataId<?>, Result<?>> getSingleValueFailures() {
+  public ImmutableMap<MarketDataId<?>, Failure> getSingleValueFailures() {
     return singleValueFailures;
   }
 
@@ -348,7 +348,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    * Gets details of failures when building time series of market data values.
    * @return the value of the property, not null
    */
-  public ImmutableMap<MarketDataId<?>, Result<?>> getTimeSeriesFailures() {
+  public ImmutableMap<MarketDataId<?>, Failure> getTimeSeriesFailures() {
     return timeSeriesFailures;
   }
 
@@ -450,13 +450,13 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code singleValueFailures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> singleValueFailures = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures = DirectMetaProperty.ofImmutable(
         this, "singleValueFailures", ScenarioCalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code timeSeriesFailures} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> timeSeriesFailures = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures = DirectMetaProperty.ofImmutable(
         this, "timeSeriesFailures", ScenarioCalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -558,7 +558,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code singleValueFailures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> singleValueFailures() {
+    public final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures() {
       return singleValueFailures;
     }
 
@@ -566,7 +566,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code timeSeriesFailures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<MarketDataId<?>, Result<?>>> timeSeriesFailures() {
+    public final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> timeSeriesFailures() {
       return timeSeriesFailures;
     }
 
@@ -614,8 +614,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     private ListMultimap<MarketDataId<?>, ?> values = ImmutableListMultimap.of();
     private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
     private Map<? extends MarketDataId<?>, Object> globalValues = ImmutableMap.of();
-    private Map<MarketDataId<?>, Result<?>> singleValueFailures = ImmutableMap.of();
-    private Map<MarketDataId<?>, Result<?>> timeSeriesFailures = ImmutableMap.of();
+    private Map<MarketDataId<?>, Failure> singleValueFailures = ImmutableMap.of();
+    private Map<MarketDataId<?>, Failure> timeSeriesFailures = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -666,10 +666,10 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
           this.globalValues = (Map<? extends MarketDataId<?>, Object>) newValue;
           break;
         case -1633495726:  // singleValueFailures
-          this.singleValueFailures = (Map<MarketDataId<?>, Result<?>>) newValue;
+          this.singleValueFailures = (Map<MarketDataId<?>, Failure>) newValue;
           break;
         case -1580093459:  // timeSeriesFailures
-          this.timeSeriesFailures = (Map<MarketDataId<?>, Result<?>>) newValue;
+          this.timeSeriesFailures = (Map<MarketDataId<?>, Failure>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

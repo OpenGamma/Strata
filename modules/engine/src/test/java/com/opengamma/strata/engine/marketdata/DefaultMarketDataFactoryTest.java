@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -211,12 +212,11 @@ public class DefaultMarketDataFactoryTest {
         requirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
         MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Result<?>> failures = marketData.getSingleValueFailures();
-    Result<?> missingResult = failures.get(missingId);
+    Map<MarketDataId<?>, Failure> failures = marketData.getSingleValueFailures();
+    Failure failure = failures.get(missingId);
 
-    assertThat(missingResult).isFailure();
     String message = Messages.format("No market data mapping found for market data key {}", key);
-    assertThat(missingResult.getFailure().getMessage()).isEqualTo(message);
+    assertThat(failure.getMessage()).isEqualTo(message);
   }
 
   /**
@@ -240,10 +240,12 @@ public class DefaultMarketDataFactoryTest {
         marketDataRequirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
         MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Result<?>> failures = marketData.getSingleValueFailures();
+    Map<MarketDataId<?>, Failure> failures = marketData.getSingleValueFailures();
 
-    assertThat(failures.get(id3)).hasFailureMessageMatching("No market data rule.*");
-    assertThat(failures.get(id4)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(failures.get(id3)).isNotNull();
+    assertThat(failures.get(id4)).isNotNull();
+    assertThat(failures.get(id3).getMessage()).matches("No market data rule.*");
+    assertThat(failures.get(id4).getMessage()).matches("No market data rule.*");
     assertThat(marketData.getValue(ID1)).isEqualTo(1d);
     assertThat(marketData.getValue(ID2)).isEqualTo(3d);
   }
@@ -267,8 +269,9 @@ public class DefaultMarketDataFactoryTest {
         requirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
         MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Result<?>> singleValueFailures = marketData.getSingleValueFailures();
-    assertThat(singleValueFailures.get(id1)).hasFailureMessageMatching("No market data rule.*");
+    Map<MarketDataId<?>, Failure> singleValueFailures = marketData.getSingleValueFailures();
+    assertThat(singleValueFailures.get(id1)).isNotNull();
+    assertThat(singleValueFailures.get(id1).getMessage()).matches("No market data rule.*");
   }
 
   /**
@@ -310,12 +313,14 @@ public class DefaultMarketDataFactoryTest {
         marketDataRequirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
         MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Result<?>> failures = marketData.getTimeSeriesFailures();
+    Map<MarketDataId<?>, Failure> failures = marketData.getTimeSeriesFailures();
 
     assertThat(marketData.getTimeSeries(ID1)).isEqualTo(libor1mTimeSeries);
     assertThat(marketData.getTimeSeries(ID2)).isEqualTo(libor3mTimeSeries);
-    assertThat(failures.get(id3)).hasFailureMessageMatching("No market data rule.*");
-    assertThat(failures.get(id4)).hasFailureMessageMatching("No market data rule.*");
+    assertThat(failures.get(id3)).isNotNull();
+    assertThat(failures.get(id4)).isNotNull();
+    assertThat(failures.get(id3).getMessage()).matches("No market data rule.*");
+    assertThat(failures.get(id4).getMessage()).matches("No market data rule.*");
   }
 
   /**
@@ -472,17 +477,21 @@ public class DefaultMarketDataFactoryTest {
         requirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
         MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Result<?>> failures = marketData.getSingleValueFailures();
+    Map<MarketDataId<?>, Failure> failures = marketData.getSingleValueFailures();
 
-    Result<?> failureB1 = failures.get(idB1);
-    Result<?> failureB2 = failures.get(idB2);
-    Result<?> failureC1 = failures.get(idC1);
-    Result<?> failureC2 = failures.get(idC2);
+    Failure failureB1 = failures.get(idB1);
+    Failure failureB2 = failures.get(idB2);
+    Failure failureC1 = failures.get(idC1);
+    Failure failureC2 = failures.get(idC2);
 
-    assertThat(failureB1).hasFailureMessageMatching("No value for.*");
-    assertThat(failureB2).hasFailureMessageMatching("No value for.*");
-    assertThat(failureC1).hasFailureMessageMatching("No market data function available to handle.*");
-    assertThat(failureC2).hasFailureMessageMatching("No market data function available to handle.*");
+    assertThat(failureB1).isNotNull();
+    assertThat(failureB2).isNotNull();
+    assertThat(failureC1).isNotNull();
+    assertThat(failureC2).isNotNull();
+    assertThat(failureB1.getMessage()).matches("No value for.*");
+    assertThat(failureB2.getMessage()).matches("No value for.*");
+    assertThat(failureC1.getMessage()).matches("No market data function available to handle.*");
+    assertThat(failureC2.getMessage()).matches("No market data function available to handle.*");
   }
 
   /**
@@ -968,11 +977,13 @@ public class DefaultMarketDataFactoryTest {
         suppliedData,
         scenarioDefinition,
         MARKET_DATA_CONFIG);
-    Map<MarketDataId<?>, Result<?>> failures = marketData.getSingleValueFailures();
+    Map<MarketDataId<?>, Failure> failures = marketData.getSingleValueFailures();
 
     assertThat(failures.size()).isEqualTo(2);
-    assertThat(failures.get(id1)).hasFailureMessageMatching("No market data function available.*");
-    assertThat(failures.get(id2)).hasFailureMessageMatching("No market data function available.*");
+    assertThat(failures.get(id1)).isNotNull();
+    assertThat(failures.get(id2)).isNotNull();
+    assertThat(failures.get(id1).getMessage()).matches("No market data function available.*");
+    assertThat(failures.get(id2).getMessage()).matches("No market data function available.*");
 
     assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No values available for.*");
     assertThrows(() -> marketData.getValues(id2), IllegalArgumentException.class, "No values available for.*");

@@ -12,6 +12,7 @@ import java.util.Map;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -30,10 +31,10 @@ public final class CalculationEnvironmentBuilder {
   private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
   /** Details of failures when building single market data values. */
-  private final Map<MarketDataId<?>, Result<?>> singleValueFailures = new HashMap<>();
+  private final Map<MarketDataId<?>, Failure> singleValueFailures = new HashMap<>();
 
   /** Details of failures when building time series of market data values. */
-  private final Map<MarketDataId<?>, Result<?>> timeSeriesFailures = new HashMap<>();
+  private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
 
   /**
    * Creates a builder with a valuation date but no market data.
@@ -57,8 +58,8 @@ public final class CalculationEnvironmentBuilder {
       LocalDate valuationDate,
       Map<? extends MarketDataId<?>, Object> values,
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries,
-      Map<MarketDataId<?>, Result<?>> singleValueFailures,
-      Map<MarketDataId<?>, Result<?>> timeSeriesFailures) {
+      Map<MarketDataId<?>, Failure> singleValueFailures,
+      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.values.putAll(values);
@@ -100,7 +101,7 @@ public final class CalculationEnvironmentBuilder {
       // TODO Check the type of the value is compatible with the market data type of the ID
       singleValueFailures.remove(id);
     } else {
-      singleValueFailures.put(id, result);
+      singleValueFailures.put(id, result.getFailure());
       values.remove(id);
     }
     return this;
@@ -124,7 +125,7 @@ public final class CalculationEnvironmentBuilder {
       values.put(id, value);
       singleValueFailures.remove(id);
     } else {
-      singleValueFailures.put(id, result);
+      singleValueFailures.put(id, result.getFailure());
       values.remove(id);
     }
     return this;
@@ -147,7 +148,7 @@ public final class CalculationEnvironmentBuilder {
         values.put(id, result.getValue());
         singleValueFailures.remove(id);
       } else {
-        singleValueFailures.put(id, result);
+        singleValueFailures.put(id, result.getFailure());
         values.remove(id);
       }
     }
@@ -212,7 +213,7 @@ public final class CalculationEnvironmentBuilder {
       timeSeries.put(id, result.getValue());
       timeSeriesFailures.remove(id);
     } else {
-      timeSeriesFailures.put(id, result);
+      timeSeriesFailures.put(id, result.getFailure());
       timeSeries.remove(id);
     }
     return this;
