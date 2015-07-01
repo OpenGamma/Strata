@@ -29,7 +29,8 @@ public class DiscountingFxPaymentPricerTest {
 
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
   private static final Currency USD = Currency.USD;
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 5, 4);
+  private static final LocalDate PAYMENT_DATE = RatesProviderFxDataSets.VAL_DATE_2014_01_22.plusWeeks(8);
+  private static final LocalDate PAYMENT_DATE_PAST = RatesProviderFxDataSets.VAL_DATE_2014_01_22.minusDays(1);
   private static final double NOMINAL_USD = 100_000_000;
   private static final double FX_RATE = 1123.45;
   private static final FxPayment PAY = FxPayment.of(CurrencyAmount.of(USD, NOMINAL_USD), PAYMENT_DATE);
@@ -47,7 +48,7 @@ public class DiscountingFxPaymentPricerTest {
   }
 
   public void test_presentValue_ended() {
-    FxPayment fwd = FxPayment.of(CurrencyAmount.of(USD, NOMINAL_USD), LocalDate.of(2011, 11, 2));
+    FxPayment fwd = FxPayment.of(CurrencyAmount.of(USD, NOMINAL_USD), PAYMENT_DATE_PAST);
     CurrencyAmount computed = PRICER.presentValue(fwd, PROVIDER);
     assertEquals(computed, CurrencyAmount.zero(USD));
   }
@@ -61,7 +62,7 @@ public class DiscountingFxPaymentPricerTest {
   }
 
   public void test_presentValueSensitivity_ended() {
-    FxPayment pay = FxPayment.of(CurrencyAmount.of(USD, NOMINAL_USD), LocalDate.of(2011, 11, 2));
+    FxPayment pay = FxPayment.of(CurrencyAmount.of(USD, NOMINAL_USD), PAYMENT_DATE_PAST);
     PointSensitivities computed = PRICER.presentValueSensitivity(pay, PROVIDER).build();
     assertEquals(computed, PointSensitivities.empty());
   }

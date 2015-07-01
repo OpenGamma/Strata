@@ -40,6 +40,9 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  */
 public class RatesProviderDataSets {
 
+  /** Wednesday. */
+  public static final LocalDate VAL_DATE_2014_01_22 = LocalDate.of(2014, 1, 22);
+
   public static final double[] TIMES_1 = new double[]
   {0.01, 0.25, 0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0}; // 10 nodes
   public static final double[] TIMES_2 = new double[]
@@ -66,7 +69,7 @@ public class RatesProviderDataSets {
   {0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310};
 
   //-------------------------------------------------------------------------
-  private static final Map<Index, LocalDateDoubleTimeSeries> TIME_SERIES =
+  public static final Map<Index, LocalDateDoubleTimeSeries> TIME_SERIES =
       ImmutableMap.<Index, LocalDateDoubleTimeSeries>builder()
           .put(USD_FED_FUND, LocalDateDoubleTimeSeries.empty())
           .put(USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty())
@@ -79,7 +82,7 @@ public class RatesProviderDataSets {
           .put(ECB_EUR_GBP, LocalDateDoubleTimeSeries.empty())
           .put(ECB_EUR_USD, LocalDateDoubleTimeSeries.empty())
           .build();
-  private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
+  public static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
 
   //-------------------------------------------------------------------------
   //     =====     USD     =====     
@@ -100,8 +103,8 @@ public class RatesProviderDataSets {
       USD_LIBOR_3M, USD_SINGLE_CURVE,
       USD_LIBOR_6M, USD_SINGLE_CURVE);
 
-  public static final ImmutableRatesProvider USD_SINGLE = ImmutableRatesProvider.builder()
-      .valuationDate(LocalDate.of(2015, 4, 27))
+  public static final ImmutableRatesProvider SINGLE_USD = ImmutableRatesProvider.builder()
+      .valuationDate(VAL_DATE_2014_01_22)
       .fxMatrix(FX_MATRIX_USD)
       .discountCurves(USD_SINGLE_CCY_MAP)
       .indexCurves(USD_SINGLE_IND_MAP)
@@ -122,7 +125,7 @@ public class RatesProviderDataSets {
       USD_LIBOR_6M, USD_L6);
 
   public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder()
-      .valuationDate(LocalDate.of(2015, 4, 27))
+      .valuationDate(VAL_DATE_2014_01_22)
       .fxMatrix(FX_MATRIX_USD)
       .discountCurves(USD_MULTI_CCY_MAP)
       .indexCurves(USD_MULTI_IND_MAP)
@@ -152,7 +155,7 @@ public class RatesProviderDataSets {
       GBP_LIBOR_6M, GBP_L6);
 
   public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder()
-      .valuationDate(LocalDate.of(2013, 1, 2))
+      .valuationDate(VAL_DATE_2014_01_22)
       .fxMatrix(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP)
       .indexCurves(GBP_MULTI_IND_MAP)
@@ -180,7 +183,7 @@ public class RatesProviderDataSets {
     GBP_USD_MULTI_IND_MAP.put(USD_LIBOR_6M, USD_L6);
   }
   public static final ImmutableRatesProvider MULTI_GBP_USD = ImmutableRatesProvider.builder()
-      .valuationDate(LocalDate.of(2013, 1, 2))
+      .valuationDate(VAL_DATE_2014_01_22)
       .fxMatrix(FX_MATRIX_GBP_USD)
       .discountCurves(GBP_USD_MULTI_CCY_MAP)
       .indexCurves(GBP_USD_MULTI_IND_MAP)

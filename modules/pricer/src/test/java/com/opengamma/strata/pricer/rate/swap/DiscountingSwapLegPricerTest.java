@@ -97,7 +97,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 @Test
 public class DiscountingSwapLegPricerTest {
 
-  private static final RatesProvider MOCK_PROV = new MockRatesProvider(date(2014, 1, 22));
+  private static final RatesProvider MOCK_PROV = new MockRatesProvider(RatesProviderDataSets.VAL_DATE_2014_01_22);
   private static final RatesProvider MOCK_PROV_FUTURE = new MockRatesProvider(date(2040, 1, 22));
 
   private static final double TOLERANCE = 1.0e-12;
@@ -111,7 +111,7 @@ public class DiscountingSwapLegPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
 
   //-------------------------------------------------------------------------
-  public void test_couponEquivalent_TwoPeriods() {
+  public void test_couponEquivalent_twoPeriods() {
     ExpandedSwapLeg leg = ExpandedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
@@ -124,7 +124,7 @@ public class DiscountingSwapLegPricerTest {
     double df2 = 0.98d;
     when(mockProv.discountFactor(USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2.getPaymentDate()))
         .thenReturn(df2);
-    when(mockProv.getValuationDate()).thenReturn(date(2014, 1, 22));
+    when(mockProv.getValuationDate()).thenReturn(RatesProviderDataSets.VAL_DATE_2014_01_22);
     double pvbp = PRICER_LEG.pvbp(leg, mockProv);
     double ceExpected = PRICER_LEG.presentValuePeriodsInternal(leg, mockProv) / pvbp;
     double ceComputed = PRICER_LEG.couponEquivalent(leg, mockProv, pvbp);
@@ -132,7 +132,7 @@ public class DiscountingSwapLegPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_pvbp_OnePeriod() {
+  public void test_pvbp_onePeriod() {
     RatesProvider mockProv = mock(RatesProvider.class);
     double df = 0.99d;
     when(mockProv.discountFactor(USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate()))
@@ -143,7 +143,7 @@ public class DiscountingSwapLegPricerTest {
     assertEquals(test.pvbp(FIXED_EXPANDED_SWAP_LEG_PAY_USD, mockProv), expected, TOLERANCE);
   }
 
-  public void test_pvbp_TwoPeriods() {
+  public void test_pvbp_twoPeriods() {
     ExpandedSwapLeg leg = ExpandedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
@@ -164,12 +164,12 @@ public class DiscountingSwapLegPricerTest {
     assertEquals(test.pvbp(leg, mockProv), expected, TOLERANCE);
   }
 
-  public void test_pvbp_FxReset() {
+  public void test_pvbp_fxReset() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
     assertThrowsIllegalArg(() -> test.pvbp(FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
-  public void test_pvbp_Compounding() {
+  public void test_pvbp_compounding() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
     assertThrowsIllegalArg(() -> test.pvbp(FIXED_CMP_EXPANDED_SWAP_LEG_PAY_USD, MOCK_PROV));
   }
@@ -368,15 +368,15 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate DATE_14_03_31 = date(2014, 3, 31);
   private static final double START_INDEX = 218.0;
   private static final double NOTIONAL = 1000d;
-  private static final LocalDate VAL_DATE = LocalDate.of(2014, 7, 8);
-  private static final YearMonth VAL_MONTH = YearMonth.from(VAL_DATE);
+  private static final LocalDate VAL_DATE_INFLATION = LocalDate.of(2014, 7, 8);
+  private static final YearMonth VAL_MONTH_INFLATION = YearMonth.from(VAL_DATE_INFLATION);
 
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final double CONSTANT_INDEX = 242.0;
   private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH,
-      LocalDateDoubleTimeSeries.of(VAL_DATE.minusMonths(3), START_INDEX),
+      VAL_MONTH_INFLATION,
+      LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX),
       InterpolatedNodalCurve.of(
           "GB_RPI_CURVE",
           new double[] {1, 200},
@@ -386,8 +386,8 @@ public class DiscountingSwapLegPricerTest {
   private static final CurveInterpolator INTERP_SPLINE = Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
   private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH,
-      LocalDateDoubleTimeSeries.of(VAL_DATE.minusMonths(3), 227.2),
+      VAL_MONTH_INFLATION,
+      LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2),
       InterpolatedNodalCurve.of(
           "GB_RPI_CURVE",
           new double[] {6, 12, 24, 60, 120},
@@ -404,7 +404,7 @@ public class DiscountingSwapLegPricerTest {
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
         .priceIndexValues(map)
         .discountCurves(dscCurve)
@@ -447,7 +447,7 @@ public class DiscountingSwapLegPricerTest {
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .timeSeries(ImmutableMap.of(GB_RPI, ts))
         .priceIndexValues(map)
         .discountCurves(dscCurve)
@@ -541,7 +541,7 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .discountCurves(dscCurve)
         .build();
     // test futureValue and presentValue
