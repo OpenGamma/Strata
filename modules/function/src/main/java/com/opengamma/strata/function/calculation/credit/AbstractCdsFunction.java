@@ -5,6 +5,13 @@
  */
 package com.opengamma.strata.function.calculation.credit;
 
+import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
+
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
@@ -30,13 +37,6 @@ import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
-
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
-import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
 /**
  * Calculates a result of a {@code CdsTrade} for each of a set of scenarios.

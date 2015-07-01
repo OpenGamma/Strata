@@ -21,8 +21,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
-import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
@@ -48,7 +46,9 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
