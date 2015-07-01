@@ -88,7 +88,7 @@ public class CdsPricingExample {
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("cds-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
-    tradeReport.writeCsv(System.out);
+    tradeReport.writeAsciiTable(System.out);
   }
 
   //-----------------------------------------------------------------------  
