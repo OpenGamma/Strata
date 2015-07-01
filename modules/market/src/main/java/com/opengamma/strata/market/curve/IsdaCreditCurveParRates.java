@@ -8,6 +8,7 @@ package com.opengamma.strata.market.curve;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,6 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Lists;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
 
 /**
@@ -70,6 +73,23 @@ public final class IsdaCreditCurveParRates
   private final double scalingFactor;
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Provide curve meta data to capture tenor and anchor point date information
+   * @return curve metadata
+   */
+  public CurveMetadata getCurveMetaData() {
+    List<TenorCurveNodeMetadata> parameters = Lists.newArrayList();
+    for (int i = 0; i < creditCurvePoints.length; i++) {
+      TenorCurveNodeMetadata pointData = TenorCurveNodeMetadata.of(endDatePoints[i], Tenor.of(creditCurvePoints[i]));
+      parameters.add(pointData);
+    }
+    return CurveMetadata.of(
+        name,
+        parameters
+    );
+  }
+
   /**
    * Creates an instance of the par rates.
    * 

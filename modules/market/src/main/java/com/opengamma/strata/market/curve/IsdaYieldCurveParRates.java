@@ -6,7 +6,9 @@
 package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -25,6 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Lists;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 
 /**
@@ -45,6 +49,11 @@ public final class IsdaYieldCurveParRates
   @PropertyDefinition(validate = "notNull")
   private final Period[] yieldCurvePoints;
   /**
+   * The end date at each curve node.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate[] endDatePoints;
+  /**
    * The instrument type at each curve node.
    */
   @PropertyDefinition(validate = "notNull")
@@ -61,6 +70,23 @@ public final class IsdaYieldCurveParRates
   private final IsdaYieldCurveConvention curveConvention;
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Provide curve meta data to capture tenor and anchor point date information
+   * @return curve metadata
+   */
+  public CurveMetadata getCurveMetaData() {
+    List<TenorCurveNodeMetadata> parameters = Lists.newArrayList();
+    for (int i = 0; i < yieldCurvePoints.length; i++) {
+      TenorCurveNodeMetadata pointData = TenorCurveNodeMetadata.of(endDatePoints[i], Tenor.of(yieldCurvePoints[i]));
+      parameters.add(pointData);
+    }
+    return CurveMetadata.of(
+        name,
+        parameters
+    );
+  }
+
   /**
    * Creates an instance of the par rates.
    * 
@@ -74,6 +100,7 @@ public final class IsdaYieldCurveParRates
   public static IsdaYieldCurveParRates of(
       String name,
       Period[] yieldCurvePoints,
+      LocalDate[] endDatePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
       IsdaYieldCurveConvention curveConvention) {
@@ -81,6 +108,7 @@ public final class IsdaYieldCurveParRates
     return new IsdaYieldCurveParRates(
         name,
         yieldCurvePoints,
+        endDatePoints,
         yieldCurveInstruments,
         parRates,
         curveConvention);
@@ -138,6 +166,7 @@ public final class IsdaYieldCurveParRates
     return IsdaYieldCurveParRates.of(
         name,
         yieldCurvePoints.clone(),
+        endDatePoints.clone(),
         yieldCurveInstruments.clone(),
         shiftedRates,
         curveConvention
@@ -166,16 +195,19 @@ public final class IsdaYieldCurveParRates
   private IsdaYieldCurveParRates(
       String name,
       Period[] yieldCurvePoints,
+      LocalDate[] endDatePoints,
       IsdaYieldCurveUnderlyingType[] yieldCurveInstruments,
       double[] parRates,
       IsdaYieldCurveConvention curveConvention) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(yieldCurvePoints, "yieldCurvePoints");
+    JodaBeanUtils.notNull(endDatePoints, "endDatePoints");
     JodaBeanUtils.notNull(yieldCurveInstruments, "yieldCurveInstruments");
     JodaBeanUtils.notNull(parRates, "parRates");
     JodaBeanUtils.notNull(curveConvention, "curveConvention");
     this.name = name;
     this.yieldCurvePoints = yieldCurvePoints;
+    this.endDatePoints = endDatePoints;
     this.yieldCurveInstruments = yieldCurveInstruments;
     this.parRates = parRates.clone();
     this.curveConvention = curveConvention;
@@ -217,6 +249,15 @@ public final class IsdaYieldCurveParRates
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the end date at each curve node.
+   * @return the value of the property, not null
+   */
+  public LocalDate[] getEndDatePoints() {
+    return endDatePoints;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the instrument type at each curve node.
    * @return the value of the property, not null
    */
@@ -252,6 +293,7 @@ public final class IsdaYieldCurveParRates
       IsdaYieldCurveParRates other = (IsdaYieldCurveParRates) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getYieldCurvePoints(), other.getYieldCurvePoints()) &&
+          JodaBeanUtils.equal(getEndDatePoints(), other.getEndDatePoints()) &&
           JodaBeanUtils.equal(getYieldCurveInstruments(), other.getYieldCurveInstruments()) &&
           JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
           JodaBeanUtils.equal(getCurveConvention(), other.getCurveConvention());
@@ -264,6 +306,7 @@ public final class IsdaYieldCurveParRates
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getName());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurvePoints());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDatePoints());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveInstruments());
     hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurveConvention());
@@ -272,10 +315,11 @@ public final class IsdaYieldCurveParRates
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("IsdaYieldCurveParRates{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("yieldCurvePoints").append('=').append(getYieldCurvePoints()).append(',').append(' ');
+    buf.append("endDatePoints").append('=').append(getEndDatePoints()).append(',').append(' ');
     buf.append("yieldCurveInstruments").append('=').append(getYieldCurveInstruments()).append(',').append(' ');
     buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
     buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(getCurveConvention()));
@@ -304,6 +348,11 @@ public final class IsdaYieldCurveParRates
     private final MetaProperty<Period[]> yieldCurvePoints = DirectMetaProperty.ofImmutable(
         this, "yieldCurvePoints", IsdaYieldCurveParRates.class, Period[].class);
     /**
+     * The meta-property for the {@code endDatePoints} property.
+     */
+    private final MetaProperty<LocalDate[]> endDatePoints = DirectMetaProperty.ofImmutable(
+        this, "endDatePoints", IsdaYieldCurveParRates.class, LocalDate[].class);
+    /**
      * The meta-property for the {@code yieldCurveInstruments} property.
      */
     private final MetaProperty<IsdaYieldCurveUnderlyingType[]> yieldCurveInstruments = DirectMetaProperty.ofImmutable(
@@ -325,6 +374,7 @@ public final class IsdaYieldCurveParRates
         this, null,
         "name",
         "yieldCurvePoints",
+        "endDatePoints",
         "yieldCurveInstruments",
         "parRates",
         "curveConvention");
@@ -342,6 +392,8 @@ public final class IsdaYieldCurveParRates
           return name;
         case 695376101:  // yieldCurvePoints
           return yieldCurvePoints;
+        case 578522476:  // endDatePoints
+          return endDatePoints;
         case -1469575510:  // yieldCurveInstruments
           return yieldCurveInstruments;
         case 1157229426:  // parRates
@@ -385,6 +437,14 @@ public final class IsdaYieldCurveParRates
     }
 
     /**
+     * The meta-property for the {@code endDatePoints} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate[]> endDatePoints() {
+      return endDatePoints;
+    }
+
+    /**
      * The meta-property for the {@code yieldCurveInstruments} property.
      * @return the meta-property, not null
      */
@@ -416,6 +476,8 @@ public final class IsdaYieldCurveParRates
           return ((IsdaYieldCurveParRates) bean).getName();
         case 695376101:  // yieldCurvePoints
           return ((IsdaYieldCurveParRates) bean).getYieldCurvePoints();
+        case 578522476:  // endDatePoints
+          return ((IsdaYieldCurveParRates) bean).getEndDatePoints();
         case -1469575510:  // yieldCurveInstruments
           return ((IsdaYieldCurveParRates) bean).getYieldCurveInstruments();
         case 1157229426:  // parRates
@@ -445,6 +507,7 @@ public final class IsdaYieldCurveParRates
 
     private String name;
     private Period[] yieldCurvePoints;
+    private LocalDate[] endDatePoints;
     private IsdaYieldCurveUnderlyingType[] yieldCurveInstruments;
     private double[] parRates;
     private IsdaYieldCurveConvention curveConvention;
@@ -463,6 +526,8 @@ public final class IsdaYieldCurveParRates
           return name;
         case 695376101:  // yieldCurvePoints
           return yieldCurvePoints;
+        case 578522476:  // endDatePoints
+          return endDatePoints;
         case -1469575510:  // yieldCurveInstruments
           return yieldCurveInstruments;
         case 1157229426:  // parRates
@@ -482,6 +547,9 @@ public final class IsdaYieldCurveParRates
           break;
         case 695376101:  // yieldCurvePoints
           this.yieldCurvePoints = (Period[]) newValue;
+          break;
+        case 578522476:  // endDatePoints
+          this.endDatePoints = (LocalDate[]) newValue;
           break;
         case -1469575510:  // yieldCurveInstruments
           this.yieldCurveInstruments = (IsdaYieldCurveUnderlyingType[]) newValue;
@@ -527,6 +595,7 @@ public final class IsdaYieldCurveParRates
       return new IsdaYieldCurveParRates(
           name,
           yieldCurvePoints,
+          endDatePoints,
           yieldCurveInstruments,
           parRates,
           curveConvention);
@@ -535,10 +604,11 @@ public final class IsdaYieldCurveParRates
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("IsdaYieldCurveParRates.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("yieldCurvePoints").append('=').append(JodaBeanUtils.toString(yieldCurvePoints)).append(',').append(' ');
+      buf.append("endDatePoints").append('=').append(JodaBeanUtils.toString(endDatePoints)).append(',').append(' ');
       buf.append("yieldCurveInstruments").append('=').append(JodaBeanUtils.toString(yieldCurveInstruments)).append(',').append(' ');
       buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
       buf.append("curveConvention").append('=').append(JodaBeanUtils.toString(curveConvention));

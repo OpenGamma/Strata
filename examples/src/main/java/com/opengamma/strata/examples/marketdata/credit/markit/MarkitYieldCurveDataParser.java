@@ -1,12 +1,16 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata.credit.markit;
 
+import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
@@ -27,6 +31,7 @@ import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
  */
 public class MarkitYieldCurveDataParser {
 
+  private static final String DATE = "Valuation Date";
   private static final String TENOR = "Tenor";
   private static final String INSTRUMENT = "Instrument Type";
   private static final String RATE = "Rate";
@@ -34,8 +39,8 @@ public class MarkitYieldCurveDataParser {
 
   /**
    * Parses the specified source.
-   * 
-   * @param source  the source to parse
+   *
+   * @param source the source to parse
    * @return the map of parsed yield curve par rates
    */
   public static Map<IsdaYieldCurveParRatesId, IsdaYieldCurveParRates> parse(CharSource source) {
@@ -43,6 +48,7 @@ public class MarkitYieldCurveDataParser {
     Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
     CsvFile csv = CsvFile.of(source, true);
     for (int i = 0; i < csv.lineCount(); i++) {
+      String dateText = csv.field(i, DATE);
       String tenorText = csv.field(i, TENOR);
       String instrumentText = csv.field(i, INSTRUMENT);
       String rateText = csv.field(i, RATE);
@@ -50,6 +56,7 @@ public class MarkitYieldCurveDataParser {
 
       Point point = new Point(
           Tenor.parse(tenorText),
+          LocalDate.parse(dateText, DateTimeFormatter.ISO_LOCAL_DATE),
           mapUnderlyingType(instrumentText),
           Double.parseDouble(rateText));
       IsdaYieldCurveConvention convention = IsdaYieldCurveConvention.of(conventionText);
@@ -70,6 +77,7 @@ public class MarkitYieldCurveDataParser {
           IsdaYieldCurveParRates.of(
               convention.getName(),
               points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new),
+              points.stream().map(s -> s.getDate()).toArray(LocalDate[]::new),
               points.stream().map(s -> s.getInstrumentType()).toArray(IsdaYieldCurveUnderlyingType[]::new),
               points.stream().mapToDouble(s -> s.getRate()).toArray(),
               convention));
@@ -90,22 +98,29 @@ public class MarkitYieldCurveDataParser {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Stores the parsed data points.
    */
   private static class Point {
     private final Tenor tenor;
+    private final LocalDate date;
     private final IsdaYieldCurveUnderlyingType instrumentType;
     private final double rate;
 
-    private Point(Tenor tenor, IsdaYieldCurveUnderlyingType instrumentType, double rate) {
+    private Point(Tenor tenor, LocalDate baseDate, IsdaYieldCurveUnderlyingType instrumentType, double rate) {
       this.tenor = tenor;
+      this.date = baseDate.plus(tenor.getPeriod());
       this.instrumentType = instrumentType;
       this.rate = rate;
     }
 
     public Tenor getTenor() {
       return tenor;
+    }
+
+    public LocalDate getDate() {
+      return date;
     }
 
     public IsdaYieldCurveUnderlyingType getInstrumentType() {
