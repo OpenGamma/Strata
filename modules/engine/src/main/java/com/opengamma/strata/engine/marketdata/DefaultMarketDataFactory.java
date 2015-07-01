@@ -7,6 +7,7 @@ package com.opengamma.strata.engine.marketdata;
 
 import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.Collections;
@@ -113,14 +114,33 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     this.functions = ImmutableMap.copyOf(builderMap);
   }
 
+  // TODO Is this really necessary? Use buildCalculationEnvironment and add a flag to retain intermediate values?
   @Override
   public MarketEnvironmentResult buildMarketEnvironment(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
-    // TODO Call buildCalculationEnvironment and only return the types that belong in MarketEnvironment
-    throw new UnsupportedOperationException();
+    CalculationEnvironment calcEnv = buildCalculationEnvironment(requirements, suppliedData, marketDataConfig);
+
+    Map<? extends MarketDataId<?>, Object> requestedValues = Seq.seq(calcEnv.getValues())
+        .filter(tp -> requirements.getNonObservables().contains(tp.v1) || requirements.getObservables().contains(tp.v1))
+        .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+
+    Map<ObservableId, LocalDateDoubleTimeSeries> requestedTimeSeries = Seq.seq(calcEnv.getTimeSeries())
+        .filter(tp -> requirements.getTimeSeries().contains(tp.v1))
+        .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+
+    MarketEnvironment marketEnvironment = MarketEnvironment.builder(calcEnv.getValuationDate())
+        .addAllValues(requestedValues)
+        .addAllTimeSeries(requestedTimeSeries)
+        .build();
+
+    return MarketEnvironmentResult.builder()
+        .marketEnvironment(marketEnvironment)
+        .singleValueFailures(calcEnv.getSingleValueFailures())
+        .timeSeriesFailures(calcEnv.getTimeSeriesFailures())
+        .build();
   }
 
   @Override

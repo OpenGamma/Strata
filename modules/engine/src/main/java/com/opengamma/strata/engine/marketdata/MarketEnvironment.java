@@ -34,6 +34,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
+// TODO Is this actually necessary? Better to use CalculationEnvironment everywhere and just discard intermediate values?
 /**
  * A set of market data.
  * <p>
@@ -60,6 +61,7 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
 
+  // TODO Should there be separate maps for observable and non-observable data?
   // TODO Do the values need to include the timestamp as well as the market data item?
   /** The individual items of market data, keyed by ID. */
   @PropertyDefinition(validate = "notNull")
