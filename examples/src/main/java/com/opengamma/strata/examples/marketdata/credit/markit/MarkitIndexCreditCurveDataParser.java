@@ -1,9 +1,24 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.marketdata.credit.markit;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.CharSource;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
+import com.opengamma.strata.examples.marketdata.CsvFile;
+import com.opengamma.strata.finance.credit.IndexReferenceInformation;
+import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
+import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
+import com.opengamma.strata.market.value.CdsRecoveryRate;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -12,18 +27,6 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.CharSource;
-import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.examples.marketdata.CsvFile;
-import com.opengamma.strata.finance.credit.IndexReferenceInformation;
-import com.opengamma.strata.finance.credit.type.CdsConvention;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
-import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
 
 /**
  * Parser to load daily index curve information provided by Markit.
@@ -66,15 +69,16 @@ public class MarkitIndexCreditCurveDataParser {
 
   /**
    * Parses the specified sources.
-   * 
+   *
+   * @param builder  the market data builder that the resulting curve and recovery rate items should be loaded into
    * @param curveSource  the source of curve data to parse
    * @param staticDataSource  the source of static data to parse
-   * @return the map of parsed yield curve par rates
    */
-  public static Map<IsdaIndexCreditCurveParRatesId, IsdaCreditCurveParRates> parse(
+  public static void parse(
+      BaseMarketDataBuilder builder,
       CharSource curveSource,
       CharSource staticDataSource) {
-    
+
     Map<IsdaIndexCreditCurveParRatesId, List<Point>> curveData = Maps.newHashMap();
     Map<MarkitRedCode, StaticData> staticDataMap = parseStaticData(staticDataSource);
 
@@ -98,8 +102,8 @@ public class MarkitIndexCreditCurveDataParser {
               indexId,
               indexSeries,
               indexAnnexVersion
-              )
-          );
+          )
+      );
 
       Tenor term = Tenor.parse(termText);
       LocalDate maturity = LocalDate.parse(maturityText, DATE_FORMAT);
@@ -126,10 +130,8 @@ public class MarkitIndexCreditCurveDataParser {
 
     }
 
-    Map<IsdaIndexCreditCurveParRatesId, IsdaCreditCurveParRates> result = Maps.newHashMap();
-
-    for (IsdaIndexCreditCurveParRatesId id : curveData.keySet()) {
-      MarkitRedCode redCode = MarkitRedCode.from(id.getReferenceInformation().getIndexId());
+    for (IsdaIndexCreditCurveParRatesId curveId : curveData.keySet()) {
+      MarkitRedCode redCode = MarkitRedCode.from(curveId.getReferenceInformation().getIndexId());
       StaticData staticData = staticDataMap.get(redCode);
       ArgChecker.notNull(staticData, "Did not find a static data record for " + redCode);
       CdsConvention convention = staticData.getConvention();
@@ -137,28 +139,31 @@ public class MarkitIndexCreditCurveDataParser {
       double indexFactor = staticData.getIndexFactor();
       // TODO add fromDate handling
 
-      String creditCurveName = id.toString();
+      String creditCurveName = curveId.toString();
 
-      List<Point> points = curveData.get(id);
+      List<Point> points = curveData.get(curveId);
 
       Period[] periods = points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new);
       LocalDate[] endDates = points.stream().map(s -> s.getDate()).toArray(LocalDate[]::new);
       double[] rates = points.stream().mapToDouble(s -> s.getRate()).toArray();
 
-      result.put(
-          id,
-          IsdaCreditCurveParRates.of(
-              creditCurveName,
-              periods,
-              endDates,
-              rates,
-              convention,
-              recoveryRate,
-              indexFactor
-              ));
+      IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
+          creditCurveName,
+          periods,
+          endDates,
+          rates,
+          convention,
+          indexFactor);
+
+      builder.addValue(curveId, parRates);
+
+      IsdaIndexRecoveryRateId recoveryRateId = IsdaIndexRecoveryRateId.of(curveId.getReferenceInformation());
+      CdsRecoveryRate cdsRecoveryRate = CdsRecoveryRate.of(recoveryRate);
+
+      builder.addValue(recoveryRateId, cdsRecoveryRate);
 
     }
-    return result;
+
   }
 
   // parses the static data file
@@ -185,6 +190,7 @@ public class MarkitIndexCreditCurveDataParser {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Stores the parsed static data.
    */
@@ -221,6 +227,7 @@ public class MarkitIndexCreditCurveDataParser {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Stores the parsed data points.
    */

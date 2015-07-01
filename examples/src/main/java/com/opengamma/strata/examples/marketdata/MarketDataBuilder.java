@@ -5,20 +5,6 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
@@ -40,13 +26,23 @@ import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
-import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Map;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -360,14 +356,7 @@ public abstract class MarketDataBuilder {
     try {
       CharSource inputCreditCurvesSource = singleNameCurvesResource.getCharSource();
       CharSource inputStaticDataSource = singleNameStaticDataResource.getCharSource();
-      Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitSingleNameCreditCurveDataParser
-          .parse(inputCreditCurvesSource, inputStaticDataSource);
-
-      for (IsdaSingleNameCreditCurveParRatesId id : creditCurves.keySet()) {
-        IsdaCreditCurveParRates parRates = creditCurves.get(id);
-        builder.addValue(id, parRates);
-      }
-
+      MarkitSingleNameCreditCurveDataParser.parse(builder, inputCreditCurvesSource, inputStaticDataSource);
     } catch (Exception ex) {
       throw new RuntimeException(String.format("Unable to read single name spread curves: exception at %s/%s",
           creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE), ex);
@@ -392,13 +381,7 @@ public abstract class MarketDataBuilder {
 
     CharSource indexCreditCurvesSource = inputCurvesResource.getCharSource();
     CharSource indexStaticDataSource = inputStaticDataResource.getCharSource();
-    Map<IsdaIndexCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitIndexCreditCurveDataParser
-        .parse(indexCreditCurvesSource, indexStaticDataSource);
-
-    for (IsdaIndexCreditCurveParRatesId id : creditCurves.keySet()) {
-      IsdaCreditCurveParRates parRates = creditCurves.get(id);
-      builder.addValue(id, parRates);
-    }
+    MarkitIndexCreditCurveDataParser.parse(builder, indexCreditCurvesSource, indexStaticDataSource);
 
   }
 

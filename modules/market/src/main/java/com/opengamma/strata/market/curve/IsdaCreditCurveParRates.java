@@ -64,11 +64,6 @@ public final class IsdaCreditCurveParRates
   @PropertyDefinition(validate = "notNull")
   private final CdsConvention cdsConvention;
   /**
-   * The recovery rate.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final double recoveryRate;
-  /**
    * The scaling factor.
    */
   @PropertyDefinition(validate = "notNull")
@@ -83,7 +78,6 @@ public final class IsdaCreditCurveParRates
    * @param parRates  the par rate at each curve node
    * @param endDatePoints  the end date at each curve node
    * @param cdsConvention  the underlying convention
-   * @param recoveryRate  the recovery rate
    * @param scalingFactor  the scaling factor
    * @return the par rates
    */
@@ -93,7 +87,6 @@ public final class IsdaCreditCurveParRates
       LocalDate[] endDatePoints,
       double[] parRates,
       CdsConvention cdsConvention,
-      double recoveryRate,
       double scalingFactor) {
 
     return new IsdaCreditCurveParRates(
@@ -102,7 +95,6 @@ public final class IsdaCreditCurveParRates
         endDatePoints,
         parRates,
         cdsConvention,
-        recoveryRate,
         scalingFactor);
   }
 
@@ -161,7 +153,6 @@ public final class IsdaCreditCurveParRates
         endDatePoints.clone(),
         shiftedRates,
         cdsConvention,
-        recoveryRate,
         scalingFactor);
   }
 
@@ -190,21 +181,18 @@ public final class IsdaCreditCurveParRates
       LocalDate[] endDatePoints,
       double[] parRates,
       CdsConvention cdsConvention,
-      double recoveryRate,
       double scalingFactor) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(creditCurvePoints, "creditCurvePoints");
     JodaBeanUtils.notNull(endDatePoints, "endDatePoints");
     JodaBeanUtils.notNull(parRates, "parRates");
     JodaBeanUtils.notNull(cdsConvention, "cdsConvention");
-    JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
     JodaBeanUtils.notNull(scalingFactor, "scalingFactor");
     this.name = name;
     this.creditCurvePoints = creditCurvePoints;
     this.endDatePoints = endDatePoints;
     this.parRates = parRates.clone();
     this.cdsConvention = cdsConvention;
-    this.recoveryRate = recoveryRate;
     this.scalingFactor = scalingFactor;
     validate();
   }
@@ -271,15 +259,6 @@ public final class IsdaCreditCurveParRates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the recovery rate.
-   * @return the value of the property, not null
-   */
-  public double getRecoveryRate() {
-    return recoveryRate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the scaling factor.
    * @return the value of the property, not null
    */
@@ -300,7 +279,6 @@ public final class IsdaCreditCurveParRates
           JodaBeanUtils.equal(getEndDatePoints(), other.getEndDatePoints()) &&
           JodaBeanUtils.equal(getParRates(), other.getParRates()) &&
           JodaBeanUtils.equal(getCdsConvention(), other.getCdsConvention()) &&
-          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
           JodaBeanUtils.equal(getScalingFactor(), other.getScalingFactor());
     }
     return false;
@@ -314,21 +292,19 @@ public final class IsdaCreditCurveParRates
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDatePoints());
     hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCdsConvention());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("IsdaCreditCurveParRates{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("creditCurvePoints").append('=').append(getCreditCurvePoints()).append(',').append(' ');
     buf.append("endDatePoints").append('=').append(getEndDatePoints()).append(',').append(' ');
     buf.append("parRates").append('=').append(getParRates()).append(',').append(' ');
     buf.append("cdsConvention").append('=').append(getCdsConvention()).append(',').append(' ');
-    buf.append("recoveryRate").append('=').append(getRecoveryRate()).append(',').append(' ');
     buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(getScalingFactor()));
     buf.append('}');
     return buf.toString();
@@ -370,11 +346,6 @@ public final class IsdaCreditCurveParRates
     private final MetaProperty<CdsConvention> cdsConvention = DirectMetaProperty.ofImmutable(
         this, "cdsConvention", IsdaCreditCurveParRates.class, CdsConvention.class);
     /**
-     * The meta-property for the {@code recoveryRate} property.
-     */
-    private final MetaProperty<Double> recoveryRate = DirectMetaProperty.ofImmutable(
-        this, "recoveryRate", IsdaCreditCurveParRates.class, Double.TYPE);
-    /**
      * The meta-property for the {@code scalingFactor} property.
      */
     private final MetaProperty<Double> scalingFactor = DirectMetaProperty.ofImmutable(
@@ -389,7 +360,6 @@ public final class IsdaCreditCurveParRates
         "endDatePoints",
         "parRates",
         "cdsConvention",
-        "recoveryRate",
         "scalingFactor");
 
     /**
@@ -411,8 +381,6 @@ public final class IsdaCreditCurveParRates
           return parRates;
         case 288334147:  // cdsConvention
           return cdsConvention;
-        case 2002873877:  // recoveryRate
-          return recoveryRate;
         case -794828874:  // scalingFactor
           return scalingFactor;
       }
@@ -476,14 +444,6 @@ public final class IsdaCreditCurveParRates
     }
 
     /**
-     * The meta-property for the {@code recoveryRate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> recoveryRate() {
-      return recoveryRate;
-    }
-
-    /**
      * The meta-property for the {@code scalingFactor} property.
      * @return the meta-property, not null
      */
@@ -505,8 +465,6 @@ public final class IsdaCreditCurveParRates
           return ((IsdaCreditCurveParRates) bean).getParRates();
         case 288334147:  // cdsConvention
           return ((IsdaCreditCurveParRates) bean).getCdsConvention();
-        case 2002873877:  // recoveryRate
-          return ((IsdaCreditCurveParRates) bean).getRecoveryRate();
         case -794828874:  // scalingFactor
           return ((IsdaCreditCurveParRates) bean).getScalingFactor();
       }
@@ -535,7 +493,6 @@ public final class IsdaCreditCurveParRates
     private LocalDate[] endDatePoints;
     private double[] parRates;
     private CdsConvention cdsConvention;
-    private double recoveryRate;
     private double scalingFactor;
 
     /**
@@ -558,8 +515,6 @@ public final class IsdaCreditCurveParRates
           return parRates;
         case 288334147:  // cdsConvention
           return cdsConvention;
-        case 2002873877:  // recoveryRate
-          return recoveryRate;
         case -794828874:  // scalingFactor
           return scalingFactor;
         default:
@@ -584,9 +539,6 @@ public final class IsdaCreditCurveParRates
           break;
         case 288334147:  // cdsConvention
           this.cdsConvention = (CdsConvention) newValue;
-          break;
-        case 2002873877:  // recoveryRate
-          this.recoveryRate = (Double) newValue;
           break;
         case -794828874:  // scalingFactor
           this.scalingFactor = (Double) newValue;
@@ -629,21 +581,19 @@ public final class IsdaCreditCurveParRates
           endDatePoints,
           parRates,
           cdsConvention,
-          recoveryRate,
           scalingFactor);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("IsdaCreditCurveParRates.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("creditCurvePoints").append('=').append(JodaBeanUtils.toString(creditCurvePoints)).append(',').append(' ');
       buf.append("endDatePoints").append('=').append(JodaBeanUtils.toString(endDatePoints)).append(',').append(' ');
       buf.append("parRates").append('=').append(JodaBeanUtils.toString(parRates)).append(',').append(' ');
       buf.append("cdsConvention").append('=').append(JodaBeanUtils.toString(cdsConvention)).append(',').append(' ');
-      buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(recoveryRate)).append(',').append(' ');
       buf.append("scalingFactor").append('=').append(JodaBeanUtils.toString(scalingFactor));
       buf.append('}');
       return buf.toString();

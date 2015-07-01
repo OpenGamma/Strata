@@ -106,7 +106,14 @@ public final class Measure
    * Measure representing the (vector) PV change to a series of 1 bps shifts in hazard rates at each curve node.
    */
   public static final Measure CS01_BUCKETED_HAZARD = Measure.of("CS01BucketedHazard");
-
+  /**
+   * Measure representing the (scalar) PV change to a 1 bps shift in recovery rate.
+   */
+  public static final Measure RECOVERY01 = Measure.of("Recovery01");
+  /**
+   * Measure representing the the risk of default as opposed to the the risk of change in credit spreads.
+   */
+  public static final Measure JUMP_TO_DEFAULT = Measure.of("JumpToDefault");
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code Measure} by name.

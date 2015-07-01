@@ -1,13 +1,9 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * <p>
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.finance.credit.harness;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -27,6 +23,10 @@ import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.function.OpenGammaPricingRules;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class TestCalculator implements Calculator {
 
   private TestCalculator() {
@@ -35,11 +35,15 @@ public class TestCalculator implements Calculator {
   @Override
   public double calculateScalarValue(LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
     Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);
-    Preconditions.checkArgument(
-        result.getValue() instanceof CurrencyAmount,
-        "Expecting a CurrencyAmount, found " + result.getValue());
-    CurrencyAmount value = (CurrencyAmount) result.getValue();
-    return value.getAmount();
+    if (result.getValue() instanceof CurrencyAmount) {
+      CurrencyAmount value = (CurrencyAmount) result.getValue();
+      return value.getAmount();
+    } else if (result.getValue() instanceof Double) {
+      Double value = (Double) result.getValue();
+      return value;
+    } else {
+      throw new IllegalStateException("Expecting a CurrencyAmount, found " + result.getValue());
+    }
   }
 
   @Override

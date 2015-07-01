@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
+import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
@@ -119,7 +121,43 @@ public class MarketDataBuilderTest {
           IndexReferenceInformation.of(
               MarkitRedCode.id("INDEX0001"),
               22,
+              4)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP10"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.USD,
+              RestructuringClause.NO_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP02"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.USD,
+              RestructuringClause.NO_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP01"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.USD,
+              RestructuringClause.NO_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP11"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.EUR,
+              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP11"),
+              SeniorityLevel.SUBORDINATE_LOWER_TIER_2,
+              Currency.EUR,
+              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
+      IsdaIndexRecoveryRateId.of(
+          IndexReferenceInformation.of(
+              MarkitRedCode.id("INDEX0001"),
+              22,
               4)));
+
 
   public void test_directory() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();

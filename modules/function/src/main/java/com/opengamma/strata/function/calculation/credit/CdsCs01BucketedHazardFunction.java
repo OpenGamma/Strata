@@ -5,22 +5,22 @@
  */
 package com.opengamma.strata.function.calculation.credit;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 
 import java.time.LocalDate;
 
 /**
- * Calculates scalar IR01 of a {@code CdsTrade} for each of a set of scenarios.
- * This calculates the scalar PV change to a 1 basis point shift in par interest rates.
+ * Calculates vector CS01 of a {@code CdsTrade} for each of a set of scenarios.
+ * This calculates the vector PV change to a series of 1 basis point shifts in hazard rates at each curve node.
  */
-public class CdsIr01ParallelParFunction
-    extends AbstractCdsFunction<CurrencyAmount> {
+public class CdsCs01BucketedHazardFunction
+    extends AbstractCdsFunction<CurveCurrencyParameterSensitivities> {
 
   @Override
-  protected CurrencyAmount execute(
+  protected CurveCurrencyParameterSensitivities execute(
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
@@ -28,7 +28,7 @@ public class CdsIr01ParallelParFunction
       double recoveryRate,
       double scalingFactor) {
 
-    return pricer().ir01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
+    return pricer().cs01BucketedHazard(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }
