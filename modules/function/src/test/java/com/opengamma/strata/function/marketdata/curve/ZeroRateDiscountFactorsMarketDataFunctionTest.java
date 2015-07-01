@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -41,7 +41,7 @@ public class ZeroRateDiscountFactorsMarketDataFunctionTest {
     Curve curve = ConstantNodalCurve.of(DefaultCurveMetadata.of("AUD Discounting", ACT_ACT_ISDA), (double) 1);
     CurveGroupName curveGroupName = CurveGroupName.of("groupName");
     DiscountCurveId curveId = DiscountCurveId.of(AUD, curveGroupName, FEED);
-    BaseMarketData marketData = BaseMarketData.builder(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(curveId, curve)
         .build();
     ZeroRateDiscountFactorsMarketDataFunction builder = new ZeroRateDiscountFactorsMarketDataFunction();

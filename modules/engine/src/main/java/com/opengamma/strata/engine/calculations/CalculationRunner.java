@@ -13,8 +13,8 @@ import com.opengamma.strata.engine.config.CalculationTasksConfig;
 import com.opengamma.strata.engine.config.MarketDataRules;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 
 /**
  * Runs a set of calculations over a portfolio and returns the results.
@@ -56,7 +56,7 @@ public interface CalculationRunner {
    * @param marketData  market data to be used in the calculations
    * @return the calculation results
    */
-  public abstract Results calculate(CalculationTasks tasks, BaseMarketData marketData);
+  public abstract Results calculate(CalculationTasks tasks, CalculationEnvironment marketData);
 
   /**
    * Performs a set of calculations for multiple scenarios, each with a different set of market data.
@@ -65,7 +65,7 @@ public interface CalculationRunner {
    * @param marketData  the market data used in the calculations
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
-  public abstract Results calculate(CalculationTasks tasks, ScenarioMarketData marketData);
+  public abstract Results calculate(CalculationTasks tasks, ScenarioCalculationEnvironment marketData);
 
   /**
    * Asynchronously performs a set of calculations for a single scenario, invoking a listener as
@@ -81,7 +81,7 @@ public interface CalculationRunner {
    */
   public abstract void calculateAsync(
       CalculationTasks tasks,
-      BaseMarketData marketData,
+      CalculationEnvironment marketData,
       CalculationListener listener);
 
   /**
@@ -98,6 +98,6 @@ public interface CalculationRunner {
    */
   public abstract void calculateAsync(
       CalculationTasks tasks,
-      ScenarioMarketData marketData,
+      ScenarioCalculationEnvironment marketData,
       CalculationListener listener);
 }

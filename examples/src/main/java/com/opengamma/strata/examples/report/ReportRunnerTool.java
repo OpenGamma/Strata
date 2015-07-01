@@ -21,7 +21,7 @@ import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
@@ -134,7 +134,7 @@ public class ReportRunnerTool {
         .marketDataRules(marketDataBuilder.rules())
         .build();
 
-    BaseMarketData snapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketEnvironment snapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     CalculationEngine calculationEngine = ExampleEngine.create();
     

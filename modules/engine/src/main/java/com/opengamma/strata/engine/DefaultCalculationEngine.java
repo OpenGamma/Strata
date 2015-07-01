@@ -16,10 +16,10 @@ import com.opengamma.strata.engine.calculations.CalculationRunner;
 import com.opengamma.strata.engine.calculations.CalculationTasks;
 import com.opengamma.strata.engine.calculations.Results;
 import com.opengamma.strata.engine.config.CalculationTasksConfig;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
-import com.opengamma.strata.engine.marketdata.BaseMarketDataResult;
+import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.MarketDataFactory;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketDataResult;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
 
 /**
@@ -82,27 +82,25 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData marketData) {
+      MarketEnvironment marketEnvironment) {
 
     // create the tasks to be run
-    CalculationTasksConfig config =
-        calculationRunner.createCalculationConfig(
-            resolveTargetLinks(targets),
-            columns,
-            calculationRules.getPricingRules(),
-            calculationRules.getMarketDataRules(),
-            calculationRules.getReportingRules());
+    CalculationTasksConfig config = calculationRunner.createCalculationConfig(
+        resolveTargetLinks(targets),
+        columns,
+        calculationRules.getPricingRules(),
+        calculationRules.getMarketDataRules(),
+        calculationRules.getReportingRules());
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any missing market data
-    BaseMarketDataResult marketDataResult =
-        marketDataFactory.buildBaseMarketData(
-            tasks.getMarketDataRequirements(),
-            marketData,
-            calculationRules.getMarketDataConfig());
+    CalculationEnvironment calculationEnvironment = marketDataFactory.buildCalculationEnvironment(
+        tasks.getMarketDataRequirements(),
+        marketEnvironment,
+        calculationRules.getMarketDataConfig());
 
     // perform the calculations
-    return calculationRunner.calculate(tasks, marketDataResult.getMarketData());
+    return calculationRunner.calculate(tasks, calculationEnvironment);
   }
 
   @Override
@@ -110,29 +108,27 @@ public final class DefaultCalculationEngine implements CalculationEngine {
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       CalculationRules calculationRules,
-      BaseMarketData suppliedMarketData,
+      MarketEnvironment suppliedMarketData,
       ScenarioDefinition scenarioDefinition) {
 
     // create the tasks to be run
-    CalculationTasksConfig config =
-        calculationRunner.createCalculationConfig(
-            resolveTargetLinks(targets),
-            columns,
-            calculationRules.getPricingRules(),
-            calculationRules.getMarketDataRules(),
-            calculationRules.getReportingRules());
+    CalculationTasksConfig config = calculationRunner.createCalculationConfig(
+        resolveTargetLinks(targets),
+        columns,
+        calculationRules.getPricingRules(),
+        calculationRules.getMarketDataRules(),
+        calculationRules.getReportingRules());
     CalculationTasks tasks = calculationRunner.createCalculationTasks(config);
 
     // build any required scenarios from the base market data
-    ScenarioMarketDataResult scenarioMarketDataResult =
-        marketDataFactory.buildScenarioMarketData(
-            tasks.getMarketDataRequirements(),
-            suppliedMarketData,
-            scenarioDefinition,
-            calculationRules.getMarketDataConfig());
+    ScenarioCalculationEnvironment scenarioMarketData = marketDataFactory.buildScenarioCalculationEnvironment(
+        tasks.getMarketDataRequirements(),
+        suppliedMarketData,
+        scenarioDefinition,
+        calculationRules.getMarketDataConfig());
 
     // perform the calculations
-    return calculationRunner.calculate(tasks, scenarioMarketDataResult.getMarketData());
+    return calculationRunner.calculate(tasks, scenarioMarketData);
   }
 
   /**
@@ -143,7 +139,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
    */
   private List<CalculationTarget> resolveTargetLinks(List<? extends CalculationTarget> targets) {
     return targets.stream()
-        .map(t -> (CalculationTarget) t)  // annoying cast for stream generics
+        .map(t -> (CalculationTarget) t)  // annoying cast for Eclipse
         .map(linkResolver::resolveLinksIn)
         .collect(toImmutableList());
   }
