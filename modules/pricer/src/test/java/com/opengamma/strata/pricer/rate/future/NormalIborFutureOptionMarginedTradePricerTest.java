@@ -175,7 +175,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
         psProduct.getSensitivity() * OPTION_PRODUCT_PRICER.marginIndex(FUTURE_OPTION_PRODUCT, 1) * OPTION_QUANTITY);
     IborFutureOptionSensitivity psComputed = OPTION_TRADE_PRICER
         .presentValueSensitivityNormalVolatility(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE);
-    assertTrue(psExpected.compareExcludingSensitivity(psComputed) == 0);
+    assertTrue(psExpected.compareKey(psComputed) == 0);
     assertEquals(psComputed.getSensitivity(), psExpected.getSensitivity(), TOLERANCE_PV_DELTA);
   }
 

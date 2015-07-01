@@ -108,8 +108,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
 
     double rateCmp = 0.0123;
     when(mockRates.periodRate(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
-    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-        FIXING_START_DATE, FIXING_END_DATE, 1.0);
+    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_START_DATE,
+        FIXING_END_DATE, USD_FED_FUND.getCurrency(), 1.0);
     when(mockRates.periodRatePointSensitivity(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(
         rateSensitivity);
     OvernightIndexRates mockRatesUp = mock(OvernightIndexRates.class);
@@ -129,7 +129,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
       PointSensitivityBuilder sensitivityBuilderExpected = OvernightRateSensitivity.of(USD_FED_FUND,
-          USD_FED_FUND.getCurrency(), FIXING_START_DATE, FIXING_END_DATE, sensitivityExpected);
+          FIXING_START_DATE, FIXING_END_DATE, USD_FED_FUND.getCurrency(), sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
@@ -213,8 +213,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       when(mockRatesPeriodDw.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
       LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
       LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
-      PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-          FIXING_DATES[i], fixingEndDate, 1.0);
+      PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_DATES[i],
+          fixingEndDate, USD_FED_FUND.getCurrency(), 1.0);
       when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(rateSensitivity);
       for (int j = 0; j < nFixings; ++j) {
         when(mockRatesUp[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesUp[j][i]);
@@ -236,8 +236,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
         FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp + EPS_FD);
     when(mockRatesPeriodDw.periodRate(
         FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp - EPS_FD);
-    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-        FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), 1.0);
+    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_START_DATE,
+        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), USD_FED_FUND.getCurrency(), 1.0);
     when(mockRates.periodRatePointSensitivity(
         FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateSensitivity);
     for (int i = 0; i < nFixings; ++i) {
@@ -262,13 +262,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
         LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
         sensitivityBuilderExpected1 = cutoffSensitivity == 0.0 ? sensitivityBuilderExpected1
             : sensitivityBuilderExpected1.combinedWith(OvernightRateSensitivity.of(USD_FED_FUND,
-                USD_FED_FUND.getCurrency(), FIXING_DATES[i], fixingEndDate, cutoffSensitivity));
+                FIXING_DATES[i], fixingEndDate, USD_FED_FUND.getCurrency(), cutoffSensitivity));
       }
       double ratePeriodUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvPeriodUp);
       double ratePeriodDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvPeriodDw);
       double periodSensitivity = 0.5 * (ratePeriodUp - ratePeriodDw) / EPS_FD;
       PointSensitivityBuilder sensitivityBuilderExpected2 = OvernightRateSensitivity.of(USD_FED_FUND,
-          USD_FED_FUND.getCurrency(), FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE),
+          FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), USD_FED_FUND.getCurrency(),
           periodSensitivity);
       PointSensitivityBuilder sensitivityBuilderExpected = sensitivityBuilderExpected1
           .combinedWith(sensitivityBuilderExpected2);
@@ -360,8 +360,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
         USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(rateCmp + EPS_FD);
     when(mockRatesDw.periodRate(
         USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(rateCmp - EPS_FD);
-    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-        USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE, 1.0d);
+    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE),
+        FIXING_END_DATE, USD_FED_FUND.getCurrency(), 1.0d);
     when(mockRates.periodRatePointSensitivity(
         USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -372,7 +372,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
       PointSensitivityBuilder sensitivityBuilderExpected = OvernightRateSensitivity.of(USD_FED_FUND,
-          USD_FED_FUND.getCurrency(), USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE,
+          USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE, USD_FED_FUND.getCurrency(),
           sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
@@ -470,8 +470,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
         FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
     when(mockRatesDw.periodRate(
         FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(GBP_SONIA, GBP_SONIA.getCurrency(),
-        FIXING_DATES[lastFixing], FIXING_DATES[6], 1.0d);
+    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(GBP_SONIA, FIXING_DATES[lastFixing],
+        FIXING_DATES[6], GBP_SONIA.getCurrency(), 1.0d);
     when(mockRates.periodRatePointSensitivity(FIXING_DATES[lastFixing], FIXING_DATES[6]))
         .thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -482,7 +482,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
       OvernightRateSensitivity sensitivityBuilderExpected = OvernightRateSensitivity.of(GBP_SONIA,
-          GBP_SONIA.getCurrency(), FIXING_DATES[lastFixing], FIXING_DATES[6], sensitivityExpected);
+          FIXING_DATES[lastFixing], FIXING_DATES[6], GBP_SONIA.getCurrency(), sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
@@ -592,9 +592,9 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     when(mockRatesDw.periodRate(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
         CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
         .thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(CHF_TOIS, CHF_TOIS.getCurrency(),
-        CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5])), 1.0d);
+    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(CHF_TOIS, CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
+        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5])),
+        CHF_TOIS.getCurrency(), 1.0d);
     when(mockRates.periodRatePointSensitivity(
         CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
         CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
@@ -607,8 +607,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
       OvernightRateSensitivity sensitivityBuilderExpected = OvernightRateSensitivity.of(CHF_TOIS,
-          CHF_TOIS.getCurrency(), CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-          CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5])),
+          CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]), CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5])),
+          CHF_TOIS.getCurrency(),
           sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
@@ -705,8 +705,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
         FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
     when(mockRatesDw.periodRate(
         FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getCurrency(),
-        FIXING_DATES[lastFixing], FIXING_DATES[6], 1.0d);
+    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_DATES[lastFixing],
+        FIXING_DATES[6], USD_FED_FUND.getCurrency(), 1.0d);
     when(mockRates.periodRatePointSensitivity(FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -716,8 +716,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
       OvernightRateSensitivity sensitivityBuilderExpected = OvernightRateSensitivity.of(USD_FED_FUND,
-          USD_FED_FUND.getCurrency(),
-          FIXING_DATES[lastFixing], FIXING_DATES[6], sensitivityExpected);
+          FIXING_DATES[lastFixing],
+          FIXING_DATES[6], USD_FED_FUND.getCurrency(), sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 

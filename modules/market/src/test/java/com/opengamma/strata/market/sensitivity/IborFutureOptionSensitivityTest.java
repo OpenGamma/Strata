@@ -73,7 +73,7 @@ public class IborFutureOptionSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_compareExcludingSensitivity() {
+  public void test_compareKey() {
     IborFutureOptionSensitivity a1 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity a2 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
@@ -91,21 +91,21 @@ public class IborFutureOptionSensitivityTest {
     IborFutureOptionSensitivity g = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, USD, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
-    assertEquals(a1.compareExcludingSensitivity(a2), 0);
-    assertEquals(a1.compareExcludingSensitivity(b) < 0, true);
-    assertEquals(b.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(c) < 0, true);
-    assertEquals(c.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(d) < 0, true);
-    assertEquals(d.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(e) < 0, true);
-    assertEquals(e.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(f) < 0, true);
-    assertEquals(f.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(g) < 0, true);
-    assertEquals(g.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(other) < 0, true);
-    assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
+    assertEquals(a1.compareKey(a2), 0);
+    assertEquals(a1.compareKey(b) < 0, true);
+    assertEquals(b.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(c) < 0, true);
+    assertEquals(c.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(d) < 0, true);
+    assertEquals(d.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(e) < 0, true);
+    assertEquals(e.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(f) < 0, true);
+    assertEquals(f.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(g) < 0, true);
+    assertEquals(g.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(other) < 0, true);
+    assertEquals(other.compareKey(a1) > 0, true);
   }
 
   //-------------------------------------------------------------------------
