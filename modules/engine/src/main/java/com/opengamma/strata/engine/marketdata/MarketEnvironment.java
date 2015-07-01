@@ -37,7 +37,21 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 /**
  * A set of market data.
  * <p>
- * A market environment contains the market data values
+ * A market environment contains the basic market data values that are of interest to users. For example, a market
+ * environment might contain market quotes, calibrated curves and volatility surfaces.
+ * <p>
+ * It is anticipated that {@link MarketEnvironment} will be exposed directly to users.
+ * <p>
+ * The market data used in calculations is provided by {@link CalculationEnvironment} or
+ * {@link ScenarioCalculationEnvironment}. These contains the same data as {@link MarketEnvironment} plus
+ * additional derived values used by the calculations and scenario framework.
+ * <p>
+ * {@link CalculationEnvironment} and {@link ScenarioCalculationEnvironment} can be built from a
+ * {@link MarketEnvironment} using a {@link MarketDataFactory}.
+ *
+ * @see MarketDataFactory
+ * @see CalculationEnvironment
+ * @see ScenarioCalculationEnvironment
  */
 @BeanDefinition(builderScope = "private")
 public final class MarketEnvironment implements ImmutableBean, MarketDataLookup {

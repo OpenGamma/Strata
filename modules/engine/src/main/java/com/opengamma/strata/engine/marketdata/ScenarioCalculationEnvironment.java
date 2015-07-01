@@ -41,6 +41,16 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
 /**
  * A set of market data used for performing calculations across a set of scenarios.
+ * <p>
+ * A scenario calculation environment contains all the data required to perform calculations. This includes the
+ * market data a user would expect to see, for example quotes and curves, and also other values
+ * derived from market data.
+ * <p>
+ * The derived values include objects used in calculations encapsulating market data and logic that operates on
+ * it, and objects with market data and metadata required by the scenario framework.
+ * <p>
+ * {@code ScenarioCalculationEnvironment} should be considered an implementation detail and is not intended as a
+ * user-facing data structure.
  */
 @SuppressWarnings("unchecked")
 @BeanDefinition(builderScope = "private")
