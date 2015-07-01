@@ -5,6 +5,14 @@
  */
 package com.opengamma.strata.examples.marketdata.credit.markit;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
@@ -19,14 +27,6 @@ import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Parser to load daily index curve information provided by Markit.

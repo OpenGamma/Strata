@@ -5,6 +5,20 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
@@ -30,19 +44,6 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Map;
-
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
