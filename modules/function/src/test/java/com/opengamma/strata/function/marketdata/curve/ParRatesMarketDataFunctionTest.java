@@ -168,7 +168,7 @@ public class ParRatesMarketDataFunctionTest {
         node1x4.metadata(VALUATION_DATE),
         node2x5.metadata(VALUATION_DATE),
         node3x6.metadata(VALUATION_DATE));
-    assertThat(parRates.getCurveMetadata().getParameters()).hasValue(expectedMetadata);
+    assertThat(parRates.getCurveMetadata().getParameterMetadata()).hasValue(expectedMetadata);
   }
 
   /**

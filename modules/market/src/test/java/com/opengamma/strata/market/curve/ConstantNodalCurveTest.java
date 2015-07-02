@@ -26,7 +26,7 @@ public class ConstantNodalCurveTest {
 
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
-  private static final CurveMetadata METADATA = CurveMetadata.of(CURVE_NAME);
+  private static final CurveMetadata METADATA = DefaultCurveMetadata.of(CURVE_NAME);
   private static final double VALUE = 6d;
 
   //-------------------------------------------------------------------------

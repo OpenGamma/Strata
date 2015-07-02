@@ -135,7 +135,7 @@ public final class InterpolatedNodalCurve
       double[] yValues,
       CurveInterpolator interpolator) {
 
-    return of(CurveMetadata.of(name), xValues, yValues, interpolator);
+    return of(DefaultCurveMetadata.of(name), xValues, yValues, interpolator);
   }
 
   /**
@@ -209,7 +209,7 @@ public final class InterpolatedNodalCurve
     if (xValues.length != yValues.length) {
       throw new IllegalArgumentException("Length of x-values and y-values must match");
     }
-    metadata.getParameters().ifPresent(params -> {
+    metadata.getParameterMetadata().ifPresent(params -> {
       if (xValues.length != params.size()) {
         throw new IllegalArgumentException("Length of x-values and parameter metadata must match when metadata present");
       }
@@ -308,7 +308,7 @@ public final class InterpolatedNodalCurve
     xExtended[index] = x;
     yExtended[index] = y;
     return new InterpolatedNodalCurve(
-        CurveMetadata.of(getName()), xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
+        DefaultCurveMetadata.of(getName()), xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
   /**
@@ -331,13 +331,13 @@ public final class InterpolatedNodalCurve
     xExtended[index] = x;
     yExtended[index] = y;
     // add to existing metadata, or do nothing if no existing metadata
-    CurveMetadata md = metadata.getParameters()
+    CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {
           List<CurveParameterMetadata> extended = new ArrayList<>(params);
           extended.add(index, paramMetadata);
-          return CurveMetadata.of(getName(), extended);
+          return DefaultCurveMetadata.of(getName(), extended);
         })
-        .orElse(CurveMetadata.of(getName()));
+        .orElse(DefaultCurveMetadata.of(getName()));
     return new InterpolatedNodalCurve(md, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 

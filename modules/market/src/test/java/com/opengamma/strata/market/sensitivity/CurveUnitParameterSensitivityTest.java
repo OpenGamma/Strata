@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 
 /**
  * Test {@link CurveUnitParameterSensitivity}.
@@ -28,9 +29,9 @@ public class CurveUnitParameterSensitivityTest {
   private static final double[] VECTOR1_FACTOR = new double[] {100 * FACTOR1, 200 * FACTOR1, 300 * FACTOR1, 123 * FACTOR1};
   private static final double[] VECTOR2 = new double[] {1000, 250, 321, 123, 321};
   private static final CurveName NAME1 = CurveName.of("NAME-1");
-  private static final CurveMetadata METADATA1 = CurveMetadata.of(NAME1);
+  private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
-  private static final CurveMetadata METADATA2 = CurveMetadata.of(NAME2);
+  private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of(NAME2);
 
   //-------------------------------------------------------------------------
   public void test_of_metadata() {
@@ -43,7 +44,7 @@ public class CurveUnitParameterSensitivityTest {
 
   public void test_of_metadata_badMetadata() {
     assertThrowsIllegalArg(() -> CurveUnitParameterSensitivity.of(
-        CurveMetadata.of("Name", CurveParameterMetadata.listOfEmpty(VECTOR1.length + 1)), VECTOR1));
+        DefaultCurveMetadata.of("Name", CurveParameterMetadata.listOfEmpty(VECTOR1.length + 1)), VECTOR1));
   }
 
   //-------------------------------------------------------------------------

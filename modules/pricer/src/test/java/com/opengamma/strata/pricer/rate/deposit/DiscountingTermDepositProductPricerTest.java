@@ -41,7 +41,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 @Test
 public class DiscountingTermDepositProductPricerTest {
 
-  private static final LocalDate VALUATION_DATE = date(2014, 1, 22);
+  private static final LocalDate VAL_DATE = date(2014, 1, 22);
   private static final LocalDate START_DATE = date(2014, 1, 24);
   private static final LocalDate END_DATE = date(2014, 7, 24);
   private static final double NOTIONAL = 100000000d;
@@ -71,7 +71,7 @@ public class DiscountingTermDepositProductPricerTest {
     InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of(
         CurveName.of("EUR-Discount"), ACT_360, time_eur, rate_eur, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .build();
   }
@@ -80,7 +80,7 @@ public class DiscountingTermDepositProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValue_notStarted() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
+    SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
     double expected = ((1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * DF_END - DF_START) * NOTIONAL;
     assertEquals(computed.getCurrency(), EUR);
@@ -127,7 +127,7 @@ public class DiscountingTermDepositProductPricerTest {
   }
 
   public void test_parRate() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
+    SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     double parRate = PRICER.parRate(TERM_DEPOSIT, prov);
     TermDeposit depositPar = TermDeposit.builder()
         .buySell(BuySell.BUY)
@@ -144,7 +144,7 @@ public class DiscountingTermDepositProductPricerTest {
   }
 
   public void test_parSpread() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
+    SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     double parSpread = PRICER.parSpread(TERM_DEPOSIT, prov);
     TermDeposit depositPar = TermDeposit.builder()
         .buySell(BuySell.BUY)

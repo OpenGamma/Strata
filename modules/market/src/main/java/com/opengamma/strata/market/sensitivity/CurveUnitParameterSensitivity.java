@@ -72,7 +72,7 @@ public final class CurveUnitParameterSensitivity
 
   @ImmutableValidator
   private void validate() {
-    metadata.getParameters().ifPresent(params -> {
+    metadata.getParameterMetadata().ifPresent(params -> {
       if (sensitivity.length != params.size()) {
         throw new IllegalArgumentException("Length of sensitivity and parameter metadata must match when metadata present");
       }

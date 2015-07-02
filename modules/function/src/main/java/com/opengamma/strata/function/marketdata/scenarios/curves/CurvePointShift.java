@@ -93,7 +93,7 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
   //-------------------------------------------------------------------------
   @Override
   public Curve apply(Curve curve) {
-    Optional<List<CurveParameterMetadata>> optionalNodeMetadata = curve.getMetadata().getParameters();
+    Optional<List<CurveParameterMetadata>> optionalNodeMetadata = curve.getMetadata().getParameterMetadata();
 
     // If there is no metadata for the curve nodes there is no way to find the nodes and apply the shifts
     if (!optionalNodeMetadata.isPresent()) {

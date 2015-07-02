@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 
@@ -28,63 +27,6 @@ import com.opengamma.strata.basics.date.Tenor;
 public interface CurveMetadata
     extends ImmutableBean {
 
-  /**
-   * Creates a metadata instance without parameter information.
-   * <p>
-   * The resulting metadata will have no parameter metadata.
-   * For more control, see {@link DefaultCurveMetadata}.
-   * 
-   * @param name  the curve name
-   * @return the metadata
-   */
-  public static CurveMetadata of(String name) {
-    return of(CurveName.of(name));
-  }
-
-  /**
-   * Creates a metadata instance without parameter information.
-   * <p>
-   * The resulting metadata will have no parameter metadata.
-   * For more control, see {@link DefaultCurveMetadata}.
-   * 
-   * @param name  the curve name
-   * @return the metadata
-   */
-  public static CurveMetadata of(CurveName name) {
-    return DefaultCurveMetadata.of(name);
-  }
-
-  /**
-   * Creates a metadata instance with parameter information.
-   * <p>
-   * The parameter metadata must match the number of parameters on the curve.
-   * An empty list is accepted and interpreted as meaning that no parameter metadata is present.
-   * For more control, see {@link DefaultCurveMetadata}.
-   * 
-   * @param name  the curve name
-   * @param parameters  the parameter metadata
-   * @return the metadata
-   */
-  public static CurveMetadata of(String name, List<? extends CurveParameterMetadata> parameters) {
-    return of(CurveName.of(name), parameters);
-  }
-
-  /**
-   * Creates a metadata instance with parameter information.
-   * <p>
-   * The parameter metadata must match the number of parameters on the curve.
-   * An empty list is accepted and interpreted as meaning that no parameter metadata is present.
-   * For more control, see {@link DefaultCurveMetadata}.
-   * 
-   * @param name  the curve name
-   * @param parameters  the parameter metadata
-   * @return the metadata
-   */
-  public static CurveMetadata of(CurveName name, List<? extends CurveParameterMetadata> parameters) {
-    return DefaultCurveMetadata.of(name, ImmutableList.copyOf(parameters));
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Gets the curve name.
    * 
@@ -109,6 +51,6 @@ public interface CurveMetadata
    * 
    * @return the parameter metadata
    */
-  public abstract Optional<List<CurveParameterMetadata>> getParameters();
+  public abstract Optional<List<CurveParameterMetadata>> getParameterMetadata();
 
 }
