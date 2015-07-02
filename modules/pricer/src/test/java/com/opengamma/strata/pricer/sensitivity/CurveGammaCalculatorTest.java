@@ -10,18 +10,22 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.basics.PayReceive;
@@ -29,6 +33,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -40,6 +45,8 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -55,8 +62,24 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 @Test
 public class CurveGammaCalculatorTest {
 
-  // Data
-  private static final ImmutableRatesProvider SINGLE = RatesProviderDataSets.USD_SINGLE;
+  // Data, based on RatesProviderDataSets.SINGLE_USD but different valuation date
+  private static final LocalDate VAL_DATE_2015_04_27 = LocalDate.of(2015, 4, 27);
+  private static final Curve USD_SINGLE_CURVE = InterpolatedNodalCurve.of(
+      DefaultCurveMetadata.of(RatesProviderDataSets.USD_SINGLE_NAME, ACT_360),
+      RatesProviderDataSets.TIMES_1,
+      RatesProviderDataSets.RATES_1_1,
+      RatesProviderDataSets.INTERPOLATOR);
+  private static final Map<Currency, Curve> USD_SINGLE_CCY_MAP = ImmutableMap.of(USD, USD_SINGLE_CURVE);
+  private static final Map<Index, Curve> USD_SINGLE_IND_MAP = ImmutableMap.of(
+      USD_FED_FUND, USD_SINGLE_CURVE,
+      USD_LIBOR_3M, USD_SINGLE_CURVE,
+      USD_LIBOR_6M, USD_SINGLE_CURVE);
+  private static final ImmutableRatesProvider SINGLE = ImmutableRatesProvider.builder()
+      .valuationDate(VAL_DATE_2015_04_27)
+      .discountCurves(USD_SINGLE_CCY_MAP)
+      .indexCurves(USD_SINGLE_IND_MAP)
+      .timeSeries(RatesProviderDataSets.TIME_SERIES)
+      .build();
   private static final Currency SINGLE_CURRENCY = Currency.USD;
   // Conventions
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);

@@ -60,12 +60,12 @@ import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
  */
 public class NormalSwaptionProductPricerTest {
   
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 4, 30);
+  private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
   
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, USNY);  
 
-  private static final LocalDate SWAPTION_EXERCISE_DATE = LocalDate.of(2020, 4, 30);
+  private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
   private static final LocalDate SWAP_EFFECTIVE_DATE = USD_LIBOR_3M.calculateEffectiveFromFixing(SWAPTION_EXERCISE_DATE);

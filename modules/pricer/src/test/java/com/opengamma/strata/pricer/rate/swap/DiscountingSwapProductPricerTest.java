@@ -91,7 +91,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 @Test
 public class DiscountingSwapProductPricerTest {
 
-  private static final RatesProvider MOCK_PROV = new MockRatesProvider(date(2014, 1, 22));
+  private static final RatesProvider MOCK_PROV = new MockRatesProvider(RatesProviderDataSets.VAL_DATE_2014_01_22);
 
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
 
@@ -105,13 +105,13 @@ public class DiscountingSwapProductPricerTest {
   private static final double TOLERANCE_RATE_DELTA = 1.0E-6;
 
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final LocalDate VAL_DATE = date(2014, 7, 8);
-  private static final YearMonth VAL_MONTH = YearMonth.of(2014, 7);
+  private static final LocalDate VAL_DATE_INFLATION = date(2014, 7, 8);
+  private static final YearMonth VAL_MONTH_INFLATION = YearMonth.of(2014, 7);
   private static final double CONSTANT_INDEX = 242d;
   private static final double START_INDEX = 218d;
   private static final PriceIndexValues PRICE_CURVE = ForwardPriceIndexValues.of(
       GB_RPI,
-      VAL_MONTH,
+      VAL_MONTH_INFLATION,
       LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX),
       InterpolatedNodalCurve.of(
           "GB_RPI_CURVE_FLAT",
@@ -133,7 +133,7 @@ public class DiscountingSwapProductPricerTest {
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.discountFactor(GBP, FIXED_RATE_PAYMENT_PERIOD_PAY_GBP.getPaymentDate()))
         .thenReturn(0.99d);
-    when(mockProv.getValuationDate()).thenReturn(date(2014, 1, 22));
+    when(mockProv.getValuationDate()).thenReturn(RatesProviderDataSets.VAL_DATE_2014_01_22);
     when(mockProv.fxRate(GBP, GBP)).thenReturn(1.0);
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     double fwdRate = 0.01;
@@ -164,7 +164,7 @@ public class DiscountingSwapProductPricerTest {
     RatesProvider mockProv = mock(RatesProvider.class);
     when(mockProv.discountFactor(USD, FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate()))
         .thenReturn(0.99d);
-    when(mockProv.getValuationDate()).thenReturn(date(2014, 1, 22));
+    when(mockProv.getValuationDate()).thenReturn(RatesProviderDataSets.VAL_DATE_2014_01_22);
     when(mockProv.fxRate(GBP, GBP)).thenReturn(1.0);
     when(mockProv.fxRate(USD, USD)).thenReturn(1.0);
     double fxGbpUsd = 1.51d;
@@ -206,7 +206,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -259,7 +259,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -356,7 +356,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -415,7 +415,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -494,7 +494,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
@@ -546,7 +546,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
+        .valuationDate(VAL_DATE_INFLATION)
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
