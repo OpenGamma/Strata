@@ -1,5 +1,5 @@
 Valuation Date,Tenor,Instrument Type,Rate,Curve Convention
-,,,,,
+,,,,
 2014-10-16,1M,M,0.001535,ISDA_USD
 2014-10-16,2M,M,0.001954,ISDA_USD
 2014-10-16,3M,M,0.002281,ISDA_USD

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.strata.function.calculation.credit;
@@ -24,9 +24,11 @@ public class CdsCs01ParallelParFunction
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      LocalDate valuationDate) {
+      LocalDate valuationDate,
+      double recoveryRate,
+      double scalingFactor) {
 
-    return pricer().cs01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate);
+    return pricer().cs01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }

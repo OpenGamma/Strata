@@ -95,6 +95,18 @@ public class TestHarness {
       return new ScalarMeasureOnADay(Measure.PRESENT_VALUE, expected, tradeSource);
     }
 
+    public ScalarMeasureOnADay parRateShouldBe(double expected) {
+      return new ScalarMeasureOnADay(Measure.PAR_RATE, expected, tradeSource);
+    }
+
+    public ScalarMeasureOnADay jumpToDefaultShouldBe(double expected) {
+      return new ScalarMeasureOnADay(Measure.JUMP_TO_DEFAULT, expected, tradeSource);
+    }
+
+    public ScalarMeasureOnADay recovery01ShouldBe(double expected) {
+      return new ScalarMeasureOnADay(Measure.RECOVERY01, expected, tradeSource);
+    }
+
     public ScalarMeasureOnADay ir01ParallelParShouldBe(double expected) {
       return new ScalarMeasureOnADay(Measure.IR01_PARALLEL_PAR, expected, tradeSource);
     }

@@ -7,20 +7,18 @@ package com.opengamma.strata.function.calculation.credit;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 
 /**
- * Calculates scalar IR01 of a {@code CdsTrade} for each of a set of scenarios.
- * This calculates the scalar PV change to a 1 basis point shift in par interest rates.
+ * Calculates the par rate of a {@code CdsTrade} for each of a set of scenarios.
  */
-public class CdsIr01ParallelParFunction
-    extends AbstractCdsFunction<CurrencyAmount> {
+public class CdsParRateFunction
+    extends AbstractCdsFunction<Double> {
 
   @Override
-  protected CurrencyAmount execute(
+  protected Double execute(
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
@@ -28,7 +26,7 @@ public class CdsIr01ParallelParFunction
       double recoveryRate,
       double scalingFactor) {
 
-    return pricer().ir01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
+    return pricer().parRate(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate);
   }
 
 }

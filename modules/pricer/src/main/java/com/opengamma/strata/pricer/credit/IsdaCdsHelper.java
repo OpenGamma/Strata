@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.credit;
@@ -33,6 +33,7 @@ import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.pricer.PricingException;
 
 /**
@@ -69,28 +70,29 @@ public class IsdaCdsHelper {
   private final static AnalyticCDSPricer CALCULATOR = new AnalyticCDSPricer();
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculate present value on the specified valuation date.
    *
-   * @param valuationDate  date that present value is calculated on, also date that curves will be calibrated to
-   * @param product  expanded CDS product
-   * @param yieldCurve  par rates representation of the ISDA yield curve
-   * @param creditCurve  par rates representation of the ISDA credit curve
+   * @param valuationDate date that present value is calculated on, also date that curves will be calibrated to
+   * @param product       expanded CDS product
+   * @param yieldCurve    par rates representation of the ISDA yield curve
+   * @param creditCurve   par rates representation of the ISDA credit curve
    * @param recoveryRate  recovery rate for the reference entity/issue
    * @return the present value of the expanded CDS product
    */
   public static CurrencyAmount price(
       LocalDate valuationDate,
       ExpandedCds product,
-      IsdaYieldCurveParRates yieldCurve,
-      IsdaCreditCurveParRates creditCurve,
-      double recoveryRate) {
+      NodalCurve yieldCurve,
+      NodalCurve creditCurve,
+      double recoveryRate,
+      double scalingFactor) {
 
     // setup
     CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
-    ISDACompliantYieldCurve yieldCurveAnalytics = createIsdaDiscountCurve(valuationDate, yieldCurve);
-    ISDACompliantCreditCurve creditCurveAnalytics = createIsdaCreditCurve(
-        valuationDate, creditCurve, yieldCurveAnalytics, recoveryRate);
+    ISDACompliantYieldCurve yieldCurveAnalytics = ISDACompliantYieldCurve.makeFromRT(yieldCurve.getXValues(), yieldCurve.getYValues());
+    ISDACompliantCreditCurve creditCurveAnalytics = ISDACompliantCreditCurve.makeFromRT(creditCurve.getXValues(), creditCurve.getYValues());
 
     // calculate
     double coupon = product.getCoupon();
@@ -99,7 +101,7 @@ public class IsdaCdsHelper {
     // create result
     int sign = product.getBuySellProtection().isBuy() ? 1 : -1;
     double notional = product.getNotional();
-    double factor = creditCurve.getScalingFactor();
+    double factor = scalingFactor;
     double adjusted = pv * notional * sign * factor;
     double upfrontFeeAmount = priceUpfrontFee(
         valuationDate, product.getUpfrontFeeAmount(), product.getUpfrontFeePaymentDate(), yieldCurveAnalytics) * sign;
@@ -127,9 +129,35 @@ public class IsdaCdsHelper {
     return discountFactor * amount.getAsDouble();
   }
 
+  /**
+   * Calculate par spread on the specified valuation date.
+   *
+   * @param valuationDate date that par spread is calculated on, also date that curves will be calibrated to
+   * @param product       expanded CDS product
+   * @param yieldCurve    par rates representation of the ISDA yield curve
+   * @param creditCurve   par rates representation of the ISDA credit curve
+   * @param recoveryRate  recovery rate for the reference entity/issue
+   * @return the par spread of the expanded CDS product
+   */
+  public static double parSpread(LocalDate valuationDate,
+                                 ExpandedCds product,
+                                 NodalCurve yieldCurve,
+                                 NodalCurve creditCurve,
+                                 double recoveryRate) {
+    // setup
+    CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
+    ISDACompliantYieldCurve yieldCurveAnalytics = ISDACompliantYieldCurve.makeFromRT(
+        yieldCurve.getXValues(), yieldCurve.getYValues());
+    ISDACompliantCreditCurve creditCurveAnalytics = ISDACompliantCreditCurve.makeFromRT(
+        creditCurve.getXValues(), creditCurve.getYValues());
+
+    return CALCULATOR.parSpread(cdsAnalytic, yieldCurveAnalytics, creditCurveAnalytics);
+
+  }
+
   // Converts the interest rate curve par rates to the corresponding analytics form.
   // Calibration is performed here.
-  private static ISDACompliantYieldCurve createIsdaDiscountCurve(
+  public static ISDACompliantYieldCurve createIsdaDiscountCurve(
       LocalDate valuationDate,
       IsdaYieldCurveParRates yieldCurve) {
 
@@ -170,7 +198,7 @@ public class IsdaCdsHelper {
 
   // Converts the credit curve par rates to the corresponding analytics form.
   // Calibration is performed here.
-  private static ISDACompliantCreditCurve createIsdaCreditCurve(
+  public static ISDACompliantCreditCurve createIsdaCreditCurve(
       LocalDate valuationDate,
       IsdaCreditCurveParRates curveCurve,
       ISDACompliantYieldCurve yieldCurve,
@@ -192,6 +220,38 @@ public class IsdaCdsHelper {
           translateStubType(cdsConvention.getStubConvention()),
           PROTECT_START,
           yieldCurve,
+          recoveryRate);
+
+    } catch (Exception ex) {
+      throw new PricingException("Error converting the ISDA Credit Curve: " + ex.getMessage(), ex);
+    }
+  }
+
+  // Converts the credit curve par rates to the corresponding analytics form.
+  // Calibration is performed here.
+  public static ISDACompliantCreditCurve createIsdaCreditCurve(
+      LocalDate valuationDate,
+      IsdaCreditCurveParRates curveCurve,
+      NodalCurve yieldCurve,
+      double recoveryRate) {
+
+    try {
+      ISDACompliantYieldCurve yieldCurveAnalytics = ISDACompliantYieldCurve.makeFromRT(yieldCurve.getXValues(), yieldCurve.getYValues());
+      CdsConvention cdsConvention = curveCurve.getCdsConvention();
+      FastCreditCurveBuilder builder = new FastCreditCurveBuilder(
+          AccrualOnDefaultFormulae.OrignalISDA, ISDACompliantCreditCurveBuilder.ArbitrageHandling.Fail);
+      return builder.calibrateCreditCurve(
+          valuationDate,
+          cdsConvention.getUnadjustedStepInDate(valuationDate),
+          cdsConvention.getAdjustedSettleDate(valuationDate),
+          cdsConvention.getAdjustedStartDate(valuationDate),
+          curveCurve.getEndDatePoints(),
+          curveCurve.getParRates(),
+          cdsConvention.getPayAccruedOnDefault(),
+          cdsConvention.getPaymentFrequency().getPeriod(),
+          translateStubType(cdsConvention.getStubConvention()),
+          PROTECT_START,
+          yieldCurveAnalytics,
           recoveryRate);
 
     } catch (Exception ex) {

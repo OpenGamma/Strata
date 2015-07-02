@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.engine.marketdata.BaseMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.CsvFile;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
@@ -29,6 +30,8 @@ import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
+import com.opengamma.strata.market.value.CdsRecoveryRate;
 
 /**
  * Parser to load daily credit curve information provided by Markit.
@@ -79,16 +82,16 @@ public class MarkitSingleNameCreditCurveDataParser {
 
   /**
    * Parses the specified sources.
-   * 
+   *
+   * @param builder  the market data builder that the resulting curve and recovery rate items should be loaded into
    * @param curveSource  the source of curve data to parse
    * @param staticDataSource  the source of static data to parse
-   * @return the map of parsed yield curve par rates
    */
-  public static Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> parse(
+  public static void parse(
+      BaseMarketDataBuilder builder,
       CharSource curveSource,
       CharSource staticDataSource) {
 
-    Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> result = Maps.newHashMap();
     Map<MarkitRedCode, CdsConvention> conventions = parseStaticData(staticDataSource);
     try (Scanner scanner = new Scanner(curveSource.openStream())) {
       while (scanner.hasNextLine()) {
@@ -113,15 +116,15 @@ public class MarkitSingleNameCreditCurveDataParser {
         Currency currency = Currency.parse(columns[CURRENCY]);
         RestructuringClause restructuringClause = MarkitRestructuringClause.valueOf(columns[DOCS_CLAUSE]).translate();
 
-        // TODO recovery should be own market data item
         double recoveryRate = parseRate(columns[RECOVERY]);
 
-        IsdaSingleNameCreditCurveParRatesId id = IsdaSingleNameCreditCurveParRatesId.of(
-            SingleNameReferenceInformation.of(
-                redCode.toStandardId(),
-                seniorityLevel,
-                currency,
-                restructuringClause));
+        SingleNameReferenceInformation referenceInformation = SingleNameReferenceInformation.of(
+            redCode.toStandardId(),
+            seniorityLevel,
+            currency,
+            restructuringClause);
+
+        IsdaSingleNameCreditCurveParRatesId curveId = IsdaSingleNameCreditCurveParRatesId.of(referenceInformation);
 
         List<Period> periodsList = Lists.newArrayList();
         List<Double> ratesList = Lists.newArrayList();
@@ -135,7 +138,7 @@ public class MarkitSingleNameCreditCurveDataParser {
           ratesList.add(parseRate(rateString));
         }
 
-        String creditCurveName = id.toString();
+        String creditCurveName = curveId.toString();
 
         CdsConvention cdsConvention = conventions.get(redCode);
 
@@ -155,15 +158,19 @@ public class MarkitSingleNameCreditCurveDataParser {
             endDates,
             rates,
             cdsConvention,
-            recoveryRate,
             unitScalingFactor);
 
-        result.put(id, parRates);
+        builder.addValue(curveId, parRates);
+
+        IsdaSingleNameRecoveryRateId recoveryRateId = IsdaSingleNameRecoveryRateId.of(referenceInformation);
+        CdsRecoveryRate cdsRecoveryRate = CdsRecoveryRate.of(recoveryRate);
+
+        builder.addValue(recoveryRateId, cdsRecoveryRate);
+
       }
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
-    return result;
   }
 
   // parses the static data file of RED code to convention

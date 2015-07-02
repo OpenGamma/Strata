@@ -12,7 +12,9 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
