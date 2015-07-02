@@ -166,7 +166,7 @@ public class HistoricalScenarioExample {
         NodalCurve previousCurve = (NodalCurve) previousCurves.get(curveId);
 
         // obtain the curve node metadata - this is used to identify a node to apply a perturbation to
-        List<CurveParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameters().get();
+        List<CurveParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
 
         // create a curve point shift builder to hold the shifts for this curve
         CurvePointShiftBuilder shiftBuilder = CurvePointShift.builder(ShiftType.ABSOLUTE);

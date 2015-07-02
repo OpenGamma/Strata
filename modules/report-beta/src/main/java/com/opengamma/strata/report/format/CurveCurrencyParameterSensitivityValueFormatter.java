@@ -37,7 +37,7 @@ public class CurveCurrencyParameterSensitivityValueFormatter
 
   private String getSensitivityString(CurveCurrencyParameterSensitivity sensitivity, DoubleFunction<String> formatFn, boolean pad) {
     StringBuilder sb = new StringBuilder();
-    Optional<List<CurveParameterMetadata>> parameterMetadata = sensitivity.getMetadata().getParameters();
+    Optional<List<CurveParameterMetadata>> parameterMetadata = sensitivity.getMetadata().getParameterMetadata();
     IntFunction<String> labelProvider = parameterMetadata.isPresent() ?
         i -> parameterMetadata.get().get(i).getLabel() : i -> String.valueOf(i + 1);
     for (int i = 0; i < sensitivity.getSensitivity().length; i++) {

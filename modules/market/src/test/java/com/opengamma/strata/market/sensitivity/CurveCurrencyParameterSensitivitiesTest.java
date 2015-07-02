@@ -12,6 +12,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -20,6 +21,7 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivities}.
@@ -39,13 +41,13 @@ public class CurveCurrencyParameterSensitivitiesTest {
   private static final Currency EUR = Currency.EUR;
   private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.6d);
   private static final CurveName NAME0 = CurveName.of("NAME-0");
-  private static final CurveMetadata METADATA0 = CurveMetadata.of(NAME0);
+  private static final CurveMetadata METADATA0 = DefaultCurveMetadata.of(NAME0);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
-  private static final CurveMetadata METADATA1 = CurveMetadata.of(NAME1);
+  private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
-  private static final CurveMetadata METADATA2 = CurveMetadata.of(NAME2);
+  private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of(NAME2);
   private static final CurveName NAME3 = CurveName.of("NAME-3");
-  private static final CurveMetadata METADATA3 = CurveMetadata.of(NAME3);
+  private static final CurveMetadata METADATA3 = DefaultCurveMetadata.of(NAME3);
 
   private static final CurveCurrencyParameterSensitivity ENTRY_USD =
       CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);

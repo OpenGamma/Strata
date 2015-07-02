@@ -59,7 +59,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 @Test
 public class DiscountingFraProductPricerTest {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 22);
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final double TOLERANCE = 1E-12;
   private static final double DISCOUNT_FACTOR = 0.98d;
@@ -124,7 +124,7 @@ public class DiscountingFraProductPricerTest {
    * Test FRA paying in the past.
    */
   public void test_futureValue_inPast() {
-    ExpandedFra fraExp = FRA.expand().toBuilder().paymentDate(VALUATION_DATE.minusDays(1)).build();
+    ExpandedFra fraExp = FRA.expand().toBuilder().paymentDate(VAL_DATE.minusDays(1)).build();
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
@@ -180,7 +180,7 @@ public class DiscountingFraProductPricerTest {
    * Test FRA paying in the past.
    */
   public void test_presentValue_inPast() {
-    ExpandedFra fraExp = FRA.expand().toBuilder().paymentDate(VALUATION_DATE.minusDays(1)).build();
+    ExpandedFra fraExp = FRA.expand().toBuilder().paymentDate(VAL_DATE.minusDays(1)).build();
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
@@ -260,7 +260,7 @@ public class DiscountingFraProductPricerTest {
   public void test_presentValueSensitivity_ISDA() {
     RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
-    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VAL_DATE, mockDf);
 
     ExpandedFra fraExp = FRA.expand();
     double forwardRate = 0.05;
@@ -306,7 +306,7 @@ public class DiscountingFraProductPricerTest {
   public void test_presentValueSensitivity_NONE() {
     RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
-    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VAL_DATE, mockDf);
 
     ExpandedFra fraExp = FRA_NONE.expand();
     double forwardRate = 0.025;
@@ -348,7 +348,7 @@ public class DiscountingFraProductPricerTest {
   public void test_presentValueSensitivity_AFMA() {
     RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
-    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+    SimpleRatesProvider simpleProv = new SimpleRatesProvider(VAL_DATE, mockDf);
 
     ExpandedFra fraExp = FRA_AFMA.expand();
     double forwardRate = 0.05;
@@ -487,7 +487,7 @@ public class DiscountingFraProductPricerTest {
     InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of(
         CurveName.of("GBP-GBPIBOR3M"), DAY_COUNT, time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, dscCurve))
         .indexCurves(ImmutableMap.of(GBP_LIBOR_3M, indexCurve))
         .timeSeries(ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
@@ -612,7 +612,7 @@ public class DiscountingFraProductPricerTest {
   private SimpleRatesProvider createProvider(ExpandedFra fraExp) {
     DiscountFactors mockDf = mock(DiscountFactors.class);
     IborIndexRates mockIbor = mock(IborIndexRates.class);
-    SimpleRatesProvider prov = new SimpleRatesProvider(VALUATION_DATE, mockDf);
+    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
     prov.setIborRates(mockIbor);
 
     IborRateObservation obs = (IborRateObservation) fraExp.getFloatingRate();
@@ -629,7 +629,7 @@ public class DiscountingFraProductPricerTest {
 
     RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
     RatesProvider provNew = mock(RatesProvider.class);
-    when(provNew.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(provNew.getValuationDate()).thenReturn(VAL_DATE);
     ExpandedFra fraExp = fra.expand();
     when(obsFuncNew.rate(fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))
         .thenReturn(forwardRate + eps);
@@ -644,7 +644,7 @@ public class DiscountingFraProductPricerTest {
 
     RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
     RatesProvider provNew = mock(RatesProvider.class);
-    when(provNew.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(provNew.getValuationDate()).thenReturn(VAL_DATE);
     ExpandedFra fraExp = fra.expand();
     when(provNew.discountFactor(fra.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
@@ -661,7 +661,7 @@ public class DiscountingFraProductPricerTest {
       Fra fra, double forwardRate, double discountFactor, double paymentTime, double eps) {
 
     RatesProvider provNew = mock(RatesProvider.class);
-    when(provNew.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(provNew.getValuationDate()).thenReturn(VAL_DATE);
     RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
     ExpandedFra fraExp = fra.expand();
     when(obsFuncNew.rate(fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))

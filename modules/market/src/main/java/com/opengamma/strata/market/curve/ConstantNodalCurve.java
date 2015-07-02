@@ -83,7 +83,7 @@ public final class ConstantNodalCurve
    * @return the curve
    */
   public static ConstantNodalCurve of(CurveName name, double yValue) {
-    return new ConstantNodalCurve(CurveMetadata.of(name), yValue);
+    return new ConstantNodalCurve(DefaultCurveMetadata.of(name), yValue);
   }
 
   /**

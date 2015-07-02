@@ -139,7 +139,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   public void forwardRateVsForex() {
     FxRate fwdNDF = PRICER.forwardFxRate(NDF, PROVIDER);
     FxRate fwdFX = PRICER_FX.forwardFxRate(FOREX, PROVIDER);
-    assertEquals(fwdNDF, fwdFX);
+    assertEquals(fwdNDF.fxRate(fwdNDF.getPair()), fwdFX.fxRate(fwdFX.getPair()), 1e-10);
   }
 
   // Checks that the NDF present value sensitivity is coherent with the standard FX forward present value.

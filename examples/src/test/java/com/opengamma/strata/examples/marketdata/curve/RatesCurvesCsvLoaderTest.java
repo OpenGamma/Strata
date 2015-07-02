@@ -270,7 +270,7 @@ public class RatesCurvesCsvLoaderTest {
       double expectedYearFraction = getYearFraction(valuationDate, nodeDate);
       assertThat(actualYearFraction).isCloseTo(expectedYearFraction, offset(TOLERANCE));
 
-      CurveParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameters().get().get(i);
+      CurveParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameterMetadata().get().get(i);
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 
@@ -308,7 +308,7 @@ public class RatesCurvesCsvLoaderTest {
       double expectedYearFraction = getYearFraction(valuationDate, nodeDate);
       assertThat(actualYearFraction).isCloseTo(expectedYearFraction, offset(TOLERANCE));
 
-      CurveParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameters().get().get(i);
+      CurveParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameterMetadata().get().get(i);
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 

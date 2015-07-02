@@ -99,7 +99,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     return result;
   }
 
-  // check that the curve is yield curve and the underlying is an InterpolatedDoublesCurve and returns the last
+  // check that the curve is InterpolatedNodalCurve
   private InterpolatedNodalCurve checkInterpolated(Curve curve) {
     ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "Curve should be a InterpolatedNodalCurve");
     return (InterpolatedNodalCurve) curve;
