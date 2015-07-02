@@ -306,9 +306,11 @@ public final class Result<T>
 
   /**
    * Creates a failed result containing a failure.
+   * <p>
+   * This is useful for converting an existing {@code Failure} instance to a result.
    *
+   * @param <R> the expected type of the result
    * @param failure  details of the failure
-   * @param <R>  the type of the result value
    * @return a failed result containing the specified failure
    */
   public static <R> Result<R> failure(Failure failure) {
