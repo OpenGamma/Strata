@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -32,8 +31,10 @@ public class DiscountingFxSwapProductPricerTest {
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
   private static final Currency KRW = Currency.KRW;
   private static final Currency USD = Currency.USD;
-  private static final LocalDate PAYMENT_DATE_NEAR = date(2011, 11, 21);
-  private static final LocalDate PAYMENT_DATE_FAR = date(2011, 12, 21);
+  private static final LocalDate PAYMENT_DATE_NEAR = RatesProviderFxDataSets.VAL_DATE_2014_01_22.plusWeeks(1);
+  private static final LocalDate PAYMENT_DATE_FAR = PAYMENT_DATE_NEAR.plusMonths(1);
+  private static final LocalDate PAYMENT_DATE_PAST = PAYMENT_DATE_NEAR.minusMonths(1);
+  private static final LocalDate PAYMENT_DATE_LONG_PAST = PAYMENT_DATE_NEAR.minusMonths(2);
   private static final double NOMINAL_USD = 100_000_000;
   private static final double FX_RATE = 1109.5;
   private static final double FX_FWD_POINTS = 4.45;
@@ -63,7 +64,7 @@ public class DiscountingFxSwapProductPricerTest {
 
   public void test_presentValue_started() {
     FxSwap product = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, date(2011, 10, 21), PAYMENT_DATE_NEAR);
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     MultiCurrencyAmount computed = PRICER.presentValue(product, PROVIDER);
     double expected_usd = -NOMINAL_USD * PROVIDER.discountFactor(USD, PAYMENT_DATE_NEAR);
     double expected_krw = NOMINAL_USD * (FX_RATE + FX_FWD_POINTS) * PROVIDER.discountFactor(KRW, PAYMENT_DATE_NEAR);
@@ -77,7 +78,7 @@ public class DiscountingFxSwapProductPricerTest {
 
   public void test_presentValue_ended() {
     FxSwap product = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, date(2011, 9, 21), date(2011, 10, 21));
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     MultiCurrencyAmount computed = PRICER.presentValue(product, PROVIDER);
     assertEquals(computed, MultiCurrencyAmount.empty());
 
@@ -97,17 +98,17 @@ public class DiscountingFxSwapProductPricerTest {
 
   public void test_parSpread_started() {
     FxSwap product = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, date(2011, 10, 21), PAYMENT_DATE_NEAR);
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     double parSpread = PRICER.parSpread(product, PROVIDER);
     FxSwap productPar = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS + parSpread, date(2011, 10, 21), PAYMENT_DATE_NEAR);
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS + parSpread, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     MultiCurrencyAmount pv = PRICER.presentValue(productPar, PROVIDER);
     assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
   }
 
   public void test_parSpread_ended() {
     FxSwap product = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, date(2011, 9, 21), date(2011, 10, 21));
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     double parSpread = PRICER.parSpread(product, PROVIDER);
     assertEquals(parSpread, 0d, TOL);
   }
@@ -125,7 +126,7 @@ public class DiscountingFxSwapProductPricerTest {
 
   public void test_presentValueSensitivity_started() {
     FxSwap product = FxSwap.ofForwardPoints(CurrencyAmount.of(
-        USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, date(2011, 10, 21), PAYMENT_DATE_NEAR);
+        USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     PointSensitivities point = PRICER.presentValueSensitivity(product, PROVIDER);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expectedUsd = CAL_FD.sensitivity(
@@ -137,7 +138,7 @@ public class DiscountingFxSwapProductPricerTest {
 
   public void test_presentValueSensitivity_ended() {
     FxSwap product = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, date(2011, 9, 21), date(2011, 10, 21));
+        CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     PointSensitivities computed = PRICER.presentValueSensitivity(product, PROVIDER);
     assertEquals(computed, PointSensitivities.empty());
   }

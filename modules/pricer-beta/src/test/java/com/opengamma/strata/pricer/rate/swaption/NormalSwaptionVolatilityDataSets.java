@@ -17,6 +17,7 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.provider.NormalVolatilityExpiryTenorSwaptionProvider;
 
 /**
@@ -44,7 +45,7 @@ public class NormalSwaptionVolatilityDataSets {
   private static final InterpolatedDoublesSurface SURFACE_STD =
       new InterpolatedDoublesSurface(TIMES, TENOR, NORMAL_VOL, INTERPOLATOR_2D);
 
-  private static final LocalDate VALUATION_DATE_STD = LocalDate.of(2015, 4, 30);
+  private static final LocalDate VALUATION_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalTime VALUATION_TIME_STD = LocalTime.of(13, 45);
   private static final ZoneId VALUATION_ZONE_STD = ZoneId.of("Europe/London");
   
@@ -114,7 +115,7 @@ public class NormalSwaptionVolatilityDataSets {
   private static final InterpolatedDoublesSurface SURFACE_20150320 =
       new InterpolatedDoublesSurface(TIMES_20150320, TENORS_20150320, NORMAL_VOL_20150320, INTERPOLATOR_2D);
 
-  private static final LocalDate VALUATION_DATE_20150320 = LocalDate.of(2015, 4, 30);
+  private static final LocalDate VALUATION_DATE_20150320 = LocalDate.of(2015, 3, 20);
   private static final LocalTime VALUATION_TIME_20150320 = LocalTime.of(18, 00);
   private static final ZoneId VALUATION_ZONE_20150320 = ZoneId.of("Europe/London");
   

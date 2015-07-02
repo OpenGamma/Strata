@@ -26,6 +26,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -33,6 +34,9 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * Sets of market data used in FX tests.
  */
 public class RatesProviderFxDataSets {
+
+  /** Wednesday. */
+  public static final LocalDate VAL_DATE_2014_01_22 = RatesProviderDataSets.VAL_DATE_2014_01_22;
 
   private static final Currency KRW = Currency.of("KRW");
   private static final String DISCOUNTING_EUR = "Discounting EUR";
@@ -91,7 +95,7 @@ public class RatesProviderFxDataSets {
    */
   public static RatesProvider createProvider() {
     return ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2011, 11, 10))
+        .valuationDate(VAL_DATE_2014_01_22)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
@@ -106,7 +110,7 @@ public class RatesProviderFxDataSets {
   public static RatesProvider createProviderEURUSD() {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
     return ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2011, 11, 10))
+        .valuationDate(VAL_DATE_2014_01_22)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)

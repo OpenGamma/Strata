@@ -35,7 +35,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_single_curve() {
-    CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, this::fn);
+    CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.SINGLE_USD, this::fn);
     double[] times = RatesProviderDataSets.TIMES_1;
     assertEquals(sensiComputed.size(), 1);
     double[] s = sensiComputed.getSensitivities().get(0).getSensitivity();
