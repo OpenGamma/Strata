@@ -34,7 +34,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
-// TODO Is this actually necessary? Better to use CalculationEnvironment everywhere and just discard intermediate values?
 /**
  * A set of market data.
  * <p>

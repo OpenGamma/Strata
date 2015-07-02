@@ -114,26 +114,35 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     this.functions = ImmutableMap.copyOf(builderMap);
   }
 
-  // TODO Is this really necessary? Use buildCalculationEnvironment and add a flag to retain intermediate values?
   @Override
   public MarketEnvironmentResult buildMarketEnvironment(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
-      MarketDataConfig marketDataConfig) {
+      MarketDataConfig marketDataConfig,
+      boolean includeIntermediateValues) {
 
     CalculationEnvironment calcEnv = buildCalculationEnvironment(requirements, suppliedData, marketDataConfig);
+    Map<MarketDataId<?>, Object> values;
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
-    Map<? extends MarketDataId<?>, Object> requestedValues = Seq.seq(calcEnv.getValues())
-        .filter(tp -> requirements.getNonObservables().contains(tp.v1) || requirements.getObservables().contains(tp.v1))
-        .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+    if (includeIntermediateValues) {
+      // If the intermediate values are required then all the data from the calculation environment is included
+      values = calcEnv.getValues();
+      timeSeries = calcEnv.getTimeSeries();
+    } else {
+      // If the intermediate values are not required then the results are filtered to only include the values
+      // requested in the requirements
+      values = Seq.seq(calcEnv.getValues())
+          .filter(tp -> requirements.getNonObservables().contains(tp.v1) || requirements.getObservables().contains(tp.v1))
+          .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
 
-    Map<ObservableId, LocalDateDoubleTimeSeries> requestedTimeSeries = Seq.seq(calcEnv.getTimeSeries())
-        .filter(tp -> requirements.getTimeSeries().contains(tp.v1))
-        .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
-
+      timeSeries = Seq.seq(calcEnv.getTimeSeries())
+          .filter(tp -> requirements.getTimeSeries().contains(tp.v1))
+          .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+    }
     MarketEnvironment marketEnvironment = MarketEnvironment.builder(calcEnv.getValuationDate())
-        .addAllValues(requestedValues)
-        .addAllTimeSeries(requestedTimeSeries)
+        .addAllValues(values)
+        .addAllTimeSeries(timeSeries)
         .build();
 
     return MarketEnvironmentResult.builder()

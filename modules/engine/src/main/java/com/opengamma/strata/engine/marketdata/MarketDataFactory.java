@@ -37,12 +37,16 @@ public interface MarketDataFactory {
    * @param requirements  the market data required
    * @param suppliedData  the market data supplied by the caller
    * @param marketDataConfig  configuration needed to build non-observable market data, for example curves or surfaces
+   * @param includeIntermediateValues  if this flag is true all market data values are returned including intermediate
+   *   values used to build other values. If it is false the returned data will only include the values
+   *   specified in tne requirements. This is intended to be used when debugging problems building market data
    * @return the requested market data plus details of any data that could not be built
    */
   public abstract MarketEnvironmentResult buildMarketEnvironment(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
-      MarketDataConfig marketDataConfig);
+      MarketDataConfig marketDataConfig,
+      boolean includeIntermediateValues);
 
   /**
    * Builds the market data required for performing calculations over a portfolio.
