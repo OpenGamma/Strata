@@ -45,7 +45,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -65,7 +65,7 @@ public class CurveGammaCalculatorTest {
   // Data, based on RatesProviderDataSets.SINGLE_USD but different valuation date
   private static final LocalDate VAL_DATE_2015_04_27 = LocalDate.of(2015, 4, 27);
   private static final Curve USD_SINGLE_CURVE = InterpolatedNodalCurve.of(
-      DefaultCurveMetadata.of(RatesProviderDataSets.USD_SINGLE_NAME, ACT_360),
+      Curves.zeroRates(RatesProviderDataSets.USD_SINGLE_NAME, ACT_360),
       RatesProviderDataSets.TIMES_1,
       RatesProviderDataSets.RATES_1_1,
       RatesProviderDataSets.INTERPOLATOR);

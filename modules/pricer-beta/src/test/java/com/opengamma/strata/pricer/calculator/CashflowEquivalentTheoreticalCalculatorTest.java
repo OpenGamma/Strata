@@ -32,7 +32,7 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -158,7 +158,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
     MAP_TS.put(EUR_EURIBOR_6M, TS_EURIBOR6M);
   }
   private static final Map<Index, Curve> MAP_IND_CURVE = new HashMap<>();
-  private static final Curve DUMMY_CURVE = ConstantNodalCurve.of(DefaultCurveMetadata.of("EUR-EURIBOR6M", ACT_360), 0.0);
+  private static final Curve DUMMY_CURVE = ConstantNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_360), 0.0);
   static {
     MAP_IND_CURVE.put(EUR_EURIBOR_6M, DUMMY_CURVE);
   }  

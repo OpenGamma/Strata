@@ -12,6 +12,7 @@ import org.joda.beans.ImmutableBean;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Metadata about a curve and curve parameters.
@@ -23,6 +24,8 @@ import com.opengamma.strata.basics.date.Tenor;
  * <p>
  * This metadata can be used by applications to interpret the parameters of the curve.
  * For example, the scenario framework uses the data when applying perturbations.
+ * <p>
+ * See {@link Curves} for helper methods that create common curve types.
  */
 public interface CurveMetadata
     extends ImmutableBean {
@@ -33,6 +36,26 @@ public interface CurveMetadata
    * @return the curve name
    */
   public abstract CurveName getCurveName();
+
+  /**
+   * Gets the x-value type, providing meaning to the x-values of the curve.
+   * <p>
+   * This type provides meaning to the x-values. For example, the x-value might
+   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * 
+   * @return the x-value type
+   */
+  public abstract ValueType getXValueType();
+
+  /**
+   * Gets the y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values. For example, the y-value might
+   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+   * 
+   * @return the y-value type
+   */
+  public abstract ValueType getYValueType();
 
   /**
    * Gets the day count, optional.
@@ -52,5 +75,16 @@ public interface CurveMetadata
    * @return the parameter metadata
    */
   public abstract Optional<List<CurveParameterMetadata>> getParameterMetadata();
+
+  /**
+   * Returns an instance where the parameter metadata has been changed.
+   * <p>
+   * The result will contain the specified parameter metadata.
+   * A null value is accepted and causes the result to have no parameter metadata.
+   * 
+   * @param parameterMetadata  the new parameter metadata
+   * @return the new curve metadata
+   */
+  public abstract CurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata);
 
 }

@@ -7,6 +7,7 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.collect.id.StandardId;
@@ -39,6 +41,7 @@ import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.value.ValueType;
 
 @Test
 public class ParRatesMarketDataFunctionTest {
@@ -129,6 +132,9 @@ public class ParRatesMarketDataFunctionTest {
 
     InterpolatedCurveConfig curve = InterpolatedCurveConfig.builder()
         .name(CurveName.of("curve"))
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(DayCounts.ACT_ACT_ISDA)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
         .leftExtrapolator(CurveExtrapolators.FLAT)
         .rightExtrapolator(CurveExtrapolators.FLAT)

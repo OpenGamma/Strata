@@ -73,6 +73,7 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
@@ -378,7 +379,7 @@ public class DiscountingSwapLegPricerTest {
       VAL_MONTH_INFLATION,
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX),
       InterpolatedNodalCurve.of(
-          "GB_RPI_CURVE",
+          Curves.prices("GB_RPI_CURVE"),
           new double[] {1, 200},
           new double[] {CONSTANT_INDEX, CONSTANT_INDEX},
           INTERPOLATOR));
@@ -389,7 +390,7 @@ public class DiscountingSwapLegPricerTest {
       VAL_MONTH_INFLATION,
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), 227.2),
       InterpolatedNodalCurve.of(
-          "GB_RPI_CURVE",
+          Curves.prices("GB_RPI_CURVE"),
           new double[] {6, 12, 24, 60, 120},
           new double[] {227.2, 252.6, 289.5, 323.1, 351.1},
           INTERP_SPLINE));

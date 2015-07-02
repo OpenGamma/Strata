@@ -27,6 +27,7 @@ import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.SingleNameReferenceInformation;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 
@@ -150,7 +151,7 @@ public class MarkitSingleNameCreditCurveDataParser {
         double unitScalingFactor = 1d; // for single name, we don't do any scaling (no index factor)
 
         IsdaCreditCurveParRates parRates = IsdaCreditCurveParRates.of(
-            creditCurveName,
+            CurveName.of(creditCurveName),
             periods,
             endDates,
             rates,

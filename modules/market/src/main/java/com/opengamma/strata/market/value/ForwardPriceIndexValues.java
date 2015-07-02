@@ -174,6 +174,8 @@ public final class ForwardPriceIndexValues
     ArgChecker.notNull(curve, "curve");
     ArgChecker.notNull(seasonality, "seasonality");
     ArgChecker.isTrue(seasonality.size() == 12, "Seasonality list must contail 12 entries");
+    curve.getMetadata().getXValueType().checkEquals(ValueType.MONTH_COUNT, "Incorrect x-value type for price curve");
+    curve.getMetadata().getYValueType().checkEquals(ValueType.PRICE_INDEX, "Incorrect y-value type for price curve");
     this.index = index;
     this.valuationMonth = valuationMonth;
     this.timeSeries = timeSeries;

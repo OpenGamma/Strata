@@ -42,7 +42,7 @@ public final class IsdaCreditCurveParRates
    * The curve name.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String name;
+  private final CurveName name;
   /**
    * The tenor at each curve node.
    */
@@ -88,7 +88,7 @@ public final class IsdaCreditCurveParRates
    * @return the par rates
    */
   public static IsdaCreditCurveParRates of(
-      String name,
+      CurveName name,
       Period[] creditCurvePoints,
       LocalDate[] endDatePoints,
       double[] parRates,
@@ -185,7 +185,7 @@ public final class IsdaCreditCurveParRates
   private static final long serialVersionUID = 1L;
 
   private IsdaCreditCurveParRates(
-      String name,
+      CurveName name,
       Period[] creditCurvePoints,
       LocalDate[] endDatePoints,
       double[] parRates,
@@ -229,7 +229,7 @@ public final class IsdaCreditCurveParRates
    * Gets the curve name.
    * @return the value of the property, not null
    */
-  public String getName() {
+  public CurveName getName() {
     return name;
   }
 
@@ -347,8 +347,8 @@ public final class IsdaCreditCurveParRates
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", IsdaCreditCurveParRates.class, String.class);
+    private final MetaProperty<CurveName> name = DirectMetaProperty.ofImmutable(
+        this, "name", IsdaCreditCurveParRates.class, CurveName.class);
     /**
      * The meta-property for the {@code creditCurvePoints} property.
      */
@@ -439,7 +439,7 @@ public final class IsdaCreditCurveParRates
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<CurveName> name() {
       return name;
     }
 
@@ -530,7 +530,7 @@ public final class IsdaCreditCurveParRates
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IsdaCreditCurveParRates> {
 
-    private String name;
+    private CurveName name;
     private Period[] creditCurvePoints;
     private LocalDate[] endDatePoints;
     private double[] parRates;
@@ -571,7 +571,7 @@ public final class IsdaCreditCurveParRates
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (CurveName) newValue;
           break;
         case -1771294215:  // creditCurvePoints
           this.creditCurvePoints = (Period[]) newValue;

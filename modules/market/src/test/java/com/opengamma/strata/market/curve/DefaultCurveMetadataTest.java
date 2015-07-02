@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Test {@link CurveMetadata}.
@@ -27,58 +28,35 @@ public class DefaultCurveMetadataTest {
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
 
   //-------------------------------------------------------------------------
-  public void test_of_String_noParameterMetadata() {
-    DefaultCurveMetadata test = DefaultCurveMetadata.of(NAME);
+  public void test_of_String_noMetadata() {
+    CurveMetadata test = DefaultCurveMetadata.of(NAME);
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getDayCount()).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
-  public void test_of_CurveName_noParameterMetadata() {
-    DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
+  public void test_of_CurveName_noMetadata() {
+    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getDayCount()).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
-  }
-
-  public void test_of_String_dayCount() {
-    DefaultCurveMetadata test = DefaultCurveMetadata.of(NAME, ACT_360);
-    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_360));
-    assertThat(test.getParameterMetadata().isPresent()).isFalse();
-  }
-
-  public void test_of_CurveName_dayCount() {
-    DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME, ACT_360);
-    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_360));
-    assertThat(test.getParameterMetadata().isPresent()).isFalse();
-  }
-
-  public void test_of_String() {
-    DefaultCurveMetadata test = DefaultCurveMetadata.of(NAME, ImmutableList.of(CurveParameterMetadata.empty()));
-    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getDayCount()).isEqualTo(Optional.empty());
-    assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
-  }
-
-  public void test_of_CurveName() {
-    DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME, ImmutableList.of(CurveParameterMetadata.empty()));
-    assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getDayCount()).isEqualTo(Optional.empty());
-    assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
   }
 
   public void test_builder() {
     DefaultCurveMetadata test = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(ACT_360)
-        .parameterMetadata(CurveParameterMetadata.empty())
         .parameterMetadata(ImmutableList.of(CurveParameterMetadata.empty()))
         .build();
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_360));
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(CurveParameterMetadata.empty());
@@ -86,14 +64,20 @@ public class DefaultCurveMetadataTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME, ImmutableList.of(CurveParameterMetadata.empty()));
+    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     coverImmutableBean(test);
-    CurveMetadata test2 = DefaultCurveMetadata.of("Coverage");
+    DefaultCurveMetadata test2 = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.DISCOUNT_FACTOR)
+        .dayCount(ACT_360)
+        .parameterMetadata(CurveParameterMetadata.empty())
+        .build();
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME, ImmutableList.of(CurveParameterMetadata.empty()));
+    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     assertSerialization(test);
   }
 

@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -96,6 +97,7 @@ public class SwapPricingTest {
       BusinessDayConventions.PRECEDING,
       CalendarUSD.NYC);
 
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("The Curve Group");
   private static final CurveGroup CURVE_GROUP = curveGroup();
 
@@ -134,7 +136,7 @@ public class SwapPricingTest {
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg)).build();
 
-    MarketEnvironment suppliedData = MarketEnvironment.builder(LocalDate.of(2014, 1, 22))
+    MarketEnvironment suppliedData = MarketEnvironment.builder(VAL_DATE)
         .addValue(CurveGroupId.of(CURVE_GROUP_NAME), CURVE_GROUP)
         .build();
 
