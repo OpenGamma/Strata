@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.collect.id;
 
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -151,4 +151,7 @@ public class StandardIdTest {
     assertThat(id1).isLessThan(id2);
   }
 
+  public void coverage() {
+    coverImmutableBean(StandardId.of(SCHEME, "123"));
+  }
 }

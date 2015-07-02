@@ -12,6 +12,9 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public class FailureException extends RuntimeException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /** The details of the failure. */
   private final Failure failure;
 
@@ -33,4 +36,5 @@ public class FailureException extends RuntimeException {
   public Failure getFailure() {
     return failure;
   }
+
 }

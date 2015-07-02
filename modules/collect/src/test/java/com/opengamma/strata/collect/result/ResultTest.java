@@ -271,6 +271,39 @@ public class ResultTest {
   }
 
   //-------------------------------------------------------------------------
+  public void failure_fromFailure() {
+    Failure failure = Failure.of(ERROR, "my failure");
+    Result<Integer> test = Result.failure(failure);
+    assertTrue(test.isFailure());
+    assertEquals(test.getFailure().getMessage(), "my failure");
+    assertEquals(test.getFailure().getItems().size(), 1);
+    FailureItem item = test.getFailure().getItems().iterator().next();
+    assertEquals(item.getReason(), ERROR);
+    assertEquals(item.getMessage(), "my failure");
+    assertEquals(item.getCauseType().isPresent(), false);
+    assertTrue(item.getStackTrace() != null);
+  }
+
+  //-------------------------------------------------------------------------
+  public void ofNullable_nonNull() {
+    Result<Integer> test = Result.ofNullable(6);
+    assertFalse(test.isFailure());
+    assertEquals(test.getValue().intValue(), 6);
+  }
+
+  public void ofNullable_null() {
+    Result<Integer> test = Result.ofNullable(null);
+    assertTrue(test.isFailure());
+    assertEquals(test.getFailure().getMessage(), "Found null where a value was expected");
+    assertEquals(test.getFailure().getItems().size(), 1);
+    FailureItem item = test.getFailure().getItems().iterator().next();
+    assertEquals(item.getReason(), MISSING_DATA);
+    assertEquals(item.getMessage(), "Found null where a value was expected");
+    assertEquals(item.getCauseType().isPresent(), false);
+    assertTrue(item.getStackTrace() != null);
+  }
+
+  //-------------------------------------------------------------------------
   public void of_with_success() {
 
     Result<String> test = Result.of(() -> "success");
