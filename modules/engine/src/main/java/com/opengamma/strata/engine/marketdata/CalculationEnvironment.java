@@ -59,6 +59,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
 
+  // TODO Should there be separate maps for observable and non-observable data?
   // TODO Do the values need to include the timestamp as well as the market data item?
   /** The individual items of market data, keyed by ID. */
   @PropertyDefinition(validate = "notNull")

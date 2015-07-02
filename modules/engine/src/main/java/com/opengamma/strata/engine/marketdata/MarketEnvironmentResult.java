@@ -34,7 +34,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
 
   /** The market data that was successfully built. */
   @PropertyDefinition(validate = "notNull")
-  private final MarketEnvironment marketData;
+  private final MarketEnvironment marketEnvironment;
 
   /** Details of failures when building single market data values. */
   @PropertyDefinition(validate = "notNull")
@@ -67,13 +67,13 @@ public final class MarketEnvironmentResult implements ImmutableBean {
   }
 
   private MarketEnvironmentResult(
-      MarketEnvironment marketData,
+      MarketEnvironment marketEnvironment,
       Map<MarketDataId<?>, Failure> singleValueFailures,
       Map<MarketDataId<?>, Failure> timeSeriesFailures) {
-    JodaBeanUtils.notNull(marketData, "marketData");
+    JodaBeanUtils.notNull(marketEnvironment, "marketEnvironment");
     JodaBeanUtils.notNull(singleValueFailures, "singleValueFailures");
     JodaBeanUtils.notNull(timeSeriesFailures, "timeSeriesFailures");
-    this.marketData = marketData;
+    this.marketEnvironment = marketEnvironment;
     this.singleValueFailures = ImmutableMap.copyOf(singleValueFailures);
     this.timeSeriesFailures = ImmutableMap.copyOf(timeSeriesFailures);
   }
@@ -98,8 +98,8 @@ public final class MarketEnvironmentResult implements ImmutableBean {
    * Gets the market data that was successfully built.
    * @return the value of the property, not null
    */
-  public MarketEnvironment getMarketData() {
-    return marketData;
+  public MarketEnvironment getMarketEnvironment() {
+    return marketEnvironment;
   }
 
   //-----------------------------------------------------------------------
@@ -136,7 +136,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketEnvironmentResult other = (MarketEnvironmentResult) obj;
-      return JodaBeanUtils.equal(getMarketData(), other.getMarketData()) &&
+      return JodaBeanUtils.equal(getMarketEnvironment(), other.getMarketEnvironment()) &&
           JodaBeanUtils.equal(getSingleValueFailures(), other.getSingleValueFailures()) &&
           JodaBeanUtils.equal(getTimeSeriesFailures(), other.getTimeSeriesFailures());
     }
@@ -146,7 +146,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketEnvironment());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSingleValueFailures());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesFailures());
     return hash;
@@ -156,7 +156,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MarketEnvironmentResult{");
-    buf.append("marketData").append('=').append(getMarketData()).append(',').append(' ');
+    buf.append("marketEnvironment").append('=').append(getMarketEnvironment()).append(',').append(' ');
     buf.append("singleValueFailures").append('=').append(getSingleValueFailures()).append(',').append(' ');
     buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(getTimeSeriesFailures()));
     buf.append('}');
@@ -174,10 +174,10 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code marketData} property.
+     * The meta-property for the {@code marketEnvironment} property.
      */
-    private final MetaProperty<MarketEnvironment> marketData = DirectMetaProperty.ofImmutable(
-        this, "marketData", MarketEnvironmentResult.class, MarketEnvironment.class);
+    private final MetaProperty<MarketEnvironment> marketEnvironment = DirectMetaProperty.ofImmutable(
+        this, "marketEnvironment", MarketEnvironmentResult.class, MarketEnvironment.class);
     /**
      * The meta-property for the {@code singleValueFailures} property.
      */
@@ -195,7 +195,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "marketData",
+        "marketEnvironment",
         "singleValueFailures",
         "timeSeriesFailures");
 
@@ -208,8 +208,8 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1116764678:  // marketData
-          return marketData;
+        case 813467703:  // marketEnvironment
+          return marketEnvironment;
         case -1633495726:  // singleValueFailures
           return singleValueFailures;
         case -1580093459:  // timeSeriesFailures
@@ -235,11 +235,11 @@ public final class MarketEnvironmentResult implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code marketData} property.
+     * The meta-property for the {@code marketEnvironment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketEnvironment> marketData() {
-      return marketData;
+    public MetaProperty<MarketEnvironment> marketEnvironment() {
+      return marketEnvironment;
     }
 
     /**
@@ -262,8 +262,8 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1116764678:  // marketData
-          return ((MarketEnvironmentResult) bean).getMarketData();
+        case 813467703:  // marketEnvironment
+          return ((MarketEnvironmentResult) bean).getMarketEnvironment();
         case -1633495726:  // singleValueFailures
           return ((MarketEnvironmentResult) bean).getSingleValueFailures();
         case -1580093459:  // timeSeriesFailures
@@ -289,7 +289,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<MarketEnvironmentResult> {
 
-    private MarketEnvironment marketData;
+    private MarketEnvironment marketEnvironment;
     private Map<MarketDataId<?>, Failure> singleValueFailures = ImmutableMap.of();
     private Map<MarketDataId<?>, Failure> timeSeriesFailures = ImmutableMap.of();
 
@@ -304,7 +304,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(MarketEnvironmentResult beanToCopy) {
-      this.marketData = beanToCopy.getMarketData();
+      this.marketEnvironment = beanToCopy.getMarketEnvironment();
       this.singleValueFailures = ImmutableMap.copyOf(beanToCopy.getSingleValueFailures());
       this.timeSeriesFailures = ImmutableMap.copyOf(beanToCopy.getTimeSeriesFailures());
     }
@@ -313,8 +313,8 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1116764678:  // marketData
-          return marketData;
+        case 813467703:  // marketEnvironment
+          return marketEnvironment;
         case -1633495726:  // singleValueFailures
           return singleValueFailures;
         case -1580093459:  // timeSeriesFailures
@@ -328,8 +328,8 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1116764678:  // marketData
-          this.marketData = (MarketEnvironment) newValue;
+        case 813467703:  // marketEnvironment
+          this.marketEnvironment = (MarketEnvironment) newValue;
           break;
         case -1633495726:  // singleValueFailures
           this.singleValueFailures = (Map<MarketDataId<?>, Failure>) newValue;
@@ -370,20 +370,20 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     @Override
     public MarketEnvironmentResult build() {
       return new MarketEnvironmentResult(
-          marketData,
+          marketEnvironment,
           singleValueFailures,
           timeSeriesFailures);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code marketData} property in the builder.
-     * @param marketData  the new value, not null
+     * Sets the {@code marketEnvironment} property in the builder.
+     * @param marketEnvironment  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder marketData(MarketEnvironment marketData) {
-      JodaBeanUtils.notNull(marketData, "marketData");
-      this.marketData = marketData;
+    public Builder marketEnvironment(MarketEnvironment marketEnvironment) {
+      JodaBeanUtils.notNull(marketEnvironment, "marketEnvironment");
+      this.marketEnvironment = marketEnvironment;
       return this;
     }
 
@@ -414,7 +414,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("MarketEnvironmentResult.Builder{");
-      buf.append("marketData").append('=').append(JodaBeanUtils.toString(marketData)).append(',').append(' ');
+      buf.append("marketEnvironment").append('=').append(JodaBeanUtils.toString(marketEnvironment)).append(',').append(' ');
       buf.append("singleValueFailures").append('=').append(JodaBeanUtils.toString(singleValueFailures)).append(',').append(' ');
       buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
       buf.append('}');

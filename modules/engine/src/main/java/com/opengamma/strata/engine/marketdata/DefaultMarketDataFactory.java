@@ -7,6 +7,7 @@ package com.opengamma.strata.engine.marketdata;
 
 import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.Collections;
@@ -117,10 +118,38 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   public MarketEnvironmentResult buildMarketEnvironment(
       MarketDataRequirements requirements,
       MarketEnvironment suppliedData,
-      MarketDataConfig marketDataConfig) {
+      MarketDataConfig marketDataConfig,
+      boolean includeIntermediateValues) {
 
-    // TODO Call buildCalculationEnvironment and only return the types that belong in MarketEnvironment
-    throw new UnsupportedOperationException();
+    CalculationEnvironment calcEnv = buildCalculationEnvironment(requirements, suppliedData, marketDataConfig);
+    Map<MarketDataId<?>, Object> values;
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
+
+    if (includeIntermediateValues) {
+      // If the intermediate values are required then all the data from the calculation environment is included
+      values = calcEnv.getValues();
+      timeSeries = calcEnv.getTimeSeries();
+    } else {
+      // If the intermediate values are not required then the results are filtered to only include the values
+      // requested in the requirements
+      values = Seq.seq(calcEnv.getValues())
+          .filter(tp -> requirements.getNonObservables().contains(tp.v1) || requirements.getObservables().contains(tp.v1))
+          .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+
+      timeSeries = Seq.seq(calcEnv.getTimeSeries())
+          .filter(tp -> requirements.getTimeSeries().contains(tp.v1))
+          .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+    }
+    MarketEnvironment marketEnvironment = MarketEnvironment.builder(calcEnv.getValuationDate())
+        .addAllValues(values)
+        .addAllTimeSeries(timeSeries)
+        .build();
+
+    return MarketEnvironmentResult.builder()
+        .marketEnvironment(marketEnvironment)
+        .singleValueFailures(calcEnv.getSingleValueFailures())
+        .timeSeriesFailures(calcEnv.getTimeSeriesFailures())
+        .build();
   }
 
   @Override

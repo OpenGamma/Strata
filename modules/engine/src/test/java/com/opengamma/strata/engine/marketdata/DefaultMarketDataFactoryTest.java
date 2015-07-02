@@ -495,6 +495,135 @@ public class DefaultMarketDataFactoryTest {
   }
 
   /**
+   * Tests building a market environment and discarding the intermediate values.
+   */
+  public void buildMarketEnvironmentWithoutIntermediateValues() {
+    TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
+    TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
+
+    MarketDataRequirements requirements = MarketDataRequirements.builder()
+        .addValues(new TestIdB("1"), new TestIdB("2"))
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    Map<TestIdA, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(
+        new TestIdA("1"), timeSeries1,
+        new TestIdA("2"), timeSeries2);
+
+    TimeSeriesProvider timeSeriesProvider = new TestTimeSeriesProvider(timeSeriesMap);
+
+    DefaultMarketDataFactory marketDataFactory =
+        new DefaultMarketDataFactory(
+            timeSeriesProvider,
+            new TestObservableMarketDataFunction(),
+            FeedIdMapping.identity(),
+            builderB,
+            builderC);
+
+    MarketEnvironmentResult result = marketDataFactory.buildMarketEnvironment(
+        requirements,
+        MarketEnvironment.empty(date(2011, 3, 8)),
+        MARKET_DATA_CONFIG,
+        false);
+
+    assertThat(result.getSingleValueFailures()).isEmpty();
+    assertThat(result.getTimeSeriesFailures()).isEmpty();
+
+    MarketEnvironment marketEnvironment = result.getMarketEnvironment();
+
+    TestMarketDataB marketDataB1 = marketEnvironment.getValue(new TestIdB("1"));
+    TestMarketDataB marketDataB2 = marketEnvironment.getValue(new TestIdB("2"));
+
+    TestMarketDataB expectedB1 = new TestMarketDataB(1, new TestMarketDataC(timeSeries1));
+    TestMarketDataB expectedB2 = new TestMarketDataB(2, new TestMarketDataC(timeSeries2));
+
+    // Check the values in the requirements are present
+    assertThat(marketDataB1).isEqualTo(expectedB1);
+    assertThat(marketDataB2).isEqualTo(expectedB2);
+
+    // Check the intermediate values aren't present
+    assertThat(marketEnvironment.containsValue(new TestIdA("1"))).isFalse();
+    assertThat(marketEnvironment.containsValue(new TestIdA("2"))).isFalse();
+    assertThat(marketEnvironment.containsValue(new TestIdC("1"))).isFalse();
+    assertThat(marketEnvironment.containsValue(new TestIdC("2"))).isFalse();
+  }
+
+  /**
+   * Tests building a market environment and keeping the intermediate values.
+   */
+  public void buildMarketEnvironmentWithIntermediateValues() {
+    TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
+    TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
+
+    MarketDataRequirements requirements = MarketDataRequirements.builder()
+        .addValues(new TestIdB("1"), new TestIdB("2"))
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    Map<TestIdA, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(
+        new TestIdA("1"), timeSeries1,
+        new TestIdA("2"), timeSeries2);
+
+    TimeSeriesProvider timeSeriesProvider = new TestTimeSeriesProvider(timeSeriesMap);
+
+    DefaultMarketDataFactory marketDataFactory =
+        new DefaultMarketDataFactory(
+            timeSeriesProvider,
+            new TestObservableMarketDataFunction(),
+            FeedIdMapping.identity(),
+            builderB,
+            builderC);
+
+    MarketEnvironmentResult result = marketDataFactory.buildMarketEnvironment(
+        requirements,
+        MarketEnvironment.empty(date(2011, 3, 8)),
+        MARKET_DATA_CONFIG,
+        true);
+
+    assertThat(result.getSingleValueFailures()).isEmpty();
+    assertThat(result.getTimeSeriesFailures()).isEmpty();
+
+    MarketEnvironment marketEnvironment = result.getMarketEnvironment();
+
+    TestMarketDataC expectedC1 = new TestMarketDataC(timeSeries1);
+    TestMarketDataC expectedC2 = new TestMarketDataC(timeSeries2);
+    TestMarketDataB expectedB1 = new TestMarketDataB(1, expectedC1);
+    TestMarketDataB expectedB2 = new TestMarketDataB(2, expectedC2);
+
+    // Check the values in the requirements are present
+    assertThat(marketEnvironment.getValue(new TestIdB("1"))).isEqualTo(expectedB1);
+    assertThat(marketEnvironment.getValue(new TestIdB("2"))).isEqualTo(expectedB2);
+
+    // Check the intermediate values are present
+    assertThat(marketEnvironment.getValue(new TestIdA("1"))).isEqualTo(1d);
+    assertThat(marketEnvironment.getValue(new TestIdA("2"))).isEqualTo(2d);
+    assertThat(marketEnvironment.getValue(new TestIdC("1"))).isEqualTo(expectedC1);
+    assertThat(marketEnvironment.getValue(new TestIdC("2"))).isEqualTo(expectedC2);
+  }
+
+  /**
    * Tests building multiple observable values for scenarios where the values aren't perturbed.
    */
   public void buildObservableScenarioValues() {
