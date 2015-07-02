@@ -51,7 +51,7 @@ public interface CurveMetadata
    * Gets the y-value type, providing meaning to the y-values of the curve.
    * <p>
    * This type provides meaning to the y-values. For example, the y-value might
-   * represent a year fraction, as represented using {@link ValueType#ZERO_RATE}.
+   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
    * 
    * @return the y-value type
    */
@@ -79,9 +79,7 @@ public interface CurveMetadata
   /**
    * Returns an instance where the parameter metadata has been changed.
    * <p>
-   * If this instance has parameter metadata, the result will contain the specified metadata
-   * which must be of the same size as the existing list.
-   * If this instance does not have parameter metadata, the result contains the specified metadata.
+   * The result will contain the specified parameter metadata.
    * A null value is accepted and causes the result to have no parameter metadata.
    * 
    * @param parameterMetadata  the new parameter metadata

@@ -58,7 +58,7 @@ public final class DefaultCurveMetadata
    * The y-value type, providing meaning to the y-values of the curve.
    * <p>
    * This type provides meaning to the y-values. For example, the y-value might
-   * represent a year fraction, as represented using {@link ValueType#ZERO_RATE}.
+   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    */
@@ -207,7 +207,7 @@ public final class DefaultCurveMetadata
    * Gets the y-value type, providing meaning to the y-values of the curve.
    * <p>
    * This type provides meaning to the y-values. For example, the y-value might
-   * represent a year fraction, as represented using {@link ValueType#ZERO_RATE}.
+   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    * @return the value of the property, not null
