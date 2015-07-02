@@ -6,11 +6,13 @@
 package com.opengamma.strata.pricer.rate;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
@@ -133,5 +135,22 @@ public interface RatesProvider
    * @return the sensitivity to the curve parameters
    */
   CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities);
+
+  /**
+   * Computes the currency exposure.
+   * <p>
+   * This computes the currency exposure in the form of a {@link MultiCurrencyAmount} associated with the 
+   * {@link PointSensitivities}. This corresponds to the projection of the point sensitivity to the currency exposure
+   * associated to a {@link FxIndexSensitivity}.
+   * <p>
+   * For example, the point sensitivities could represent the sensitivity to a FX Index. This method produce the 
+   * implicit currency exposure embedded in the FX index sensitivity.
+   * <p>
+   * Reference: Currency Exposure and FX index, OpenGamma Documentation 32, July 2015.
+   * 
+   * @param pointSensitivities  the point sensitivity
+   * @return the sensitivity to the curve parameters
+   */
+  MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities);
 
 }

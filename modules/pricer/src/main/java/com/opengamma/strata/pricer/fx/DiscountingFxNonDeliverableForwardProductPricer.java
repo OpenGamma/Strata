@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -88,10 +89,33 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     double dscBar = (1d - ratio) * notionalSettle;
     PointSensitivityBuilder sensiDsc =
         provider.discountFactors(ccySettle).zeroRatePointSensitivity(ndf.getPaymentDate()).multipliedBy(dscBar);
-    double fxBar = dfSettle * ratio / forwardRate * notionalSettle;
+    double forwardRateBar = dfSettle * notionalSettle * ratio / forwardRate;
     PointSensitivityBuilder sensiFx = provider.fxIndexRates(ndf.getIndex())
-        .ratePointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(fxBar);
+        .ratePointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(forwardRateBar);
     return sensiDsc.combinedWith(sensiFx).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the currency exposure by discounting each payment in its own currency.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(FxNonDeliverableForwardProduct product, RatesProvider provider) {
+    ExpandedFxNonDeliverableForward ndf = product.expand();
+    if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
+      return MultiCurrencyAmount.empty();
+    }
+    Currency ccySettle = ndf.getSettlementCurrency();
+    CurrencyAmount notionalSettle = ndf.getSettlementCurrencyNotional();
+    double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
+    Currency ccyOther = ndf.getNonDeliverableCurrency();
+    double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
+    double dfOther = provider.discountFactor(ccyOther, ndf.getPaymentDate());    
+    return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle))
+        .plus(CurrencyAmount.of(ccyOther, - notionalSettle.getAmount() * agreedRate * dfOther));
   }
 
   //-------------------------------------------------------------------------
