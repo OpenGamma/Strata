@@ -64,6 +64,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<LocalDate> valuationDates;
 
+  // TODO Should there be separate maps for observable and non-observable data?
   /** Individual items of market data, keyed by ID, one for each scenario. */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableListMultimap<MarketDataId<?>, ?> values;
