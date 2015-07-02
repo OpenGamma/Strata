@@ -61,7 +61,7 @@ public abstract class AbstractRatesProvider
     }
     return sens;
   }
-  
+
   @Override
   public MultiCurrencyAmount currencyExposure(PointSensitivities sensitivities) {
     MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
@@ -72,7 +72,7 @@ public abstract class AbstractRatesProvider
         ce = ce.plus(rates.currencyExposure(pt));
       }
     }
-    return ce;    
+    return ce;
   }
 
 }

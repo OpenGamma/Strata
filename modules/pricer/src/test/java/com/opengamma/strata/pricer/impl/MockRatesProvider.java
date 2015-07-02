@@ -115,7 +115,7 @@ public class MockRatesProvider
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
   }
-  
+
   @Override
   public MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();

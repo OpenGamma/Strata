@@ -196,7 +196,7 @@ public final class DiscountFxForwardRates
     return discountFactorsRefBase.curveParameterSensitivity(dfCcyBaseAtMaturitySensitivity)
         .combinedWith(discountFactorsRefCounter.curveParameterSensitivity(dfCcyCounterAtMaturitySensitivity));
   }
-  
+
   @Override
   public MultiCurrencyAmount currencyExposure(FxForwardSensitivity pointSensitivity) {
     ArgChecker.isTrue(pointSensitivity.getCurrency().equals(pointSensitivity.getReferenceCurrency()),
@@ -212,10 +212,11 @@ public final class DiscountFxForwardRates
       CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * f * pA / pB);
       CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -s * f * f * pA / pB);
       return MultiCurrencyAmount.of(amountBase, amountCounter);
+    } else {
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -s * pB / (pA * f * f));
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * pB / (pA * f));
+      return MultiCurrencyAmount.of(amountBase, amountCounter);
     }
-    CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -s * pB / (pA * f * f));
-    CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * pB / (pA * f));
-    return MultiCurrencyAmount.of(amountBase, amountCounter);
   }
 
   //-------------------------------------------------------------------------

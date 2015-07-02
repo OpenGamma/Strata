@@ -166,7 +166,7 @@ public final class DiscountFxIndexRates
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity pointSensitivity) {
     return fxForwardRates.curveParameterSensitivity(pointSensitivity.toFxForwardSensitivity());
   }
-  
+
   @Override
   public MultiCurrencyAmount currencyExposure(FxIndexSensitivity pointSensitivity) {
     return fxForwardRates.currencyExposure(pointSensitivity.toFxForwardSensitivity());

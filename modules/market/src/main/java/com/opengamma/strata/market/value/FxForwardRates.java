@@ -102,7 +102,7 @@ public interface FxForwardRates {
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(FxForwardSensitivity pointSensitivity);
-  
+
   /**
    * Calculates the currency exposure from the point sensitivity.
    * <p>

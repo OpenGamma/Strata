@@ -113,9 +113,9 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
-    double dfOther = provider.discountFactor(ccyOther, ndf.getPaymentDate());    
+    double dfOther = provider.discountFactor(ccyOther, ndf.getPaymentDate());
     return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle))
-        .plus(CurrencyAmount.of(ccyOther, - notionalSettle.getAmount() * agreedRate * dfOther));
+        .plus(CurrencyAmount.of(ccyOther, -notionalSettle.getAmount() * agreedRate * dfOther));
   }
 
   //-------------------------------------------------------------------------

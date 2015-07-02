@@ -140,11 +140,11 @@ public interface RatesProvider
    * Computes the currency exposure.
    * <p>
    * This computes the currency exposure in the form of a {@link MultiCurrencyAmount} associated with the 
-   * {@link PointSensitivities}. This corresponds to the projection of the point sensitivity to the currency exposure
-   * associated to a {@link FxIndexSensitivity}.
+   * {@link PointSensitivities}. This corresponds to the projection of the point sensitivity to the
+   * currency exposure associated to an {@link FxIndexSensitivity}.
    * <p>
-   * For example, the point sensitivities could represent the sensitivity to a FX Index. This method produce the 
-   * implicit currency exposure embedded in the FX index sensitivity.
+   * For example, the point sensitivities could represent the sensitivity to a FX Index.
+   * This method produces the implicit currency exposure embedded in the FX index sensitivity.
    * <p>
    * Reference: Currency Exposure and FX index, OpenGamma Documentation 32, July 2015.
    * 
