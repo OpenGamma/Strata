@@ -16,8 +16,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.TestHelper;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
@@ -66,7 +66,7 @@ public class CurveParallelShiftTest {
         mock(TimeSeriesProvider.class),
         mock(ObservableMarketDataFunction.class),
         FeedIdMapping.identity());
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(curveId).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(curveId).build();
     ScenarioCalculationEnvironment scenarioData = marketDataFactory.buildScenarioCalculationEnvironment(
         requirements,
         marketData,

@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.credit.Cds;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.credit.ExpandedCds;
@@ -80,7 +80,7 @@ public abstract class AbstractCdsFunction<T>
   }
 
   @Override
-  public CalculationRequirements requirements(CdsTrade trade) {
+  public FunctionRequirements requirements(CdsTrade trade) {
     Cds cds = trade.getProduct();
 
     Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
@@ -110,7 +110,7 @@ public abstract class AbstractCdsFunction<T>
         throw new IllegalStateException("unknown reference information type: " + cdsType);
     }
     // TODO recovery rate and index factor as timeseries or their own market data values
-    return CalculationRequirements.builder()
+    return FunctionRequirements.builder()
         .singleValueRequirements(Sets.union(rateCurveKeys, spreadCurveKey))
         .outputCurrencies(ImmutableSet.of(notionalCurrency, feeCurrency))
         .build();

@@ -6,7 +6,6 @@
 package com.opengamma.strata.engine.config.pricing;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import java.util.Set;
@@ -19,7 +18,7 @@ import com.opengamma.strata.engine.calculations.function.CalculationSingleFuncti
 import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 
 /**
  * Test {@link PricingRule}.
@@ -114,8 +113,8 @@ public class PricingRuleTest {
   private static final class TestFunction1 implements CalculationSingleFunction<TestTrade1, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTrade1 trade) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -127,8 +126,8 @@ public class PricingRuleTest {
   private static final class TestFunction2 implements CalculationSingleFunction<TestTrade1, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTrade1 trade) {
+      return FunctionRequirements.empty();
     }
 
     @Override

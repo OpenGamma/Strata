@@ -13,7 +13,6 @@ import static com.opengamma.strata.engine.calculations.function.FunctionUtils.to
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -62,8 +61,8 @@ import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
@@ -286,7 +285,7 @@ public class CurveEndToEndTest {
     }
 
     @Override
-    public CalculationRequirements requirements(FraTrade trade) {
+    public FunctionRequirements requirements(FraTrade trade) {
       Fra fra = trade.getProduct();
 
       Set<Index> indices = new HashSet<>();
@@ -306,7 +305,7 @@ public class CurveEndToEndTest {
       Set<DiscountFactorsKey> discountCurveKeys =
           ImmutableSet.of(DiscountFactorsKey.of(fra.getCurrency()));
 
-      return CalculationRequirements.builder()
+      return FunctionRequirements.builder()
           .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
           .timeSeriesRequirements(indexRateKeys)
           .outputCurrencies(fra.getCurrency())

@@ -75,7 +75,7 @@ public class DefaultMarketDataFactoryTest {
             ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder()
+    CalculationRequirements requirements = CalculationRequirements.builder()
         .addTimeSeries(id1, id2)
         .build();
     CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
@@ -102,7 +102,7 @@ public class DefaultMarketDataFactoryTest {
             new TestTimeSeriesProvider(ImmutableMap.of()),
             ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
-    MarketDataRequirements requirements = MarketDataRequirements.builder()
+    CalculationRequirements requirements = CalculationRequirements.builder()
         .addValues(id1, id2)
         .build();
     CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
@@ -135,7 +135,7 @@ public class DefaultMarketDataFactoryTest {
             FeedIdMapping.identity(),
             new TestMarketDataFunctionC());
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder()
+    CalculationRequirements requirements = CalculationRequirements.builder()
         .addValues(idC)
         .build();
     CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
@@ -158,7 +158,7 @@ public class DefaultMarketDataFactoryTest {
     MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     CalculationEnvironment marketData = factory.buildCalculationEnvironment(
         requirements,
         suppliedData,
@@ -185,7 +185,7 @@ public class DefaultMarketDataFactoryTest {
         .addValue(id1, 1d)
         .addValue(id2, 2d)
         .build();
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     CalculationEnvironment marketData = factory.buildCalculationEnvironment(
         requirements,
         suppliedData,
@@ -207,7 +207,7 @@ public class DefaultMarketDataFactoryTest {
 
     TestObservableKey key = TestObservableKey.of("1");
     MissingMappingId missingId = MissingMappingId.of(key);
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(missingId).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(missingId).build();
     CalculationEnvironment marketData = factory.buildCalculationEnvironment(
         requirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
@@ -235,7 +235,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableFunction(),
             Optional::of);
 
-    MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addValues(requirements).build();
+    CalculationRequirements marketDataRequirements = CalculationRequirements.builder().addValues(requirements).build();
     CalculationEnvironment marketData = factory.buildCalculationEnvironment(
         marketDataRequirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
@@ -264,7 +264,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableMarketDataFunction(),
             Optional::of);
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1).build();
     CalculationEnvironment marketData = factory.buildCalculationEnvironment(
         requirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
@@ -308,7 +308,7 @@ public class DefaultMarketDataFactoryTest {
             new TestObservableFunction(),
             Optional::of);
 
-    MarketDataRequirements marketDataRequirements = MarketDataRequirements.builder().addTimeSeries(requirements).build();
+    CalculationRequirements marketDataRequirements = CalculationRequirements.builder().addTimeSeries(requirements).build();
     CalculationEnvironment marketData = factory.buildCalculationEnvironment(
         marketDataRequirements,
         MarketEnvironment.empty(date(2011, 3, 8)),
@@ -330,8 +330,8 @@ public class DefaultMarketDataFactoryTest {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
 
-    MarketDataRequirements requirements =
-        MarketDataRequirements.builder()
+    CalculationRequirements requirements =
+        CalculationRequirements.builder()
             .addValues(new TestIdB("1"), new TestIdB("2"))
             .build();
 
@@ -396,8 +396,8 @@ public class DefaultMarketDataFactoryTest {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
 
-    MarketDataRequirements requirements =
-        MarketDataRequirements.builder()
+    CalculationRequirements requirements =
+        CalculationRequirements.builder()
             .addValues(new TestIdB("1"), new TestIdB("2"))
             .build();
 
@@ -462,7 +462,7 @@ public class DefaultMarketDataFactoryTest {
 
     // Market data B depends on market data C so these requirements should cause instances of C to be built.
     // There is no market data function for building instances of C so this should cause failures.
-    MarketDataRequirements requirements = MarketDataRequirements.builder()
+    CalculationRequirements requirements = CalculationRequirements.builder()
         .addValues(idB1, idB2)
         .build();
 
@@ -636,7 +636,7 @@ public class DefaultMarketDataFactoryTest {
     MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
@@ -672,7 +672,7 @@ public class DefaultMarketDataFactoryTest {
             .addValue(id1, 1d)
             .addValue(id2, 2d)
             .build();
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
@@ -721,7 +721,7 @@ public class DefaultMarketDataFactoryTest {
         .addTimeSeries(id2, timeSeries2)
         .build();
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addTimeSeries(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addTimeSeries(id1, id2).build();
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
@@ -751,7 +751,7 @@ public class DefaultMarketDataFactoryTest {
     MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
             Double.class,
@@ -783,7 +783,7 @@ public class DefaultMarketDataFactoryTest {
     MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     PerturbationMapping<Double> mapping1 =
         PerturbationMapping.of(
             Double.class,
@@ -823,7 +823,7 @@ public class DefaultMarketDataFactoryTest {
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<String> mapping =
@@ -860,7 +860,7 @@ public class DefaultMarketDataFactoryTest {
             .addValue(id1, "value1")
             .addValue(id2, "value2")
             .build();
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<String> mapping =
         PerturbationMapping.of(
@@ -892,7 +892,7 @@ public class DefaultMarketDataFactoryTest {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
 
-    MarketDataRequirements requirements = MarketDataRequirements.builder()
+    CalculationRequirements requirements = CalculationRequirements.builder()
         .addValues(new TestIdB("1"), new TestIdB("2"))
         .build();
 
@@ -980,7 +980,7 @@ public class DefaultMarketDataFactoryTest {
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     PerturbationMapping<String> mapping =
         PerturbationMapping.of(
@@ -1014,7 +1014,7 @@ public class DefaultMarketDataFactoryTest {
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     PerturbationMapping<String> mapping1 =
         PerturbationMapping.of(
@@ -1056,7 +1056,7 @@ public class DefaultMarketDataFactoryTest {
     MarketDataId<?> id1 = new NonObservableId("a");
     MarketDataId<?> id2 = new NonObservableId("b");
     TestObservableId quoteId = TestObservableId.of(StandardId.of("reqs", "b"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
@@ -1090,7 +1090,7 @@ public class DefaultMarketDataFactoryTest {
 
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1, id2).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
     PerturbationMapping<String> mapping =
@@ -1140,7 +1140,7 @@ public class DefaultMarketDataFactoryTest {
         MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(id, "value")
             .build();
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id).build();
     ScenarioCalculationEnvironment marketData = factory.buildScenarioCalculationEnvironment(
         requirements,
         suppliedData,
@@ -1161,7 +1161,7 @@ public class DefaultMarketDataFactoryTest {
             ObservableMarketDataFunction.none(),
             FeedIdMapping.identity());
     TestObservableId id = TestObservableId.of(StandardId.of("reqs", "a"));
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id).build();
+    CalculationRequirements requirements = CalculationRequirements.builder().addValues(id).build();
     PerturbationMapping<Double> mapping =
         PerturbationMapping.of(
             Double.class,
