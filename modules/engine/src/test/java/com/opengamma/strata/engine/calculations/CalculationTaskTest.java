@@ -33,7 +33,7 @@ import com.opengamma.strata.engine.calculations.function.result.CurrencyValuesAr
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestId;
 import com.opengamma.strata.engine.marketdata.TestKey;
@@ -58,7 +58,7 @@ public class CalculationTaskTest {
             .build();
     CalculationTask task =
         new CalculationTask(new TestTarget(), 0, 0, new TestFunction(), marketDataMappings, ReportingRules.empty());
-    MarketDataRequirements requirements = task.requirements();
+    CalculationRequirements requirements = task.requirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
@@ -250,7 +250,7 @@ public class CalculationTaskTest {
   public void fxConversionRequirements() {
     OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
     CalculationTask task = new CalculationTask(TARGET, 0, 0, fn, MAPPINGS, REPORTING_RULES);
-    MarketDataRequirements requirements = task.requirements();
+    CalculationRequirements requirements = task.requirements();
 
     assertThat(requirements.getNonObservables()).containsOnly(
         FxRateId.of(Currency.GBP, Currency.USD),
@@ -267,8 +267,8 @@ public class CalculationTaskTest {
   public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.builder()
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
                   TestKey.of("1"),
@@ -311,8 +311,8 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -342,8 +342,8 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
   }
 
@@ -358,8 +358,8 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.builder()
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.builder()
           .outputCurrencies(Currency.GBP, Currency.EUR, Currency.USD)
           .build();
     }

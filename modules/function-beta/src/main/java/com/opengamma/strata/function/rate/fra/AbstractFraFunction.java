@@ -23,7 +23,7 @@ import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketDa
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
@@ -77,7 +77,7 @@ public abstract class AbstractFraFunction<T>
 
   //-------------------------------------------------------------------------
   @Override
-  public CalculationRequirements requirements(FraTrade trade) {
+  public FunctionRequirements requirements(FraTrade trade) {
     Fra fra = trade.getProduct();
 
     Set<Index> indices = new HashSet<>();
@@ -97,7 +97,7 @@ public abstract class AbstractFraFunction<T>
     Set<DiscountFactorsKey> discountCurveKeys =
         ImmutableSet.of(DiscountFactorsKey.of(fra.getCurrency()));
 
-    return CalculationRequirements.builder()
+    return FunctionRequirements.builder()
         .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
         .timeSeriesRequirements(indexRateKeys)
         .outputCurrencies(fra.getCurrency())

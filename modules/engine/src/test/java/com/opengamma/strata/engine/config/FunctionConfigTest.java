@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 
 @Test
 public class FunctionConfigTest {
@@ -97,8 +97,8 @@ public class FunctionConfigTest {
   public static final class TestFunctionNoParams implements CalculationSingleFunction<TestTarget, String> {
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -119,8 +119,8 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -136,8 +136,8 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -156,8 +156,8 @@ public class FunctionConfigTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
 
     @Override

@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -176,7 +175,7 @@ public class SwapPricingTest {
     CalculationTasks calculationTasks = calculationRunner.createCalculationTasks(calculationConfig);
 
     CalculationEnvironment marketData = marketDataFactory.buildCalculationEnvironment(
-        calculationTasks.getMarketDataRequirements(),
+        calculationTasks.getRequirements(),
         suppliedData,
         MarketDataConfig.empty());
 

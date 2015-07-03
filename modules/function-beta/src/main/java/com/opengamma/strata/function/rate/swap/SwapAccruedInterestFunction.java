@@ -20,7 +20,7 @@ import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketDa
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.FxConvertibleList;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
@@ -38,8 +38,8 @@ public class SwapAccruedInterestFunction
   // TODO: implementation needs more work to handle edge cases
 
   @Override
-  public CalculationRequirements requirements(SwapTrade target) {
-    return CalculationRequirements.empty();
+  public FunctionRequirements requirements(SwapTrade target) {
+    return FunctionRequirements.empty();
   }
 
   @Override

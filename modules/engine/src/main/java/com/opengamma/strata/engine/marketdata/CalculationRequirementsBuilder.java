@@ -10,14 +10,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Mutable builder for creating instances of {@link MarketDataRequirements}.
+ * Mutable builder for creating instances of {@link CalculationRequirements}.
  */
-public final class MarketDataRequirementsBuilder {
+public final class CalculationRequirementsBuilder {
 
   /** IDs identifying the observable market data values required for the calculations. */
   private final Set<ObservableId> observables = new HashSet<>();
@@ -28,13 +29,16 @@ public final class MarketDataRequirementsBuilder {
   /** IDs identifying the time series of market data values required for the calculations. */
   private final Set<ObservableId> timeSeries = new HashSet<>();
 
+  /** The currencies used in the outputs of the calculations. */
+  private final Set<Currency> outputCurrencies = new HashSet<>();
+
   /**
    * Adds requirements for time series of observable market data.
    *
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder addTimeSeries(Collection<? extends ObservableId> ids) {
+  public CalculationRequirementsBuilder addTimeSeries(Collection<? extends ObservableId> ids) {
     ArgChecker.notNull(ids, "ids");
     timeSeries.addAll(ids);
     return this;
@@ -46,7 +50,7 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder addTimeSeries(ObservableId... ids) {
+  public CalculationRequirementsBuilder addTimeSeries(ObservableId... ids) {
     return addTimeSeries(Arrays.asList(ids));
   }
 
@@ -56,7 +60,7 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder addValues(Collection<? extends MarketDataId<?>> ids) {
+  public CalculationRequirementsBuilder addValues(Collection<? extends MarketDataId<?>> ids) {
     ArgChecker.notNull(ids, "ids");
 
     for (MarketDataId<?> id : ids) {
@@ -75,21 +79,22 @@ public final class MarketDataRequirementsBuilder {
    * @param ids  IDs of the data
    * @return this builder
    */
-  public MarketDataRequirementsBuilder addValues(MarketDataId<?>... ids) {
+  public CalculationRequirementsBuilder addValues(MarketDataId<?>... ids) {
     return addValues(Arrays.asList(ids));
   }
 
   /**
-   * Adds all requirements from an instance of {@code MarketDataRequirements} to this builder.
+   * Adds all requirements from an instance of {@code CalculationRequirements} to this builder.
    *
    * @param requirements  a set of requirements
    * @return this builder
    */
-  public MarketDataRequirementsBuilder addRequirements(MarketDataRequirements requirements) {
+  public CalculationRequirementsBuilder addRequirements(CalculationRequirements requirements) {
     ArgChecker.notNull(requirements, "requirements");
     observables.addAll(requirements.getObservables());
     nonObservables.addAll(requirements.getNonObservables());
     timeSeries.addAll(requirements.getTimeSeries());
+    outputCurrencies.addAll(requirements.getOutputCurrencies());
     return this;
   }
 
@@ -98,7 +103,7 @@ public final class MarketDataRequirementsBuilder {
    *
    * @return a set of market data requirements built from the data in this builder
    */
-  public MarketDataRequirements build() {
-    return new MarketDataRequirements(observables, nonObservables, timeSeries);
+  public CalculationRequirements build() {
+    return new CalculationRequirements(observables, nonObservables, timeSeries, outputCurrencies);
   }
 }

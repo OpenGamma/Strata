@@ -95,7 +95,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
 
     // build any missing market data
     CalculationEnvironment calculationEnvironment = marketDataFactory.buildCalculationEnvironment(
-        tasks.getMarketDataRequirements(),
+        tasks.getRequirements(),
         marketEnvironment,
         calculationRules.getMarketDataConfig());
 
@@ -122,7 +122,7 @@ public final class DefaultCalculationEngine implements CalculationEngine {
 
     // build any required scenarios from the base market data
     ScenarioCalculationEnvironment scenarioMarketData = marketDataFactory.buildScenarioCalculationEnvironment(
-        tasks.getMarketDataRequirements(),
+        tasks.getRequirements(),
         suppliedMarketData,
         scenarioDefinition,
         calculationRules.getMarketDataConfig());
