@@ -72,4 +72,14 @@ public interface CalculationMarketData {
    * @return the market data value
    */
   public abstract <T, K extends MarketDataKey<T>> T getGlobalValue(K key);
+
+  /**
+   * Returns the market data for a local scenario.
+   * <p>
+   * TODO Specify what the index corresponds to
+   *
+   * @param scenarioIndex  the index of the scenario
+   * @return the market data for the specified scenario
+   */
+  public abstract CalculationMarketData getScenarioData(int scenarioIndex);
 }
