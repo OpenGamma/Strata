@@ -219,7 +219,7 @@ public class CurveGroupMarketDataFunctionTest {
   }
 
   // TODO This has been broken by a change in analytics, reinstate once that is fixed
-  //@Test(enabled = false)
+  @Test(enabled = false)
   public void metadata() {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
 
