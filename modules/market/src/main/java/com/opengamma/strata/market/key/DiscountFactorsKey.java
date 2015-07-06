@@ -44,7 +44,7 @@ public final class DiscountFactorsKey
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a key to obtain the discount factors associated with a currency.
+   * Obtains a key used to find the discount factors associated with a currency.
    *
    * @param currency  the currency
    * @return a key for the discount factors of the currency

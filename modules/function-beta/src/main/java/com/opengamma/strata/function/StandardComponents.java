@@ -23,11 +23,11 @@ import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunc
 import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.ParRatesMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
-import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
 
 /**
  * Factory methods for creating standard Strata components.
@@ -105,11 +105,11 @@ public class StandardComponents {
    */
   public List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
-   new DiscountingCurveMarketDataFunction(),
-   new RateIndexCurveMarketDataFunction(),
-   new ZeroRateDiscountFactorsMarketDataFunction(),
-   new CurveGroupMarketDataFunction(RootFinderConfig.defaults()), // RootFinderConfig will be removed #343
-   new ParRatesMarketDataFunction());
+        new DiscountCurveMarketDataFunction(),
+        new RateIndexCurveMarketDataFunction(),
+        new DiscountFactorsMarketDataFunction(),
+        new CurveGroupMarketDataFunction(RootFinderConfig.defaults()), // RootFinderConfig will be removed #343
+        new ParRatesMarketDataFunction());
   }
 
   /**

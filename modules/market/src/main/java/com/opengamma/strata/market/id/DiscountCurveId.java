@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,44 +25,56 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
- * Market data ID identifying the discounting curve for a currency.
+ * Market data ID identifying the discount curve for a currency.
+ * <p>
+ * This is used when there is a need to obtain an instance of {@link Curve} that
+ * can be used to determine discount factors.
  */
 @BeanDefinition(builderScope = "private")
-public final class DiscountCurveId implements RateCurveId, ImmutableBean {
+public final class DiscountCurveId
+    implements RateCurveId, ImmutableBean, Serializable {
 
-  /** The currency of the discounting curve. */
+  /**
+   * The currency of the discount factor curve that is required.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
-
-  /** The name of the curve group containing the curve. */
+  /**
+   * The name of the curve group containing the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveGroupName curveGroupName;
-
-  /** The market data feed which provides quotes used to build the curve. */
+  /**
+   * The market data feed which provides quotes used to build the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataFeed marketDataFeed;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns an ID that identifies the discounting curve for the specified currency.
+   * Obtains an ID used to find the discount factor curve associated with a currency.
    *
-   * @param currency  the currency of the discounting curve
+   * @param currency  the currency of the discount curve
    * @param curveGroupName  the name of the curve group containing the curve
    * @param marketDataFeed  the market data feed which provides quotes used to build the curve
-   * @return an ID that identifies the discounting curve for the specified currency
+   * @return an ID that identifies the discount curve for the specified currency
    */
   public static DiscountCurveId of(Currency currency, CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
     return new DiscountCurveId(currency, curveGroupName, marketDataFeed);
   }
 
   /**
-   * Returns an ID that identifies the discounting curve for the specified currency.
+   * Obtains an ID used to find the discount factor curve associated with a currency.
+   * <p>
+   * The result will use {@link MarketDataFeed#NONE}.
    *
    * @param currency  the currency of the discounting curve
    * @param curveGroupName  the name of the curve group containing the curve
-   * @return an ID that identifies the discounting curve for the specified currency
+   * @return an ID that identifies the discount curve for the specified currency
    */
   public static DiscountCurveId of(Currency currency, CurveGroupName curveGroupName) {
     return new DiscountCurveId(currency, curveGroupName, MarketDataFeed.NONE);
@@ -80,6 +93,11 @@ public final class DiscountCurveId implements RateCurveId, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(DiscountCurveId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private DiscountCurveId(
       Currency currency,
@@ -110,7 +128,7 @@ public final class DiscountCurveId implements RateCurveId, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the discounting curve.
+   * Gets the currency of the discount factor curve that is required.
    * @return the value of the property, not null
    */
   @Override

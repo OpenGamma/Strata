@@ -5,13 +5,18 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
+import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+
+import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
@@ -22,14 +27,18 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.DiscountCurveId;
 
+/**
+ * Test {@link DiscountCurveMarketDataFunction}.
+ */
 @Test
-public class DiscountingCurveMarketDataFunctionTest {
+public class DiscountCurveMarketDataFunctionTest {
 
-  private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("group name");
+  private static final LocalDate VAL_DATE = date(2011, 3, 8);
+  private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("groupName");
+  private static final MarketDataFeed FEED = MarketDataFeed.of("Feed");
 
-  /**
-   * Tests building a single curve
-   */
+  //-------------------------------------------------------------------------
+  // tests building a single curve
   public void singleCurve() {
     Curve curve = ConstantNodalCurve.of(Currency.AUD + " Discounting", (double) 1);
     DiscountCurveId curveId = DiscountCurveId.of(Currency.AUD, CURVE_GROUP_NAME);
@@ -38,16 +47,14 @@ public class DiscountingCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.AUD, curve),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
-    DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
+    DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
     Result<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
     assertThat(result).hasValue(curve);
   }
 
-  /**
-   * Tests building multiple curves from the same curve group
-   */
+  // tests building multiple curves from the same curve group
   public void multipleCurves() {
     Curve curve1 = ConstantNodalCurve.of(Currency.AUD + " Discounting", (double) 1);
     Curve curve2 = ConstantNodalCurve.of(Currency.GBP + " Discounting", (double) 2);
@@ -58,8 +65,8 @@ public class DiscountingCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.AUD, curve1, Currency.GBP, curve2),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
-    DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
+    DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
     Result<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
     assertThat(result1).hasValue(curve1);
@@ -68,9 +75,7 @@ public class DiscountingCurveMarketDataFunctionTest {
     assertThat(result2).hasValue(curve2);
   }
 
-  /**
-   * Tests building curves from multiple curve groups
-   */
+  // tests building curves from multiple curve groups
   public void multipleBundles() {
     CurveGroupName groupName1 = CurveGroupName.of("group 1");
     Curve curve1 = ConstantNodalCurve.of(Currency.AUD + " Discounting", (double) 1);
@@ -94,12 +99,12 @@ public class DiscountingCurveMarketDataFunctionTest {
         ImmutableMap.of(Currency.CHF, curve3, Currency.USD, curve4),
         ImmutableMap.of());
 
-    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(groupId1, curveGroup1)
         .addValue(groupId2, curveGroup2)
         .build();
 
-    DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
+    DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
     Result<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
     assertThat(result1).hasValue(curve1);
@@ -112,6 +117,32 @@ public class DiscountingCurveMarketDataFunctionTest {
 
     Result<Curve> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
     assertThat(result4).hasValue(curve4);
+  }
+
+  public void test_noCurveGroup() {
+    MarketEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
+    DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
+
+    DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
+    Result<Curve> result = test.build(id, marketData, MarketDataConfig.empty());
+    assertThat(result).isFailure(FailureReason.MISSING_DATA);
+  }
+
+  public void test_noCurveOfDesiredCurrencyInGroup() {
+    Curve curve = ConstantNodalCurve.of(Currency.GBP + " Discounting", (double) 1);
+    CurveGroupId groupId = CurveGroupId.of(CURVE_GROUP_NAME, FEED);
+    CurveGroup curveGroup = CurveGroup.of(
+        CurveGroupName.of("curveGroup"),
+        ImmutableMap.of(Currency.GBP, curve),
+        ImmutableMap.of());
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+        .addValue(groupId, curveGroup)
+        .build();
+    DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
+
+    DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
+    Result<Curve> result = test.build(id, marketData, MarketDataConfig.empty());
+    assertThat(result).isFailure(FailureReason.MISSING_DATA);
   }
 
 }

@@ -13,6 +13,7 @@ import static com.opengamma.strata.engine.calculations.function.FunctionUtils.to
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.id;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -184,9 +185,9 @@ public class CurveEndToEndTest {
 
     ParRatesMarketDataFunction parRatesFunction = new ParRatesMarketDataFunction();
     CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
-    DiscountingCurveMarketDataFunction discountCurveFunction = new DiscountingCurveMarketDataFunction();
+    DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();
     RateIndexCurveMarketDataFunction forwardCurveFunction = new RateIndexCurveMarketDataFunction();
-    ZeroRateDiscountFactorsMarketDataFunction discountFactorsFunction = new ZeroRateDiscountFactorsMarketDataFunction();
+    DiscountFactorsMarketDataFunction discountFactorsFunction = new DiscountFactorsMarketDataFunction();
 
     // Calculation engine ------------------------------------------------------
 
