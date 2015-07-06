@@ -3,20 +3,20 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.surface;
 
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
 /**
- * Test {@link CurveName}.
+ * Test {@link SurfaceName}.
  */
 @Test
-public class CurveNameTest {
+public class SurfaceNameTest {
 
   public void coverage() {
-    CurveName test = CurveName.of("Foo");
+    SurfaceName test = SurfaceName.of("Foo");
     assertEquals(test.toString(), "Foo");
   }
 

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.surface;
 
 import java.io.Serializable;
 import java.util.List;
@@ -31,19 +31,19 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.market.value.ValueType;
 
 /**
- * Default metadata for a curve.
+ * Default metadata for a surface.
  * <p>
- * This implementation of {@link CurveMetadata} provides the curve name and nodes.
+ * This implementation of {@link SurfaceMetadata} provides the surface name and nodes.
  */
 @BeanDefinition
-public final class DefaultCurveMetadata
-    implements CurveMetadata, ImmutableBean, Serializable {
+public final class DefaultSurfaceMetadata
+    implements SurfaceMetadata, ImmutableBean, Serializable {
 
   /**
-   * The curve name.
+   * The surface name.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final CurveName curveName;
+  private final SurfaceName surfaceName;
   /**
    * The x-value type, providing meaning to the x-values of the curve.
    * <p>
@@ -57,17 +57,25 @@ public final class DefaultCurveMetadata
   /**
    * The y-value type, providing meaning to the y-values of the curve.
    * <p>
-   * This type provides meaning to the y-values. For example, the y-value might
-   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+   * This type provides meaning to the y-values.
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ValueType yValueType;
   /**
+   * The x-value type, providing meaning to the z-values of the curve.
+   * <p>
+   * This type provides meaning to the z-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ValueType zValueType;
+  /**
    * The day count, optional.
    * <p>
-   * If the x-value of the curve represents time as a year fraction, the day count
+   * If the x-value of the surface represents time as a year fraction, the day count
    * can be specified to define how the year fraction is calculated.
    */
   @PropertyDefinition(get = "optional", overrideGet = true)
@@ -75,34 +83,34 @@ public final class DefaultCurveMetadata
   /**
    * The metadata about the parameters.
    * <p>
-   * If present, the parameter metadata will match the number of parameters on the curve.
+   * If present, the parameter metadata should match the number of parameters on the surface.
    */
   @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>")
-  private final ImmutableList<CurveParameterMetadata> parameterMetadata;
+  private final ImmutableList<SurfaceParameterMetadata> parameterMetadata;
 
   //-------------------------------------------------------------------------
   /**
    * Creates the metadata.
    * <p>
-   * No information will be available for the x-values, y-values or parameters.
+   * No information will be available for the x-values, y-values, z-values or parameters.
    * 
-   * @param name  the curve name
+   * @param name  the surface name
    * @return the metadata
    */
-  public static DefaultCurveMetadata of(String name) {
-    return of(CurveName.of(name));
+  public static DefaultSurfaceMetadata of(String name) {
+    return of(SurfaceName.of(name));
   }
 
   /**
    * Creates the metadata.
    * <p>
-   * No information will be available for the x-values, y-values or parameters.
+   * No information will be available for the x-values, y-values, z-values or parameters.
    * 
-   * @param name  the curve name
+   * @param name  the surface name
    * @return the metadata
    */
-  public static DefaultCurveMetadata of(CurveName name) {
-    return new DefaultCurveMetadata(name, ValueType.UNKNOWN, ValueType.UNKNOWN, null, null);
+  public static DefaultSurfaceMetadata of(SurfaceName name) {
+    return new DefaultSurfaceMetadata(name, ValueType.UNKNOWN, ValueType.UNKNOWN, ValueType.UNKNOWN, null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -110,43 +118,47 @@ public final class DefaultCurveMetadata
   private static void applyDefaults(Builder builder) {
     builder.xValueType = ValueType.UNKNOWN;
     builder.yValueType = ValueType.UNKNOWN;
+    builder.zValueType = ValueType.UNKNOWN;
   }
 
   @ImmutableConstructor
-  private DefaultCurveMetadata(
-      CurveName name,
+  private DefaultSurfaceMetadata(
+      SurfaceName name,
       ValueType xValueType,
       ValueType yValueType,
+      ValueType zValueType,
       DayCount dayCount,
-      List<? extends CurveParameterMetadata> parameterMetadata) {
+      List<? extends SurfaceParameterMetadata> parameterMetadata) {
     JodaBeanUtils.notNull(name, "curveName");
     JodaBeanUtils.notNull(xValueType, "xValueType");
     JodaBeanUtils.notNull(yValueType, "yValueType");
-    this.curveName = name;
+    JodaBeanUtils.notNull(zValueType, "zValueType");
+    this.surfaceName = name;
     this.xValueType = xValueType;
     this.yValueType = yValueType;
+    this.zValueType = zValueType;
     this.dayCount = dayCount;
     this.parameterMetadata = (parameterMetadata != null ? ImmutableList.copyOf(parameterMetadata) : null);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public DefaultCurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata) {
+  public DefaultSurfaceMetadata withParameterMetadata(List<SurfaceParameterMetadata> parameterMetadata) {
     return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code DefaultCurveMetadata}.
+   * The meta-bean for {@code DefaultSurfaceMetadata}.
    * @return the meta-bean, not null
    */
-  public static DefaultCurveMetadata.Meta meta() {
-    return DefaultCurveMetadata.Meta.INSTANCE;
+  public static DefaultSurfaceMetadata.Meta meta() {
+    return DefaultSurfaceMetadata.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(DefaultCurveMetadata.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(DefaultSurfaceMetadata.Meta.INSTANCE);
   }
 
   /**
@@ -158,13 +170,13 @@ public final class DefaultCurveMetadata
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static DefaultCurveMetadata.Builder builder() {
-    return new DefaultCurveMetadata.Builder();
+  public static DefaultSurfaceMetadata.Builder builder() {
+    return new DefaultSurfaceMetadata.Builder();
   }
 
   @Override
-  public DefaultCurveMetadata.Meta metaBean() {
-    return DefaultCurveMetadata.Meta.INSTANCE;
+  public DefaultSurfaceMetadata.Meta metaBean() {
+    return DefaultSurfaceMetadata.Meta.INSTANCE;
   }
 
   @Override
@@ -179,12 +191,12 @@ public final class DefaultCurveMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curve name.
+   * Gets the surface name.
    * @return the value of the property, not null
    */
   @Override
-  public CurveName getCurveName() {
-    return curveName;
+  public SurfaceName getSurfaceName() {
+    return surfaceName;
   }
 
   //-----------------------------------------------------------------------
@@ -206,8 +218,7 @@ public final class DefaultCurveMetadata
   /**
    * Gets the y-value type, providing meaning to the y-values of the curve.
    * <p>
-   * This type provides meaning to the y-values. For example, the y-value might
-   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+   * This type provides meaning to the y-values.
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    * @return the value of the property, not null
@@ -219,9 +230,23 @@ public final class DefaultCurveMetadata
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the x-value type, providing meaning to the z-values of the curve.
+   * <p>
+   * This type provides meaning to the z-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ValueType getZValueType() {
+    return zValueType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the day count, optional.
    * <p>
-   * If the x-value of the curve represents time as a year fraction, the day count
+   * If the x-value of the surface represents time as a year fraction, the day count
    * can be specified to define how the year fraction is calculated.
    * @return the optional value of the property, not null
    */
@@ -234,11 +259,11 @@ public final class DefaultCurveMetadata
   /**
    * Gets the metadata about the parameters.
    * <p>
-   * If present, the parameter metadata will match the number of parameters on the curve.
+   * If present, the parameter metadata should match the number of parameters on the surface.
    * @return the optional value of the property, not null
    */
   @Override
-  public Optional<List<CurveParameterMetadata>> getParameterMetadata() {
+  public Optional<List<SurfaceParameterMetadata>> getParameterMetadata() {
     return Optional.ofNullable(parameterMetadata);
   }
 
@@ -257,10 +282,11 @@ public final class DefaultCurveMetadata
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DefaultCurveMetadata other = (DefaultCurveMetadata) obj;
-      return JodaBeanUtils.equal(getCurveName(), other.getCurveName()) &&
+      DefaultSurfaceMetadata other = (DefaultSurfaceMetadata) obj;
+      return JodaBeanUtils.equal(getSurfaceName(), other.getSurfaceName()) &&
           JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
           JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
+          JodaBeanUtils.equal(getZValueType(), other.getZValueType()) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata);
     }
@@ -270,9 +296,10 @@ public final class DefaultCurveMetadata
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSurfaceName());
     hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     return hash;
@@ -280,11 +307,12 @@ public final class DefaultCurveMetadata
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("DefaultCurveMetadata{");
-    buf.append("curveName").append('=').append(getCurveName()).append(',').append(' ');
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("DefaultSurfaceMetadata{");
+    buf.append("surfaceName").append('=').append(getSurfaceName()).append(',').append(' ');
     buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
     buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
+    buf.append("zValueType").append('=').append(getZValueType()).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
@@ -293,7 +321,7 @@ public final class DefaultCurveMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code DefaultCurveMetadata}.
+   * The meta-bean for {@code DefaultSurfaceMetadata}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -302,39 +330,45 @@ public final class DefaultCurveMetadata
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curveName} property.
+     * The meta-property for the {@code surfaceName} property.
      */
-    private final MetaProperty<CurveName> curveName = DirectMetaProperty.ofImmutable(
-        this, "curveName", DefaultCurveMetadata.class, CurveName.class);
+    private final MetaProperty<SurfaceName> surfaceName = DirectMetaProperty.ofImmutable(
+        this, "surfaceName", DefaultSurfaceMetadata.class, SurfaceName.class);
     /**
      * The meta-property for the {@code xValueType} property.
      */
     private final MetaProperty<ValueType> xValueType = DirectMetaProperty.ofImmutable(
-        this, "xValueType", DefaultCurveMetadata.class, ValueType.class);
+        this, "xValueType", DefaultSurfaceMetadata.class, ValueType.class);
     /**
      * The meta-property for the {@code yValueType} property.
      */
     private final MetaProperty<ValueType> yValueType = DirectMetaProperty.ofImmutable(
-        this, "yValueType", DefaultCurveMetadata.class, ValueType.class);
+        this, "yValueType", DefaultSurfaceMetadata.class, ValueType.class);
+    /**
+     * The meta-property for the {@code zValueType} property.
+     */
+    private final MetaProperty<ValueType> zValueType = DirectMetaProperty.ofImmutable(
+        this, "zValueType", DefaultSurfaceMetadata.class, ValueType.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", DefaultCurveMetadata.class, DayCount.class);
+        this, "dayCount", DefaultSurfaceMetadata.class, DayCount.class);
     /**
      * The meta-property for the {@code parameterMetadata} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurveParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
-        this, "parameterMetadata", DefaultCurveMetadata.class, (Class) List.class);
+    private final MetaProperty<List<SurfaceParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
+        this, "parameterMetadata", DefaultSurfaceMetadata.class, (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curveName",
+        "surfaceName",
         "xValueType",
         "yValueType",
+        "zValueType",
         "dayCount",
         "parameterMetadata");
 
@@ -347,12 +381,14 @@ public final class DefaultCurveMetadata
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 771153946:  // curveName
-          return curveName;
+        case -1403077416:  // surfaceName
+          return surfaceName;
         case -868509005:  // xValueType
           return xValueType;
         case -1065022510:  // yValueType
           return yValueType;
+        case -1261536015:  // zValueType
+          return zValueType;
         case 1905311443:  // dayCount
           return dayCount;
         case -1169106440:  // parameterMetadata
@@ -362,13 +398,13 @@ public final class DefaultCurveMetadata
     }
 
     @Override
-    public DefaultCurveMetadata.Builder builder() {
-      return new DefaultCurveMetadata.Builder();
+    public DefaultSurfaceMetadata.Builder builder() {
+      return new DefaultSurfaceMetadata.Builder();
     }
 
     @Override
-    public Class<? extends DefaultCurveMetadata> beanType() {
-      return DefaultCurveMetadata.class;
+    public Class<? extends DefaultSurfaceMetadata> beanType() {
+      return DefaultSurfaceMetadata.class;
     }
 
     @Override
@@ -378,11 +414,11 @@ public final class DefaultCurveMetadata
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curveName} property.
+     * The meta-property for the {@code surfaceName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveName> curveName() {
-      return curveName;
+    public MetaProperty<SurfaceName> surfaceName() {
+      return surfaceName;
     }
 
     /**
@@ -402,6 +438,14 @@ public final class DefaultCurveMetadata
     }
 
     /**
+     * The meta-property for the {@code zValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> zValueType() {
+      return zValueType;
+    }
+
+    /**
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
@@ -413,7 +457,7 @@ public final class DefaultCurveMetadata
      * The meta-property for the {@code parameterMetadata} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<CurveParameterMetadata>> parameterMetadata() {
+    public MetaProperty<List<SurfaceParameterMetadata>> parameterMetadata() {
       return parameterMetadata;
     }
 
@@ -421,16 +465,18 @@ public final class DefaultCurveMetadata
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 771153946:  // curveName
-          return ((DefaultCurveMetadata) bean).getCurveName();
+        case -1403077416:  // surfaceName
+          return ((DefaultSurfaceMetadata) bean).getSurfaceName();
         case -868509005:  // xValueType
-          return ((DefaultCurveMetadata) bean).getXValueType();
+          return ((DefaultSurfaceMetadata) bean).getXValueType();
         case -1065022510:  // yValueType
-          return ((DefaultCurveMetadata) bean).getYValueType();
+          return ((DefaultSurfaceMetadata) bean).getYValueType();
+        case -1261536015:  // zValueType
+          return ((DefaultSurfaceMetadata) bean).getZValueType();
         case 1905311443:  // dayCount
-          return ((DefaultCurveMetadata) bean).dayCount;
+          return ((DefaultSurfaceMetadata) bean).dayCount;
         case -1169106440:  // parameterMetadata
-          return ((DefaultCurveMetadata) bean).parameterMetadata;
+          return ((DefaultSurfaceMetadata) bean).parameterMetadata;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -448,15 +494,16 @@ public final class DefaultCurveMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code DefaultCurveMetadata}.
+   * The bean-builder for {@code DefaultSurfaceMetadata}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<DefaultCurveMetadata> {
+  public static final class Builder extends DirectFieldsBeanBuilder<DefaultSurfaceMetadata> {
 
-    private CurveName curveName;
+    private SurfaceName surfaceName;
     private ValueType xValueType;
     private ValueType yValueType;
+    private ValueType zValueType;
     private DayCount dayCount;
-    private List<CurveParameterMetadata> parameterMetadata;
+    private List<SurfaceParameterMetadata> parameterMetadata;
 
     /**
      * Restricted constructor.
@@ -469,10 +516,11 @@ public final class DefaultCurveMetadata
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(DefaultCurveMetadata beanToCopy) {
-      this.curveName = beanToCopy.getCurveName();
+    private Builder(DefaultSurfaceMetadata beanToCopy) {
+      this.surfaceName = beanToCopy.getSurfaceName();
       this.xValueType = beanToCopy.getXValueType();
       this.yValueType = beanToCopy.getYValueType();
+      this.zValueType = beanToCopy.getZValueType();
       this.dayCount = beanToCopy.dayCount;
       this.parameterMetadata = beanToCopy.parameterMetadata;
     }
@@ -481,12 +529,14 @@ public final class DefaultCurveMetadata
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 771153946:  // curveName
-          return curveName;
+        case -1403077416:  // surfaceName
+          return surfaceName;
         case -868509005:  // xValueType
           return xValueType;
         case -1065022510:  // yValueType
           return yValueType;
+        case -1261536015:  // zValueType
+          return zValueType;
         case 1905311443:  // dayCount
           return dayCount;
         case -1169106440:  // parameterMetadata
@@ -500,8 +550,8 @@ public final class DefaultCurveMetadata
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 771153946:  // curveName
-          this.curveName = (CurveName) newValue;
+        case -1403077416:  // surfaceName
+          this.surfaceName = (SurfaceName) newValue;
           break;
         case -868509005:  // xValueType
           this.xValueType = (ValueType) newValue;
@@ -509,11 +559,14 @@ public final class DefaultCurveMetadata
         case -1065022510:  // yValueType
           this.yValueType = (ValueType) newValue;
           break;
+        case -1261536015:  // zValueType
+          this.zValueType = (ValueType) newValue;
+          break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
         case -1169106440:  // parameterMetadata
-          this.parameterMetadata = (List<CurveParameterMetadata>) newValue;
+          this.parameterMetadata = (List<SurfaceParameterMetadata>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -546,24 +599,25 @@ public final class DefaultCurveMetadata
     }
 
     @Override
-    public DefaultCurveMetadata build() {
-      return new DefaultCurveMetadata(
-          curveName,
+    public DefaultSurfaceMetadata build() {
+      return new DefaultSurfaceMetadata(
+          surfaceName,
           xValueType,
           yValueType,
+          zValueType,
           dayCount,
           parameterMetadata);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveName} property in the builder.
-     * @param curveName  the new value, not null
+     * Sets the {@code surfaceName} property in the builder.
+     * @param surfaceName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder curveName(CurveName curveName) {
-      JodaBeanUtils.notNull(curveName, "curveName");
-      this.curveName = curveName;
+    public Builder surfaceName(SurfaceName surfaceName) {
+      JodaBeanUtils.notNull(surfaceName, "surfaceName");
+      this.surfaceName = surfaceName;
       return this;
     }
 
@@ -590,6 +644,17 @@ public final class DefaultCurveMetadata
     }
 
     /**
+     * Sets the {@code zValueType} property in the builder.
+     * @param zValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder zValueType(ValueType zValueType) {
+      JodaBeanUtils.notNull(zValueType, "zValueType");
+      this.zValueType = zValueType;
+      return this;
+    }
+
+    /**
      * Sets the {@code dayCount} property in the builder.
      * @param dayCount  the new value
      * @return this, for chaining, not null
@@ -604,7 +669,7 @@ public final class DefaultCurveMetadata
      * @param parameterMetadata  the new value
      * @return this, for chaining, not null
      */
-    public Builder parameterMetadata(List<CurveParameterMetadata> parameterMetadata) {
+    public Builder parameterMetadata(List<SurfaceParameterMetadata> parameterMetadata) {
       this.parameterMetadata = parameterMetadata;
       return this;
     }
@@ -615,18 +680,19 @@ public final class DefaultCurveMetadata
      * @param parameterMetadata  the new value
      * @return this, for chaining, not null
      */
-    public Builder parameterMetadata(CurveParameterMetadata... parameterMetadata) {
+    public Builder parameterMetadata(SurfaceParameterMetadata... parameterMetadata) {
       return parameterMetadata(ImmutableList.copyOf(parameterMetadata));
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("DefaultCurveMetadata.Builder{");
-      buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("DefaultSurfaceMetadata.Builder{");
+      buf.append("surfaceName").append('=').append(JodaBeanUtils.toString(surfaceName)).append(',').append(' ');
       buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
       buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
+      buf.append("zValueType").append('=').append(JodaBeanUtils.toString(zValueType)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
       buf.append('}');
