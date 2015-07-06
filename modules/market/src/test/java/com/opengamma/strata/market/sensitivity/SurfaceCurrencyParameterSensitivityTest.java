@@ -9,16 +9,15 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.market.curve.DefaultSurfaceMetadata;
-import com.opengamma.strata.market.curve.SurfaceMetadata;
-import com.opengamma.strata.market.curve.SurfaceName;
-import com.opengamma.strata.market.curve.SurfaceParameterMetadata;
+import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
+import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.market.surface.SurfaceName;
+import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 
 /**
  * Test {@link SurfaceCurrencyParameterSensitivity}.

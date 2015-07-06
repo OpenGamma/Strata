@@ -30,8 +30,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.market.curve.SurfaceMetadata;
-import com.opengamma.strata.market.curve.SurfaceName;
+import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.market.surface.SurfaceName;
 
 /**
  * Parameter sensitivity for a single surface.
