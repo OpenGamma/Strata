@@ -72,4 +72,5 @@ public interface CurveParameterMetadata
    *   creating scenarios
    */
   public abstract Object getIdentifier();
+
 }

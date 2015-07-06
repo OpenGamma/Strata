@@ -10,9 +10,9 @@ import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Metadata about a surface and surface parameters.
@@ -29,68 +29,39 @@ public interface SurfaceMetadata
     extends ImmutableBean {
 
   /**
-   * Creates a metadata instance without parameter information.
-   * <p>
-   * The resulting metadata will have no parameter metadata.
-   * For more control, see {@link DefaultSurfaceMetadata}.
-   * 
-   * @param name  the surface name
-   * @return the metadata
-   */
-  public static SurfaceMetadata of(String name) {
-    return of(SurfaceName.of(name));
-  }
-
-  /**
-   * Creates a metadata instance without parameter information.
-   * <p>
-   * The resulting metadata will have no parameter metadata.
-   * For more control, see {@link DefaultSurfaceMetadata}.
-   * 
-   * @param name  the surface name
-   * @return the metadata
-   */
-  public static SurfaceMetadata of(SurfaceName name) {
-    return DefaultSurfaceMetadata.of(name);
-  }
-
-  /**
-   * Creates a metadata instance with parameter information.
-   * <p>
-   * The parameter metadata must match the number of parameters on the surface.
-   * An empty list is accepted and interpreted as meaning that no parameter metadata is present.
-   * For more control, see {@link DefaultSurfaceMetadata}.
-   * 
-   * @param name  the surface name
-   * @param parameters  the parameter metadata
-   * @return the metadata
-   */
-  public static SurfaceMetadata of(String name, List<? extends SurfaceParameterMetadata> parameters) {
-    return of(SurfaceName.of(name), parameters);
-  }
-
-  /**
-   * Creates a metadata instance with parameter information.
-   * <p>
-   * The parameter metadata must match the number of parameters on the surface.
-   * An empty list is accepted and interpreted as meaning that no parameter metadata is present.
-   * For more control, see {@link DefaultSurfaceMetadata}.
-   * 
-   * @param name  the surface name
-   * @param parameters  the parameter metadata
-   * @return the metadata
-   */
-  public static SurfaceMetadata of(SurfaceName name, List<? extends SurfaceParameterMetadata> parameters) {
-    return DefaultSurfaceMetadata.of(name, ImmutableList.copyOf(parameters));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the surface name.
    * 
    * @return the surface name
    */
   public abstract SurfaceName getSurfaceName();
+
+  /**
+   * Gets the x-value type, providing meaning to the x-values of the curve.
+   * <p>
+   * This type provides meaning to the x-values. For example, the x-value might
+   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * 
+   * @return the x-value type
+   */
+  public abstract ValueType getXValueType();
+
+  /**
+   * Gets the y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values.
+   * 
+   * @return the y-value type
+   */
+  public abstract ValueType getYValueType();
+
+  /**
+   * Gets the z-value type, providing meaning to the z-values of the curve.
+   * <p>
+   * This type provides meaning to the z-values.
+   * 
+   * @return the z-value type
+   */
+  public abstract ValueType getZValueType();
 
   /**
    * Gets the day count, optional.
@@ -109,5 +80,17 @@ public interface SurfaceMetadata
    * 
    * @return the parameter metadata
    */
-  public abstract Optional<List<SurfaceParameterMetadata>> getParameters();
+  public abstract Optional<List<SurfaceParameterMetadata>> getParameterMetadata();
+
+  /**
+   * Returns an instance where the parameter metadata has been changed.
+   * <p>
+   * The result will contain the specified parameter metadata.
+   * A null value is accepted and causes the result to have no parameter metadata.
+   * 
+   * @param parameterMetadata  the new parameter metadata
+   * @return the new surface metadata
+   */
+  public abstract SurfaceMetadata withParameterMetadata(List<SurfaceParameterMetadata> parameterMetadata);
+
 }

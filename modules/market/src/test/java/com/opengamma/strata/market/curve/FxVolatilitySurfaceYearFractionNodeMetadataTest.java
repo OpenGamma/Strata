@@ -83,7 +83,6 @@ public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
   public void test_builder_incomplete() {
     BeanBuilder<? extends FxVolatilitySurfaceYearFractionNodeMetadata> builder =
         FxVolatilitySurfaceYearFractionNodeMetadata.meta().builder();
-    Pair<Double, StrikeType> pair = Pair.of(TIME_TO_EXPIRY, STRIKE);
     assertThrowsIllegalArg(() -> builder.build());
   }
 
@@ -102,4 +101,5 @@ public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
         FxVolatilitySurfaceYearFractionNodeMetadata.of(TIME_TO_EXPIRY, STRIKE, CURRENCY_PAIR);
     assertSerialization(test);
   }
+
 }

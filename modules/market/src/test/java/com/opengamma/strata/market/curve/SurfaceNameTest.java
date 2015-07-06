@@ -19,4 +19,5 @@ public class SurfaceNameTest {
     SurfaceName test = SurfaceName.of("Foo");
     assertEquals(test.toString(), "Foo");
   }
+
 }

@@ -33,4 +33,5 @@ public class EmptySurfaceParameterMetadataTest {
     EmptySurfaceParameterMetadata test = EmptySurfaceParameterMetadata.empty();
     assertSerialization(test);
   }
+
 }

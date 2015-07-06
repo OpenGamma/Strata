@@ -43,12 +43,16 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final Pair<Double, StrikeType> yearFractionAndStrike;
-
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
-  private final String label;
-
+  /**
+   * The currency pair that describes the node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyPair currencyPair;
+  /**
+   * The label that describes the node.
+   */
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  private final String label;
 
   //-------------------------------------------------------------------------
   /**
@@ -63,9 +67,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       double yearFraction,
       StrikeType strike,
       CurrencyPair currencyPair) {
+
     Pair<Double, StrikeType> expiryAndStrike = Pair.of(yearFraction, strike);
     String label = Pair.of(yearFraction, strike.typeAndValue()).toString();
-    return new FxVolatilitySurfaceYearFractionNodeMetadata(expiryAndStrike, label, currencyPair);
+    return new FxVolatilitySurfaceYearFractionNodeMetadata(expiryAndStrike, currencyPair, label);
   }
 
   /**
@@ -80,7 +85,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       Pair<Double, StrikeType> expiryAndStrike,
       String label,
       CurrencyPair currencyPair) {
-    return new FxVolatilitySurfaceYearFractionNodeMetadata(expiryAndStrike, label, currencyPair);
+
+    return new FxVolatilitySurfaceYearFractionNodeMetadata(expiryAndStrike, currencyPair, label);
   }
 
   @ImmutablePreBuild
@@ -118,14 +124,14 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   private FxVolatilitySurfaceYearFractionNodeMetadata(
       Pair<Double, StrikeType> yearFractionAndStrike,
-      String label,
-      CurrencyPair currencyPair) {
+      CurrencyPair currencyPair,
+      String label) {
     JodaBeanUtils.notNull(yearFractionAndStrike, "yearFractionAndStrike");
-    JodaBeanUtils.notEmpty(label, "label");
     JodaBeanUtils.notNull(currencyPair, "currencyPair");
+    JodaBeanUtils.notEmpty(label, "label");
     this.yearFractionAndStrike = yearFractionAndStrike;
-    this.label = label;
     this.currencyPair = currencyPair;
+    this.label = label;
   }
 
   @Override
@@ -157,21 +163,21 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the label.
+   * Gets the currency pair that describes the node.
+   * @return the value of the property, not null
+   */
+  public CurrencyPair getCurrencyPair() {
+    return currencyPair;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the label that describes the node.
    * @return the value of the property, not empty
    */
   @Override
   public String getLabel() {
     return label;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currencyPair.
-   * @return the value of the property, not null
-   */
-  public CurrencyPair getCurrencyPair() {
-    return currencyPair;
   }
 
   //-----------------------------------------------------------------------
@@ -183,8 +189,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     if (obj != null && obj.getClass() == this.getClass()) {
       FxVolatilitySurfaceYearFractionNodeMetadata other = (FxVolatilitySurfaceYearFractionNodeMetadata) obj;
       return JodaBeanUtils.equal(getYearFractionAndStrike(), other.getYearFractionAndStrike()) &&
-          JodaBeanUtils.equal(getLabel(), other.getLabel()) &&
-          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair());
+          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
+          JodaBeanUtils.equal(getLabel(), other.getLabel());
     }
     return false;
   }
@@ -193,8 +199,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearFractionAndStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLabel());
     return hash;
   }
 
@@ -203,8 +209,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxVolatilitySurfaceYearFractionNodeMetadata{");
     buf.append("yearFractionAndStrike").append('=').append(getYearFractionAndStrike()).append(',').append(' ');
-    buf.append("label").append('=').append(getLabel()).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(getCurrencyPair()));
+    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(getLabel()));
     buf.append('}');
     return buf.toString();
   }
@@ -226,23 +232,23 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     private final MetaProperty<Pair<Double, StrikeType>> yearFractionAndStrike = DirectMetaProperty.ofImmutable(
         this, "yearFractionAndStrike", FxVolatilitySurfaceYearFractionNodeMetadata.class, (Class) Pair.class);
     /**
-     * The meta-property for the {@code label} property.
-     */
-    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", FxVolatilitySurfaceYearFractionNodeMetadata.class, String.class);
-    /**
      * The meta-property for the {@code currencyPair} property.
      */
     private final MetaProperty<CurrencyPair> currencyPair = DirectMetaProperty.ofImmutable(
         this, "currencyPair", FxVolatilitySurfaceYearFractionNodeMetadata.class, CurrencyPair.class);
+    /**
+     * The meta-property for the {@code label} property.
+     */
+    private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
+        this, "label", FxVolatilitySurfaceYearFractionNodeMetadata.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "yearFractionAndStrike",
-        "label",
-        "currencyPair");
+        "currencyPair",
+        "label");
 
     /**
      * Restricted constructor.
@@ -255,10 +261,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       switch (propertyName.hashCode()) {
         case -63315510:  // yearFractionAndStrike
           return yearFractionAndStrike;
-        case 102727412:  // label
-          return label;
         case 1005147787:  // currencyPair
           return currencyPair;
+        case 102727412:  // label
+          return label;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -288,19 +294,19 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     }
 
     /**
-     * The meta-property for the {@code label} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<String> label() {
-      return label;
-    }
-
-    /**
      * The meta-property for the {@code currencyPair} property.
      * @return the meta-property, not null
      */
     public MetaProperty<CurrencyPair> currencyPair() {
       return currencyPair;
+    }
+
+    /**
+     * The meta-property for the {@code label} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> label() {
+      return label;
     }
 
     //-----------------------------------------------------------------------
@@ -309,10 +315,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       switch (propertyName.hashCode()) {
         case -63315510:  // yearFractionAndStrike
           return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getYearFractionAndStrike();
-        case 102727412:  // label
-          return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getLabel();
         case 1005147787:  // currencyPair
           return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getCurrencyPair();
+        case 102727412:  // label
+          return ((FxVolatilitySurfaceYearFractionNodeMetadata) bean).getLabel();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -335,8 +341,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   private static final class Builder extends DirectFieldsBeanBuilder<FxVolatilitySurfaceYearFractionNodeMetadata> {
 
     private Pair<Double, StrikeType> yearFractionAndStrike;
-    private String label;
     private CurrencyPair currencyPair;
+    private String label;
 
     /**
      * Restricted constructor.
@@ -350,10 +356,10 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       switch (propertyName.hashCode()) {
         case -63315510:  // yearFractionAndStrike
           return yearFractionAndStrike;
-        case 102727412:  // label
-          return label;
         case 1005147787:  // currencyPair
           return currencyPair;
+        case 102727412:  // label
+          return label;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -366,11 +372,11 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
         case -63315510:  // yearFractionAndStrike
           this.yearFractionAndStrike = (Pair<Double, StrikeType>) newValue;
           break;
-        case 102727412:  // label
-          this.label = (String) newValue;
-          break;
         case 1005147787:  // currencyPair
           this.currencyPair = (CurrencyPair) newValue;
+          break;
+        case 102727412:  // label
+          this.label = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -407,8 +413,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       preBuild(this);
       return new FxVolatilitySurfaceYearFractionNodeMetadata(
           yearFractionAndStrike,
-          label,
-          currencyPair);
+          currencyPair,
+          label);
     }
 
     //-----------------------------------------------------------------------
@@ -417,8 +423,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
       StringBuilder buf = new StringBuilder(128);
       buf.append("FxVolatilitySurfaceYearFractionNodeMetadata.Builder{");
       buf.append("yearFractionAndStrike").append('=').append(JodaBeanUtils.toString(yearFractionAndStrike)).append(',').append(' ');
-      buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
-      buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair));
+      buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+      buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
       return buf.toString();
     }

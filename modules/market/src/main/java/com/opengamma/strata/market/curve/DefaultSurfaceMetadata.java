@@ -15,6 +15,8 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Default metadata for a surface.
@@ -43,6 +45,34 @@ public final class DefaultSurfaceMetadata
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SurfaceName surfaceName;
   /**
+   * The x-value type, providing meaning to the x-values of the curve.
+   * <p>
+   * This type provides meaning to the x-values. For example, the x-value might
+   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ValueType xValueType;
+  /**
+   * The y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ValueType yValueType;
+  /**
+   * The x-value type, providing meaning to the z-values of the curve.
+   * <p>
+   * This type provides meaning to the z-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ValueType zValueType;
+  /**
    * The day count, optional.
    * <p>
    * If the x-value of the surface represents time as a year fraction, the day count
@@ -56,86 +86,65 @@ public final class DefaultSurfaceMetadata
    * If present, the parameter metadata should match the number of parameters on the surface.
    */
   @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>")
-  private final ImmutableList<SurfaceParameterMetadata> parameters;
+  private final ImmutableList<SurfaceParameterMetadata> parameterMetadata;
 
   //-------------------------------------------------------------------------
   /**
    * Creates the metadata.
    * <p>
-   * There is no information about the day count.
+   * No information will be available for the x-values, y-values, z-values or parameters.
    * 
    * @param name  the surface name
    * @return the metadata
    */
   public static DefaultSurfaceMetadata of(String name) {
-    return new DefaultSurfaceMetadata(SurfaceName.of(name), null, null);
+    return of(SurfaceName.of(name));
   }
 
   /**
    * Creates the metadata.
    * <p>
-   * There is no information about the day count.
+   * No information will be available for the x-values, y-values, z-values or parameters.
    * 
    * @param name  the surface name
    * @return the metadata
    */
   public static DefaultSurfaceMetadata of(SurfaceName name) {
-    return new DefaultSurfaceMetadata(name, null, null);
+    return new DefaultSurfaceMetadata(name, ValueType.UNKNOWN, ValueType.UNKNOWN, ValueType.UNKNOWN, null, null);
   }
 
-  /**
-   * Creates the metadata.
-   * <p>
-   * There is no information about the day count.
-   * 
-   * @param name  the surface name
-   * @param dayCount  the day count defining meaning for the x-values
-   * @return the metadata
-   */
-  public static DefaultSurfaceMetadata of(String name, DayCount dayCount) {
-    return new DefaultSurfaceMetadata(
-        SurfaceName.of(name), dayCount, null);
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.xValueType = ValueType.UNKNOWN;
+    builder.yValueType = ValueType.UNKNOWN;
+    builder.zValueType = ValueType.UNKNOWN;
   }
 
-  /**
-   * Creates the metadata, specifying day count.
-   * 
-   * @param name  the surface name
-   * @param dayCount  the day count defining meaning for the x-values
-   * @return the metadata
-   */
-  public static DefaultSurfaceMetadata of(SurfaceName name, DayCount dayCount) {
-    ArgChecker.notNull(name, "name");
-    ArgChecker.notNull(dayCount, "dayCount");
-    return new DefaultSurfaceMetadata(name, dayCount, null);
+  @ImmutableConstructor
+  private DefaultSurfaceMetadata(
+      SurfaceName name,
+      ValueType xValueType,
+      ValueType yValueType,
+      ValueType zValueType,
+      DayCount dayCount,
+      List<? extends SurfaceParameterMetadata> parameterMetadata) {
+    JodaBeanUtils.notNull(name, "curveName");
+    JodaBeanUtils.notNull(xValueType, "xValueType");
+    JodaBeanUtils.notNull(yValueType, "yValueType");
+    JodaBeanUtils.notNull(zValueType, "zValueType");
+    this.surfaceName = name;
+    this.xValueType = xValueType;
+    this.yValueType = yValueType;
+    this.zValueType = zValueType;
+    this.dayCount = dayCount;
+    this.parameterMetadata = (parameterMetadata != null ? ImmutableList.copyOf(parameterMetadata) : null);
   }
 
-  /**
-   * Creates the metadata, specifying parameter metadata.
-   * <p>
-   * There is no information about the day count.
-   * 
-   * @param name  the surface name
-   * @param parameters  the parameter metadata
-   * @return the metadata
-   */
-  public static DefaultSurfaceMetadata of(SurfaceName name, List<SurfaceParameterMetadata> parameters) {
-    ArgChecker.notNull(name, "name");
-    ArgChecker.notNull(parameters, "parameters");
-    return new DefaultSurfaceMetadata(name, null, parameters);
-  }
-
-  /**
-   * Creates the metadata, specifying day count and parameter metadata.
-   * 
-   * @param name  the surface name
-   * @param dayCount  the day count defining meaning for the x-values, null if not applicable
-   * @param parameters  the parameter metadata, null if not applicable
-   * @return the metadata
-   */
-  public static DefaultSurfaceMetadata of(SurfaceName name, DayCount dayCount, List<SurfaceParameterMetadata> parameters) {
-    ArgChecker.notNull(name, "name");
-    return new DefaultSurfaceMetadata(name, dayCount, parameters);
+  //-------------------------------------------------------------------------
+  @Override
+  public DefaultSurfaceMetadata withParameterMetadata(List<SurfaceParameterMetadata> parameterMetadata) {
+    return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -165,16 +174,6 @@ public final class DefaultSurfaceMetadata
     return new DefaultSurfaceMetadata.Builder();
   }
 
-  private DefaultSurfaceMetadata(
-      SurfaceName surfaceName,
-      DayCount dayCount,
-      List<SurfaceParameterMetadata> parameters) {
-    JodaBeanUtils.notNull(surfaceName, "surfaceName");
-    this.surfaceName = surfaceName;
-    this.dayCount = dayCount;
-    this.parameters = (parameters != null ? ImmutableList.copyOf(parameters) : null);
-  }
-
   @Override
   public DefaultSurfaceMetadata.Meta metaBean() {
     return DefaultSurfaceMetadata.Meta.INSTANCE;
@@ -202,6 +201,49 @@ public final class DefaultSurfaceMetadata
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the x-value type, providing meaning to the x-values of the curve.
+   * <p>
+   * This type provides meaning to the x-values. For example, the x-value might
+   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ValueType getXValueType() {
+    return xValueType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the y-value type, providing meaning to the y-values of the curve.
+   * <p>
+   * This type provides meaning to the y-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ValueType getYValueType() {
+    return yValueType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the x-value type, providing meaning to the z-values of the curve.
+   * <p>
+   * This type provides meaning to the z-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ValueType getZValueType() {
+    return zValueType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the day count, optional.
    * <p>
    * If the x-value of the surface represents time as a year fraction, the day count
@@ -221,8 +263,8 @@ public final class DefaultSurfaceMetadata
    * @return the optional value of the property, not null
    */
   @Override
-  public Optional<List<SurfaceParameterMetadata>> getParameters() {
-    return Optional.ofNullable(parameters);
+  public Optional<List<SurfaceParameterMetadata>> getParameterMetadata() {
+    return Optional.ofNullable(parameterMetadata);
   }
 
   //-----------------------------------------------------------------------
@@ -242,8 +284,11 @@ public final class DefaultSurfaceMetadata
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultSurfaceMetadata other = (DefaultSurfaceMetadata) obj;
       return JodaBeanUtils.equal(getSurfaceName(), other.getSurfaceName()) &&
+          JodaBeanUtils.equal(getXValueType(), other.getXValueType()) &&
+          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
+          JodaBeanUtils.equal(getZValueType(), other.getZValueType()) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(parameters, other.parameters);
+          JodaBeanUtils.equal(parameterMetadata, other.parameterMetadata);
     }
     return false;
   }
@@ -252,18 +297,24 @@ public final class DefaultSurfaceMetadata
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getSurfaceName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXValueType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
+    hash = hash * 31 + JodaBeanUtils.hashCode(parameterMetadata);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("DefaultSurfaceMetadata{");
     buf.append("surfaceName").append('=').append(getSurfaceName()).append(',').append(' ');
+    buf.append("xValueType").append('=').append(getXValueType()).append(',').append(' ');
+    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
+    buf.append("zValueType").append('=').append(getZValueType()).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
+    buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();
   }
@@ -284,24 +335,42 @@ public final class DefaultSurfaceMetadata
     private final MetaProperty<SurfaceName> surfaceName = DirectMetaProperty.ofImmutable(
         this, "surfaceName", DefaultSurfaceMetadata.class, SurfaceName.class);
     /**
+     * The meta-property for the {@code xValueType} property.
+     */
+    private final MetaProperty<ValueType> xValueType = DirectMetaProperty.ofImmutable(
+        this, "xValueType", DefaultSurfaceMetadata.class, ValueType.class);
+    /**
+     * The meta-property for the {@code yValueType} property.
+     */
+    private final MetaProperty<ValueType> yValueType = DirectMetaProperty.ofImmutable(
+        this, "yValueType", DefaultSurfaceMetadata.class, ValueType.class);
+    /**
+     * The meta-property for the {@code zValueType} property.
+     */
+    private final MetaProperty<ValueType> zValueType = DirectMetaProperty.ofImmutable(
+        this, "zValueType", DefaultSurfaceMetadata.class, ValueType.class);
+    /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", DefaultSurfaceMetadata.class, DayCount.class);
     /**
-     * The meta-property for the {@code parameters} property.
+     * The meta-property for the {@code parameterMetadata} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<SurfaceParameterMetadata>> parameters = DirectMetaProperty.ofImmutable(
-        this, "parameters", DefaultSurfaceMetadata.class, (Class) List.class);
+    private final MetaProperty<List<SurfaceParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
+        this, "parameterMetadata", DefaultSurfaceMetadata.class, (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "surfaceName",
+        "xValueType",
+        "yValueType",
+        "zValueType",
         "dayCount",
-        "parameters");
+        "parameterMetadata");
 
     /**
      * Restricted constructor.
@@ -314,10 +383,16 @@ public final class DefaultSurfaceMetadata
       switch (propertyName.hashCode()) {
         case -1403077416:  // surfaceName
           return surfaceName;
+        case -868509005:  // xValueType
+          return xValueType;
+        case -1065022510:  // yValueType
+          return yValueType;
+        case -1261536015:  // zValueType
+          return zValueType;
         case 1905311443:  // dayCount
           return dayCount;
-        case 458736106:  // parameters
-          return parameters;
+        case -1169106440:  // parameterMetadata
+          return parameterMetadata;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -347,6 +422,30 @@ public final class DefaultSurfaceMetadata
     }
 
     /**
+     * The meta-property for the {@code xValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> xValueType() {
+      return xValueType;
+    }
+
+    /**
+     * The meta-property for the {@code yValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> yValueType() {
+      return yValueType;
+    }
+
+    /**
+     * The meta-property for the {@code zValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> zValueType() {
+      return zValueType;
+    }
+
+    /**
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
@@ -355,11 +454,11 @@ public final class DefaultSurfaceMetadata
     }
 
     /**
-     * The meta-property for the {@code parameters} property.
+     * The meta-property for the {@code parameterMetadata} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<SurfaceParameterMetadata>> parameters() {
-      return parameters;
+    public MetaProperty<List<SurfaceParameterMetadata>> parameterMetadata() {
+      return parameterMetadata;
     }
 
     //-----------------------------------------------------------------------
@@ -368,10 +467,16 @@ public final class DefaultSurfaceMetadata
       switch (propertyName.hashCode()) {
         case -1403077416:  // surfaceName
           return ((DefaultSurfaceMetadata) bean).getSurfaceName();
+        case -868509005:  // xValueType
+          return ((DefaultSurfaceMetadata) bean).getXValueType();
+        case -1065022510:  // yValueType
+          return ((DefaultSurfaceMetadata) bean).getYValueType();
+        case -1261536015:  // zValueType
+          return ((DefaultSurfaceMetadata) bean).getZValueType();
         case 1905311443:  // dayCount
           return ((DefaultSurfaceMetadata) bean).dayCount;
-        case 458736106:  // parameters
-          return ((DefaultSurfaceMetadata) bean).parameters;
+        case -1169106440:  // parameterMetadata
+          return ((DefaultSurfaceMetadata) bean).parameterMetadata;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -394,13 +499,17 @@ public final class DefaultSurfaceMetadata
   public static final class Builder extends DirectFieldsBeanBuilder<DefaultSurfaceMetadata> {
 
     private SurfaceName surfaceName;
+    private ValueType xValueType;
+    private ValueType yValueType;
+    private ValueType zValueType;
     private DayCount dayCount;
-    private List<SurfaceParameterMetadata> parameters;
+    private List<SurfaceParameterMetadata> parameterMetadata;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -409,8 +518,11 @@ public final class DefaultSurfaceMetadata
      */
     private Builder(DefaultSurfaceMetadata beanToCopy) {
       this.surfaceName = beanToCopy.getSurfaceName();
+      this.xValueType = beanToCopy.getXValueType();
+      this.yValueType = beanToCopy.getYValueType();
+      this.zValueType = beanToCopy.getZValueType();
       this.dayCount = beanToCopy.dayCount;
-      this.parameters = beanToCopy.parameters;
+      this.parameterMetadata = beanToCopy.parameterMetadata;
     }
 
     //-----------------------------------------------------------------------
@@ -419,10 +531,16 @@ public final class DefaultSurfaceMetadata
       switch (propertyName.hashCode()) {
         case -1403077416:  // surfaceName
           return surfaceName;
+        case -868509005:  // xValueType
+          return xValueType;
+        case -1065022510:  // yValueType
+          return yValueType;
+        case -1261536015:  // zValueType
+          return zValueType;
         case 1905311443:  // dayCount
           return dayCount;
-        case 458736106:  // parameters
-          return parameters;
+        case -1169106440:  // parameterMetadata
+          return parameterMetadata;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -435,11 +553,20 @@ public final class DefaultSurfaceMetadata
         case -1403077416:  // surfaceName
           this.surfaceName = (SurfaceName) newValue;
           break;
+        case -868509005:  // xValueType
+          this.xValueType = (ValueType) newValue;
+          break;
+        case -1065022510:  // yValueType
+          this.yValueType = (ValueType) newValue;
+          break;
+        case -1261536015:  // zValueType
+          this.zValueType = (ValueType) newValue;
+          break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
-        case 458736106:  // parameters
-          this.parameters = (List<SurfaceParameterMetadata>) newValue;
+        case -1169106440:  // parameterMetadata
+          this.parameterMetadata = (List<SurfaceParameterMetadata>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -475,8 +602,11 @@ public final class DefaultSurfaceMetadata
     public DefaultSurfaceMetadata build() {
       return new DefaultSurfaceMetadata(
           surfaceName,
+          xValueType,
+          yValueType,
+          zValueType,
           dayCount,
-          parameters);
+          parameterMetadata);
     }
 
     //-----------------------------------------------------------------------
@@ -492,6 +622,39 @@ public final class DefaultSurfaceMetadata
     }
 
     /**
+     * Sets the {@code xValueType} property in the builder.
+     * @param xValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder xValueType(ValueType xValueType) {
+      JodaBeanUtils.notNull(xValueType, "xValueType");
+      this.xValueType = xValueType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code yValueType} property in the builder.
+     * @param yValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder yValueType(ValueType yValueType) {
+      JodaBeanUtils.notNull(yValueType, "yValueType");
+      this.yValueType = yValueType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code zValueType} property in the builder.
+     * @param zValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder zValueType(ValueType zValueType) {
+      JodaBeanUtils.notNull(zValueType, "zValueType");
+      this.zValueType = zValueType;
+      return this;
+    }
+
+    /**
      * Sets the {@code dayCount} property in the builder.
      * @param dayCount  the new value
      * @return this, for chaining, not null
@@ -502,33 +665,36 @@ public final class DefaultSurfaceMetadata
     }
 
     /**
-     * Sets the {@code parameters} property in the builder.
-     * @param parameters  the new value
+     * Sets the {@code parameterMetadata} property in the builder.
+     * @param parameterMetadata  the new value
      * @return this, for chaining, not null
      */
-    public Builder parameters(List<SurfaceParameterMetadata> parameters) {
-      this.parameters = parameters;
+    public Builder parameterMetadata(List<SurfaceParameterMetadata> parameterMetadata) {
+      this.parameterMetadata = parameterMetadata;
       return this;
     }
 
     /**
-     * Sets the {@code parameters} property in the builder
+     * Sets the {@code parameterMetadata} property in the builder
      * from an array of objects.
-     * @param parameters  the new value
+     * @param parameterMetadata  the new value
      * @return this, for chaining, not null
      */
-    public Builder parameters(SurfaceParameterMetadata... parameters) {
-      return parameters(ImmutableList.copyOf(parameters));
+    public Builder parameterMetadata(SurfaceParameterMetadata... parameterMetadata) {
+      return parameterMetadata(ImmutableList.copyOf(parameterMetadata));
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("DefaultSurfaceMetadata.Builder{");
       buf.append("surfaceName").append('=').append(JodaBeanUtils.toString(surfaceName)).append(',').append(' ');
+      buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+      buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
+      buf.append("zValueType").append('=').append(JodaBeanUtils.toString(zValueType)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
+      buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
       buf.append('}');
       return buf.toString();
     }

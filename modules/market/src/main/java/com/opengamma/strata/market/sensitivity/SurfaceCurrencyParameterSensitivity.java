@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.sensitivity;
@@ -81,13 +81,11 @@ public final class SurfaceCurrencyParameterSensitivity
 
   @ImmutableValidator
   private void validate() {
-    metadata.getParameters().ifPresent(
-        params -> {
-          if (sensitivity.length != params.size()) {
-            throw new IllegalArgumentException(
-                "Length of sensitivity and parameter metadata must match when metadata present");
-          }
-        });
+    metadata.getParameterMetadata().ifPresent(params -> {
+      if (sensitivity.length != params.size()) {
+        throw new IllegalArgumentException("Length of sensitivity and parameter metadata must match when metadata present");
+      }
+    });
   }
 
   //-------------------------------------------------------------------------
@@ -124,6 +122,17 @@ public final class SurfaceCurrencyParameterSensitivity
         .result();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this sensitivity to an equivalent in the specified currency.
+   * <p>
+   * Any FX conversion that is required will use rates from the provider.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the sensitivity object expressed in terms of the result currency
+   * @throws RuntimeException if no FX rate could be found
+   */
   @Override
   public SurfaceCurrencyParameterSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     if (currency.equals(resultCurrency)) {
@@ -162,6 +171,7 @@ public final class SurfaceCurrencyParameterSensitivity
     return mapSensitivity(operator, currency);
   }
 
+  // maps the sensitivities and potentially changes the currency
   private SurfaceCurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator, Currency currency) {
     return new SurfaceCurrencyParameterSensitivity(metadata, currency, DoubleArrayMath.apply(sensitivity, operator));
   }

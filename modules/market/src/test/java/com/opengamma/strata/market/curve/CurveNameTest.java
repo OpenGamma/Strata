@@ -7,8 +7,6 @@ package com.opengamma.strata.market.curve;
 
 import static org.testng.Assert.assertEquals;
 
-import com.opengamma.strata.market.curve.CurveName;
-
 import org.testng.annotations.Test;
 
 /**
