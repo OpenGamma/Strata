@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-import com.opengamma.analytics.util.ArrayUtils;
+import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.report.result.ValuePathEvaluator;
 
@@ -62,7 +62,7 @@ public class UnsupportedValueFormatter implements ValueFormatter<Object> {
     // user can see the data in the array
     double[] data = (double[]) object;
     return Lists
-        .newArrayList(ArrayUtils.toObject(data))
+        .newArrayList(DoubleArrayMath.toObject(data))
         .stream()
         .map(d -> String.valueOf(d))
         .collect(Collectors.joining(" ", "[", "]"));
