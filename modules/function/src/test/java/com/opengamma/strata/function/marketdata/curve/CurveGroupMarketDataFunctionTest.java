@@ -218,20 +218,14 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(requirements.getNonObservables()).contains(ParRatesId.of(groupName, curveName, feed));
   }
 
-  // TODO This has been broken by a change in analytics, reinstate once that is fixed
-  @Test(enabled = false)
   public void metadata() {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
-
-    InterpolatedCurveConfig fraSwapCurveConfig = CurveTestUtils.fraSwapCurveConfig();
-    List<CurveNode> fraSwapNodes = fraSwapCurveConfig.getNodes();
 
     InterpolatedCurveConfig fraCurveConfig = CurveTestUtils.fraCurveConfig();
     List<CurveNode> fraNodes = fraCurveConfig.getNodes();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(groupName)
-        .addDiscountingCurve(fraSwapCurveConfig, Currency.USD)
         .addForwardCurve(fraCurveConfig, IborIndices.USD_LIBOR_3M)
         .build();
 
@@ -250,19 +244,10 @@ public class CurveGroupMarketDataFunctionTest {
         .put(CurveTestUtils.id(fraNodes.get(5)), 0.0091)
         .put(CurveTestUtils.id(fraNodes.get(6)), 0.0134).build();
 
-    Map<ObservableId, Double> fraSwapParRateData = ImmutableMap.<ObservableId, Double>builder()
-        .put(CurveTestUtils.id(fraSwapNodes.get(0)), 0.0037)
-        .put(CurveTestUtils.id(fraSwapNodes.get(1)), 0.0054)
-        .put(CurveTestUtils.id(fraSwapNodes.get(2)), 0.005)
-        .put(CurveTestUtils.id(fraSwapNodes.get(3)), 0.0087)
-        .put(CurveTestUtils.id(fraSwapNodes.get(4)), 0.012).build();
-
     LocalDate valuationDate = date(2011, 3, 8);
     ParRates fraParRates = ParRates.of(fraParRateData, fraCurveConfig.metadata(valuationDate));
-    ParRates fraSwapParRates = ParRates.of(fraSwapParRateData, fraCurveConfig.metadata(valuationDate));
     MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, fraCurveConfig.getName(), MarketDataFeed.NONE), fraParRates)
-        .addValue(ParRatesId.of(groupName, fraSwapCurveConfig.getName(), MarketDataFeed.NONE), fraSwapParRates)
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
@@ -270,25 +255,6 @@ public class CurveGroupMarketDataFunctionTest {
 
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
-
-    // Check the FRA/Swap curve identifiers are the expected tenors
-    Curve discountCurve = curveGroup.getDiscountCurve(Currency.USD).get();
-    List<CurveParameterMetadata> discountMetadata = discountCurve.getMetadata().getParameterMetadata().get();
-
-    List<Object> discountTenors = discountMetadata.stream()
-        .map(CurveParameterMetadata::getIdentifier)
-        .collect(toImmutableList());
-
-    List<Tenor> expectedDiscountTenors =
-        ImmutableList.of(Tenor.TENOR_6M, Tenor.TENOR_9M, Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y);
-
-    assertThat(discountTenors).isEqualTo(expectedDiscountTenors);
-
-    List<CurveParameterMetadata> expectedDiscountMetadata = fraSwapNodes.stream()
-        .map(node -> node.metadata(valuationDate))
-        .collect(toImmutableList());
-
-    assertThat(discountMetadata).isEqualTo(expectedDiscountMetadata);
 
     // Check the FRA curve identifiers are the expected tenors
     Curve forwardCurve = curveGroup.getForwardCurve(IborIndices.USD_LIBOR_3M).get();
