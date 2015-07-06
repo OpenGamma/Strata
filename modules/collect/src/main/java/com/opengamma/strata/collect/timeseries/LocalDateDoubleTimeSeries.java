@@ -285,12 +285,6 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
   public abstract LocalDateDoubleTimeSeries filter(ObjDoublePredicate<LocalDate> predicate);
 
   //-------------------------------------------------------------------------
-  // TODO: remove when analytics repo updated
-  @Deprecated
-  public default LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
-    return intersection(other, mapper);
-  }
-
   /**
    * Obtains the intersection of a pair of time series.
    * <p>
