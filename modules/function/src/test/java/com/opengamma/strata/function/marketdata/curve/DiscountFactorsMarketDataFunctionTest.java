@@ -23,15 +23,15 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.id.DiscountCurveId;
-import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
+import com.opengamma.strata.market.id.DiscountFactorsId;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
- * Test {@link ZeroRateDiscountFactorsMarketDataFunction}.
+ * Test {@link DiscountFactorsMarketDataFunction}.
  */
 @Test
-public class ZeroRateDiscountFactorsMarketDataFunctionTest {
+public class DiscountFactorsMarketDataFunctionTest {
 
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
   private static final MarketDataFeed FEED = MarketDataFeed.of("Feed");
@@ -44,11 +44,11 @@ public class ZeroRateDiscountFactorsMarketDataFunctionTest {
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(curveId, curve)
         .build();
-    ZeroRateDiscountFactorsMarketDataFunction builder = new ZeroRateDiscountFactorsMarketDataFunction();
+    DiscountFactorsMarketDataFunction builder = new DiscountFactorsMarketDataFunction();
 
     DiscountFactors expected1 = ZeroRateDiscountFactors.of(AUD, VAL_DATE, curve);
 
-    ZeroRateDiscountFactorsId dfId = ZeroRateDiscountFactorsId.of(AUD, curveGroupName, FEED);
+    DiscountFactorsId dfId = DiscountFactorsId.of(AUD, curveGroupName, FEED);
     Result<DiscountFactors> result = builder.build(dfId, marketData, MarketDataConfig.empty());
     assertThat(result).hasValue(expected1);
   }

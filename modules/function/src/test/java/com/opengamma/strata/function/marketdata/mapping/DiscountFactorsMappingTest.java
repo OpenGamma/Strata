@@ -14,14 +14,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
+import com.opengamma.strata.market.id.DiscountFactorsId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 
 /**
- * Test {@link ZeroRateDiscountFactorsMapping}.
+ * Test {@link DiscountFactorsMapping}.
  */
 @Test
-public class ZeroRateDiscountFactorsMappingTest {
+public class DiscountFactorsMappingTest {
 
   private static final CurveGroupName GROUP = CurveGroupName.of("Group");
   private static final CurveGroupName GROUP2 = CurveGroupName.of("Group2");
@@ -30,18 +30,18 @@ public class ZeroRateDiscountFactorsMappingTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    ZeroRateDiscountFactorsMapping test = ZeroRateDiscountFactorsMapping.of(GROUP, FEED);
+    DiscountFactorsMapping test = DiscountFactorsMapping.of(GROUP, FEED);
     assertEquals(test.getCurveGroupName(), GROUP);
     assertEquals(test.getMarketDataFeed(), FEED);
     assertEquals(test.getMarketDataKeyType(), DiscountFactorsKey.class);
-    assertEquals(test.getIdForKey(DiscountFactorsKey.of(GBP)), ZeroRateDiscountFactorsId.of(GBP, GROUP, FEED));
+    assertEquals(test.getIdForKey(DiscountFactorsKey.of(GBP)), DiscountFactorsId.of(GBP, GROUP, FEED));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ZeroRateDiscountFactorsMapping test = ZeroRateDiscountFactorsMapping.of(GROUP, FEED);
+    DiscountFactorsMapping test = DiscountFactorsMapping.of(GROUP, FEED);
     coverImmutableBean(test);
-    ZeroRateDiscountFactorsMapping test2 = ZeroRateDiscountFactorsMapping.of(GROUP2, FEED2);
+    DiscountFactorsMapping test2 = DiscountFactorsMapping.of(GROUP2, FEED2);
     coverBeanEquals(test, test2);
   }
 

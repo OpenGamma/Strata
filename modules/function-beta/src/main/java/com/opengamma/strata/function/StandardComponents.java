@@ -27,7 +27,7 @@ import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketData
 import com.opengamma.strata.function.marketdata.curve.ParRatesMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
-import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
 
 /**
  * Factory methods for creating standard Strata components.
@@ -107,7 +107,7 @@ public class StandardComponents {
     return ImmutableList.of(
    new DiscountingCurveMarketDataFunction(),
    new RateIndexCurveMarketDataFunction(),
-   new ZeroRateDiscountFactorsMarketDataFunction(),
+   new DiscountFactorsMarketDataFunction(),
    new CurveGroupMarketDataFunction(RootFinderConfig.defaults()), // RootFinderConfig will be removed #343
    new ParRatesMarketDataFunction());
   }

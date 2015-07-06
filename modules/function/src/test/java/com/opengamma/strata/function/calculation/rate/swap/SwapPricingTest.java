@@ -75,7 +75,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.ZeroRateDiscountFactorsMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -162,7 +162,7 @@ public class SwapPricingTest {
         ObservableMarketDataFunction.none(),
         FeedIdMapping.identity(),
         new DiscountingCurveMarketDataFunction(),
-        new ZeroRateDiscountFactorsMarketDataFunction(),
+        new DiscountFactorsMarketDataFunction(),
         new RateIndexCurveMarketDataFunction());
 
     List<SwapTrade> trades = ImmutableList.of(trade);

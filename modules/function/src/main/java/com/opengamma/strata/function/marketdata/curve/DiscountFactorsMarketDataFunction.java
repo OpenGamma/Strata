@@ -16,7 +16,7 @@ import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.DiscountCurveId;
-import com.opengamma.strata.market.id.ZeroRateDiscountFactorsId;
+import com.opengamma.strata.market.id.DiscountFactorsId;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
@@ -27,11 +27,11 @@ import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
  * The curve is not built in this class and must be available in the {@code MarketDataLookup} passed to the
  * {@link #build} method.
  */
-public class ZeroRateDiscountFactorsMarketDataFunction
-    implements MarketDataFunction<DiscountFactors, ZeroRateDiscountFactorsId> {
+public class DiscountFactorsMarketDataFunction
+    implements MarketDataFunction<DiscountFactors, DiscountFactorsId> {
 
   @Override
-  public MarketDataRequirements requirements(ZeroRateDiscountFactorsId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(DiscountFactorsId id, MarketDataConfig marketDataConfig) {
     return MarketDataRequirements.builder()
         .addValues(id.toCurveId())
         .build();
@@ -39,7 +39,7 @@ public class ZeroRateDiscountFactorsMarketDataFunction
 
   @Override
   public Result<DiscountFactors> build(
-      ZeroRateDiscountFactorsId id, 
+      DiscountFactorsId id, 
       MarketDataLookup marketData, 
       MarketDataConfig marketDataConfig) {
 
@@ -55,8 +55,8 @@ public class ZeroRateDiscountFactorsMarketDataFunction
   }
 
   @Override
-  public Class<ZeroRateDiscountFactorsId> getMarketDataIdType() {
-    return ZeroRateDiscountFactorsId.class;
+  public Class<DiscountFactorsId> getMarketDataIdType() {
+    return DiscountFactorsId.class;
   }
 
   //-------------------------------------------------------------------------

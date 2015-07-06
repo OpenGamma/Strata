@@ -186,7 +186,7 @@ public class CurveEndToEndTest {
     CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
     DiscountingCurveMarketDataFunction discountCurveFunction = new DiscountingCurveMarketDataFunction();
     RateIndexCurveMarketDataFunction forwardCurveFunction = new RateIndexCurveMarketDataFunction();
-    ZeroRateDiscountFactorsMarketDataFunction discountFactorsFunction = new ZeroRateDiscountFactorsMarketDataFunction();
+    DiscountFactorsMarketDataFunction discountFactorsFunction = new DiscountFactorsMarketDataFunction();
 
     // Calculation engine ------------------------------------------------------
 
