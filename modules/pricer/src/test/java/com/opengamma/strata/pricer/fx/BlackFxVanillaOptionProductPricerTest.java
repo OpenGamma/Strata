@@ -31,6 +31,7 @@ import com.opengamma.strata.finance.fx.FxVanillaOption;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -54,7 +55,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
       new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2011, 11, 10);
+  private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalTime VALUATION_TIME = LocalTime.of(13, 45);
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final ZonedDateTime VALUATION_DATE_TIME = VALUATION_DATE.atTime(VALUATION_TIME).atZone(ZONE);
@@ -62,7 +63,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
       BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VALUATION_DATE_TIME);
 
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 2, 12);
+  private static final LocalDate PAYMENT_DATE = LocalDate.of(2014, 5, 13);
   private static final double NOTIONAL = 1.0e6;
   private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * FX_MATRIX.fxRate(EUR, USD));
@@ -72,7 +73,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final FxRate STRIKE = FxRate.of(EUR, USD, STRIKE_RATE);
   private static final PutCall CALL = PutCall.CALL;
   private static final LongShort SHORT = LongShort.SHORT;
-  private static final LocalDate EXPIRY_DATE = LocalDate.of(2012, 2, 10);
+  private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 5, 9);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(13, 10);
   private static final FxVanillaOption OPTION_PRODUCT = FxVanillaOption.builder()
       .putCall(CALL)
@@ -205,7 +206,7 @@ public class BlackFxVanillaOptionProductPricerTest {
     double vol = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
     FxOptionSensitivity expected = FxOptionSensitivity.of(CURRENCY_PAIR, EXPIRY_DATE, STRIKE_RATE, forward, USD,
         -NOTIONAL * df * BlackFormulaRepository.vega(forward, STRIKE_RATE, timeToExpiry, vol));
-    assertEquals(computed, expected);
+    assertTrue(computed.build().equalWithTolerance(expected.build(), NOTIONAL * TOL));
   }
 
   public void test_theta_presentValueTheta() {

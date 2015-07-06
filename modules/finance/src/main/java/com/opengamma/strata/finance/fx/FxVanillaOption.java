@@ -114,7 +114,7 @@ public final class FxVanillaOption
     CurrencyPair underlyingPair = underlying.getCurrencyPair();
     ArgChecker.isTrue(strike.getPair().equals(underlyingPair) || strike.getPair().isInverse(underlyingPair),
         "currency pair mismatch between strike and underlying");
-    inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.valueDate");
+    inOrderOrEqual(expiryDate, underlying.getPaymentDate(), "expiryDate", "underlying.paymentDate");
   }
 
   @ImmutablePreBuild
