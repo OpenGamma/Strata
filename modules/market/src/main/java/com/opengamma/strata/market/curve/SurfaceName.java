@@ -1,0 +1,44 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.market.curve;
+
+import org.joda.convert.FromString;
+
+import com.opengamma.strata.collect.type.TypedString;
+
+/**
+ * The name of a surface.
+ */
+public final class SurfaceName
+    extends TypedString<SurfaceName> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a {@code SurfaceName} by name.
+   * <p>
+   * Surface names may contain any character, but must not be empty.
+   *
+   * @param name  the name of the surface
+   * @return a surface with the specified name
+   */
+  @FromString
+  public static SurfaceName of(String name) {
+    return new SurfaceName(name);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the name of the surface
+   */
+  private SurfaceName(String name) {
+    super(name);
+  }
+
+}
