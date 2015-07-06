@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -21,10 +22,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.engine.marketdata.scenarios.LocalScenarioDefinition;
 
 /**
  * Specifies the market data required for a function to perform a calculation.
@@ -50,6 +53,10 @@ public final class FunctionRequirements implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<Currency> outputCurrencies;
+
+  /** . */
+  @PropertyDefinition(validate = "notNull")
+  private final List<LocalScenarioDefinition> localScenarios;
 
   /**
    * Returns an empty set of requirements.
@@ -85,13 +92,16 @@ public final class FunctionRequirements implements ImmutableBean {
   private FunctionRequirements(
       Set<? extends MarketDataKey<?>> singleValueRequirements,
       Set<ObservableKey> timeSeriesRequirements,
-      Set<Currency> outputCurrencies) {
+      Set<Currency> outputCurrencies,
+      List<LocalScenarioDefinition> localScenarios) {
     JodaBeanUtils.notNull(singleValueRequirements, "singleValueRequirements");
     JodaBeanUtils.notNull(timeSeriesRequirements, "timeSeriesRequirements");
     JodaBeanUtils.notNull(outputCurrencies, "outputCurrencies");
+    JodaBeanUtils.notNull(localScenarios, "localScenarios");
     this.singleValueRequirements = ImmutableSet.copyOf(singleValueRequirements);
     this.timeSeriesRequirements = ImmutableSet.copyOf(timeSeriesRequirements);
     this.outputCurrencies = ImmutableSet.copyOf(outputCurrencies);
+    this.localScenarios = ImmutableList.copyOf(localScenarios);
   }
 
   @Override
@@ -140,6 +150,15 @@ public final class FunctionRequirements implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets .
+   * @return the value of the property, not null
+   */
+  public List<LocalScenarioDefinition> getLocalScenarios() {
+    return localScenarios;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -156,7 +175,8 @@ public final class FunctionRequirements implements ImmutableBean {
       FunctionRequirements other = (FunctionRequirements) obj;
       return JodaBeanUtils.equal(getSingleValueRequirements(), other.getSingleValueRequirements()) &&
           JodaBeanUtils.equal(getTimeSeriesRequirements(), other.getTimeSeriesRequirements()) &&
-          JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies());
+          JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies()) &&
+          JodaBeanUtils.equal(getLocalScenarios(), other.getLocalScenarios());
     }
     return false;
   }
@@ -167,16 +187,18 @@ public final class FunctionRequirements implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(getSingleValueRequirements());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesRequirements());
     hash = hash * 31 + JodaBeanUtils.hashCode(getOutputCurrencies());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLocalScenarios());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FunctionRequirements{");
     buf.append("singleValueRequirements").append('=').append(getSingleValueRequirements()).append(',').append(' ');
     buf.append("timeSeriesRequirements").append('=').append(getTimeSeriesRequirements()).append(',').append(' ');
-    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(getOutputCurrencies()));
+    buf.append("outputCurrencies").append('=').append(getOutputCurrencies()).append(',').append(' ');
+    buf.append("localScenarios").append('=').append(JodaBeanUtils.toString(getLocalScenarios()));
     buf.append('}');
     return buf.toString();
   }
@@ -210,13 +232,20 @@ public final class FunctionRequirements implements ImmutableBean {
     private final MetaProperty<ImmutableSet<Currency>> outputCurrencies = DirectMetaProperty.ofImmutable(
         this, "outputCurrencies", FunctionRequirements.class, (Class) ImmutableSet.class);
     /**
+     * The meta-property for the {@code localScenarios} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<LocalScenarioDefinition>> localScenarios = DirectMetaProperty.ofImmutable(
+        this, "localScenarios", FunctionRequirements.class, (Class) List.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "singleValueRequirements",
         "timeSeriesRequirements",
-        "outputCurrencies");
+        "outputCurrencies",
+        "localScenarios");
 
     /**
      * Restricted constructor.
@@ -233,6 +262,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return timeSeriesRequirements;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
+        case 101869496:  // localScenarios
+          return localScenarios;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -277,6 +308,14 @@ public final class FunctionRequirements implements ImmutableBean {
       return outputCurrencies;
     }
 
+    /**
+     * The meta-property for the {@code localScenarios} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<List<LocalScenarioDefinition>> localScenarios() {
+      return localScenarios;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -287,6 +326,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return ((FunctionRequirements) bean).getTimeSeriesRequirements();
         case -1022597040:  // outputCurrencies
           return ((FunctionRequirements) bean).getOutputCurrencies();
+        case 101869496:  // localScenarios
+          return ((FunctionRequirements) bean).getLocalScenarios();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -311,6 +352,7 @@ public final class FunctionRequirements implements ImmutableBean {
     private Set<? extends MarketDataKey<?>> singleValueRequirements = ImmutableSet.of();
     private Set<ObservableKey> timeSeriesRequirements = ImmutableSet.of();
     private Set<Currency> outputCurrencies = ImmutableSet.of();
+    private List<LocalScenarioDefinition> localScenarios = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -326,6 +368,7 @@ public final class FunctionRequirements implements ImmutableBean {
       this.singleValueRequirements = beanToCopy.getSingleValueRequirements();
       this.timeSeriesRequirements = beanToCopy.getTimeSeriesRequirements();
       this.outputCurrencies = beanToCopy.getOutputCurrencies();
+      this.localScenarios = ImmutableList.copyOf(beanToCopy.getLocalScenarios());
     }
 
     //-----------------------------------------------------------------------
@@ -338,6 +381,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return timeSeriesRequirements;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
+        case 101869496:  // localScenarios
+          return localScenarios;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -355,6 +400,9 @@ public final class FunctionRequirements implements ImmutableBean {
           break;
         case -1022597040:  // outputCurrencies
           this.outputCurrencies = (Set<Currency>) newValue;
+          break;
+        case 101869496:  // localScenarios
+          this.localScenarios = (List<LocalScenarioDefinition>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -391,7 +439,8 @@ public final class FunctionRequirements implements ImmutableBean {
       return new FunctionRequirements(
           singleValueRequirements,
           timeSeriesRequirements,
-          outputCurrencies);
+          outputCurrencies,
+          localScenarios);
     }
 
     //-----------------------------------------------------------------------
@@ -448,14 +497,36 @@ public final class FunctionRequirements implements ImmutableBean {
       return outputCurrencies(ImmutableSet.copyOf(outputCurrencies));
     }
 
+    /**
+     * Sets the {@code localScenarios} property in the builder.
+     * @param localScenarios  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder localScenarios(List<LocalScenarioDefinition> localScenarios) {
+      JodaBeanUtils.notNull(localScenarios, "localScenarios");
+      this.localScenarios = localScenarios;
+      return this;
+    }
+
+    /**
+     * Sets the {@code localScenarios} property in the builder
+     * from an array of objects.
+     * @param localScenarios  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder localScenarios(LocalScenarioDefinition... localScenarios) {
+      return localScenarios(ImmutableList.copyOf(localScenarios));
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FunctionRequirements.Builder{");
       buf.append("singleValueRequirements").append('=').append(JodaBeanUtils.toString(singleValueRequirements)).append(',').append(' ');
       buf.append("timeSeriesRequirements").append('=').append(JodaBeanUtils.toString(timeSeriesRequirements)).append(',').append(' ');
-      buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
+      buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies)).append(',').append(' ');
+      buf.append("localScenarios").append('=').append(JodaBeanUtils.toString(localScenarios));
       buf.append('}');
       return buf.toString();
     }
