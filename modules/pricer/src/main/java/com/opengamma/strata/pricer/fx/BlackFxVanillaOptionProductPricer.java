@@ -74,7 +74,7 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double forwardPrice = forwardPrice(option, ratesProvider, volatilityProvider);
+    double forwardPrice = undiscountedPrice(option, ratesProvider, volatilityProvider);
     double discountFactor =
         ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     return discountFactor * forwardPrice;
@@ -98,7 +98,7 @@ public class BlackFxVanillaOptionProductPricer {
     return CurrencyAmount.of(option.getPayoffCurrency(), signedNotional(option) * price);
   }
 
-  private double forwardPrice(
+  private double undiscountedPrice(
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
@@ -132,7 +132,7 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double fwdDelta = forwardDelta(option, ratesProvider, volatilityProvider);
+    double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(underlying, ratesProvider);
     return fwdDelta * discountFactor * fwdRateSpotSensitivity;
@@ -174,18 +174,18 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double fwdDelta = forwardDelta(option, ratesProvider, volatilityProvider);
+    double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double notional = signedNotional(option);
     PointSensitivityBuilder fwdSensi = fxPricer.forwardFxRatePointSensitivity(underlying, ratesProvider)
         .multipliedBy(notional * discountFactor * fwdDelta);
-    double fwdPrice = forwardPrice(option, ratesProvider, volatilityProvider);
+    double fwdPrice = undiscountedPrice(option, ratesProvider, volatilityProvider);
     PointSensitivityBuilder dscSensi = ratesProvider.discountFactors(option.getPayoffCurrency())
         .zeroRatePointSensitivity(underlying.getPaymentDate()).multipliedBy(notional * fwdPrice);
     return fwdSensi.combinedWith(dscSensi).build();
   }
 
-  private double forwardDelta(
+  private double undiscountedDelta(
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
