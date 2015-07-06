@@ -25,22 +25,20 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.engine.marketdata.scenarios.CellKey;
 import com.opengamma.strata.engine.marketdata.scenarios.LocalScenarioDefinition;
 
 /**
  * A collection of market data IDs specifying the market data required for performing a set of calculations.
  */
 @BeanDefinition(builderScope = "private")
-public final class CalculationRequirements implements ImmutableBean {
+public final class CalculationTaskRequirements implements ImmutableBean {
 
   /** A set of requirements which specifies that no market data is required. */
-  private static final CalculationRequirements EMPTY = CalculationRequirements.builder().build();
+  private static final CalculationTaskRequirements EMPTY = CalculationTaskRequirements.builder().build();
 
   /** Keys identifying the market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
@@ -64,23 +62,15 @@ public final class CalculationRequirements implements ImmutableBean {
 
   /** . */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<LocalScenarioDefinition> scenarioDefinitions;
-
-  /** . */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<CellKey, ImmutableList<Integer>> cellScenarioDefinitions;
-
-  // TODO Local scenario definitions
-  //   List<LocalScenarioDefinition> scenarioDefinitions
-  //   Map<CellKey, List<Integer>> cellScenarioDefinitions - integers are indices into scenarioDefinitions
+  private final List<LocalScenarioDefinition> localScenarios;
 
   /**
    * Returns an empty mutable builder for building up a set of requirements.
    *
    * @return an empty mutable builder for building up a set of requirements
    */
-  public static CalculationRequirementsBuilder builder() {
-    return new CalculationRequirementsBuilder();
+  public static CalculationTaskRequirementsBuilder builder() {
+    return new CalculationTaskRequirementsBuilder();
   }
 
   /**
@@ -88,7 +78,7 @@ public final class CalculationRequirements implements ImmutableBean {
    *
    * @return a set of requirements specifying that no market data is required
    */
-  public static CalculationRequirements empty() {
+  public static CalculationTaskRequirements empty() {
     return EMPTY;
   }
 
@@ -98,72 +88,47 @@ public final class CalculationRequirements implements ImmutableBean {
    * @param marketDataRequirements  a set of requirements for market data
    * @return a set of calculation requirements built from a set of market data requirements
    */
-  public static CalculationRequirements of(MarketDataRequirements marketDataRequirements) {
-    return CalculationRequirements.builder()
+  public static CalculationTaskRequirements of(MarketDataRequirements marketDataRequirements) {
+    return CalculationTaskRequirements.builder()
         .addValues(marketDataRequirements.getObservables())
         .addValues(marketDataRequirements.getNonObservables())
         .addTimeSeries(marketDataRequirements.getTimeSeries())
         .build();
   }
 
-  /**
-   * Merges multiple sets of requirements into a single set.
-   *
-   * @param taskRequirements  market data requirements
-   * @return a single set of requirements containing all the requirements from the input sets
-   */
-  public static CalculationRequirements of(List<CalculationTaskRequirements> taskRequirements) {
-    ImmutableSet.Builder<ObservableId> observablesBuilder = ImmutableSet.builder();
-    ImmutableSet.Builder<MarketDataId<?>> nonObservablesBuilder = ImmutableSet.builder();
-    ImmutableSet.Builder<ObservableId> timeSeriesBuilder = ImmutableSet.builder();
-    ImmutableSet.Builder<Currency> outputCurrenciesBuilder = ImmutableSet.builder();
-
-    // TODO If two scenarios are defined for the same cell it's an error.
-
-    for (CalculationTaskRequirements req : taskRequirements) {
-      observablesBuilder.addAll(req.getObservables());
-      nonObservablesBuilder.addAll(req.getNonObservables());
-      timeSeriesBuilder.addAll(req.getTimeSeries());
-      outputCurrenciesBuilder.addAll(req.getOutputCurrencies());
-    }
-    return new CalculationRequirements(
-        observablesBuilder.build(),
-        nonObservablesBuilder.build(),
-        timeSeriesBuilder.build(),
-        outputCurrenciesBuilder.build());
-  }
-
-  // package-private constructor, used by the builder
+  // package-private constructor, used by MarketDataRequirementsBuilder
   @ImmutableConstructor
-  CalculationRequirements(
+  CalculationTaskRequirements(
       Set<? extends ObservableId> observables,
       Set<? extends MarketDataId<?>> nonObservables,
       Set<ObservableId> timeSeries,
-      Set<Currency> outputCurrencies) {
+      Set<Currency> outputCurrencies,
+      List<LocalScenarioDefinition> localScenarios) {
 
     this.observables = ImmutableSet.copyOf(observables);
     this.nonObservables = ImmutableSet.copyOf(nonObservables);
     this.timeSeries = ImmutableSet.copyOf(timeSeries);
     this.outputCurrencies = ImmutableSet.copyOf(outputCurrencies);
+    this.localScenarios = ImmutableList.copyOf(localScenarios);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CalculationRequirements}.
+   * The meta-bean for {@code CalculationTaskRequirements}.
    * @return the meta-bean, not null
    */
-  public static CalculationRequirements.Meta meta() {
-    return CalculationRequirements.Meta.INSTANCE;
+  public static CalculationTaskRequirements.Meta meta() {
+    return CalculationTaskRequirements.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CalculationRequirements.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CalculationTaskRequirements.Meta.INSTANCE);
   }
 
   @Override
-  public CalculationRequirements.Meta metaBean() {
-    return CalculationRequirements.Meta.INSTANCE;
+  public CalculationTaskRequirements.Meta metaBean() {
+    return CalculationTaskRequirements.Meta.INSTANCE;
   }
 
   @Override
@@ -215,17 +180,27 @@ public final class CalculationRequirements implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets .
+   * @return the value of the property, not null
+   */
+  public List<LocalScenarioDefinition> getLocalScenarios() {
+    return localScenarios;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CalculationRequirements other = (CalculationRequirements) obj;
+      CalculationTaskRequirements other = (CalculationTaskRequirements) obj;
       return JodaBeanUtils.equal(getObservables(), other.getObservables()) &&
           JodaBeanUtils.equal(getNonObservables(), other.getNonObservables()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies());
+          JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies()) &&
+          JodaBeanUtils.equal(getLocalScenarios(), other.getLocalScenarios());
     }
     return false;
   }
@@ -237,24 +212,26 @@ public final class CalculationRequirements implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(getNonObservables());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     hash = hash * 31 + JodaBeanUtils.hashCode(getOutputCurrencies());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLocalScenarios());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
-    buf.append("CalculationRequirements{");
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("CalculationTaskRequirements{");
     buf.append("observables").append('=').append(getObservables()).append(',').append(' ');
     buf.append("nonObservables").append('=').append(getNonObservables()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
-    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(getOutputCurrencies()));
+    buf.append("outputCurrencies").append('=').append(getOutputCurrencies()).append(',').append(' ');
+    buf.append("localScenarios").append('=').append(JodaBeanUtils.toString(getLocalScenarios()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CalculationRequirements}.
+   * The meta-bean for {@code CalculationTaskRequirements}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -267,25 +244,31 @@ public final class CalculationRequirements implements ImmutableBean {
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSet<ObservableId>> observables = DirectMetaProperty.ofImmutable(
-        this, "observables", CalculationRequirements.class, (Class) ImmutableSet.class);
+        this, "observables", CalculationTaskRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code nonObservables} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSet<MarketDataId<?>>> nonObservables = DirectMetaProperty.ofImmutable(
-        this, "nonObservables", CalculationRequirements.class, (Class) ImmutableSet.class);
+        this, "nonObservables", CalculationTaskRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSet<ObservableId>> timeSeries = DirectMetaProperty.ofImmutable(
-        this, "timeSeries", CalculationRequirements.class, (Class) ImmutableSet.class);
+        this, "timeSeries", CalculationTaskRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code outputCurrencies} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSet<Currency>> outputCurrencies = DirectMetaProperty.ofImmutable(
-        this, "outputCurrencies", CalculationRequirements.class, (Class) ImmutableSet.class);
+        this, "outputCurrencies", CalculationTaskRequirements.class, (Class) ImmutableSet.class);
+    /**
+     * The meta-property for the {@code localScenarios} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<LocalScenarioDefinition>> localScenarios = DirectMetaProperty.ofImmutable(
+        this, "localScenarios", CalculationTaskRequirements.class, (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -294,7 +277,8 @@ public final class CalculationRequirements implements ImmutableBean {
         "observables",
         "nonObservables",
         "timeSeries",
-        "outputCurrencies");
+        "outputCurrencies",
+        "localScenarios");
 
     /**
      * Restricted constructor.
@@ -313,18 +297,20 @@ public final class CalculationRequirements implements ImmutableBean {
           return timeSeries;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
+        case 101869496:  // localScenarios
+          return localScenarios;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends CalculationRequirements> builder() {
-      return new CalculationRequirements.Builder();
+    public BeanBuilder<? extends CalculationTaskRequirements> builder() {
+      return new CalculationTaskRequirements.Builder();
     }
 
     @Override
-    public Class<? extends CalculationRequirements> beanType() {
-      return CalculationRequirements.class;
+    public Class<? extends CalculationTaskRequirements> beanType() {
+      return CalculationTaskRequirements.class;
     }
 
     @Override
@@ -365,18 +351,28 @@ public final class CalculationRequirements implements ImmutableBean {
       return outputCurrencies;
     }
 
+    /**
+     * The meta-property for the {@code localScenarios} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<List<LocalScenarioDefinition>> localScenarios() {
+      return localScenarios;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 121811856:  // observables
-          return ((CalculationRequirements) bean).getObservables();
+          return ((CalculationTaskRequirements) bean).getObservables();
         case 824041091:  // nonObservables
-          return ((CalculationRequirements) bean).getNonObservables();
+          return ((CalculationTaskRequirements) bean).getNonObservables();
         case 779431844:  // timeSeries
-          return ((CalculationRequirements) bean).getTimeSeries();
+          return ((CalculationTaskRequirements) bean).getTimeSeries();
         case -1022597040:  // outputCurrencies
-          return ((CalculationRequirements) bean).getOutputCurrencies();
+          return ((CalculationTaskRequirements) bean).getOutputCurrencies();
+        case 101869496:  // localScenarios
+          return ((CalculationTaskRequirements) bean).getLocalScenarios();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -394,14 +390,15 @@ public final class CalculationRequirements implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CalculationRequirements}.
+   * The bean-builder for {@code CalculationTaskRequirements}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CalculationRequirements> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CalculationTaskRequirements> {
 
     private Set<ObservableId> observables = ImmutableSet.of();
     private Set<MarketDataId<?>> nonObservables = ImmutableSet.of();
     private Set<ObservableId> timeSeries = ImmutableSet.of();
     private Set<Currency> outputCurrencies = ImmutableSet.of();
+    private List<LocalScenarioDefinition> localScenarios = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -421,6 +418,8 @@ public final class CalculationRequirements implements ImmutableBean {
           return timeSeries;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
+        case 101869496:  // localScenarios
+          return localScenarios;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -441,6 +440,9 @@ public final class CalculationRequirements implements ImmutableBean {
           break;
         case -1022597040:  // outputCurrencies
           this.outputCurrencies = (Set<Currency>) newValue;
+          break;
+        case 101869496:  // localScenarios
+          this.localScenarios = (List<LocalScenarioDefinition>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -473,23 +475,25 @@ public final class CalculationRequirements implements ImmutableBean {
     }
 
     @Override
-    public CalculationRequirements build() {
-      return new CalculationRequirements(
+    public CalculationTaskRequirements build() {
+      return new CalculationTaskRequirements(
           observables,
           nonObservables,
           timeSeries,
-          outputCurrencies);
+          outputCurrencies,
+          localScenarios);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
-      buf.append("CalculationRequirements.Builder{");
+      StringBuilder buf = new StringBuilder(192);
+      buf.append("CalculationTaskRequirements.Builder{");
       buf.append("observables").append('=').append(JodaBeanUtils.toString(observables)).append(',').append(' ');
       buf.append("nonObservables").append('=').append(JodaBeanUtils.toString(nonObservables)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
-      buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
+      buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies)).append(',').append(' ');
+      buf.append("localScenarios").append('=').append(JodaBeanUtils.toString(localScenarios));
       buf.append('}');
       return buf.toString();
     }

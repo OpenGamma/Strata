@@ -66,4 +66,10 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
     MarketDataId<T> id = marketDataMappings.getIdForKey(key);
     return marketData.getGlobalValue(id);
   }
+
+  @Override
+  public CalculationMarketData getScenarioData(int scenarioIndex) {
+    // TODO implement DefaultCalculationMarketData.getScenarioData
+    throw new UnsupportedOperationException("getScenarioData not implemented");
+  }
 }

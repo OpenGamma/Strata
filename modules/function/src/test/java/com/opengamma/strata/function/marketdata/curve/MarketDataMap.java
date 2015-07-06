@@ -73,4 +73,9 @@ final class MarketDataMap implements CalculationMarketData {
   public <T, K extends MarketDataKey<T>> T getGlobalValue(K key) {
     throw new UnsupportedOperationException("getGlobalValue not implemented");
   }
+
+  @Override
+  public CalculationMarketData getScenarioData(int scenarioIndex) {
+    throw new UnsupportedOperationException("getScenarioData not implemented");
+  }
 }

@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.CalculationTaskRequirements;
 
 /**
  * The functions for performing a set of calculations and the market data required by the calculations.
@@ -24,25 +25,25 @@ public class CalculationTasks {
   private final CalculationRequirements requirements;
 
   /**
-   * @param calculationTasks  the tasks that perform the calculations
+   * @param tasks  the tasks that perform the calculations
    * @param columns  the columns that define the calculations
    */
-  public CalculationTasks(List<CalculationTask> calculationTasks, List<Column> columns) {
-    this.calculationTasks = ImmutableList.copyOf(calculationTasks);
+  public CalculationTasks(List<CalculationTask> tasks, List<Column> columns) {
+    this.calculationTasks = ImmutableList.copyOf(tasks);
     this.columns = ImmutableList.copyOf(columns);
-    List<CalculationRequirements> reqs = calculationTasks.stream().map(CalculationTask::requirements).collect(toList());
-    requirements = CalculationRequirements.combine(reqs);
+    List<CalculationTaskRequirements> reqs = tasks.stream().map(CalculationTask::requirements).collect(toList());
+    requirements = CalculationRequirements.of(reqs);
 
     // Validate the number of tasks and number of columns tally
-    if (calculationTasks.size() != 0) {
+    if (tasks.size() != 0) {
       if (columns.size() == 0) {
         throw new IllegalArgumentException("There must be at least one column");
       }
-      if (calculationTasks.size() % columns.size() != 0) {
+      if (tasks.size() % columns.size() != 0) {
         throw new IllegalArgumentException(
             Messages.format(
                 "Number of tasks ({}) must be exactly divisible by the number of columns ({})",
-                calculationTasks.size(),
+                tasks.size(),
                 columns.size()));
       }
     }

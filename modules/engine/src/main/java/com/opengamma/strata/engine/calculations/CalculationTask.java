@@ -24,8 +24,8 @@ import com.opengamma.strata.engine.calculations.function.CalculationSingleFuncti
 import com.opengamma.strata.engine.calculations.function.CurrencyConvertible;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
-import com.opengamma.strata.engine.marketdata.CalculationRequirementsBuilder;
+import com.opengamma.strata.engine.marketdata.CalculationTaskRequirements;
+import com.opengamma.strata.engine.marketdata.CalculationTaskRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
@@ -93,9 +93,9 @@ public class CalculationTask {
    *
    * @return requirements specifying the market data the function needs to perform its calculations
    */
-  public CalculationRequirements requirements() {
+  public CalculationTaskRequirements requirements() {
     FunctionRequirements functionRequirements = function.requirements(target);
-    CalculationRequirementsBuilder requirementsBuilder = CalculationRequirements.builder();
+    CalculationTaskRequirementsBuilder requirementsBuilder = CalculationTaskRequirements.builder();
 
     functionRequirements.getTimeSeriesRequirements().stream()
         .map(marketDataMappings::getIdForObservableKey)
@@ -104,6 +104,8 @@ public class CalculationTask {
     for (MarketDataKey<?> key : functionRequirements.getSingleValueRequirements()) {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
+    requirementsBuilder.addLocalScenarios(functionRequirements.getLocalScenarios());
+
     Optional<Currency> optionalReportingCurrency =
         reportingCurrency(reportingRules.reportingCurrency(target), function.defaultReportingCurrency(target));
 
