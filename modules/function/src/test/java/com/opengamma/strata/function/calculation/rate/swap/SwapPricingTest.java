@@ -73,7 +73,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.function.marketdata.curve.DiscountingCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
@@ -161,8 +161,8 @@ public class SwapPricingTest {
         new EmptyTimeSeriesProvider(),
         ObservableMarketDataFunction.none(),
         FeedIdMapping.identity(),
-        new DiscountingCurveMarketDataFunction(),
-        new DiscountFactorsMarketDataFunction(),
+        DiscountCurveMarketDataFunction.INSTANCE,
+        DiscountFactorsMarketDataFunction.INSTANCE,
         new RateIndexCurveMarketDataFunction());
 
     List<SwapTrade> trades = ImmutableList.of(trade);

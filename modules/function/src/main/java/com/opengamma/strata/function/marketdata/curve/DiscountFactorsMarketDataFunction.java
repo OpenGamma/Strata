@@ -15,43 +15,57 @@ import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.DiscountFactorsId;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.SimpleDiscountFactors;
+import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
  * Market data function that builds discount factors.
  * <p>
- * This function creates an instance of {@link ZeroRateDiscountFactors} based on an underlying curve.
- * The curve is not built in this class and must be available in the {@code MarketDataLookup} passed to the
- * {@link #build} method.
+ * This function creates an instance of {@link ZeroRateDiscountFactors} or {@link SimpleDiscountFactors}
+ * based on an underlying curve. The type is chosen based on the {@linkplain ValueType value type} held in
+ * the {@linkplain CurveMetadata#getYValueType() y-value metadata}.
+ * <p>
+ * The curve is not actually built in this class, it is extracted from an existing {@link CurveGroup}.
+ * The curve group must be available in the {@code MarketDataLookup} passed to the {@link #build} method.
  */
 public class DiscountFactorsMarketDataFunction
     implements MarketDataFunction<DiscountFactors, DiscountFactorsId> {
 
+  /**
+   * Public instance of this stateless function.
+   */
+  public static final DiscountFactorsMarketDataFunction INSTANCE = new DiscountFactorsMarketDataFunction();
+
   @Override
-  public MarketDataRequirements requirements(DiscountFactorsId id, MarketDataConfig marketDataConfig) {
+  public MarketDataRequirements requirements(DiscountFactorsId id, MarketDataConfig config) {
     return MarketDataRequirements.builder()
         .addValues(id.toCurveId())
         .build();
   }
 
   @Override
-  public Result<DiscountFactors> build(
-      DiscountFactorsId id, 
-      MarketDataLookup marketData, 
-      MarketDataConfig marketDataConfig) {
+  public Result<DiscountFactors> build(DiscountFactorsId id, MarketDataLookup marketData, MarketDataConfig config) {
 
     // find curve
     DiscountCurveId curveId = id.toCurveId();
     if (!marketData.containsValue(curveId)) {
-      return Result.failure(FailureReason.MISSING_DATA, "No curve found: {}", id);
+      return Result.failure(
+          FailureReason.MISSING_DATA,
+          "No discount curve found: Currency: {}, Group: {}, Feed: {}",
+          id.getCurrency(),
+          id.getCurveGroupName(),
+          id.getMarketDataFeed());
     }
     Curve curve = marketData.getValue(curveId);
 
     // create discount factors
-    return Result.of(() -> createDiscountFactors(id.getCurrency(), marketData.getValuationDate(), curve));
+    return Result.wrap(() -> createDiscountFactors(id.getCurrency(), marketData.getValuationDate(), curve));
   }
 
   @Override
@@ -59,14 +73,25 @@ public class DiscountFactorsMarketDataFunction
     return DiscountFactorsId.class;
   }
 
-  //-------------------------------------------------------------------------
-  // create the instance of ZeroRateDiscountFactors
-  private DiscountFactors createDiscountFactors(
+  // create the instance of DiscountFactors
+  private Result<DiscountFactors> createDiscountFactors(
       Currency currency, 
       LocalDate valuationDate, 
       Curve curve) {
     
-    return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
+    ValueType yValueType = curve.getMetadata().getYValueType();
+    if (ValueType.ZERO_RATE.equals(yValueType)) {
+      return Result.success(ZeroRateDiscountFactors.of(currency, valuationDate, curve));
+
+    } else if (ValueType.DISCOUNT_FACTOR.equals(yValueType)) {
+      return Result.success(SimpleDiscountFactors.of(currency, valuationDate, curve));
+
+    } else {
+      return Result.failure(
+          FailureReason.MISSING_DATA,
+          "Invalid curve, must have ValueType of 'ZeroRate' or 'DiscountFactor', but was: {}",
+          yValueType);
+    }
   }
 
 }

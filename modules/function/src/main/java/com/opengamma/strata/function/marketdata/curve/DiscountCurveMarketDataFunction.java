@@ -19,40 +19,52 @@ import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.DiscountCurveId;
 
 /**
- * Market data function that builds a {@link Curve} representing the discounting curve for a currency.
+ * Market data function that locates a discount factors curve.
+ * <p>
+ * This function finds an instance of {@link Curve} that can be used to determine discount factors
+ * in the currency held in {@link DiscountCurveId}.
  * <p>
  * The curve is not actually built in this class, it is extracted from an existing {@link CurveGroup}.
- * The curve group must be available in the {@code MarketDataLookup} passed to the
- * {@link MarketDataFunction#build} method.
+ * The curve group must be available in the {@code MarketDataLookup} passed to the {@link #build} method.
  */
-public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Curve, DiscountCurveId> {
+public class DiscountCurveMarketDataFunction
+    implements MarketDataFunction<Curve, DiscountCurveId> {
+
+  /**
+   * Public instance of this stateless function.
+   */
+  public static final DiscountCurveMarketDataFunction INSTANCE = new DiscountCurveMarketDataFunction();
 
   @Override
-  public MarketDataRequirements requirements(DiscountCurveId id, MarketDataConfig marketDataConfig) {
-    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
+  public MarketDataRequirements requirements(DiscountCurveId id, MarketDataConfig config) {
     return MarketDataRequirements.builder()
-        .addValues(curveGroupId)
+        .addValues(id.toCurveGroupId())
         .build();
   }
 
   @Override
-  public Result<Curve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
-    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
+  public Result<Curve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig config) {
 
+    // find curve
+    CurveGroupId curveGroupId = id.toCurveGroupId();
     if (!marketData.containsValue(curveGroupId)) {
-      return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", curveGroupId.getName());
+      return Result.failure(
+          FailureReason.MISSING_DATA,
+          "No curve group found: Group: {}, Feed: {}",
+          id.getCurveGroupName(),
+          id.getMarketDataFeed());
     }
     CurveGroup curveGroup = marketData.getValue(curveGroupId);
     Optional<Curve> optionalDiscountCurve = curveGroup.getDiscountCurve(id.getCurrency());
-
     if (optionalDiscountCurve.isPresent()) {
       return Result.success(optionalDiscountCurve.get());
     } else {
       return Result.failure(
           FailureReason.MISSING_DATA,
-          "No discount curve available for {} in curve group {}",
+          "No discount curve found: Currency: {}, Group: {}, Feed: {}",
           id.getCurrency(),
-          id.getCurveGroupName());
+          id.getCurveGroupName(),
+          id.getMarketDataFeed());
     }
   }
 
@@ -60,4 +72,5 @@ public class DiscountingCurveMarketDataFunction implements MarketDataFunction<Cu
   public Class<DiscountCurveId> getMarketDataIdType() {
     return DiscountCurveId.class;
   }
+
 }

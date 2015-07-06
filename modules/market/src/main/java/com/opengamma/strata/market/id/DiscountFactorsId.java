@@ -28,19 +28,22 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
- * Market data ID identifying the zero-rate discount factors for a currency.
+ * Market data ID identifying the discount factors for a currency.
  * <p>
- * This is used when there is a need to obtain an instance of {@link ZeroRateDiscountFactors}.
+ * This is used when there is a need to obtain an instance of {@link DiscountFactors}.
+ * The implementation chosen will typically be either {@link ZeroRateDiscountFactors}
+ * or {@link SimpleDiscountFactors}, depending on the data in the curve.
  */
 @BeanDefinition(builderScope = "private")
 public final class DiscountFactorsId
     implements MarketDataId<DiscountFactors>, ImmutableBean, Serializable {
 
   /**
-   * The currency of the discount factors that are required.
+   * The currency of the discount factor curve that is required.
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
@@ -57,15 +60,15 @@ public final class DiscountFactorsId
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a key to obtain the discount factors associated with a currency.
+   * Creates an ID used to obtain the discount factors associated with a currency.
    *
-   * @param currency  the currency
-   * @param group  the name of the curve group containing the curve
-   * @param feed  the market data feed which provides quotes used to build the curve
-   * @return a key for the zero-rate discount factors of the currency
+   * @param currency  the currency of the discount curve
+   * @param curveGroupName  the name of the curve group containing the curve
+   * @param marketDataFeed  the market data feed which provides quotes used to build the curve
+   * @return an ID that identifies the discount factors for the specified currency
    */
-  public static DiscountFactorsId of(Currency currency, CurveGroupName group, MarketDataFeed feed) {
-    return new DiscountFactorsId(currency, group, feed);
+  public static DiscountFactorsId of(Currency currency, CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
+    return new DiscountFactorsId(currency, curveGroupName, marketDataFeed);
   }
 
   //-------------------------------------------------------------------------
@@ -132,7 +135,7 @@ public final class DiscountFactorsId
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the discount factors that are required.
+   * Gets the currency of the discount factor curve that is required.
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
