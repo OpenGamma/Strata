@@ -12,7 +12,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 
 /**
  * The functions for performing a set of calculations and the market data required by the calculations.
@@ -21,7 +21,7 @@ public class CalculationTasks {
 
   private final List<CalculationTask> calculationTasks;
   private final List<Column> columns;
-  private final MarketDataRequirements marketDataRequirements;
+  private final CalculationRequirements requirements;
 
   /**
    * @param calculationTasks  the tasks that perform the calculations
@@ -30,8 +30,8 @@ public class CalculationTasks {
   public CalculationTasks(List<CalculationTask> calculationTasks, List<Column> columns) {
     this.calculationTasks = ImmutableList.copyOf(calculationTasks);
     this.columns = ImmutableList.copyOf(columns);
-    List<MarketDataRequirements> reqs = calculationTasks.stream().map(CalculationTask::requirements).collect(toList());
-    marketDataRequirements = MarketDataRequirements.combine(reqs);
+    List<CalculationRequirements> reqs = calculationTasks.stream().map(CalculationTask::requirements).collect(toList());
+    requirements = CalculationRequirements.combine(reqs);
 
     // Validate the number of tasks and number of columns tally
     if (calculationTasks.size() != 0) {
@@ -53,8 +53,8 @@ public class CalculationTasks {
    *
    * @return IDs for the market data required for all calculations
    */
-  public MarketDataRequirements getMarketDataRequirements() {
-    return marketDataRequirements;
+  public CalculationRequirements getRequirements() {
+    return requirements;
   }
 
   /**

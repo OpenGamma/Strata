@@ -63,7 +63,7 @@ public interface MarketDataFactory {
    * @return the market data required by the calculations plus details of any data that could not be built
    */
   public abstract CalculationEnvironment buildCalculationEnvironment(
-      MarketDataRequirements requirements,
+      CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig);
 
@@ -90,7 +90,7 @@ public interface MarketDataFactory {
    * @return the market data required by the calculations
    */
   public abstract ScenarioCalculationEnvironment buildScenarioCalculationEnvironment(
-      MarketDataRequirements requirements,
+      CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       ScenarioDefinition scenarioDefinition,
       MarketDataConfig marketDataConfig);

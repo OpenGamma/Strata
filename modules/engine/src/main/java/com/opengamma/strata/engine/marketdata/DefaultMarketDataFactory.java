@@ -121,7 +121,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataConfig marketDataConfig,
       boolean includeIntermediateValues) {
 
-    CalculationEnvironment calcEnv = buildCalculationEnvironment(requirements, suppliedData, marketDataConfig);
+    CalculationRequirements calcRequirements = CalculationRequirements.of(requirements);
+    CalculationEnvironment calcEnv = buildCalculationEnvironment(calcRequirements, suppliedData, marketDataConfig);
     Map<MarketDataId<?>, Object> values;
     Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
@@ -154,7 +155,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
   @Override
   public CalculationEnvironment buildCalculationEnvironment(
-      MarketDataRequirements requirements,
+      CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig) {
 
@@ -232,7 +233,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
   @Override
   public ScenarioCalculationEnvironment buildScenarioCalculationEnvironment(
-      MarketDataRequirements requirements,
+      CalculationRequirements requirements,
       MarketEnvironment suppliedData,
       ScenarioDefinition scenarioDefinition,
       MarketDataConfig marketDataConfig) {

@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
@@ -70,7 +70,7 @@ public abstract class AbstractSwapFunction<T>
 
   //-------------------------------------------------------------------------
   @Override
-  public CalculationRequirements requirements(SwapTrade trade) {
+  public FunctionRequirements requirements(SwapTrade trade) {
     Swap swap = trade.getProduct();
     Set<Index> indices = swap.allIndices();
 
@@ -90,7 +90,7 @@ public abstract class AbstractSwapFunction<T>
             .map(DiscountFactorsKey::of)
             .collect(toImmutableSet());
 
-    return CalculationRequirements.builder()
+    return FunctionRequirements.builder()
         .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
         .timeSeriesRequirements(indexRateKeys)
         .outputCurrencies(swap.getLegs().stream().map(SwapLeg::getCurrency).collect(toImmutableSet()))

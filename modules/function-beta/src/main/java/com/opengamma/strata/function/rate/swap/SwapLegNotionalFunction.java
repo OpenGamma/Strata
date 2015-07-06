@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.market.amount.LegAmount;
@@ -31,8 +31,8 @@ public class SwapLegNotionalFunction
     implements CalculationSingleFunction<SwapTrade, ScenarioResult<LegAmounts>> {
 
   @Override
-  public CalculationRequirements requirements(SwapTrade target) {
-    return CalculationRequirements.empty();
+  public FunctionRequirements requirements(SwapTrade target) {
+    return FunctionRequirements.empty();
   }
 
   @Override

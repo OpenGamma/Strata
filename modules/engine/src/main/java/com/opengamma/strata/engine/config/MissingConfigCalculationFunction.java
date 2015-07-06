@@ -8,7 +8,7 @@ package com.opengamma.strata.engine.config;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 
 /**
  * Function used when there is no function registered that can calculate a requested value.
@@ -16,8 +16,8 @@ import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 public class MissingConfigCalculationFunction implements CalculationSingleFunction<CalculationTarget, Void> {
 
   @Override
-  public CalculationRequirements requirements(CalculationTarget target) {
-    return CalculationRequirements.empty();
+  public FunctionRequirements requirements(CalculationTarget target) {
+    return FunctionRequirements.empty();
   }
 
   @Override

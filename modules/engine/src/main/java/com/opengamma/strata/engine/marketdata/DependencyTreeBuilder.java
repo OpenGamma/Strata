@@ -40,7 +40,7 @@ class DependencyTreeBuilder {
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
   /** The requirements for market data used in a set of calculations. */
-  private final MarketDataRequirements requirements;
+  private final CalculationRequirements requirements;
 
   /** Configuration specifying how market data values should be built. */
   private final MarketDataConfig marketDataConfig;
@@ -56,7 +56,7 @@ class DependencyTreeBuilder {
    */
   static DependencyTreeBuilder of(
       MarketEnvironment suppliedData,
-      MarketDataRequirements requirements,
+      CalculationRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
@@ -65,7 +65,7 @@ class DependencyTreeBuilder {
 
   private DependencyTreeBuilder(
       MarketEnvironment suppliedData,
-      MarketDataRequirements requirements,
+      CalculationRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
@@ -90,7 +90,7 @@ class DependencyTreeBuilder {
    * @param requirements  requirements for market data needed for a set of calculations
    * @return child nodes representing the dependencies of a set of market data
    */
-  private List<MarketDataNode> childNodes(MarketDataRequirements requirements) {
+  private List<MarketDataNode> childNodes(CalculationRequirements requirements) {
 
     List<MarketDataNode> observableNodes =
         buildNodes(requirements.getObservables(), MarketDataNode.DataType.SINGLE_VALUE);
@@ -141,7 +141,7 @@ class DependencyTreeBuilder {
     if (builder != null) {
       @SuppressWarnings("unchecked")
       MarketDataRequirements requirements = builder.requirements(id, marketDataConfig);
-      return MarketDataNode.child(id, dataType, childNodes(requirements));
+      return MarketDataNode.child(id, dataType, childNodes(CalculationRequirements.of(requirements)));
     } else {
       // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
       return MarketDataNode.leaf(id, dataType);

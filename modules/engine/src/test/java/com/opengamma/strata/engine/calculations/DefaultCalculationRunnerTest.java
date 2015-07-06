@@ -40,7 +40,7 @@ import com.opengamma.strata.engine.config.pricing.PricingRule;
 import com.opengamma.strata.engine.marketdata.CalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestObservableKey;
@@ -132,7 +132,7 @@ public class DefaultCalculationRunnerTest {
     CalculationTasksConfig calculationConfig =
         runner.createCalculationConfig(targets, columns, pricingRules, marketDataRules, reportingRules);
     CalculationTasks calculationTasks = runner.createCalculationTasks(calculationConfig);
-    MarketDataRequirements requirements = calculationTasks.getMarketDataRequirements();
+    CalculationRequirements requirements = calculationTasks.getRequirements();
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
@@ -212,8 +212,8 @@ public class DefaultCalculationRunnerTest {
   public static final class TestFunction implements CalculationSingleFunction<TestTarget, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.builder()
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
                   TestKey.of("1"),
@@ -243,8 +243,8 @@ public class DefaultCalculationRunnerTest {
     }
 
     @Override
-    public CalculationRequirements requirements(TestTarget target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTarget target) {
+      return FunctionRequirements.empty();
     }
   }
 
