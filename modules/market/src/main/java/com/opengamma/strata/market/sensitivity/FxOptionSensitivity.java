@@ -106,7 +106,7 @@ public final class FxOptionSensitivity
   }
 
   @Override
-  public int compareExcludingSensitivity(PointSensitivity other) {
+  public int compareKey(PointSensitivity other) {
     if (other instanceof FxOptionSensitivity) {
       FxOptionSensitivity otherOption = (FxOptionSensitivity) other;
       return ComparisonChain.start()
