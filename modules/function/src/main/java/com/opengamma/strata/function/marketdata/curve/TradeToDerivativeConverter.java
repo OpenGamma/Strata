@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.util.timeseries.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -86,9 +85,8 @@ class TradeToDerivativeConverter {
         expandedFra.getFixedRate(),
         index.getFixingCalendar());
 
-    return analyticFraDefn.toDerivative(
-        valuationDate.atStartOfDay(ZoneOffset.UTC),
-        ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC());
+    // no need for time-series
+    return analyticFraDefn.toDerivative(valuationDate.atStartOfDay(ZoneOffset.UTC));
   }
 
   private static InstrumentDerivative convertSwap(SwapTrade trade, LocalDate valuationDate) {
