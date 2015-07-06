@@ -149,7 +149,7 @@ public interface RatesProvider
    * Reference: Currency Exposure and FX index, OpenGamma Documentation 32, July 2015.
    * 
    * @param pointSensitivities  the point sensitivity
-   * @return the sensitivity to the curve parameters
+   * @return the currency exposure
    */
   MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities);
 
