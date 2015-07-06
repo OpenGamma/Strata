@@ -72,7 +72,7 @@ public class DiscountFactorsMarketDataFunctionTest {
 
   public void test_noCurve() {
     MarketEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
-    DiscountFactorsMarketDataFunction test = DiscountFactorsMarketDataFunction.INSTANCE;
+    DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
     Result<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());
@@ -85,7 +85,7 @@ public class DiscountFactorsMarketDataFunctionTest {
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(curveId, curve)
         .build();
-    DiscountFactorsMarketDataFunction test = DiscountFactorsMarketDataFunction.INSTANCE;
+    DiscountFactorsMarketDataFunction test = new DiscountFactorsMarketDataFunction();
 
     DiscountFactorsId dfId = DiscountFactorsId.of(AUD, CURVE_GROUP_NAME, FEED);
     Result<DiscountFactors> result = test.build(dfId, marketData, MarketDataConfig.empty());

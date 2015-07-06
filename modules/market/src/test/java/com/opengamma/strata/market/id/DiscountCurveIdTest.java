@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
@@ -45,14 +44,6 @@ public class DiscountCurveIdTest {
     assertEquals(test.getCurveGroupName(), GROUP);
     assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getMarketDataType(), Curve.class);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_toCurveGroupId() {
-    CurveGroupId test = DiscountCurveId.of(GBP, GROUP, FEED).toCurveGroupId();
-    assertEquals(test.getName(), GROUP);
-    assertEquals(test.getMarketDataFeed(), FEED);
-    assertEquals(test.getMarketDataType(), CurveGroup.class);
   }
 
   //-------------------------------------------------------------------------

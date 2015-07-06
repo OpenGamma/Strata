@@ -37,15 +37,11 @@ import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 public class DiscountFactorsMarketDataFunction
     implements MarketDataFunction<DiscountFactors, DiscountFactorsId> {
 
-  /**
-   * Public instance of this stateless function.
-   */
-  public static final DiscountFactorsMarketDataFunction INSTANCE = new DiscountFactorsMarketDataFunction();
-
   @Override
   public MarketDataRequirements requirements(DiscountFactorsId id, MarketDataConfig config) {
+    DiscountCurveId curveId = DiscountCurveId.of(id.getCurrency(), id.getCurveGroupName(), id.getMarketDataFeed());
     return MarketDataRequirements.builder()
-        .addValues(id.toCurveId())
+        .addValues(curveId)
         .build();
   }
 
@@ -53,7 +49,7 @@ public class DiscountFactorsMarketDataFunction
   public Result<DiscountFactors> build(DiscountFactorsId id, MarketDataLookup marketData, MarketDataConfig config) {
 
     // find curve
-    DiscountCurveId curveId = id.toCurveId();
+    DiscountCurveId curveId = DiscountCurveId.of(id.getCurrency(), id.getCurveGroupName(), id.getMarketDataFeed());
     if (!marketData.containsValue(curveId)) {
       return Result.failure(
           FailureReason.MISSING_DATA,

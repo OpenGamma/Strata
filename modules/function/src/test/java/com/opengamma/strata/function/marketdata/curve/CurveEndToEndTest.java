@@ -185,9 +185,9 @@ public class CurveEndToEndTest {
 
     ParRatesMarketDataFunction parRatesFunction = new ParRatesMarketDataFunction();
     CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
-    DiscountCurveMarketDataFunction discountCurveFunction = DiscountCurveMarketDataFunction.INSTANCE;
+    DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();
     RateIndexCurveMarketDataFunction forwardCurveFunction = new RateIndexCurveMarketDataFunction();
-    DiscountFactorsMarketDataFunction discountFactorsFunction = DiscountFactorsMarketDataFunction.INSTANCE;
+    DiscountFactorsMarketDataFunction discountFactorsFunction = new DiscountFactorsMarketDataFunction();
 
     // Calculation engine ------------------------------------------------------
 

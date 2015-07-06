@@ -30,15 +30,11 @@ import com.opengamma.strata.market.id.DiscountCurveId;
 public class DiscountCurveMarketDataFunction
     implements MarketDataFunction<Curve, DiscountCurveId> {
 
-  /**
-   * Public instance of this stateless function.
-   */
-  public static final DiscountCurveMarketDataFunction INSTANCE = new DiscountCurveMarketDataFunction();
-
   @Override
   public MarketDataRequirements requirements(DiscountCurveId id, MarketDataConfig config) {
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     return MarketDataRequirements.builder()
-        .addValues(id.toCurveGroupId())
+        .addValues(curveGroupId)
         .build();
   }
 
@@ -46,7 +42,7 @@ public class DiscountCurveMarketDataFunction
   public Result<Curve> build(DiscountCurveId id, MarketDataLookup marketData, MarketDataConfig config) {
 
     // find curve
-    CurveGroupId curveGroupId = id.toCurveGroupId();
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     if (!marketData.containsValue(curveGroupId)) {
       return Result.failure(
           FailureReason.MISSING_DATA,

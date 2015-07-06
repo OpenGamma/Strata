@@ -55,7 +55,7 @@ public final class ExampleEngine {
         TimeSeriesProvider.none(),
         ObservableMarketDataFunction.none(),
         FeedIdMapping.identity(),
-        DiscountFactorsMarketDataFunction.INSTANCE);
+        new DiscountFactorsMarketDataFunction());
 
     // combine the runner and market data factory
     return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());

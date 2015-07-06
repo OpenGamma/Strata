@@ -42,7 +42,7 @@ public final class DiscountCurveKey
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a key to obtain the discount curve associated with a currency.
+   * Obtains a key used to find the discount curve associated with a currency.
    *
    * @param currency  the currency
    * @return a key for the discount curve of the currency

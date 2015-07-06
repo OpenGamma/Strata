@@ -121,7 +121,7 @@ public class DiscountCurveMarketDataFunctionTest {
 
   public void test_noCurveGroup() {
     MarketEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
-    DiscountCurveMarketDataFunction test = DiscountCurveMarketDataFunction.INSTANCE;
+    DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
 
     DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
     Result<Curve> result = test.build(id, marketData, MarketDataConfig.empty());
@@ -138,7 +138,7 @@ public class DiscountCurveMarketDataFunctionTest {
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(groupId, curveGroup)
         .build();
-    DiscountCurveMarketDataFunction test = DiscountCurveMarketDataFunction.INSTANCE;
+    DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
 
     DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
     Result<Curve> result = test.build(id, marketData, MarketDataConfig.empty());
