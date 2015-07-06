@@ -176,7 +176,7 @@ public final class Curves {
     ArgChecker.notNull(name, "name");
     return DefaultCurveMetadata.builder()
         .curveName(name)
-        .xValueType(ValueType.MONTH_COUNT)
+        .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
         .parameterMetadata((List<CurveParameterMetadata>) parameterMetadata)
         .build();
