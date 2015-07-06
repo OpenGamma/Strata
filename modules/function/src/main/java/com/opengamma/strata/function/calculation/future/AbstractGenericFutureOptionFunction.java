@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
@@ -49,9 +49,9 @@ public abstract class AbstractGenericFutureOptionFunction<T>
 
   //-------------------------------------------------------------------------
   @Override
-  public CalculationRequirements requirements(GenericFutureOptionTrade trade) {
+  public FunctionRequirements requirements(GenericFutureOptionTrade trade) {
     QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
-    return CalculationRequirements.builder()
+    return FunctionRequirements.builder()
         .singleValueRequirements(ImmutableSet.of(key))
         .outputCurrencies(trade.getProduct().getCurrency())
         .build();

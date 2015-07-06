@@ -22,7 +22,9 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
@@ -41,8 +43,9 @@ public class DiscountIborIndexRatesTest {
 
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("TestCurve");
+  private static final CurveMetadata METADATA = Curves.zeroRates(NAME, ACT_365F);
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(NAME, ACT_365F, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
+      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
   private static final ZeroRateDiscountFactors DFCURVE = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
   private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
 
@@ -187,7 +190,7 @@ public class DiscountIborIndexRatesTest {
   // proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
-    IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M, GBP, DATE_AFTER, 1d);
+    IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_AFTER, GBP, 1d);
     assertEquals(test.curveParameterSensitivity(point).size(), 1);
   }
 

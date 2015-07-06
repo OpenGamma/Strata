@@ -27,10 +27,10 @@ public class ValueAdjustmentTest {
     assertEquals(test.toString(), "ValueAdjustment[result = input]");
   }
 
-  public void test_ofAbsoluteAmount() {
-    ValueAdjustment test = ValueAdjustment.ofAbsoluteAmount(200);
+  public void test_ofReplace() {
+    ValueAdjustment test = ValueAdjustment.ofReplace(200);
     assertEquals(test.getModifyingValue(), 200, TOLERANCE);
-    assertEquals(test.getType(), ValueAdjustmentType.ABSOLUTE);
+    assertEquals(test.getType(), ValueAdjustmentType.REPLACE);
     assertEquals(test.adjust(100), 200, TOLERANCE);
     assertEquals(test.toString(), "ValueAdjustment[result = 200.0]");
   }
@@ -61,8 +61,8 @@ public class ValueAdjustmentTest {
 
   //-------------------------------------------------------------------------
   public void equals() {
-    ValueAdjustment a1 = ValueAdjustment.ofAbsoluteAmount(200);
-    ValueAdjustment a2 = ValueAdjustment.ofAbsoluteAmount(200);
+    ValueAdjustment a1 = ValueAdjustment.ofReplace(200);
+    ValueAdjustment a2 = ValueAdjustment.ofReplace(200);
     ValueAdjustment b = ValueAdjustment.ofDeltaMultiplier(200);
     ValueAdjustment c = ValueAdjustment.ofDeltaMultiplier(0.1);
     assertEquals(a1.equals(a2), true);
@@ -72,11 +72,11 @@ public class ValueAdjustmentTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverImmutableBean(ValueAdjustment.ofAbsoluteAmount(200));
+    coverImmutableBean(ValueAdjustment.ofReplace(200));
   }
 
   public void test_serialization() {
-    assertSerialization(ValueAdjustment.ofAbsoluteAmount(200));
+    assertSerialization(ValueAdjustment.ofReplace(200));
   }
 
 }

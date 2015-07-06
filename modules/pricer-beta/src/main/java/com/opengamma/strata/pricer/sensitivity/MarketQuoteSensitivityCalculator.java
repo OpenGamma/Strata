@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
@@ -55,7 +55,7 @@ public class MarketQuoteSensitivityCalculator {
         double[] sensiName2 = new double[nbParameters];
         System.arraycopy(keySensi, start, sensiName2, 0, nbParameters);
         result = result.combinedWith(CurveCurrencyParameterSensitivity.of(
-            CurveMetadata.of(name), entry.getCurrency(), sensiName2));
+            DefaultCurveMetadata.of(name), entry.getCurrency(), sensiName2));
       }
     }
     return result;

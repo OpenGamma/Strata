@@ -31,7 +31,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
@@ -98,70 +97,6 @@ public final class InterpolatedNodalCurve
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an interpolated curve with no parameter metadata.
-   * <p>
-   * The extrapolators will be flat.
-   * For more control, use the builder.
-   * 
-   * @param name  the curve name
-   * @param xValues  the x-values
-   * @param yValues  the y-values
-   * @param interpolator  the interpolator
-   * @return the curve
-   */
-  public static InterpolatedNodalCurve of(
-      String name, 
-      double[] xValues, 
-      double[] yValues, 
-      CurveInterpolator interpolator) {
-    return of(CurveName.of(name), xValues, yValues, interpolator);
-  }
-
-  /**
-   * Creates an interpolated curve with no parameter metadata.
-   * <p>
-   * The extrapolators will be flat.
-   * For more control, use the builder.
-   * 
-   * @param name  the curve name
-   * @param xValues  the x-values
-   * @param yValues  the y-values
-   * @param interpolator  the interpolator
-   * @return the curve
-   */
-  public static InterpolatedNodalCurve of(
-      CurveName name,
-      double[] xValues,
-      double[] yValues,
-      CurveInterpolator interpolator) {
-
-    return of(CurveMetadata.of(name), xValues, yValues, interpolator);
-  }
-
-  /**
-   * Creates an interpolated curve with no parameter metadata.
-   * <p>
-   * The extrapolators will be flat.
-   * For more control, use the builder.
-   * 
-   * @param name  the curve name
-   * @param dayCount  the day count
-   * @param xValues  the x-values
-   * @param yValues  the y-values
-   * @param interpolator  the interpolator
-   * @return the curve
-   */
-  public static InterpolatedNodalCurve of(
-      CurveName name,
-      DayCount dayCount,
-      double[] xValues,
-      double[] yValues,
-      CurveInterpolator interpolator) {
-
-    return of(DefaultCurveMetadata.of(name, dayCount), xValues, yValues, interpolator);
-  }
-
-  /**
    * Creates an interpolated curve with metadata.
    * <p>
    * The extrapolators will be flat.
@@ -209,7 +144,7 @@ public final class InterpolatedNodalCurve
     if (xValues.length != yValues.length) {
       throw new IllegalArgumentException("Length of x-values and y-values must match");
     }
-    metadata.getParameters().ifPresent(params -> {
+    metadata.getParameterMetadata().ifPresent(params -> {
       if (xValues.length != params.size()) {
         throw new IllegalArgumentException("Length of x-values and parameter metadata must match when metadata present");
       }
@@ -307,8 +242,8 @@ public final class InterpolatedNodalCurve
     System.arraycopy(yExtended, index, yExtended, index + 1, yValues.length - index);
     xExtended[index] = x;
     yExtended[index] = y;
-    return new InterpolatedNodalCurve(
-        CurveMetadata.of(getName()), xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
+    CurveMetadata metadata = getMetadata().withParameterMetadata(null);
+    return new InterpolatedNodalCurve(metadata, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 
   /**
@@ -331,13 +266,13 @@ public final class InterpolatedNodalCurve
     xExtended[index] = x;
     yExtended[index] = y;
     // add to existing metadata, or do nothing if no existing metadata
-    CurveMetadata md = metadata.getParameters()
+    CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {
           List<CurveParameterMetadata> extended = new ArrayList<>(params);
           extended.add(index, paramMetadata);
-          return CurveMetadata.of(getName(), extended);
+          return metadata.withParameterMetadata(extended);
         })
-        .orElse(CurveMetadata.of(getName()));
+        .orElse(metadata);
     return new InterpolatedNodalCurve(md, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
   }
 

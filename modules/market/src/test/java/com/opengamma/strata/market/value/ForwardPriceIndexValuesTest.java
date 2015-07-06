@@ -28,7 +28,9 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -64,8 +66,9 @@ public class ForwardPriceIndexValuesTest {
   private static final double[] VALUES2 = new double[] {243.500, 248.000, 268.000, 289.000};
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final CurveName NAME = CurveName.of("USD-HICP");
-  private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(NAME, TIMES, VALUES, INTERPOLATOR);
-  private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(NAME, TIMES, VALUES2, INTERPOLATOR);
+  private static final CurveMetadata METADATA = Curves.prices(NAME);
+  private static final InterpolatedNodalCurve CURVE = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE2 = InterpolatedNodalCurve.of(METADATA, TIMES, VALUES2, INTERPOLATOR);
   private static final List<Double> SEASONALITY = ImmutableList.copyOf(
       new Double[] {0.98d, 0.99d, 1.01d, 1.00d, 1.00d, 1.01d, 1.01d, 0.99d, 1.00d, 1.00d, 1.00d, 1.01d});
   private static final ForwardPriceIndexValues INSTANCE =

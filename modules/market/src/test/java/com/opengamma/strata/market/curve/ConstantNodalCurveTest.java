@@ -26,7 +26,7 @@ public class ConstantNodalCurveTest {
 
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
-  private static final CurveMetadata METADATA = CurveMetadata.of(CURVE_NAME);
+  private static final CurveMetadata METADATA = DefaultCurveMetadata.of(CURVE_NAME);
   private static final double VALUE = 6d;
 
   //-------------------------------------------------------------------------
@@ -107,7 +107,7 @@ public class ConstantNodalCurveTest {
 
   public void test_shiftedBy_adjustment() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.shiftedBy(ImmutableList.of(ValueAdjustment.ofAbsoluteAmount(4d)));
+    ConstantNodalCurve test = base.shiftedBy(ImmutableList.of(ValueAdjustment.ofReplace(4d)));
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);

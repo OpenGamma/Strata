@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
@@ -28,9 +27,6 @@ public final class MarketDataRequirementsBuilder {
 
   /** IDs identifying the time series of market data values required for the calculations. */
   private final Set<ObservableId> timeSeries = new HashSet<>();
-
-  /** The currencies used in the outputs of the calculations. */
-  private final Set<Currency> outputCurrencies = new HashSet<>();
 
   /**
    * Adds requirements for time series of observable market data.
@@ -94,7 +90,6 @@ public final class MarketDataRequirementsBuilder {
     observables.addAll(requirements.getObservables());
     nonObservables.addAll(requirements.getNonObservables());
     timeSeries.addAll(requirements.getTimeSeries());
-    outputCurrencies.addAll(requirements.getOutputCurrencies());
     return this;
   }
 
@@ -104,6 +99,6 @@ public final class MarketDataRequirementsBuilder {
    * @return a set of market data requirements built from the data in this builder
    */
   public MarketDataRequirements build() {
-    return new MarketDataRequirements(observables, nonObservables, timeSeries, outputCurrencies);
+    return new MarketDataRequirements(observables, nonObservables, timeSeries);
   }
 }

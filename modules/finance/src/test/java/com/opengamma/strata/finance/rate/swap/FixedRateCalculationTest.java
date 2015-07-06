@@ -95,8 +95,8 @@ public class FixedRateCalculationTest {
         .dayCount(ACT_365F)
         .rate(ValueSchedule.of(
             0.025d,
-            ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(0.020d)),
-            ValueStep.of(2, ValueAdjustment.ofAbsoluteAmount(0.015d))))
+            ValueStep.of(1, ValueAdjustment.ofReplace(0.020d)),
+            ValueStep.of(2, ValueAdjustment.ofReplace(0.015d))))
         .build();
     SchedulePeriod period1 = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 5), date(2014, 1, 5), date(2014, 2, 5));
     SchedulePeriod period2 = SchedulePeriod.of(date(2014, 1, 5), date(2014, 2, 5), date(2014, 2, 5), date(2014, 3, 5));

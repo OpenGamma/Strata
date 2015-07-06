@@ -22,6 +22,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.marketdata.CsvFile;
 import com.opengamma.strata.finance.credit.IndexReferenceInformation;
 import com.opengamma.strata.finance.credit.type.CdsConvention;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
 
@@ -148,7 +149,7 @@ public class MarkitIndexCreditCurveDataParser {
       result.put(
           id,
           IsdaCreditCurveParRates.of(
-              creditCurveName,
+              CurveName.of(creditCurveName),
               periods,
               endDates,
               rates,

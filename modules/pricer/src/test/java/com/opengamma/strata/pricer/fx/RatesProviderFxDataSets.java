@@ -24,8 +24,10 @@ import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -33,6 +35,9 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * Sets of market data used in FX tests.
  */
 public class RatesProviderFxDataSets {
+
+  /** Wednesday. */
+  public static final LocalDate VAL_DATE_2014_01_22 = RatesProviderDataSets.VAL_DATE_2014_01_22;
 
   private static final Currency KRW = Currency.of("KRW");
   private static final String DISCOUNTING_EUR = "Discounting EUR";
@@ -52,27 +57,27 @@ public class RatesProviderFxDataSets {
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140};
-  private static final CurveName USD_DSC_NAME = CurveName.of("USD Dsc");
+  private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates("USD Dsc", ACT_360);
   private static final InterpolatedNodalCurve USD_DSC =
-      InterpolatedNodalCurve.of(USD_DSC_NAME, ACT_360, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
 
   private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
-  private static final CurveName EUR_DSC_NAME = CurveName.of("EUR Dsc");
+  private static final CurveMetadata EUR_DSC_METADATA = Curves.zeroRates("EUR Dsc", ACT_360);
   private static final InterpolatedNodalCurve EUR_DSC =
-      InterpolatedNodalCurve.of(EUR_DSC_NAME, ACT_360, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(EUR_DSC_METADATA, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
 
   private static final double[] GBP_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] GBP_DSC_RATE = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0160};
-  private static final CurveName GBP_DSC_NAME = CurveName.of("GBP Dsc");
+  private static final CurveMetadata GBP_DSC_METADATA = Curves.zeroRates("GBP Dsc", ACT_360);
   private static final InterpolatedNodalCurve GBP_DSC =
-      InterpolatedNodalCurve.of(GBP_DSC_NAME, ACT_360, GBP_DSC_TIME, GBP_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(GBP_DSC_METADATA, GBP_DSC_TIME, GBP_DSC_RATE, INTERPOLATOR);
 
   private static final double[] KRW_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
   private static final double[] KRW_DSC_RATE = new double[] {0.0350, 0.0325, 0.0350, 0.0375, 0.0350};
-  private static final CurveName KRW_DSC_NAME = CurveName.of("KRW Dsc");
+  private static final CurveMetadata KRW_DSC_METADATA = Curves.zeroRates("KRW Dsc", ACT_360);
   private static final InterpolatedNodalCurve KRW_DSC =
-      InterpolatedNodalCurve.of(KRW_DSC_NAME, ACT_360, KRW_DSC_TIME, KRW_DSC_RATE, INTERPOLATOR);
+      InterpolatedNodalCurve.of(KRW_DSC_METADATA, KRW_DSC_TIME, KRW_DSC_RATE, INTERPOLATOR);
 
   private static final FxIndex INDEX_USD_KRW = ImmutableFxIndex.builder()
       .name("USD/KRW")
@@ -91,7 +96,7 @@ public class RatesProviderFxDataSets {
    */
   public static RatesProvider createProvider() {
     return ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2011, 11, 10))
+        .valuationDate(VAL_DATE_2014_01_22)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
@@ -106,7 +111,7 @@ public class RatesProviderFxDataSets {
   public static RatesProvider createProviderEURUSD() {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
     return ImmutableRatesProvider.builder()
-        .valuationDate(LocalDate.of(2011, 11, 10))
+        .valuationDate(VAL_DATE_2014_01_22)
         .discountCurves(ImmutableMap.<Currency, Curve>builder()
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)

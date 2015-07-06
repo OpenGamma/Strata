@@ -15,6 +15,7 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.examples.marketdata.CsvFile;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
@@ -68,7 +69,7 @@ public class MarkitYieldCurveDataParser {
       List<Point> points = curveData.get(convention);
       result.put(IsdaYieldCurveParRatesId.of(convention.getCurrency()),
           IsdaYieldCurveParRates.of(
-              convention.getName(),
+              CurveName.of(convention.getName()),
               points.stream().map(s -> s.getTenor().getPeriod()).toArray(Period[]::new),
               points.stream().map(s -> s.getInstrumentType()).toArray(IsdaYieldCurveUnderlyingType[]::new),
               points.stream().mapToDouble(s -> s.getRate()).toArray(),

@@ -210,7 +210,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
         FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     IborFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityNormalVolatility(
         FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE);
-    assertTrue(optionVegaExpected.compareExcludingSensitivity(optionVegaComputed) == 0);
+    assertTrue(optionVegaExpected.compareKey(optionVegaComputed) == 0);
     assertEquals(optionVegaComputed.getSensitivity(), optionVegaExpected.getSensitivity(), TOLERANCE_PRICE_DELTA);
   }
 

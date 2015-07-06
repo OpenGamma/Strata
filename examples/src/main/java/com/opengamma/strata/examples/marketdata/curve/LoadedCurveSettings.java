@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.value.ValueType;
 
 /**
  * Represents curve settings, used when loading curves.
@@ -38,6 +39,11 @@ public final class LoadedCurveSettings implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
+  /**
+   * The y-value type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ValueType yValueType;
   /**
    * The interpolator.
    */
@@ -78,14 +84,17 @@ public final class LoadedCurveSettings implements ImmutableBean {
 
   private LoadedCurveSettings(
       DayCount dayCount,
+      ValueType yValueType,
       CurveInterpolator interpolator,
       CurveExtrapolator leftExtrapolator,
       CurveExtrapolator rightExtrapolator) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(yValueType, "yValueType");
     JodaBeanUtils.notNull(interpolator, "interpolator");
     JodaBeanUtils.notNull(leftExtrapolator, "leftExtrapolator");
     JodaBeanUtils.notNull(rightExtrapolator, "rightExtrapolator");
     this.dayCount = dayCount;
+    this.yValueType = yValueType;
     this.interpolator = interpolator;
     this.leftExtrapolator = leftExtrapolator;
     this.rightExtrapolator = rightExtrapolator;
@@ -113,6 +122,15 @@ public final class LoadedCurveSettings implements ImmutableBean {
    */
   public DayCount getDayCount() {
     return dayCount;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the y-value type.
+   * @return the value of the property, not null
+   */
+  public ValueType getYValueType() {
+    return yValueType;
   }
 
   //-----------------------------------------------------------------------
@@ -159,6 +177,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       LoadedCurveSettings other = (LoadedCurveSettings) obj;
       return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getYValueType(), other.getYValueType()) &&
           JodaBeanUtils.equal(getInterpolator(), other.getInterpolator()) &&
           JodaBeanUtils.equal(getLeftExtrapolator(), other.getLeftExtrapolator()) &&
           JodaBeanUtils.equal(getRightExtrapolator(), other.getRightExtrapolator());
@@ -170,6 +189,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYValueType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
     hash = hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolator());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolator());
@@ -178,9 +198,10 @@ public final class LoadedCurveSettings implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("LoadedCurveSettings{");
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("yValueType").append('=').append(getYValueType()).append(',').append(' ');
     buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
     buf.append("leftExtrapolator").append('=').append(getLeftExtrapolator()).append(',').append(' ');
     buf.append("rightExtrapolator").append('=').append(JodaBeanUtils.toString(getRightExtrapolator()));
@@ -204,6 +225,11 @@ public final class LoadedCurveSettings implements ImmutableBean {
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", LoadedCurveSettings.class, DayCount.class);
     /**
+     * The meta-property for the {@code yValueType} property.
+     */
+    private final MetaProperty<ValueType> yValueType = DirectMetaProperty.ofImmutable(
+        this, "yValueType", LoadedCurveSettings.class, ValueType.class);
+    /**
      * The meta-property for the {@code interpolator} property.
      */
     private final MetaProperty<CurveInterpolator> interpolator = DirectMetaProperty.ofImmutable(
@@ -224,6 +250,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "dayCount",
+        "yValueType",
         "interpolator",
         "leftExtrapolator",
         "rightExtrapolator");
@@ -239,6 +266,8 @@ public final class LoadedCurveSettings implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 1905311443:  // dayCount
           return dayCount;
+        case -1065022510:  // yValueType
+          return yValueType;
         case 2096253127:  // interpolator
           return interpolator;
         case -1992066886:  // leftExtrapolator
@@ -274,6 +303,14 @@ public final class LoadedCurveSettings implements ImmutableBean {
     }
 
     /**
+     * The meta-property for the {@code yValueType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ValueType> yValueType() {
+      return yValueType;
+    }
+
+    /**
      * The meta-property for the {@code interpolator} property.
      * @return the meta-property, not null
      */
@@ -303,6 +340,8 @@ public final class LoadedCurveSettings implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 1905311443:  // dayCount
           return ((LoadedCurveSettings) bean).getDayCount();
+        case -1065022510:  // yValueType
+          return ((LoadedCurveSettings) bean).getYValueType();
         case 2096253127:  // interpolator
           return ((LoadedCurveSettings) bean).getInterpolator();
         case -1992066886:  // leftExtrapolator
@@ -331,6 +370,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
   public static final class Builder extends DirectFieldsBeanBuilder<LoadedCurveSettings> {
 
     private DayCount dayCount;
+    private ValueType yValueType;
     private CurveInterpolator interpolator;
     private CurveExtrapolator leftExtrapolator;
     private CurveExtrapolator rightExtrapolator;
@@ -347,6 +387,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
      */
     private Builder(LoadedCurveSettings beanToCopy) {
       this.dayCount = beanToCopy.getDayCount();
+      this.yValueType = beanToCopy.getYValueType();
       this.interpolator = beanToCopy.getInterpolator();
       this.leftExtrapolator = beanToCopy.getLeftExtrapolator();
       this.rightExtrapolator = beanToCopy.getRightExtrapolator();
@@ -358,6 +399,8 @@ public final class LoadedCurveSettings implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 1905311443:  // dayCount
           return dayCount;
+        case -1065022510:  // yValueType
+          return yValueType;
         case 2096253127:  // interpolator
           return interpolator;
         case -1992066886:  // leftExtrapolator
@@ -374,6 +417,9 @@ public final class LoadedCurveSettings implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
+          break;
+        case -1065022510:  // yValueType
+          this.yValueType = (ValueType) newValue;
           break;
         case 2096253127:  // interpolator
           this.interpolator = (CurveInterpolator) newValue;
@@ -418,6 +464,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     public LoadedCurveSettings build() {
       return new LoadedCurveSettings(
           dayCount,
+          yValueType,
           interpolator,
           leftExtrapolator,
           rightExtrapolator);
@@ -432,6 +479,17 @@ public final class LoadedCurveSettings implements ImmutableBean {
     public Builder dayCount(DayCount dayCount) {
       JodaBeanUtils.notNull(dayCount, "dayCount");
       this.dayCount = dayCount;
+      return this;
+    }
+
+    /**
+     * Sets the {@code yValueType} property in the builder.
+     * @param yValueType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder yValueType(ValueType yValueType) {
+      JodaBeanUtils.notNull(yValueType, "yValueType");
+      this.yValueType = yValueType;
       return this;
     }
 
@@ -471,9 +529,10 @@ public final class LoadedCurveSettings implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("LoadedCurveSettings.Builder{");
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
       buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
       buf.append("leftExtrapolator").append('=').append(JodaBeanUtils.toString(leftExtrapolator)).append(',').append(' ');
       buf.append("rightExtrapolator").append('=').append(JodaBeanUtils.toString(rightExtrapolator));

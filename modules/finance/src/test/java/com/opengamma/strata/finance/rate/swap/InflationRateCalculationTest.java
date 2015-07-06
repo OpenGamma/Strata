@@ -60,7 +60,7 @@ public class InflationRateCalculationTest {
       .build();
 
   private static final ValueSchedule GEARING =
-      ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofAbsoluteAmount(2d)));
+      ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofReplace(2d)));
 
   //-------------------------------------------------------------------------
   public void test_of() {

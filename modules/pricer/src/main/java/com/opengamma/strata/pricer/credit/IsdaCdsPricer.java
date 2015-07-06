@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.credit;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -14,6 +16,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
@@ -110,7 +113,8 @@ public class IsdaCdsPricer {
       LocalDate pointDate = valuationDate.plus(period);
       metaData.add(TenorCurveNodeMetadata.of(pointDate, Tenor.of(period)));
     }
-    CurveMetadata curveMetadata = CurveMetadata.of(yieldCurveParRates.getName(), metaData);
+    // ISDA model uses ACT_365F
+    CurveMetadata curveMetadata = Curves.zeroRates(yieldCurveParRates.getName(), ACT_365F, metaData);
     return CurveCurrencyParameterSensitivities.of(
         CurveCurrencyParameterSensitivity.of(curveMetadata, product.getCurrency(), paramSensitivities));
   }
@@ -165,7 +169,7 @@ public class IsdaCdsPricer {
       LocalDate pointDate = valuationDate.plus(period);
       metaData.add(TenorCurveNodeMetadata.of(pointDate, Tenor.of(period)));
     }
-    CurveMetadata curveMetadata = CurveMetadata.of(creditCurveParRates.getName(), metaData);
+    CurveMetadata curveMetadata = Curves.isdaCredit(yieldCurveParRates.getName(), metaData);
     return CurveCurrencyParameterSensitivities.of(
         CurveCurrencyParameterSensitivity.of(curveMetadata, product.getCurrency(), paramSensitivities));
   }

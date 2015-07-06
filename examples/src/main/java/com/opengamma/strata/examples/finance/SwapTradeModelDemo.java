@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
@@ -99,7 +100,7 @@ public class SwapTradeModelDemo {
             .dayCount(DayCounts.ACT_ACT_ISDA)
             .rate(ValueSchedule.of(
                 0.008,
-                ValueStep.ofAbsoluteAmount(LocalDate.of(2015, 1, 31), 0.007)))
+                ValueStep.of(LocalDate.of(2015, 1, 31), ValueAdjustment.ofReplace(0.007))))
             .build())
         .build();
     // an ExpandedSwapLeg has all the dates of the cash flows

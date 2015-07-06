@@ -305,6 +305,19 @@ public final class Result<T>
   }
 
   /**
+   * Creates a failed result containing a failure.
+   * <p>
+   * This is useful for converting an existing {@code Failure} instance to a result.
+   *
+   * @param <R> the expected type of the result
+   * @param failure  details of the failure
+   * @return a failed result containing the specified failure
+   */
+  public static <R> Result<R> failure(Failure failure) {
+    return new Result<>(failure);
+  }
+
+  /**
    * Returns a success result containing the value if it is non-null, else returns a failure result
    * with the specified reason and message.
    * <p>

@@ -21,6 +21,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.InflationInterpolatedRateObservation;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -145,7 +146,7 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
 
     LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_MONTH.atEndOfMonth(), 300);
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
-        "GB-RPIX",
+        Curves.prices("GB-RPIX"),
         new double[] {4, 5, 16, 17},
         new double[] {rateStart, rateStartInterp, rateEnd, rateEndInterp},
         INTERPOLATOR);

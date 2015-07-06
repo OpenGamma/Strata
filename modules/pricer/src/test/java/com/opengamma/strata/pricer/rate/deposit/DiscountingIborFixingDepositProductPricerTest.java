@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.deposit.ExpandedIborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
-import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -43,7 +43,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 @Test
 public class DiscountingIborFixingDepositProductPricerTest {
 
-  private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 1, 16);
+  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 16);
   private static final LocalDate START_DATE = LocalDate.of(2014, 1, 24);
   private static final LocalDate END_DATE = LocalDate.of(2014, 7, 24);
   private static final double NOTIONAL = 100000000d;
@@ -68,14 +68,14 @@ public class DiscountingIborFixingDepositProductPricerTest {
     CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
     double[] time_eur = new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0};
     double[] rate_eur = new double[] {0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014};
-    InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of(
-        CurveName.of("EUR-Discount"), ACT_ACT_ISDA, time_eur, rate_eur, interp);
+    InterpolatedNodalCurve dscCurve =
+        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_ACT_ISDA), time_eur, rate_eur, interp);
     double[] time_index = new double[] {0.0, 0.25, 0.5, 1.0};
     double[] rate_index = new double[] {0.0180, 0.0180, 0.0175, 0.0165};
-    InterpolatedNodalCurve indexCurve = InterpolatedNodalCurve.of(
-        CurveName.of("EUR-EURIBOR6M"), ACT_ACT_ISDA, time_index, rate_index, interp);
+    InterpolatedNodalCurve indexCurve =
+        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_ACT_ISDA), time_index, rate_index, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
         .timeSeries(ImmutableMap.of(EUR_EURIBOR_6M, LocalDateDoubleTimeSeries.empty()))
@@ -88,7 +88,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
     DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.getValuationDate()).thenReturn(VAL_DATE);
     double discountFactor = 0.95;
     double forwardRate = 0.02;
     when(mockProv.discountFactor(EUR, END_DATE)).thenReturn(discountFactor);
@@ -131,7 +131,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
     DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.getValuationDate()).thenReturn(VAL_DATE);
     double discountFactor = 0.95;
     double forwardRate = 0.02;
     when(mockProv.discountFactor(EUR, END_DATE)).thenReturn(discountFactor);
@@ -158,7 +158,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
     ForwardIborRateObservationFn mockObs = mock(ForwardIborRateObservationFn.class);
     DiscountingIborFixingDepositProductPricer test = new DiscountingIborFixingDepositProductPricer(mockObs);
     RatesProvider mockProv = mock(RatesProvider.class);
-    when(mockProv.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(mockProv.getValuationDate()).thenReturn(VAL_DATE);
     double discountFactor = 0.95;
     double forwardRate = 0.02;
     when(mockProv.discountFactor(EUR, END_DATE)).thenReturn(discountFactor);

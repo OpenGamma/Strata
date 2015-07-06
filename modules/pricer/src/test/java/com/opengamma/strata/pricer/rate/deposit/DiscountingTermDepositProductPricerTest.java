@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
-import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -41,7 +41,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 @Test
 public class DiscountingTermDepositProductPricerTest {
 
-  private static final LocalDate VALUATION_DATE = date(2014, 1, 22);
+  private static final LocalDate VAL_DATE = date(2014, 1, 22);
   private static final LocalDate START_DATE = date(2014, 1, 24);
   private static final LocalDate END_DATE = date(2014, 7, 24);
   private static final double NOTIONAL = 100000000d;
@@ -68,10 +68,10 @@ public class DiscountingTermDepositProductPricerTest {
     CurveInterpolator interp = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
     double[] time_eur = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
     double[] rate_eur = new double[] {0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210};
-    InterpolatedNodalCurve dscCurve = InterpolatedNodalCurve.of(
-        CurveName.of("EUR-Discount"), ACT_360, time_eur, rate_eur, interp);
+    InterpolatedNodalCurve dscCurve =
+        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_360), time_eur, rate_eur, interp);
     IMM_PROV = ImmutableRatesProvider.builder()
-        .valuationDate(VALUATION_DATE)
+        .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .build();
   }
@@ -80,7 +80,7 @@ public class DiscountingTermDepositProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValue_notStarted() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
+    SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     CurrencyAmount computed = PRICER.presentValue(TERM_DEPOSIT, prov);
     double expected = ((1d + RATE * TERM_DEPOSIT.expand().getYearFraction()) * DF_END - DF_START) * NOTIONAL;
     assertEquals(computed.getCurrency(), EUR);
@@ -127,7 +127,7 @@ public class DiscountingTermDepositProductPricerTest {
   }
 
   public void test_parRate() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
+    SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     double parRate = PRICER.parRate(TERM_DEPOSIT, prov);
     TermDeposit depositPar = TermDeposit.builder()
         .buySell(BuySell.BUY)
@@ -144,7 +144,7 @@ public class DiscountingTermDepositProductPricerTest {
   }
 
   public void test_parSpread() {
-    SimpleRatesProvider prov = provider(VALUATION_DATE, DF_START, DF_END);
+    SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     double parSpread = PRICER.parSpread(TERM_DEPOSIT, prov);
     TermDeposit depositPar = TermDeposit.builder()
         .buySell(BuySell.BUY)

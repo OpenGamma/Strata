@@ -74,8 +74,8 @@ public final class ZeroRateDiscountFactors
    * Creates a new discount factors instance.
    * <p>
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
-   * The curve is stored with maturities and zero-coupon continuously-compounded rates.
-   * The metadata of the curve must define a day count.
+   * The curve must contain {@linkplain ValueType#YEAR_FRACTION year fractions}
+   * against {@linkplain ValueType#ZERO_RATE zero rates}, and the day count must be present.
    * 
    * @param currency  the currency
    * @param valuationDate  the valuation date for which the curve is valid
@@ -99,8 +99,12 @@ public final class ZeroRateDiscountFactors
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(curve, "curve");
+    curve.getMetadata().getXValueType().checkEquals(
+        ValueType.YEAR_FRACTION, "Incorrect x-value type for zero-rate discount curve");
+    curve.getMetadata().getYValueType().checkEquals(
+        ValueType.ZERO_RATE, "Incorrect y-value type for zero-rate discount curve");
     if (!curve.getMetadata().getDayCount().isPresent()) {
-      throw new IllegalArgumentException("Curve must contain a DayCount in the CurveMetadata");
+      throw new IllegalArgumentException("Incorrect curve metadata, missing DayCount");
     }
     this.currency = currency;
     this.valuationDate = valuationDate;
@@ -142,7 +146,7 @@ public final class ZeroRateDiscountFactors
   public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
     double relativeYearFraction = relativeYearFraction(date);
     double discountFactor = discountFactor(relativeYearFraction);
-    return ZeroRateSensitivity.of(currency, sensitivityCurrency, date, -discountFactor * relativeYearFraction);
+    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
   }
 
   @Override

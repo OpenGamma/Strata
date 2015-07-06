@@ -6,7 +6,6 @@
 package com.opengamma.strata.engine.config.pricing;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import java.util.Set;
@@ -17,7 +16,7 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 
 /**
  * Test {@link PricingRules}.
@@ -134,8 +133,8 @@ public class PricingRulesTest {
   private static final class TestFunction1 implements CalculationSingleFunction<TestTrade1, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTrade1 trade) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -147,8 +146,8 @@ public class PricingRulesTest {
   private static final class TestFunction2 implements CalculationSingleFunction<TestTrade1, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTrade1 trade) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTrade1 trade) {
+      return FunctionRequirements.empty();
     }
 
     @Override
@@ -160,8 +159,8 @@ public class PricingRulesTest {
   private static final class TestFunction3 implements CalculationSingleFunction<TestTrade2, Object> {
 
     @Override
-    public CalculationRequirements requirements(TestTrade2 target) {
-      return CalculationRequirements.empty();
+    public FunctionRequirements requirements(TestTrade2 target) {
+      return FunctionRequirements.empty();
     }
 
     @Override

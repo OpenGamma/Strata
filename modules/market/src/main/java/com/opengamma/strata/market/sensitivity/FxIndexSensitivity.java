@@ -47,11 +47,6 @@ public final class FxIndexSensitivity
   @PropertyDefinition(validate = "notNull")
   private final FxIndex index;
   /**
-   * The currency of the sensitivity.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final Currency currency;
-  /**
    * The reference currency.
    * <p>
    * This is the base currency of the FX conversion that occurs using the index.
@@ -64,6 +59,11 @@ public final class FxIndexSensitivity
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
+  /**
+   * The currency of the sensitivity.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final Currency currency;
   /**
    * The value of the sensitivity.
    */
@@ -90,27 +90,27 @@ public final class FxIndexSensitivity
     boolean inverse = referenceCurrency.equals(index.getCurrencyPair().getCounter());
     CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
     Currency sensiCurrency = pair.getCounter();
-    return new FxIndexSensitivity(index, sensiCurrency, referenceCurrency, fixingDate, sensitivity);
+    return new FxIndexSensitivity(index, referenceCurrency, fixingDate, sensiCurrency, sensitivity);
   }
 
   /**
-   * Obtains a {@code FxIndexSensitivity} from index, sensitivity currency, base currency,
-   * fixing date and sensitivity value.
+   * Obtains a {@code FxIndexSensitivity} from index, reference currency, fixing date,
+   * sensitivity currency and sensitivity value.
    * 
    * @param index  the index of the FX
-   * @param sensitivityCurrency  the currency of the sensitivity
    * @param referenceCurrency  the reference currency
    * @param fixingDate  the fixing date
+   * @param sensitivityCurrency  the currency of the sensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static FxIndexSensitivity of(
       FxIndex index,
-      Currency sensitivityCurrency,
       Currency referenceCurrency,
       LocalDate fixingDate,
+      Currency sensitivityCurrency,
       double sensitivity) {
-    return new FxIndexSensitivity(index, sensitivityCurrency, referenceCurrency, fixingDate, sensitivity);
+    return new FxIndexSensitivity(index, referenceCurrency, fixingDate, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -146,7 +146,7 @@ public final class FxIndexSensitivity
    */
   public FxForwardSensitivity toFxForwardSensitivity() {
     LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
-    return FxForwardSensitivity.of(index.getCurrencyPair(), currency, referenceCurrency, maturityDate, sensitivity);
+    return FxForwardSensitivity.of(index.getCurrencyPair(), referenceCurrency, maturityDate, currency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -155,16 +155,16 @@ public final class FxIndexSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new FxIndexSensitivity(index, currency, referenceCurrency, fixingDate, sensitivity);
+    return new FxIndexSensitivity(index, referenceCurrency, fixingDate, currency, sensitivity);
   }
 
   @Override
   public FxIndexSensitivity withSensitivity(double sensitivity) {
-    return new FxIndexSensitivity(index, currency, referenceCurrency, fixingDate, sensitivity);
+    return new FxIndexSensitivity(index, referenceCurrency, fixingDate, currency, sensitivity);
   }
 
   @Override
-  public int compareExcludingSensitivity(PointSensitivity other) {
+  public int compareKey(PointSensitivity other) {
     if (other instanceof FxIndexSensitivity) {
       FxIndexSensitivity otherFx = (FxIndexSensitivity) other;
       return ComparisonChain.start()
@@ -180,12 +180,12 @@ public final class FxIndexSensitivity
   //-------------------------------------------------------------------------
   @Override
   public FxIndexSensitivity multipliedBy(double factor) {
-    return new FxIndexSensitivity(index, currency, referenceCurrency, fixingDate, sensitivity * factor);
+    return new FxIndexSensitivity(index, referenceCurrency, fixingDate, currency, sensitivity * factor);
   }
 
   @Override
   public FxIndexSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new FxIndexSensitivity(index, currency, referenceCurrency, fixingDate, operator.applyAsDouble(sensitivity));
+    return new FxIndexSensitivity(index, referenceCurrency, fixingDate, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -224,18 +224,18 @@ public final class FxIndexSensitivity
 
   private FxIndexSensitivity(
       FxIndex index,
-      Currency currency,
       Currency referenceCurrency,
       LocalDate fixingDate,
+      Currency currency,
       double sensitivity) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(referenceCurrency, "referenceCurrency");
     JodaBeanUtils.notNull(fixingDate, "fixingDate");
+    JodaBeanUtils.notNull(currency, "currency");
     this.index = index;
-    this.currency = currency;
     this.referenceCurrency = referenceCurrency;
     this.fixingDate = fixingDate;
+    this.currency = currency;
     this.sensitivity = sensitivity;
     validate();
   }
@@ -266,16 +266,6 @@ public final class FxIndexSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the sensitivity.
-   * @return the value of the property, not null
-   */
-  @Override
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the reference currency.
    * <p>
    * This is the base currency of the FX conversion that occurs using the index.
@@ -297,6 +287,16 @@ public final class FxIndexSensitivity
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the currency of the sensitivity.
+   * @return the value of the property, not null
+   */
+  @Override
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the value of the sensitivity.
    * @return the value of the property
    */
@@ -314,9 +314,9 @@ public final class FxIndexSensitivity
     if (obj != null && obj.getClass() == this.getClass()) {
       FxIndexSensitivity other = (FxIndexSensitivity) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getReferenceCurrency(), other.getReferenceCurrency()) &&
           JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
     }
     return false;
@@ -326,9 +326,9 @@ public final class FxIndexSensitivity
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
     return hash;
   }
@@ -338,9 +338,9 @@ public final class FxIndexSensitivity
     StringBuilder buf = new StringBuilder(192);
     buf.append("FxIndexSensitivity{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("referenceCurrency").append('=').append(getReferenceCurrency()).append(',').append(' ');
     buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
     buf.append('}');
     return buf.toString();
@@ -362,11 +362,6 @@ public final class FxIndexSensitivity
     private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", FxIndexSensitivity.class, FxIndex.class);
     /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", FxIndexSensitivity.class, Currency.class);
-    /**
      * The meta-property for the {@code referenceCurrency} property.
      */
     private final MetaProperty<Currency> referenceCurrency = DirectMetaProperty.ofImmutable(
@@ -376,6 +371,11 @@ public final class FxIndexSensitivity
      */
     private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
         this, "fixingDate", FxIndexSensitivity.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", FxIndexSensitivity.class, Currency.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
@@ -387,9 +387,9 @@ public final class FxIndexSensitivity
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "currency",
         "referenceCurrency",
         "fixingDate",
+        "currency",
         "sensitivity");
 
     /**
@@ -403,12 +403,12 @@ public final class FxIndexSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 575402001:  // currency
-          return currency;
         case 727652476:  // referenceCurrency
           return referenceCurrency;
         case 1255202043:  // fixingDate
           return fixingDate;
+        case 575402001:  // currency
+          return currency;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -440,14 +440,6 @@ public final class FxIndexSensitivity
     }
 
     /**
-     * The meta-property for the {@code currency} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
      * The meta-property for the {@code referenceCurrency} property.
      * @return the meta-property, not null
      */
@@ -464,6 +456,14 @@ public final class FxIndexSensitivity
     }
 
     /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
      * The meta-property for the {@code sensitivity} property.
      * @return the meta-property, not null
      */
@@ -477,12 +477,12 @@ public final class FxIndexSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((FxIndexSensitivity) bean).getIndex();
-        case 575402001:  // currency
-          return ((FxIndexSensitivity) bean).getCurrency();
         case 727652476:  // referenceCurrency
           return ((FxIndexSensitivity) bean).getReferenceCurrency();
         case 1255202043:  // fixingDate
           return ((FxIndexSensitivity) bean).getFixingDate();
+        case 575402001:  // currency
+          return ((FxIndexSensitivity) bean).getCurrency();
         case 564403871:  // sensitivity
           return ((FxIndexSensitivity) bean).getSensitivity();
       }
@@ -507,9 +507,9 @@ public final class FxIndexSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<FxIndexSensitivity> {
 
     private FxIndex index;
-    private Currency currency;
     private Currency referenceCurrency;
     private LocalDate fixingDate;
+    private Currency currency;
     private double sensitivity;
 
     /**
@@ -524,12 +524,12 @@ public final class FxIndexSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 575402001:  // currency
-          return currency;
         case 727652476:  // referenceCurrency
           return referenceCurrency;
         case 1255202043:  // fixingDate
           return fixingDate;
+        case 575402001:  // currency
+          return currency;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -543,14 +543,14 @@ public final class FxIndexSensitivity
         case 100346066:  // index
           this.index = (FxIndex) newValue;
           break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
         case 727652476:  // referenceCurrency
           this.referenceCurrency = (Currency) newValue;
           break;
         case 1255202043:  // fixingDate
           this.fixingDate = (LocalDate) newValue;
+          break;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (Double) newValue;
@@ -589,9 +589,9 @@ public final class FxIndexSensitivity
     public FxIndexSensitivity build() {
       return new FxIndexSensitivity(
           index,
-          currency,
           referenceCurrency,
           fixingDate,
+          currency,
           sensitivity);
     }
 
@@ -601,9 +601,9 @@ public final class FxIndexSensitivity
       StringBuilder buf = new StringBuilder(192);
       buf.append("FxIndexSensitivity.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency)).append(',').append(' ');
       buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();

@@ -61,10 +61,10 @@ public interface PointSensitivity
   public abstract PointSensitivity withSensitivity(double sensitivity);
 
   /**
-   * Compares two sensitivities, excluding the point sensitivity value.
+   * Compares the key of two sensitivities, excluding the point sensitivity value.
    * <p>
    * If the other point sensitivity is of a different type, the comparison
-   * must be based solely on the simple class name.
+   * is based solely on the simple class name.
    * If the point sensitivity is of the same type, the comparison must
    * check the key, then the currency, then the date, then any other state.
    * <p>
@@ -74,6 +74,6 @@ public interface PointSensitivity
    * @param other  the other sensitivity
    * @return positive if greater, zero if equal, negative if less
    */
-  public abstract int compareExcludingSensitivity(PointSensitivity other);
+  public abstract int compareKey(PointSensitivity other);
 
 }

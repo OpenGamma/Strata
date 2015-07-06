@@ -34,13 +34,13 @@ import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 class DependencyTreeBuilder {
 
   /** The market data supplied by the user. */
-  private final BaseMarketData suppliedData;
+  private final MarketEnvironment suppliedData;
 
   /** The functions that create items of market data. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
   /** The requirements for market data used in a set of calculations. */
-  private final MarketDataRequirements requirements;
+  private final CalculationRequirements requirements;
 
   /** Configuration specifying how market data values should be built. */
   private final MarketDataConfig marketDataConfig;
@@ -55,8 +55,8 @@ class DependencyTreeBuilder {
    * @return a tree builder that builds the dependency tree for the market data required by a set of calculations
    */
   static DependencyTreeBuilder of(
-      BaseMarketData suppliedData,
-      MarketDataRequirements requirements,
+      MarketEnvironment suppliedData,
+      CalculationRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
@@ -64,8 +64,8 @@ class DependencyTreeBuilder {
   }
 
   private DependencyTreeBuilder(
-      BaseMarketData suppliedData,
-      MarketDataRequirements requirements,
+      MarketEnvironment suppliedData,
+      CalculationRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
@@ -90,7 +90,7 @@ class DependencyTreeBuilder {
    * @param requirements  requirements for market data needed for a set of calculations
    * @return child nodes representing the dependencies of a set of market data
    */
-  private List<MarketDataNode> childNodes(MarketDataRequirements requirements) {
+  private List<MarketDataNode> childNodes(CalculationRequirements requirements) {
 
     List<MarketDataNode> observableNodes =
         buildNodes(requirements.getObservables(), MarketDataNode.DataType.SINGLE_VALUE);
@@ -141,7 +141,7 @@ class DependencyTreeBuilder {
     if (builder != null) {
       @SuppressWarnings("unchecked")
       MarketDataRequirements requirements = builder.requirements(id, marketDataConfig);
-      return MarketDataNode.child(id, dataType, childNodes(requirements));
+      return MarketDataNode.child(id, dataType, childNodes(CalculationRequirements.of(requirements)));
     } else {
       // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
       return MarketDataNode.leaf(id, dataType);
@@ -158,7 +158,7 @@ class DependencyTreeBuilder {
   private static boolean isSupplied(
       MarketDataId<?> id,
       MarketDataNode.DataType dataType,
-      BaseMarketData suppliedData) {
+      MarketEnvironment suppliedData) {
 
     switch (dataType) {
       case TIME_SERIES:

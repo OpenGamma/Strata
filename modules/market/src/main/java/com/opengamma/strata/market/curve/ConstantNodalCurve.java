@@ -58,10 +58,6 @@ public final class ConstantNodalCurve
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final double yValue;
-  /**
-   * The underlying cached curve.
-   */
-  private transient final ConstantDoublesCurve underlying;  // derived and cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -83,7 +79,7 @@ public final class ConstantNodalCurve
    * @return the curve
    */
   public static ConstantNodalCurve of(CurveName name, double yValue) {
-    return new ConstantNodalCurve(CurveMetadata.of(name), yValue);
+    return new ConstantNodalCurve(DefaultCurveMetadata.of(name), yValue);
   }
 
   /**
@@ -104,7 +100,6 @@ public final class ConstantNodalCurve
     JodaBeanUtils.notNull(metadata, "metadata");
     this.metadata = metadata;
     this.yValue = yValue;
-    this.underlying = ConstantDoublesCurve.from(yValue, metadata.getCurveName().toString());
   }
 
   // ensure standard constructor is invoked
@@ -123,7 +118,7 @@ public final class ConstantNodalCurve
    */
   @Deprecated
   public ConstantDoublesCurve getUnderlyingCurve() {
-    return underlying;
+    return ConstantDoublesCurve.from(yValue, metadata.getCurveName().toString());
   }
 
   @Override

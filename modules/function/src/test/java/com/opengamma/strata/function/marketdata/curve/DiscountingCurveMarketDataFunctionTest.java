@@ -6,14 +6,14 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.date;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.collect.TestHelper;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.BaseMarketData;
+import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -38,7 +38,7 @@ public class DiscountingCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.AUD, curve),
         ImmutableMap.of());
-    BaseMarketData marketData = BaseMarketData.builder(TestHelper.date(2011, 3, 8)).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
 
     Result<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
@@ -58,7 +58,7 @@ public class DiscountingCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.AUD, curve1, Currency.GBP, curve2),
         ImmutableMap.of());
-    BaseMarketData marketData = BaseMarketData.builder(TestHelper.date(2011, 3, 8)).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).addValue(groupId, curveGroup).build();
     DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
 
     Result<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
@@ -94,11 +94,10 @@ public class DiscountingCurveMarketDataFunctionTest {
         ImmutableMap.of(Currency.CHF, curve3, Currency.USD, curve4),
         ImmutableMap.of());
 
-    BaseMarketData marketData =
-        BaseMarketData.builder(TestHelper.date(2011, 3, 8))
-            .addValue(groupId1, curveGroup1)
-            .addValue(groupId2, curveGroup2)
-            .build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+        .addValue(groupId1, curveGroup1)
+        .addValue(groupId2, curveGroup2)
+        .build();
 
     DiscountingCurveMarketDataFunction builder = new DiscountingCurveMarketDataFunction();
 

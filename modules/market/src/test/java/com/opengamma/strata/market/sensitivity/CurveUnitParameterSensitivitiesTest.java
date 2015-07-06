@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 
 /**
  * Test {@link CurveUnitParameterSensitivities}.
@@ -30,13 +31,13 @@ public class CurveUnitParameterSensitivitiesTest {
   private static final double[] TOTAL_USD = new double[] {1100, 450, 621, 246};
   private static final double[] VECTOR3 = new double[] {1000, 250, 321, 123, 321};
   private static final CurveName NAME0 = CurveName.of("NAME-0");
-  private static final CurveMetadata METADATA0 = CurveMetadata.of(NAME0);
+  private static final CurveMetadata METADATA0 = DefaultCurveMetadata.of(NAME0);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
-  private static final CurveMetadata METADATA1 = CurveMetadata.of(NAME1);
+  private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
   private static final CurveName NAME2 = CurveName.of("NAME-2");
-  private static final CurveMetadata METADATA2 = CurveMetadata.of(NAME2);
+  private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of(NAME2);
   private static final CurveName NAME3 = CurveName.of("NAME-3");
-  private static final CurveMetadata METADATA3 = CurveMetadata.of(NAME3);
+  private static final CurveMetadata METADATA3 = DefaultCurveMetadata.of(NAME3);
 
   private static final CurveUnitParameterSensitivity ENTRY1 =
       CurveUnitParameterSensitivity.of(METADATA1, VECTOR1);

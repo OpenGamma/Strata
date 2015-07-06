@@ -36,7 +36,7 @@ public class IborRateSensitivityTest {
   }
 
   public void test_of_withCurrency() {
-    IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M, GBP, date(2015, 8, 27), 32d);
+    IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), GBP, 32d);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFixingDate(), date(2015, 8, 27));
@@ -49,7 +49,7 @@ public class IborRateSensitivityTest {
     IborRateSensitivity base = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     assertSame(base.withCurrency(GBP), base);
 
-    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, USD, date(2015, 8, 27), 32d);
+    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), USD, 32d);
     IborRateSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);
   }
@@ -63,22 +63,22 @@ public class IborRateSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_compareExcludingSensitivity() {
+  public void test_compareKey() {
     IborRateSensitivity a1 = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     IborRateSensitivity a2 = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     IborRateSensitivity b = IborRateSensitivity.of(USD_LIBOR_3M, date(2015, 8, 27), 32d);
-    IborRateSensitivity c = IborRateSensitivity.of(GBP_LIBOR_3M, USD, date(2015, 8, 27), 32d);
+    IborRateSensitivity c = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), USD, 32d);
     IborRateSensitivity d = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 9, 27), 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
-    assertEquals(a1.compareExcludingSensitivity(a2), 0);
-    assertEquals(a1.compareExcludingSensitivity(b) < 0, true);
-    assertEquals(b.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(c) < 0, true);
-    assertEquals(c.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(d) < 0, true);
-    assertEquals(d.compareExcludingSensitivity(a1) > 0, true);
-    assertEquals(a1.compareExcludingSensitivity(other) < 0, true);
-    assertEquals(other.compareExcludingSensitivity(a1) > 0, true);
+    assertEquals(a1.compareKey(a2), 0);
+    assertEquals(a1.compareKey(b) < 0, true);
+    assertEquals(b.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(c) < 0, true);
+    assertEquals(c.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(d) < 0, true);
+    assertEquals(d.compareKey(a1) > 0, true);
+    assertEquals(a1.compareKey(other) < 0, true);
+    assertEquals(other.compareKey(a1) > 0, true);
   }
 
   //-------------------------------------------------------------------------
@@ -149,7 +149,7 @@ public class IborRateSensitivityTest {
   public void coverage() {
     IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
     coverImmutableBean(test);
-    IborRateSensitivity test2 = IborRateSensitivity.of(USD_LIBOR_3M, USD, date(2015, 7, 27), 16d);
+    IborRateSensitivity test2 = IborRateSensitivity.of(USD_LIBOR_3M, date(2015, 7, 27), USD, 16d);
     coverBeanEquals(test, test2);
   }
 

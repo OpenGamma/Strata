@@ -35,7 +35,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_single_curve() {
-    CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.USD_SINGLE, this::fn);
+    CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.SINGLE_USD, this::fn);
     double[] times = RatesProviderDataSets.TIMES_1;
     assertEquals(sensiComputed.size(), 1);
     double[] s = sensiComputed.getSensitivities().get(0).getSensitivity();
@@ -99,7 +99,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     return result;
   }
 
-  // check that the curve is yield curve and the underlying is an InterpolatedDoublesCurve and returns the last
+  // check that the curve is InterpolatedNodalCurve
   private InterpolatedNodalCurve checkInterpolated(Curve curve) {
     ArgChecker.isTrue(curve instanceof InterpolatedNodalCurve, "Curve should be a InterpolatedNodalCurve");
     return (InterpolatedNodalCurve) curve;

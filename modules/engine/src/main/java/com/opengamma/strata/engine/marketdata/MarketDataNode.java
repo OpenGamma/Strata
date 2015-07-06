@@ -68,8 +68,8 @@ class MarketDataNode {
    * @return the root node of the market data dependency tree
    */
   static MarketDataNode buildDependencyTree(
-      MarketDataRequirements requirements,
-      BaseMarketData suppliedData,
+      CalculationRequirements requirements,
+      MarketEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 

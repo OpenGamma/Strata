@@ -17,7 +17,7 @@ import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketDa
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
@@ -69,7 +69,7 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
 
   //-------------------------------------------------------------------------
   @Override
-  public CalculationRequirements requirements(FxNonDeliverableForwardTrade trade) {
+  public FunctionRequirements requirements(FxNonDeliverableForwardTrade trade) {
     FxNonDeliverableForward fx = trade.getProduct();
     Currency settleCurrency = fx.getSettlementCurrency();
     Currency otherCurrency = fx.getNonDeliverableCurrency();
@@ -77,7 +77,7 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
     Set<DiscountFactorsKey> discountCurveKeys =
         ImmutableSet.of(DiscountFactorsKey.of(settleCurrency), DiscountFactorsKey.of(otherCurrency));
 
-    return CalculationRequirements.builder()
+    return FunctionRequirements.builder()
         .singleValueRequirements(discountCurveKeys)
         .timeSeriesRequirements()
         .outputCurrencies(settleCurrency, otherCurrency)

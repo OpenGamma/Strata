@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 class ScenarioMarketDataLookup implements MarketDataLookup {
 
   /** The market data for a set of scenarios. */
-  private final ScenarioMarketData marketData;
+  private final ScenarioCalculationEnvironment marketData;
 
   /** The index of a single scenario. */
   private final int scenarioNumber;
@@ -31,7 +31,7 @@ class ScenarioMarketDataLookup implements MarketDataLookup {
    * @param marketData  a set of market data for multiple scenarios
    * @param scenarioNumber  the index of the scenario in which data should be looked up
    */
-  ScenarioMarketDataLookup(ScenarioMarketData marketData, int scenarioNumber) {
+  ScenarioMarketDataLookup(ScenarioCalculationEnvironment marketData, int scenarioNumber) {
     this.marketData = marketData;
     this.scenarioNumber = scenarioNumber;
   }

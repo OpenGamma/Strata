@@ -76,31 +76,6 @@ public final class IborFutureOptionSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an {@code IborFutureOptionSensitivity} from the key, value and currency.
-   * 
-   * @param index  the index of the curve
-   * @param expiryDate  the expiry date of the option
-   * @param fixingDate  the fixing date of the underlying future
-   * @param strikePrice  the strike price of the option
-   * @param futurePrice  the price of the underlying future
-   * @param currency  the currency of the sensitivity
-   * @param sensitivity  the value of the sensitivity
-   * @return the point sensitivity object
-   */
-  public static IborFutureOptionSensitivity of(
-      IborIndex index,
-      LocalDate expiryDate,
-      LocalDate fixingDate,
-      double strikePrice,
-      double futurePrice,
-      Currency currency,
-      double sensitivity) {
-
-    return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, currency, sensitivity);
-  }
-
-  /**
    * Obtains an {@code IborFutureOptionSensitivity} from the key and value.
    * <p>
    * The currency is defaulted from the index.
@@ -125,6 +100,31 @@ public final class IborFutureOptionSensitivity
         index, expiryDate, fixingDate, strikePrice, futurePrice, index.getCurrency(), sensitivity);
   }
 
+  /**
+   * Obtains an {@code IborFutureOptionSensitivity} from the key, sensitivity currency and value.
+   * 
+   * @param index  the index of the curve
+   * @param expiryDate  the expiry date of the option
+   * @param fixingDate  the fixing date of the underlying future
+   * @param strikePrice  the strike price of the option
+   * @param futurePrice  the price of the underlying future
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @param sensitivity  the value of the sensitivity
+   * @return the point sensitivity object
+   */
+  public static IborFutureOptionSensitivity of(
+      IborIndex index,
+      LocalDate expiryDate,
+      LocalDate fixingDate,
+      double strikePrice,
+      double futurePrice,
+      Currency sensitivityCurrency,
+      double sensitivity) {
+
+    return new IborFutureOptionSensitivity(
+        index, expiryDate, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public IborFutureOptionSensitivity withCurrency(Currency currency) {
@@ -142,7 +142,7 @@ public final class IborFutureOptionSensitivity
   }
 
   @Override
-  public int compareExcludingSensitivity(PointSensitivity other) {
+  public int compareKey(PointSensitivity other) {
     if (other instanceof IborFutureOptionSensitivity) {
       IborFutureOptionSensitivity otherOption = (IborFutureOptionSensitivity) other;
       return ComparisonChain.start()

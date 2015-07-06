@@ -25,10 +25,10 @@ import com.opengamma.strata.engine.calculations.function.CurrencyConvertible;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationRequirements;
+import com.opengamma.strata.engine.marketdata.CalculationRequirementsBuilder;
 import com.opengamma.strata.engine.marketdata.DefaultCalculationMarketData;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
-import com.opengamma.strata.engine.marketdata.MarketDataRequirementsBuilder;
-import com.opengamma.strata.engine.marketdata.ScenarioMarketData;
+import com.opengamma.strata.engine.marketdata.FunctionRequirements;
+import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
 /**
@@ -93,15 +93,15 @@ public class CalculationTask {
    *
    * @return requirements specifying the market data the function needs to perform its calculations
    */
-  public MarketDataRequirements requirements() {
-    CalculationRequirements calculationRequirements = function.requirements(target);
-    MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
+  public CalculationRequirements requirements() {
+    FunctionRequirements functionRequirements = function.requirements(target);
+    CalculationRequirementsBuilder requirementsBuilder = CalculationRequirements.builder();
 
-    calculationRequirements.getTimeSeriesRequirements().stream()
+    functionRequirements.getTimeSeriesRequirements().stream()
         .map(marketDataMappings::getIdForObservableKey)
         .forEach(requirementsBuilder::addTimeSeries);
 
-    for (MarketDataKey<?> key : calculationRequirements.getSingleValueRequirements()) {
+    for (MarketDataKey<?> key : functionRequirements.getSingleValueRequirements()) {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
     Optional<Currency> optionalReportingCurrency =
@@ -111,7 +111,7 @@ public class CalculationTask {
       Currency reportingCurrency = optionalReportingCurrency.get();
 
       // Add requirements for the FX rates needed to convert the output values into the reporting currency
-      List<MarketDataId<FxRate>> fxRateIds = calculationRequirements.getOutputCurrencies().stream()
+      List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
           .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
           .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
           .map(FxRateKey::of)
@@ -141,7 +141,7 @@ public class CalculationTask {
    * @param scenarioData  the market data used in the calculation
    * @return results of the calculation, one for every scenario in the market data
    */
-  public CalculationResult execute(ScenarioMarketData scenarioData) {
+  public CalculationResult execute(ScenarioCalculationEnvironment scenarioData) {
     CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
     Result<?> result;
 

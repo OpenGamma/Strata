@@ -35,11 +35,13 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
  */
 @Test
 public class DiscountingFxNonDeliverableForwardProductPricerTest {
+
   private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
   private static final Currency KRW = Currency.KRW;
   private static final Currency USD = Currency.USD;
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2012, 5, 4);
+  private static final LocalDate PAYMENT_DATE = RatesProviderFxDataSets.VAL_DATE_2014_01_22.plusWeeks(8);
+  private static final LocalDate PAYMENT_DATE_PAST = RatesProviderFxDataSets.VAL_DATE_2014_01_22.minusDays(1);
   private static final double NOMINAL_USD = 100_000_000;
   private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(USD, NOMINAL_USD);
   private static final double FX_RATE = 1123.45;
@@ -78,7 +80,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
         FxNonDeliverableForward.builder()
             .settlementCurrencyNotional(CURRENCY_NOTIONAL)
             .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-            .paymentDate(LocalDate.of(2011, 5, 4))
+            .paymentDate(PAYMENT_DATE_PAST)
             .index(INDEX)
             .build();
     CurrencyAmount computed = PRICER.presentValue(ndf, PROVIDER);
@@ -111,7 +113,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
         FxNonDeliverableForward.builder()
             .settlementCurrencyNotional(CURRENCY_NOTIONAL)
             .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-            .paymentDate(LocalDate.of(2011, 5, 4))
+            .paymentDate(PAYMENT_DATE_PAST)
             .index(INDEX)
             .build();
     PointSensitivities computed = PRICER.presentValueSensitivity(ndf, PROVIDER);
@@ -137,7 +139,7 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   public void forwardRateVsForex() {
     FxRate fwdNDF = PRICER.forwardFxRate(NDF, PROVIDER);
     FxRate fwdFX = PRICER_FX.forwardFxRate(FOREX, PROVIDER);
-    assertEquals(fwdNDF, fwdFX);
+    assertEquals(fwdNDF.fxRate(fwdNDF.getPair()), fwdFX.fxRate(fwdFX.getPair()), 1e-10);
   }
 
   // Checks that the NDF present value sensitivity is coherent with the standard FX forward present value.
