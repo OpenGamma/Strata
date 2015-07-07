@@ -26,8 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -193,6 +195,28 @@ public final class DiscountFxForwardRates
 
     return discountFactorsRefBase.curveParameterSensitivity(dfCcyBaseAtMaturitySensitivity)
         .combinedWith(discountFactorsRefCounter.curveParameterSensitivity(dfCcyCounterAtMaturitySensitivity));
+  }
+
+  @Override
+  public MultiCurrencyAmount currencyExposure(FxForwardSensitivity pointSensitivity) {
+    ArgChecker.isTrue(pointSensitivity.getCurrency().equals(pointSensitivity.getReferenceCurrency()),
+        "Currency exposure definited only when sensitiivty currency equal reference currency");
+    Currency ccyRef = pointSensitivity.getReferenceCurrency();
+    CurrencyPair pair = pointSensitivity.getCurrencyPair();
+    double s = pointSensitivity.getSensitivity();
+    LocalDate d = pointSensitivity.getReferenceDate();
+    double f = fxRateProvider.fxRate(pair.getBase(), pair.getCounter());
+    double pA = baseCurrencyDiscountFactors.discountFactor(d);
+    double pB = counterCurrencyDiscountFactors.discountFactor(d);
+    if (ccyRef.equals(pair.getBase())) {
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * f * pA / pB);
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -s * f * f * pA / pB);
+      return MultiCurrencyAmount.of(amountBase, amountCounter);
+    } else {
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -s * pB / (pA * f * f));
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * pB / (pA * f));
+      return MultiCurrencyAmount.of(amountBase, amountCounter);
+    }
   }
 
   //-------------------------------------------------------------------------

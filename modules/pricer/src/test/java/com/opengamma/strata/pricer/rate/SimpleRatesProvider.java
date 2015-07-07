@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -135,6 +136,11 @@ public class SimpleRatesProvider
 
   @Override
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities) {
     throw new UnsupportedOperationException();
   }
 

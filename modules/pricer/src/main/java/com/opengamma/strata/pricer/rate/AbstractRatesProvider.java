@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate;
 
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -59,6 +60,19 @@ public abstract class AbstractRatesProvider
       }
     }
     return sens;
+  }
+
+  @Override
+  public MultiCurrencyAmount currencyExposure(PointSensitivities sensitivities) {
+    MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
+    for (PointSensitivity point : sensitivities.getSensitivities()) {
+      if (point instanceof FxIndexSensitivity) {
+        FxIndexSensitivity pt = (FxIndexSensitivity) point;
+        FxIndexRates rates = fxIndexRates(pt.getIndex());
+        ce = ce.plus(rates.currencyExposure(pt));
+      }
+    }
+    return ce;
   }
 
 }

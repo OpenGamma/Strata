@@ -8,6 +8,7 @@ package com.opengamma.strata.market.value;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -106,5 +107,16 @@ public interface FxIndexRates {
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity pointSensitivity);
+
+  /**
+   * Calculates the currency exposure from the point sensitivity.
+   * <p>
+   * This is used to convert a single point sensitivity to currency exposure.
+   * 
+   * @param pointSensitivity  the point sensitivity to convert
+   * @return the currency exposure
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract MultiCurrencyAmount currencyExposure(FxIndexSensitivity pointSensitivity);
 
 }
