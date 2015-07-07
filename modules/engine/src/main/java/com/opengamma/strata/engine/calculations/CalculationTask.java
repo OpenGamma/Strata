@@ -95,7 +95,7 @@ public class CalculationTask {
    */
   public CalculationTaskRequirements requirements() {
     FunctionRequirements functionRequirements = function.requirements(target);
-    CalculationTaskRequirementsBuilder requirementsBuilder = CalculationTaskRequirements.builder();
+    CalculationTaskRequirementsBuilder requirementsBuilder = CalculationTaskRequirements.builder(rowIndex, columnIndex);
 
     functionRequirements.getTimeSeriesRequirements().stream()
         .map(marketDataMappings::getIdForObservableKey)

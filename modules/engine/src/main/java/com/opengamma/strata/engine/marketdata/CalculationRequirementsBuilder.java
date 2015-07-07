@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
 
+// TODO This is only used in tests, should it move to the test root?
 /**
  * Mutable builder for creating instances of {@link CalculationRequirements}.
  */
@@ -84,26 +85,17 @@ public final class CalculationRequirementsBuilder {
   }
 
   /**
-   * Adds all requirements from an instance of {@code CalculationRequirements} to this builder.
-   *
-   * @param requirements  a set of requirements
-   * @return this builder
-   */
-  public CalculationRequirementsBuilder addRequirements(CalculationRequirements requirements) {
-    ArgChecker.notNull(requirements, "requirements");
-    observables.addAll(requirements.getObservables());
-    nonObservables.addAll(requirements.getNonObservables());
-    timeSeries.addAll(requirements.getTimeSeries());
-    outputCurrencies.addAll(requirements.getOutputCurrencies());
-    return this;
-  }
-
-  /**
    * Returns a set of market data requirements built from the data in this builder.
    *
    * @return a set of market data requirements built from the data in this builder
    */
   public CalculationRequirements build() {
-    return new CalculationRequirements(observables, nonObservables, timeSeries, outputCurrencies);
+    return new CalculationRequirements(
+        observables,
+        nonObservables,
+        timeSeries,
+        outputCurrencies,
+        // TODO This might or might not be sufficient
+        LocalScenarioDefinitions.empty());
   }
 }

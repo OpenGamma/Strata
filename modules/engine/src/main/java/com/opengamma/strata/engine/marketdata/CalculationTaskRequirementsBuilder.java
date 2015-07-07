@@ -24,6 +24,12 @@ import com.opengamma.strata.engine.marketdata.scenarios.LocalScenarioDefinition;
  */
 public final class CalculationTaskRequirementsBuilder {
 
+  /** The row index of the value in the results grid. */
+  private final int rowIndex;
+
+  /** The column index of the value in the results grid. */
+  private final int columnIndex;
+
   /** IDs identifying the observable market data values required for the calculations. */
   private final Set<ObservableId> observables = new HashSet<>();
 
@@ -37,6 +43,12 @@ public final class CalculationTaskRequirementsBuilder {
   private final Set<Currency> outputCurrencies = new HashSet<>();
 
   private final List<LocalScenarioDefinition> localScenarios = new ArrayList<>();
+
+  // package-private constructor used by CalculationTaskRequirements.builder()
+  CalculationTaskRequirementsBuilder(int rowIndex, int columnIndex) {
+    this.rowIndex = rowIndex;
+    this.columnIndex = columnIndex;
+  }
 
   /**
    * Adds requirements for time series of observable market data.
@@ -120,6 +132,13 @@ public final class CalculationTaskRequirementsBuilder {
    * @return a set of market data requirements built from the data in this builder
    */
   public CalculationTaskRequirements build() {
-    return new CalculationTaskRequirements(observables, nonObservables, timeSeries, outputCurrencies, localScenarios);
+    return new CalculationTaskRequirements(
+        rowIndex,
+        columnIndex,
+        observables,
+        nonObservables,
+        timeSeries,
+        outputCurrencies,
+        localScenarios);
   }
 }

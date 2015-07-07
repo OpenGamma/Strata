@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.engine.marketdata.scenarios.LocalScenarioDefinition;
 
+// TODO This needs to know the cell of the task. But what about functions that can calculate multiple results?
 /**
  * A collection of market data IDs specifying the market data required for performing a set of calculations.
  */
@@ -38,7 +39,15 @@ import com.opengamma.strata.engine.marketdata.scenarios.LocalScenarioDefinition;
 public final class CalculationTaskRequirements implements ImmutableBean {
 
   /** A set of requirements which specifies that no market data is required. */
-  private static final CalculationTaskRequirements EMPTY = CalculationTaskRequirements.builder().build();
+  //private static final CalculationTaskRequirements EMPTY = CalculationTaskRequirements.builder().build();
+
+  /** The row index of the value in the results grid. */
+  @PropertyDefinition
+  private final int rowIndex;
+
+  /** The column index of the value in the results grid. */
+  @PropertyDefinition
+  private final int columnIndex;
 
   /** Keys identifying the market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
@@ -69,8 +78,8 @@ public final class CalculationTaskRequirements implements ImmutableBean {
    *
    * @return an empty mutable builder for building up a set of requirements
    */
-  public static CalculationTaskRequirementsBuilder builder() {
-    return new CalculationTaskRequirementsBuilder();
+  public static CalculationTaskRequirementsBuilder builder(int rowIndex, int columnIndex) {
+    return new CalculationTaskRequirementsBuilder(rowIndex, columnIndex);
   }
 
   /**
@@ -78,9 +87,9 @@ public final class CalculationTaskRequirements implements ImmutableBean {
    *
    * @return a set of requirements specifying that no market data is required
    */
-  public static CalculationTaskRequirements empty() {
-    return EMPTY;
-  }
+  //public static CalculationTaskRequirements empty() {
+  //  return EMPTY;
+  //}
 
   /**
    * Returns a set of calculation requirements built from a set of market data requirements.
@@ -88,23 +97,28 @@ public final class CalculationTaskRequirements implements ImmutableBean {
    * @param marketDataRequirements  a set of requirements for market data
    * @return a set of calculation requirements built from a set of market data requirements
    */
-  public static CalculationTaskRequirements of(MarketDataRequirements marketDataRequirements) {
-    return CalculationTaskRequirements.builder()
-        .addValues(marketDataRequirements.getObservables())
-        .addValues(marketDataRequirements.getNonObservables())
-        .addTimeSeries(marketDataRequirements.getTimeSeries())
-        .build();
-  }
+  //public static CalculationTaskRequirements of(MarketDataRequirements marketDataRequirements) {
+  //  // TODO How is this going to work?
+  //  return CalculationTaskRequirements.builder()
+  //      .addValues(marketDataRequirements.getObservables())
+  //      .addValues(marketDataRequirements.getNonObservables())
+  //      .addTimeSeries(marketDataRequirements.getTimeSeries())
+  //      .build();
+  //}
 
   // package-private constructor, used by MarketDataRequirementsBuilder
   @ImmutableConstructor
   CalculationTaskRequirements(
+      int rowIndex,
+      int columnIndex,
       Set<? extends ObservableId> observables,
       Set<? extends MarketDataId<?>> nonObservables,
       Set<ObservableId> timeSeries,
       Set<Currency> outputCurrencies,
       List<LocalScenarioDefinition> localScenarios) {
 
+    this.rowIndex = rowIndex;
+    this.columnIndex = columnIndex;
     this.observables = ImmutableSet.copyOf(observables);
     this.nonObservables = ImmutableSet.copyOf(nonObservables);
     this.timeSeries = ImmutableSet.copyOf(timeSeries);
@@ -139,6 +153,24 @@ public final class CalculationTaskRequirements implements ImmutableBean {
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the row index of the value in the results grid.
+   * @return the value of the property
+   */
+  public int getRowIndex() {
+    return rowIndex;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the column index of the value in the results grid.
+   * @return the value of the property
+   */
+  public int getColumnIndex() {
+    return columnIndex;
   }
 
   //-----------------------------------------------------------------------
@@ -196,7 +228,9 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculationTaskRequirements other = (CalculationTaskRequirements) obj;
-      return JodaBeanUtils.equal(getObservables(), other.getObservables()) &&
+      return (getRowIndex() == other.getRowIndex()) &&
+          (getColumnIndex() == other.getColumnIndex()) &&
+          JodaBeanUtils.equal(getObservables(), other.getObservables()) &&
           JodaBeanUtils.equal(getNonObservables(), other.getNonObservables()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
           JodaBeanUtils.equal(getOutputCurrencies(), other.getOutputCurrencies()) &&
@@ -208,6 +242,8 @@ public final class CalculationTaskRequirements implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRowIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getObservables());
     hash = hash * 31 + JodaBeanUtils.hashCode(getNonObservables());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
@@ -218,8 +254,10 @@ public final class CalculationTaskRequirements implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("CalculationTaskRequirements{");
+    buf.append("rowIndex").append('=').append(getRowIndex()).append(',').append(' ');
+    buf.append("columnIndex").append('=').append(getColumnIndex()).append(',').append(' ');
     buf.append("observables").append('=').append(getObservables()).append(',').append(' ');
     buf.append("nonObservables").append('=').append(getNonObservables()).append(',').append(' ');
     buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
@@ -239,6 +277,16 @@ public final class CalculationTaskRequirements implements ImmutableBean {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code rowIndex} property.
+     */
+    private final MetaProperty<Integer> rowIndex = DirectMetaProperty.ofImmutable(
+        this, "rowIndex", CalculationTaskRequirements.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code columnIndex} property.
+     */
+    private final MetaProperty<Integer> columnIndex = DirectMetaProperty.ofImmutable(
+        this, "columnIndex", CalculationTaskRequirements.class, Integer.TYPE);
     /**
      * The meta-property for the {@code observables} property.
      */
@@ -274,6 +322,8 @@ public final class CalculationTaskRequirements implements ImmutableBean {
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "rowIndex",
+        "columnIndex",
         "observables",
         "nonObservables",
         "timeSeries",
@@ -289,6 +339,10 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 23238424:  // rowIndex
+          return rowIndex;
+        case -855241956:  // columnIndex
+          return columnIndex;
         case 121811856:  // observables
           return observables;
         case 824041091:  // nonObservables
@@ -319,6 +373,22 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code rowIndex} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> rowIndex() {
+      return rowIndex;
+    }
+
+    /**
+     * The meta-property for the {@code columnIndex} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> columnIndex() {
+      return columnIndex;
+    }
+
     /**
      * The meta-property for the {@code observables} property.
      * @return the meta-property, not null
@@ -363,6 +433,10 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 23238424:  // rowIndex
+          return ((CalculationTaskRequirements) bean).getRowIndex();
+        case -855241956:  // columnIndex
+          return ((CalculationTaskRequirements) bean).getColumnIndex();
         case 121811856:  // observables
           return ((CalculationTaskRequirements) bean).getObservables();
         case 824041091:  // nonObservables
@@ -394,6 +468,8 @@ public final class CalculationTaskRequirements implements ImmutableBean {
    */
   private static final class Builder extends DirectFieldsBeanBuilder<CalculationTaskRequirements> {
 
+    private int rowIndex;
+    private int columnIndex;
     private Set<ObservableId> observables = ImmutableSet.of();
     private Set<MarketDataId<?>> nonObservables = ImmutableSet.of();
     private Set<ObservableId> timeSeries = ImmutableSet.of();
@@ -410,6 +486,10 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 23238424:  // rowIndex
+          return rowIndex;
+        case -855241956:  // columnIndex
+          return columnIndex;
         case 121811856:  // observables
           return observables;
         case 824041091:  // nonObservables
@@ -429,6 +509,12 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 23238424:  // rowIndex
+          this.rowIndex = (Integer) newValue;
+          break;
+        case -855241956:  // columnIndex
+          this.columnIndex = (Integer) newValue;
+          break;
         case 121811856:  // observables
           this.observables = (Set<ObservableId>) newValue;
           break;
@@ -477,6 +563,8 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     @Override
     public CalculationTaskRequirements build() {
       return new CalculationTaskRequirements(
+          rowIndex,
+          columnIndex,
           observables,
           nonObservables,
           timeSeries,
@@ -487,8 +575,10 @@ public final class CalculationTaskRequirements implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("CalculationTaskRequirements.Builder{");
+      buf.append("rowIndex").append('=').append(JodaBeanUtils.toString(rowIndex)).append(',').append(' ');
+      buf.append("columnIndex").append('=').append(JodaBeanUtils.toString(columnIndex)).append(',').append(' ');
       buf.append("observables").append('=').append(JodaBeanUtils.toString(observables)).append(',').append(' ');
       buf.append("nonObservables").append('=').append(JodaBeanUtils.toString(nonObservables)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
