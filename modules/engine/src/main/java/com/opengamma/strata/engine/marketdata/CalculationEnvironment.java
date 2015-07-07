@@ -78,6 +78,8 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
 
+  // TODO Local scenarios
+
   /**
    * Returns a calculation environment containing the market data from a market environment.
    *

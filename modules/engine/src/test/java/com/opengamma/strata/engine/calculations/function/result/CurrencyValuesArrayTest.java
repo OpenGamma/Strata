@@ -39,7 +39,10 @@ public class CurrencyValuesArrayTest {
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(
+        rowIndex,
+        columnIndex,
+        marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(Currency.USD, calculationMarketData);
     double[] expectedValues = {1 * 1.61, 2 * 1.62, 3 * 1.63};
@@ -55,7 +58,10 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(
+        rowIndex,
+        columnIndex,
+        marketData, mappings);
 
     CurrencyValuesArray convertedList = list.convertedTo(Currency.GBP, calculationMarketData);
     assertThat(convertedList).isEqualTo(list);
@@ -69,7 +75,10 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray list = CurrencyValuesArray.of(Currency.GBP, values);
     ScenarioCalculationEnvironment marketData = ScenarioCalculationEnvironment.builder(3, date(2011, 3, 8)).build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(
+        rowIndex,
+        columnIndex,
+        marketData, mappings);
 
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),
@@ -90,7 +99,10 @@ public class CurrencyValuesArrayTest {
         .addValues(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = new DefaultCalculationMarketData(
+        rowIndex,
+        columnIndex,
+        marketData, mappings);
 
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),

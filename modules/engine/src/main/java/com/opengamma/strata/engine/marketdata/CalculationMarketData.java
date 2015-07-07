@@ -73,6 +73,7 @@ public interface CalculationMarketData {
    */
   public abstract <T, K extends MarketDataKey<T>> T getGlobalValue(K key);
 
+  // TODO This doesn't smell great. The returned object also has getScenarioData but we only want to nest 1 deep
   /**
    * Returns the market data for a local scenario.
    * <p>

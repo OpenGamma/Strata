@@ -144,7 +144,8 @@ public class CalculationTask {
    * @return results of the calculation, one for every scenario in the market data
    */
   public CalculationResult execute(ScenarioCalculationEnvironment scenarioData) {
-    CalculationMarketData calculationData = new DefaultCalculationMarketData(scenarioData, marketDataMappings);
+    CalculationMarketData calculationData =
+        new DefaultCalculationMarketData(rowIndex, columnIndex, scenarioData, marketDataMappings);
     Result<?> result;
 
     try {
