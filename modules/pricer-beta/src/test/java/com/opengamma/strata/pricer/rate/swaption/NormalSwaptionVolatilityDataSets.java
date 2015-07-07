@@ -5,7 +5,11 @@
  */
 package com.opengamma.strata.pricer.rate.swaption;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,7 +20,12 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.finance.rate.swap.type.FixedRateSwapLegConvention;
+import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.provider.NormalVolatilityExpiryTenorSwaptionProvider;
 
@@ -48,9 +57,15 @@ public class NormalSwaptionVolatilityDataSets {
   private static final LocalDate VALUATION_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalTime VALUATION_TIME_STD = LocalTime.of(13, 45);
   private static final ZoneId VALUATION_ZONE_STD = ZoneId.of("Europe/London");
-  
+  private static final BusinessDayAdjustment MOD_FOL_US = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
+  private static final FixedRateSwapLegConvention USD_FIXED_1Y_30U360 = 
+      FixedRateSwapLegConvention.of(USD, THIRTY_U_360, Frequency.P6M, MOD_FOL_US);
+  private static final IborRateSwapLegConvention USD_IBOR_LIBOR3M =
+      IborRateSwapLegConvention.of(USD_LIBOR_3M);
+  public static final FixedIborSwapConvention USD_1Y_LIBOR3M = 
+      FixedIborSwapConvention.of(USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_STD = 
-      NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_LIBOR_3M, DayCounts.ACT_365F, 
+      NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_STD, USD_1Y_LIBOR3M, DayCounts.ACT_365F, 
           VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
   
   /**
@@ -65,7 +80,7 @@ public class NormalSwaptionVolatilityDataSets {
     }
     return NormalVolatilityExpiryTenorSwaptionProvider.of(
         new InterpolatedDoublesSurface(TIMES, TENOR, volShifted, INTERPOLATOR_2D), 
-        USD_LIBOR_3M, DayCounts.ACT_365F, VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
+        USD_1Y_LIBOR3M, DayCounts.ACT_365F, VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
   }
   
   //     =====     Flat volatilities for testing     =====
@@ -77,7 +92,7 @@ public class NormalSwaptionVolatilityDataSets {
       new InterpolatedDoublesSurface(TIMES_FLAT, TENOR_FLAT, NORMAL_VOL_FLAT, INTERPOLATOR_2D);
   
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT = 
-      NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_FLAT, USD_LIBOR_3M, DayCounts.ACT_365F, 
+      NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_FLAT, USD_1Y_LIBOR3M, DayCounts.ACT_365F, 
           VALUATION_DATE_STD, VALUATION_TIME_STD, VALUATION_ZONE_STD);
       
   
@@ -120,7 +135,7 @@ public class NormalSwaptionVolatilityDataSets {
   private static final ZoneId VALUATION_ZONE_20150320 = ZoneId.of("Europe/London");
   
   public static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_20150320 = 
-      NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_20150320, USD_LIBOR_3M, DayCounts.ACT_365F, 
+      NormalVolatilityExpiryTenorSwaptionProvider.of(SURFACE_20150320, USD_1Y_LIBOR3M, DayCounts.ACT_365F, 
           VALUATION_DATE_20150320, VALUATION_TIME_20150320, VALUATION_ZONE_20150320);  
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate.swaption;
 
+import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -12,7 +13,10 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -37,6 +41,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -56,9 +61,9 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
- * Tests {@link NormalSwaptionProductPricerBeta}.
+ * Tests {@link NormalSwaptionPhysicalProductPricerBeta}.
  */
-public class NormalSwaptionProductPricerTest {
+public class NormalSwaptionPhysicalProductPricerBetaTest {
   
   private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
   
@@ -86,10 +91,13 @@ public class NormalSwaptionProductPricerTest {
   private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().cashSettled(false)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_PAY).build();
+  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder().cashSettled(true)
+      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG).underlying(SWAP_REC).build();
 
   public static final NormalPriceFunction NORMAL = new NormalPriceFunction();
 
-  private static final NormalSwaptionProductPricerBeta PRICER_SWAPTION_NORMAL = NormalSwaptionProductPricerBeta.DEFAULT;
+  private static final NormalSwaptionPhysicalProductPricerBeta PRICER_SWAPTION_NORMAL = NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
   private static final double FD_SHIFT = 0.5E-8;
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR = 
@@ -106,6 +114,12 @@ public class NormalSwaptionProductPricerTest {
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
   private static final double TOLERANCE_PV_VEGA = 1.0E+4;
   private static final double TOLERANCE_RATE = 1.0E-8;
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void validate_physical_settlement() {
+    assertThrowsIllegalArg(() -> PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD));
+  }
 
   //-------------------------------------------------------------------------
   @Test
@@ -203,7 +217,7 @@ public class NormalSwaptionProductPricerTest {
         .presentValueSensitivityNormalVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvnvsAd.getCurrency(), USD);
     assertEquals(pvnvsAd.getSensitivity(), pvnvsFd, TOLERANCE_PV_VEGA);
-    assertEquals(pvnvsAd.getIndex(), USD_LIBOR_3M);
+    assertEquals(pvnvsAd.getConvention(), NormalSwaptionVolatilityDataSets.USD_1Y_LIBOR3M);
     assertEquals(pvnvsAd.getExpiry(), SWAPTION_LONG_PAY.getExpiryDateTime());
     assertEquals(pvnvsAd.getTenor(), SWAP_TENOR_YEAR, TOLERANCE_RATE);
     assertEquals(pvnvsAd.getStrike(), STRIKE, TOLERANCE_RATE);

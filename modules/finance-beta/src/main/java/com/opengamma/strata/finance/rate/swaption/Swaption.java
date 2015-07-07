@@ -50,6 +50,7 @@ public class Swaption
   /**
    * Whether the option is cash settled, defaulted to physical.
    * TODO: cash/physical could be better. There is an enumeration of possibilities in FPML and ISDA definitions
+   * Probably a different class is required for cash settlement vs a swap index as we need a new field for the swap index.
    */
   @PropertyDefinition
   private final boolean cashSettled;
@@ -183,6 +184,7 @@ public class Swaption
   /**
    * Gets whether the option is cash settled, defaulted to physical.
    * TODO: cash/physical could be better. There is an enumeration of possibilities in FPML and ISDA definitions
+   * Probably a different class is required for cash settlement vs a swap index as we need a new field for the swap index.
    * @return the value of the property
    */
   public boolean isCashSettled() {

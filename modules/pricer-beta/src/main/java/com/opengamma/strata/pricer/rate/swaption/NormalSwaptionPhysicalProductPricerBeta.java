@@ -29,7 +29,7 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
- * Pricer for swaption in a normal model on the swap rate.
+ * Pricer for swaption with physical settlement in a normal model on the swap rate.
  * <p>
  * The swap underlying the swaption should have a fixed leg on which the forward rate is computed. The underlying swap
  * should be single currency.
@@ -37,12 +37,12 @@ import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
  * The volatility parameters are not adjusted for the underlying swap conventions. The volatilities from the provider
  * are taken as such.
  */
-public class NormalSwaptionProductPricerBeta {
+public class NormalSwaptionPhysicalProductPricerBeta {
 
   /**
    * Default implementation.
    */
-  public static final NormalSwaptionProductPricerBeta DEFAULT = new NormalSwaptionProductPricerBeta(
+  public static final NormalSwaptionPhysicalProductPricerBeta DEFAULT = new NormalSwaptionPhysicalProductPricerBeta(
       DiscountingSwapProductPricer.DEFAULT);
 
   /** Pricer for {@link SwapProduct}. */
@@ -56,7 +56,7 @@ public class NormalSwaptionProductPricerBeta {
    * 
    * @param swapPricer  the pricer for {@link Swap}
    */
-  public NormalSwaptionProductPricerBeta(DiscountingSwapProductPricer swapPricer) {
+  public NormalSwaptionPhysicalProductPricerBeta(DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "swap pricer");
   }
   
@@ -178,7 +178,7 @@ public class NormalSwaptionProductPricerBeta {
     // option required to pass the strike (in case the swap has non-constant coupon).
     // Backward sweep
     double vega = NORMAL.getVega(option, normalData) * ((swaption.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
-    return SwaptionSensitivity.of(volatilities.getIndex(), expiryDateTime, tenor, strike, forward, 
+    return SwaptionSensitivity.of(volatilities.getConvention(), expiryDateTime, tenor, strike, forward, 
         fixedLeg.getCurrency(), vega);
   }
 
@@ -198,6 +198,7 @@ public class NormalSwaptionProductPricerBeta {
     ArgChecker.isTrue(volatility.getValuationDate().equals(rates.getValuationDate()), 
         "volatility and rate data should be for the same date");
     ArgChecker.isFalse(swaption.getUnderlying().isCrossCurrency(), "underlying swap should be single currency");
+    ArgChecker.isFalse(swaption.isCashSettled(), "swaption should be physical settlement");
   }
 
 }
