@@ -5,19 +5,18 @@
  */
 package com.opengamma.strata.finance.rate.swap.type;
 
+import static org.testng.Assert.assertEquals;
+
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 /**
  * Test {@link FixedIborSwapConventions}.
@@ -28,7 +27,6 @@ import static org.testng.Assert.assertEquals;
 @Test
 public class FixedIborSwapConventionsTest {
 
-  //-------------------------------------------------------------------------
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {
     return new Object[][]{
@@ -116,10 +114,8 @@ public class FixedIborSwapConventionsTest {
     assertEquals(convention.getFloatingLeg().getIndex(), floatLeg);
   }
 
-  /**
-   * For vanilla swaps the holidays calendars on the fixed leg should be
-   * consistent with the maturity calendars on the floating leg
-   */
+  // For vanilla swaps the holidays calendars on the fixed leg should be
+  // consistent with the maturity calendars on the floating leg
   @Test(dataProvider = "floatLeg")
   public void test_holiday_calendars_match(FixedIborSwapConvention convention, IborIndex floatLeg) {
     assertEquals(
