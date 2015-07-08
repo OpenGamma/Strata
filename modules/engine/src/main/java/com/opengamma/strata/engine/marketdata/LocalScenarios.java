@@ -26,6 +26,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.engine.marketdata.scenarios.CellKey;
 
+// TODO This is used in ScenarioCalculationEnvironment but what about CalculationEnvironment?
+// Does there need to be another class like this that contains CalculationEnvironment instances?
+// The biggest problem is the name. We've used a "Scenario" prefix elsewhere in this situation but that's
+// not going to work here. ScenarioLocalScenarios anyone? Hmmm...
 /**
  *
  */
