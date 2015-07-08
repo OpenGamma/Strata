@@ -13,9 +13,11 @@ import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 
 /**
- * Calculates the present value of a {@code CdsTrade} for each of a set of scenarios.
+ * Calculates scalar IR01 of a {@code CdsTrade} for each of a set of scenarios.
+ * <p>
+ * This calculates the scalar PV change to a 1 basis point shift in zero rates.
  */
-public class CdsPvFunction
+public class CdsIr01ParallelZeroFunction
     extends AbstractCdsFunction<CurrencyAmount> {
 
   @Override
@@ -27,7 +29,7 @@ public class CdsPvFunction
       double recoveryRate,
       double scalingFactor) {
 
-    return pricer().presentValue(
+    return pricer().ir01ParallelZero(
         product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 

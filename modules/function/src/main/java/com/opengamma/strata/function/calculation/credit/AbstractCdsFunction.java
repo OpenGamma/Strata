@@ -31,8 +31,11 @@ import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.key.IsdaIndexCreditCurveParRatesKey;
+import com.opengamma.strata.market.key.IsdaIndexRecoveryRateKey;
 import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveParRatesKey;
+import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveParRatesKey;
+import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 
 /**
@@ -109,7 +112,7 @@ public abstract class AbstractCdsFunction<T>
       default:
         throw new IllegalStateException("unknown reference information type: " + cdsType);
     }
-    // TODO recovery rate and index factor as timeseries or their own market data values
+    // TODO index factor as static data behind a resolvable link
     return FunctionRequirements.builder()
         .singleValueRequirements(Sets.union(rateCurveKeys, spreadCurveKey))
         .outputCurrencies(ImmutableSet.of(notionalCurrency, feeCurrency))
@@ -138,23 +141,38 @@ public abstract class AbstractCdsFunction<T>
     ReferenceInformationType cdsType = referenceInformation.getType();
     // TODO see comment above on the other switch statement
     IsdaCreditCurveParRates creditCurveParRates;
+    CdsRecoveryRate cdsRecoveryRate;
     switch (cdsType) {
       case SINGLE_NAME:
         SingleNameReferenceInformation singleNameReferenceInformation = (SingleNameReferenceInformation) referenceInformation;
         IsdaSingleNameCreditCurveParRatesKey singleNameCreditCurveParRatesKey =
             IsdaSingleNameCreditCurveParRatesKey.of(singleNameReferenceInformation);
         creditCurveParRates = provider.getValue(singleNameCreditCurveParRatesKey);
+        IsdaSingleNameRecoveryRateKey singleNameRecoveryRateKey =
+            IsdaSingleNameRecoveryRateKey.of(singleNameReferenceInformation);
+        cdsRecoveryRate = provider.getValue(singleNameRecoveryRateKey);
         break;
       case INDEX:
         IndexReferenceInformation indexReferenceInformation = (IndexReferenceInformation) referenceInformation;
         IsdaIndexCreditCurveParRatesKey indexCreditCurveParRatesKey =
             IsdaIndexCreditCurveParRatesKey.of(indexReferenceInformation);
         creditCurveParRates = provider.getValue(indexCreditCurveParRatesKey);
+        IsdaIndexRecoveryRateKey indexRecoveryRateKey =
+            IsdaIndexRecoveryRateKey.of(indexReferenceInformation);
+        cdsRecoveryRate = provider.getValue(indexRecoveryRateKey);
         break;
       default:
         throw new IllegalStateException("unknown reference information type: " + cdsType);
     }
-    return execute(trade.getProduct().expand(), yieldCurveParRates, creditCurveParRates, provider.getValuationDate());
+    double recoveryRate = cdsRecoveryRate.getRecoveryRate();
+    double scalingFactor = creditCurveParRates.getScalingFactor();
+    return execute(
+        trade.getProduct().expand(),
+        yieldCurveParRates,
+        creditCurveParRates,
+        provider.getValuationDate(),
+        recoveryRate,
+        scalingFactor);
   }
 
   // execute for a single product
@@ -162,6 +180,8 @@ public abstract class AbstractCdsFunction<T>
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      LocalDate valuationDate);
+      LocalDate valuationDate,
+      double recoveryRate,
+      double scalingFactor);
 
 }
