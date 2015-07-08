@@ -23,10 +23,10 @@ public class FixedIborSwapConventions {
   /**
    * USD(NY) vanilla fixed vs LIBOR 3M swap
    */
-  public static final FixedIborSwapConvention VANILLA_USD_USNY = FixedIborSwapConvention.of(
+  public static final FixedIborSwapConvention USD_FIXED_6M_LIBOR_3M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.USD,
-          DayCounts.THIRTY_360_ISDA,
+          DayCounts.THIRTY_U_360,
           Frequency.P6M,
           BusinessDayAdjustment.of(
               BusinessDayConventions.MODIFIED_FOLLOWING,
@@ -41,7 +41,7 @@ public class FixedIborSwapConventions {
   /**
    * USD(London) vanilla fixed vs LIBOR 3M swap
    */
-  public static FixedIborSwapConvention VANILLA_USD_GBLO = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention USD_FIXED_1Y_LIBOR_3M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.USD,
           DayCounts.ACT_360,
@@ -59,10 +59,10 @@ public class FixedIborSwapConventions {
   /**
    * EUR(1Y) vanilla fixed vs Euribor 3M swap
    */
-  public static FixedIborSwapConvention VANILLA_EUR_3M = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention EUR_FIXED_1Y_EURIBOR_3M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.EUR,
-          DayCounts.THIRTY_360_ISDA,
+          DayCounts.THIRTY_U_360,
           Frequency.P12M,
           BusinessDayAdjustment.of(
               BusinessDayConventions.MODIFIED_FOLLOWING,
@@ -77,10 +77,10 @@ public class FixedIborSwapConventions {
   /**
    * EUR(>1Y) vanilla fixed vs Euribor 6M swap
    */
-  public static FixedIborSwapConvention VANILLA_EUR_6M = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention EUR_FIXED_1Y_EURIBOR_6M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.EUR,
-          DayCounts.THIRTY_360_ISDA,
+          DayCounts.THIRTY_U_360,
           Frequency.P12M,
           BusinessDayAdjustment.of(
               BusinessDayConventions.MODIFIED_FOLLOWING,
@@ -95,7 +95,7 @@ public class FixedIborSwapConventions {
   /**
    * GBP(1Y) vanilla fixed vs LIBOR 3M swap
    */
-  public static FixedIborSwapConvention VANILLA_GBP_3M = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention GBP_FIXED_1Y_LIBOR_3M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.GBP,
           DayCounts.ACT_365F,
@@ -113,7 +113,7 @@ public class FixedIborSwapConventions {
   /**
    * GBP(>1Y) vanilla fixed vs LIBOR 6M swap
    */
-  public static FixedIborSwapConvention VANILLA_GBP_6M = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention GBP_FIXED_6M_LIBOR_6M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.GBP,
           DayCounts.ACT_365F,
@@ -131,7 +131,7 @@ public class FixedIborSwapConventions {
   /**
    * JPY(Tibor) vanilla fixed vs Tibor 3M swap
    */
-  public static FixedIborSwapConvention VANILLA_JPY_TIBOR = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention JPY_FIXED_6M_TIBORJ_3M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.JPY,
           DayCounts.ACT_365F,
@@ -149,7 +149,7 @@ public class FixedIborSwapConventions {
   /**
    * JPY(LIBOR) vanilla fixed vs LIBOR 6M swap
    */
-  public static FixedIborSwapConvention VANILLA_JPY_LIBOR = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention JPY_FIXED_6M_LIBOR_6M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.JPY,
           DayCounts.ACT_365F,
@@ -167,10 +167,10 @@ public class FixedIborSwapConventions {
   /**
    * CHF(1Y) vanilla fixed vs LIBOR 3M swap
    */
-  public static FixedIborSwapConvention VANILLA_CHF_3M = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention CHF_FIXED_1Y_LIBOR_3M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.CHF,
-          DayCounts.THIRTY_360_ISDA,
+          DayCounts.THIRTY_U_360,
           Frequency.P12M,
           BusinessDayAdjustment.of(
               BusinessDayConventions.MODIFIED_FOLLOWING,
@@ -185,10 +185,10 @@ public class FixedIborSwapConventions {
   /**
    * CHF(>1Y) vanilla fixed vs LIBOR 6M swap
    */
-  public static FixedIborSwapConvention VANILLA_CHF_6M = FixedIborSwapConvention.of(
+  public static FixedIborSwapConvention CHF_FIXED_1Y_LIBOR_6M = FixedIborSwapConvention.of(
       FixedRateSwapLegConvention.of(
           Currency.CHF,
-          DayCounts.THIRTY_360_ISDA,
+          DayCounts.THIRTY_U_360,
           Frequency.P12M,
           BusinessDayAdjustment.of(
               BusinessDayConventions.MODIFIED_FOLLOWING,
