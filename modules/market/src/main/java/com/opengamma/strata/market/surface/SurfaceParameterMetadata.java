@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.surface;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,13 +11,13 @@ import java.util.List;
 import org.joda.beans.ImmutableBean;
 
 /**
- * Information about a parameter underlying a curve.
+ * Information about a parameter underlying a surface.
  * <p>
- * Implementations of this interface are used to store metadata about a curve parameter.
+ * Implementations of this interface are used to store metadata about a surface parameter.
  * 
- * @see CurveMetadata
+ * @see SurfaceMetadata
  */
-public interface CurveParameterMetadata
+public interface SurfaceParameterMetadata
     extends ImmutableBean {
 
   /**
@@ -27,20 +27,20 @@ public interface CurveParameterMetadata
    * 
    * @return the empty instance
    */
-  public static CurveParameterMetadata empty() {
-    return EmptyCurveParameterMetadata.empty();
+  public static SurfaceParameterMetadata empty() {
+    return EmptySurfaceParameterMetadata.empty();
   }
 
   /**
    * Gets a list of empty metadata instances.
    * <p>
-   * This is used when there is no metadata for the curve.
+   * This is used when there is no metadata for the surface.
    * 
    * @param size  the size of the resulting list
    * @return the empty instance
    */
-  public static List<CurveParameterMetadata> listOfEmpty(int size) {
-    return Collections.nCopies(size, EmptyCurveParameterMetadata.empty());
+  public static List<SurfaceParameterMetadata> listOfEmpty(int size) {
+    return Collections.nCopies(size, EmptySurfaceParameterMetadata.empty());
   }
 
   //-------------------------------------------------------------------------
@@ -63,12 +63,12 @@ public interface CurveParameterMetadata
    * The identifier must satisfy the following criteria:
    * <ul>
    *   <li>It must be non-null</li>
-   *   <li>It should be unique within a single curve</li>
+   *   <li>It should be unique within a single surface</li>
    *   <li>It should have a sensible implementation of {@code hashCode()} and {@code equals()}.</li>
    * </ul>
    * Otherwise the choice of identifier is free and the system makes no assumptions about it.
    *
-   * @return an object used to uniquely identify the parameter within the curve so it can be referenced when
+   * @return an object used to uniquely identify the parameter within the surface so it can be referenced when
    *   creating scenarios
    */
   public abstract Object getIdentifier();

@@ -15,15 +15,14 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.value.DiscountFactors;
 
 /**
- * Test {@link ZeroRateDiscountFactorsId}.
+ * Test {@link DiscountFactorsId}.
  */
 @Test
-public class ZeroRateDiscountFactorsIdTest {
+public class DiscountFactorsIdTest {
 
   private static final CurveGroupName GROUP = CurveGroupName.of("Group");
   private static final CurveGroupName GROUP2 = CurveGroupName.of("Group2");
@@ -32,7 +31,7 @@ public class ZeroRateDiscountFactorsIdTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    ZeroRateDiscountFactorsId test = ZeroRateDiscountFactorsId.of(GBP, GROUP, FEED);
+    DiscountFactorsId test = DiscountFactorsId.of(GBP, GROUP, FEED);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getCurveGroupName(), GROUP);
     assertEquals(test.getMarketDataFeed(), FEED);
@@ -40,24 +39,15 @@ public class ZeroRateDiscountFactorsIdTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toCurveId() {
-    DiscountCurveId test = ZeroRateDiscountFactorsId.of(GBP, GROUP, FEED).toCurveId();
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getCurveGroupName(), GROUP);
-    assertEquals(test.getMarketDataFeed(), FEED);
-    assertEquals(test.getMarketDataType(), Curve.class);
-  }
-
-  //-------------------------------------------------------------------------
   public void coverage() {
-    ZeroRateDiscountFactorsId test = ZeroRateDiscountFactorsId.of(GBP, GROUP, FEED);
+    DiscountFactorsId test = DiscountFactorsId.of(GBP, GROUP, FEED);
     coverImmutableBean(test);
-    ZeroRateDiscountFactorsId test2 = ZeroRateDiscountFactorsId.of(USD, GROUP2, FEED2);
+    DiscountFactorsId test2 = DiscountFactorsId.of(USD, GROUP2, FEED2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ZeroRateDiscountFactorsId test = ZeroRateDiscountFactorsId.of(GBP, GROUP, FEED);
+    DiscountFactorsId test = DiscountFactorsId.of(GBP, GROUP, FEED);
     assertSerialization(test);
   }
 

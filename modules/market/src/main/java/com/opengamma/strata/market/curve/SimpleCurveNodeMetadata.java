@@ -41,7 +41,7 @@ public final class SimpleCurveNodeMetadata
   @PropertyDefinition(validate = "notNull")
   private final LocalDate date;
   /**
-   * The label that describes the node, defaulted to the tenor.
+   * The label that describes the node.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
@@ -127,7 +127,7 @@ public final class SimpleCurveNodeMetadata
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the label that describes the node, defaulted to the tenor.
+   * Gets the label that describes the node.
    * @return the value of the property, not empty
    */
   @Override

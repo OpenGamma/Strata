@@ -102,7 +102,7 @@ public class CurvesTest {
     CurveMetadata test = Curves.prices(NAME);
     CurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
-        .xValueType(ValueType.MONTH_COUNT)
+        .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
         .build();
     assertEquals(test, expected);
@@ -112,7 +112,7 @@ public class CurvesTest {
     CurveMetadata test = Curves.prices(CURVE_NAME);
     CurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
-        .xValueType(ValueType.MONTH_COUNT)
+        .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
         .build();
     assertEquals(test, expected);
@@ -122,7 +122,7 @@ public class CurvesTest {
     CurveMetadata test = Curves.prices(CURVE_NAME, PARAMS);
     CurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
-        .xValueType(ValueType.MONTH_COUNT)
+        .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
         .parameterMetadata(PARAMS)
         .build();

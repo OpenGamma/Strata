@@ -38,13 +38,13 @@ public final class ValueType
   public static final ValueType UNKNOWN = of("Unknown");
 
   /**
-   * Type used when each value is a year fraction relative to a base date - 'RelativeYearFraction'.
+   * Type used when each value is a year fraction relative to a base date - 'YearFraction'.
    */
   public static final ValueType YEAR_FRACTION = of("YearFraction");
   /**
-   * Type used when each value is the number of months relative to a base month - 'RelativeMonth'.
+   * Type used when each value is the number of months relative to a base month - 'Months'.
    */
-  public static final ValueType MONTH_COUNT = of("RelativeMonth");
+  public static final ValueType MONTHS = of("Months");
 
   /**
    * Type used when each value is a zero rate - 'ZeroRate'.

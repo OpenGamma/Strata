@@ -22,6 +22,7 @@
 <listEntry value="com.opengamma.strata.market.id"/>
 <listEntry value="com.opengamma.strata.market.key"/>
 <listEntry value="com.opengamma.strata.market.sensitivity"/>
+<listEntry value="com.opengamma.strata.market.surface"/>
 <listEntry value="com.opengamma.strata.market.value"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
