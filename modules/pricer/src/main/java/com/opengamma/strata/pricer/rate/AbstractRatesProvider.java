@@ -80,10 +80,7 @@ public abstract class AbstractRatesProvider
       }
       if (point instanceof FxForwardSensitivity) {
         FxForwardSensitivity pt = (FxForwardSensitivity) point;
-        if (!pt.getCurrency().equals(pt.getReferenceCurrency()) && pt.getCurrencyPair().contains(pt.getCurrency())) {
-          double fxRate = fxRate(pt.getCurrency(), pt.getReferenceCurrency());
-          pt = pt.withCurrency(pt.getReferenceCurrency()).multipliedBy(fxRate);
-        }
+        pt = (FxForwardSensitivity) pt.convertedTo(pt.getReferenceCurrency(), this);
         FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
         ce = ce.plus(rates.currencyExposure(pt));
       }
