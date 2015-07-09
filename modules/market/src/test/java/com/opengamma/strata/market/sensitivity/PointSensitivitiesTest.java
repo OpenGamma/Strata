@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.sensitivity;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -18,6 +19,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Test {@link PointSensitivities}.
@@ -29,6 +32,7 @@ public class PointSensitivitiesTest {
   private static final PointSensitivity CS2 = ZeroRateSensitivity.of(GBP, date(2015, 7, 30), 22d);
   private static final PointSensitivity CS3 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 32d);
   private static final PointSensitivity CS3B = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 3d);
+  private static final PointSensitivity CS4 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), USD, 4d);
 
   public void test_of_array() {
     PointSensitivities test = PointSensitivities.of(CS1, CS2);
@@ -103,6 +107,42 @@ public class PointSensitivitiesTest {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, cs1b)).normalized();
     assertTrue(test1.equalWithTolerance(test2, 1.0E-1));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo_singleCurrency() {
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    PointSensitivities base = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
+    PointSensitivities test1 = base.convertedTo(USD, matrix);
+    PointSensitivity c1Conv = CS1.convertedTo(USD, matrix);
+    PointSensitivity c2Conv = CS2.convertedTo(USD, matrix);
+    PointSensitivity c3Conv = CS3.convertedTo(USD, matrix);
+    PointSensitivities expected = PointSensitivities.of(Lists.newArrayList(c3Conv, c2Conv, c1Conv));
+    assertEquals(test1.normalized(), expected.normalized());
+    PointSensitivities test2 = base.convertedTo(GBP, matrix);
+    assertEquals(test2.normalized(), base.normalized());
+  }
+
+  public void test_convertedTo_multipleCurrency() {
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    PointSensitivities base = PointSensitivities.of(Lists.newArrayList(CS4, CS3, CS1));
+    PointSensitivities test1 = base.convertedTo(USD, matrix);
+    PointSensitivity c1Conv = CS1.convertedTo(USD, matrix);
+    PointSensitivity c3Conv = CS3.convertedTo(USD, matrix);
+    PointSensitivity c3c4Usd = c3Conv.withSensitivity(c3Conv.getSensitivity() + CS4.getSensitivity());
+    PointSensitivities expected1 = PointSensitivities.of(Lists.newArrayList(c3c4Usd, c1Conv));
+    assertEquals(test1.normalized(), expected1.normalized());
+    PointSensitivities test2 = base.convertedTo(GBP, matrix);
+    PointSensitivity c4Conv = CS4.convertedTo(GBP, matrix);
+    PointSensitivity c3c4GBP = CS3.withSensitivity(CS3.getSensitivity() + c4Conv.getSensitivity());
+    PointSensitivities expected2 = PointSensitivities.of(Lists.newArrayList(c3c4GBP, CS1));
+    assertEquals(test2.normalized(), expected2.normalized());
+  }
+
+  public void test_convertedTo_empty() {
+    assertEquals(PointSensitivities.empty().convertedTo(GBP, FxMatrix.empty()), PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------

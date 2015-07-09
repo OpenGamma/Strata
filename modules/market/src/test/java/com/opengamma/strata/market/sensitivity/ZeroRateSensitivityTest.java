@@ -15,9 +15,13 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Test {@link ZeroRateSensitivity}.
@@ -62,6 +66,20 @@ public class ZeroRateSensitivityTest {
     assertEquals(c.compareKey(a1) > 0, true);
     assertEquals(a1.compareKey(other) > 0, true);
     assertEquals(other.compareKey(a1) < 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    LocalDate fixingDate = date(2015, 8, 27);
+    double sensi = 32d;
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, fixingDate, sensi);
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    ZeroRateSensitivity test1 = (ZeroRateSensitivity) base.convertedTo(USD, matrix);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, fixingDate, USD, rate * sensi);
+    assertEquals(test1, expected);
+    ZeroRateSensitivity test2 = (ZeroRateSensitivity) base.convertedTo(GBP, matrix);
+    assertEquals(test2, base);
   }
 
   //-------------------------------------------------------------------------

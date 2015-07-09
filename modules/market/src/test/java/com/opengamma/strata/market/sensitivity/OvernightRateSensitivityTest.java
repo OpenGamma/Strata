@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Test {@link OvernightRateSensitivity}.
@@ -93,6 +95,21 @@ public class OvernightRateSensitivityTest {
     assertEquals(e.compareKey(a1) > 0, true);
     assertEquals(a1.compareKey(other) < 0, true);
     assertEquals(other.compareKey(a1) > 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    LocalDate fixingDate = date(2015, 8, 27);
+    LocalDate endDate = date(2015, 10, 27);
+    double sensi = 32d;
+    OvernightRateSensitivity base = OvernightRateSensitivity.of(GBP_SONIA, fixingDate, endDate, GBP, sensi);
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    OvernightRateSensitivity test1 = (OvernightRateSensitivity) base.convertedTo(USD, matrix);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA, fixingDate, endDate, USD, rate * sensi);
+    assertEquals(test1, expected);
+    OvernightRateSensitivity test2 = (OvernightRateSensitivity) base.convertedTo(GBP, matrix);
+    assertEquals(test2, base);
   }
 
   //-------------------------------------------------------------------------

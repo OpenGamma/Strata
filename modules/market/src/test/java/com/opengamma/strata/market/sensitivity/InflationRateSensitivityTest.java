@@ -22,6 +22,8 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Test {@link InflationRateSensitivity}.
@@ -81,6 +83,19 @@ public class InflationRateSensitivityTest {
     assertEquals(d.compareKey(a1) > 0, true);
     assertEquals(a1.compareKey(other) < 0, true);
     assertEquals(other.compareKey(a1) > 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    double sensi = 32d;
+    InflationRateSensitivity base = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, sensi);
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    InflationRateSensitivity test1 = (InflationRateSensitivity) base.convertedTo(USD, matrix);
+    InflationRateSensitivity expected = InflationRateSensitivity.of(GB_HICP, REFERENCE_MONTH, USD, sensi * rate);
+    assertEquals(test1, expected);
+    InflationRateSensitivity test2 = (InflationRateSensitivity) base.convertedTo(GBP, matrix);
+    assertEquals(test2, base);
   }
 
   //-------------------------------------------------------------------------

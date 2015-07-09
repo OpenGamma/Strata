@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Test {@link FxForwardSensitivity}.
@@ -109,6 +110,19 @@ public class FxForwardSensitivityTest {
     assertEquals(e.compareKey(a1) < 0, true);
     assertEquals(a1.compareKey(other) < 0, true);
     assertEquals(other.compareKey(a1) > 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
+    double rate = 1.4d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(EUR, USD), rate);
+    FxForwardSensitivity test1 = (FxForwardSensitivity) base.convertedTo(USD, matrix);
+    FxForwardSensitivity expected = FxForwardSensitivity.of(
+        CURRENCY_PAIR, GBP, REFERENCE_DATE, USD, SENSITIVITY * rate);
+    assertEquals(test1, expected);
+    FxForwardSensitivity test2 = (FxForwardSensitivity) base.convertedTo(EUR, matrix);
+    assertEquals(test2, base);
   }
 
   //-------------------------------------------------------------------------
