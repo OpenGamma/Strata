@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.finance.fx.FxVanillaOption;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
@@ -223,5 +224,15 @@ public class BlackFxVanillaOptionProductPricerTest {
         BlackFormulaRepository.driftlessTheta(forward, STRIKE_RATE, timeToExpiry, vol);
     assertEquals(pvTheta.getCurrency(), USD);
     assertEquals(pvTheta.getAmount(), expectedPvTheta, NOTIONAL * TOL);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    MultiCurrencyAmount computedPricer = PRICER.currencyExposure(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pv = PRICER.presentValue(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities point = PRICER.presentValueSensitivity(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
+    assertEquals(computedPricer.getAmount(EUR).getAmount(), computedPoint.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(computedPricer.getAmount(USD).getAmount(), computedPoint.getAmount(USD).getAmount(), NOTIONAL * TOL);
   }
 }
