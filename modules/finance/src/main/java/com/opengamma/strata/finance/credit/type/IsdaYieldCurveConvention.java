@@ -20,15 +20,23 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 
 /**
  * CDS Standard model definition for parameters required to bootstrap an ISDA yield curve
+ * <p>
+ * The ISDA conventions related to CDS Standard model deviate from the standard market
+ * conventions {@link FixedIborSwapConvention}.
+ * <p>
+ * For instance, holiday calendars are generally ignored when building these curves (JPY is
+ * an exception) and only the fixed leg conventions are used (the floating leg details are
+ * ignored). Additionally, these conventions apply not just to the underlying swap instruments
+ * but also the money market instruments used to build the curve. This is why there is both
+ * a mmDayCount and a fixedDayCount.
  */
 public interface IsdaYieldCurveConvention
     extends Named {
-  // TODO: better docs
   // TODO: merge business day convention and holiday calendar
-  // TODO: Rename MmDayCount
 
   /**
    * Looks up the convention corresponding to a given name.
@@ -53,49 +61,49 @@ public interface IsdaYieldCurveConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the currency.
+   * Gets the currency that the yield curve can be used to discount.
    * 
    * @return the currency
    */
   Currency getCurrency();
 
   /**
-   * Gets the day count convention.
+   * Gets the day count convention for underlying money market instrument points on the curve.
    * 
    * @return the day count convention
    */
   DayCount getMmDayCount();
 
   /**
-   * Gets the fixed day count convention.
+   * Gets the fixed leg day count convention for underlying swap instrument points on the curve.
    * 
    * @return the fixed day count convention
    */
   DayCount getFixedDayCount();
 
   /**
-   * Gets the spot day settlement lag.
+   * Gets the spot day settlement lag for any underlying swap instruments.
    * 
    * @return the number of spot days
    */
   int getSpotDays();
 
   /**
-   * Gets the payment periodic frequency.
+   * Gets the payment periodic frequency for the fixed leg of any underlying swap instruments.
    * 
    * @return the frequency
    */
   Frequency getFixedPaymentFrequency();
 
   /**
-   * Gets the applicable business day convention.
+   * Gets the applicable business day convention for any underlying instruments.
    * 
    * @return the business day convention
    */
   BusinessDayConvention getBadDayConvention();
 
   /**
-   * Gets the applicable holiday calendar.
+   * Gets the applicable holiday calendar for any instruments.
    * 
    * @return the holiday calendar
    */
