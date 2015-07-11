@@ -78,6 +78,17 @@ public interface PointSensitivity
    */
   public abstract int compareKey(PointSensitivity other);
 
+  /**
+   * Converts this instance to an equivalent amount in the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency.
+   * Any FX conversion that is required will use rates from the provider.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws RuntimeException if no FX rate could be found
+   */
   @Override
   public default PointSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     if (getCurrency().equals(resultCurrency)) {
@@ -86,4 +97,5 @@ public interface PointSensitivity
     double fxRate = rateProvider.fxRate(getCurrency(), resultCurrency);
     return withCurrency(resultCurrency).withSensitivity(fxRate * getSensitivity());
   }
+
 }
