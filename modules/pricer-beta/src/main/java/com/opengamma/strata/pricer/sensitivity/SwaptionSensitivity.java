@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.sensitivity;
@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -129,6 +130,17 @@ public final class SwaptionSensitivity
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+  }
+
+  @Override
+  public SwaptionSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (SwaptionSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SwaptionSensitivity multipliedBy(double factor) {
+    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, currency, sensitivity * factor);
   }
 
   @Override

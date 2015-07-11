@@ -8,6 +8,8 @@ package com.opengamma.strata.market.sensitivity;
 import org.joda.beans.ImmutableBean;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 
 /**
  * Point sensitivity.
@@ -25,7 +27,7 @@ import com.opengamma.strata.basics.currency.Currency;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface PointSensitivity
-    extends ImmutableBean {
+    extends FxConvertible<PointSensitivity>, ImmutableBean {
 
   /**
    * Gets the currency of the point sensitivity.
@@ -75,5 +77,25 @@ public interface PointSensitivity
    * @return positive if greater, zero if equal, negative if less
    */
   public abstract int compareKey(PointSensitivity other);
+
+  /**
+   * Converts this instance to an equivalent amount in the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency.
+   * Any FX conversion that is required will use rates from the provider.
+   * 
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws RuntimeException if no FX rate could be found
+   */
+  @Override
+  public default PointSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    if (getCurrency().equals(resultCurrency)) {
+      return this;
+    }
+    double fxRate = rateProvider.fxRate(getCurrency(), resultCurrency);
+    return withCurrency(resultCurrency).withSensitivity(fxRate * getSensitivity());
+  }
 
 }

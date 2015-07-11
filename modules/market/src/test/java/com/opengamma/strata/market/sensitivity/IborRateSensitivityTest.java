@@ -16,9 +16,13 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Test {@link IborRateSensitivity}.
@@ -79,6 +83,20 @@ public class IborRateSensitivityTest {
     assertEquals(d.compareKey(a1) > 0, true);
     assertEquals(a1.compareKey(other) < 0, true);
     assertEquals(other.compareKey(a1) > 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    LocalDate fixingDate = date(2015, 8, 27);
+    double sensi = 32d;
+    IborRateSensitivity base = IborRateSensitivity.of(GBP_LIBOR_3M, fixingDate, sensi);
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    IborRateSensitivity test1 = (IborRateSensitivity) base.convertedTo(USD, matrix);
+    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, fixingDate, USD, sensi * rate);
+    assertEquals(test1, expected);
+    IborRateSensitivity test2 = (IborRateSensitivity) base.convertedTo(GBP, matrix);
+    assertEquals(test2, base);
   }
 
   //-------------------------------------------------------------------------
