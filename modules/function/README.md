@@ -1,17 +1,12 @@
-Strata-Basics
--------------
-This directory contains the `strata-basics` module.
+Strata-Function
+---------------
+This directory contains the `strata-function` module.
 
 ### Overview
 
-This module provides common financial concepts used by OpenGamma Strata:
-
-* money and currency
-* day counts
-* day rolling
-* schedule generation
-* indices
-* market data keys
+This module contains functions that implement the extension points provided
+by strata-engine. These include the calculation of measures, using strata-pricer,
+and the building of market data, such as curve calibration.
 
 
 ### Source code

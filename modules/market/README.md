@@ -1,17 +1,16 @@
-Strata-Basics
--------------
-This directory contains the `strata-basics` module.
+Strata-Market
+---------------
+This directory contains the `strata-market` module.
 
 ### Overview
 
-This module provides common financial concepts used by OpenGamma Strata:
+This module provides a domain model for market data used by OpenGamma Strata:
 
-* money and currency
-* day counts
-* day rolling
-* schedule generation
-* indices
-* market data keys
+* curves
+* surfaces
+* keys and IDs
+* sensitivity
+* amounts
 
 
 ### Source code
