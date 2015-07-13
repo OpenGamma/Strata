@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
 import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.fx.DiscountingFxPaymentPricer;
 import com.opengamma.strata.pricer.provider.NormalVolatilitySwaptionProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -55,6 +56,27 @@ public class NormalSwaptionPhysicalTradePricerBeta {
     FxPayment premium = tradeSwaption.getPremium();
     CurrencyAmount pvPremium = PRICER_PREMIUM.presentValue(premium, rates);
     return pvProduct.plus(pvPremium);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value sensitivity of the swaption product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param tradeSwaption  the swaption trade
+   * @param rates  the rates provider
+   * @param volatilities  the normal volatility provider
+   * @return the present value curve sensitivity of the swap trade
+   */
+  public PointSensitivityBuilder presentValueSensitivityStickyStrike(SwaptionTrade tradeSwaption, RatesProvider rates, 
+      NormalVolatilitySwaptionProvider volatilities) {
+    Swaption product = tradeSwaption.getProduct();
+    PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT.presentValueSensitivityStickyStrike(product, rates, volatilities);
+    FxPayment premium = tradeSwaption.getPremium();
+    PointSensitivityBuilder pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, rates);
+    return pvcsProduct.combinedWith(pvcsPremium);
   }
   
   /**

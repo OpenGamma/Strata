@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -139,7 +138,7 @@ public final class SwaptionSensitivity
   //-------------------------------------------------------------------------
   @Override
   public SwaptionSensitivity multipliedBy(double factor) {
-    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, currency, sensitivity * factor);
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, currency, sensitivity * factor);
   }
 
   @Override

@@ -41,7 +41,6 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -97,7 +96,8 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
 
   public static final NormalPriceFunction NORMAL = new NormalPriceFunction();
 
-  private static final NormalSwaptionPhysicalProductPricerBeta PRICER_SWAPTION_NORMAL = NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
+  private static final NormalSwaptionPhysicalProductPricerBeta PRICER_SWAPTION_NORMAL = 
+      NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
   private static final double FD_SHIFT = 0.5E-8;
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR = 
@@ -118,7 +118,8 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
   //-------------------------------------------------------------------------
   @Test
   public void validate_physical_settlement() {
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD));
+    assertThrowsIllegalArg(() -> 
+    PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD));
   }
 
   //-------------------------------------------------------------------------
