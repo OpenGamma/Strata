@@ -40,11 +40,10 @@ public interface SingleCalculationMarketData {
    *
    * @param key  key identifying the market data
    * @param <T>  type of the market data
-   * @param <K>  type of the market data key
    * @return the market data value
    * @throws RuntimeException if the value cannot be returned
    */
-  public abstract <T, K extends MarketDataKey<T>> T getValue(K key);
+  public abstract <T> T getValue(MarketDataKey<T> key);
 
   /**
    * Returns the time series identified by the specified key.
