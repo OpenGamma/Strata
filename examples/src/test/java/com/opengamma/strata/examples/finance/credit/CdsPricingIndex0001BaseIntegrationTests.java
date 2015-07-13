@@ -26,6 +26,19 @@ public class CdsPricingIndex0001BaseIntegrationTests {
     onTrade().pvShouldBe(-81969.80760349892).on(valuationDate);
   }
 
+  public void test_par_rate_on_index_0001_base() {
+    onTrade().parRateShouldBe(0.04550001684800108).on(valuationDate);
+  }
+
+  public void test_recovery01_on_index_0001_base() {
+    onTrade().recovery01ShouldBe(35.42033064458519).on(valuationDate);
+  }
+
+  public void test_jump_to_default_on_index_0001_base() {
+    onTrade().jumpToDefaultShouldBe(-69_918_030.1923965).on(valuationDate);
+  }
+
+
   public void test_ir01_parallel_par_on_index_0001_base_case() {
     onTrade().ir01ParallelParShouldBe(400.30528782797046).on(valuationDate);
   }

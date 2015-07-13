@@ -13,9 +13,9 @@ import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 
 /**
- * Calculates the present value of a {@code CdsTrade} for each of a set of scenarios.
+ * Calculates the jump to default of a {@code CdsTrade} for each of a set of scenarios.
  */
-public class CdsPvFunction
+public class CdsJumpToDefaultFunction
     extends AbstractCdsFunction<CurrencyAmount> {
 
   @Override
@@ -27,7 +27,7 @@ public class CdsPvFunction
       double recoveryRate,
       double scalingFactor) {
 
-    return pricer().presentValue(
+    return pricer().jumpToDefault(
         product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 

@@ -40,10 +40,7 @@ import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
-import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
@@ -360,14 +357,7 @@ public abstract class MarketDataBuilder {
     try {
       CharSource inputCreditCurvesSource = singleNameCurvesResource.getCharSource();
       CharSource inputStaticDataSource = singleNameStaticDataResource.getCharSource();
-      Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitSingleNameCreditCurveDataParser
-          .parse(inputCreditCurvesSource, inputStaticDataSource);
-
-      for (IsdaSingleNameCreditCurveParRatesId id : creditCurves.keySet()) {
-        IsdaCreditCurveParRates parRates = creditCurves.get(id);
-        builder.addValue(id, parRates);
-      }
-
+      MarkitSingleNameCreditCurveDataParser.parse(builder, inputCreditCurvesSource, inputStaticDataSource);
     } catch (Exception ex) {
       throw new RuntimeException(String.format("Unable to read single name spread curves: exception at %s/%s",
           creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE), ex);
@@ -392,13 +382,7 @@ public abstract class MarketDataBuilder {
 
     CharSource indexCreditCurvesSource = inputCurvesResource.getCharSource();
     CharSource indexStaticDataSource = inputStaticDataResource.getCharSource();
-    Map<IsdaIndexCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitIndexCreditCurveDataParser
-        .parse(indexCreditCurvesSource, indexStaticDataSource);
-
-    for (IsdaIndexCreditCurveParRatesId id : creditCurves.keySet()) {
-      IsdaCreditCurveParRates parRates = creditCurves.get(id);
-      builder.addValue(id, parRates);
-    }
+    MarkitIndexCreditCurveDataParser.parse(builder, indexCreditCurvesSource, indexStaticDataSource);
 
   }
 

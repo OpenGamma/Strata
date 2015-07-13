@@ -46,7 +46,9 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
+import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
@@ -116,6 +118,41 @@ public class MarketDataBuilderTest {
               Currency.EUR,
               RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
       IsdaIndexCreditCurveParRatesId.of(
+          IndexReferenceInformation.of(
+              MarkitRedCode.id("INDEX0001"),
+              22,
+              4)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP10"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.USD,
+              RestructuringClause.NO_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP02"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.USD,
+              RestructuringClause.NO_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP01"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.USD,
+              RestructuringClause.NO_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP11"),
+              SeniorityLevel.SENIOR_UNSECURED_FOREIGN,
+              Currency.EUR,
+              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
+      IsdaSingleNameRecoveryRateId.of(
+          SingleNameReferenceInformation.of(
+              MarkitRedCode.id("COMP11"),
+              SeniorityLevel.SUBORDINATE_LOWER_TIER_2,
+              Currency.EUR,
+              RestructuringClause.MOD_MOD_RESTRUCTURING_2014)),
+      IsdaIndexRecoveryRateId.of(
           IndexReferenceInformation.of(
               MarkitRedCode.id("INDEX0001"),
               22,

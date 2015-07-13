@@ -7,19 +7,18 @@ package com.opengamma.strata.function.calculation.credit;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 
 /**
- * Calculates the present value of a {@code CdsTrade} for each of a set of scenarios.
+ * Calculates the par rate of a {@code CdsTrade} for each of a set of scenarios.
  */
-public class CdsPvFunction
-    extends AbstractCdsFunction<CurrencyAmount> {
+public class CdsParRateFunction
+    extends AbstractCdsFunction<Double> {
 
   @Override
-  protected CurrencyAmount execute(
+  protected Double execute(
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
@@ -27,8 +26,7 @@ public class CdsPvFunction
       double recoveryRate,
       double scalingFactor) {
 
-    return pricer().presentValue(
-        product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
+    return pricer().parRate(product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate);
   }
 
 }
