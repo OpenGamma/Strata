@@ -5,14 +5,12 @@
  */
 package com.opengamma.strata.pricer.rate.swaption;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
+import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
-import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,27 +21,19 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
-import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
-import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
-import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
-import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
+import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
+import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
+import com.opengamma.strata.pricer.fx.DiscountingFxPaymentPricer;
 import com.opengamma.strata.pricer.provider.NormalVolatilityExpiryTenorSwaptionProvider;
-import com.opengamma.strata.pricer.provider.NormalVolatilitySwaptionProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
  * Tests {@link NormalSwaptionPhysicalTradePricerBeta}.
@@ -51,9 +41,6 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 public class NormalSwaptionPhysicalTradePricerBetaTest {
   
   private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
-  
-  private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
-  private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, USNY);  
 
   private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
@@ -63,106 +50,146 @@ public class NormalSwaptionPhysicalTradePricerBetaTest {
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final LocalDate SWAP_MATURITY_DATE = SWAP_EFFECTIVE_DATE.plus(SWAP_TENOR);
   private static final double STRIKE = 0.01;
-  static final NotionalSchedule NOTIONAL = NotionalSchedule.of(USD, 100_000_000);
-  private static final Swap SWAP_REC = swapUsd(SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, RECEIVE, NOTIONAL, STRIKE);
-  private static final Swap SWAP_PAY = swapUsd(SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, PAY, NOTIONAL, STRIKE);
-  
+  private static final double NOTIONAL = 100_000_000;
+  private static final Swap SWAP_REC = USD_FIXED_6M_LIBOR_3M
+      .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
+
+  private static final double PREMIUM_AMOUNT = 100_000;
   private static final Swaption SWAPTION_LONG_REC = Swaption.builder().cashSettled(false)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder().cashSettled(false)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.SHORT).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().cashSettled(false)
-      .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
-      .longShort(LongShort.LONG).underlying(SWAP_PAY).build();
+  private static final FxPayment PREMIUM_FWD_PAY = FxPayment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), SWAP_EFFECTIVE_DATE);
+  private static final SwaptionTrade SWAPTION_PREFWD_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
+      .premium(PREMIUM_FWD_PAY).build();
+  private static final FxPayment PREMIUM_TRA_PAY = FxPayment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE);
+  private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
+      .premium(PREMIUM_TRA_PAY).build();
+  private static final FxPayment PREMIUM_PAST_PAY = 
+      FxPayment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE.minusDays(1));
+  private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
+      .premium(PREMIUM_PAST_PAY).build();
 
   public static final NormalPriceFunction NORMAL = new NormalPriceFunction();
 
-  private static final NormalSwaptionPhysicalProductPricerBeta PRICER_SWAPTION_NORMAL = NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
-  private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
-  private static final double FD_SHIFT = 0.5E-8;
-  private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR = 
-      new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
+  private static final NormalSwaptionPhysicalProductPricerBeta PRICER_SWAPTION_NORMAL_PRODUCT = 
+      NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
+  private static final NormalSwaptionPhysicalTradePricerBeta PRICER_SWAPTION_NORMAL_TRADE = 
+      NormalSwaptionPhysicalTradePricerBeta.DEFAULT;
+  private static final DiscountingFxPaymentPricer PRICER_FX_PAYMENT = DiscountingFxPaymentPricer.DEFAULT;
   
   private static final ImmutableRatesProvider MULTI_USD = 
       RatesProviderDataSets.MULTI_USD.toBuilder().valuationDate(VALUATION_DATE).build();
   private static final NormalVolatilityExpiryTenorSwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD =
-      NormalSwaptionVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;  
-  private static final NormalVolatilitySwaptionProvider NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT =
-      NormalSwaptionVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_FLAT;  
+      NormalSwaptionVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD; 
   
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
   private static final double TOLERANCE_PV_VEGA = 1.0E+4;
-  private static final double TOLERANCE_RATE = 1.0E-8;
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void present_value_premium_forward() {
+    CurrencyAmount pvTrade = 
+        PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurrencyAmount pvProduct = 
+        PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurrencyAmount pvPremium = PRICER_FX_PAYMENT.presentValue(PREMIUM_FWD_PAY, MULTI_USD);
+    assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOLERANCE_PV);
+  }
   
   @Test
-  public void validate_() {
+  public void present_value_premium_valuedate() {
+    CurrencyAmount pvTrade = 
+        PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PRETOD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurrencyAmount pvProduct = 
+        PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurrencyAmount pvPremium = PRICER_FX_PAYMENT.presentValue(PREMIUM_TRA_PAY, MULTI_USD);
+    assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOLERANCE_PV);
   }
   
-  //-------------------------------------------------------------------------
-  // swap USD standard conventions- TODO: replace by a template when available
-  private static Swap swapUsd(LocalDate start, LocalDate end, PayReceive payReceive, 
-      NotionalSchedule notional, double fixedRate) {
-    RateCalculationSwapLeg fixedLeg = 
-        fixedLeg(start, end, Frequency.P6M, payReceive, notional, fixedRate, StubConvention.SHORT_INITIAL);
-    RateCalculationSwapLeg iborLeg = 
-        iborLeg(start, end, USD_LIBOR_3M, (payReceive==PAY)?RECEIVE:PAY, notional, StubConvention.SHORT_INITIAL);
-    return Swap.of(fixedLeg, iborLeg);
+  @Test
+  public void present_value_premium_past() {
+    CurrencyAmount pvTrade = 
+        PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PREPAST_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurrencyAmount pvProduct = 
+        PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(pvTrade.getAmount(), pvProduct.getAmount(), TOLERANCE_PV);
   }
-  
-  
-  // fixed rate leg
-  private static RateCalculationSwapLeg fixedLeg(
-      LocalDate start, LocalDate end, Frequency frequency,
-      PayReceive payReceive, NotionalSchedule notional, double fixedRate, StubConvention stubConvention) {
 
-    return RateCalculationSwapLeg.builder()
-        .payReceive(payReceive)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(start)
-            .endDate(end)
-            .frequency(frequency)
-            .businessDayAdjustment(BDA_MF)
-            .stubConvention(stubConvention)
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(frequency)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(FixedRateCalculation.builder()
-            .dayCount(THIRTY_U_360)
-            .rate(ValueSchedule.of(fixedRate))
-            .build())
-        .build();
+  //-------------------------------------------------------------------------
+  @Test
+  public void currency_exposure_premium_forward() {
+    CurrencyAmount pv = PRICER_SWAPTION_NORMAL_TRADE
+        .presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    MultiCurrencyAmount ce = PRICER_SWAPTION_NORMAL_TRADE
+        .currencyExposure(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(pv.getAmount(), ce.getAmount(USD).getAmount(), TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void current_cash_forward() {
+    CurrencyAmount ccTrade = PRICER_SWAPTION_NORMAL_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VALUATION_DATE);
+    assertEquals(ccTrade.getAmount(), 0, TOLERANCE_PV);
+  }
+
+  @Test
+  public void current_cash_vd() {
+    CurrencyAmount ccTrade = PRICER_SWAPTION_NORMAL_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VALUATION_DATE);
+    assertEquals(ccTrade.getAmount(), -PREMIUM_AMOUNT, TOLERANCE_PV);
+  }
+
+  @Test
+  public void current_cash_past() {
+    CurrencyAmount ccTrade = PRICER_SWAPTION_NORMAL_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VALUATION_DATE);
+    assertEquals(ccTrade.getAmount(),  0, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void present_value_sensitivity_premium_forward() {
+    PointSensitivityBuilder pvcsTrade = PRICER_SWAPTION_NORMAL_TRADE
+        .presentValueSensitivityStickyStrike(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+        .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    PointSensitivityBuilder pvcsPremium = PRICER_FX_PAYMENT.presentValueSensitivity(PREMIUM_FWD_PAY, MULTI_USD);
+    CurveCurrencyParameterSensitivities pvpsTrade = 
+        MULTI_USD.curveParameterSensitivity(pvcsTrade.build());
+    CurveCurrencyParameterSensitivities pvpsProduct = 
+        MULTI_USD.curveParameterSensitivity(pvcsProduct.combinedWith(pvcsPremium).build());
+    assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOLERANCE_PV_DELTA));
   }
   
-  // fixed rate leg
-  private static RateCalculationSwapLeg iborLeg(
-      LocalDate start, LocalDate end, IborIndex index,
-      PayReceive payReceive, NotionalSchedule notional, StubConvention stubConvention) {
-    Frequency freq = Frequency.of(index.getTenor().getPeriod());
-    return RateCalculationSwapLeg.builder()
-        .payReceive(payReceive)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(start)
-            .endDate(end)
-            .frequency(freq)
-            .businessDayAdjustment(BDA_MF)
-            .stubConvention(stubConvention)
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(freq)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(IborRateCalculation.builder()
-            .dayCount(index.getDayCount())
-            .index(index)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, index.getFixingCalendar(), BDA_P))
-            .build())
-        .build();
+  @Test
+  public void present_value_sensitivity_premium_valuedate() {
+    PointSensitivityBuilder pvcsTrade = PRICER_SWAPTION_NORMAL_TRADE
+        .presentValueSensitivityStickyStrike(SWAPTION_PRETOD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+        .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurveCurrencyParameterSensitivities pvpsTrade = MULTI_USD.curveParameterSensitivity(pvcsTrade.build());
+    CurveCurrencyParameterSensitivities pvpsProduct = MULTI_USD.curveParameterSensitivity(pvcsProduct.build());
+    assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOLERANCE_PV_DELTA));
   }
+  
+  @Test
+  public void present_value_sensitivity_premium_past() {
+    PointSensitivityBuilder pvcsTrade = PRICER_SWAPTION_NORMAL_TRADE
+        .presentValueSensitivityStickyStrike(SWAPTION_PREPAST_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+        .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurveCurrencyParameterSensitivities pvpsTrade = MULTI_USD.curveParameterSensitivity(pvcsTrade.build());
+    CurveCurrencyParameterSensitivities pvpsProduct = MULTI_USD.curveParameterSensitivity(pvcsProduct.build());
+    assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOLERANCE_PV_DELTA));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void present_value_normal_vol_sensitivity_premium_forward() {
+    SwaptionSensitivity vegaTrade = PRICER_SWAPTION_NORMAL_TRADE
+        .presentValueSensitivityNormalVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    SwaptionSensitivity vegaProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+        .presentValueSensitivityNormalVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(vegaTrade.getSensitivity(), vegaProduct.getSensitivity(), TOLERANCE_PV_VEGA);    
+  }
+  
 }

@@ -15,6 +15,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
@@ -68,7 +69,7 @@ public class NormalSwaptionPhysicalProductPricerBeta {
    * @param swaption  the product to price
    * @param rates  the rates provider
    * @param volatilities  the normal volatility parameters
-   * @return the present value of the swap product
+   * @return the present value of the swaption product
    */
   public CurrencyAmount presentValue(Swaption swaption, RatesProvider rates, 
       NormalVolatilitySwaptionProvider volatilities) {
@@ -92,6 +93,21 @@ public class NormalSwaptionPhysicalProductPricerBeta {
     return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
   }  
 
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the currency exposure of the swaption product.
+   * 
+   * @param swaption  the swaption to price
+   * @param rates  the rates provider
+   * @param volatilities  the normal volatility parameters
+   * @return the present value of the swaption product
+   */
+  public MultiCurrencyAmount currencyExposure(Swaption swaption, RatesProvider rates, 
+      NormalVolatilitySwaptionProvider volatilities) {
+    return MultiCurrencyAmount.of(presentValue(swaption, rates, volatilities));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Computes the implied Normal volatility of the swaption.
    * 
