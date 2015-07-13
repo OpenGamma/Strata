@@ -80,25 +80,30 @@ public abstract class AbstractFraFunction<T>
   public FunctionRequirements requirements(FraTrade trade) {
     Fra fra = trade.getProduct();
 
+    // Create a set of all indices referenced by the FRA
     Set<Index> indices = new HashSet<>();
+
+    // The main index is always present
     indices.add(fra.getIndex());
+
+    // The index used for linear interpolation is optional
     fra.getIndexInterpolated().ifPresent(indices::add);
 
-    Set<ObservableKey> indexRateKeys =
-        indices.stream()
-            .map(IndexRateKey::of)
-            .collect(toImmutableSet());
+    // Create an key identifying the rate of each index referenced by the FRA
+    Set<ObservableKey> indexRateKeys = indices.stream()
+        .map(IndexRateKey::of)
+        .collect(toImmutableSet());
 
-    Set<MarketDataKey<?>> indexCurveKeys =
-        indices.stream()
-            .map(MarketDataKeys::indexCurve)
-            .collect(toImmutableSet());
+    // Create an key identifying the forward curve of each index referenced by the FRA
+    Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
+        .map(MarketDataKeys::indexCurve)
+        .collect(toImmutableSet());
 
-    Set<DiscountFactorsKey> discountCurveKeys =
-        ImmutableSet.of(DiscountFactorsKey.of(fra.getCurrency()));
+    // Create a key identifying the discount factors for the FRA currency
+    Set<DiscountFactorsKey> discountFactorsKeys = ImmutableSet.of(DiscountFactorsKey.of(fra.getCurrency()));
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
+        .singleValueRequirements(Sets.union(indexCurveKeys, discountFactorsKeys))
         .timeSeriesRequirements(indexRateKeys)
         .outputCurrencies(fra.getCurrency())
         .build();
