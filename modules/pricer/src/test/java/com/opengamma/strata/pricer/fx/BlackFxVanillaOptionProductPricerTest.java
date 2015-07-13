@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.fx;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -130,6 +131,92 @@ public class BlackFxVanillaOptionProductPricerTest {
     assertEquals(pv2.getAmount(), -pv.getAmount(), NOTIONAL * TOL);
   }
 
+  public void test_presentValue_AfterExpiry() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 23);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    FxVanillaOption callOtm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv = PRICER.presentValue(callOtm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv.getAmount(), 0d, NOTIONAL * TOL);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValue(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    double df = RATES_PROVIDER.discountFactor(USD, paymentDate);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(fx, RATES_PROVIDER).fxRate(CURRENCY_PAIR);
+    double expected1 = -NOTIONAL * df * (forward - strikeRate);
+    assertEquals(pv1.getAmount(), expected1, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValue(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    double expected2 = -NOTIONAL * df * (STRIKE_RATE - forward);
+    assertEquals(pv2.getAmount(), expected2, NOTIONAL * TOL);
+    FxVanillaOption putOtm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv3 = PRICER.presentValue(putOtm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv3.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValue_AfterPayment() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 20);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 18);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValue(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv1.getAmount(), 0d, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValue(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv2.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
   public void test_delta_presentValueDelta() {
     double delta = PRICER.delta(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvDelta = PRICER.presentValueDelta(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
@@ -146,6 +233,91 @@ public class BlackFxVanillaOptionProductPricerTest {
     assertEquals(pvDelta.getAmount(), expectedPvDelta, NOTIONAL * TOL);
   }
 
+  public void test_presentValueDelta_AfterExpiry() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 23);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    FxVanillaOption callOtm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv = PRICER.presentValueDelta(callOtm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv.getAmount(), 0d, NOTIONAL * TOL);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValueDelta(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    double dfFor = RATES_PROVIDER.discountFactor(EUR, paymentDate);
+    double expected1 = -NOTIONAL * dfFor;
+    assertEquals(pv1.getAmount(), expected1, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValueDelta(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    double expected2 = NOTIONAL * dfFor;
+    assertEquals(pv2.getAmount(), expected2, NOTIONAL * TOL);
+    FxVanillaOption putOtm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv3 = PRICER.presentValueDelta(putOtm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv3.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueDelta_AfterPayment() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 20);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 18);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValueDelta(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv1.getAmount(), 0d, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValueDelta(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv2.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
   public void test_presentValueSensitivity() {
     double eps = 1.0e-7;
     RatesFiniteDifferenceSensitivityCalculator cal = new RatesFiniteDifferenceSensitivityCalculator(eps);
@@ -153,7 +325,6 @@ public class BlackFxVanillaOptionProductPricerTest {
     CurveCurrencyParameterSensitivities computed = RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected = cal.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
         (p) -> PRICER.presentValue(OPTION_PRODUCT, (p), VOL_PROVIDER));
-    System.out.println(OPTION_PRODUCT.getUnderlying().getReceiveCurrencyAmount().getCurrency());
     // contribution via implied volatility, to be subtracted.
     CurrencyAmount pvVega = PRICER.presentValueVega(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
     CurveCurrencyParameterSensitivities impliedVolSense =
@@ -161,6 +332,36 @@ public class BlackFxVanillaOptionProductPricerTest {
             (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(OPTION_PRODUCT, (p), VOL_PROVIDER)))
             .multipliedBy(-pvVega.getAmount());
     assertTrue(computed.equalWithTolerance(expected.combinedWith(impliedVolSense), NOTIONAL * eps));
+  }
+
+  public void test_presentValueGamma_AfterExpiry() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 23);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValueGamma(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv1.getAmount(), 0d, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValueGamma(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv2.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   public void test_gamma_presentValueGamma() {
@@ -196,6 +397,36 @@ public class BlackFxVanillaOptionProductPricerTest {
     assertEquals(pvVega.getAmount(), expectedPvVega, NOTIONAL * TOL);
   }
 
+  public void test_presentValueVega_AfterExpiry() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 23);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValueVega(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv1.getAmount(), 0d, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValueVega(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv2.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
   public void test_presentValueSensitivityBlackVolatility() {
     FxOptionSensitivity computed =
         PRICER.presentValueSensitivityBlackVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
@@ -223,5 +454,62 @@ public class BlackFxVanillaOptionProductPricerTest {
         BlackFormulaRepository.driftlessTheta(forward, STRIKE_RATE, timeToExpiry, vol);
     assertEquals(pvTheta.getCurrency(), USD);
     assertEquals(pvTheta.getAmount(), expectedPvTheta, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueTheta_AfterExpiry() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 23);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    CurrencyAmount pv1 = PRICER.presentValueTheta(callItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv1.getAmount(), 0d, NOTIONAL * TOL);
+    FxVanillaOption putItm = FxVanillaOption.builder()
+        .putCall(PutCall.PUT)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(STRIKE)
+        .build();
+    CurrencyAmount pv2 = PRICER.presentValueTheta(putItm, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv2.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_impliedVolatility() {
+    double computed = PRICER.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATE, EXPIRY_TIME, ZONE);
+    double forward = PRICER.getDiscountingFxProductPricer().forwardFxRate(FX_PRODUCT, RATES_PROVIDER)
+        .fxRate(CURRENCY_PAIR);
+    double expected = SMILE_TERM.getVolatility(timeToExpiry, STRIKE_RATE, forward);
+    assertEquals(computed, expected);
+  }
+
+  public void test_impliedVolatility_afterExpiry() {
+    LocalDate paymentDate = LocalDate.of(2014, 1, 23);
+    Fx fx = Fx.of(EUR_AMOUNT, USD_AMOUNT, paymentDate);
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    double strikeRate = 1.30;
+    FxRate strike = FxRate.of(EUR, USD, strikeRate);
+    FxVanillaOption callItm = FxVanillaOption.builder()
+        .putCall(CALL)
+        .longShort(SHORT)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .underlying(fx)
+        .strike(strike)
+        .build();
+    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(callItm, RATES_PROVIDER, VOL_PROVIDER));
   }
 }
