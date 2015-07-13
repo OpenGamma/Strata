@@ -23,6 +23,7 @@ import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
+// TODO This needs copies of all of the add methods that put stuff into the base data
 /**
  * A mutable builder for building an instance of {@link ScenarioCalculationEnvironment}.
  */

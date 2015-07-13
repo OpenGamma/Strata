@@ -318,6 +318,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .filter(not(suppliedData::containsValue))
           .collect(toImmutableList());
 
+      // TODO At this point will need to decide whether a value should be built from base or scenario data.
+      // If all an item's dependencies are base data then it can be built from the base data. The node will tell us that.
+      // If any of the dependencies (recursively) are part of a scenario then multiple values must be built for the
+      // item, one for each scenario, using the scenario data as the input.
+      // Call buildNonObservableData for each of the base values, passing in the base data from buildData.
+      // Call buildNonObservableScenarioData for any value that needs to be in the scenario data.
+
       Map<MarketDataId<?>, Result<List<?>>> nonObservableScenarioResults =
           buildNonObservableScenarioData(nonObservableIds, marketData, marketDataConfig, scenarioDefinition);
 

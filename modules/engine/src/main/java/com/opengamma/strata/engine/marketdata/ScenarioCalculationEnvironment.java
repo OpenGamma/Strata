@@ -39,6 +39,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
 import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 
+// TODO Delegate to a CalculationEnvironment containing base data if this doesn't contain values for an ID
 /**
  * A set of market data used for performing calculations across a set of scenarios.
  * <p>
@@ -55,6 +56,10 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
 @SuppressWarnings("unchecked")
 @BeanDefinition(builderScope = "private")
 public class ScenarioCalculationEnvironment implements ImmutableBean {
+
+  /** The market data values which are the same in every scenario. */
+  @PropertyDefinition(validate = "notNull")
+  private final CalculationEnvironment baseData
 
   /** The number of scenarios. */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
@@ -114,6 +119,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    * @return a set of scenario data for a single scenario taken from {@code marketData}
    */
   public static ScenarioCalculationEnvironment of(CalculationEnvironment marketData) {
+    // TODO Can the argument can just become the base data?
     ScenarioCalculationEnvironmentBuilder builder = builder(1, marketData.getValuationDate());
     builder.addTimeSeries(marketData.getTimeSeries());
 
@@ -190,6 +196,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     }
     List<?> values = this.values.get(id);
 
+    // TODO Try the base data
     if (values.isEmpty()) {
       throw new IllegalArgumentException("No values available for market data ID " + id);
     }
