@@ -89,12 +89,12 @@ public abstract class AbstractFraFunction<T>
     // The index used for linear interpolation is optional
     fra.getIndexInterpolated().ifPresent(indices::add);
 
-    // Create an key identifying the rate of each index referenced by the FRA
+    // Create a key identifying the rate of each index referenced by the FRA
     Set<ObservableKey> indexRateKeys = indices.stream()
         .map(IndexRateKey::of)
         .collect(toImmutableSet());
 
-    // Create an key identifying the forward curve of each index referenced by the FRA
+    // Create a key identifying the forward curve of each index referenced by the FRA
     Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
         .map(MarketDataKeys::indexCurve)
         .collect(toImmutableSet());
