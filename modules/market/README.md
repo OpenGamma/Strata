@@ -1,16 +1,16 @@
-Strata-Finance
---------------
-This directory contains the `strata-finance` module.
+Strata-Market
+---------------
+This directory contains the `strata-market` module.
 
 ### Overview
 
-This module provides a domain model for entities in finance used by OpenGamma Strata:
+This module provides a domain model for market data used by OpenGamma Strata:
 
-* trades
-* products
-* securities
-* conventions
-* templates
+* curves
+* surfaces
+* keys and IDs
+* sensitivity
+* amounts
 
 
 ### Source code

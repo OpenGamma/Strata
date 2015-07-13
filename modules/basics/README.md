@@ -11,6 +11,7 @@ This module provides common financial concepts used by OpenGamma Strata:
 * day rolling
 * schedule generation
 * indices
+* market data keys
 
 
 ### Source code
@@ -19,7 +20,7 @@ This module is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 
-Code in this directory is currently at an "alpha" level.
+Code in this directory is not currently released.
 Classes and Methods may change at any time.
 Once released it will be maintained with backwards compatibility in mind.
 

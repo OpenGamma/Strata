@@ -30,3 +30,19 @@ Version 8u40 or later is required to compile the code.
 
 For more information about developing code on OpenGamma Strata
 see the [developer website](http://developers.opengamma.com).
+
+
+Strata modules
+--------------
+
+Strata is formed from a number of modules:
+
+* [Examples](examples/README.md)
+* [Report](modules/report-beta/README.md)
+* [Function](modules/function/README.md)
+* [Engine](modules/engine/README.md)
+* [Pricer](modules/pricer/README.md)
+* [Market](modules/market/README.md)
+* [Finance](modules/finance/README.md)
+* [Basics](modules/basics/README.md)
+* [Collect](modules/collect/README.md)

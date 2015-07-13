@@ -1,16 +1,12 @@
-Strata-Finance
---------------
-This directory contains the `strata-finance` module.
+Strata-Function
+---------------
+This directory contains the `strata-function` module.
 
 ### Overview
 
-This module provides a domain model for entities in finance used by OpenGamma Strata:
-
-* trades
-* products
-* securities
-* conventions
-* templates
+This module contains functions that implement the extension points provided
+by strata-engine. These include the calculation of measures, using strata-pricer,
+and the building of market data, such as curve calibration.
 
 
 ### Source code

@@ -1,16 +1,17 @@
-Strata-Finance
+Strata-Engine
 --------------
-This directory contains the `strata-finance` module.
+This directory contains the `strata-engine` module.
 
 ### Overview
 
-This module provides a domain model for entities in finance used by OpenGamma Strata:
+This module provides the main calculation engine provided by OpenGamma Strata.
+The engine exists to make it easy to calculate measures, such as present value,
+on a list of targets, typically trades.
+To achieve this, the engine manages market data, such as quotes, curves and surfaces.
+If desired, the engine can run scenarios, where the market data is manipulated to simulate
+potential future changes, such as a rise or fall in interest rates.
 
-* trades
-* products
-* securities
-* conventions
-* templates
+The interface, `CalculationEngine` provides the main API.
 
 
 ### Source code
