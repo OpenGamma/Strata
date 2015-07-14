@@ -4,7 +4,7 @@ This directory contains the `strata-engine` module.
 
 ### Overview
 
-This module provides the main calculation engine provided by OpenGamma Strata.
+This module provides the main calculation engine provided by Strata.
 The engine exists to make it easy to calculate measures, such as present value,
 on a list of targets, typically trades.
 To achieve this, the engine manages market data, such as quotes, curves and surfaces.
@@ -24,4 +24,4 @@ Code in this directory is not currently released.
 Classes and Methods may change at any time.
 Once released it will be maintained with backwards compatibility in mind.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)

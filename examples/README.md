@@ -17,4 +17,4 @@ Commercial support is [available](http://www.opengamma.com/) from the authors.
 Code in this directory has NO GUARANTEES of backwards compatibility.
 It may change at any point and in any way.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)

@@ -18,4 +18,4 @@ Classes and Methods may change at any time.
 Once released, most packages will be maintained with backwards compatibility in mind.
 However, any package with "impl" in the name may change without backwards compatibility
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)

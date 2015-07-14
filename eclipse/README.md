@@ -1,12 +1,12 @@
-Setting up OpenGamma Strata in Eclipse
---------------------------------------
+Setting up Strata in Eclipse
+----------------------------
 
-This guide is designed to allow you to setup OpenGamma Strata in Eclipse for development.
+This guide is designed to allow you to setup Strata in Eclipse for development.
 
 
 #### Overview
 
-OpenGamma Strata uses Maven as its primary build system.
+Strata uses Maven as its primary build system.
 Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 
 
@@ -22,7 +22,7 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 3. Install and Start Eclipse
  - Simply unzip the download into your preferred installation location
  - Start Eclipse, ensuring that you have a brand new workspace
- - Note that the OpenGamma Strata source code must NOT be located inside your Eclipse workspace
+ - Note that the Strata source code must NOT be located inside your Eclipse workspace
   
 4. Install the Eclipse preferences
  - Go to "File -> Import"
@@ -63,9 +63,9 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
  - Select the project and from the main menu choose "Project -> Clean"
 
 
-#### Active development of OpenGamma Strata
+#### Active development of Strata
 
-If you are actively devloping OpenGamma Strata, then it is recommended to take some addition steps.
+If you are actively devloping Strata, then it is recommended to take some additional steps.
 
 8. Load the code formatter
  - Go to the Eclipse Preferences.
@@ -88,5 +88,5 @@ If you are actively devloping OpenGamma Strata, then it is recommended to take s
 Please contact us publicly via the [forums](http://forums.opengamma.com/) or
 privately as per your support contract.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
 

@@ -4,7 +4,7 @@ This directory contains the `strata-parent` module.
 
 ### Overview
 
-This directory contains a number of modules that together form OpenGamma Strata.
+This directory contains a number of modules that together form Strata.
 
 
 ### Source code
@@ -17,4 +17,4 @@ Code in this directory is not currently released.
 Classes and Methods may change at any time.
 Once released it will be maintained with backwards compatibility in mind.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)

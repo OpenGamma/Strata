@@ -4,7 +4,7 @@ This directory contains the `strata-collect` module.
 
 ### Overview
 
-This module provides data structures used by OpenGamma Strata:
+This module provides data structures used by Strata:
 
 * identifier - standard identifier with scheme and value
 * range - holds representations of ranges
@@ -23,4 +23,4 @@ Code in this directory is not currently released.
 Classes and Methods may change at any time.
 Once released it will be maintained with backwards compatibility in mind.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)

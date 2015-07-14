@@ -8,12 +8,16 @@ Strata is released as Open Source Software under the
 
 [![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
 
+
 Documentation
 -------------
+
 Documentation for Strata can be found at http://opengamma.github.io/StrataDocs.
 
+
 Building Strata
--------------------------
+---------------
+
 The source code can be cloned using [git](http://git-scm.com/) from GitHub:
 ```
   git clone https://github.com/OpenGamma/Strata.git
@@ -32,6 +36,14 @@ Version 8u40 or later is required to compile the code.
 
 For more information about developing code on Strata
 see the [documentation](http://opengamma.github.io/StrataDocs).
+
+
+Status
+------
+
+Strata is currently released as a next-generation technology preview.
+The repository is well-maintained, tested and functional but not yet ready for production use.
+Classes and methods may change at any time.
 
 
 Strata modules
