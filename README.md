@@ -4,7 +4,9 @@ Strata
 This repository contains the source code of Strata, OpenGamma's next-generation, open source toolkit for market risk.
 
 Strata is released as Open Source Software under the
-[Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
+[Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html). 
+
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
 
 Documentation
 -------------
