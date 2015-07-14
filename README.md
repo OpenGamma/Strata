@@ -1,16 +1,16 @@
-OpenGamma Strata
-================
-This repository contains the source code of OpenGamma Strata.
-See the [developers website](http://developers.opengamma.com) for more details.
+Strata
+======
 
-OpenGamma Strata is released as Open Source Software using the
+This repository contains the source code of Strata, OpenGamma's next-generation, open source toolkit for market risk.
+
+Strata is released as Open Source Software under the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
-Commercial support is [available](http://www.opengamma.com/) from the authors.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+Documentation
+-------------
+Documentation for Strata can be found at http://opengamma.github.io/StrataDocs.
 
-
-Building OpenGamma Strata
+Building Strata
 -------------------------
 The source code can be cloned using [git](http://git-scm.com/) from GitHub:
 ```
@@ -28,8 +28,8 @@ Simply run this command to compile and install the source code locally:
 Note that Strata is based on Java SE 8.
 Version 8u40 or later is required to compile the code.
 
-For more information about developing code on OpenGamma Strata
-see the [developer website](http://developers.opengamma.com).
+For more information about developing code on Strata
+see the [documentation](http://opengamma.github.io/StrataDocs).
 
 
 Strata modules
