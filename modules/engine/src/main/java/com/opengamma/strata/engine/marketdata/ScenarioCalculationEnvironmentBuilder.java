@@ -85,6 +85,8 @@ public final class ScenarioCalculationEnvironmentBuilder {
    * @param values  the single market data values
    * @param timeSeries  the time series of market data values
    * @param globalValues  the single market data values applicable to all scenarios
+   * @param singleValueFailures  the single value failures
+   * @param timeSeriesFailures  the time-series failures
    */
   ScenarioCalculationEnvironmentBuilder(
       int scenarioCount,

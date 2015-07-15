@@ -430,9 +430,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertTrue(senseComputed.equalWithTolerance(senseExpected, eps * PAYMENT_PERIOD_FLOATING.getNotional()));
   }
 
-  /**
-   * test future value sensitivity for ibor, with straight, flat and exclusive compounding. 
-   */
+  // test future value sensitivity for ibor, with straight, flat and exclusive compounding. 
   @DataProvider(name = "compoundingRatePaymentPeriod")
   Object[][] data_futureValueSensitivity_ibor_compounding() {
     return new Object[][] {

@@ -33,6 +33,8 @@ import com.google.common.collect.ImmutableList;
  * <p>
  * The number of results is required to be the same as the number of scenarios in the market data
  * provided to the function.
+ * 
+ * @param <T>  the type of the result
  */
 @BeanDefinition
 public final class DefaultScenarioResult<T> implements ScenarioResult<T>, ImmutableBean {

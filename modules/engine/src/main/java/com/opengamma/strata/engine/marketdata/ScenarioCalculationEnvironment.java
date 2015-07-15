@@ -133,6 +133,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    * @param values  the market data values
    * @param timeSeries  the time series of market data values
    * @param globalValues  the single values that apply across all scenarios
+   * @param singleValueFailures  the single value failures
+   * @param timeSeriesFailures  the time-series failures
    */
   @ImmutableConstructor
   ScenarioCalculationEnvironment(
