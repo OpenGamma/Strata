@@ -1,6 +1,9 @@
 Strata
 ======
 
+[![Build Status](https://travis-ci.org/OpenGamma/Strata.svg?branch=master)](https://travis-ci.org/OpenGamma/Strata)
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+
 This repository contains the source code of Strata, OpenGamma's next-generation, open source toolkit for market risk.
 
 Strata is released as Open Source Software under the
