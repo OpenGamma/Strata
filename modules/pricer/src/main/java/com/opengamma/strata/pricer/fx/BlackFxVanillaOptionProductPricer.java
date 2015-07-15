@@ -102,24 +102,21 @@ public class BlackFxVanillaOptionProductPricer {
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
-    Fx underlying = option.getUnderlying();
-    if (ratesProvider.getValuationDate().isAfter(underlying.getPaymentDate())) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
       return 0d;
     }
+    Fx underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     boolean isCall = option.getPutCall().isCall();
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
-    if (timeToExpiry <= 0d) {
-      return isCall ? Math.max(forwardRate - strikeRate, 0d) : Math.max(strikeRate - forwardRate, 0d);
-    }
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double forwardPrice = BlackFormulaRepository.price(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
-    return forwardPrice;
+    double undiscountedPrice = BlackFormulaRepository.price(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
+    return undiscountedPrice;
   }
 
   //-------------------------------------------------------------------------
@@ -179,6 +176,9 @@ public class BlackFxVanillaOptionProductPricer {
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    if (volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone()) <= 0d) {
+      return PointSensitivities.empty();
+    }
     Fx underlying = option.getUnderlying();
     double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
@@ -195,24 +195,21 @@ public class BlackFxVanillaOptionProductPricer {
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
-    Fx underlying = option.getUnderlying();
-    if (ratesProvider.getValuationDate().isAfter(underlying.getPaymentDate())) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
       return 0d;
     }
+    Fx underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     boolean isCall = option.getPutCall().isCall();
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
-    if (timeToExpiry <= 0d) {
-      return isCall ? (forwardRate > strikeRate ? 1d : 0d) : (forwardRate < strikeRate ? -1d : 0d);
-    }
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double forwardPrice = BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
-    return forwardPrice;
+    double forwardDelta = BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
+    return forwardDelta;
   }
 
   //-------------------------------------------------------------------------
@@ -326,10 +323,13 @@ public class BlackFxVanillaOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public FxOptionSensitivity presentValueSensitivityBlackVolatility(
+  public PointSensitivityBuilder presentValueSensitivityBlackVolatility(
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    if (volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone()) <= 0d) {
+      return PointSensitivityBuilder.none();
+    }
     Fx underlying = option.getUnderlying();
     FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
@@ -407,7 +407,7 @@ public class BlackFxVanillaOptionProductPricer {
     double timeToExpiry =
         volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
     if (timeToExpiry <= 0d) {
-      throw new IllegalArgumentException("valuation date is after option's expiry date.");
+      throw new IllegalArgumentException("valuation is after option's expiry.");
     }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
