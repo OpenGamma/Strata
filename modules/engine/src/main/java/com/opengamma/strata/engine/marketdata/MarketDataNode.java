@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.ArgChecker;
@@ -18,6 +19,8 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
 
+// TODO Should this hold the flag to say whether the value is in the base data or a scenario?
+// It would mean transforming the tree at every step
 /**
  * A node in a tree of dependencies of market data required by a set of calculations.
  * <p>
@@ -56,7 +59,7 @@ class MarketDataNode {
   private final DataType dataType;
 
   /** Child nodes identifying the market data required to build the market data in this node. */
-  private final List<MarketDataNode> children;
+  private final List<MarketDataNode> dependencies;
 
   /**
    * Builds a tree representing the dependencies between items of market data and returns the root node.
@@ -74,7 +77,7 @@ class MarketDataNode {
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 
     DependencyTreeBuilder treeBuilder = DependencyTreeBuilder.of(suppliedData, requirements, marketDataConfig, functions);
-    return MarketDataNode.root(treeBuilder.childNodes());
+    return MarketDataNode.root(treeBuilder.dependencyNodes());
   }
 
   /**
@@ -116,10 +119,10 @@ class MarketDataNode {
     return new MarketDataNode(id, dataType, ImmutableList.of());
   }
 
-  private MarketDataNode(MarketDataId<?> id, DataType dataType, List<MarketDataNode> children) {
+  private MarketDataNode(MarketDataId<?> id, DataType dataType, List<MarketDataNode> dependencies) {
     this.dataType = dataType;
     this.id = id;
-    this.children = ImmutableList.copyOf(children);
+    this.dependencies = ImmutableList.copyOf(dependencies);
   }
 
   /**
@@ -141,7 +144,7 @@ class MarketDataNode {
     ImmutableList.Builder<MarketDataNode> childNodesBuilder = ImmutableList.builder();
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
 
-    for (MarketDataNode child : children) {
+    for (MarketDataNode child : dependencies) {
       if (child.isLeaf()) {
         switch (child.dataType) {
           case SINGLE_VALUE:
@@ -169,11 +172,38 @@ class MarketDataNode {
    * @return true if this node has no children
    */
   boolean isLeaf() {
-    return children.isEmpty();
+    return dependencies.isEmpty();
   }
 
   /**
-   * Prints this node and its tree of children to an ASCII tree.
+   * Returns a map of market data ID to node in the tree below this node.
+   *
+   * @return a map of market data ID to node in the tree below this node
+   */
+  Map<MarketDataId<?>, MarketDataNode> nodeMap() {
+    ImmutableMap.Builder<MarketDataId<?>, MarketDataNode> builder = ImmutableMap.builder();
+    nodeMap(builder);
+    return builder.build();
+  }
+
+  private void nodeMap(ImmutableMap.Builder<MarketDataId<?>, MarketDataNode> builder) {
+    // The root node has a null ID
+    if (id != null) {
+      builder.put(id, this);
+    }
+    dependencies.stream().forEach(child -> child.nodeMap(builder));
+  }
+
+  public MarketDataId<?> getId() {
+    return id;
+  }
+
+  public List<MarketDataNode> getDependencies() {
+    return dependencies;
+  }
+
+  /**
+   * Prints this node and its tree of dependencies to an ASCII tree.
    *
    * @param builder  a string builder into which the result will be written
    * @param indent  the indent printed at the start of the line before the node
@@ -184,7 +214,7 @@ class MarketDataNode {
     String nodeDescription = (id == null) ? "Root" : (id + " " + dataType);
     builder.append('\n').append(indent).append(nodeDescription);
 
-    for (Iterator<MarketDataNode> it = children.iterator(); it.hasNext(); ) {
+    for (Iterator<MarketDataNode> it = dependencies.iterator(); it.hasNext(); ) {
       MarketDataNode child = it.next();
       String newIndent;
       String newChildIndent;
@@ -213,12 +243,12 @@ class MarketDataNode {
     MarketDataNode that = (MarketDataNode) o;
     return Objects.equals(id, that.id) &&
         Objects.equals(dataType, that.dataType) &&
-        Objects.equals(children, that.children);
+        Objects.equals(dependencies, that.dependencies);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, dataType, children);
+    return Objects.hash(id, dataType, dependencies);
   }
 
   @Override

@@ -59,7 +59,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
 
   /** The market data values which are the same in every scenario. */
   @PropertyDefinition(validate = "notNull")
-  private final CalculationEnvironment baseData
+  private final CalculationEnvironment baseData;
 
   /** The number of scenarios. */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
@@ -89,16 +89,6 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   /** Details of failures when building time series of market data values. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<MarketDataId<?>, Failure> timeSeriesFailures;
-
-  /**
-   * Returns a mutable builder for building a set of scenario market data.
-   *
-   * @param scenarioCount  the number of scenarios
-   * @return a mutable builder for building a set of scenario market data
-   */
-  public static ScenarioCalculationEnvironmentBuilder builder(int scenarioCount) {
-    return new ScenarioCalculationEnvironmentBuilder(scenarioCount);
-  }
 
   /**
    * Returns a mutable builder for building a set of scenario market data where every scenario has the
@@ -142,6 +132,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    */
   @ImmutableConstructor
   ScenarioCalculationEnvironment(
+      CalculationEnvironment baseData,
       int scenarioCount,
       List<LocalDate> valuationDates,
       ListMultimap<MarketDataId<?>, ?> values,
@@ -151,10 +142,12 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
       Map<MarketDataId<?>, Failure> timeSeriesFailures) {
 
     ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    JodaBeanUtils.notNull(baseData, "baseData");
     JodaBeanUtils.notNull(valuationDates, "valuationDates");
     JodaBeanUtils.notNull(values, "values");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
     JodaBeanUtils.notNull(globalValues, "globalValues");
+    this.baseData = baseData;
     this.scenarioCount = scenarioCount;
     this.valuationDates = ImmutableList.copyOf(valuationDates);
     this.values = ImmutableListMultimap.copyOf(values);
@@ -269,6 +262,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    */
   public ScenarioCalculationEnvironmentBuilder toBuilder() {
     return new ScenarioCalculationEnvironmentBuilder(
+        baseData,
         scenarioCount,
         valuationDates,
         values,
@@ -305,6 +299,15 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the market data values which are the same in every scenario.
+   * @return the value of the property, not null
+   */
+  public CalculationEnvironment getBaseData() {
+    return baseData;
   }
 
   //-----------------------------------------------------------------------
@@ -378,7 +381,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ScenarioCalculationEnvironment other = (ScenarioCalculationEnvironment) obj;
-      return (getScenarioCount() == other.getScenarioCount()) &&
+      return JodaBeanUtils.equal(getBaseData(), other.getBaseData()) &&
+          (getScenarioCount() == other.getScenarioCount()) &&
           JodaBeanUtils.equal(getValuationDates(), other.getValuationDates()) &&
           JodaBeanUtils.equal(getValues(), other.getValues()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
@@ -392,6 +396,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseData());
     hash = hash * 31 + JodaBeanUtils.hashCode(getScenarioCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getValuationDates());
     hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
@@ -404,7 +409,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("ScenarioCalculationEnvironment{");
     int len = buf.length();
     toString(buf);
@@ -416,6 +421,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   }
 
   protected void toString(StringBuilder buf) {
+    buf.append("baseData").append('=').append(JodaBeanUtils.toString(getBaseData())).append(',').append(' ');
     buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(getScenarioCount())).append(',').append(' ');
     buf.append("valuationDates").append('=').append(JodaBeanUtils.toString(getValuationDates())).append(',').append(' ');
     buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
@@ -435,6 +441,11 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code baseData} property.
+     */
+    private final MetaProperty<CalculationEnvironment> baseData = DirectMetaProperty.ofImmutable(
+        this, "baseData", ScenarioCalculationEnvironment.class, CalculationEnvironment.class);
     /**
      * The meta-property for the {@code scenarioCount} property.
      */
@@ -481,6 +492,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "baseData",
         "scenarioCount",
         "valuationDates",
         "values",
@@ -498,6 +510,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1721984485:  // baseData
+          return baseData;
         case -1203198113:  // scenarioCount
           return scenarioCount;
         case -788641532:  // valuationDates
@@ -532,6 +546,14 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code baseData} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CalculationEnvironment> baseData() {
+      return baseData;
+    }
+
     /**
      * The meta-property for the {@code scenarioCount} property.
      * @return the meta-property, not null
@@ -592,6 +614,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -1721984485:  // baseData
+          return ((ScenarioCalculationEnvironment) bean).getBaseData();
         case -1203198113:  // scenarioCount
           return ((ScenarioCalculationEnvironment) bean).getScenarioCount();
         case -788641532:  // valuationDates
@@ -627,6 +651,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    */
   private static class Builder extends DirectFieldsBeanBuilder<ScenarioCalculationEnvironment> {
 
+    private CalculationEnvironment baseData;
     private int scenarioCount;
     private List<LocalDate> valuationDates = ImmutableList.of();
     private ListMultimap<MarketDataId<?>, ?> values = ImmutableListMultimap.of();
@@ -645,6 +670,8 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -1721984485:  // baseData
+          return baseData;
         case -1203198113:  // scenarioCount
           return scenarioCount;
         case -788641532:  // valuationDates
@@ -668,6 +695,9 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case -1721984485:  // baseData
+          this.baseData = (CalculationEnvironment) newValue;
+          break;
         case -1203198113:  // scenarioCount
           this.scenarioCount = (Integer) newValue;
           break;
@@ -722,6 +752,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     @Override
     public ScenarioCalculationEnvironment build() {
       return new ScenarioCalculationEnvironment(
+          baseData,
           scenarioCount,
           valuationDates,
           values,
@@ -734,7 +765,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("ScenarioCalculationEnvironment.Builder{");
       int len = buf.length();
       toString(buf);
@@ -746,6 +777,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     }
 
     protected void toString(StringBuilder buf) {
+      buf.append("baseData").append('=').append(JodaBeanUtils.toString(baseData)).append(',').append(' ');
       buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount)).append(',').append(' ');
       buf.append("valuationDates").append('=').append(JodaBeanUtils.toString(valuationDates)).append(',').append(' ');
       buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');

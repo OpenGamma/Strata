@@ -29,6 +29,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  */
 public final class ScenarioCalculationEnvironmentBuilder {
 
+  /** Builder for the base market data. */
+  private final CalculationEnvironmentBuilder baseBuilder;
+
   /** The number of scenarios. */
   private final int scenarioCount;
 
@@ -57,15 +60,6 @@ public final class ScenarioCalculationEnvironmentBuilder {
   private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
 
   /**
-   * Creates a new builder with the specified number of scenarios.
-   *
-   * @param scenarioCount the number of scenarios
-   */
-  ScenarioCalculationEnvironmentBuilder(int scenarioCount) {
-    this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
-  }
-
-  /**
    * Returns a new builder where every scenario has the same valuation date.
    *
    * @param scenarioCount the number of scenarios
@@ -73,6 +67,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
    */
   ScenarioCalculationEnvironmentBuilder(int scenarioCount, LocalDate valuationDate) {
     this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    this.baseBuilder = CalculationEnvironment.builder(valuationDate);
     valuationDate(valuationDate);
   }
 
@@ -88,6 +83,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
    * @param globalValues  the single market data values applicable to all scenarios
    */
   ScenarioCalculationEnvironmentBuilder(
+      CalculationEnvironment baseData,
       int scenarioCount,
       List<LocalDate> valuationDates,
       ListMultimap<MarketDataId<?>, ?> values,
@@ -102,6 +98,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
     ArgChecker.notNull(timeSeries, "timeSeries");
     ArgChecker.notNull(globalValues, "globalValues");
 
+    this.baseBuilder = baseData.toBuilder();
     this.scenarioCount = scenarioCount;
     this.values.putAll(values);
     this.timeSeries.putAll(timeSeries);
@@ -310,12 +307,27 @@ public final class ScenarioCalculationEnvironmentBuilder {
   }
 
   /**
-   * Adds a global value that is applicable to all scenarios.
+   * Adds a value to the base market data which is shared between all scenarios.
    *
-   * @param id the identifier to associate the value with
-   * @param value the value to add
+   * @param id  the ID of the market data value
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
    * @return this builder
    */
+  public <T> ScenarioCalculationEnvironmentBuilder addBaseValue(MarketDataId<T> id, T value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    baseBuilder.addValue(id, value);
+    return this;
+  }
+
+    /**
+     * Adds a global value that is applicable to all scenarios.
+     *
+     * @param id the identifier to associate the value with
+     * @param value the value to add
+     * @return this builder
+     */
   public <T> ScenarioCalculationEnvironmentBuilder addGlobalValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
@@ -330,6 +342,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
    */
   public ScenarioCalculationEnvironment build() {
     return new ScenarioCalculationEnvironment(
+        baseBuilder.build(),
         scenarioCount,
         valuationDates,
         values,

@@ -247,6 +247,10 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // of those nodes represent the market data required to build that data, and so on
     MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, marketDataConfig, functions);
 
+    // As we build the leaf nodes we need to know their dependencies are even though they are no longer in the tree.
+    // This maps from the market data ID to the original node, including all its dependencies
+    Map<MarketDataId<?>, MarketDataNode> nodeMap = root.nodeMap();
+
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:
     //   * Market data that is already available
@@ -302,6 +306,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
         ObservableId id = entry.getKey();
         Result<Double> result = entry.getValue();
 
+        // TODO Check whether this result should go in the scenario or base data
+        // Return Optional<Result<List<Double>>>? Optional.empty() means no perturbations applied.
         Result<List<Double>> scenarioResult = result.flatMap(value -> applyScenarios(id, value, scenarioDefinition));
         dataBuilder.addResult(id, scenarioResult);
       }
@@ -319,12 +325,44 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableList());
 
       // TODO At this point will need to decide whether a value should be built from base or scenario data.
-      // If all an item's dependencies are base data then it can be built from the base data. The node will tell us that.
+      // If all an item's dependencies are base data then it can be built from the base data.
       // If any of the dependencies (recursively) are part of a scenario then multiple values must be built for the
       // item, one for each scenario, using the scenario data as the input.
-      // Call buildNonObservableData for each of the base values, passing in the base data from buildData.
+      // Call buildNonObservableData for each of the base values, passing in the base data from builtData.
       // Call buildNonObservableScenarioData for any value that needs to be in the scenario data.
 
+      // TODO If the value is built from base data we still need to check where to put it.
+      // If any filters match it needs to be perturbed and the results go in the scenario data.
+      // Else the single value goes in the base data.
+
+      // TODO Do I need to keep track of whether any dependencies were perturbed? Or is it enough just to
+      // check which set of data contains the dependency?
+      // It should be enough to check where the dependencies come from.
+      // If any of them are in the scenario data then the new data needs to be built from the scenario data and put
+      // into the scenario data.
+      // If all of them are in the base data then a single value should be built from the base data. If that value
+      // doesn't match any filters it goes into the base data. If it matches any filters it is perturbed and put
+      // into the scenario data.
+
+      for (MarketDataId<?> id : nonObservableIds) {
+        // Gets a copy of the current node but with children representing the dependencies of the node's value
+        MarketDataNode node = nodeMap.get(id);
+        List<MarketDataId<?>> dependencyIds = node.getDependencies().stream()
+            .map(MarketDataNode::getId)
+            .collect(toImmutableList());
+        // Flag is true if any of the dependencies are in the scenario data.
+        // If this is true then multiple values must be built for the ID using the scenario data
+        // If this is true a single value must be built using the base data
+        boolean dependencyInScenario = dependencyIds.stream().anyMatch(marketData::containsValues);
+
+        if (dependencyInScenario) {
+          // TODO Build multiple values for the ID using the scenario data as input. Put into the scenario data
+        } else {
+          // TODO Build single value for the ID using the base data as input.
+          // If any perturbations match the value, apply them and put the results into the scenario data.
+          // Else put the value into the base data
+        }
+      }
       Map<MarketDataId<?>, Result<List<?>>> nonObservableScenarioResults =
           buildNonObservableScenarioData(nonObservableIds, marketData, marketDataConfig, scenarioDefinition);
 
