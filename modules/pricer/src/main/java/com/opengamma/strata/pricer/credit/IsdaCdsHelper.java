@@ -11,16 +11,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Stream;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
@@ -35,6 +25,17 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.pricer.PricingException;
+import com.opengamma.strata.pricer.impl.credit.isda.AccrualOnDefaultFormulae;
+import com.opengamma.strata.pricer.impl.credit.isda.AnalyticCdsPricer;
+import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
+import com.opengamma.strata.pricer.impl.credit.isda.CdsPriceType;
+import com.opengamma.strata.pricer.impl.credit.isda.CdsStubType;
+import com.opengamma.strata.pricer.impl.credit.isda.FastCreditCurveBuilder;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuilder;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurveBuild;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaInstrumentTypes;
 
 /**
  * Helper for interacting with the underlying Analytics layer for CDS pricing.
@@ -67,7 +68,7 @@ public class IsdaCdsHelper {
   /**
    * ISDA Standard model implementation in analytics.
    */
-  private final static AnalyticCDSPricer CALCULATOR = new AnalyticCDSPricer();
+  private final static AnalyticCdsPricer CALCULATOR = new AnalyticCdsPricer();
 
   //-------------------------------------------------------------------------
   /**
@@ -90,15 +91,15 @@ public class IsdaCdsHelper {
       double scalingFactor) {
 
     // setup
-    CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
-    ISDACompliantYieldCurve yieldCurveAnalytics =
-        ISDACompliantYieldCurve.makeFromRT(yieldCurve.getXValues(), yieldCurve.getYValues());
-    ISDACompliantCreditCurve creditCurveAnalytics =
-        ISDACompliantCreditCurve.makeFromRT(creditCurve.getXValues(), creditCurve.getYValues());
+    CdsAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
+    IsdaCompliantYieldCurve yieldCurveAnalytics =
+        IsdaCompliantYieldCurve.makeFromRT(yieldCurve.getXValues(), yieldCurve.getYValues());
+    IsdaCompliantCreditCurve creditCurveAnalytics =
+        IsdaCompliantCreditCurve.makeFromRT(creditCurve.getXValues(), creditCurve.getYValues());
 
     // calculate
     double coupon = product.getCoupon();
-    double pv = CALCULATOR.pv(cdsAnalytic, yieldCurveAnalytics, creditCurveAnalytics, coupon, PriceType.DIRTY, 0d);
+    double pv = CALCULATOR.pv(cdsAnalytic, yieldCurveAnalytics, creditCurveAnalytics, coupon, CdsPriceType.DIRTY, 0d);
 
     // create result
     int sign = product.getBuySellProtection().isBuy() ? 1 : -1;
@@ -118,7 +119,7 @@ public class IsdaCdsHelper {
       LocalDate valuationDate,
       OptionalDouble amount,
       Optional<LocalDate> paymentDate,
-      ISDACompliantYieldCurve yieldCurve) {
+      IsdaCompliantYieldCurve yieldCurve) {
 
     if (!amount.isPresent()) {
       return 0d; // no fee
@@ -147,11 +148,11 @@ public class IsdaCdsHelper {
       NodalCurve creditCurve,
       double recoveryRate) {
     // setup
-    CDSAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
-    ISDACompliantYieldCurve yieldCurveAnalytics =
-        ISDACompliantYieldCurve.makeFromRT(yieldCurve.getXValues(), yieldCurve.getYValues());
-    ISDACompliantCreditCurve creditCurveAnalytics =
-        ISDACompliantCreditCurve.makeFromRT(creditCurve.getXValues(), creditCurve.getYValues());
+    CdsAnalytic cdsAnalytic = toAnalytic(valuationDate, product, recoveryRate);
+    IsdaCompliantYieldCurve yieldCurveAnalytics =
+        IsdaCompliantYieldCurve.makeFromRT(yieldCurve.getXValues(), yieldCurve.getYValues());
+    IsdaCompliantCreditCurve creditCurveAnalytics =
+        IsdaCompliantCreditCurve.makeFromRT(creditCurve.getXValues(), creditCurve.getYValues());
 
     return CALCULATOR.parSpread(cdsAnalytic, yieldCurveAnalytics, creditCurveAnalytics);
 
@@ -159,7 +160,7 @@ public class IsdaCdsHelper {
 
   // Converts the interest rate curve par rates to the corresponding analytics form.
   // Calibration is performed here.
-  public static ISDACompliantYieldCurve createIsdaDiscountCurve(
+  public static IsdaCompliantYieldCurve createIsdaDiscountCurve(
       LocalDate valuationDate,
       IsdaYieldCurveParRates yieldCurve) {
 
@@ -175,20 +176,20 @@ public class IsdaCdsHelper {
 
       LocalDate spotDate = curveConvention.getSpotDateAsOf(valuationDate);
 
-      ISDAInstrumentTypes[] types =
+      IsdaInstrumentTypes[] types =
           Stream.of(yieldCurve.getYieldCurveInstruments())
               .map(IsdaCdsHelper::mapInstrumentType)
-              .toArray(ISDAInstrumentTypes[]::new);
+              .toArray(IsdaInstrumentTypes[]::new);
 
-      ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(
+      IsdaCompliantYieldCurveBuild builder = new IsdaCompliantYieldCurveBuild(
           valuationDate,
           spotDate,
           types,
           yieldCurve.getYieldCurvePoints(),
-          translateDayCount(mmDayCount),
-          translateDayCount(swapDayCount),
+          mmDayCount,
+          swapDayCount,
           swapInterval,
-          translateDayCount(CURVE_DAY_COUNT),
+          CURVE_DAY_COUNT,
           convention,
           holidayCalendar);
       return builder.build(yieldCurve.getParRates());
@@ -200,16 +201,16 @@ public class IsdaCdsHelper {
 
   // Converts the credit curve par rates to the corresponding analytics form.
   // Calibration is performed here.
-  public static ISDACompliantCreditCurve createIsdaCreditCurve(
+  public static IsdaCompliantCreditCurve createIsdaCreditCurve(
       LocalDate valuationDate,
       IsdaCreditCurveParRates curveCurve,
-      ISDACompliantYieldCurve yieldCurve,
+      IsdaCompliantYieldCurve yieldCurve,
       double recoveryRate) {
 
     try {
       CdsConvention cdsConvention = curveCurve.getCdsConvention();
       FastCreditCurveBuilder builder = new FastCreditCurveBuilder(
-          AccrualOnDefaultFormulae.OrignalISDA, ISDACompliantCreditCurveBuilder.ArbitrageHandling.Fail);
+          AccrualOnDefaultFormulae.ORIGINAL_ISDA, IsdaCompliantCreditCurveBuilder.ArbitrageHandling.Fail);
       return builder.calibrateCreditCurve(
           valuationDate,
           cdsConvention.getUnadjustedStepInDate(valuationDate),
@@ -231,18 +232,18 @@ public class IsdaCdsHelper {
 
   // Converts the credit curve par rates to the corresponding analytics form.
   // Calibration is performed here.
-  public static ISDACompliantCreditCurve createIsdaCreditCurve(
+  public static IsdaCompliantCreditCurve createIsdaCreditCurve(
       LocalDate valuationDate,
       IsdaCreditCurveParRates curveCurve,
       NodalCurve yieldCurve,
       double recoveryRate) {
 
     try {
-      ISDACompliantYieldCurve yieldCurveAnalytics = ISDACompliantYieldCurve.makeFromRT(yieldCurve.getXValues(),
+      IsdaCompliantYieldCurve yieldCurveAnalytics = IsdaCompliantYieldCurve.makeFromRT(yieldCurve.getXValues(),
           yieldCurve.getYValues());
       CdsConvention cdsConvention = curveCurve.getCdsConvention();
       FastCreditCurveBuilder builder = new FastCreditCurveBuilder(
-          AccrualOnDefaultFormulae.OrignalISDA, ISDACompliantCreditCurveBuilder.ArbitrageHandling.Fail);
+          AccrualOnDefaultFormulae.ORIGINAL_ISDA, IsdaCompliantCreditCurveBuilder.ArbitrageHandling.Fail);
       return builder.calibrateCreditCurve(
           valuationDate,
           cdsConvention.getUnadjustedStepInDate(valuationDate),
@@ -263,9 +264,9 @@ public class IsdaCdsHelper {
   }
 
   // Converts the expanded CDS product to the corresponding analytics form.
-  private static CDSAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
+  private static CdsAnalytic toAnalytic(LocalDate valuationDate, ExpandedCds product, double recoveryRate) {
     try {
-      return new CDSAnalytic(
+      return new CdsAnalytic(
           valuationDate,
           valuationDate.plusDays(1),
           valuationDate,
@@ -278,8 +279,8 @@ public class IsdaCdsHelper {
           recoveryRate,
           product.getBusinessDayAdjustment().getConvention(),
           product.getBusinessDayAdjustment().getCalendar(),
-          translateDayCount(product.getAccrualDayCount()),
-          translateDayCount(CURVE_DAY_COUNT));
+          product.getAccrualDayCount(),
+          CURVE_DAY_COUNT);
 
     } catch (Exception ex) {
       throw new PricingException("Error converting the trade to an analytic: " + ex.getMessage(), ex);
@@ -288,44 +289,28 @@ public class IsdaCdsHelper {
 
   //-------------------------------------------------------------------------
   // Converts type of interest curve underlying to the corresponding analytics value.
-  private static ISDAInstrumentTypes mapInstrumentType(IsdaYieldCurveUnderlyingType input) {
+  private static IsdaInstrumentTypes mapInstrumentType(IsdaYieldCurveUnderlyingType input) {
     switch (input) {
       case ISDA_MONEY_MARKET:
-        return ISDAInstrumentTypes.MoneyMarket;
+        return IsdaInstrumentTypes.MONEY_MARKET;
       case ISDA_SWAP:
-        return ISDAInstrumentTypes.Swap;
+        return IsdaInstrumentTypes.SWAP;
       default:
         throw new IllegalStateException("Unexpected underlying type: " + input);
     }
   }
 
-  // Converts day count to corresponding analytics value.
-  private static com.opengamma.analytics.convention.daycount.DayCount translateDayCount(DayCount from) {
-    switch (from.getName()) {
-      case "Act/365F":
-        return com.opengamma.analytics.convention.daycount.DayCounts.ACT_365F;
-      case "30E/360":
-        return com.opengamma.analytics.convention.daycount.DayCounts.THIRTY_E_360;
-      case "30/360 ISDA":
-        return com.opengamma.analytics.convention.daycount.DayCounts.THIRTY_E_360;
-      case "Act/360":
-        return com.opengamma.analytics.convention.daycount.DayCounts.ACT_360;
-      default:
-        throw new IllegalStateException("Unknown daycount " + from);
-    }
-  }
-
   // Converts stub type to corresponding analytics value.
-  private static com.opengamma.analytics.financial.credit.isdastandardmodel.StubType translateStubType(StubConvention from) {
+  private static CdsStubType translateStubType(StubConvention from) {
     switch (from) {
       case SHORT_INITIAL:
-        return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.FRONTSHORT;
+        return CdsStubType.FRONTSHORT;
       case LONG_INITIAL:
-        return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.FRONTLONG;
+        return CdsStubType.FRONTLONG;
       case SHORT_FINAL:
-        return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.BACKSHORT;
+        return CdsStubType.BACKSHORT;
       case LONG_FINAL:
-        return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.BACKLONG;
+        return CdsStubType.BACKLONG;
       default:
         throw new IllegalStateException("Unknown stub convention: " + from);
     }

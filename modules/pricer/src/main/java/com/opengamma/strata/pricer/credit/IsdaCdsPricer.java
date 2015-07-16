@@ -11,9 +11,6 @@ import java.util.Set;
 import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.credit.ExpandedCds;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -22,6 +19,9 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
+import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
 
 /**
  * Pricer for for CDS products using the ISDA methodology.
@@ -123,17 +123,17 @@ public class IsdaCdsPricer {
   /**
    * Local class that implements ISDANodalCurve
    * This is a further step towards supporting regular Strata ParRates and zero curves for CDS
-   * This class wraps a {@link ISDACompliantCurve} as well as {@link CurveMetadata}
+   * This class wraps a {@link IsdaCompliantCurve} as well as {@link CurveMetadata}
    * from the input par rates information.
    * <p>
    * The static factory methods either bootstrap and calibrate a curve or they replace the
    * calibrated values with a supplied vector of zeroes or hazards (the y axis of the calibrated curve)
    */
   static class ISDANodalCurve implements NodalCurve {
-    private final ISDACompliantCurve underlyingCurve;
+    private final IsdaCompliantCurve underlyingCurve;
     private final CurveMetadata curveMetadata;
 
-    private ISDANodalCurve(ISDACompliantCurve underlyingCurve, CurveMetadata curveMetadata) {
+    private ISDANodalCurve(IsdaCompliantCurve underlyingCurve, CurveMetadata curveMetadata) {
       this.underlyingCurve = underlyingCurve;
       this.curveMetadata = curveMetadata;
     }
@@ -150,7 +150,7 @@ public class IsdaCdsPricer {
 
     @Override
     public NodalCurve withYValues(double[] values) {
-      return new ISDANodalCurve(ISDACompliantCurve.makeFromRT(getXValues().clone(), values.clone()), curveMetadata);
+      return new ISDANodalCurve(IsdaCompliantCurve.makeFromRT(getXValues().clone(), values.clone()), curveMetadata);
     }
 
     @Override
@@ -195,30 +195,30 @@ public class IsdaCdsPricer {
 
     // bootstraps a yield curve from par rates
     public static NodalCurve of(LocalDate valuationDate, IsdaYieldCurveParRates yieldCurveParRates) {
-      ISDACompliantYieldCurve yieldCurve = IsdaCdsHelper.createIsdaDiscountCurve(valuationDate, yieldCurveParRates);
-      ISDACompliantCurve underlying = yieldCurve;
+      IsdaCompliantYieldCurve yieldCurve = IsdaCdsHelper.createIsdaDiscountCurve(valuationDate, yieldCurveParRates);
+      IsdaCompliantCurve underlying = yieldCurve;
       return new ISDANodalCurve(underlying, yieldCurveParRates.getCurveMetaData());
     }
 
     // bootstraps a credit curve from par rates
     public static NodalCurve of(LocalDate valuationDate, IsdaCreditCurveParRates creditCurveParRates, NodalCurve yieldCurve, double recoveryRate) {
-      ISDACompliantCreditCurve creditCurve = IsdaCdsHelper.createIsdaCreditCurve(valuationDate, creditCurveParRates, yieldCurve,
+      IsdaCompliantCreditCurve creditCurve = IsdaCdsHelper.createIsdaCreditCurve(valuationDate, creditCurveParRates, yieldCurve,
           recoveryRate);
-      ISDACompliantCurve underlying = creditCurve;
+      IsdaCompliantCurve underlying = creditCurve;
       return new ISDANodalCurve(underlying, creditCurveParRates.getCurveMetaData());
     }
 
     // overwrites the x and y values of a calibrated curve, but copy the curve metadata to the new instance
     public static NodalCurve of(IsdaYieldCurveParRates yieldCurveParRates, double[] t, double[] rt) {
-      ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurve.makeFromRT(t, rt);
-      ISDACompliantCurve underlying = yieldCurve;
+      IsdaCompliantYieldCurve yieldCurve = IsdaCompliantYieldCurve.makeFromRT(t, rt);
+      IsdaCompliantCurve underlying = yieldCurve;
       return new ISDANodalCurve(underlying, yieldCurveParRates.getCurveMetaData());
     }
 
     // overwrites the x and y values of a calibrated curve, but copy the curve metadata to the new instance
     public static NodalCurve of(IsdaCreditCurveParRates creditCurveParRates, double[] t, double[] ht) {
-      ISDACompliantCreditCurve creditCurve = ISDACompliantCreditCurve.makeFromRT(t, ht);
-      ISDACompliantCurve underlying = creditCurve;
+      IsdaCompliantCreditCurve creditCurve = IsdaCompliantCreditCurve.makeFromRT(t, ht);
+      IsdaCompliantCurve underlying = creditCurve;
       return new ISDANodalCurve(underlying, creditCurveParRates.getCurveMetaData());
     }
 
