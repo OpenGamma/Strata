@@ -312,34 +312,11 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // Non-observable data -----------------------------------------------------------------------
 
       // Filter out IDs for the data that is already available and build the rest
-      List<MarketDataId<?>> nonObservableIds = leafRequirements.getNonObservables().stream()
+      leafRequirements.getNonObservables().stream()
           .filter(not(marketData::containsValues))
           .filter(not(suppliedData::containsValue))
-          .collect(toImmutableList());
+          .forEach(id -> addNonObservableData(id, marketDataConfig, nodeMap, marketData, scenarioDefinition, dataBuilder));
 
-      // TODO Factor this out into a method and use forEach above, it's getting a bit messy here
-      for (MarketDataId<?> id : nonObservableIds) {
-        // Gets a copy of the current node including the child nodes representing the dependencies of the node's value
-        MarketDataNode node = nodeMap.get(id);
-        Set<MarketDataId<?>> dependencyIds = node.getDependencies().stream()
-            .map(MarketDataNode::getId)
-            .collect(toImmutableSet());
-        // This flag is true if any of the dependencies are in the scenario data.
-        // If this is true then multiple values must be built for the ID using the scenario data
-        // If this is false a single value must be built using the base data
-        boolean dependencyInScenario = dependencyIds.stream().anyMatch(marketData::containsScenarioValues);
-
-        if (dependencyInScenario) {
-          Map<MarketDataId<?>, Result<List<?>>> results =
-              buildNonObservableScenarioData(id, marketData, marketDataConfig, scenarioDefinition);
-
-          results.entrySet().stream().forEach(e -> dataBuilder.addResultUnsafe(e.getKey(), e.getValue()));
-        } else {
-          // Build single base value for the ID using the base data as input.
-          Result<?> result = buildNonObservableData(id, marketData.getBaseData(), marketDataConfig);
-          applyScenariosToBaseResult(id, result, scenarioDefinition, dataBuilder);
-        }
-      }
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()
           .filter(suppliedData::containsValue)
@@ -354,6 +331,44 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       root = pair.getFirst();
     }
     return builtData;
+  }
+
+  /**
+   * TODO
+   *
+   * @param id
+   * @param marketDataConfig
+   * @param nodeMap
+   * @param marketData
+   * @param scenarioDefinition
+   * @param dataBuilder
+   */
+  private void addNonObservableData(
+      MarketDataId<?> id,
+      MarketDataConfig marketDataConfig,
+      Map<MarketDataId<?>, MarketDataNode> nodeMap,
+      ScenarioCalculationEnvironment marketData,
+      ScenarioDefinition scenarioDefinition, ScenarioCalculationEnvironmentBuilder dataBuilder) {
+    // Gets a copy of the current node including the child nodes representing the dependencies of the node's value
+    MarketDataNode node = nodeMap.get(id);
+    Set<MarketDataId<?>> dependencyIds = node.getDependencies().stream()
+        .map(MarketDataNode::getId)
+        .collect(toImmutableSet());
+    // This flag is true if any of the dependencies are in the scenario data.
+    // If this is true then multiple values must be built for the ID using the scenario data
+    // If this is false a single value must be built using the base data
+    boolean dependencyInScenario = dependencyIds.stream().anyMatch(marketData::containsScenarioValues);
+
+    if (dependencyInScenario) {
+      Map<MarketDataId<?>, Result<List<?>>> results =
+          buildNonObservableScenarioData(id, marketData, marketDataConfig, scenarioDefinition);
+
+      results.entrySet().stream().forEach(e -> dataBuilder.addResultUnsafe(e.getKey(), e.getValue()));
+    } else {
+      // Build single base value for the ID using the base data as input.
+      Result<?> result = buildNonObservableData(id, marketData.getBaseData(), marketDataConfig);
+      applyScenariosToBaseResult(id, result, scenarioDefinition, dataBuilder);
+    }
   }
 
   /**
