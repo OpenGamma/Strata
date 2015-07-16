@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -181,12 +182,13 @@ class MarketDataNode {
    * @return a map of market data ID to node in the tree below this node
    */
   Map<MarketDataId<?>, MarketDataNode> nodeMap() {
-    ImmutableMap.Builder<MarketDataId<?>, MarketDataNode> builder = ImmutableMap.builder();
-    nodeMap(builder);
-    return builder.build();
+    // Use a hash map rather to allow values to be overwritten. ImmutableMap.Builder doesn't allow it.
+    Map<MarketDataId<?>, MarketDataNode> mutableNodeMap = new HashMap<>();
+    nodeMap(mutableNodeMap);
+    return ImmutableMap.copyOf(mutableNodeMap);
   }
 
-  private void nodeMap(ImmutableMap.Builder<MarketDataId<?>, MarketDataNode> builder) {
+  private void nodeMap(Map<MarketDataId<?>, MarketDataNode> builder) {
     // The root node has a null ID
     if (id != null) {
       builder.put(id, this);

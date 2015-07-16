@@ -813,26 +813,24 @@ public class DefaultMarketDataFactoryTest {
    * Tests building multiple values of non-observable market data for multiple scenarios. The data isn't perturbed.
    */
   public void buildNonObservableScenarioValues() {
-    DefaultMarketDataFactory factory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataFunction(),
-            new TestFeedIdMapping(),
-            new NonObservableMarketDataFunction());
-    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
+    DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
+        new TestTimeSeriesProvider(ImmutableMap.of()),
+        new TestObservableMarketDataFunction(),
+        new TestFeedIdMapping(),
+        new NonObservableMarketDataFunction());
 
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<String> mapping =
-        PerturbationMapping.of(
-            String.class,
-            new FalseFilter<>(NonObservableId.class),
-            new StringAppender(""),
-            new StringAppender(""),
-            new StringAppender(""));
+    PerturbationMapping<String> mapping = PerturbationMapping.of(
+        String.class,
+        new FalseFilter<>(NonObservableId.class),
+        new StringAppender(""),
+        new StringAppender(""),
+        new StringAppender(""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioCalculationEnvironment marketData = factory.buildScenarioCalculationEnvironment(
         requirements,
@@ -1114,8 +1112,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(failures.get(id1).getMessage()).matches("No market data function available.*");
     assertThat(failures.get(id2).getMessage()).matches("No market data function available.*");
 
-    assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No values available for.*");
-    assertThrows(() -> marketData.getValues(id2), IllegalArgumentException.class, "No values available for.*");
+    assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No market data value available.*");
+    assertThrows(() -> marketData.getValues(id2), IllegalArgumentException.class, "No market data value available.*");
   }
 
   /**
@@ -1600,6 +1598,11 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public Class<String> getMarketDataType() {
       return String.class;
+    }
+
+    @Override
+    public String toString() {
+      return "NonObservableId [str='" + str + "']";
     }
   }
 

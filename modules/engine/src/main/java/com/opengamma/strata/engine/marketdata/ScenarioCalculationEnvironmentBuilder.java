@@ -323,6 +323,65 @@ public final class ScenarioCalculationEnvironmentBuilder {
     return this;
   }
 
+  /**
+   * Adds a value to the base market data which is shared between all scenarios.
+   *
+   * @param id  the ID of the market data value
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public ScenarioCalculationEnvironmentBuilder addBaseValueUnsafe(MarketDataId<?> id, Object value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    baseBuilder.addValueUnsafe(id, value);
+    return this;
+  }
+
+  /**
+   * Adds a result for a single item of market data, replacing any existing value with the same ID.
+   *
+   * @param id  the ID of the market data
+   * @param result  a result containing the market data value or details of why it could not be provided
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> ScenarioCalculationEnvironmentBuilder addBaseResult(MarketDataId<T> id, Result<T> result) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(result, "result");
+
+    if (result.isSuccess()) {
+      values.put(id, result.getValue());
+      singleValueFailures.remove(id);
+    } else {
+      singleValueFailures.put(id, result.getFailure());
+      values.removeAll(id);
+    }
+    return this;
+  }
+
+  /**
+   * Adds a result for a single item of market data, replacing any existing value with the same ID.
+   *
+   * @param id  the ID of the market data
+   * @param result  a result containing the market data value or details of why it could not be provided
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public ScenarioCalculationEnvironmentBuilder addBaseResultUnsafe(MarketDataId<?> id, Result<?> result) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(result, "result");
+
+    if (result.isSuccess()) {
+      values.put(id, result.getValue());
+      singleValueFailures.remove(id);
+    } else {
+      singleValueFailures.put(id, result.getFailure());
+      values.removeAll(id);
+    }
+    return this;
+  }
+
     /**
      * Adds a global value that is applicable to all scenarios.
      *

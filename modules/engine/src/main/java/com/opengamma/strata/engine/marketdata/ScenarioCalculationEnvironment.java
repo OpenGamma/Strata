@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.marketdata;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -191,11 +192,15 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     }
     List<?> values = this.values.get(id);
 
-    // TODO Try the base data
-    if (values.isEmpty()) {
-      throw new IllegalArgumentException("No values available for market data ID " + id);
+    if (!values.isEmpty()) {
+      return (List<T>) values;
     }
-    return (List<T>) values;
+    T baseValue = baseData.getValue(id);
+
+    if (baseValue != null) {
+      return Collections.nCopies(scenarioCount, baseValue);
+    }
+    throw new IllegalArgumentException("No values available for market data ID " + id);
   }
 
   /**
@@ -238,13 +243,33 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   }
 
   /**
-   * Returns true if this set of data contains value for the specified ID.
+   * Returns true if this set of data contains value for the specified ID in the base data or the scenario data.
    *
    * @param id  an ID identifying an item of market data
-   * @return true if this set of data contains values for the specified ID
+   * @return true if this set of data contains values for the specified ID in the base data or the scenario data
    */
   public boolean containsValues(MarketDataId<?> id) {
+    return values.containsKey(id) || baseData.containsValue(id);
+  }
+
+  /**
+   * Returns true if this set of data contains value for the specified ID in the scenario data.
+   *
+   * @param id  an ID identifying an item of market data
+   * @return true if this set of data contains values for the specified ID in the scenario data
+   */
+  public boolean containsScenarioValues(MarketDataId<?> id) {
     return values.containsKey(id);
+  }
+
+  /**
+   * Returns true if this set of data contains a value for the specified ID in the base data.
+   *
+   * @param id  an ID identifying an item of market data
+   * @return true if this set of data contains a value for the specified ID in the base data
+   */
+  public boolean containsBaseValue(MarketDataId<?> id) {
+    return baseData.containsValue(id);
   }
 
   /**

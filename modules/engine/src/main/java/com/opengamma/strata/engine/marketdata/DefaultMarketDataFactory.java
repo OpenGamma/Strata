@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -247,10 +246,6 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // of those nodes represent the market data required to build that data, and so on
     MarketDataNode root = MarketDataNode.buildDependencyTree(requirements, suppliedData, marketDataConfig, functions);
 
-    // As we build the leaf nodes we need to know their dependencies are even though they are no longer in the tree.
-    // This maps from the market data ID to the original node, including all its dependencies
-    Map<MarketDataId<?>, MarketDataNode> nodeMap = root.nodeMap();
-
     // The leaf nodes of the dependency tree represent market data with no missing requirements for market data.
     // This includes:
     //   * Market data that is already available
@@ -268,6 +263,11 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // needed for the calculations is available.
     //
     // The result of this method also contains details of the problems for market data can't be built or found.
+
+    // As we build the leaf nodes we need to know their dependencies are even though they are no longer in the tree.
+    // This maps from the market data ID to the original node, including all its dependencies
+    Map<MarketDataId<?>, MarketDataNode> nodeMap = root.nodeMap();
+
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
       ScenarioCalculationEnvironment marketData = builtData;
@@ -301,20 +301,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
       Map<ObservableId, Result<Double>> observableResults = buildObservableData(observableIds);
+      observableResults.entrySet().stream()
+          .forEach(tp -> applyScenariosToObservableResult(tp.getKey(), tp.getValue(), scenarioDefinition, dataBuilder));
 
-      for (Map.Entry<ObservableId, Result<Double>> entry : observableResults.entrySet()) {
-        ObservableId id = entry.getKey();
-        Result<Double> result = entry.getValue();
-
-        // TODO Check whether this result should go in the scenario or base data
-        // Return Optional<Result<List<Double>>>? Optional.empty() means no perturbations applied.
-        Result<List<Double>> scenarioResult = result.flatMap(value -> applyScenarios(id, value, scenarioDefinition));
-        dataBuilder.addResult(id, scenarioResult);
-      }
-      // Copy supplied data to the scenario data after applying perturbations
+      // Copy observable data from the supplied data to the builder, applying any matching perturbations
       leafRequirements.getObservables().stream()
           .filter(suppliedData::containsValue)
-          .forEach(id -> dataBuilder.addResult(id, applyScenarios(id, suppliedData.getValue(id), scenarioDefinition)));
+          .forEach(id -> applyScenariosToObservableValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
 
       // Non-observable data -----------------------------------------------------------------------
 
@@ -324,54 +317,33 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .filter(not(suppliedData::containsValue))
           .collect(toImmutableList());
 
-      // TODO At this point will need to decide whether a value should be built from base or scenario data.
-      // If all an item's dependencies are base data then it can be built from the base data.
-      // If any of the dependencies (recursively) are part of a scenario then multiple values must be built for the
-      // item, one for each scenario, using the scenario data as the input.
-      // Call buildNonObservableData for each of the base values, passing in the base data from builtData.
-      // Call buildNonObservableScenarioData for any value that needs to be in the scenario data.
-
-      // TODO If the value is built from base data we still need to check where to put it.
-      // If any filters match it needs to be perturbed and the results go in the scenario data.
-      // Else the single value goes in the base data.
-
-      // TODO Do I need to keep track of whether any dependencies were perturbed? Or is it enough just to
-      // check which set of data contains the dependency?
-      // It should be enough to check where the dependencies come from.
-      // If any of them are in the scenario data then the new data needs to be built from the scenario data and put
-      // into the scenario data.
-      // If all of them are in the base data then a single value should be built from the base data. If that value
-      // doesn't match any filters it goes into the base data. If it matches any filters it is perturbed and put
-      // into the scenario data.
-
+      // TODO Factor this out into a method and use forEach above, it's getting a bit messy here
       for (MarketDataId<?> id : nonObservableIds) {
-        // Gets a copy of the current node but with children representing the dependencies of the node's value
+        // Gets a copy of the current node including the child nodes representing the dependencies of the node's value
         MarketDataNode node = nodeMap.get(id);
-        List<MarketDataId<?>> dependencyIds = node.getDependencies().stream()
+        Set<MarketDataId<?>> dependencyIds = node.getDependencies().stream()
             .map(MarketDataNode::getId)
-            .collect(toImmutableList());
-        // Flag is true if any of the dependencies are in the scenario data.
+            .collect(toImmutableSet());
+        // This flag is true if any of the dependencies are in the scenario data.
         // If this is true then multiple values must be built for the ID using the scenario data
-        // If this is true a single value must be built using the base data
-        boolean dependencyInScenario = dependencyIds.stream().anyMatch(marketData::containsValues);
+        // If this is false a single value must be built using the base data
+        boolean dependencyInScenario = dependencyIds.stream().anyMatch(marketData::containsScenarioValues);
 
         if (dependencyInScenario) {
-          // TODO Build multiple values for the ID using the scenario data as input. Put into the scenario data
+          Map<MarketDataId<?>, Result<List<?>>> results =
+              buildNonObservableScenarioData(id, marketData, marketDataConfig, scenarioDefinition);
+
+          results.entrySet().stream().forEach(e -> dataBuilder.addResultUnsafe(e.getKey(), e.getValue()));
         } else {
-          // TODO Build single value for the ID using the base data as input.
-          // If any perturbations match the value, apply them and put the results into the scenario data.
-          // Else put the value into the base data
+          // Build single base value for the ID using the base data as input.
+          Result<?> result = buildNonObservableData(id, marketData.getBaseData(), marketDataConfig);
+          applyScenariosToBaseResult(id, result, scenarioDefinition, dataBuilder);
         }
       }
-      Map<MarketDataId<?>, Result<List<?>>> nonObservableScenarioResults =
-          buildNonObservableScenarioData(nonObservableIds, marketData, marketDataConfig, scenarioDefinition);
-
-      nonObservableScenarioResults.entrySet().stream().forEach(e -> dataBuilder.addResultUnsafe(e.getKey(), e.getValue()));
-
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()
           .filter(suppliedData::containsValue)
-          .forEach(id -> dataBuilder.addResultUnsafe(id, perturbValue(id, suppliedData.getValue(id), scenarioDefinition)));
+          .forEach(id -> applyScenariosToBaseValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
 
       // --------------------------------------------------------------------------------------------
 
@@ -390,25 +362,46 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param id  ID of the market data value
    * @param value  the market data value
    * @param scenarioDefinition  definition of a set of scenarios
-   * @return perturbed values derived from the market data value, one for each scenario
    */
-  private Result<List<Double>> applyScenarios(ObservableId id, double value, ScenarioDefinition scenarioDefinition) {
+  private void applyScenariosToObservableResult(
+      ObservableId id,
+      Result<Double> valueResult,
+      ScenarioDefinition scenarioDefinition,
+      ScenarioCalculationEnvironmentBuilder builder) {
+
+    if (valueResult.isFailure()) {
+      builder.addBaseResult(id, valueResult);
+    } else {
+      applyScenariosToObservableValue(id, valueResult.getValue(), scenarioDefinition, builder);
+    }
+  }
+
+  /**
+   * Applies any applicable perturbation from {@code scenarioDefinition} to an item of market data.
+   *
+   * @param id  ID of the market data value
+   * @param value  the market data value
+   * @param scenarioDefinition  definition of a set of scenarios
+   */
+  private void applyScenariosToObservableValue(
+      ObservableId id,
+      double value,
+      ScenarioDefinition scenarioDefinition,
+      ScenarioCalculationEnvironmentBuilder builder) {
     // Filters and perturbations can be user-supplied and we can't guarantee they won't throw exceptions
     try {
-      Optional<PerturbationMapping<?>> mapping =
-          scenarioDefinition.getMappings().stream()
-              .filter(m -> m.matches(id, value))
-              .findFirst();
+      Optional<PerturbationMapping<?>> mapping = scenarioDefinition.getMappings().stream()
+          .filter(m -> m.matches(id, value))
+          .findFirst();
 
       if (mapping.isPresent()) {
         List<Double> values = mapping.get().applyPerturbations(value);
-        return Result.success(values);
+        builder.addValues(id, values);
       } else {
-        List<Double> values = Collections.nCopies(scenarioDefinition.getScenarioCount(), value);
-        return Result.success(values);
+        builder.addBaseValue(id, value);
       }
     } catch (RuntimeException e) {
-      return Result.failure(e);
+      builder.addResult(id, Result.failure(e));
     }
   }
 
@@ -496,36 +489,32 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param scenarioDefinition  definition of the scenarios
    */
   private Map<MarketDataId<?>, Result<List<?>>> buildNonObservableScenarioData(
-      List<MarketDataId<?>> ids,
+      MarketDataId<?> id,
       ScenarioCalculationEnvironment marketData,
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
     ImmutableMap.Builder<MarketDataId<?>, Result<List<?>>> resultMap = ImmutableMap.builder();
 
-    for (MarketDataId<?> id : ids) {
-      List<Result<?>> results =
-          IntStream.range(0, scenarioDefinition.getScenarioCount()).boxed()
-              .map(scenarioIndex -> new ScenarioMarketDataLookup(marketData, scenarioIndex))
-              .map(data -> buildNonObservableData(id, data, marketDataConfig))
-              .collect(toImmutableList());
+    List<Result<?>> results = IntStream.range(0, scenarioDefinition.getScenarioCount()).boxed()
+        .map(scenarioIndex -> new ScenarioMarketDataLookup(marketData, scenarioIndex))
+        .map(data -> buildNonObservableData(id, data, marketDataConfig))
+        .collect(toImmutableList());
 
-      if (Result.anyFailures(results)) {
-        resultMap.put(id, Result.failure(results));
+    if (Result.anyFailures(results)) {
+      resultMap.put(id, Result.failure(results));
+    } else {
+      List<Result<?>> perturbedValues = Seq.seq(results.stream())
+          .map(Result::getValue)
+          .zipWithIndex()
+          .map(tp -> perturbValue(id, tp.v1, scenarioDefinition, tp.v2.intValue()))
+          .collect(toImmutableList());
+
+      if (Result.anyFailures(perturbedValues)) {
+        resultMap.put(id, Result.failure(perturbedValues));
       } else {
-        List<Result<?>> perturbedValues =
-            Seq.seq(results.stream())
-                .map(Result::getValue)
-                .zipWithIndex()
-                .map(tp -> perturbValue(id, tp.v1, scenarioDefinition, tp.v2.intValue()))
-                .collect(toImmutableList());
-
-        if (Result.anyFailures(perturbedValues)) {
-          resultMap.put(id, Result.failure(perturbedValues));
-        } else {
-          List<Object> values = perturbedValues.stream().map(Result::getValue).collect(toImmutableList());
-          resultMap.put(id, Result.success(values));
-        }
+        List<Object> values = perturbedValues.stream().map(Result::getValue).collect(toImmutableList());
+        resultMap.put(id, Result.success(values));
       }
     }
     return resultMap.build();
@@ -567,29 +556,54 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
-   * Applies perturbations from a scenario definition to an item of non-observable market data if there is
-   * one that applied.
+   * Applies perturbations from a scenario definition to a base market data value and puts the result into a builder.
+   * <p>
+   * If no perturbations apply the base value is put into the base data. If there is an applicable perturbation
+   * it is applied to create a market value for each scenario. These scenario values are put into the scenario data.
    *
    * @param id  ID of the market data value
-   * @param marketDataValue  the market data value
+   * @param valueResult  a result containing the market data value
    * @param scenarioDefinition  the definition of the scenarios
-   * @return the item of data with any applicable perturbations applied
    */
-  private Result<List<?>> perturbValue(
+  private void applyScenariosToBaseResult(
+      MarketDataId<?> id,
+      Result<?> valueResult,
+      ScenarioDefinition scenarioDefinition,
+      ScenarioCalculationEnvironmentBuilder builder) {
+
+    if (valueResult.isFailure()) {
+      builder.addBaseResultUnsafe(id, valueResult);
+    } else {
+      applyScenariosToBaseValue(id, valueResult.getValue(), scenarioDefinition, builder);
+    }
+  }
+
+  /**
+   * Applies perturbations from a scenario definition to a base market data value and puts the result into a builder.
+   * <p>
+   * If no perturbations apply the base value is put into the base data. If there is an applicable perturbation
+   * it is applied to create a market value for each scenario. These scenario values are put into the scenario data.
+   *
+   * @param id  ID of the market data value
+   * @param valueResult  a result containing the market data value
+   * @param scenarioDefinition  the definition of the scenarios
+   */
+  private void applyScenariosToBaseValue(
       MarketDataId<?> id,
       Object marketDataValue,
-      ScenarioDefinition scenarioDefinition) {
+      ScenarioDefinition scenarioDefinition,
+      ScenarioCalculationEnvironmentBuilder builder) {
 
-    List<Result<Object>> results =
-        IntStream.range(0, scenarioDefinition.getScenarioCount())
-            .mapToObj(idx -> perturbValue(id, marketDataValue, scenarioDefinition, idx))
-            .collect(toImmutableList());
+    Optional<PerturbationMapping<?>> optionalMapping = scenarioDefinition.getMappings().stream()
+        .filter(mapping -> mapping.matches(id, marketDataValue))
+        .findFirst();
 
-    if (Result.anyFailures(results)) {
-      return Result.failure(results);
+    if (!optionalMapping.isPresent()) {
+      builder.addBaseValueUnsafe(id, marketDataValue);
     } else {
-      List<Object> values = results.stream().map(Result::getValue).collect(toImmutableList());
-      return Result.success(values);
+      PerturbationMapping<?> mapping = optionalMapping.get();
+      List<Object> perturbedValues = mapping.applyPerturbations(marketDataValue);
+      builder.addValuesUnsafe(id, perturbedValues);
     }
   }
 
