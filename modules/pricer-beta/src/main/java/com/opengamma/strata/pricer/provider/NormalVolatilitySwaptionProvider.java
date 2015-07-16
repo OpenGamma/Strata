@@ -33,7 +33,9 @@ public interface NormalVolatilitySwaptionProvider{
 
   //-------------------------------------------------------------------------
   /**
-   * Converts a time and date to a relative year fraction.
+   * Converts a time and date to a relative year fraction. 
+   * <p>
+   * When the date is after the valuation date (and potentially time), the returned number is negative.
    * 
    * @param date  the date/time to find the relative year fraction of
    * @return the relative year fraction

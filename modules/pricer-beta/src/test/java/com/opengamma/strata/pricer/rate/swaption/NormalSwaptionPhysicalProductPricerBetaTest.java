@@ -33,6 +33,7 @@ import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.provider.NormalVolatilityExpiryTenorSwaptionProvider;
 import com.opengamma.strata.pricer.provider.NormalVolatilitySwaptionProvider;
@@ -49,6 +50,7 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
   private static final LocalDate VALUATION_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
 
   private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
+  private static final LocalDate SWAPTION_PAST_EXERCISE_DATE = VALUATION_DATE.minusYears(1);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
   private static final LocalDate SWAP_EFFECTIVE_DATE = USD_LIBOR_3M.calculateEffectiveFromFixing(SWAPTION_EXERCISE_DATE);
@@ -65,6 +67,9 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
       IborIborSwapConvention.of(USD_FIXED_6M_LIBOR_3M.getFloatingLeg(), USD_FIXED_6M_LIBOR_3M.getFloatingLeg());
   private static final Swap SWAP_BASIS = USD_LIBOR_3M_LIBOR_3M
       .toTrade(VALUATION_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
+  private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
+      .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
+          BUY, NOTIONAL, STRIKE).getProduct();
   
   private static final Swaption SWAPTION_LONG_REC = Swaption.builder().cashSettled(false)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
@@ -81,6 +86,9 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
   private static final Swaption SWAPTION_BASIS = Swaption.builder().cashSettled(false)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_BASIS).build();
+  private static final Swaption SWAPTION_PAST = Swaption.builder().cashSettled(false)
+      .expiryDate(SWAPTION_PAST_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
+      .longShort(LongShort.LONG).underlying(SWAP_PAST).build();
 
   public static final NormalPriceFunction NORMAL = new NormalPriceFunction();
 
@@ -126,6 +134,12 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
         .impliedVolatility(SWAPTION_LONG_PAY, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(volComputed, volExpected, TOLERANCE_RATE);
   }
+  
+  @Test
+  public void test_implied_volatility_after_expiry() {
+    assertThrowsIllegalArg(() -> 
+    PRICER_SWAPTION_NORMAL.impliedVolatility(SWAPTION_PAST, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD));
+  }
 
   //-------------------------------------------------------------------------
   @Test
@@ -162,6 +176,12 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
     MultiCurrencyAmount pvSwapPay =
         PRICER_SWAP.presentValue(SWAP_PAY, MULTI_USD);
     assertEquals(pvLongPay.getAmount() + pvShortRec.getAmount(), pvSwapPay.getAmount(USD).getAmount(), TOLERANCE_PV);
+  }
+  
+  @Test
+  public void present_value_after_expiry() {
+    CurrencyAmount pv = PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_PAST, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(pv.getAmount(), 0.0d, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------  
@@ -209,6 +229,13 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
     assertTrue(pvpsLongPay.combinedWith(pvpsShortRec).equalWithTolerance(pvpsSwapRec, TOLERANCE_PV_DELTA));
   }
   
+  @Test
+  public void present_value_sensitivity_after_expiry() {
+    PointSensitivityBuilder pvpts = PRICER_SWAPTION_NORMAL
+        .presentValueSensitivityStickyStrike(SWAPTION_PAST, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(pvpts, PointSensitivityBuilder.none());
+  }
+  
   //-------------------------------------------------------------------------
   @Test
   public void present_value_sensitivityNormalVolatility_FD() {
@@ -246,6 +273,14 @@ public class NormalSwaptionPhysicalProductPricerBetaTest {
     SwaptionSensitivity pvptShortRec = PRICER_SWAPTION_NORMAL
         .presentValueSensitivityNormalVolatility(SWAPTION_SHORT_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvptLongPay.getSensitivity() + pvptShortRec.getSensitivity(), 0, TOLERANCE_PV_VEGA);    
+  }
+  
+  @Test
+  public void present_value_sensitivityNormalVolatility_after_expiry() {
+    SwaptionSensitivity v = PRICER_SWAPTION_NORMAL
+        .presentValueSensitivityNormalVolatility(SWAPTION_PAST, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(v.getSensitivity(), 0.0d, TOLERANCE_PV_VEGA);
+    
   }
   
 }
