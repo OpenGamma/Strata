@@ -77,7 +77,7 @@ public interface DayCount
    * dates according to the convention. The dates must be in order.
    * <p>
    * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
-   * set to false, but throws an exception for other methods.
+   * set to true, but throws an exception for other methods.
    * Certain implementations of {@code DayCount} need the missing information,
    * and thus will throw an exception.
    * 
@@ -115,7 +115,7 @@ public interface DayCount
    * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
    * <p>
    * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
-   * set to false, but throws an exception for other methods.
+   * set to true, but throws an exception for other methods.
    * Certain implementations of {@code DayCount} need the missing information,
    * and thus will throw an exception.
    * 

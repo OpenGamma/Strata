@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.PriceIndex;
 
 /**
@@ -117,6 +118,11 @@ public final class InflationRateSensitivity
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+  }
+
+  @Override
+  public InflationRateSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (InflationRateSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
   }
 
   //-------------------------------------------------------------------------

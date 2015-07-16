@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 
 /**
  * Point sensitivity to the zero rate curve.
@@ -117,6 +118,11 @@ public final class ZeroRateSensitivity
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+  }
+
+  @Override
+  public ZeroRateSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (ZeroRateSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
   }
 
   //-------------------------------------------------------------------------

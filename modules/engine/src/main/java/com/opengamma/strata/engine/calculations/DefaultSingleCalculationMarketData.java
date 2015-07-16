@@ -50,7 +50,7 @@ public final class DefaultSingleCalculationMarketData implements SingleCalculati
   }
 
   @Override
-  public <T, K extends MarketDataKey<T>> T getValue(K key) {
+  public <T> T getValue(MarketDataKey<T> key) {
     return scenarioMarketData.getValues(key).get(scenarioIndex);
   }
 }

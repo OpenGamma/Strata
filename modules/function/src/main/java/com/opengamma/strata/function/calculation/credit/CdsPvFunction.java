@@ -23,9 +23,12 @@ public class CdsPvFunction
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      LocalDate valuationDate) {
+      LocalDate valuationDate,
+      double recoveryRate,
+      double scalingFactor) {
 
-    return pricer().presentValue(product, yieldCurveParRates, creditCurveParRates, valuationDate);
+    return pricer().presentValue(
+        product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }

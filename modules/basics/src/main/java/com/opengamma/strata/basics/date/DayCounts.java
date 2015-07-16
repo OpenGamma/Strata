@@ -27,7 +27,7 @@ public final class DayCounts {
   /**
    * A simple schedule information object.
    * <p>
-   * The returns true for end of month and an exception for all other methods.
+   * This returns true for end of month and an exception for all other methods.
    */
   static final ScheduleInfo SIMPLE_SCHEDULE_INFO = new ScheduleInfo() {};
 
@@ -239,7 +239,8 @@ public final class DayCounts {
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * <p>
    * This is the same as '30/360 ISDA' if the EOM convention does not apply
-   * but with two additional end of February rules if the EOM does apply.
+   * but with two additional end of February rules if the EOM rule does apply.
+   * The default {@link ScheduleInfo} instance has the EOM rule set to true.
    * <p>
    * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will assume
    * that the end-of-month rule applies.

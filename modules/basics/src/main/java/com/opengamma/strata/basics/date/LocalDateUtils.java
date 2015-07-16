@@ -45,6 +45,7 @@ final class LocalDateUtils {
    * Faster than the JDK method.
    * 
    * @param date  the date to add to
+   * @param daysToAdd  the days to add
    * @return the new date
    */
   static LocalDate plusDays(LocalDate date, int daysToAdd) {

@@ -23,7 +23,7 @@ package com.opengamma.strata.basics.currency;
 public interface FxConvertible<R> {
 
   /**
-   * Converts this instance to an equivalent amount the specified currency.
+   * Converts this instance to an equivalent amount in the specified currency.
    * <p>
    * The result, which may be of a different type, will be expressed in terms of the given currency.
    * Any FX conversion that is required will use rates from the provider.

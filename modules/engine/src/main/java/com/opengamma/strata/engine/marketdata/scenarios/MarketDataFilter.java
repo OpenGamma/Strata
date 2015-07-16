@@ -22,6 +22,15 @@ import com.opengamma.strata.basics.market.MarketDataId;
 public interface MarketDataFilter<T, I extends MarketDataId<T>> {
 
   /**
+   * Returns the type of market data ID handled by this filter.
+   * <p>
+   * This should correspond to the type parameter {@code I}.
+   *
+   * @return the type of market data ID handled by this filter
+   */
+  public abstract Class<?> getMarketDataIdType();
+
+  /**
    * Applies the filter to a market data ID and the corresponding market data value and returns true
    * if the filter matches.
    *
@@ -30,13 +39,4 @@ public interface MarketDataFilter<T, I extends MarketDataId<T>> {
    * @return true if the filter matches
    */
   public abstract boolean apply(I marketDataId, T marketData);
-
-  /**
-   * Returns the type of market data ID handled by this filter.
-   * <p>
-   * This should correspond to the type parameter {@code I}.
-   *
-   * @return the type of market data ID handled by this filter
-   */
-  public abstract Class<?> getMarketDataIdType();
 }

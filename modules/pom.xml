@@ -4,11 +4,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.0.0-RC3</version>
+    <version>2.0.0</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.strata</groupId>
@@ -47,7 +47,6 @@
 
   <!-- ==================================================================== -->
   <!-- OpenGamma public repositories -->
-  <!-- duplicated from corporate-pom to ensure this pom builds from scratch -->
   <repositories>
     <repository>
       <id>og-public</id>
@@ -55,13 +54,6 @@
       <url>http://maven.opengamma.com/nexus/content/groups/public</url>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>og-public</id>
-      <name>OG Public</name>
-      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <!-- ==================================================================== -->
   <modules>
@@ -82,6 +74,16 @@
   <!-- ==================================================================== -->
   <!-- standard build setup -->
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
     <plugins>
       <!--  obtain git commit -->
       <plugin>
@@ -117,9 +119,6 @@
           </execution>
         </executions>
         <configuration>
-          <excludes>
-            <exclude>tests.properties</exclude>
-          </excludes>
           <skipIfEmpty>true</skipIfEmpty>
           <archive>
             <manifestEntries>
@@ -129,34 +128,6 @@
             </manifestEntries>
           </archive>
         </configuration>
-      </plugin>
-      <!-- generate source jar file when packaging -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-            <configuration>
-              <skipIfEmpty>true</skipIfEmpty>
-              <archive>
-                <manifest>
-                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                </manifest>
-                <manifestEntries>
-                  <Implementation-Build>${buildNumber}</Implementation-Build>
-                  <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
-                  <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
-                </manifestEntries>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <!-- Enforce maven version -->
       <plugin>
@@ -373,26 +344,76 @@
   </dependencyManagement>
 
   <!-- ==================================================================== -->
-  <distributionManagement>
-    <repository>
-      <id>strata-private-release</id>
-      <name>Strata maven repository</name>
-      <url>${strata-private-release.url}</url>
-    </repository>
-    <snapshotRepository>
-      <id>strata-private-snapshot</id>
-      <name>Strata snapshot maven repository</name>
-      <url>${strata-private-snapshot.url}</url>
-    </snapshotRepository>
-    <site>
-      <id>strata-public-site</id>
-      <name>Strata public site</name>
-      <url>http://developers.opengamma.com/strata</url>
-    </site>
-  </distributionManagement>
-
-  <!-- ==================================================================== -->
   <profiles>
+    <!-- build source and javadoc jars -->
+    <profile>
+      <id>extra-jars</id>
+      <activation>
+        <property>
+          <name>oss.jars</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <!-- generate source jar file when packaging -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- generate javadoc jar file when packaging -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- apply strict build rules, activated with -Dstrict -->
     <profile>
       <id>strict</id>

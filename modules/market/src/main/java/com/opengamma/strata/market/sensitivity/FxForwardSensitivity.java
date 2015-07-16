@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -161,6 +162,11 @@ public final class FxForwardSensitivity
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+  }
+
+  @Override
+  public FxForwardSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (FxForwardSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
   }
 
   //-------------------------------------------------------------------------

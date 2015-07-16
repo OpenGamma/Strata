@@ -154,7 +154,7 @@ public class DefaultCalculationRunner implements CalculationRunner {
     if (!(value instanceof ScenarioResult)) {
       return result;
     }
-    ScenarioResult<?> scenarioResult = (ScenarioResult) value;
+    ScenarioResult<?> scenarioResult = (ScenarioResult<?>) value;
 
     if (scenarioResult.size() != 1) {
       throw new IllegalArgumentException(
