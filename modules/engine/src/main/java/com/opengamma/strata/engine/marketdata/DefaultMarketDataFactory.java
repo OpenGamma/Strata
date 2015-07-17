@@ -428,12 +428,16 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     // Filters and perturbations can be user-supplied and we can't guarantee they won't throw exceptions
     try {
-      Optional<PerturbationMapping<?>> mapping = scenarioDefinition.getMappings().stream()
+      Optional<PerturbationMapping<?>> optionalMapping = scenarioDefinition.getMappings().stream()
           .filter(m -> m.matches(id, value))
           .findFirst();
 
-      if (mapping.isPresent()) {
-        List<Double> values = mapping.get().applyPerturbations(value);
+      if (optionalMapping.isPresent()) {
+        // This is definitely safe because the filter matched the value and the types of the filter and perturbation
+        // are compatible
+        @SuppressWarnings("unchecked")
+        PerturbationMapping<Double> mapping = (PerturbationMapping<Double>) optionalMapping.get();
+        List<Double> values = mapping.applyPerturbations(value);
         builder.addValues(id, values);
       } else {
         builder.addBaseValue(id, value);
@@ -639,7 +643,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     if (!optionalMapping.isPresent()) {
       builder.addBaseValueUnsafe(id, marketDataValue);
     } else {
-      PerturbationMapping<?> mapping = optionalMapping.get();
+      // This is safe because the filter matched the value and the filter and perturbation types are compatible
+      @SuppressWarnings("unchecked")
+      PerturbationMapping<Object> mapping = (PerturbationMapping<Object>) optionalMapping.get();
       List<Object> perturbedValues = mapping.applyPerturbations(marketDataValue);
       builder.addValuesUnsafe(id, perturbedValues);
     }
