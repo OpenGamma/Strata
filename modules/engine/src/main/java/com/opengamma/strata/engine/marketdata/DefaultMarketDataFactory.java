@@ -334,21 +334,32 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
-   * TODO
+   * Builds a non-observable market data value and adds them the the data builder.
+   * <p>
+   * If any of the dependencies of the item are in the scenario data then multiple values are built for the item,
+   * one for each scenario. After the values are built the perturbation mappings from the scenario definition
+   * are applied.
+   * <p>
+   * If all dependencies of the item are in the base data then a single value is built.
+   * Perturbation mappings from the scenario are applied. If none of the mappings match the value it is
+   * put into the base data. If any mappings match, the value is perturbed and the perturbed values are put
+   * into the scenario data.
    *
-   * @param id
-   * @param marketDataConfig
-   * @param nodeMap
-   * @param marketData
-   * @param scenarioDefinition
-   * @param dataBuilder
+   * @param id  ID of the market data
+   * @param marketDataConfig  configuration used when building market data
+   * @param nodeMap  map of market data ID to the node in the dependency graph for the market data value
+   * @param marketData  the set of market data containing any dependencies required to build the value
+   * @param scenarioDefinition  definition of a scenario used to perturb the built value
+   * @param dataBuilder  the built values are put into this builder
    */
   private void addNonObservableValues(
       MarketDataId<?> id,
       MarketDataConfig marketDataConfig,
       Map<MarketDataId<?>, MarketDataNode> nodeMap,
       ScenarioCalculationEnvironment marketData,
-      ScenarioDefinition scenarioDefinition, ScenarioCalculationEnvironmentBuilder dataBuilder) {
+      ScenarioDefinition scenarioDefinition,
+      ScenarioCalculationEnvironmentBuilder dataBuilder) {
+
     // Gets a copy of the current node including the child nodes representing the dependencies of the node's value
     MarketDataNode node = nodeMap.get(id);
     Set<MarketDataId<?>> dependencyIds = node.getDependencies().stream()
@@ -372,11 +383,17 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
-   * Applies any applicable perturbation from {@code scenarioDefinition} to an item of market data.
+   * Adds an item of observable market data to a builder.
+   * <p>
+   * If the result is a failure it is added to the base data failures.
+   * <p>
+   * If the result is a success it is passed to {@link #addObservableValue} where the scenario definition is
+   * applied and the data is added to the builder.
    *
    * @param id  ID of the market data value
-   * @param value  the market data value
+   * @param valueResult  a result containing the market data value or details of why it couldn't be built
    * @param scenarioDefinition  definition of a set of scenarios
+   * @param builder  the value or failure details are added to this builder
    */
   private void addObservableResult(
       ObservableId id,
@@ -392,17 +409,23 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
-   * Applies any applicable perturbation from {@code scenarioDefinition} to an item of market data.
+   * Adds an item of observable market data to a builder.
+   * <p>
+   * The mappings from the scenario definition is applied to the value. If any of the mappings match the value
+   * is perturbed and the perturbed values are added to the scenario data. If none of the mappings match
+   * the input value is added to the base data.
    *
    * @param id  ID of the market data value
    * @param value  the market data value
    * @param scenarioDefinition  definition of a set of scenarios
+   * @param builder  the market data is added to this builder
    */
   private void addObservableValue(
       ObservableId id,
       double value,
       ScenarioDefinition scenarioDefinition,
       ScenarioCalculationEnvironmentBuilder builder) {
+
     // Filters and perturbations can be user-supplied and we can't guarantee they won't throw exceptions
     try {
       Optional<PerturbationMapping<?>> mapping = scenarioDefinition.getMappings().stream()
@@ -490,7 +513,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   /**
-   * Builds multiple versions of items of market data, one for each scenario.
+   * Builds multiple versions of an item of market data, one for each scenario.
    * <p>
    * The values are rebuilt for each scenario on the assumption that its input data or market data source might be
    * different for each scenario.
@@ -498,7 +521,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * After a value is built the perturbations in the scenario definition are examined and any applicable
    * perturbation is applied to the value.
    *
-   * @param ids  IDs of the market data values
+   * @param id ID of the market data value
    * @param marketData  market data containing any dependencies of the values being built
    * @param marketDataConfig  configuration specifying how market data should be built
    * @param scenarioDefinition  definition of the scenarios
@@ -553,10 +576,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       ScenarioDefinition scenarioDefinition,
       int scenarioIndex) {
 
-    Optional<PerturbationMapping<?>> mapping =
-        scenarioDefinition.getMappings().stream()
-            .filter(m -> m.matches(id, marketDataValue))
-            .findFirst();
+    Optional<PerturbationMapping<?>> mapping = scenarioDefinition.getMappings().stream()
+        .filter(m -> m.matches(id, marketDataValue))
+        .findFirst();
 
     if (!mapping.isPresent()) {
       return Result.success(marketDataValue);
@@ -600,7 +622,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * it is applied to create a market value for each scenario. These scenario values are put into the scenario data.
    *
    * @param id  ID of the market data value
-   * @param valueResult  a result containing the market data value
+   * @param marketDataValue  the market data value
    * @param scenarioDefinition  the definition of the scenarios
    */
   private void addNonObservableValue(
