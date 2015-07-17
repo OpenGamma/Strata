@@ -125,6 +125,52 @@ public class DoubleArrayMathTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_sortPairs_doubledouble_1() {
+    double[] keys = {3d, 5d, 2d, 4d};
+    double[] values = {6d, 10d, 4d, 8d};
+    DoubleArrayMath.sortPairs(keys, values);
+    assertThat(keys).containsExactly(2d, 3d, 4d, 5d);
+    assertThat(values).containsExactly(4d, 6d, 8d, 10d);
+  }
+
+  public void test_sortPairs_doubledouble_2() {
+    double[] keys = {3d, 2d, 5d, 4d};
+    double[] values = {6d, 4d, 10d, 8d};
+    DoubleArrayMath.sortPairs(keys, values);
+    assertThat(keys).containsExactly(2d, 3d, 4d, 5d);
+    assertThat(values).containsExactly(4d, 6d, 8d, 10d);
+  }
+
+  public void test_sortPairs_doubledouble_sizeDifferent() {
+    double[] keys = {3d, 2d, 5d, 4d};
+    double[] values = {6d, 4d};
+    assertThrowsIllegalArg(() -> DoubleArrayMath.sortPairs(keys, values));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_sortPairs_doubleObject_1() {
+    double[] keys = {3d, 5d, 2d, 4d};
+    Integer[] values = {6, 10, 4, 8};
+    DoubleArrayMath.sortPairs(keys, values);
+    assertThat(keys).containsExactly(2d, 3d, 4d, 5d);
+    assertThat(values).containsExactly(4, 6, 8, 10);
+  }
+
+  public void test_sortPairs_doubleObject_2() {
+    double[] keys = {3d, 2d, 5d, 4d};
+    Integer[] values = {6, 4, 10, 8};
+    DoubleArrayMath.sortPairs(keys, values);
+    assertThat(keys).containsExactly(2d, 3d, 4d, 5d);
+    assertThat(values).containsExactly(4, 6, 8, 10);
+  }
+
+  public void test_sortPairs_doubleObject_sizeDifferent() {
+    double[] keys = {3d, 2d, 5d, 4d};
+    Integer[] values = {6, 4};
+    assertThrowsIllegalArg(() -> DoubleArrayMath.sortPairs(keys, values));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(DoubleArrayMath.class);
   }
