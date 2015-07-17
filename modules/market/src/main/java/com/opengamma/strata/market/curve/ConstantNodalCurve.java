@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -108,19 +107,6 @@ public final class ConstantNodalCurve
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns the underlying constant curve instance.
-   * <p>
-   * This is a bridge method to the analytics package.
-   * 
-   * @return the underlying curve
-   * @deprecated this method should not be used in application code
-   */
-  @Deprecated
-  public ConstantDoublesCurve getUnderlyingCurve() {
-    return ConstantDoublesCurve.from(yValue, metadata.getCurveName().toString());
-  }
-
   @Override
   public int getParameterCount() {
     return 1;
