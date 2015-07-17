@@ -28,6 +28,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  */
 public final class ScenarioCalculationEnvironmentBuilder {
 
+  /** Builder for the market data shared between all scenarios. */
+  private final CalculationEnvironmentBuilder sharedBuilder;
+
   /** The number of scenarios. */
   private final int scenarioCount;
 
@@ -40,29 +43,11 @@ public final class ScenarioCalculationEnvironmentBuilder {
    */
   private final ListMultimap<MarketDataId<?>, Object> values = ArrayListMultimap.create();
 
-  /**
-   * The time series of market data for the scenarios, keyed by the ID of the market data.
-   * The number of values for each key is the same as the number of scenarios.
-   */
-  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
-
   /** The global market data values that are applicable to all scenarios. */
   private final Map<MarketDataId<?>, Object> globalValues = new HashMap<>();
 
   /** Details of failures when building single market data values. */
   private final Map<MarketDataId<?>, Failure> singleValueFailures = new HashMap<>();
-
-  /** Details of failures when building time series of market data values. */
-  private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
-
-  /**
-   * Creates a new builder with the specified number of scenarios.
-   *
-   * @param scenarioCount the number of scenarios
-   */
-  ScenarioCalculationEnvironmentBuilder(int scenarioCount) {
-    this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
-  }
 
   /**
    * Returns a new builder where every scenario has the same valuation date.
@@ -72,6 +57,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
    */
   ScenarioCalculationEnvironmentBuilder(int scenarioCount, LocalDate valuationDate) {
     this.scenarioCount = ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    this.sharedBuilder = CalculationEnvironment.builder(valuationDate);
     valuationDate(valuationDate);
   }
 
@@ -80,35 +66,31 @@ public final class ScenarioCalculationEnvironmentBuilder {
    * <p>
    * This is package-private because it is intended to be used by {@code ScenarioMarketData.builder()}.
    *
+   * @param sharedData  the set market data that is the same in all scenarios
    * @param scenarioCount  the number of scenarios
    * @param valuationDates  the valuation dates for the scenarios
    * @param values  the single market data values
-   * @param timeSeries  the time series of market data values
    * @param globalValues  the single market data values applicable to all scenarios
    * @param singleValueFailures  the single value failures
-   * @param timeSeriesFailures  the time-series failures
    */
   ScenarioCalculationEnvironmentBuilder(
+      CalculationEnvironment sharedData,
       int scenarioCount,
       List<LocalDate> valuationDates,
       ListMultimap<MarketDataId<?>, ?> values,
-      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries,
       Map<? extends MarketDataId<?>, Object> globalValues,
-      Map<MarketDataId<?>, Failure> singleValueFailures,
-      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
+      Map<MarketDataId<?>, Failure> singleValueFailures) {
 
     ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
     ArgChecker.notNull(valuationDates, "valuationDates");
     ArgChecker.notNull(values, "values");
-    ArgChecker.notNull(timeSeries, "timeSeries");
     ArgChecker.notNull(globalValues, "globalValues");
 
+    this.sharedBuilder = sharedData.toBuilder();
     this.scenarioCount = scenarioCount;
     this.values.putAll(values);
-    this.timeSeries.putAll(timeSeries);
     this.globalValues.putAll(globalValues);
     this.singleValueFailures.putAll(singleValueFailures);
-    this.timeSeriesFailures.putAll(timeSeriesFailures);
     valuationDates(valuationDates);
   }
 
@@ -264,10 +246,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
    * @return this builder
    */
   public ScenarioCalculationEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.put(id, timeSeries);
-    timeSeriesFailures.remove(id);
+    sharedBuilder.addTimeSeries(id, timeSeries);
     return this;
   }
 
@@ -280,9 +259,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
   public ScenarioCalculationEnvironmentBuilder addTimeSeries(
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
 
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.putAll(timeSeries);
-    timeSeries.keySet().stream().forEach(timeSeriesFailures::remove);
+    sharedBuilder.addAllTimeSeries(timeSeries);
     return this;
   }
 
@@ -297,26 +274,89 @@ public final class ScenarioCalculationEnvironmentBuilder {
       ObservableId id,
       Result<LocalDateDoubleTimeSeries> result) {
 
+    sharedBuilder.addTimeSeriesResult(id, result);
+    return this;
+  }
+
+  /**
+   * Adds a value to the market data which is shared between all scenarios.
+   *
+   * @param id  the ID of the market data value
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> ScenarioCalculationEnvironmentBuilder addSharedValue(MarketDataId<T> id, T value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    sharedBuilder.addValue(id, value);
+    return this;
+  }
+
+  /**
+   * Adds a value to the market data which is shared between all scenarios.
+   *
+   * @param id  the ID of the market data value
+   * @param value  the market data value
+   * @return this builder
+   */
+  public ScenarioCalculationEnvironmentBuilder addSharedValueUnsafe(MarketDataId<?> id, Object value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    sharedBuilder.addValueUnsafe(id, value);
+    return this;
+  }
+
+  /**
+   * Adds a result for a single item of market data, replacing any existing value with the same ID.
+   *
+   * @param id  the ID of the market data
+   * @param result  a result containing the market data value or details of why it could not be provided
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> ScenarioCalculationEnvironmentBuilder addSharedResult(MarketDataId<T> id, Result<T> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
     if (result.isSuccess()) {
-      timeSeries.put(id, result.getValue());
-      timeSeriesFailures.remove(id);
+      values.put(id, result.getValue());
+      singleValueFailures.remove(id);
     } else {
-      timeSeriesFailures.put(id, result.getFailure());
-      timeSeries.remove(id);
+      singleValueFailures.put(id, result.getFailure());
+      values.removeAll(id);
     }
     return this;
   }
 
   /**
-   * Adds a global value that is applicable to all scenarios.
+   * Adds a result for a single item of market data, replacing any existing value with the same ID.
    *
-   * @param id the identifier to associate the value with
-   * @param value the value to add
+   * @param id  the ID of the market data
+   * @param result  a result containing the market data value or details of why it could not be provided
    * @return this builder
    */
+  public ScenarioCalculationEnvironmentBuilder addSharedResultUnsafe(MarketDataId<?> id, Result<?> result) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(result, "result");
+
+    if (result.isSuccess()) {
+      values.put(id, result.getValue());
+      singleValueFailures.remove(id);
+    } else {
+      singleValueFailures.put(id, result.getFailure());
+      values.removeAll(id);
+    }
+    return this;
+  }
+
+    /**
+     * Adds a global value that is applicable to all scenarios.
+     *
+     * @param id the identifier to associate the value with
+     * @param value the value to add
+     * @return this builder
+     */
   public <T> ScenarioCalculationEnvironmentBuilder addGlobalValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
@@ -331,13 +371,12 @@ public final class ScenarioCalculationEnvironmentBuilder {
    */
   public ScenarioCalculationEnvironment build() {
     return new ScenarioCalculationEnvironment(
+        sharedBuilder.build(),
         scenarioCount,
         valuationDates,
         values,
-        timeSeries,
         globalValues,
-        singleValueFailures,
-        timeSeriesFailures);
+        singleValueFailures);
   }
 
   private void checkLength(int length, String itemName) {
