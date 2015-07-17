@@ -129,7 +129,7 @@ public class FxConvertibleListTest {
     assertThrows(
         () -> list.convertedTo(Currency.USD, calculationMarketData),
         IllegalArgumentException.class,
-        "No values available for market data ID .*");
+        "No market data available for .*");
   }
 
   /**

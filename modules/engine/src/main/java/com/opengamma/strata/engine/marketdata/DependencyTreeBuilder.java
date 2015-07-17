@@ -80,17 +80,17 @@ class DependencyTreeBuilder {
    *
    * @return nodes representing the dependencies of the market data required for a set of calculations
    */
-  List<MarketDataNode> childNodes() {
-    return childNodes(requirements);
+  List<MarketDataNode> dependencyNodes() {
+    return dependencyNodes(requirements);
   }
 
   /**
-   * Returns child nodes representing the dependencies of a set of market data.
+   * Returns nodes representing the dependencies of a set of market data.
    *
    * @param requirements  requirements for market data needed for a set of calculations
-   * @return child nodes representing the dependencies of a set of market data
+   * @return nodes representing the dependencies of a set of market data
    */
-  private List<MarketDataNode> childNodes(CalculationRequirements requirements) {
+  private List<MarketDataNode> dependencyNodes(CalculationRequirements requirements) {
 
     List<MarketDataNode> observableNodes =
         buildNodes(requirements.getObservables(), MarketDataNode.DataType.SINGLE_VALUE);
@@ -141,7 +141,7 @@ class DependencyTreeBuilder {
     if (builder != null) {
       @SuppressWarnings("unchecked")
       MarketDataRequirements requirements = builder.requirements(id, marketDataConfig);
-      return MarketDataNode.child(id, dataType, childNodes(CalculationRequirements.of(requirements)));
+      return MarketDataNode.child(id, dataType, dependencyNodes(CalculationRequirements.of(requirements)));
     } else {
       // If there is no builder insert a leaf node. It will be flagged as an error when the data is built
       return MarketDataNode.leaf(id, dataType);
