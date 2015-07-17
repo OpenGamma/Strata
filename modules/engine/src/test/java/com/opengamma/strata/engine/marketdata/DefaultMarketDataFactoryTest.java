@@ -656,8 +656,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
 
     // Check the values are in the base data, not the scenario data
-    assertThat(marketData.containsBaseValue(id1)).isTrue();
-    assertThat(marketData.containsBaseValue(id2)).isTrue();
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
     assertThat(marketData.containsScenarioValues(id1)).isFalse();
     assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
@@ -698,8 +698,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
 
     // Check the values are in the base data, not the scenario data
-    assertThat(marketData.containsBaseValue(id1)).isTrue();
-    assertThat(marketData.containsBaseValue(id2)).isTrue();
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
     assertThat(marketData.containsScenarioValues(id1)).isFalse();
     assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
@@ -782,8 +782,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
 
     // id1 was perturbed so should be in the scenario data, id2 wasn't perturbed so should be in the base data
-    assertThat(marketData.containsBaseValue(id1)).isFalse();
-    assertThat(marketData.containsBaseValue(id2)).isTrue();
+    assertThat(marketData.containsSharedValue(id1)).isFalse();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
     assertThat(marketData.containsScenarioValues(id1)).isTrue();
     assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
@@ -827,8 +827,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2.2d, 2.4d, 2.6d));
 
     // id2 was perturbed so should be in the scenario data, id1 wasn't perturbed so should be in the base data
-    assertThat(marketData.containsBaseValue(id1)).isTrue();
-    assertThat(marketData.containsBaseValue(id2)).isFalse();
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isFalse();
     assertThat(marketData.containsScenarioValues(id1)).isFalse();
     assertThat(marketData.containsScenarioValues(id2)).isTrue();
   }
@@ -866,8 +866,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("2.0", "2.0", "2.0"));
 
     // Check the values are in the base data, not the scenario data
-    assertThat(marketData.containsBaseValue(id1)).isTrue();
-    assertThat(marketData.containsBaseValue(id2)).isTrue();
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
     assertThat(marketData.containsScenarioValues(id1)).isFalse();
     assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
@@ -908,8 +908,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("value2", "value2", "value2"));
 
     // Check the values are in the base data, not the scenario data
-    assertThat(marketData.containsBaseValue(id1)).isTrue();
-    assertThat(marketData.containsBaseValue(id2)).isTrue();
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
     assertThat(marketData.containsScenarioValues(id1)).isFalse();
     assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
@@ -983,7 +983,7 @@ public class DefaultMarketDataFactoryTest {
         MARKET_DATA_CONFIG);
 
     assertThat(marketData.getSingleValueFailures()).isEmpty();
-    assertThat(marketData.getBaseData().getTimeSeriesFailures()).isEmpty();
+    assertThat(marketData.getSharedData().getTimeSeriesFailures()).isEmpty();
 
     List<TestMarketDataB> marketDataB1 = marketData.getValues(idB1);
     List<TestMarketDataB> marketDataB2 = marketData.getValues(idB2);
@@ -1002,8 +1002,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketDataB2).isEqualTo(expectedB2);
 
     // Check the values are in the scenario data, not the base data
-    assertThat(marketData.containsBaseValue(idB1)).isFalse();
-    assertThat(marketData.containsBaseValue(idB2)).isFalse();
+    assertThat(marketData.containsSharedValue(idB1)).isFalse();
+    assertThat(marketData.containsSharedValue(idB2)).isFalse();
     assertThat(marketData.containsScenarioValues(idB1)).isTrue();
     assertThat(marketData.containsScenarioValues(idB2)).isTrue();
   }

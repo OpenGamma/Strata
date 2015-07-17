@@ -377,7 +377,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       results.entrySet().stream().forEach(e -> dataBuilder.addResultUnsafe(e.getKey(), e.getValue()));
     } else {
       // Build single base value for the ID using the base data as input.
-      Result<?> result = buildNonObservableData(id, marketData.getBaseData(), marketDataConfig);
+      Result<?> result = buildNonObservableData(id, marketData.getSharedData(), marketDataConfig);
       applyScenariosToBaseResult(id, result, scenarioDefinition, dataBuilder);
     }
   }
@@ -402,7 +402,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       ScenarioCalculationEnvironmentBuilder builder) {
 
     if (valueResult.isFailure()) {
-      builder.addBaseResult(id, valueResult);
+      builder.addSharedResult(id, valueResult);
     } else {
       addObservableValue(id, valueResult.getValue(), scenarioDefinition, builder);
     }
@@ -440,7 +440,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
         List<Double> values = mapping.applyPerturbations(value);
         builder.addValues(id, values);
       } else {
-        builder.addBaseValue(id, value);
+        builder.addSharedValue(id, value);
       }
     } catch (RuntimeException e) {
       builder.addResult(id, Result.failure(e));
@@ -614,7 +614,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       ScenarioCalculationEnvironmentBuilder builder) {
 
     if (valueResult.isFailure()) {
-      builder.addBaseResultUnsafe(id, valueResult);
+      builder.addSharedResultUnsafe(id, valueResult);
     } else {
       addNonObservableValue(id, valueResult.getValue(), scenarioDefinition, builder);
     }
@@ -641,7 +641,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
         .findFirst();
 
     if (!optionalMapping.isPresent()) {
-      builder.addBaseValueUnsafe(id, marketDataValue);
+      builder.addSharedValueUnsafe(id, marketDataValue);
     } else {
       // This is safe because the filter matched the value and the filter and perturbation types are compatible
       @SuppressWarnings("unchecked")
