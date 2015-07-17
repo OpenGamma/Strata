@@ -91,9 +91,9 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
         ZoneOffset.UTC);
   }
   
-  private NormalVolatilityExpiryTenorSwaptionProvider(InterpolatedDoublesSurface surface, FixedIborSwapConvention convention, 
-      DayCount dayCount, LocalDate valuationDate, LocalTime valuationTime, ZoneId valuationZone) {
-    super();
+  private NormalVolatilityExpiryTenorSwaptionProvider(InterpolatedDoublesSurface surface, 
+      FixedIborSwapConvention convention, DayCount dayCount, LocalDate valuationDate, LocalTime valuationTime, 
+      ZoneId valuationZone) {
     this.surface = surface;
     this.convention = convention;
     this.dayCount = dayCount;
@@ -110,13 +110,18 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
   }
 
   @Override
-  public double relativeYearFraction(ZonedDateTime date) {
-    return dayCount.yearFraction(valuationDate, date.toLocalDate());
+  public double relativeYearFraction(ZonedDateTime dateTime) {
+    LocalDate date = dateTime.toLocalDate();
+    boolean timeIsNegative = valuationDate.isAfter(date);
+    if (timeIsNegative) {
+      return -dayCount.yearFraction(date, valuationDate);
+    }
+    return dayCount.yearFraction(valuationDate, date);
   }
 
   @Override
   public double tenor(LocalDate startDate, LocalDate endDate) {
-    // rounded number of months. the rounding is to ensure that an integer number of year even when holidays/leap year
+    // rounded number of months. the rounding is to ensure that an integer number of year even with holidays/leap year
     return Math.round((endDate.toEpochDay() - startDate.toEpochDay()) / 365.25 * 12) / 12  ;
   }
   
