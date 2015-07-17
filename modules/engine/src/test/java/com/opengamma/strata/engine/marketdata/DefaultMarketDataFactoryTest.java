@@ -945,7 +945,7 @@ public class DefaultMarketDataFactoryTest {
         MARKET_DATA_CONFIG);
 
     assertThat(marketData.getSingleValueFailures()).isEmpty();
-    assertThat(marketData.getTimeSeriesFailures()).isEmpty();
+    assertThat(marketData.getBaseData().getTimeSeriesFailures()).isEmpty();
 
     List<TestMarketDataB> marketDataB1 = marketData.getValues(new TestIdB("1"));
     List<TestMarketDataB> marketDataB2 = marketData.getValues(new TestIdB("2"));

@@ -127,7 +127,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   @SuppressWarnings("unchecked")
   public <U> List<U> applyPerturbations(U marketData) {
     // Check that T and U are the same type
-    if (!marketDataType.equals(marketData.getClass())) {
+    if (!marketDataType.isInstance(marketData)) {
       throw new IllegalArgumentException(
           Messages.format(
               "Market data {} is not an instance of the required type {}",

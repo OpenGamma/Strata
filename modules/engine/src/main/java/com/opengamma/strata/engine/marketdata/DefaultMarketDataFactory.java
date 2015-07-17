@@ -302,12 +302,12 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
       Map<ObservableId, Result<Double>> observableResults = buildObservableData(observableIds);
       observableResults.entrySet().stream()
-          .forEach(tp -> applyScenariosToObservableResult(tp.getKey(), tp.getValue(), scenarioDefinition, dataBuilder));
+          .forEach(tp -> addObservableResult(tp.getKey(), tp.getValue(), scenarioDefinition, dataBuilder));
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
       leafRequirements.getObservables().stream()
           .filter(suppliedData::containsValue)
-          .forEach(id -> applyScenariosToObservableValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
+          .forEach(id -> addObservableValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
 
       // Non-observable data -----------------------------------------------------------------------
 
@@ -315,12 +315,12 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       leafRequirements.getNonObservables().stream()
           .filter(not(marketData::containsValues))
           .filter(not(suppliedData::containsValue))
-          .forEach(id -> addNonObservableData(id, marketDataConfig, nodeMap, marketData, scenarioDefinition, dataBuilder));
+          .forEach(id -> addNonObservableValues(id, marketDataConfig, nodeMap, marketData, scenarioDefinition, dataBuilder));
 
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()
           .filter(suppliedData::containsValue)
-          .forEach(id -> applyScenariosToBaseValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
+          .forEach(id -> addNonObservableValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
 
       // --------------------------------------------------------------------------------------------
 
@@ -343,7 +343,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param scenarioDefinition
    * @param dataBuilder
    */
-  private void addNonObservableData(
+  private void addNonObservableValues(
       MarketDataId<?> id,
       MarketDataConfig marketDataConfig,
       Map<MarketDataId<?>, MarketDataNode> nodeMap,
@@ -378,7 +378,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param value  the market data value
    * @param scenarioDefinition  definition of a set of scenarios
    */
-  private void applyScenariosToObservableResult(
+  private void addObservableResult(
       ObservableId id,
       Result<Double> valueResult,
       ScenarioDefinition scenarioDefinition,
@@ -387,7 +387,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     if (valueResult.isFailure()) {
       builder.addBaseResult(id, valueResult);
     } else {
-      applyScenariosToObservableValue(id, valueResult.getValue(), scenarioDefinition, builder);
+      addObservableValue(id, valueResult.getValue(), scenarioDefinition, builder);
     }
   }
 
@@ -398,7 +398,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param value  the market data value
    * @param scenarioDefinition  definition of a set of scenarios
    */
-  private void applyScenariosToObservableValue(
+  private void addObservableValue(
       ObservableId id,
       double value,
       ScenarioDefinition scenarioDefinition,
@@ -589,7 +589,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     if (valueResult.isFailure()) {
       builder.addBaseResultUnsafe(id, valueResult);
     } else {
-      applyScenariosToBaseValue(id, valueResult.getValue(), scenarioDefinition, builder);
+      addNonObservableValue(id, valueResult.getValue(), scenarioDefinition, builder);
     }
   }
 
@@ -603,7 +603,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param valueResult  a result containing the market data value
    * @param scenarioDefinition  the definition of the scenarios
    */
-  private void applyScenariosToBaseValue(
+  private void addNonObservableValue(
       MarketDataId<?> id,
       Object marketDataValue,
       ScenarioDefinition scenarioDefinition,

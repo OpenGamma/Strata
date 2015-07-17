@@ -44,20 +44,11 @@ public final class ScenarioCalculationEnvironmentBuilder {
    */
   private final ListMultimap<MarketDataId<?>, Object> values = ArrayListMultimap.create();
 
-  /**
-   * The time series of market data for the scenarios, keyed by the ID of the market data.
-   * The number of values for each key is the same as the number of scenarios.
-   */
-  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
-
   /** The global market data values that are applicable to all scenarios. */
   private final Map<MarketDataId<?>, Object> globalValues = new HashMap<>();
 
   /** Details of failures when building single market data values. */
   private final Map<MarketDataId<?>, Failure> singleValueFailures = new HashMap<>();
-
-  /** Details of failures when building time series of market data values. */
-  private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
 
   /**
    * Returns a new builder where every scenario has the same valuation date.
@@ -76,37 +67,31 @@ public final class ScenarioCalculationEnvironmentBuilder {
    * <p>
    * This is package-private because it is intended to be used by {@code ScenarioMarketData.builder()}.
    *
+   * @param baseData  the set market data that is the same in all scenarios
    * @param scenarioCount  the number of scenarios
    * @param valuationDates  the valuation dates for the scenarios
    * @param values  the single market data values
-   * @param timeSeries  the time series of market data values
    * @param globalValues  the single market data values applicable to all scenarios
    * @param singleValueFailures  the single value failures
-   * @param timeSeriesFailures  the time-series failures
    */
   ScenarioCalculationEnvironmentBuilder(
       CalculationEnvironment baseData,
       int scenarioCount,
       List<LocalDate> valuationDates,
       ListMultimap<MarketDataId<?>, ?> values,
-      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries,
       Map<? extends MarketDataId<?>, Object> globalValues,
-      Map<MarketDataId<?>, Failure> singleValueFailures,
-      Map<MarketDataId<?>, Failure> timeSeriesFailures) {
+      Map<MarketDataId<?>, Failure> singleValueFailures) {
 
     ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
     ArgChecker.notNull(valuationDates, "valuationDates");
     ArgChecker.notNull(values, "values");
-    ArgChecker.notNull(timeSeries, "timeSeries");
     ArgChecker.notNull(globalValues, "globalValues");
 
     this.baseBuilder = baseData.toBuilder();
     this.scenarioCount = scenarioCount;
     this.values.putAll(values);
-    this.timeSeries.putAll(timeSeries);
     this.globalValues.putAll(globalValues);
     this.singleValueFailures.putAll(singleValueFailures);
-    this.timeSeriesFailures.putAll(timeSeriesFailures);
     valuationDates(valuationDates);
   }
 
@@ -262,10 +247,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
    * @return this builder
    */
   public ScenarioCalculationEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.put(id, timeSeries);
-    timeSeriesFailures.remove(id);
+    baseBuilder.addTimeSeries(id, timeSeries);
     return this;
   }
 
@@ -278,9 +260,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
   public ScenarioCalculationEnvironmentBuilder addTimeSeries(
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
 
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.putAll(timeSeries);
-    timeSeries.keySet().stream().forEach(timeSeriesFailures::remove);
+    baseBuilder.addAllTimeSeries(timeSeries);
     return this;
   }
 
@@ -295,16 +275,7 @@ public final class ScenarioCalculationEnvironmentBuilder {
       ObservableId id,
       Result<LocalDateDoubleTimeSeries> result) {
 
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(result, "result");
-
-    if (result.isSuccess()) {
-      timeSeries.put(id, result.getValue());
-      timeSeriesFailures.remove(id);
-    } else {
-      timeSeriesFailures.put(id, result.getFailure());
-      timeSeries.remove(id);
-    }
+    baseBuilder.addTimeSeriesResult(id, result);
     return this;
   }
 
@@ -328,7 +299,6 @@ public final class ScenarioCalculationEnvironmentBuilder {
    *
    * @param id  the ID of the market data value
    * @param value  the market data value
-   * @param <T>  the type of the market data value
    * @return this builder
    */
   public ScenarioCalculationEnvironmentBuilder addBaseValueUnsafe(MarketDataId<?> id, Object value) {
@@ -365,7 +335,6 @@ public final class ScenarioCalculationEnvironmentBuilder {
    *
    * @param id  the ID of the market data
    * @param result  a result containing the market data value or details of why it could not be provided
-   * @param <T>  the type of the market data value
    * @return this builder
    */
   public ScenarioCalculationEnvironmentBuilder addBaseResultUnsafe(MarketDataId<?> id, Result<?> result) {
@@ -407,10 +376,8 @@ public final class ScenarioCalculationEnvironmentBuilder {
         scenarioCount,
         valuationDates,
         values,
-        timeSeries,
         globalValues,
-        singleValueFailures,
-        timeSeriesFailures);
+        singleValueFailures);
   }
 
   private void checkLength(int length, String itemName) {
