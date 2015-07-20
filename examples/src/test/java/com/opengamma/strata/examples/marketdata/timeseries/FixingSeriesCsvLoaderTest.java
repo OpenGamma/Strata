@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata.timeseries;
 
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -101,6 +102,11 @@ public class FixingSeriesCsvLoaderTest {
         .build();
 
     assertEquals(actualSeries, expectedSeries);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(FixingSeriesCsvLoader.class);
   }
 
 }
