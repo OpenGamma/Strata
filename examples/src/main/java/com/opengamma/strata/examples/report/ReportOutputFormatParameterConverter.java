@@ -10,8 +10,11 @@ import com.opengamma.strata.report.format.ReportOutputFormat;
 
 /**
  * Parameter converter for {@link ReportOutputFormat}.
+ * <p>
+ * This parses the input leniently.
  */
-public class ReportOutputFormatParameterConverter implements IStringConverter<ReportOutputFormat> {
+public class ReportOutputFormatParameterConverter
+    implements IStringConverter<ReportOutputFormat> {
 
   @Override
   public ReportOutputFormat convert(String value) {
