@@ -79,7 +79,7 @@ public class ReportRunnerTool {
     try {
       commander.parse(args);
     } catch (ParameterException e) {
-      System.err.println(e.getMessage());
+      System.err.println("Error: " + e.getMessage());
       System.err.println();
       commander.usage();
       return;
