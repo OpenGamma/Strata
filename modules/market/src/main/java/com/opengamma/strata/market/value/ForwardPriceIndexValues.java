@@ -31,7 +31,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -104,7 +103,7 @@ public final class ForwardPriceIndexValues
   /**
    * Creates a new {@code ForwardPriceIndexValues} with no seasonality adjustment.
    * <p>
-   * The curve is specified by an instance of {@link InterpolatedDoublesCurve}.
+   * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
    * Each x-value on the curve is the number of months between the valuation month and the estimation month. 
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
@@ -132,7 +131,7 @@ public final class ForwardPriceIndexValues
   /**
    * Creates a new {@code ForwardPriceIndexValues} with seasonality adjustment.
    * <p>
-   * The curve is specified by an instance of {@link InterpolatedDoublesCurve}.
+   * The curve is specified by an instance of {@link InterpolatedNodalCurve}.
    * Each x-value on the curve is the number of months between the valuation month and the estimation month. 
    * For example, zero represents the valuation month, one the next month and so on.
    * <p>
