@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -18,8 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 import org.testng.annotations.Test;
 
@@ -169,9 +170,9 @@ public class MarketDataBuilderTest {
     // Create a JAR file containing the example market data
     File tempFile = File.createTempFile(MarketDataBuilderTest.class.getSimpleName(), ".jar");
     try (FileOutputStream tempFileOut = new FileOutputStream(tempFile)) {
-      try (ZipOutputStream zipFileOut = new ZipOutputStream(tempFileOut)) {
+      try (JarOutputStream zipFileOut = new JarOutputStream(tempFileOut)) {
         File diskRoot = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT);
-        appendToZip(diskRoot, "zip-data", diskRoot, zipFileOut);
+        appendToJar(diskRoot, "zip-data", diskRoot, zipFileOut);
       }
     }
 
@@ -191,13 +192,13 @@ public class MarketDataBuilderTest {
     }
   }
 
-  public void test_of_path() {
+  public void test_ofPath() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();
     MarketDataBuilder builder = MarketDataBuilder.ofPath(rootPath);
     assertBuilder(builder);
   }
 
-  public void test_of_path_with_spaces() {
+  public void test_ofPath_with_spaces() {
     Path rootPath = new File(TEST_SPACES_DIRECTORY_ROOT).toPath();
     MarketDataBuilder builder = MarketDataBuilder.ofPath(rootPath);
 
@@ -205,12 +206,21 @@ public class MarketDataBuilderTest {
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
-  public void test_of_resource_directory() {
+  public void test_ofResource_directory() {
     MarketDataBuilder builder = MarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_CLASSPATH_ROOT);
     assertBuilder(builder);
   }
 
-  public void test_of_resource_directory_with_spaces() {
+  public void test_ofResource_directory_extraSlashes() {
+    MarketDataBuilder builder = MarketDataBuilder.ofResource("/" + EXAMPLE_MARKET_DATA_CLASSPATH_ROOT + "/");
+    assertBuilder(builder);
+  }
+
+  public void test_ofResource_directory_notFound() {
+    assertThrowsIllegalArg(() -> MarketDataBuilder.ofResource("bad-dir"));
+  }
+
+  public void test_ofResource_directory_with_spaces() {
     MarketDataBuilder builder = MarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
 
     MarketEnvironment snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
@@ -224,7 +234,7 @@ public class MarketDataBuilderTest {
     assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate());
 
     for (ObservableId id : TIME_SERIES) {
-      assertTrue(snapshot.containsTimeSeries(id));
+      assertTrue(snapshot.containsTimeSeries(id), "Time-series not found: " + id);
     }
     assertEquals(snapshot.getTimeSeries().size(), TIME_SERIES.size(),
         Messages.format("Snapshot contained unexpected time-series: {}",
@@ -245,31 +255,37 @@ public class MarketDataBuilderTest {
     assertEquals(builder.rules(), expectedRules);
   }
 
-  private void appendToZip(File sourceRootDir, String destRootPath, File currentFile, ZipOutputStream zipOutput)
+  //-------------------------------------------------------------------------
+  // build jar file
+  // jar files use forward-slash on all operating systems
+  // directories always have a trailing forward-slash
+  // there must be no slash at the root
+  private void appendToJar(File sourceRootDir, String destRootPath, File currentFile, JarOutputStream jarOutput)
       throws IOException {
     if (currentFile.isDirectory()) {
-      String entryName = getEntryName(sourceRootDir, destRootPath, currentFile) + File.separator;
-      zipOutput.putNextEntry(new ZipEntry(entryName));
-      zipOutput.closeEntry();
+      String entryName = getEntryName(sourceRootDir, destRootPath, currentFile) + '/';
+      jarOutput.putNextEntry(new JarEntry(entryName));
+      jarOutput.closeEntry();
       for (File content : currentFile.listFiles()) {
-        appendToZip(sourceRootDir, destRootPath, content, zipOutput);
+        appendToJar(sourceRootDir, destRootPath, content, jarOutput);
       }
     } else {
       String entryName = getEntryName(sourceRootDir, destRootPath, currentFile);
-      zipOutput.putNextEntry(new ZipEntry(entryName));
+      jarOutput.putNextEntry(new JarEntry(entryName));
       try (FileInputStream fileIn = new FileInputStream(currentFile)) {
         byte[] b = new byte[1024];
         int len;
         while ((len = fileIn.read(b)) != -1) {
-          zipOutput.write(b, 0, len);
+          jarOutput.write(b, 0, len);
         }
       }
-      zipOutput.closeEntry();
+      jarOutput.closeEntry();
     }
   }
 
   private String getEntryName(File sourceRootDir, String destRootPath, File currentFile) {
-    return destRootPath + currentFile.getAbsolutePath().substring(sourceRootDir.getAbsolutePath().length());
+    String relativePath = currentFile.getAbsolutePath().substring(sourceRootDir.getAbsolutePath().length());
+    return destRootPath + relativePath.replace('\\', '/');
   }
 
 }
