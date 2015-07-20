@@ -7,7 +7,8 @@
     <format>zip</format>
   </formats>
   <id>report-tool</id>
-  <includeBaseDirectory>false</includeBaseDirectory>
+  <includeBaseDirectory>true</includeBaseDirectory>
+  <baseDirectory>strata-report-tool-${project.version}</baseDirectory>
   <files>
     <file>
       <source>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</source>
