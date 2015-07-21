@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -118,7 +118,8 @@ public class CS01FromParSpreadTest extends IsdaBaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CdsAnalytic cds = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(
+          cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01[i], cs01, 1e-14 * NOTIONAL);
     }
@@ -139,7 +140,8 @@ public class CS01FromParSpreadTest extends IsdaBaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CdsAnalytic cds = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(
+          cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, ShiftType.ABSOLUTE);
       for (int j = 0; j < m; j++) {
         cs01[j] *= scale;
         assertEquals(MATURITIES[i].toString() + "\t" + BUCKET_DATES[j], BUCKETED_CS01[i][j], cs01[j], 1e-13 * NOTIONAL);

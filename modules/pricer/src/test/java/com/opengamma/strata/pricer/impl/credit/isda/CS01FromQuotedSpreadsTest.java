@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -162,7 +162,8 @@ public class CS01FromQuotedSpreadsTest extends IsdaBaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CdsAnalytic cds = new CdsAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(cds, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(
+          cds, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
       for (int j = 0; j < m; j++) {
         bucketedCS01[j] *= scale;
@@ -186,10 +187,12 @@ public class CS01FromQuotedSpreadsTest extends IsdaBaseTest {
     for (int i = 0; i < n; i++) {
       tradedCDSs[i] = new CdsAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
-    final double[][] cs01Mat = CS01_CAL.bucketedCS01FromQuotedSpreads(tradedCDSs, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
+    final double[][] cs01Mat = CS01_CAL.bucketedCS01FromQuotedSpreads(
+        tradedCDSs, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
     for (int i = 0; i < n; i++) {
-      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(tradedCDSs[i], COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(
+          tradedCDSs[i], COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
       for (int j = 0; j < m; j++) {
         //this is a regression test, so expect exact match 
