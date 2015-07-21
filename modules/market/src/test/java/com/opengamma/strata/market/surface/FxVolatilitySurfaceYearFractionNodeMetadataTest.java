@@ -18,12 +18,12 @@ import static org.testng.Assert.assertEquals;
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.surface.Delta;
-import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.Strike;
-import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.option.DeltaStrike;
+import com.opengamma.strata.market.option.MoneynessStrike;
+import com.opengamma.strata.market.option.SimpleStrike;
+import com.opengamma.strata.market.option.Strike;
 
 /**
  * Test {@link FxVolatilitySurfaceYearFractionNodeMetadata}.
@@ -32,8 +32,8 @@ import com.opengamma.strata.collect.tuple.Pair;
 public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
 
   private static final double TIME_TO_EXPIRY = 1.5d;
-  private static final Delta STRIKE = new Delta(0.75d);
-  private static final Strike STRIKE1 = new Strike(1.35);
+  private static final DeltaStrike STRIKE = DeltaStrike.of(0.75d);
+  private static final SimpleStrike STRIKE1 = SimpleStrike.of(1.35);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(GBP, USD);
 
   public void test_of_withStrikeType() {
@@ -41,13 +41,13 @@ public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
         FxVolatilitySurfaceYearFractionNodeMetadata.of(TIME_TO_EXPIRY, STRIKE, CURRENCY_PAIR);
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getIdentifier(), Pair.of(TIME_TO_EXPIRY, STRIKE));
-    assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, STRIKE.typeAndValue()).toString());
+    assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, STRIKE.getLabel()).toString());
     assertEquals(test.getStrike(), STRIKE);
     assertEquals(test.getYearFraction(), TIME_TO_EXPIRY);
   }
 
   public void test_of_withLabel() {
-    Pair<Double, StrikeType> pair = Pair.of(TIME_TO_EXPIRY, STRIKE1);
+    Pair<Double, Strike> pair = Pair.of(TIME_TO_EXPIRY, STRIKE1);
     String label = "(1.5, 1.35)";
     FxVolatilitySurfaceYearFractionNodeMetadata test =
         FxVolatilitySurfaceYearFractionNodeMetadata.of(TIME_TO_EXPIRY, STRIKE1, label, CURRENCY_PAIR);
@@ -61,14 +61,14 @@ public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
   public void test_builder_noLabel() {
     BeanBuilder<? extends FxVolatilitySurfaceYearFractionNodeMetadata> builder =
         FxVolatilitySurfaceYearFractionNodeMetadata.meta().builder();
-    Pair<Double, StrikeType> pair = Pair.of(TIME_TO_EXPIRY, STRIKE);
+    Pair<Double, Strike> pair = Pair.of(TIME_TO_EXPIRY, STRIKE);
     builder.set(FxVolatilitySurfaceYearFractionNodeMetadata.meta().currencyPair(), CURRENCY_PAIR);
     builder.set(FxVolatilitySurfaceYearFractionNodeMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
     builder.set(FxVolatilitySurfaceYearFractionNodeMetadata.meta().strike(), STRIKE);
     FxVolatilitySurfaceYearFractionNodeMetadata test = builder.build();
     assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
     assertEquals(test.getIdentifier(), pair);
-    assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, STRIKE.typeAndValue()).toString());
+    assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, STRIKE.getLabel()).toString());
     assertEquals(test.getStrike(), STRIKE);
     assertEquals(test.getYearFraction(), TIME_TO_EXPIRY);
   }
@@ -76,7 +76,7 @@ public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
   public void test_builder_withLabel() {
     BeanBuilder<? extends FxVolatilitySurfaceYearFractionNodeMetadata> builder =
         FxVolatilitySurfaceYearFractionNodeMetadata.meta().builder();
-    Pair<Double, StrikeType> pair = Pair.of(TIME_TO_EXPIRY, STRIKE);
+    Pair<Double, Strike> pair = Pair.of(TIME_TO_EXPIRY, STRIKE);
     String label = "(1.5, 0.75)";
     builder.set(FxVolatilitySurfaceYearFractionNodeMetadata.meta().currencyPair(), CURRENCY_PAIR);
     builder.set(FxVolatilitySurfaceYearFractionNodeMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
@@ -106,7 +106,7 @@ public class FxVolatilitySurfaceYearFractionNodeMetadataTest {
         FxVolatilitySurfaceYearFractionNodeMetadata.of(TIME_TO_EXPIRY, STRIKE, CURRENCY_PAIR);
     coverImmutableBean(test1);
     FxVolatilitySurfaceYearFractionNodeMetadata test2 =
-        FxVolatilitySurfaceYearFractionNodeMetadata.of(3d, new Moneyness(1.1d), CurrencyPair.of(EUR, AUD));
+        FxVolatilitySurfaceYearFractionNodeMetadata.of(3d, MoneynessStrike.of(1.1d), CurrencyPair.of(EUR, AUD));
     coverBeanEquals(test1, test2);
   }
 
