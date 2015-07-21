@@ -239,21 +239,48 @@ enum StandardDayCounts implements DayCount {
     }
   },
 
-  // US thirty day months / 360
+  // US thirty day months / 360 with dynamic EOM rule
   THIRTY_U_360("30U/360") {
+    @Override
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      if (scheduleInfo.isEndOfMonthConvention()) {
+        return THIRTY_U_360_EOM.calculateYearFraction(firstDate, secondDate, scheduleInfo);
+      } else {
+        return THIRTY_360_ISDA.calculateYearFraction(firstDate, secondDate, scheduleInfo);
+      }
+    }
+  },
+
+  // US thirty day months / 360 with fixed EOM rule
+  THIRTY_U_360_EOM("30U/360 EOM") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
-      boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
-      boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
-      if (scheduleInfo.isEndOfMonthConvention() && lastFeb1) {
-        if (lastFeb2) {
+      if (lastDayOfFebruary(firstDate)) {
+        if (lastDayOfFebruary(secondDate)) {
           d2 = 30;
         }
         d1 = 30;
       }
       if (d1 == 31) {
+        d1 = 30;
+      }
+      if (d2 == 31 && d1 == 30) {
+        d2 = 30;
+      }
+      return thirty360(
+          firstDate.getYear(), firstDate.getMonthValue(), d1,
+          secondDate.getYear(), secondDate.getMonthValue(), d2);
+    }
+  },
+
+  THIRTY_360_PSA("30/360 PSA") {
+    @Override
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      if (d1 == 31 || lastDayOfFebruary(firstDate)) {
         d1 = 30;
       }
       if (d2 == 31 && d1 == 30) {
@@ -271,12 +298,10 @@ enum StandardDayCounts implements DayCount {
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
-      boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
-      boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
-      if (d1 == 31 || lastFeb1) {
+      if (d1 == 31 || lastDayOfFebruary(firstDate)) {
         d1 = 30;
       }
-      if (d2 == 31 || (lastFeb2 && !secondDate.equals(scheduleInfo.getEndDate()))) {
+      if (d2 == 31 || (lastDayOfFebruary(secondDate) && !secondDate.equals(scheduleInfo.getEndDate()))) {
         d2 = 30;
       }
       return thirty360(
@@ -335,6 +360,11 @@ enum StandardDayCounts implements DayCount {
   // calculate using the standard 30/360 function - 360(y2 - y1) + 30(m2 - m1) + (d2 - d1)) / 360
   private static double thirty360(int y1, int m1, int d1, int y2, int m2, int d2) {
     return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
+  }
+
+  // determine if the date is the last day of february
+  private static boolean lastDayOfFebruary(LocalDate date) {
+    return date.getMonthValue() == 2 && date.getDayOfMonth() == date.lengthOfMonth();
   }
 
   @Override

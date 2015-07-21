@@ -238,16 +238,54 @@ public final class DayCounts {
    * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * <p>
-   * This is the same as '30/360 ISDA' if the EOM convention does not apply
-   * but with two additional end of February rules if the EOM rule does apply.
-   * The default {@link ScheduleInfo} instance has the EOM rule set to true.
+   * This day count has different rules depending on whether the EOM rule applies or not.
+   * The EOM rule is set in the {@link ScheduleInfo}. The default value for EOM is true,
+   * as used by {@link DayCount#yearFraction(LocalDate, LocalDate)}.
+   * <p>
+   * There are two related day counts.
+   * The '30U/360 EOM' rule is identical to this rule when the EOM convention applies.
+   * The '30/360 ISDA' rule is identical to this rule when the EOM convention does not apply.
+   * <p>
+   * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
+   * <p>
+   * History note. It appears that the US 30/360 day count originally started with just the two rules
+   * of '30/360 ISDA'. At some later point, the last day of February EOM rules were added.
+   */
+  public static final DayCount THIRTY_U_360 = DayCount.of(StandardDayCounts.THIRTY_U_360.getName());
+  /**
+   * The '30U/360 EOM' day count, which treats input day-of-month 31 and end of February specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
+   * If both dates are the last day of February, change the second day-of-month to 30.
+   * If the first date is the last day of February, change the first day-of-month to 30.
+   * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
+   * If the first day-of-month is 31, change the first day-of-month to 30.
+   * <p>
+   * This day count is not dependent on the EOM flag in {@link ScheduleInfo}.
+   * <p>
+   * This is the same as '30U/360' when the EOM convention applies.
+   * This day count would typically be used to be explicit about the EOM rule applying.
+   * In most cases, '30U/360' should be used in preference to this day count.
    * <p>
    * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will assume
    * that the end-of-month rule applies.
-   * <p>
-   * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
+   * 
+   * @see #THIRTY_U_360
    */
-  public static final DayCount THIRTY_U_360 = DayCount.of(StandardDayCounts.THIRTY_U_360.getName());
+  public static final DayCount THIRTY_U_360_EOM = DayCount.of(StandardDayCounts.THIRTY_U_360_EOM.getName());
+  /**
+   * The '30/360 PSA' day count, which treats input day-of-month 31 and end of February specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
+   * If the first date is the last day of February, change the first day-of-month to 30.
+   * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
+   * If the first day-of-month is 31, change the first day-of-month to 30.
+   * <p>
+   * Also known as '30/360 PSA' (PSA is the Public Securites Association, BMA is the Bond Market Association).
+   */
+  public static final DayCount THIRTY_360_PSA = DayCount.of(StandardDayCounts.THIRTY_360_PSA.getName());
   /**
    * The '30E/360 ISDA' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
