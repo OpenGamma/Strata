@@ -220,9 +220,12 @@ public class BlackFxDigitalOptionProductPricer {
       FxDigitalOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
-    double forwardGamma = undiscountedGamma(option, ratesProvider, volatilityProvider);
+    double undiscountedGamma = undiscountedGamma(option, ratesProvider, volatilityProvider);
+    FxIndex index = option.getIndex();
     double discountFactor = ratesProvider.discountFactor(option.getStrikeCounterCurrency(), option.getPaymentDate());
-    return discountFactor * forwardGamma;
+    double fwdRateSpotSensitivity = ratesProvider.fxForwardRates(index.getCurrencyPair())
+      .rateFxSpotSensitivity(option.getStrikeBaseCurrency(), index.calculateMaturityFromFixing(option.getExpiryDate()));
+    return discountFactor * undiscountedGamma * fwdRateSpotSensitivity * fwdRateSpotSensitivity;
   }
 
   /**
@@ -426,6 +429,11 @@ public class BlackFxDigitalOptionProductPricer {
       FxDigitalOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return MultiCurrencyAmount.empty();
+    }
     CurrencyPair strikePair = option.getStrike().getPair();
     double price = price(option, ratesProvider, volatilityProvider);
     double delta = delta(option, ratesProvider, volatilityProvider);

@@ -109,7 +109,7 @@ public class RatesProviderFxDataSets {
         .build();
   }
 
-  public static RatesProvider createProviderEURUSD() {
+  public static ImmutableRatesProvider createProviderEURUSD() {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
     return ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE_2014_01_22)
