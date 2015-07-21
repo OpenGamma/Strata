@@ -78,6 +78,12 @@ public abstract class AbstractRatesProvider
         FxIndexRates rates = fxIndexRates(pt.getIndex());
         ce = ce.plus(rates.currencyExposure(pt));
       }
+      if (point instanceof FxForwardSensitivity) {
+        FxForwardSensitivity pt = (FxForwardSensitivity) point;
+        pt = (FxForwardSensitivity) pt.convertedTo(pt.getReferenceCurrency(), this);
+        FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
+        ce = ce.plus(rates.currencyExposure(pt));
+      }
     }
     return ce;
   }

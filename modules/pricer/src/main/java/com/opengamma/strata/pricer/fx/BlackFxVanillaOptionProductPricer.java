@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.finance.fx.FxProduct;
@@ -25,7 +26,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This function provides the ability to price an {@link FxVanillaOptionProduct}.
  */
 public class BlackFxVanillaOptionProductPricer {
-  // TODO currency exposure
 
   /**
    * Default implementation.
@@ -74,10 +74,10 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double forwardPrice = undiscountedPrice(option, ratesProvider, volatilityProvider);
+    double undiscountedPrice = undiscountedPrice(option, ratesProvider, volatilityProvider);
     double discountFactor =
         ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
-    return discountFactor * forwardPrice;
+    return discountFactor * undiscountedPrice;
   }
 
   /**
@@ -112,8 +112,8 @@ public class BlackFxVanillaOptionProductPricer {
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
     double timeToExpiry =
         volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
-    double forwardPrice = BlackFormulaRepository.price(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
-    return forwardPrice;
+    double undiscountedPrice = BlackFormulaRepository.price(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
+    return undiscountedPrice;
   }
 
   //-------------------------------------------------------------------------
@@ -132,10 +132,10 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
+    double undiscountedDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(underlying, ratesProvider);
-    return fwdDelta * discountFactor * fwdRateSpotSensitivity;
+    return undiscountedDelta * discountFactor * fwdRateSpotSensitivity;
   }
 
   /**
@@ -174,11 +174,11 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
     Fx underlying = option.getUnderlying();
-    double fwdDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
+    double undiscountedDelta = undiscountedDelta(option, ratesProvider, volatilityProvider);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
     double notional = signedNotional(option);
     PointSensitivityBuilder fwdSensi = fxPricer.forwardFxRatePointSensitivity(underlying, ratesProvider)
-        .multipliedBy(notional * discountFactor * fwdDelta);
+        .multipliedBy(notional * discountFactor * undiscountedDelta);
     double fwdPrice = undiscountedPrice(option, ratesProvider, volatilityProvider);
     PointSensitivityBuilder dscSensi = ratesProvider.discountFactors(option.getPayoffCurrency())
         .zeroRatePointSensitivity(underlying.getPaymentDate()).multipliedBy(notional * fwdPrice);
@@ -199,8 +199,8 @@ public class BlackFxVanillaOptionProductPricer {
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
     double timeToExpiry =
         volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
-    double forwardPrice = BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
-    return forwardPrice;
+    double undiscountedDelta = BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
+    return undiscountedDelta;
   }
 
   //-------------------------------------------------------------------------
@@ -388,6 +388,29 @@ public class BlackFxVanillaOptionProductPricer {
     CurrencyPair strikePair = strike.getPair();
     return volatilityProvider.getVolatility(
         strikePair, option.getExpiryDate(), strike.fxRate(strikePair), forward.fxRate(strikePair));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the foreign exchange vanilla option product.
+   * 
+   * @param option  the option product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(
+      FxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackVolatilityFxProvider volatilityProvider) {
+    CurrencyPair strikePair = option.getStrike().getPair();
+    double price = price(option, ratesProvider, volatilityProvider);
+    double delta = delta(option, ratesProvider, volatilityProvider);
+    double spot = ratesProvider.fxRate(strikePair);
+    double signedNotional = signedNotional(option);
+    CurrencyAmount domestic = CurrencyAmount.of(option.getPayoffCurrency(), (price - delta * spot) * signedNotional);
+    CurrencyAmount foreign = CurrencyAmount.of(strikePair.getBase(), delta * signedNotional);
+    return MultiCurrencyAmount.of(domestic, foreign);
   }
 
   //-------------------------------------------------------------------------
