@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -33,7 +32,7 @@ public class InterestRateSensitivityTest {
 
   private static final LocalDate TODAY = LocalDate.of(2011, 5, 11);
   private static final LocalDate EFFECTIVE_DATE = TODAY.plusDays(1);
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR);
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TODAY, 3);
   private static final double RECOVERY_RATE = 0.4;
 
   private static final LocalDate PROTECTION_STATE_DATE = LocalDate.of(2013, 2, 3); // Seasoned CDS

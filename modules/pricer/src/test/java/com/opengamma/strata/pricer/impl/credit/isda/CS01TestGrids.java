@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getIMMDateSet;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getNextIMMDate;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
@@ -45,7 +44,7 @@ public class CS01TestGrids extends IsdaBaseTest {
   public void gbpTest() {
     final LocalDate tradeDate = LocalDate.of(2013, Month.SEPTEMBER, 5);
     final CdsAnalytic cds = IMM_CDS_FACTORY.makeImmCds(tradeDate, Period.ofYears(10));
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 1, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 1);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.004919, 0.005006, 0.00515, 0.005906, 0.008813, 0.0088, 0.01195, 0.01534, 0.01836, 0.02096, 0.02322, 0.02514, 0.02673, 0.02802, 0.02997, 0.0318, 0.03331,
@@ -82,7 +81,7 @@ public class CS01TestGrids extends IsdaBaseTest {
       0.021649, 0.021786, 0.022041, 0.022181, 0.022328, 0.02246, 0.022601 };
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.00129, 0.00175, 0.00224, 0.00343, 0.0045, 0.00545, 0.00628, 0.00862, 0.01121, 0.01365, 0.01576, 0.01758, 0.01917, 0.0206, 0.02188, 0.02395, 0.02595, 0.0271,
@@ -110,7 +109,7 @@ public class CS01TestGrids extends IsdaBaseTest {
       0.021581, 0.02163, 0.02176, 0.021724, 0.02177, 0.021897, 0.021858, 0.021902, 0.022033, 0.021981, 0.022025, 0.022122 };
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.00185, 0.00227, 0.002664, 0.003955, 0.006654, 0.004845, 0.00784, 0.011725, 0.0157, 0.01919, 0.02219, 0.024565, 0.02657, 0.02825, 0.03095, 0.033495,
@@ -138,7 +137,7 @@ public class CS01TestGrids extends IsdaBaseTest {
       0.028065, 0.028118, 0.028437, 0.02822, 0.028272, 0.028591, 0.028368, 0.028417, 0.028744, 0.028548, 0.028581, 0.028847 };
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.00185, 0.00227, 0.002664, 0.003955, 0.006654, 0.004845, 0.00784, 0.011725, 0.0157, 0.01919, 0.02219, 0.024565, 0.02657, 0.02825, 0.03095, 0.033495,
@@ -166,7 +165,7 @@ public class CS01TestGrids extends IsdaBaseTest {
       0.020326, 0.020367, 0.020612, 0.020445, 0.020484, 0.020728, 0.020554, 0.02059, 0.020841, 0.020659, 0.020694, 0.020947 };
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.00185, 0.00227, 0.002664, 0.003955, 0.006654, 0.004845, 0.00784, 0.011725, 0.0157, 0.01919, 0.02219, 0.024565, 0.02657, 0.02825, 0.03095, 0.033495,
@@ -198,7 +197,7 @@ public class CS01TestGrids extends IsdaBaseTest {
       0.4547, 0.455, 0.4551, 0.4551, 0.4554, 0.4555, 0.4555 };
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.001755, 0.002163, 0.002461, 0.003644, 0.006296, 0.004685, 0.00757, 0.01152, 0.015555, 0.019, 0.021885, 0.024305, 0.026315, 0.02804, 0.03069, 0.03322,
@@ -235,7 +234,7 @@ public class CS01TestGrids extends IsdaBaseTest {
       0.171530931604331, 0.17128614937871, 0.170935016451065, 0.170550536934353 };
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.001755, 0.002163, 0.002461, 0.003644, 0.006296, 0.004685, 0.00757, 0.01152, 0.015555, 0.019, 0.021885, 0.024305, 0.026315, 0.02804, 0.03069, 0.03322,

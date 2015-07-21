@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -47,7 +46,7 @@ public class ExtendedCreditCurveCalibrationTest extends com.opengamma.strata.pri
   @Test
   public void speedTest() {
     final LocalDate tradeDate = LocalDate.of(2013, Month.SEPTEMBER, 5);
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 1, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 1);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y",
         "10Y", "12Y", "15Y", "20Y", "25Y", "30Y"};
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S",
@@ -106,7 +105,7 @@ public class ExtendedCreditCurveCalibrationTest extends com.opengamma.strata.pri
   @Test
   public void test2() {
     final LocalDate tradeDate = LocalDate.of(2013, Month.SEPTEMBER, 5);
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 1, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 1);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y",
         "10Y", "12Y", "15Y", "20Y", "25Y", "30Y"};
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S",

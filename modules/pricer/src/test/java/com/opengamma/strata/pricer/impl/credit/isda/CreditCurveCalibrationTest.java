@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -44,7 +43,7 @@ public class CreditCurveCalibrationTest extends IsdaBaseTest {
 
     //case1
     LocalDate tradeDate = LocalDate.of(2011, Month.JUNE, 19);
-    LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     Period[] tenors = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) };
     PILLAR_CDS[0] = factory.makeImmCds(tradeDate, tenors);
     SPREADS[0] = new double[] {0.00886315689995649, 0.00886315689995649, 0.0133044689825873, 0.0171490070952563, 0.0183903639181293, 0.0194721890639724 };
@@ -57,7 +56,7 @@ public class CreditCurveCalibrationTest extends IsdaBaseTest {
     //case2
     tradeDate = LocalDate.of(2011, Month.MARCH, 21);
     LocalDate effDate = LocalDate.of(2011, Month.MARCH, 20); //not this is a Sunday - for a standard CDS this would roll to the Monday.
-    spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     tenors = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) };
     PILLAR_CDS[1] = factory.makeImmCds(tradeDate, effDate, tenors);
     SPREADS[1] = new double[] {0.027, 0.018, 0.012, 0.009, 0.007, 0.006 };
@@ -69,7 +68,7 @@ public class CreditCurveCalibrationTest extends IsdaBaseTest {
 
     //case3
     tradeDate = LocalDate.of(2011, Month.MAY, 30);
-    spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     LocalDate[] maDates = new LocalDate[] {LocalDate.of(2011, Month.JUNE, 20), LocalDate.of(2012, Month.MAY, 30), LocalDate.of(2014, Month.JUNE, 20), LocalDate.of(2016, Month.JUNE, 20),
       LocalDate.of(2018, Month.JUNE, 20) };
     PILLAR_CDS[2] = factory.withRecoveryRate(0.25).withAccrualDCC(D30360).makeCds(tradeDate, tradeDate.plusDays(1), maDates);
@@ -83,7 +82,7 @@ public class CreditCurveCalibrationTest extends IsdaBaseTest {
     //case4
     tradeDate = LocalDate.of(2011, Month.MAY, 30);
     effDate = LocalDate.of(2011, Month.JULY, 31);
-    spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     maDates = new LocalDate[] {LocalDate.of(2011, Month.NOVEMBER, 30), LocalDate.of(2012, Month.MAY, 30), LocalDate.of(2014, Month.MAY, 30), LocalDate.of(2016, Month.MAY, 30),
       LocalDate.of(2018, Month.MAY, 30), LocalDate.of(2021, Month.MAY, 30) };
     PILLAR_CDS[3] = factory.withRecoveryRate(0.25).withAccrualDCC(ACT365F).with(Period.ofMonths(6)).with(CdsStubType.FRONTLONG).makeCds(tradeDate, effDate, maDates);
@@ -96,7 +95,7 @@ public class CreditCurveCalibrationTest extends IsdaBaseTest {
 
     //case5 This is designed to trip the low rates/low spreads branch
     tradeDate = LocalDate.of(2014, Month.JANUARY, 14);
-    spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     PILLAR_CDS[4] = factory.makeImmCds(tradeDate, tenors);
     SPREADS[4] = new double[6];
     Arrays.fill(SPREADS[4], ONE_BP);

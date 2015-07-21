@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -17,7 +16,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.convention.businessday.BusinessDayDateUtils;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurveBuilder.ArbitrageHandling;
 
 /**
@@ -56,7 +54,7 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
     final CdsAnalytic[] pillar = noAccFactory.makeImmCds(tradeDate, tenors);
     final double[] spreads = new double[] {0.027, 0.017, 0.012, 0.009, 0.008, 0.005 };
 
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "11Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.00445, 0.009488, 0.012337, 0.017762, 0.01935, 0.020838, 0.01652, 0.02018, 0.023033, 0.02525, 0.02696, 0.02825, 0.02931, 0.03017, 0.03092, 0.0316, 0.03231,
@@ -96,7 +94,7 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
     final IsdaCompliantCreditCurve curveSimplePuf = simpleISDA.calibrateCreditCurve(pillar[3], puf, yc);
 
     final LocalDate stepinDate = tradeDate.plusDays(1);
-    final LocalDate valueDate = BusinessDayDateUtils.addWorkDays(tradeDate, 3, DEFAULT_CALENDAR);
+    final LocalDate valueDate = DEFAULT_CALENDAR.shift(tradeDate, 3);
     final LocalDate startDate = ImmDateLogic.getPrevIMMDate(tradeDate);
     final LocalDate endDate = ImmDateLogic.getNextIMMDate(tradeDate.plus(tenors[3]));
     final IsdaCompliantCreditCurve curveFastElem = BUILDER_ISDA.calibrateCreditCurve(tradeDate, stepinDate, valueDate, startDate, endDate, spreads[3], false, Period.ofMonths(3), CdsStubType.FRONTSHORT,

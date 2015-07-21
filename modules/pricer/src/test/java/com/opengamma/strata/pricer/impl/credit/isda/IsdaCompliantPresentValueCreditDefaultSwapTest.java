@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -74,7 +73,7 @@ public class IsdaCompliantPresentValueCreditDefaultSwapTest {
 
       final LocalDate today = res.today;
       final LocalDate stepinDate = today.plusDays(1); // aka effective date
-      final LocalDate valueDate = addWorkDays(today, 3, DEFAULT_CALENDAR); // 3 working days on
+      final LocalDate valueDate = DEFAULT_CALENDAR.shift(today, 3); // 3 working days on
       final LocalDate startDate = res.startDate;
       final LocalDate endDate = res.endDate;
       final Period tenor = Period.ofMonths(3); // TODO should be part of the CSV

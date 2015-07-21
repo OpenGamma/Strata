@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
-
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -53,7 +51,7 @@ public class CalibrationTimingTest extends IsdaBaseTest {
 
   private static final LocalDate TODAY = LocalDate.of(2013, 6, 4);
   private static final LocalDate STEPIN_DATE = TODAY.plusDays(1); // aka effective date
-  private static final LocalDate SPOTDATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // 3 working days on
+  private static final LocalDate SPOTDATE = DEFAULT_CALENDAR.shift(TODAY, 3); // 3 working days on
   private static final LocalDate VALUEDATE = SPOTDATE;
   private static final LocalDate STARTDATE = TODAY; // have protection start now.
   private static final double[] MARKET_CREDIT_SPREADS = new double[] {40, 45, 50, 55, 70, 90, 130, 130, 130, 120, 115, 105, 90 };
