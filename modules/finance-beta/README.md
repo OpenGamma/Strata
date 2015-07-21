@@ -18,4 +18,4 @@ Commercial support is [available](http://www.opengamma.com/) from the authors.
 Code in this module is at "beta" level.
 Classes and Methods may change at any time and backwards compatibility is not guaranteed.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)

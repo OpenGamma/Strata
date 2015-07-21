@@ -28,12 +28,14 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.collect.DoubleArrayMath;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -91,9 +93,13 @@ public final class InterpolatedNodalCurve
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator extrapolatorRight;
   /**
-   * The underlying cached curve.
+   * The underlying data bundle.
    */
-  private transient final InterpolatedDoublesCurve underlying;  // derived and cached, not a property
+  private transient final Interpolator1DDataBundle underlyingDataBundle;  // derived and cached, not a property
+  /**
+   * The underlying interpolator.
+   */
+  private transient final Interpolator1D underlyingInterpolator;  // derived and cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -152,13 +158,12 @@ public final class InterpolatedNodalCurve
     this.metadata = metadata;
     this.xValues = xValues.clone();
     this.yValues = yValues.clone();
+    DoubleArrayMath.sortPairs(this.xValues, this.yValues);
     this.extrapolatorLeft = extrapolatorLeft;
     this.interpolator = interpolator;
     this.extrapolatorRight = extrapolatorRight;
-    CombinedInterpolatorExtrapolator interpolatorExtrapolator =
-        CombinedInterpolatorExtrapolator.of(interpolator, extrapolatorLeft, extrapolatorRight);
-    String name = metadata.getCurveName().toString();
-    this.underlying = InterpolatedDoublesCurve.from(this.xValues, this.yValues, interpolatorExtrapolator, name);
+    underlyingInterpolator = CombinedInterpolatorExtrapolator.of(interpolator, extrapolatorLeft, extrapolatorRight);
+    underlyingDataBundle = underlyingInterpolator.getDataBundleFromSortedArrays(this.xValues, this.yValues);
   }
 
   @ImmutableDefaults
@@ -173,19 +178,6 @@ public final class InterpolatedNodalCurve
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns the underlying interpolated curve instance.
-   * <p>
-   * This is a bridge method to the analytics package.
-   * 
-   * @return the underlying curve
-   * @deprecated this method should not be used in application code
-   */
-  @Deprecated
-  public InterpolatedDoublesCurve getUnderlyingCurve() {
-    return underlying;
-  }
-
   @Override
   public int getParameterCount() {
     return xValues.length;
@@ -194,17 +186,17 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   @Override
   public double yValue(double x) {
-    return underlying.getInterpolator().interpolate(underlying.getDataBundle(), x);
+    return underlyingInterpolator.interpolate(underlyingDataBundle, x);
   }
 
   @Override
   public double[] yValueParameterSensitivity(double x) {
-    return underlying.getInterpolator().getNodeSensitivitiesForValue(underlying.getDataBundle(), x);
+    return underlyingInterpolator.getNodeSensitivitiesForValue(underlyingDataBundle, x);
   }
 
   @Override
   public double firstDerivative(double x) {
-    return underlying.getInterpolator().firstDerivative(underlying.getDataBundle(), x);
+    return underlyingInterpolator.firstDerivative(underlyingDataBundle, x);
   }
 
   //-------------------------------------------------------------------------

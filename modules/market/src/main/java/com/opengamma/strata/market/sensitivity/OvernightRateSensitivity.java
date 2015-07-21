@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -137,6 +138,11 @@ public final class OvernightRateSensitivity
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+  }
+
+  @Override
+  public OvernightRateSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (OvernightRateSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
   }
 
   //-------------------------------------------------------------------------

@@ -654,6 +654,12 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
+
+    // Check the values are in the base data, not the scenario data
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
+    assertThat(marketData.containsScenarioValues(id1)).isFalse();
+    assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
 
   /**
@@ -690,6 +696,12 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
+
+    // Check the values are in the base data, not the scenario data
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
+    assertThat(marketData.containsScenarioValues(id1)).isFalse();
+    assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
 
   /**
@@ -768,6 +780,12 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(2d, 3d, 4d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2d, 2d, 2d));
+
+    // id1 was perturbed so should be in the scenario data, id2 wasn't perturbed so should be in the base data
+    assertThat(marketData.containsSharedValue(id1)).isFalse();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
+    assertThat(marketData.containsScenarioValues(id1)).isTrue();
+    assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
 
   /**
@@ -807,32 +825,36 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of(1d, 1d, 1d));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of(2.2d, 2.4d, 2.6d));
+
+    // id2 was perturbed so should be in the scenario data, id1 wasn't perturbed so should be in the base data
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isFalse();
+    assertThat(marketData.containsScenarioValues(id1)).isFalse();
+    assertThat(marketData.containsScenarioValues(id2)).isTrue();
   }
 
   /**
    * Tests building multiple values of non-observable market data for multiple scenarios. The data isn't perturbed.
    */
   public void buildNonObservableScenarioValues() {
-    DefaultMarketDataFactory factory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataFunction(),
-            new TestFeedIdMapping(),
-            new NonObservableMarketDataFunction());
-    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
+    DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
+        new TestTimeSeriesProvider(ImmutableMap.of()),
+        new TestObservableMarketDataFunction(),
+        new TestFeedIdMapping(),
+        new NonObservableMarketDataFunction());
 
+    MarketEnvironment suppliedData = MarketEnvironment.empty(date(2011, 3, 8));
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
     CalculationRequirements requirements = CalculationRequirements.builder().addValues(id1, id2).build();
 
     // This mapping doesn't perturb any data but it causes three scenarios to be built
-    PerturbationMapping<String> mapping =
-        PerturbationMapping.of(
-            String.class,
-            new FalseFilter<>(NonObservableId.class),
-            new StringAppender(""),
-            new StringAppender(""),
-            new StringAppender(""));
+    PerturbationMapping<String> mapping = PerturbationMapping.of(
+        String.class,
+        new FalseFilter<>(NonObservableId.class),
+        new StringAppender(""),
+        new StringAppender(""),
+        new StringAppender(""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
     ScenarioCalculationEnvironment marketData = factory.buildScenarioCalculationEnvironment(
         requirements,
@@ -842,6 +864,12 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("1.0", "1.0", "1.0"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("2.0", "2.0", "2.0"));
+
+    // Check the values are in the base data, not the scenario data
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
+    assertThat(marketData.containsScenarioValues(id1)).isFalse();
+    assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
 
   /**
@@ -878,6 +906,12 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketData.getValues(id1)).isEqualTo(ImmutableList.of("value1", "value1", "value1"));
     assertThat(marketData.getValues(id2)).isEqualTo(ImmutableList.of("value2", "value2", "value2"));
+
+    // Check the values are in the base data, not the scenario data
+    assertThat(marketData.containsSharedValue(id1)).isTrue();
+    assertThat(marketData.containsSharedValue(id2)).isTrue();
+    assertThat(marketData.containsScenarioValues(id1)).isFalse();
+    assertThat(marketData.containsScenarioValues(id2)).isFalse();
   }
 
   /**
@@ -891,9 +925,11 @@ public class DefaultMarketDataFactoryTest {
   public void buildScenarioValuesFromSuppliedData() {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
+    TestIdB idB1 = new TestIdB("1");
+    TestIdB idB2 = new TestIdB("2");
 
     CalculationRequirements requirements = CalculationRequirements.builder()
-        .addValues(new TestIdB("1"), new TestIdB("2"))
+        .addValues(idB1, idB2)
         .build();
 
     LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
@@ -947,10 +983,10 @@ public class DefaultMarketDataFactoryTest {
         MARKET_DATA_CONFIG);
 
     assertThat(marketData.getSingleValueFailures()).isEmpty();
-    assertThat(marketData.getTimeSeriesFailures()).isEmpty();
+    assertThat(marketData.getSharedData().getTimeSeriesFailures()).isEmpty();
 
-    List<TestMarketDataB> marketDataB1 = marketData.getValues(new TestIdB("1"));
-    List<TestMarketDataB> marketDataB2 = marketData.getValues(new TestIdB("2"));
+    List<TestMarketDataB> marketDataB1 = marketData.getValues(idB1);
+    List<TestMarketDataB> marketDataB2 = marketData.getValues(idB2);
 
     List<TestMarketDataB> expectedB1 = ImmutableList.of(
         new TestMarketDataB(1, new TestMarketDataC(timeSeries1.mapValues(v -> v * 1.1))),
@@ -964,6 +1000,12 @@ public class DefaultMarketDataFactoryTest {
 
     assertThat(marketDataB1).isEqualTo(expectedB1);
     assertThat(marketDataB2).isEqualTo(expectedB2);
+
+    // Check the values are in the scenario data, not the base data
+    assertThat(marketData.containsSharedValue(idB1)).isFalse();
+    assertThat(marketData.containsSharedValue(idB2)).isFalse();
+    assertThat(marketData.containsScenarioValues(idB1)).isTrue();
+    assertThat(marketData.containsScenarioValues(idB2)).isTrue();
   }
 
   /**
@@ -1114,8 +1156,8 @@ public class DefaultMarketDataFactoryTest {
     assertThat(failures.get(id1).getMessage()).matches("No market data function available.*");
     assertThat(failures.get(id2).getMessage()).matches("No market data function available.*");
 
-    assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No values available for.*");
-    assertThrows(() -> marketData.getValues(id2), IllegalArgumentException.class, "No values available for.*");
+    assertThrows(() -> marketData.getValues(id1), IllegalArgumentException.class, "No market data available for.*");
+    assertThrows(() -> marketData.getValues(id2), IllegalArgumentException.class, "No market data available for.*");
   }
 
   /**
@@ -1600,6 +1642,11 @@ public class DefaultMarketDataFactoryTest {
     @Override
     public Class<String> getMarketDataType() {
       return String.class;
+    }
+
+    @Override
+    public String toString() {
+      return "NonObservableId [str='" + str + "']";
     }
   }
 

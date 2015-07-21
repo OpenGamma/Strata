@@ -187,7 +187,7 @@ public class CalculationTask {
       return Result.failure(FailureReason.MISSING_DATA, "No reporting currency available for convert value {}", value);
     }
     Currency reportingCurrency = optionalReportingCurrency.get();
-    CurrencyConvertible<?> convertible = (CurrencyConvertible) value;
+    CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) value;
 
     try {
       Object convertedValue = convertible.convertedTo(reportingCurrency, marketData);

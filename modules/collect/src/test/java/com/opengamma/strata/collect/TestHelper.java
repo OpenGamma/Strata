@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -284,12 +285,75 @@ public class TestHelper {
    * @param runner  the lambda containing the code to test
    */
   public static void ignoreThrows(AssertRunnable runner) {
-    assertNotNull(runner, "assertThrows() called with null AssertRunnable");
+    assertNotNull(runner, "ignoreThrows() called with null AssertRunnable");
     try {
       runner.run();
     } catch (Throwable ex) {
       // ignore
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Capture system out for testing.
+   * <p>
+   * This returns the output from calls to {@code System.out}.
+   * This is thread-safe, providing that no other utility alters system out.
+   * <p>
+   * For example:
+   * <pre>
+   *  String sysOut = caputureSystemOut(() -> myCode);
+   * </pre>
+   * 
+   * @param runner  the lambda containing the code to test
+   * @return the captured output
+   */
+  public static synchronized String caputureSystemOut(Runnable runner) {
+    // it would be possible to use some form of thread-local PrintStream to increase concurrency,
+    // but that should be done only if synchronized is insufficient
+    assertNotNull(runner, "caputureSystemOut() called with null Runnable");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+    PrintStream ps = new PrintStream(baos);
+    PrintStream old = System.out;
+    try {
+      System.setOut(ps);
+      runner.run();
+      System.out.flush();
+    } finally {
+      System.setOut(old);
+    }
+    return baos.toString();
+  }
+
+  /**
+   * Capture system err for testing.
+   * <p>
+   * This returns the output from calls to {@code System.err}.
+   * This is thread-safe, providing that no other utility alters system out.
+   * <p>
+   * For example:
+   * <pre>
+   *  String sysErr = caputureSystemerr(() -> myCode);
+   * </pre>
+   * 
+   * @param runner  the lambda containing the code to test
+   * @return the captured output
+   */
+  public static synchronized String caputureSystemErr(Runnable runner) {
+    // it would be possible to use some form of thread-local PrintStream to increase concurrency,
+    // but that should be done only if synchronized is insufficient
+    assertNotNull(runner, "caputureSystemErr() called with null Runnable");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+    PrintStream ps = new PrintStream(baos);
+    PrintStream old = System.err;
+    try {
+      System.setErr(ps);
+      runner.run();
+      System.err.flush();
+    } finally {
+      System.setErr(old);
+    }
+    return baos.toString();
   }
 
   //-------------------------------------------------------------------------

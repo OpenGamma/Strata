@@ -16,9 +16,13 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 
 /**
  * Tests {@link IborFutureOptionSensitivity}.
@@ -106,6 +110,25 @@ public class IborFutureOptionSensitivityTest {
     assertEquals(g.compareKey(a1) > 0, true);
     assertEquals(a1.compareKey(other) < 0, true);
     assertEquals(other.compareKey(a1) > 0, true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_convertedTo() {
+    LocalDate expiryDate = date(2015, 8, 27);
+    LocalDate fixingDate = date(2015, 8, 28);
+    double strike = 0.98d;
+    double forward = 0.99d;
+    double sensi = 32d;
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
+        GBP_LIBOR_3M, expiryDate, fixingDate, strike, forward, GBP, sensi);
+    double rate = 1.5d;
+    FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
+    IborFutureOptionSensitivity test1 = (IborFutureOptionSensitivity) base.convertedTo(USD, matrix);
+    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
+        GBP_LIBOR_3M, expiryDate, fixingDate, strike, forward, USD, sensi * rate);
+    assertEquals(test1, expected);
+    IborFutureOptionSensitivity test2 = (IborFutureOptionSensitivity) base.convertedTo(GBP, matrix);
+    assertEquals(test2, base);
   }
 
   //-------------------------------------------------------------------------

@@ -5,7 +5,10 @@
  */
 
 /**
- * Entity objects describing common market indexes, such as LIBOR and FED FUND.
+ * Entity objects describing common market indices, such as LIBOR and FED FUND.
+ * <p>
+ * An index is an agreed mechanism for determining certain financial indicators,
+ * such as exchange rate or interest rates. Most common indices are fixed daily.
  */
 package com.opengamma.strata.basics.index;
 

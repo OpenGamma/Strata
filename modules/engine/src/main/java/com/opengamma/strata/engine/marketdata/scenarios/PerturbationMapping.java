@@ -125,9 +125,9 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    * @return a list of market data values derived from the input value by applying the perturbations
    */
   @SuppressWarnings("unchecked")
-  public <U> List<U> applyPerturbations(U marketData) {
+  public List<T> applyPerturbations(T marketData) {
     // Check that T and U are the same type
-    if (!marketDataType.equals(marketData.getClass())) {
+    if (!marketDataType.isInstance(marketData)) {
       throw new IllegalArgumentException(
           Messages.format(
               "Market data {} is not an instance of the required type {}",
@@ -136,7 +136,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     }
     // T and U are the same type so the casts are safe
     return perturbations.stream()
-        .map(perturbation -> (U) perturbation.apply((T) marketData))
+        .map(perturbation -> perturbation.apply(marketData))
         .collect(toImmutableList());
   }
 

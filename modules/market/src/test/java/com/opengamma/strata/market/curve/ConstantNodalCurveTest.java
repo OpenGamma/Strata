@@ -14,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 
 /**
@@ -35,7 +34,6 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getUnderlyingCurve()).isEqualTo(ConstantDoublesCurve.from(VALUE, NAME));
     assertThat(test.getXValues()).containsExactly(0d);
     assertThat(test.getYValues()).containsExactly(VALUE);
   }
@@ -45,7 +43,6 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getUnderlyingCurve()).isEqualTo(ConstantDoublesCurve.from(VALUE, NAME));
     assertThat(test.getXValues()).containsExactly(0d);
     assertThat(test.getYValues()).containsExactly(VALUE);
   }
@@ -55,7 +52,6 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getUnderlyingCurve()).isEqualTo(ConstantDoublesCurve.from(VALUE, NAME));
     assertThat(test.getXValues()).containsExactly(0d);
     assertThat(test.getYValues()).containsExactly(VALUE);
   }
@@ -83,7 +79,6 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getUnderlyingCurve()).isEqualTo(ConstantDoublesCurve.from(4d, NAME));
     assertThat(test.getXValues()).containsExactly(0d);
     assertThat(test.getYValues()).containsExactly(4d);
   }
@@ -100,7 +95,6 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getUnderlyingCurve()).isEqualTo(ConstantDoublesCurve.from(4d, NAME));
     assertThat(test.getXValues()).containsExactly(0d);
     assertThat(test.getYValues()).containsExactly(4d);
   }
@@ -111,7 +105,6 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getUnderlyingCurve()).isEqualTo(ConstantDoublesCurve.from(4d, NAME));
     assertThat(test.getXValues()).containsExactly(0d);
     assertThat(test.getYValues()).containsExactly(4d);
   }

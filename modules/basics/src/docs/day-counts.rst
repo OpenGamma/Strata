@@ -260,10 +260,54 @@ Actual/Actual AFB
     change the first day-of-month to 30.
     If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
     If the first day-of-month is 31, change the first day-of-month to 30.
-    This is the same as '30/360 ISDA' if the EOM convention does not apply
-    but with two additional end of February rules if the EOM does apply.
+	
+    This day count has different rules depending on whether the EOM rule applies or not.
+    The EOM rule is set in the ``ScheduleInfo``. The default value for EOM is true,
+    
+	There are two related day counts.
+    The '30U/360 EOM' rule is identical to this rule when the EOM convention applies.
+    The '30/360 ISDA' rule is identical to this rule when the EOM convention does not apply.
 :Schedules: This day count assumes EOM convention is true if ``ScheduleInfo`` is not specified.
 :Also known: '30/360 US', '30US/360' or '30/360 SIA'.
+
+30U/360 EOM
+-----------
+
+:Name: ``30U/360 EOM``
+:Constant: ``DayCounts.THIRTY_U_360_EOM``
+:Description:
+    A 30/360 style algorithm with special rules for the 31st day-of-month and the end of February.
+    
+    The result is calculated as ``(360 * deltaYear + 30 * deltaMonth + deltaDay) / 360``.
+    The deltaDay is then calculated once day-of-month adjustments have occurred.
+    If both dates are the last day of February, change the second day-of-month to 30.
+    If the first date is the last day of February, change the first day-of-month to 30.
+    If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
+    If the first day-of-month is 31, change the first day-of-month to 30.
+
+    This day count is not dependent on the EOM flag in ``ScheduleInfo``.
+    
+    This is the same as '30U/360' when the EOM convention applies.
+    This day count would typically be used to be explicit about the EOM rule applying.
+    In most cases, '30U/360' should be used in preference to this day count.
+:Schedules: This day count assumes EOM convention is true if ``ScheduleInfo`` is not specified.
+:Also known: '30/360 US', '30US/360' or '30/360 SIA'.
+
+30/360 PSA
+----------
+
+:Name: ``30/360 PSA``
+:Constant: ``DayCounts.THIRTY_360_PSA``
+:Description:
+    A 30/360 style algorithm with special rules for the 31st day-of-month and the end of February.
+    
+    The result is calculated as ``(360 * deltaYear + 30 * deltaMonth + deltaDay) / 360``.
+    The deltaDay is then calculated once day-of-month adjustments have occurred.
+    If the first date is the last day of February, change the first day-of-month to 30.
+    If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
+    If the first day-of-month is 31, change the first day-of-month to 30.
+:Schedules: This day count assumes EOM convention is true if ``ScheduleInfo`` is not specified.
+:Also known: '30/360 BMA' (PSA is the Public Securites Association, BMA is the Bond Market Association).
 
 30E/360 ISDA
 ------------

@@ -17,10 +17,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.NL_365;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
+import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_PSA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_EPLUS_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
+import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360_EOM;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
@@ -233,6 +235,29 @@ public class DayCountTest {
         {THIRTY_360_ISDA, 2012, 5, 31, 2013, 8, 31, calc360(2012, 5, 30, 2013, 8, 30)},
 
         //-------------------------------------------------------
+        {THIRTY_360_PSA, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2011, 12, 28, 2012, 2, 29, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2011, 12, 28, 2016, 2, 28, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2011, 12, 28, 2016, 2, 29, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2011, 12, 28, 2016, 3, 1, SIMPLE_30_360},
+
+        {THIRTY_360_PSA, 2012, 2, 28, 2012, 3, 28, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2012, 2, 29, 2012, 3, 28, calc360(2012, 2, 30, 2012, 3, 28)},
+        {THIRTY_360_PSA, 2011, 2, 28, 2012, 2, 28, calc360(2011, 2, 30, 2012, 2, 28)},
+        {THIRTY_360_PSA, 2011, 2, 28, 2012, 2, 29, calc360(2011, 2, 30, 2012, 2, 29)},
+        {THIRTY_360_PSA, 2012, 2, 29, 2016, 2, 29, calc360(2012, 2, 30, 2016, 2, 29)},
+
+        {THIRTY_360_PSA, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2012, 5, 30, 2013, 8, 29, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2012, 5, 29, 2013, 8, 30, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2012, 5, 30, 2013, 8, 30, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2012, 5, 29, 2013, 8, 31, SIMPLE_30_360},
+        {THIRTY_360_PSA, 2012, 5, 30, 2013, 8, 31, calc360(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_360_PSA, 2012, 5, 31, 2013, 8, 30, calc360(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_360_PSA, 2012, 5, 31, 2013, 8, 31, calc360(2012, 5, 30, 2013, 8, 30)},
+
+        //-------------------------------------------------------
         {THIRTY_E_360, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360},
         {THIRTY_E_360, 2011, 12, 28, 2012, 2, 29, SIMPLE_30_360},
         {THIRTY_E_360, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360},
@@ -324,6 +349,9 @@ public class DayCountTest {
 
         {2012, 2, 28, 2012, 3, 28, SIMPLE_30_360, SIMPLE_30_360},
         {2012, 2, 29, 2012, 3, 28, SIMPLE_30_360, calc360(2012, 2, 30, 2012, 3, 28)},
+        {2012, 2, 29, 2012, 3, 30, SIMPLE_30_360, calc360(2012, 2, 30, 2012, 3, 30)},
+        {2012, 2, 29, 2012, 3, 31, SIMPLE_30_360, calc360(2012, 2, 30, 2012, 3, 30)},
+        {2012, 2, 29, 2013, 2, 28, SIMPLE_30_360, calc360(2012, 2, 30, 2013, 2, 30)},
         {2011, 2, 28, 2012, 2, 28, SIMPLE_30_360, calc360(2011, 2, 30, 2012, 2, 28)},
         {2011, 2, 28, 2012, 2, 29, SIMPLE_30_360, calc360(2011, 2, 30, 2012, 2, 30)},
         {2012, 2, 29, 2016, 2, 29, SIMPLE_30_360, calc360(2012, 2, 30, 2016, 2, 30)},
@@ -357,6 +385,26 @@ public class DayCountTest {
     LocalDate date2 = LocalDate.of(y2, m2, d2);
     ScheduleInfo info = new Info(true);
     assertEquals(THIRTY_U_360.yearFraction(date1, date2, info), expected, TOLERANCE_ZERO);
+  }
+
+  @Test(dataProvider = "30U360")
+  public void test_yearFraction_30360ISDA(
+      int y1, int m1, int d1, int y2, int m2, int d2, Double valueNotEOM, Double valueEOM) {
+    double expected = (valueNotEOM == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : valueNotEOM);
+    LocalDate date1 = LocalDate.of(y1, m1, d1);
+    LocalDate date2 = LocalDate.of(y2, m2, d2);
+    ScheduleInfo info = new Info(true);
+    assertEquals(THIRTY_360_ISDA.yearFraction(date1, date2, info), expected, TOLERANCE_ZERO);
+  }
+
+  @Test(dataProvider = "30U360")
+  public void test_yearFraction_30U360EOM(
+      int y1, int m1, int d1, int y2, int m2, int d2, Double valueNotEOM, Double valueEOM) {
+    double expected = (valueEOM == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : valueEOM);
+    LocalDate date1 = LocalDate.of(y1, m1, d1);
+    LocalDate date2 = LocalDate.of(y2, m2, d2);
+    ScheduleInfo info = new Info(true);
+    assertEquals(THIRTY_U_360_EOM.yearFraction(date1, date2, info), expected, TOLERANCE_ZERO);
   }
 
   //-------------------------------------------------------------------------
@@ -726,6 +774,8 @@ public class DayCountTest {
         {NL_365, "NL/365"},
         {THIRTY_360_ISDA, "30/360 ISDA"},
         {THIRTY_U_360, "30U/360"},
+        {THIRTY_U_360_EOM, "30U/360 EOM"},
+        {THIRTY_360_PSA, "30/360 PSA"},
         {THIRTY_E_360_ISDA, "30E/360 ISDA"},
         {THIRTY_E_360, "30E/360"},
         {THIRTY_EPLUS_360, "30E+/360"},

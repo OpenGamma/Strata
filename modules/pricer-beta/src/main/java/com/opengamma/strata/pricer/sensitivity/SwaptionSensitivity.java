@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.sensitivity;
@@ -27,7 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -40,14 +41,12 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 @BeanDefinition(builderScope = "private")
 public final class SwaptionSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
-  // TODO: replace index by the swap template?
-  // TODO why not the Tenor object?
 
   /**
-   * The index on which the underlying swap is based.
+   * The convention of the swap for which the data is valid.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIndex index;
+  private final FixedIborSwapConvention convention;
   /**
    * The expiry date/time of the option.
    */
@@ -83,7 +82,7 @@ public final class SwaptionSensitivity
   /**
    * Obtains a {@code SwaptionSensitivity} from the specified elements.
    * 
-   * @param index  the index on which the underlying swap is based
+   * @param convention  the convention of the swap for which the data is valid
    * @param expiry  the expiry date/time of the option
    * @param tenor  the underlying swap tenor
    * @param strike  the swaption strike rate
@@ -93,7 +92,7 @@ public final class SwaptionSensitivity
    * @return the point sensitivity object
    */
   public static SwaptionSensitivity of(
-      IborIndex index,
+      FixedIborSwapConvention convention,
       ZonedDateTime expiry,
       double tenor,
       double strike,
@@ -101,39 +100,50 @@ public final class SwaptionSensitivity
       Currency sensitivityCurrency,
       double sensitivity) {
 
-    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, sensitivityCurrency, sensitivity);
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public SwaptionSensitivity withCurrency(Currency ccy) {
-    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, ccy, sensitivity);
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, ccy, sensitivity);
   }
 
   @Override
   public PointSensitivity withSensitivity(double value) {
-    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, currency, value);
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, currency, value);
   }
 
   @Override
   public int compareKey(PointSensitivity other) {
     if (other instanceof SwaptionSensitivity) {
-      SwaptionSensitivity otherIbor = (SwaptionSensitivity) other;
+      SwaptionSensitivity otherSwpt = (SwaptionSensitivity) other;
       return ComparisonChain.start()
-          .compare(currency, otherIbor.currency)
-          .compare(expiry, otherIbor.expiry)
-          .compare(tenor, otherIbor.tenor)
-          .compare(strike, otherIbor.strike)
-          .compare(forward, otherIbor.forward)
-          .compare(index.toString(), otherIbor.index.toString())
+          .compare(currency, otherSwpt.currency)
+          .compare(expiry, otherSwpt.expiry)
+          .compare(tenor, otherSwpt.tenor)
+          .compare(strike, otherSwpt.strike)
+          .compare(forward, otherSwpt.forward)
+          .compare(convention.toString(), otherSwpt.convention.toString())
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
   }
 
   @Override
+  public SwaptionSensitivity convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return (SwaptionSensitivity) PointSensitivity.super.convertedTo(resultCurrency, rateProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SwaptionSensitivity multipliedBy(double factor) {
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, currency, sensitivity * factor);
+  }
+
+  @Override
   public SwaptionSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new SwaptionSensitivity(index, expiry, tenor, strike, forward, currency, operator.applyAsDouble(sensitivity));
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -171,17 +181,17 @@ public final class SwaptionSensitivity
   private static final long serialVersionUID = 1L;
 
   private SwaptionSensitivity(
-      IborIndex index,
+      FixedIborSwapConvention convention,
       ZonedDateTime expiry,
       double tenor,
       double strike,
       double forward,
       Currency currency,
       double sensitivity) {
-    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(convention, "convention");
     JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(currency, "currency");
-    this.index = index;
+    this.convention = convention;
     this.expiry = expiry;
     this.tenor = tenor;
     this.strike = strike;
@@ -207,11 +217,11 @@ public final class SwaptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index on which the underlying swap is based.
+   * Gets the convention of the swap for which the data is valid.
    * @return the value of the property, not null
    */
-  public IborIndex getIndex() {
-    return index;
+  public FixedIborSwapConvention getConvention() {
+    return convention;
   }
 
   //-----------------------------------------------------------------------
@@ -278,7 +288,7 @@ public final class SwaptionSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionSensitivity other = (SwaptionSensitivity) obj;
-      return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
@@ -292,7 +302,7 @@ public final class SwaptionSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
@@ -306,7 +316,7 @@ public final class SwaptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("SwaptionSensitivity{");
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
+    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
     buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
     buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
     buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
@@ -328,10 +338,10 @@ public final class SwaptionSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code convention} property.
      */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", SwaptionSensitivity.class, IborIndex.class);
+    private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", SwaptionSensitivity.class, FixedIborSwapConvention.class);
     /**
      * The meta-property for the {@code expiry} property.
      */
@@ -367,7 +377,7 @@ public final class SwaptionSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "index",
+        "convention",
         "expiry",
         "tenor",
         "strike",
@@ -384,8 +394,8 @@ public final class SwaptionSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
+        case 2039569265:  // convention
+          return convention;
         case -1289159373:  // expiry
           return expiry;
         case 110246592:  // tenor
@@ -419,11 +429,11 @@ public final class SwaptionSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code convention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> index() {
-      return index;
+    public MetaProperty<FixedIborSwapConvention> convention() {
+      return convention;
     }
 
     /**
@@ -478,8 +488,8 @@ public final class SwaptionSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return ((SwaptionSensitivity) bean).getIndex();
+        case 2039569265:  // convention
+          return ((SwaptionSensitivity) bean).getConvention();
         case -1289159373:  // expiry
           return ((SwaptionSensitivity) bean).getExpiry();
         case 110246592:  // tenor
@@ -513,7 +523,7 @@ public final class SwaptionSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<SwaptionSensitivity> {
 
-    private IborIndex index;
+    private FixedIborSwapConvention convention;
     private ZonedDateTime expiry;
     private double tenor;
     private double strike;
@@ -531,8 +541,8 @@ public final class SwaptionSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
+        case 2039569265:  // convention
+          return convention;
         case -1289159373:  // expiry
           return expiry;
         case 110246592:  // tenor
@@ -553,8 +563,8 @@ public final class SwaptionSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          this.index = (IborIndex) newValue;
+        case 2039569265:  // convention
+          this.convention = (FixedIborSwapConvention) newValue;
           break;
         case -1289159373:  // expiry
           this.expiry = (ZonedDateTime) newValue;
@@ -607,7 +617,7 @@ public final class SwaptionSensitivity
     @Override
     public SwaptionSensitivity build() {
       return new SwaptionSensitivity(
-          index,
+          convention,
           expiry,
           tenor,
           strike,
@@ -621,7 +631,7 @@ public final class SwaptionSensitivity
     public String toString() {
       StringBuilder buf = new StringBuilder(256);
       buf.append("SwaptionSensitivity.Builder{");
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
       buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');

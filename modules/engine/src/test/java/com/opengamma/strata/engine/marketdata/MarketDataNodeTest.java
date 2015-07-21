@@ -261,6 +261,26 @@ public class MarketDataNodeTest {
     assertThat(root).isEqualTo(expected);
   }
 
+  public void nodeMap() {
+    MarketDataNode a1 = observableNode(new TestIdA("1"));
+    MarketDataNode b3 = valueNode(new TestIdB("3"));
+    MarketDataNode a4 = observableNode(new TestIdA("4"));
+    MarketDataNode a6 = timeSeriesNode(new TestIdA("6"));
+    MarketDataNode b5 = valueNode(new TestIdB("5"), a6);
+    MarketDataNode b2 = valueNode(new TestIdB("2"), b3, a4, b5);
+    MarketDataNode b7 = valueNode(new TestIdB("7"));
+    MarketDataNode root = rootNode(a1, b2, b7);
+
+    Map<MarketDataId<?>, MarketDataNode> nodeMap = root.nodeMap();
+    assertThat(nodeMap.get(new TestIdA("1"))).isEqualTo(a1);
+    assertThat(nodeMap.get(new TestIdB("3"))).isEqualTo(b3);
+    assertThat(nodeMap.get(new TestIdA("4"))).isEqualTo(a4);
+    assertThat(nodeMap.get(new TestIdA("6"))).isEqualTo(a6);
+    assertThat(nodeMap.get(new TestIdB("5"))).isEqualTo(b5);
+    assertThat(nodeMap.get(new TestIdB("2"))).isEqualTo(b2);
+    assertThat(nodeMap.get(new TestIdB("7"))).isEqualTo(b7);
+  }
+
   //------------------------------------------------------------------------------------------
 
   private static MarketDataNode rootNode(MarketDataNode... children) {

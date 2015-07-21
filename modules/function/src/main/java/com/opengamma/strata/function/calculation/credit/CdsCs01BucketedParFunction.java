@@ -14,6 +14,7 @@ import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitiviti
 
 /**
  * Calculates vector CS01 of a {@code CdsTrade} for each of a set of scenarios.
+ * <p>
  * This calculates the vector PV change to a series of 1 basis point shifts in par credit spread rates at each curve node.
  */
 public class CdsCs01BucketedParFunction
@@ -24,9 +25,12 @@ public class CdsCs01BucketedParFunction
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      LocalDate valuationDate) {
+      LocalDate valuationDate,
+      double recoveryRate,
+      double scalingFactor) {
 
-    return pricer().cs01BucketedPar(product, yieldCurveParRates, creditCurveParRates, valuationDate);
+    return pricer().cs01BucketedPar(
+        product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }

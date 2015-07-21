@@ -24,10 +24,17 @@ public final class CdsFunctionGroups {
   private static final FunctionGroup<CdsTrade> DISCOUNTING_GROUP =
       DefaultFunctionGroup.builder(CdsTrade.class).name("CdsDiscounting")
           .addFunction(Measure.PRESENT_VALUE, CdsPvFunction.class)
+          .addFunction(Measure.PAR_RATE, CdsParRateFunction.class)
+          .addFunction(Measure.RECOVERY01, CdsRecovery01Function.class)
+          .addFunction(Measure.JUMP_TO_DEFAULT, CdsJumpToDefaultFunction.class)
           .addFunction(Measure.IR01_PARALLEL_PAR, CdsIr01ParallelParFunction.class)
+          .addFunction(Measure.IR01_PARALLEL_ZERO, CdsIr01ParallelZeroFunction.class)
           .addFunction(Measure.IR01_BUCKETED_PAR, CdsIr01BucketedParFunction.class)
+          .addFunction(Measure.IR01_BUCKETED_ZERO, CdsIr01BucketedZeroFunction.class)
           .addFunction(Measure.CS01_PARALLEL_PAR, CdsCs01ParallelParFunction.class)
+          .addFunction(Measure.CS01_PARALLEL_HAZARD, CdsCs01ParallelHazardFunction.class)
           .addFunction(Measure.CS01_BUCKETED_PAR, CdsCs01BucketedParFunction.class)
+          .addFunction(Measure.CS01_BUCKETED_HAZARD, CdsCs01BucketedHazardFunction.class)
           .build();
 
   /**

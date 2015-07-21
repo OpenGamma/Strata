@@ -40,10 +40,7 @@ import com.opengamma.strata.examples.marketdata.timeseries.FixingSeriesCsvLoader
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
-import com.opengamma.strata.market.id.IsdaIndexCreditCurveParRatesId;
-import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveParRatesId;
 import com.opengamma.strata.market.id.IsdaYieldCurveParRatesId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.RateCurveId;
@@ -125,29 +122,27 @@ public abstract class MarketDataBuilder {
    * @return the market data builder
    */
   public static MarketDataBuilder ofResource(String resourceRoot, ClassLoader classLoader) {
-    String qualifiedResourceRoot = resourceRoot.startsWith(File.separator) ? resourceRoot.substring(1) : resourceRoot;
-    if (!qualifiedResourceRoot.endsWith(File.separator)) {
-      qualifiedResourceRoot += File.separator;
-    }
-    URL url = classLoader.getResource(qualifiedResourceRoot);
+    // classpath resources are forward-slash separated
+    String qualifiedRoot = resourceRoot;
+    qualifiedRoot = qualifiedRoot.startsWith("/") ? qualifiedRoot.substring(1) : qualifiedRoot;
+    qualifiedRoot = qualifiedRoot.startsWith("\\") ? qualifiedRoot.substring(1) : qualifiedRoot;
+    qualifiedRoot = qualifiedRoot.endsWith("/") ? qualifiedRoot : qualifiedRoot + "/";
+    URL url = classLoader.getResource(qualifiedRoot);
     if (url == null) {
-      throw new IllegalArgumentException(
-          Messages.format("Resource not found: {}", resourceRoot));
+      throw new IllegalArgumentException(Messages.format("Classpath resource not found: {}", qualifiedRoot));
     }
     if (url.getProtocol() != null && "jar".equals(url.getProtocol().toLowerCase())) {
       // Inside a JAR
       int classSeparatorIdx = url.getFile().indexOf("!");
       if (classSeparatorIdx == -1) {
-        throw new IllegalArgumentException(
-            Messages.format("Unexpected JAR file URL: {}", url));
+        throw new IllegalArgumentException(Messages.format("Unexpected JAR file URL: {}", url));
       }
       String jarPath = url.getFile().substring("file:".length(), classSeparatorIdx);
       File jarFile;
       try {
         jarFile = new File(jarPath);
       } catch (Exception e) {
-        throw new IllegalArgumentException(
-            Messages.format("Unable to create file for JAR: {}", jarPath), e);
+        throw new IllegalArgumentException(Messages.format("Unable to create file for JAR: {}", jarPath), e);
       }
       return new JarMarketDataBuilder(jarFile, resourceRoot);
     } else {
@@ -156,8 +151,7 @@ public abstract class MarketDataBuilder {
       try {
         file = new File(url.toURI());
       } catch (URISyntaxException e) {
-        throw new IllegalArgumentException(
-            Messages.format("Unexpected file location: {}", url), e);
+        throw new IllegalArgumentException(Messages.format("Unexpected file location: {}", url), e);
       }
       return new DirectoryMarketDataBuilder(file.toPath());
     }
@@ -311,7 +305,7 @@ public abstract class MarketDataBuilder {
     }
 
     String creditMarketDataDateDirectory = String.format(
-        "%s" + File.separator + "%s",
+        "%s/%s",
         CREDIT_DIR,
         marketDataDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 
@@ -360,14 +354,7 @@ public abstract class MarketDataBuilder {
     try {
       CharSource inputCreditCurvesSource = singleNameCurvesResource.getCharSource();
       CharSource inputStaticDataSource = singleNameStaticDataResource.getCharSource();
-      Map<IsdaSingleNameCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitSingleNameCreditCurveDataParser
-          .parse(inputCreditCurvesSource, inputStaticDataSource);
-
-      for (IsdaSingleNameCreditCurveParRatesId id : creditCurves.keySet()) {
-        IsdaCreditCurveParRates parRates = creditCurves.get(id);
-        builder.addValue(id, parRates);
-      }
-
+      MarkitSingleNameCreditCurveDataParser.parse(builder, inputCreditCurvesSource, inputStaticDataSource);
     } catch (Exception ex) {
       throw new RuntimeException(String.format("Unable to read single name spread curves: exception at %s/%s",
           creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE), ex);
@@ -392,13 +379,7 @@ public abstract class MarketDataBuilder {
 
     CharSource indexCreditCurvesSource = inputCurvesResource.getCharSource();
     CharSource indexStaticDataSource = inputStaticDataResource.getCharSource();
-    Map<IsdaIndexCreditCurveParRatesId, IsdaCreditCurveParRates> creditCurves = MarkitIndexCreditCurveDataParser
-        .parse(indexCreditCurvesSource, indexStaticDataSource);
-
-    for (IsdaIndexCreditCurveParRatesId id : creditCurves.keySet()) {
-      IsdaCreditCurveParRates parRates = creditCurves.get(id);
-      builder.addValue(id, parRates);
-    }
+    MarkitIndexCreditCurveDataParser.parse(builder, indexCreditCurvesSource, indexStaticDataSource);
 
   }
 

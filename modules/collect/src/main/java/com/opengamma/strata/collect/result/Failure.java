@@ -81,6 +81,7 @@ public final class Failure
    * 
    * @param reason  the reason
    * @param message  the failure message, not empty
+   * @return the failure
    */
   static Failure of(FailureReason reason, String message) {
     ArgChecker.notNull(reason, "reason");
@@ -94,6 +95,7 @@ public final class Failure
    * 
    * @param reason  the reason
    * @param cause  the cause
+   * @return the failure
    */
   static Failure of(FailureReason reason, Exception cause) {
     ArgChecker.notNull(reason, "reason");

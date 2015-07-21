@@ -43,9 +43,10 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
    * @param rootPath  the root path to the resources within the JAR file
    */
   public JarMarketDataBuilder(File jarFile, String rootPath) {
-    String jarRoot = rootPath.startsWith(File.separator) ? rootPath.substring(1) : rootPath;
-    if (!jarRoot.endsWith(File.separator)) {
-      jarRoot += File.separator;
+    // classpath resources are forward-slash separated
+    String jarRoot = rootPath.startsWith("/") ? rootPath.substring(1) : rootPath;
+    if (!jarRoot.endsWith("/")) {
+      jarRoot += "/";
     }
     this.jarFile = jarFile;
     this.rootPath = jarRoot;
@@ -55,7 +56,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
   //-------------------------------------------------------------------------
   @Override
   protected Collection<ResourceLocator> getAllResources(String subdirectoryName) {
-    String resolvedSubdirectory = subdirectoryName + File.separator;
+    String resolvedSubdirectory = subdirectoryName + "/";
     return entries.stream()
         .filter(e -> e.startsWith(resolvedSubdirectory) && !e.equals(resolvedSubdirectory))
         .map(e -> getEntryLocator(rootPath + e))
@@ -64,7 +65,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
 
   @Override
   protected ResourceLocator getResource(String subdirectoryName, String resourceName) {
-    String fullLocation = String.format("%s%s%s%s", rootPath, subdirectoryName, File.separator, resourceName);
+    String fullLocation = String.format("%s%s/%s", rootPath, subdirectoryName, resourceName);
     try (JarFile jar = new JarFile(jarFile)) {
       JarEntry entry = jar.getJarEntry(fullLocation);
       if (entry == null) {
@@ -79,9 +80,10 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
 
   @Override
   protected boolean subdirectoryExists(String subdirectoryName) {
-    String resolvedName = subdirectoryName.startsWith(File.separator) ? subdirectoryName.substring(1) : subdirectoryName;
-    if (!resolvedName.endsWith(File.separator)) {
-      resolvedName += File.separator;
+    // classpath resources are forward-slash separated
+    String resolvedName = subdirectoryName.startsWith("/") ? subdirectoryName.substring(1) : subdirectoryName;
+    if (!resolvedName.endsWith("/")) {
+      resolvedName += "/";
     }
     return entries.contains(resolvedName);
   }

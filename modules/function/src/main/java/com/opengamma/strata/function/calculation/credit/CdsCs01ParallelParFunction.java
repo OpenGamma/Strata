@@ -14,6 +14,7 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 
 /**
  * Calculates scalar CS01 of a {@code CdsTrade} for each of a set of scenarios.
+ * <p>
  * This calculates the scalar PV change to a 1 basis point shift in par credit spread rates.
  */
 public class CdsCs01ParallelParFunction
@@ -24,9 +25,12 @@ public class CdsCs01ParallelParFunction
       ExpandedCds product,
       IsdaYieldCurveParRates yieldCurveParRates,
       IsdaCreditCurveParRates creditCurveParRates,
-      LocalDate valuationDate) {
+      LocalDate valuationDate,
+      double recoveryRate,
+      double scalingFactor) {
 
-    return pricer().cs01ParallelPar(product, yieldCurveParRates, creditCurveParRates, valuationDate);
+    return pricer().cs01ParallelPar(
+        product, yieldCurveParRates, creditCurveParRates, valuationDate, recoveryRate, scalingFactor);
   }
 
 }

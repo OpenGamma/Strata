@@ -15,6 +15,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
@@ -29,20 +30,23 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
- * Pricer for swaption in a normal model on the swap rate.
+ * Pricer for swaption with physical settlement in a normal model on the swap rate.
  * <p>
  * The swap underlying the swaption should have a fixed leg on which the forward rate is computed. The underlying swap
  * should be single currency.
  * <p>
  * The volatility parameters are not adjusted for the underlying swap conventions. The volatilities from the provider
  * are taken as such.
+ * <p>
+ * The value of the swaption after expiry is 0. The fact that the option is after expiry is equivalent to a negative
+ * number returned by the {@link NormalVolatilitySwaptionProvider#relativeYearFraction(ZonedDateTime)}.
  */
-public class NormalSwaptionProductPricerBeta {
+public class NormalSwaptionPhysicalProductPricerBeta {
 
   /**
    * Default implementation.
    */
-  public static final NormalSwaptionProductPricerBeta DEFAULT = new NormalSwaptionProductPricerBeta(
+  public static final NormalSwaptionPhysicalProductPricerBeta DEFAULT = new NormalSwaptionPhysicalProductPricerBeta(
       DiscountingSwapProductPricer.DEFAULT);
 
   /** Pricer for {@link SwapProduct}. */
@@ -56,7 +60,7 @@ public class NormalSwaptionProductPricerBeta {
    * 
    * @param swapPricer  the pricer for {@link Swap}
    */
-  public NormalSwaptionProductPricerBeta(DiscountingSwapProductPricer swapPricer) {
+  public NormalSwaptionPhysicalProductPricerBeta(DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "swap pricer");
   }
   
@@ -68,21 +72,24 @@ public class NormalSwaptionProductPricerBeta {
    * @param swaption  the product to price
    * @param rates  the rates provider
    * @param volatilities  the normal volatility parameters
-   * @return the present value of the swap product
+   * @return the present value of the swaption product
    */
   public CurrencyAmount presentValue(Swaption swaption, RatesProvider rates, 
       NormalVolatilitySwaptionProvider volatilities) {
     validate(rates, swaption, volatilities);
+    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     ExpandedSwap underlying = swaption.expand().getUnderlying().expand();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
-    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    if(expiry < 0.0d) { // Option has expired already
+      return CurrencyAmount.of(fixedLeg.getCurrency(), 0.0d);
+    }
     double forward = swapPricer.parRate(underlying, rates);
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, rates);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, rates, pvbp);
     double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilities.getVolatility(expiryDateTime, tenor, strike, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
-    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
@@ -92,6 +99,21 @@ public class NormalSwaptionProductPricerBeta {
     return CurrencyAmount.of(fixedLeg.getCurrency(), pv);
   }  
 
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the currency exposure of the swaption product.
+   * 
+   * @param swaption  the swaption to price
+   * @param rates  the rates provider
+   * @param volatilities  the normal volatility parameters
+   * @return the present value of the swaption product
+   */
+  public MultiCurrencyAmount currencyExposure(Swaption swaption, RatesProvider rates, 
+      NormalVolatilitySwaptionProvider volatilities) {
+    return MultiCurrencyAmount.of(presentValue(swaption, rates, volatilities));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Computes the implied Normal volatility of the swaption.
    * 
@@ -102,9 +124,12 @@ public class NormalSwaptionProductPricerBeta {
    */
   public double impliedVolatility(Swaption swaption, RatesProvider rates, 
       NormalVolatilitySwaptionProvider volatilities) {
+    validate(rates, swaption, volatilities);
+    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     ExpandedSwap underlying = swaption.expand().getUnderlying().expand();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
-    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    ArgChecker.isTrue(expiry >= 0.0d, "option should be before expiry to compute an implied volatility");
     double forward = swapPricer.parRate(underlying, rates);
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, rates);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, rates, pvbp);
@@ -126,16 +151,20 @@ public class NormalSwaptionProductPricerBeta {
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(Swaption swaption, RatesProvider rates, 
       NormalVolatilitySwaptionProvider volatilities) {
+    validate(rates, swaption, volatilities);
+    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     ExpandedSwap underlying = swaption.expand().getUnderlying().expand();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
-    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    if(expiry < 0.0d) { // Option has expired already
+      return PointSensitivityBuilder.none();
+    }
     double forward = swapPricer.parRate(underlying, rates);
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, rates);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, rates, pvbp);
     double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = volatilities.getVolatility(expiryDateTime, tenor, strike, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, 1.0d, volatility);
-    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
@@ -146,7 +175,8 @@ public class NormalSwaptionProductPricerBeta {
     double[] ad = new double[3];
     double pv = NORMAL.getPriceAdjoint(option, normalData, ad);
     double sign =  (swaption.getLongShort() == LongShort.LONG) ? 1.0 : -1.0;
-    return pvbpDr.multipliedBy(pv * sign * Math.signum(pvbp)).combinedWith(forwardDr.multipliedBy(ad[0] * Math.abs(pvbp) * sign));
+    return pvbpDr.multipliedBy(pv * sign * Math.signum(pvbp))
+        .combinedWith(forwardDr.multipliedBy(ad[0] * Math.abs(pvbp) * sign));
   }
 
   //-------------------------------------------------------------------------
@@ -162,23 +192,28 @@ public class NormalSwaptionProductPricerBeta {
    */
   public SwaptionSensitivity presentValueSensitivityNormalVolatility(Swaption swaption, RatesProvider rates, 
       NormalVolatilitySwaptionProvider volatilities) {
+    validate(rates, swaption, volatilities);
+    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
+    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     ExpandedSwap underlying = swaption.expand().getUnderlying().expand();
     ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
-    ZonedDateTime expiryDateTime = swaption.getExpiryDateTime();
-    double forward = swapPricer.parRate(underlying, rates);
+    double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, rates);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, rates, pvbp);
-    double tenor = volatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    if(expiry < 0.0d) { // Option has expired already
+      return SwaptionSensitivity.of(volatilities.getConvention(), expiryDateTime, tenor, strike, 0.0d, 
+        fixedLeg.getCurrency(), 0.0d);
+    }
+    double forward = swapPricer.parRate(underlying, rates);
     double volatility = volatilities.getVolatility(expiryDateTime, tenor, strike, forward);
     NormalFunctionData normalData = new NormalFunctionData(forward, Math.abs(pvbp), volatility);
-    double expiry = volatilities.relativeYearFraction(expiryDateTime);
     boolean isCall = (fixedLeg.getPayReceive() == PayReceive.PAY);
     // Payer at strike is exercise when rate > strike, i.e. call on rate
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, isCall);
     // option required to pass the strike (in case the swap has non-constant coupon).
     // Backward sweep
     double vega = NORMAL.getVega(option, normalData) * ((swaption.getLongShort() == LongShort.LONG) ? 1.0 : -1.0);
-    return SwaptionSensitivity.of(volatilities.getIndex(), expiryDateTime, tenor, strike, forward, 
+    return SwaptionSensitivity.of(volatilities.getConvention(), expiryDateTime, tenor, strike, forward, 
         fixedLeg.getCurrency(), vega);
   }
 
@@ -198,6 +233,7 @@ public class NormalSwaptionProductPricerBeta {
     ArgChecker.isTrue(volatility.getValuationDate().equals(rates.getValuationDate()), 
         "volatility and rate data should be for the same date");
     ArgChecker.isFalse(swaption.getUnderlying().isCrossCurrency(), "underlying swap should be single currency");
+    ArgChecker.isFalse(swaption.isCashSettled(), "swaption should be physical settlement");
   }
 
 }

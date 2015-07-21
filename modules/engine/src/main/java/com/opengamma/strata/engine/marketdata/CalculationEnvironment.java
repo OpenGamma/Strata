@@ -162,7 +162,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
       if (failure != null) {
         throw new FailureException(failure);
       }
-      throw new IllegalArgumentException("No market data value available for " + id);
+      throw new IllegalArgumentException("No market data available for " + id);
     }
     if (!id.getMarketDataType().isInstance(value)) {
       throw new IllegalArgumentException(
@@ -187,7 +187,7 @@ public final class CalculationEnvironment implements ImmutableBean, MarketDataLo
     LocalDateDoubleTimeSeries timeSeries = this.timeSeries.get(id);
 
     if (timeSeries == null) {
-      throw new IllegalArgumentException("No time series available for ID " + id);
+      throw new IllegalArgumentException("No time series available for " + id);
     }
     return timeSeries;
   }
