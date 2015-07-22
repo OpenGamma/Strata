@@ -31,7 +31,7 @@ public class DiscountingIborFixingDepositTradePricer {
   /**
    * Calculates the present value of the Ibor fixing deposit trade.
    * <p>
-   * The present value of the product is the value on the valuation date.
+   * The present value of the trade is the value on the valuation date.
    * 
    * @param trade  the trade to price
    * @param provider  the rates provider
@@ -44,7 +44,7 @@ public class DiscountingIborFixingDepositTradePricer {
   /**
    * Calculates the present value sensitivity of the Ibor fixing trade.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
+   * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * 
    * @param trade  the trade to price
