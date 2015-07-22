@@ -28,12 +28,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.volatility.surface.Delta;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
+import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -129,7 +129,7 @@ public final class BlackVolatilityFlatFxProvider implements BlackVolatilityFxPro
     int nTimes = times.length;
     for (int i = 0; i < nTimes; ++i) {
       sensiList.add(yValueParameterSensitivity[i] * pointValue);
-      Delta absoluteDelta = new Delta(0.5d); // ATM
+      DeltaStrike absoluteDelta = DeltaStrike.of(0.5d); // ATM
       SurfaceParameterMetadata parameterMetadata =
           FxVolatilitySurfaceYearFractionNodeMetadata.of(times[i], absoluteDelta, currencyPair);
       paramList.add(parameterMetadata);

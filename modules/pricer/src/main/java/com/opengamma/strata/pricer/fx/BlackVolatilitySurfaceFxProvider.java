@@ -27,7 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.volatility.surface.Strike;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -35,6 +34,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.option.SimpleStrike;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -135,7 +135,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     for (DoublesPair pair : result.keySet()) {
       sensiList.add(result.get(pair) * pointValue);
       SurfaceParameterMetadata parameterMetadata = FxVolatilitySurfaceYearFractionNodeMetadata.of(
-          pair.getFirst(), new Strike(pair.getSecond()), currencyPair);
+          pair.getFirst(), SimpleStrike.of(pair.getSecond()), currencyPair);
       paramList.add(parameterMetadata);
     }
     double[] sensi = DoubleArrayMath.toPrimitive((Double[]) sensiList.toArray());
