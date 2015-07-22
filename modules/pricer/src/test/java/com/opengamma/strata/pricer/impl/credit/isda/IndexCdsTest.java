@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -92,7 +92,8 @@ public class IndexCdsTest extends IsdaBaseTest {
     //flat spread term structure (transformed)
     final IsdaCompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(calibrationCDS, flatSpreads, yieldCurve);
     final double cashSettleTrans = NOTIONAL * PRICER.pv(pointCDS, yieldCurve, creditCurve, COUPON, CdsPriceType.DIRTY);
-    final double cs01Trans = NOTIONAL * ONE_BP * CS01_CAL.parallelCS01FromParSpreads(pointCDS, COUPON, yieldCurve, calibrationCDS, flatSpreads, ONE_BP, BumpType.ADDITIVE);
+    final double cs01Trans = NOTIONAL * ONE_BP * CS01_CAL.parallelCS01FromParSpreads(
+        pointCDS, COUPON, yieldCurve, calibrationCDS, flatSpreads, ONE_BP, ShiftType.ABSOLUTE);
     assertEquals("Cash Settlement (trans)", mCashSettleTransformed, cashSettleTrans, 1e-15 * NOTIONAL);
     assertEquals("Credit DV01 (Trans)", mCreditDV01Transformed, cs01Trans, 1e-15 * NOTIONAL);
   }

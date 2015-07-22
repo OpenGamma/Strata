@@ -13,7 +13,7 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -72,7 +72,8 @@ public class AnalyticSpreadSensitivityTest extends IsdaBaseTest {
 
     // compare with bump and reprice
     final double[] an_CS01 = ANAL_CS01_CAL.bucketedCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads);
-    final double[] fd_CS01 = CS01_CAL.bucketedCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-7, BumpType.ADDITIVE);
+    final double[] fd_CS01 = CS01_CAL.bucketedCS01FromParSpreads(
+        CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-7, ShiftType.ABSOLUTE);
 
     final int n = fd_CS01.length;
     for (int i = 0; i < n; i++) {
@@ -104,11 +105,13 @@ public class AnalyticSpreadSensitivityTest extends IsdaBaseTest {
     assertEquals(pCS01FromPufFin, pCS01FromPuf, Math.abs(pCS01FromPufFin) * eps * 10.);
 
     final double pCS01FromSpread = aCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, quotedSpread);
-    final double pCS01FromSpreadFin = fCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, quotedSpread, eps, BumpType.ADDITIVE);
+    final double pCS01FromSpreadFin = fCal.parallelCS01FromSpread(
+        CDS, coupon, YIELD_CURVE, quotedSpread, eps, ShiftType.ABSOLUTE);
     assertEquals(pCS01FromSpreadFin, pCS01FromSpread, Math.abs(pCS01FromSpreadFin) * eps * 10.);
 
     final double pCS01FromEqSpread = aCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, coupon);
-    final double pCS01FromEqSpreadFin = fCal.parallelCS01FromSpread(CDS, coupon, YIELD_CURVE, coupon, eps, BumpType.ADDITIVE);
+    final double pCS01FromEqSpreadFin = fCal.parallelCS01FromSpread(
+        CDS, coupon, YIELD_CURVE, coupon, eps, ShiftType.ABSOLUTE);
     assertEquals(pCS01FromEqSpreadFin, pCS01FromEqSpread, Math.abs(pCS01FromEqSpreadFin) * eps * 10.);
   }
 

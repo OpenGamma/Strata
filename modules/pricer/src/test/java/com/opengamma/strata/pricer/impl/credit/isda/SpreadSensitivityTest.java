@@ -15,10 +15,10 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -78,7 +78,8 @@ public class SpreadSensitivityTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000;
     }
 
-    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
+    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCS01FromParSpreads(
+        CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, ShiftType.ABSOLUTE);
     assertEquals("", fromExcel, cdv01, 1e-13 * NOTIONAL);
 
     /*
@@ -86,14 +87,14 @@ public class SpreadSensitivityTest {
      */
 
     try {
-      CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-12, BumpType.ADDITIVE);
+      CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-12, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
       final double[] mktSpShort = Arrays.copyOf(mrkSpreads, NUM_MARKET_CDS - 2);
-      CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mktSpShort, 1e-4, BumpType.ADDITIVE);
+      CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mktSpShort, 1e-4, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
@@ -128,8 +129,8 @@ public class SpreadSensitivityTest {
     final double pCS01QS = localCal.parallelCS01(CDS, quoteQS, YIELD_CURVE, bump);
     final double pCS01PU = localCal.parallelCS01(CDS, quotePU, YIELD_CURVE, bump);
 
-    final double pCS01PSd = localCal.parallelCS01FromSpread(CDS, spread, YIELD_CURVE, spread, bump, BumpType.ADDITIVE);
-    final double pCS01QSd = localCal.parallelCS01FromSpread(CDS, fixedCoupon, YIELD_CURVE, spread, bump, BumpType.ADDITIVE);
+    final double pCS01PSd = localCal.parallelCS01FromSpread(CDS, spread, YIELD_CURVE, spread, bump, ShiftType.ABSOLUTE);
+    final double pCS01QSd = localCal.parallelCS01FromSpread(CDS, fixedCoupon, YIELD_CURVE, spread, bump, ShiftType.ABSOLUTE);
     final double pCS01PUd = localCal.parallelCS01FromPUF(CDS, fixedCoupon, YIELD_CURVE, puf, bump);
 
     assertEquals(pCS01PS, pCS01PSd, tol);
@@ -157,7 +158,8 @@ public class SpreadSensitivityTest {
     final double pCS01PUExp = (pufFromBumpedSpread - puf) / bump;
     assertEquals(pCS01PUExp, pCS01PU, tol);
 
-    final double pCS01Diff = localCal.parallelCS01FromQuotedSpread(CDS, fixedCoupon, YIELD_CURVE, MARKET_CDS[1], spread, bump, BumpType.ADDITIVE);
+    final double pCS01Diff = localCal.parallelCS01FromQuotedSpread(
+        CDS, fixedCoupon, YIELD_CURVE, MARKET_CDS[1], spread, bump, ShiftType.ABSOLUTE);
     final IsdaCompliantCreditCurve curveAnUp = cvBuild.calibrateCreditCurve(MARKET_CDS[1], spread + bump, YIELD_CURVE);
     final IsdaCompliantCreditCurve curveAn = cvBuild.calibrateCreditCurve(MARKET_CDS[1], spread, YIELD_CURVE);
     final double upAn = pricer.pv(CDS, YIELD_CURVE, curveAnUp, fixedCoupon, CdsPriceType.DIRTY);
@@ -170,7 +172,8 @@ public class SpreadSensitivityTest {
      */
 
     try {
-      localCal.parallelCS01FromQuotedSpread(CDS, fixedCoupon, YIELD_CURVE, MARKET_CDS[1], spread, bump * bump * bump, BumpType.ADDITIVE);
+      localCal.parallelCS01FromQuotedSpread(
+          CDS, fixedCoupon, YIELD_CURVE, MARKET_CDS[1], spread, bump * bump * bump, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
@@ -360,37 +363,43 @@ public class SpreadSensitivityTest {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      localCal.bucketedCS01FromQuotedSpreads(new CdsAnalytic[] {CDS }, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, BumpType.ADDITIVE);
+      localCal.bucketedCS01FromQuotedSpreads(
+          new CdsAnalytic[] {CDS}, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      localCal.bucketedCS01FromQuotedSpreads(new CdsAnalytic[] {CDS }, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, BumpType.ADDITIVE);
+      localCal.bucketedCS01FromQuotedSpreads(
+          new CdsAnalytic[] {CDS}, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      localCal.bucketedCS01FromParSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, BumpType.ADDITIVE);
+      localCal.bucketedCS01FromParSpreads(
+          CDS, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      localCal.bucketedCS01FromParSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, BumpType.ADDITIVE);
+      localCal.bucketedCS01FromParSpreads(
+          CDS, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      localCal.bucketedCS01FromQuotedSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, BumpType.ADDITIVE);
+      localCal.bucketedCS01FromQuotedSpreads(
+          CDS, coupon, YIELD_CURVE, pillarCDSs, pillarSpreads, basisPt * 1.e-7, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      localCal.bucketedCS01FromQuotedSpreads(CDS, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, BumpType.ADDITIVE);
+      localCal.bucketedCS01FromQuotedSpreads(
+          CDS, coupon, YIELD_CURVE, pillarCDSs, shortSpreads, basisPt, ShiftType.ABSOLUTE);
       throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);

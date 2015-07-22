@@ -18,8 +18,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -291,8 +291,10 @@ public class CS01TestGrids extends IsdaBaseTest {
         final IsdaCompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pillarCDSsIMM, premiums, yieldCurve, pillarPUF);
         final double qSpread = QUOTE_CONVERTER.pufToQuotedSpread(pricingCDS, coupon, yieldCurve, puf[i]);
         System.out.println(QUOTE_CONVERTER.pufToQuotedSpread(pricingCDS, coupon, yieldCurve, puf[i]));
-        parellelCS01_B[i] = CS01_CAL.parallelCS01FromParSpreads(pricingCDS, qSpread, yieldCurve, pillarCDSsIMM, pillarQS, ONE_BP, BumpType.ADDITIVE);
-        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, coupon, bucketCDSsNonIMM, yieldCurve, creditCurve, ONE_BP);
+        parellelCS01_B[i] = CS01_CAL.parallelCS01FromParSpreads(
+            pricingCDS, qSpread, yieldCurve, pillarCDSsIMM, pillarQS, ONE_BP, ShiftType.ABSOLUTE);
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(
+            pricingCDS, coupon, bucketCDSsNonIMM, yieldCurve, creditCurve, ONE_BP);
       }
     }
     final double scale = ONE_BP * NOTIONAL;
@@ -343,8 +345,10 @@ public class CS01TestGrids extends IsdaBaseTest {
         final IsdaCompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pillarCDSsNonIMM, pillarSpreads, yieldCurve);
         puf[i] = PRICER.pv(pricingCDS, yieldCurve, creditCurve, spreads[i]);
         upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(spreads[i])) * NOTIONAL;
-        parellelCS01[i] = CS01_CAL.parallelCS01FromParSpreads(pricingCDS, spreads[i], yieldCurve, pillarCDSsNonIMM, pillarSpreads, ONE_BP, BumpType.ADDITIVE);
-        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, spreads[i], bucketCDSsNonIMM, yieldCurve, creditCurve, ONE_BP);
+        parellelCS01[i] = CS01_CAL.parallelCS01FromParSpreads(
+            pricingCDS, spreads[i], yieldCurve, pillarCDSsNonIMM, pillarSpreads, ONE_BP, ShiftType.ABSOLUTE);
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(
+            pricingCDS, spreads[i], bucketCDSsNonIMM, yieldCurve, creditCurve, ONE_BP);
       }
     }
 
