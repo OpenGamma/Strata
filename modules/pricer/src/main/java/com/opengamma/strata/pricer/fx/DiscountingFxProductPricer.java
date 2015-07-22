@@ -14,6 +14,7 @@ import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.FxProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -114,9 +115,6 @@ public class DiscountingFxProductPricer {
 
   /**
    * Computes the forward exchange rate.
-   * <p>
-   * The forward rate is given by {@code spot * dfBase / dfCounter}, where {@code dfBase} and {@code dfCounter} are, 
-   * respectively, discount factors of base currency and counter currency of the FX product.
    * 
    * @param product  the product to price
    * @param provider  the rates provider
@@ -124,12 +122,44 @@ public class DiscountingFxProductPricer {
    */
   public FxRate forwardFxRate(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
+    FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
     FxPayment basePayment = fx.getBaseCurrencyPayment();
     FxPayment counterPayment = fx.getCounterCurrencyPayment();
-    double dfCounter = provider.discountFactor(counterPayment.getCurrency(), counterPayment.getPaymentDate());
-    double dfBase = provider.discountFactor(basePayment.getCurrency(), basePayment.getPaymentDate());
-    double spot = provider.fxRate(basePayment.getCurrency(), counterPayment.getCurrency());
-    return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), spot * dfBase / dfCounter);
+    double forwardRate = fxForwardRates.rate(basePayment.getCurrency(), fx.getPaymentDate());
+    return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), forwardRate);
   }
 
+  /**
+   * Computes the forward exchange rate point sensitivity.
+   * <p>
+   * The returned value is based on the direction of the FX product.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the point sensitivity
+   */
+  public PointSensitivityBuilder forwardFxRatePointSensitivity(FxProduct product, RatesProvider provider) {
+    ExpandedFx fx = product.expand();
+    FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
+    PointSensitivityBuilder forwardFxRatePointSensitivity = fxForwardRates.ratePointSensitivity(
+        fx.getReceiveCurrencyAmount().getCurrency(), fx.getPaymentDate());
+    return forwardFxRatePointSensitivity;
+  }
+
+  /**
+   * Computes the sensitivity of the forward exchange rate to the spot rate.
+   * <p>
+   * The returned value is based on the direction of the FX product.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the sensitivity to spot
+   */
+  public double forwardFxRateSpotSensitivity(FxProduct product, RatesProvider provider) {
+    ExpandedFx fx = product.expand();
+    FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
+    double forwardRateSpotSensitivity = fxForwardRates.rateFxSpotSensitivity(
+        fx.getReceiveCurrencyAmount().getCurrency(), fx.getPaymentDate());
+    return forwardRateSpotSensitivity;
+  }
 }
