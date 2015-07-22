@@ -5,9 +5,7 @@
  */
 
 /**
- * Swap pricer API.
- * <p>
- * Provides the ability to price rate swaps.
+ * Calculators for interest rate swaps.
  */
 package com.opengamma.strata.pricer.rate.swap;
 

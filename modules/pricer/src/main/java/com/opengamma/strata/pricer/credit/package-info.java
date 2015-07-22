@@ -5,7 +5,7 @@
  */
 
 /**
- * Calculators for sensitivities.
+ * Calculators for credit instruments, such as Credit Default Swap (CDS).
  */
-package com.opengamma.strata.pricer.sensitivity;
+package com.opengamma.strata.pricer.credit;
 

@@ -5,7 +5,7 @@
  */
 
 /**
- * Calculators for sensitivities.
+ * Calculators for rate deposit instruments, such as term deposit.
  */
-package com.opengamma.strata.pricer.sensitivity;
+package com.opengamma.strata.pricer.rate.deposit;
 

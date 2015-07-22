@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementations of the rate swap pricer API.
+ * Internal implementations of rate swap calculations.
  * <p>
  * This package provides implementations of period and event pricing.
  * <p>

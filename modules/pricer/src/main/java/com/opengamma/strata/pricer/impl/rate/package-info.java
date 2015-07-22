@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementations of the rate pricer API.
+ * Internal implementations of rate calculations.
  * <p>
  * This package provides the ability to observe rates.
  * <p>
