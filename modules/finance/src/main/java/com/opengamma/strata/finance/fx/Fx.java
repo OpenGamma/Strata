@@ -153,6 +153,33 @@ public final class Fx
 
   //-------------------------------------------------------------------------
   /**
+   * Gets currency pair of the base currency and counter currency. 
+   * <p>
+   * This currency pair is conventional, thus indifferent to the direction of FX.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return CurrencyPair.of(baseCurrencyAmount.getCurrency(), counterCurrencyAmount.getCurrency());
+  }
+
+  /**
+   * Gets the currency amount in which the amount is received.
+   * <p>
+   * This returns the currency amount whose amount is non-negative. 
+   * If both are zero, {@code counterCurrencyAmount} is returned. 
+   * 
+   * @return the receive currency amount
+   */
+  public CurrencyAmount getReceiveCurrencyAmount() {
+    if (baseCurrencyAmount.getAmount() > 0d) {
+      return baseCurrencyAmount;
+    }
+    return counterCurrencyAmount;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Expands this FX into an {@code ExpandedFx}.
    * 
    * @return the transaction

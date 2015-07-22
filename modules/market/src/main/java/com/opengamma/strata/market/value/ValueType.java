@@ -63,6 +63,15 @@ public final class ValueType
    */
   public static final ValueType ISDA_CREDIT = of("IsdaCredit");
 
+  /**
+   * Type used when each value is a volatility - 'Volatility'.
+   */
+  public static final ValueType VOLATILITY = of("Volatility");
+  /**
+   * Type used when each value is a strike - 'Strike'.
+   */
+  public static final ValueType STRIKE = of("Strike");
+
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code ValueType} by name.
