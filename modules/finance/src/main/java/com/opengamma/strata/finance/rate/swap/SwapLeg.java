@@ -7,8 +7,6 @@ package com.opengamma.strata.finance.rate.swap;
 
 import java.time.LocalDate;
 
-import org.joda.beans.ImmutableBean;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
@@ -32,8 +30,7 @@ import com.opengamma.strata.basics.index.Index;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface SwapLeg
-    extends ImmutableBean {
+public interface SwapLeg {
 
   /**
    * Gets the type of the leg, such as Fixed or Ibor.

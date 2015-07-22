@@ -6,10 +6,6 @@
 package com.opengamma.strata.pricer.credit;
 
 import java.time.LocalDate;
-import java.util.Set;
-
-import org.joda.beans.MetaBean;
-import org.joda.beans.Property;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.credit.ExpandedCds;
@@ -176,21 +172,6 @@ public class IsdaCdsPricer {
     @Override
     public double firstDerivative(double x) {
       return 0;
-    }
-
-    @Override
-    public MetaBean metaBean() {
-      return null;
-    }
-
-    @Override
-    public <R> Property<R> property(String s) {
-      return null;
-    }
-
-    @Override
-    public Set<String> propertyNames() {
-      return null;
     }
 
     // bootstraps a yield curve from par rates

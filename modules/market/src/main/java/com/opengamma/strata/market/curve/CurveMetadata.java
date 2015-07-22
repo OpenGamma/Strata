@@ -8,8 +8,6 @@ package com.opengamma.strata.market.curve;
 import java.util.List;
 import java.util.Optional;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.market.value.ValueType;
@@ -27,8 +25,7 @@ import com.opengamma.strata.market.value.ValueType;
  * <p>
  * See {@link Curves} for helper methods that create common curve types.
  */
-public interface CurveMetadata
-    extends ImmutableBean {
+public interface CurveMetadata {
 
   /**
    * Gets the curve name.

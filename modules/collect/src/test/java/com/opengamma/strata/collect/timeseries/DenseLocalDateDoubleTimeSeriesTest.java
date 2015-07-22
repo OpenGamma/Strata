@@ -26,7 +26,9 @@ import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -297,7 +299,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
     LocalDateDoubleTimeSeries test =
         LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
-    double[] array = (double[]) test.property("points").get();
+    double[] array = (double[]) ((Bean) test).property("points").get();
     array[0] = -1;
     LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
     assertEquals(points[0], LocalDateDoublePoint.of(DATE_2015_01_05, 10d));
@@ -806,7 +808,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   public void test_coverage() {
     TestHelper.coverImmutableBean(
-        DenseLocalDateDoubleTimeSeries.of(DATE_2015_01_05, DATE_2015_01_05,
+        (ImmutableBean) DenseLocalDateDoubleTimeSeries.of(DATE_2015_01_05, DATE_2015_01_05,
             Stream.of(LocalDateDoublePoint.of(DATE_2015_01_05, 1d)), SKIP_WEEKENDS));
   }
 

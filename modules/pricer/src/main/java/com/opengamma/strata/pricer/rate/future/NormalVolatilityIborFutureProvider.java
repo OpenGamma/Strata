@@ -10,15 +10,13 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.index.IborIndex;
 
 /**
  * Data provider of volatility for Ibor future options in the normal or Bachelier model.
  */
 public interface NormalVolatilityIborFutureProvider
-    extends IborFutureProvider, ImmutableBean {
+    extends IborFutureProvider {
 
   /**
    * Gets the valuation date-time.

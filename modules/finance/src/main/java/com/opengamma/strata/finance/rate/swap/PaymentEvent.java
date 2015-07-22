@@ -8,8 +8,6 @@ package com.opengamma.strata.finance.rate.swap;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjuster;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
@@ -24,8 +22,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface PaymentEvent
-    extends ImmutableBean {
+public interface PaymentEvent {
 
   /**
    * Gets the date that the payment is made.

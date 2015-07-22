@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -20,7 +18,7 @@ import com.opengamma.strata.market.curve.CurveParameterMetadata;
  * <p>
  * A curve node is associated with an instrument and provides a method to create a trade representing the instrument.
  */
-public interface CurveNode extends ImmutableBean {
+public interface CurveNode {
 
   /**
    * Returns requirements for the market data needed to build a trade representing the instrument at the node.
@@ -45,4 +43,5 @@ public interface CurveNode extends ImmutableBean {
    * @return metadata for the node
    */
   public abstract CurveParameterMetadata metadata(LocalDate valuationDate);
+
 }

@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.finance.Expandable;
 import com.opengamma.strata.finance.Product;
 
@@ -25,6 +23,6 @@ import com.opengamma.strata.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface SwapProduct
-    extends Product, Expandable<ExpandedSwap>, ImmutableBean {
+    extends Product, Expandable<ExpandedSwap> {
 
 }

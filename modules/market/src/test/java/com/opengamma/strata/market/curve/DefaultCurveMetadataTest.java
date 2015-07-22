@@ -64,7 +64,7 @@ public class DefaultCurveMetadataTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
+    DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     coverImmutableBean(test);
     DefaultCurveMetadata test2 = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)

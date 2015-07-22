@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance;
 
-import org.joda.beans.ImmutableBean;
-
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.StandardId;
@@ -27,7 +25,7 @@ import com.opengamma.strata.collect.id.StandardId;
  * @param <P>  the type of the product
  */
 public interface Security<P extends Product>
-    extends IdentifiableBean, Attributable, ImmutableBean {
+    extends IdentifiableBean, Attributable {
 
   /**
    * The primary standard identifier for the security.

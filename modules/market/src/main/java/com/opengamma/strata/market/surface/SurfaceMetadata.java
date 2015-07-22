@@ -8,8 +8,6 @@ package com.opengamma.strata.market.surface;
 import java.util.List;
 import java.util.Optional;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.market.value.ValueType;
@@ -25,8 +23,7 @@ import com.opengamma.strata.market.value.ValueType;
  * This metadata can be used by applications to interpret the parameters of the surface.
  * For example, the scenario framework uses the data when applying perturbations.
  */
-public interface SurfaceMetadata
-    extends ImmutableBean {
+public interface SurfaceMetadata {
 
   /**
    * Gets the surface name.
