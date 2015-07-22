@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -33,7 +34,9 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.FxDigitalOption;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -523,16 +526,15 @@ public class BlackFxDigitalOptionProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  // TODO complete this
   public void test_currencyExposure() {
     MultiCurrencyAmount computedDom = PRICER.currencyExposure(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
     MultiCurrencyAmount computedFor = PRICER.currencyExposure(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
-
     PointSensitivities pointDom = PRICER.presentValueSensitivity(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
-    MultiCurrencyAmount expectedDom = RATES_PROVIDER.currencyExposure(pointDom);
+    MultiCurrencyAmount expectedDom = RATES_PROVIDER.currencyExposure(pointDom)
+        .plus(PRICER.presentValue(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER));
     PointSensitivities pointFor = PRICER.presentValueSensitivity(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
-    MultiCurrencyAmount expectedFor = RATES_PROVIDER.currencyExposure(pointFor);
-
+    MultiCurrencyAmount expectedFor = RATES_PROVIDER.currencyExposure(pointFor)
+        .plus(PRICER.presentValue(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER));
     assertEquals(computedDom.getAmount(USD).getAmount(), expectedDom.getAmount(USD).getAmount(), NOTIONAL * TOL);
     assertEquals(computedDom.getAmount(EUR).getAmount(), expectedDom.getAmount(EUR).getAmount(), NOTIONAL * TOL);
     assertEquals(computedFor.getAmount(USD).getAmount(), expectedFor.getAmount(USD).getAmount(), NOTIONAL * TOL);
@@ -542,12 +544,12 @@ public class BlackFxDigitalOptionProductPricerTest {
   public void test_currencyExposure_inverse() {
     MultiCurrencyAmount computedDom = PRICER.currencyExposure(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
     MultiCurrencyAmount computedFor = PRICER.currencyExposure(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
-
     PointSensitivities pointDom = PRICER.presentValueSensitivity(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
-    MultiCurrencyAmount expectedDom = RATES_PROVIDER.currencyExposure(pointDom);
+    MultiCurrencyAmount expectedDom = RATES_PROVIDER.currencyExposure(pointDom)
+        .plus(PRICER.presentValue(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER));
     PointSensitivities pointFor = PRICER.presentValueSensitivity(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
-    MultiCurrencyAmount expectedFor = RATES_PROVIDER.currencyExposure(pointFor);
-
+    MultiCurrencyAmount expectedFor = RATES_PROVIDER.currencyExposure(pointFor)
+        .plus(PRICER.presentValue(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER));
     assertEquals(computedDom.getAmount(USD).getAmount(), expectedDom.getAmount(USD).getAmount(), NOTIONAL * TOL);
     assertEquals(computedDom.getAmount(EUR).getAmount(), expectedDom.getAmount(EUR).getAmount(), NOTIONAL * TOL);
     assertEquals(computedFor.getAmount(USD).getAmount(), expectedFor.getAmount(USD).getAmount(), NOTIONAL * TOL);
@@ -572,6 +574,86 @@ public class BlackFxDigitalOptionProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  //TODO bucketed vega
-  //TODO implied vol
+  public void test_presentValueSensitivityBlackVolatility() {
+    FxOptionSensitivity computedDom = (FxOptionSensitivity)
+        PRICER.presentValueSensitivityBlackVolatility(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    FxOptionSensitivity computedFor = (FxOptionSensitivity)
+        PRICER.presentValueSensitivityBlackVolatility(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double forward = RATES_PROVIDER.fxIndexRates(ECB_EUR_USD).rate(EUR, EXPIRY_DATE);
+    FxOptionSensitivity expectedDom = FxOptionSensitivity.of(CURRENCY_PAIR, EXPIRY_DATE, STRIKE_RATE, forward, USD,
+        -NOTIONAL * PRICER.vega(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER));
+    FxOptionSensitivity expectedFor = FxOptionSensitivity.of(CURRENCY_PAIR, EXPIRY_DATE, STRIKE_RATE, forward, USD,
+        -NOTIONAL * PRICER.vega(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER));
+    assertTrue(computedDom.build().equalWithTolerance(expectedDom.build(), NOTIONAL * TOL));
+    assertTrue(computedFor.build().equalWithTolerance(expectedFor.build(), NOTIONAL * TOL));
+  }
+
+  public void test_presentValueSensitivityBlackVolatility_inverse() {
+    FxOptionSensitivity computedDom = (FxOptionSensitivity)
+        PRICER.presentValueSensitivityBlackVolatility(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    FxOptionSensitivity computedFor = (FxOptionSensitivity)
+        PRICER.presentValueSensitivityBlackVolatility(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double forward = RATES_PROVIDER.fxIndexRates(ECB_EUR_USD).rate(USD, EXPIRY_DATE);
+    FxOptionSensitivity expectedDom = FxOptionSensitivity.of(CURRENCY_PAIR.inverse(), EXPIRY_DATE, 1d / STRIKE_RATE,
+        forward, EUR, -NOTIONAL * PRICER.vega(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER));
+    FxOptionSensitivity expectedFor = FxOptionSensitivity.of(CURRENCY_PAIR.inverse(), EXPIRY_DATE, 1d / STRIKE_RATE,
+        forward, EUR, NOTIONAL * PRICER.vega(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER));
+    assertTrue(computedDom.build().equalWithTolerance(expectedDom.build(), NOTIONAL * TOL));
+    assertTrue(computedFor.build().equalWithTolerance(expectedFor.build(), NOTIONAL * TOL));
+  }
+
+  public void test_presentValueSensitivityBlackVolatility_expired() {
+    LocalDate expiryDate = LocalDate.of(2014, 1, 21);
+    FxDigitalOption expired = FxDigitalOption.builder()
+        .putCall(PUT)
+        .longShort(LONG)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .index(ECB_EUR_USD)
+        .payoffCurrency(EUR)
+        .strike(STRIKE.inverse())
+        .notional(NOTIONAL)
+        .build();
+    PointSensitivityBuilder point = PRICER
+        .presentValueSensitivityBlackVolatility(expired, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(point, PointSensitivityBuilder.none());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_impliedVolatility() {
+    double computedDom = PRICER.impliedVolatility(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    double computedFor = PRICER.impliedVolatility(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double f = RATES_PROVIDER.fxIndexRates(ECB_EUR_USD).rate(EUR, EXPIRY_DATE);
+    double k = STRIKE_RATE;
+    double expected = VOL_PROVIDER.getVolatility(CURRENCY_PAIR, EXPIRY_DATE, k, f);
+    assertEquals(computedDom, expected, TOL);
+    assertEquals(computedFor, expected, TOL);
+  }
+
+  public void test_impliedVolatility_inverse() {
+    double computedDom = PRICER.impliedVolatility(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    double computedFor = PRICER.impliedVolatility(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double f = RATES_PROVIDER.fxIndexRates(ECB_EUR_USD).rate(USD, EXPIRY_DATE);
+    double k = 1d / STRIKE_RATE;
+    double expected = VOL_PROVIDER.getVolatility(CURRENCY_PAIR.inverse(), EXPIRY_DATE, k, f);
+    assertEquals(computedDom, expected, TOL);
+    assertEquals(computedFor, expected, TOL);
+  }
+
+  public void test_impliedVolatility_expired() {
+    LocalDate expiryDate = LocalDate.of(2014, 1, 20);
+    FxDigitalOption expired = FxDigitalOption.builder()
+        .putCall(CALL)
+        .longShort(LONG)
+        .expiryDate(expiryDate)
+        .expiryTime(EXPIRY_TIME)
+        .expiryZone(ZONE)
+        .index(ECB_EUR_USD)
+        .payoffCurrency(EUR)
+        .strike(STRIKE.inverse())
+        .notional(NOTIONAL)
+        .build();
+    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(expired, RATES_PROVIDER, VOL_PROVIDER));
+  }
 }

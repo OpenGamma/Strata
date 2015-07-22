@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.finance.fx.FxDigitalOption;
 import com.opengamma.strata.finance.fx.FxDigitalOptionProduct;
+import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -304,6 +305,34 @@ public class BlackFxDigitalOptionProductPricer {
       BlackVolatilityFxProvider volatilityProvider) {
     double vega = vega(option, ratesProvider, volatilityProvider);
     return CurrencyAmount.of(option.getStrikeCounterCurrency(), signedNotional(option) * vega);
+  }
+
+  /**
+   * Computes the present value sensitivity to the black volatility used in the pricing.
+   * <p>
+   * The result is a single sensitivity to the volatility used.
+   * 
+   * @param option  the option product to price
+   * @param ratesProvider  the rates provider
+   * @param volatilityProvider  the Black volatility provider
+   * @return the present value sensitivity
+   */
+  public PointSensitivityBuilder presentValueSensitivityBlackVolatility(
+      FxDigitalOption option,
+      RatesProvider ratesProvider,
+      BlackVolatilityFxProvider volatilityProvider) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return PointSensitivityBuilder.none();
+    }
+    FxRate strike = option.getStrike();
+    CurrencyPair strikePair = strike.getPair();
+    double forwardRate = ratesProvider.fxIndexRates(
+        option.getIndex()).rate(strikePair.getBase(), option.getExpiryDate());
+    CurrencyAmount valueVega = presentValueVega(option, ratesProvider, volatilityProvider);
+    return FxOptionSensitivity.of(strikePair, option.getExpiryDate(), strike.fxRate(strikePair), forwardRate,
+        valueVega.getCurrency(), valueVega.getAmount());
   }
 
   private double undiscountedVega(
