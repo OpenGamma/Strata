@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
@@ -134,28 +133,25 @@ public class DiscountingSwapLegPricer {
    * All the payments periods must be of type {@link RatePaymentPeriod}.
    * Each period must have a fixed rate, no FX reset and no compounding.
    * 
-   * @param fixedLeg  the swap fixed leg
+   * @param leg  the swap leg
    * @param provider  the rates provider
    * @return the Present Value of a Basis Point
    */
-  public double pvbp(SwapLeg fixedLeg, RatesProvider provider) {
+  public double pvbp(SwapLeg leg, RatesProvider provider) {
     double pvbpFixedLeg = 0.0;
-    for (PaymentPeriod period : fixedLeg.expand().getPaymentPeriods()) {
+    for (PaymentPeriod period : leg.expand().getPaymentPeriods()) {
       ArgChecker.isTrue(period instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
       pvbpFixedLeg += pvbpPayment((RatePaymentPeriod) period, provider);
     }
     return pvbpFixedLeg;
   }
 
-  // computes Present Value of a Basis Point for fixed payment with a unique accrual period (no compounding) and 
-  // no FX reset.
+  // computes Present Value of a Basis Point for payment with a unique accrual period (no compounding) 
+  // and no FX reset.
   private double pvbpPayment(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
     ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent(), "FX reset is not supported");
     ArgChecker.isTrue(paymentPeriod.getAccrualPeriods().size() == 1, "Compounding is not supported");
     RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
-    ArgChecker.isTrue(
-        accrualPeriod.getRateObservation() instanceof FixedRateObservation,
-        "RateObservation must be instance of FixedRateObservation");
     double df = provider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
     return df * accrualPeriod.getYearFraction() * paymentPeriod.getNotional();
   }
@@ -269,9 +265,6 @@ public class DiscountingSwapLegPricer {
     ArgChecker.isTrue(!paymentPeriod.getFxReset().isPresent(), "FX reset is not supported");
     ArgChecker.isTrue(paymentPeriod.getAccrualPeriods().size() == 1, "Compounding is not supported");
     RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
-    ArgChecker.isTrue(
-        accrualPeriod.getRateObservation() instanceof FixedRateObservation,
-        "RateObservation must be instance of FixedRateObservation");
     DiscountFactors discountFactors = provider.discountFactors(paymentPeriod.getCurrency());
     return discountFactors.zeroRatePointSensitivity(paymentPeriod.getPaymentDate())
         .multipliedBy(accrualPeriod.getYearFraction() * paymentPeriod.getNotional());
