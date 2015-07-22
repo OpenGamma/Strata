@@ -14,11 +14,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -84,6 +87,19 @@ public class DiscountingFxProductPricerTest {
     double spot = PROVIDER.fxRate(USD, KRW);
     FxRate expected = FxRate.of(USD, KRW, spot * df1 / df2);
     assertEquals(computed, expected);
+  }
+
+  public void test_forwardFxRatePointSensitivity() {
+    PointSensitivityBuilder computed = PRICER.forwardFxRatePointSensitivity(FWD, PROVIDER);
+    FxForwardSensitivity expected = FxForwardSensitivity.of(CurrencyPair.of(USD, KRW), USD, FWD.getPaymentDate(), 1d);
+    assertEquals(computed, expected);
+  }
+
+  public void test_forwardFxRateSpotSensitivity() {
+    double computed = PRICER.forwardFxRateSpotSensitivity(FWD, PROVIDER);
+    double df1 = PROVIDER.discountFactor(USD, PAYMENT_DATE);
+    double df2 = PROVIDER.discountFactor(KRW, PAYMENT_DATE);
+    assertEquals(computed, df1 / df2);
   }
 
   public void test_presentValueSensitivity() {
