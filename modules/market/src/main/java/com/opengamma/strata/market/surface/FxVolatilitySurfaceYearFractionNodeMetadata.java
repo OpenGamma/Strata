@@ -24,9 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.option.Strike;
 
 /**
  * Surface node metadata for a surface node with a specific time to expiry and strike.
@@ -49,7 +49,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
    * This is the strike that the node on the surface is defined as.
    */
   @PropertyDefinition(validate = "notNull")
-  private final StrikeType strike;
+  private final Strike strike;
   /**
    * The currency pair that describes the node.
    */
@@ -72,25 +72,25 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
    */
   public static FxVolatilitySurfaceYearFractionNodeMetadata of(
       double yearFraction,
-      StrikeType strike,
+      Strike strike,
       CurrencyPair currencyPair) {
 
-    String label = Pair.of(yearFraction, strike.typeAndValue()).toString();
+    String label = Pair.of(yearFraction, strike.getLabel()).toString();
     return new FxVolatilitySurfaceYearFractionNodeMetadata(yearFraction, strike, currencyPair, label);
   }
 
   /**
    * Creates node using year fraction, strike, label and currency pair.  
-  * 
-  * @param yearFraction  the year fraction
-  * @param strike  the strike
+   * 
+   * @param yearFraction  the year fraction
+   * @param strike  the strike
    * @param label  the label to use
    * @param currencyPair  the currency pair
    * @return the metadata
    */
   public static FxVolatilitySurfaceYearFractionNodeMetadata of(
       double yearFraction,
-      StrikeType strike,
+      Strike strike,
       String label,
       CurrencyPair currencyPair) {
 
@@ -100,13 +100,12 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.label == null && builder.strike != null) {
-      builder.label = Pair.of(builder.yearFraction, builder.strike.typeAndValue())
-          .toString();
+      builder.label = Pair.of(builder.yearFraction, builder.strike.getLabel()).toString();
     }
   }
 
   @Override
-  public Pair<Double, StrikeType> getIdentifier() {
+  public Pair<Double, Strike> getIdentifier() {
     return Pair.of(yearFraction, strike);
   }
 
@@ -131,7 +130,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
 
   private FxVolatilitySurfaceYearFractionNodeMetadata(
       double yearFraction,
-      StrikeType strike,
+      Strike strike,
       CurrencyPair currencyPair,
       String label) {
     JodaBeanUtils.notNull(strike, "strike");
@@ -177,7 +176,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
    * This is the strike that the node on the surface is defined as.
    * @return the value of the property, not null
    */
-  public StrikeType getStrike() {
+  public Strike getStrike() {
     return strike;
   }
 
@@ -256,8 +255,8 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
     /**
      * The meta-property for the {@code strike} property.
      */
-    private final MetaProperty<StrikeType> strike = DirectMetaProperty.ofImmutable(
-        this, "strike", FxVolatilitySurfaceYearFractionNodeMetadata.class, StrikeType.class);
+    private final MetaProperty<Strike> strike = DirectMetaProperty.ofImmutable(
+        this, "strike", FxVolatilitySurfaceYearFractionNodeMetadata.class, Strike.class);
     /**
      * The meta-property for the {@code currencyPair} property.
      */
@@ -327,7 +326,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
      * The meta-property for the {@code strike} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StrikeType> strike() {
+    public MetaProperty<Strike> strike() {
       return strike;
     }
 
@@ -381,7 +380,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   private static final class Builder extends DirectFieldsBeanBuilder<FxVolatilitySurfaceYearFractionNodeMetadata> {
 
     private double yearFraction;
-    private StrikeType strike;
+    private Strike strike;
     private CurrencyPair currencyPair;
     private String label;
 
@@ -415,7 +414,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
           this.yearFraction = (Double) newValue;
           break;
         case -891985998:  // strike
-          this.strike = (StrikeType) newValue;
+          this.strike = (Strike) newValue;
           break;
         case 1005147787:  // currencyPair
           this.currencyPair = (CurrencyPair) newValue;
