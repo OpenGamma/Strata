@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance;
 
-import org.joda.beans.ImmutableBean;
-
 /**
  * A financial product that can be traded.
  * <p>
@@ -18,7 +16,6 @@ import org.joda.beans.ImmutableBean;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface Product
-    extends ImmutableBean {
+public interface Product {
 
 }

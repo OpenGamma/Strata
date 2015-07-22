@@ -36,8 +36,7 @@ public class NoRoundingTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Rounding test = Rounding.none();
-    coverImmutableBean(test);
+    coverImmutableBean(NoRounding.INSTANCE);
   }
 
   public void test_serialization() {

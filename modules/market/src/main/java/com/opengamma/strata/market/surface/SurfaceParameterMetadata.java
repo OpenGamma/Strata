@@ -8,8 +8,6 @@ package com.opengamma.strata.market.surface;
 import java.util.Collections;
 import java.util.List;
 
-import org.joda.beans.ImmutableBean;
-
 /**
  * Information about a parameter underlying a surface.
  * <p>
@@ -17,8 +15,7 @@ import org.joda.beans.ImmutableBean;
  * 
  * @see SurfaceMetadata
  */
-public interface SurfaceParameterMetadata
-    extends ImmutableBean {
+public interface SurfaceParameterMetadata {
 
   /**
    * Gets an empty metadata instance.
