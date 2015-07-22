@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 
 /**
  * Test {@link ExpandedFx}.
@@ -46,6 +47,8 @@ public class ExpandedFxTest {
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_payments_switchOrder() {
@@ -53,6 +56,8 @@ public class ExpandedFxTest {
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_payments_sameCurrency() {
@@ -65,6 +70,8 @@ public class ExpandedFxTest {
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_amounts_switchOrder() {
@@ -72,6 +79,8 @@ public class ExpandedFxTest {
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
   }
 
   public void test_of_amounts_bothZero() {
@@ -79,6 +88,8 @@ public class ExpandedFxTest {
     assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(CurrencyAmount.zero(GBP), DATE_2015_06_30));
     assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(CurrencyAmount.zero(USD), DATE_2015_06_30));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
+    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.zero(USD));
   }
 
   public void test_of_amounts_positiveNegative() {
