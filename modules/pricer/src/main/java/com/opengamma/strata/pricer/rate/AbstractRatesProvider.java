@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.rate;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
@@ -15,6 +16,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
@@ -57,6 +59,11 @@ public abstract class AbstractRatesProvider
         InflationRateSensitivity pt = (InflationRateSensitivity) point;
         PriceIndexValues rates = priceIndexValues(pt.getIndex());
         sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof FxForwardSensitivity) {
+        FxForwardSensitivity pt = (FxForwardSensitivity) point;
+        FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
       }
     }
     return sens;
@@ -69,6 +76,12 @@ public abstract class AbstractRatesProvider
       if (point instanceof FxIndexSensitivity) {
         FxIndexSensitivity pt = (FxIndexSensitivity) point;
         FxIndexRates rates = fxIndexRates(pt.getIndex());
+        ce = ce.plus(rates.currencyExposure(pt));
+      }
+      if (point instanceof FxForwardSensitivity) {
+        FxForwardSensitivity pt = (FxForwardSensitivity) point;
+        pt = (FxForwardSensitivity) pt.convertedTo(pt.getReferenceCurrency(), this);
+        FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
         ce = ce.plus(rates.currencyExposure(pt));
       }
     }

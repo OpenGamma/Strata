@@ -137,6 +137,31 @@ public final class ExpandedFx
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets currency pair of the base currency and counter currency. 
+   * <p>
+   * This currency pair is conventional, thus indifferent to the direction of FX.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return CurrencyPair.of(baseCurrencyPayment.getCurrency(), counterCurrencyPayment.getCurrency());
+  }
+
+  /**
+   * Gets the currency amount in which the amount is received.
+   * <p>
+   * This returns the currency amount whose amount is non-negative. 
+   * If both are zero, the currency amount of {@code counterCurrencyPayment} is returned. 
+   * 
+   * @return the receive currency amount
+   */
+  public CurrencyAmount getReceiveCurrencyAmount() {
+    if (baseCurrencyPayment.getAmount() > 0d) {
+      return CurrencyAmount.of(baseCurrencyPayment.getCurrency(), baseCurrencyPayment.getAmount());
+    }
+    return CurrencyAmount.of(counterCurrencyPayment.getCurrency(), counterCurrencyPayment.getAmount());
+  }
 
   /**
    * Returns the date that the transaction settles.
