@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.finance.rate.swap.type;
@@ -139,5 +139,12 @@ public class FixedIborSwapConventions {
       FixedIborSwapConvention.of(
           FixedRateSwapLegConvention.of(CHF, THIRTY_U_360, P12M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_CHZU)),
           IborRateSwapLegConvention.of(IborIndices.CHF_LIBOR_6M));
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
+  private FixedIborSwapConventions() {
+  }
 
 }

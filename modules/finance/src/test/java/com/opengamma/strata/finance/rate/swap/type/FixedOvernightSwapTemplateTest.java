@@ -15,10 +15,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2Y;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -35,38 +37,43 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 
 /**
- * Test {@link FixedIborSwapTemplate}.
+ * Test {@link FixedOvernightSwapTemplate}.
  */
 @Test
-public class FixedIborSwapTemplateTest {
+public class FixedOvernightSwapTemplateTest {
 
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
+  private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, GBLO);
+  private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, USNY);
 
   private static final FixedRateSwapLegConvention FIXED =
       FixedRateSwapLegConvention.of(USD, ACT_360, P6M, BDA_FOLLOW);
   private static final FixedRateSwapLegConvention FIXED2 =
       FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
-  private static final IborRateSwapLegConvention IBOR = IborRateSwapLegConvention.of(USD_LIBOR_3M);
-  private static final IborRateSwapLegConvention IBOR2 = IborRateSwapLegConvention.of(GBP_LIBOR_3M);
-  private static final FixedIborSwapConvention CONV = FixedIborSwapConvention.of(FIXED, IBOR);
-  private static final FixedIborSwapConvention CONV2 = FixedIborSwapConvention.of(FIXED2, IBOR2);
+  private static final OvernightRateSwapLegConvention FFUND_LEG =
+      OvernightRateSwapLegConvention.of(USD_FED_FUND, P12M, 2);
+  private static final OvernightRateSwapLegConvention FFUND_LEG2 =
+      OvernightRateSwapLegConvention.of(GBP_SONIA, P12M, 0);
+  private static final FixedOvernightSwapConvention CONV = FixedOvernightSwapConvention.of(FIXED, FFUND_LEG, PLUS_TWO_DAYS);
+  private static final FixedOvernightSwapConvention CONV2 = FixedOvernightSwapConvention.of(FIXED2, FFUND_LEG2, PLUS_ONE_DAY);
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    FixedIborSwapTemplate test = FixedIborSwapTemplate.of(TENOR_10Y, CONV);
+    FixedOvernightSwapTemplate test = FixedOvernightSwapTemplate.of(TENOR_10Y, CONV);
     assertEquals(test.getPeriodToStart(), Period.ZERO);
     assertEquals(test.getTenor(), TENOR_10Y);
     assertEquals(test.getConvention(), CONV);
   }
 
   public void test_of_period() {
-    FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
+    FixedOvernightSwapTemplate test = FixedOvernightSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     assertEquals(test.getPeriodToStart(), Period.ofMonths(3));
     assertEquals(test.getTenor(), TENOR_10Y);
     assertEquals(test.getConvention(), CONV);
@@ -74,35 +81,35 @@ public class FixedIborSwapTemplateTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> FixedIborSwapTemplate.builder()
+    assertThrowsIllegalArg(() -> FixedOvernightSwapTemplate.builder()
         .tenor(TENOR_2Y)
         .build());
   }
 
   //-------------------------------------------------------------------------
   public void test_toTrade() {
-    FixedIborSwapTemplate base = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
+    FixedOvernightSwapTemplate base = FixedOvernightSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 7);
     LocalDate endDate = date(2025, 8, 7);
     SwapTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
-        IBOR.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
+        FFUND_LEG.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
+    FixedOvernightSwapTemplate test = FixedOvernightSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     coverImmutableBean(test);
-    FixedIborSwapTemplate test2 = FixedIborSwapTemplate.of(Period.ofMonths(2), TENOR_2Y, CONV2);
+    FixedOvernightSwapTemplate test2 = FixedOvernightSwapTemplate.of(Period.ofMonths(2), TENOR_2Y, CONV2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
+    FixedOvernightSwapTemplate test = FixedOvernightSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     assertSerialization(test);
   }
 
