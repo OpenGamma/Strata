@@ -10,6 +10,8 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 install:
-  - mvn validate -V -e -B
+  - mvn --version
 script:
-  - mvn package -e -B -Dstrict
+  - mvn install -e -B -Dstrict
+  - rm -rf $HOME/.m2/repository/com/opengamma/analytics
+  - rm -rf $HOME/.m2/repository/com/opengamma/strata
