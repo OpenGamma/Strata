@@ -352,7 +352,7 @@ public class DiscountingSwapProductPricer {
     double convertedPv = presentValue(swap, ccyReferenceLeg, provider).getAmount();
     double pvbp = legPricer.pvbp(referenceLeg, provider);
     // Backward sweep
-    double convertedPvBar = - 1/ pvbp;
+    double convertedPvBar = -1d / pvbp;
     double pvbpBar = convertedPv / (pvbp * pvbp);
     PointSensitivityBuilder pvbpDr = legPricer.pvbpSensitivity(referenceLeg, provider);
     PointSensitivityBuilder convertedPvDr = presentValueSensitivity(swap, ccyReferenceLeg, provider);

@@ -124,26 +124,26 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the Present Value of a Basis Point for a fixed swap leg. 
+   * Computes the Present Value of a Basis Point for a swap leg. 
    * <p>
    * The Present Value of a Basis Point is the value of the leg when the rate is equal to 1.
    * A better name would be "Present Value of 1".
    * The quantity is also known as "physical annuity" or "level".
    * <p>
    * All the payments periods must be of type {@link RatePaymentPeriod}.
-   * Each period must have a fixed rate, no FX reset and no compounding.
+   * Each period must not have FX reset or compounding.
    * 
    * @param leg  the swap leg
    * @param provider  the rates provider
    * @return the Present Value of a Basis Point
    */
   public double pvbp(SwapLeg leg, RatesProvider provider) {
-    double pvbpFixedLeg = 0.0;
+    double pvbpLeg = 0.0;
     for (PaymentPeriod period : leg.expand().getPaymentPeriods()) {
       ArgChecker.isTrue(period instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
-      pvbpFixedLeg += pvbpPayment((RatePaymentPeriod) period, provider);
+      pvbpLeg += pvbpPayment((RatePaymentPeriod) period, provider);
     }
-    return pvbpFixedLeg;
+    return pvbpLeg;
   }
 
   // computes Present Value of a Basis Point for payment with a unique accrual period (no compounding) 
