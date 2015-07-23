@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -32,7 +31,7 @@ public class SpreadSensitivityTest {
   // common data
   private static final LocalDate TODAY = LocalDate.of(2013, 4, 21);
   private static final LocalDate EFFECTIVE_DATE = TODAY.plusDays(1); // AKA stepin date
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TODAY, 3); // AKA valuation date
   private static final double RECOVERY_RATE = 0.4;
   private static final double NOTIONAL = 1e7;
 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -91,22 +90,22 @@ public class YieldCurveProvider extends IsdaBaseTest {
   }
 
   public static IsdaCompliantYieldCurveBuild makeUSDBuilder(final LocalDate tradeDate) {
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     return makeYieldCurveBuilder(tradeDate, spotDate, USD_PILLARS, USD_INSTR, USD_MM_DCC, USD_SWAP_DCC, USD_SWAP_INTERVAL);
   }
 
   public static IsdaCompliantYieldCurveBuild makeEURBuilder(final LocalDate tradeDate) {
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     return makeYieldCurveBuilder(tradeDate, spotDate, EUR_PILLARS, EUR_INSTR, EUR_MM_DCC, EUR_SWAP_DCC, EUR_SWAP_INTERVAL);
   }
 
   public static IsdaCompliantYieldCurveBuild makeGBPBuilder(final LocalDate tradeDate) {
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     return makeYieldCurveBuilder(tradeDate, spotDate, GBP_PILLARS, GBP_INSTR, GBP_MM_DCC, GBP_SWAP_DCC, GBP_SWAP_INTERVAL);
   }
 
   public static IsdaCompliantYieldCurveBuild makeJPYBuilder(final LocalDate tradeDate) {
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     return makeYieldCurveBuilder(tradeDate, spotDate, JPY_PILLARS, JPY_INSTR, JPY_MM_DCC, JPY_SWAP_DCC, JPY_SWAP_INTERVAL, TYO_CAL);
   }
 

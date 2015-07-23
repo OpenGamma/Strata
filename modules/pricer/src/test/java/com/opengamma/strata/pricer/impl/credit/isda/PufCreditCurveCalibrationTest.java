@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public class PufCreditCurveCalibrationTest extends IsdaBaseTest {
   protected static final double NOTIONAL = 1e7;
   private static final LocalDate TRADE_DATE = LocalDate.of(2013, Month.APRIL, 10); //Today
   private static final LocalDate EFFECTIVE_DATE = TRADE_DATE.plusDays(1); // AKA stepin date
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // AKA valuation date
   private static final LocalDate STARTDATE = LocalDate.of(2013, Month.MARCH, 20);//last IMM date before TRADE_DATE;
 
   private static final double COUPON = 500;

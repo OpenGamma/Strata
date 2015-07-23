@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getIMMDateSet;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getNextIMMDate;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
@@ -53,12 +52,12 @@ public class IndexCdsTest extends IsdaBaseTest {
     final double tradeLevel = 0.00935;
     final LocalDate tradeDate = LocalDate.of(2013, Month.AUGUST, 7);
     final LocalDate stepinDate = tradeDate.plusDays(1); // AKA stepin date
-    final LocalDate cashSettleDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR); // AKA valuation date
+    final LocalDate cashSettleDate = DEFAULT_CALENDAR.shift(tradeDate, 3); // AKA valuation date
     final LocalDate startDate = getPrevIMMDate(tradeDate);
     final LocalDate maturity = LocalDate.of(2018, Month.JUNE, 20);
 
     //yield curve
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(tradeDate.minusDays(1), 3);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.00185, 0.00227, 0.002664, 0.003955, 0.006654, 0.004845, 0.00784, 0.011725, 0.0157, 0.01919, 0.02219, 0.024565, 0.02657, 0.02825, 0.03095, 0.033495,

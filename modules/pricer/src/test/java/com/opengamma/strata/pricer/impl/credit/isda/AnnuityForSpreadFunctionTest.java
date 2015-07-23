@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -65,8 +64,17 @@ public class AnnuityForSpreadFunctionTest {
   public void shortAccPeriodTest() {
     final Period interval = Period.ofDays(4);
 
-    final CdsAnalytic cds = new CdsAnalytic(TRADE_DATE, TRADE_DATE.plusDays(1), addWorkDays(TRADE_DATE, 3, CALENDAR), ImmDateLogic.getPrevIMMDate(TRADE_DATE), ImmDateLogic.getNextIMMDate(TRADE_DATE)
-        .plus(TENOR), true, interval, CdsStubType.FRONTSHORT, true, 0.4);
+    final CdsAnalytic cds = new CdsAnalytic(
+        TRADE_DATE,
+        TRADE_DATE.plusDays(1),
+        CALENDAR.shift(TRADE_DATE, 3),
+        ImmDateLogic.getPrevIMMDate(TRADE_DATE),
+        ImmDateLogic.getNextIMMDate(TRADE_DATE).plus(TENOR),
+        true,
+        interval,
+        CdsStubType.FRONTSHORT,
+        true,
+        0.4);
     final AnnuityForSpreadContPemiumApproxFunction contPrem = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
     final AnnuityForSpreadIsdaFunction isda = new AnnuityForSpreadIsdaFunction(cds, YIELD_CURVE);
     final AnnuityForSpreadApproxFunction approx = new AnnuityForSpreadApproxFunction(cds, YIELD_CURVE);
@@ -89,8 +97,17 @@ public class AnnuityForSpreadFunctionTest {
     final Period interval = Period.ofMonths(3);
     final Period tenor = Period.ofMonths(3);
 
-    final CdsAnalytic cds = new CdsAnalytic(TRADE_DATE, TRADE_DATE.plusDays(1), addWorkDays(TRADE_DATE, 3, CALENDAR), ImmDateLogic.getPrevIMMDate(TRADE_DATE), ImmDateLogic.getNextIMMDate(TRADE_DATE)
-        .plus(tenor), true, interval, CdsStubType.FRONTSHORT, true, 0.4);
+    final CdsAnalytic cds = new CdsAnalytic(
+        TRADE_DATE,
+        TRADE_DATE.plusDays(1),
+        CALENDAR.shift(TRADE_DATE, 3),
+        ImmDateLogic.getPrevIMMDate(TRADE_DATE),
+        ImmDateLogic.getNextIMMDate(TRADE_DATE).plus(tenor),
+        true,
+        interval,
+        CdsStubType.FRONTSHORT,
+        true,
+        0.4);
     final AnnuityForSpreadContPemiumApproxFunction contPrem = new AnnuityForSpreadContPemiumApproxFunction(cds, YIELD_CURVE);
     final AnnuityForSpreadIsdaFunction isda = new AnnuityForSpreadIsdaFunction(cds, YIELD_CURVE);
     final AnnuityForSpreadApproxFunction approx = new AnnuityForSpreadApproxFunction(cds, YIELD_CURVE);

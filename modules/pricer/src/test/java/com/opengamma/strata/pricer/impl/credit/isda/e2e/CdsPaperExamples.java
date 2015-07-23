@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda.e2e;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getIMMDateSet;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getNextIMMDate;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
@@ -59,7 +58,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
 
   private static final LocalDate TRADE_DATE = LocalDate.of(2011, Month.JUNE, 13);
   private static final LocalDate STEPIN = TRADE_DATE.plusDays(1);
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // AKA valuation date
   private static final LocalDate STARTDATE = FOLLOWING.adjust(getPrevIMMDate(TRADE_DATE), DEFAULT_CALENDAR); // LocalDate.of(2011, Month.MARCH, 21);
 
   private static final Period[] TENORS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3),
