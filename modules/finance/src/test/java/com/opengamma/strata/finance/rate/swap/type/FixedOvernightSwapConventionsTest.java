@@ -37,6 +37,8 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, 2},
         {FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS, 0},
         {FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS, 0},
+        {FixedOvernightSwapConventions.JPY_FIXED_TERM_TONAR_OIS, 0},
+        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, 0},
     };
   }
 
@@ -55,6 +57,8 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, Frequency.P12M},
         {FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS, Frequency.TERM},
         {FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS, Frequency.P12M},
+        {FixedOvernightSwapConventions.JPY_FIXED_TERM_TONAR_OIS, Frequency.TERM},
+        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, Frequency.P12M},
     };
   }
 
@@ -78,6 +82,8 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, DayCounts.ACT_360},
         {FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS, DayCounts.ACT_365F},
         {FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS, DayCounts.ACT_365F},
+        {FixedOvernightSwapConventions.JPY_FIXED_TERM_TONAR_OIS, DayCounts.ACT_365F},
+        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, DayCounts.ACT_365F},
     };
   }
 
@@ -96,6 +102,8 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, OvernightIndices.EUR_EONIA},
         {FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS, OvernightIndices.GBP_SONIA},
         {FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS, OvernightIndices.GBP_SONIA},
+        {FixedOvernightSwapConventions.JPY_FIXED_TERM_TONAR_OIS, OvernightIndices.JPY_TONAR},
+        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, OvernightIndices.JPY_TONAR},
     };
   }
 
@@ -114,6 +122,8 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {FixedOvernightSwapConventions.JPY_FIXED_TERM_TONAR_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
     };
   }
 

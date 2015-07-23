@@ -97,6 +97,8 @@ public final class OvernightRateSwapLegConvention
    * <p>
    * If there are multiple accrual periods in the payment period, then this
    * will only apply to the last accrual period in the payment period.
+   * <p>
+   * This will default to the zero if not specified.
    */
   @PropertyDefinition(get = "field")
   private final Integer rateCutOffDays;
@@ -225,8 +227,6 @@ public final class OvernightRateSwapLegConvention
    * <p>
    * The standard market convention for an Overnight rate leg is based exclusively on the index.
    * Use the {@linkplain #builder() builder} for unusual conventions.
-   * <p>
-   * This method applies no payment date offset.
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @param frequency  the frequency of payment, which is also the frequency of accrual
