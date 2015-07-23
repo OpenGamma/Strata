@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.finance.rate.swap.type;
 
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -29,7 +30,7 @@ public class FixedIborSwapConventionsTest {
 
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {
-    return new Object[][]{
+    return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, 2},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, 2},
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M, 2},
@@ -51,7 +52,7 @@ public class FixedIborSwapConventionsTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "period")
   static Object[][] data_period() {
-    return new Object[][]{
+    return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, Frequency.P6M},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, Frequency.P12M},
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M, Frequency.P12M},
@@ -73,7 +74,7 @@ public class FixedIborSwapConventionsTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayCount")
   static Object[][] data_day_count() {
-    return new Object[][]{
+    return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, DayCounts.THIRTY_U_360},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, DayCounts.ACT_360},
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M, DayCounts.THIRTY_U_360},
@@ -95,7 +96,7 @@ public class FixedIborSwapConventionsTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "floatLeg")
   static Object[][] data_float_leg() {
-    return new Object[][]{
+    return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, IborIndices.USD_LIBOR_3M},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, IborIndices.USD_LIBOR_3M},
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M, IborIndices.EUR_EURIBOR_3M},
@@ -120,14 +121,13 @@ public class FixedIborSwapConventionsTest {
   public void test_holiday_calendars_match(FixedIborSwapConvention convention, IborIndex floatLeg) {
     assertEquals(
         convention.getFixedLeg().getAccrualBusinessDayAdjustment().getCalendar(),
-        floatLeg.getMaturityDateOffset().getAdjustment().getCalendar()
-    );
+        floatLeg.getMaturityDateOffset().getAdjustment().getCalendar());
   }
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "dayConvention")
   static Object[][] data_day_convention() {
-    return new Object[][]{
+    return new Object[][] {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
@@ -146,6 +146,8 @@ public class FixedIborSwapConventionsTest {
     assertEquals(convention.getFixedLeg().getAccrualBusinessDayAdjustment().getConvention(), dayConvention);
   }
 
-
+  public void coverage() {
+    coverPrivateConstructor(FixedIborSwapConventions.class);
+  }
 
 }

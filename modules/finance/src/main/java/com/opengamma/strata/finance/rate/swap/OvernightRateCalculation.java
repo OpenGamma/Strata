@@ -107,7 +107,7 @@ public final class OvernightRateCalculation
    * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
    * <p>
    * If there are multiple accrual periods in the payment period, then this
-   * should typically only be non-zero in the last accrual period.
+   * will only apply to the last accrual period in the payment period.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final int rateCutOffDays;
@@ -364,7 +364,7 @@ public final class OvernightRateCalculation
    * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
    * <p>
    * If there are multiple accrual periods in the payment period, then this
-   * should typically only be non-zero in the last accrual period.
+   * will only apply to the last accrual period in the payment period.
    * @return the value of the property
    */
   public int getRateCutOffDays() {
