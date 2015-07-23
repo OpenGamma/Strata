@@ -1,3 +1,4 @@
+sudo: false
 language: java
 jdk:
   - oraclejdk8
@@ -5,5 +6,12 @@ addons:
   apt:
     packages:
     - oracle-java8-installer
-script: mvn package -e -B -Dstrict
-
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+install:
+  - mvn --version
+script:
+  - mvn install -e -B -Dstrict
+  - rm -rf $HOME/.m2/repository/com/opengamma/analytics
+  - rm -rf $HOME/.m2/repository/com/opengamma/strata
