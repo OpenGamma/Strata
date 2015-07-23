@@ -149,25 +149,6 @@ public class DiscountingSwapProductPricerTest {
   private static final DiscountingSwapProductPricer SWAP_PRODUCT_PRICER = DiscountingSwapProductPricer.DEFAULT;
 
   //-------------------------------------------------------------------------
-  public void par_spread_sensitivity_fixed_ibor() {
-    ExpandedSwap expanded = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct().expand();
-    PointSensitivities point = PRICER_SWAP.parSpreadSensitivity(expanded, MULTI_USD).build();
-    CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        MULTI_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parSpread(expanded, p)));
-    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
-  }
-  
-  public void par_spread_sensitivity_ibor_ibor() {
-    ExpandedSwap expanded = SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct().expand();
-    PointSensitivities point = PRICER_SWAP.parSpreadSensitivity(expanded, MULTI_USD).build();
-    CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        MULTI_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parSpread(expanded, p)));
-    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
-  }
-
-  //-------------------------------------------------------------------------
   public void test_legPricer() {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
@@ -698,6 +679,25 @@ public class DiscountingSwapProductPricerTest {
         .toTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD + ps);
     CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
     assertEquals(pv0.getAmount(),  0, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void par_spread_sensitivity_fixed_ibor() {
+    ExpandedSwap expanded = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct().expand();
+    PointSensitivities point = PRICER_SWAP.parSpreadSensitivity(expanded, MULTI_USD).build();
+    CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
+    CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
+        MULTI_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parSpread(expanded, p)));
+    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
+  }
+  
+  public void par_spread_sensitivity_ibor_ibor() {
+    ExpandedSwap expanded = SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct().expand();
+    PointSensitivities point = PRICER_SWAP.parSpreadSensitivity(expanded, MULTI_USD).build();
+    CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
+    CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
+        MULTI_USD, p -> CurrencyAmount.of(USD, PRICER_SWAP.parSpread(expanded, p)));
+    assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
 }
