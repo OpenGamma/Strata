@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import static com.opengamma.strata.basics.PutCall.CALL;
+import static com.opengamma.strata.basics.PutCall.PUT;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -20,19 +22,20 @@ public class NormalPriceFunctionTest {
   private static final double T = 4.5;
   private static final double F = 104;
   private static final double DELTA = 10;
-  private static final EuropeanVanillaOption ITM_CALL = new EuropeanVanillaOption(F - DELTA, T, true);
-  private static final EuropeanVanillaOption OTM_CALL = new EuropeanVanillaOption(F + DELTA, T, true);
-  private static final EuropeanVanillaOption ITM_PUT = new EuropeanVanillaOption(F + DELTA, T, false);
-  private static final EuropeanVanillaOption OTM_PUT = new EuropeanVanillaOption(F - DELTA, T, false);
+  private static final EuropeanVanillaOption ITM_CALL = EuropeanVanillaOption.of(F - DELTA, T, CALL);
+  private static final EuropeanVanillaOption OTM_CALL = EuropeanVanillaOption.of(F + DELTA, T, CALL);
+  private static final EuropeanVanillaOption ITM_PUT = EuropeanVanillaOption.of(F + DELTA, T, PUT);
+  private static final EuropeanVanillaOption OTM_PUT = EuropeanVanillaOption.of(F - DELTA, T, PUT);
   private static final double DF = 0.9;
   private static final double SIGMA = 20.0;
-  private static final NormalFunctionData VOL_DATA = new NormalFunctionData(F, DF, SIGMA);
-  private static final NormalFunctionData ZERO_VOL_DATA = new NormalFunctionData(F, DF, 0);
+  private static final NormalFunctionData VOL_DATA = NormalFunctionData.of(F, DF, SIGMA);
+  private static final NormalFunctionData ZERO_VOL_DATA = NormalFunctionData.of(F, DF, 0);
   private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
 
-  public void testNull() {
+  public void testInvalid() {
     assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(null));
     assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(ITM_CALL).evaluate((NormalFunctionData) null));
+    assertThrowsIllegalArg(() -> FUNCTION.getPriceAdjoint(ITM_CALL, VOL_DATA, new double[0]));
   }
 
   public void testZeroVolPrice() {
@@ -55,32 +58,32 @@ public class NormalPriceFunctionTest {
     assertEquals(price0Adjoint, price0, 1E-10);
     // Derivative forward.
     double deltaF = 0.01;
-    NormalFunctionData dataFP = new NormalFunctionData(F + deltaF, DF, SIGMA);
-    NormalFunctionData dataFM = new NormalFunctionData(F - deltaF, DF, SIGMA);
+    NormalFunctionData dataFP = NormalFunctionData.of(F + deltaF, DF, SIGMA);
+    NormalFunctionData dataFM = NormalFunctionData.of(F - deltaF, DF, SIGMA);
     double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
     double priceFM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFM);
     double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
     assertEquals(priceDerivative[0], derivativeF_FD, 1E-7);
     // Derivative strike.
     double deltaK = 0.01;
-    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(F - DELTA + deltaK, T, true);
-    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(F - DELTA - deltaK, T, true);
+    EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(F - DELTA + deltaK, T, CALL);
+    EuropeanVanillaOption optionKM = EuropeanVanillaOption.of(F - DELTA - deltaK, T, CALL);
     double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(VOL_DATA);
     double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(VOL_DATA);
     double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
     assertEquals(priceDerivative[2], derivativeK_FD, 1E-7);
     // Derivative volatility.
     double deltaV = 0.0001;
-    NormalFunctionData dataVP = new NormalFunctionData(F, DF, SIGMA + deltaV);
-    NormalFunctionData dataVM = new NormalFunctionData(F, DF, SIGMA - deltaV);
+    NormalFunctionData dataVP = NormalFunctionData.of(F, DF, SIGMA + deltaV);
+    NormalFunctionData dataVM = NormalFunctionData.of(F, DF, SIGMA - deltaV);
     double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
     double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(priceDerivative[1], derivativeV_FD, 1E-6);
   }
 
-  private static final EuropeanVanillaOption ATM_CALL = new EuropeanVanillaOption(F, T, true);
-  private static final EuropeanVanillaOption ATM_PUT = new EuropeanVanillaOption(F, T, false);
+  private static final EuropeanVanillaOption ATM_CALL = EuropeanVanillaOption.of(F, T, CALL);
+  private static final EuropeanVanillaOption ATM_PUT = EuropeanVanillaOption.of(F, T, PUT);
 
   // Test getDelta, getGamma and getVega
   public void greeksTest() {
@@ -98,16 +101,16 @@ public class NormalPriceFunctionTest {
       assertEquals(priceDerivative[1], vega, tol);
 
       // testing second order derivative against finite difference approximation
-      NormalFunctionData dataUp = new NormalFunctionData(F + eps, DF, SIGMA);
-      NormalFunctionData dataDw = new NormalFunctionData(F - eps, DF, SIGMA);
+      NormalFunctionData dataUp = NormalFunctionData.of(F + eps, DF, SIGMA);
+      NormalFunctionData dataDw = NormalFunctionData.of(F - eps, DF, SIGMA);
       double deltaUp = FUNCTION.getDelta(option, dataUp);
       double deltaDw = FUNCTION.getDelta(option, dataDw);
       double ref = 0.5 * (deltaUp - deltaDw) / eps;
       double gamma = FUNCTION.getGamma(option, VOL_DATA);
       assertEquals(gamma, ref, eps);
 
-      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(option.getStrike(), T + eps, option.isCall());
-      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(option.getStrike(), T - eps, option.isCall());
+      EuropeanVanillaOption optionUp = EuropeanVanillaOption.of(option.getStrike(), T + eps, option.getPutCall());
+      EuropeanVanillaOption optionDw = EuropeanVanillaOption.of(option.getStrike(), T - eps, option.getPutCall());
       double priceTimeUp = FUNCTION.getPriceAdjoint(optionUp, VOL_DATA, priceDerivative);
       double priceTimeDw = FUNCTION.getPriceAdjoint(optionDw, VOL_DATA, priceDerivative);
       ref = -0.5 * (priceTimeUp - priceTimeDw) / eps;
@@ -120,9 +123,9 @@ public class NormalPriceFunctionTest {
   public void smallParameterGreeksTest() {
     double eps = 1.0e-5;
     double[] der = new double[3];
-    NormalFunctionData dataVolUp = new NormalFunctionData(F, DF, eps);
-    NormalFunctionData dataFwUp = new NormalFunctionData(F + eps, DF, 0.0);
-    NormalFunctionData dataFwDw = new NormalFunctionData(F - eps, DF, 0.0);
+    NormalFunctionData dataVolUp = NormalFunctionData.of(F, DF, eps);
+    NormalFunctionData dataFwUp = NormalFunctionData.of(F + eps, DF, 0.0);
+    NormalFunctionData dataFwDw = NormalFunctionData.of(F - eps, DF, 0.0);
 
     EuropeanVanillaOption[] options = new EuropeanVanillaOption[] {
         ITM_CALL, ITM_PUT, OTM_CALL, OTM_PUT, ATM_CALL, ATM_PUT};
@@ -149,8 +152,8 @@ public class NormalPriceFunctionTest {
         assertEquals(gamma, refGamma, eps);
       }
 
-      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(option.getStrike(), T + eps, option.isCall());
-      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(option.getStrike(), T - eps, option.isCall());
+      EuropeanVanillaOption optionUp = EuropeanVanillaOption.of(option.getStrike(), T + eps, option.getPutCall());
+      EuropeanVanillaOption optionDw = EuropeanVanillaOption.of(option.getStrike(), T - eps, option.getPutCall());
       double priceTimeUp = FUNCTION.getPriceAdjoint(optionUp, ZERO_VOL_DATA, der);
       double priceTimeDw = FUNCTION.getPriceAdjoint(optionDw, ZERO_VOL_DATA, der);
       double refTheta = -0.5 * (priceTimeUp - priceTimeDw) / eps;

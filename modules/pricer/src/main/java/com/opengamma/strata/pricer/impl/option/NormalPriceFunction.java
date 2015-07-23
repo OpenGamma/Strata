@@ -16,6 +16,10 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class NormalPriceFunction {
 
   /**
+   * The comparison value used to determine near-zero.
+   */
+  private static final double NEAR_ZERO = 1e-16;
+  /**
    * The normal distribution implementation.
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -41,7 +45,7 @@ public final class NormalPriceFunction {
         double sigma = data.getNormalVolatility();
         double sigmaRootT = sigma * Math.sqrt(t);
         int sign = option.isCall() ? 1 : -1;
-        if (sigmaRootT < 1e-16) {
+        if (sigmaRootT < NEAR_ZERO) {
           double x = sign * (forward - strike);
           return (x > 0 ? numeraire * x : 0.0);
         }
@@ -79,7 +83,7 @@ public final class NormalPriceFunction {
     double x = 0.0;
     // Implementation Note: Forward sweep.
     double sigmaRootT = sigma * Math.sqrt(t);
-    if (sigmaRootT < 1e-16) {
+    if (sigmaRootT < NEAR_ZERO) {
       x = sign * (forward - strike);
       price = (x > 0 ? numeraire * x : 0.0);
     } else {
@@ -90,7 +94,7 @@ public final class NormalPriceFunction {
     }
     // Implementation Note: Backward sweep.
     double priceBar = 1.0;
-    if (sigmaRootT < 1e-16) {
+    if (sigmaRootT < NEAR_ZERO) {
       double xBar = (x > 0 ? numeraire : 0.0);
       priceDerivative[0] = sign * xBar;
       priceDerivative[2] = -priceDerivative[0];
@@ -124,9 +128,9 @@ public final class NormalPriceFunction {
     double sigma = data.getNormalVolatility();
     int sign = option.isCall() ? 1 : -1;
     double sigmaRootT = sigma * Math.sqrt(t);
-    if (sigmaRootT < 1e-16) {
+    if (sigmaRootT < NEAR_ZERO) {
       double x = sign * (forward - strike);
-      if (Math.abs(x) <= 1e-16) {
+      if (Math.abs(x) <= NEAR_ZERO) {
         // ambiguous if x and sigmaRootT are tiny, then reference number is returned
         return sign * 0.5 * numeraire;
       }
@@ -154,10 +158,10 @@ public final class NormalPriceFunction {
     double sigma = data.getNormalVolatility();
     int sign = option.isCall() ? 1 : -1;
     double sigmaRootT = sigma * Math.sqrt(t);
-    if (sigmaRootT < 1e-16) {
+    if (sigmaRootT < NEAR_ZERO) {
       double x = sign * (forward - strike);
       // ambiguous (tend to be infinite) if x and sigmaRootT are tiny, then reference number is returned
-      return Math.abs(x) > 1e-16 ? 0.0 : numeraire / Math.sqrt(2.0 * Math.PI) / sigmaRootT;
+      return Math.abs(x) > NEAR_ZERO ? 0.0 : numeraire / Math.sqrt(2.0 * Math.PI) / sigmaRootT;
     }
     double arg = (forward - strike) / sigmaRootT;
     double nPDF = NORMAL.getPDF(arg);
@@ -182,10 +186,10 @@ public final class NormalPriceFunction {
     int sign = option.isCall() ? 1 : -1;
     double rootT = Math.sqrt(t);
     double sigmaRootT = sigma * rootT;
-    if (sigmaRootT < 1e-16) {
+    if (sigmaRootT < NEAR_ZERO) {
       double x = sign * (forward - strike);
       // ambiguous if x and sigmaRootT are tiny, then reference number is returned
-      return Math.abs(x) > 1e-16 ? 0.0 : numeraire * rootT / Math.sqrt(2.0 * Math.PI);
+      return Math.abs(x) > NEAR_ZERO ? 0.0 : numeraire * rootT / Math.sqrt(2.0 * Math.PI);
     }
     double arg = (forward - strike) / sigmaRootT;
     double nPDF = NORMAL.getPDF(arg);
@@ -210,10 +214,10 @@ public final class NormalPriceFunction {
     int sign = option.isCall() ? 1 : -1;
     double rootT = Math.sqrt(t);
     double sigmaRootT = sigma * rootT;
-    if (sigmaRootT < 1e-16) {
+    if (sigmaRootT < NEAR_ZERO) {
       double x = sign * (forward - strike);
       // ambiguous if x and sigmaRootT are tiny, then reference number is returned
-      return Math.abs(x) > 1e-16 ? 0.0 : -0.5 * numeraire * sigma / rootT / Math.sqrt(2.0 * Math.PI);
+      return Math.abs(x) > NEAR_ZERO ? 0.0 : -0.5 * numeraire * sigma / rootT / Math.sqrt(2.0 * Math.PI);
     }
     double arg = (forward - strike) / sigmaRootT;
     double nPDF = NORMAL.getPDF(arg);

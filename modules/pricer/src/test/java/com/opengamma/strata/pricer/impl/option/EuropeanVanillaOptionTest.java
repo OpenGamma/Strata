@@ -5,9 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import static com.opengamma.strata.basics.PutCall.CALL;
+import static com.opengamma.strata.basics.PutCall.PUT;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
@@ -17,28 +21,32 @@ import org.testng.annotations.Test;
 @Test
 public class EuropeanVanillaOptionTest {
 
-  private static final double K = 100;
-  private static final double T = 0.5;
-  private static final boolean IS_CALL = true;
-  private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(K, T, IS_CALL);
+  private static final double STRIKE = 100;
+  private static final double TIME = 0.5;
 
   public void testNegativeTime() {
-    assertThrowsIllegalArg(() -> new EuropeanVanillaOption(K, -T, IS_CALL));
+    assertThrowsIllegalArg(() -> EuropeanVanillaOption.of(STRIKE, -TIME, CALL));
   }
 
-  public void test() {
-    assertEquals(OPTION.getStrike(), K, 0);
-    assertEquals(OPTION.getTimeToExpiry(), T, 0);
-    assertEquals(OPTION.isCall(), IS_CALL);
-    EuropeanVanillaOption other = new EuropeanVanillaOption(K, T, IS_CALL);
-    assertEquals(other, OPTION);
-    assertEquals(other.hashCode(), OPTION.hashCode());
-    other = new EuropeanVanillaOption(K + 1, T, IS_CALL);
-    assertFalse(other.equals(OPTION));
-    other = new EuropeanVanillaOption(K, T + 1, IS_CALL);
-    assertFalse(other.equals(OPTION));
-    other = new EuropeanVanillaOption(K, T, !IS_CALL);
-    assertFalse(other.equals(OPTION));
+  public void test_of() {
+    EuropeanVanillaOption test = EuropeanVanillaOption.of(STRIKE, TIME, CALL);
+    assertEquals(test.getStrike(), STRIKE, 0);
+    assertEquals(test.getTimeToExpiry(), TIME, 0);
+    assertEquals(test.getPutCall(), CALL);
+    assertEquals(test.isCall(), true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    EuropeanVanillaOption test = EuropeanVanillaOption.of(STRIKE, TIME, CALL);
+    coverImmutableBean(test);
+    EuropeanVanillaOption test2 = EuropeanVanillaOption.of(110, 0.6, PUT);
+    coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    EuropeanVanillaOption test = EuropeanVanillaOption.of(STRIKE, TIME, CALL);
+    assertSerialization(test);
   }
 
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -18,12 +21,25 @@ public class NormalFunctionDataTest {
   private static final double FORWARD = 0.05;
   private static final double NUMERAIRE = 0.95;
   private static final double VOLATILITY = 0.01;
-  private static final NormalFunctionData NORMAL_DATA = new NormalFunctionData(FORWARD, NUMERAIRE, VOLATILITY);
 
-  public void getter() {
-    assertEquals(NORMAL_DATA.getForward(), FORWARD);
-    assertEquals(NORMAL_DATA.getNumeraire(), NUMERAIRE);
-    assertEquals(NORMAL_DATA.getNormalVolatility(), VOLATILITY);
+  public void test_of() {
+    NormalFunctionData test = NormalFunctionData.of(FORWARD, NUMERAIRE, VOLATILITY);
+    assertEquals(test.getForward(), FORWARD);
+    assertEquals(test.getNumeraire(), NUMERAIRE);
+    assertEquals(test.getNormalVolatility(), VOLATILITY);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    NormalFunctionData test = NormalFunctionData.of(FORWARD, NUMERAIRE, VOLATILITY);
+    coverImmutableBean(test);
+    NormalFunctionData test2 = NormalFunctionData.of(0.06, 0.96, 0.02);
+    coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    NormalFunctionData test = NormalFunctionData.of(FORWARD, NUMERAIRE, VOLATILITY);
+    assertSerialization(test);
   }
 
 }
