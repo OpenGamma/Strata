@@ -154,7 +154,6 @@ public class BlackFxVanillaOptionProductPricerTest {
     CurveCurrencyParameterSensitivities computed = RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected = cal.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
         (p) -> PRICER.presentValue(OPTION_PRODUCT, (p), VOL_PROVIDER));
-    System.out.println(OPTION_PRODUCT.getUnderlying().getReceiveCurrencyAmount().getCurrency());
     // contribution via implied volatility, to be subtracted.
     CurrencyAmount pvVega = PRICER.presentValueVega(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
     CurveCurrencyParameterSensitivities impliedVolSense =
