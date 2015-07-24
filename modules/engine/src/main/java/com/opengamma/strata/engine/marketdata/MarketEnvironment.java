@@ -14,7 +14,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculations.MissingMappingId;
@@ -53,7 +51,7 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
  * @see CalculationEnvironment
  * @see ScenarioCalculationEnvironment
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class MarketEnvironment implements ImmutableBean, MarketDataLookup {
 
   /** The valuation date associated with the data. */
@@ -63,12 +61,12 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
   // TODO Should there be separate maps for observable and non-observable data?
   // TODO Do the values need to include the timestamp as well as the market data item?
   /** The individual items of market data, keyed by ID. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, Object>")
   private final ImmutableMap<MarketDataId<?>, Object> values;
 
   // TODO Do the values need to include the timestamp as well as the time series?
   /** The time series of market data values, keyed by ID. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends ObservableId, LocalDateDoubleTimeSeries>")
   private final ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   /**
@@ -89,24 +87,6 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
    */
   public static MarketEnvironment empty(LocalDate valuationDate) {
     return MarketEnvironment.builder(valuationDate).build();
-  }
-
-  /**
-   * Package-private constructor used by the builder.
-   *
-   * @param valuationDate  the valuation date of the market data
-   * @param values  the single market data values
-   * @param timeSeries  the time series of market data values
-   */
-  @ImmutableConstructor
-  MarketEnvironment(
-      LocalDate valuationDate,
-      Map<? extends MarketDataId<?>, Object> values,
-      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
-
-    this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
-    this.values = ImmutableMap.copyOf(values);
-    this.timeSeries = ImmutableMap.copyOf(timeSeries);
   }
 
   @Override
@@ -180,6 +160,24 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
 
   static {
     JodaBeanUtils.registerMetaBean(MarketEnvironment.Meta.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * @param valuationDate  the value of the property, not null
+   * @param values  the value of the property, not null
+   * @param timeSeries  the value of the property, not null
+   */
+  MarketEnvironment(
+      LocalDate valuationDate,
+      Map<? extends MarketDataId<?>, Object> values,
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+    JodaBeanUtils.notNull(valuationDate, "valuationDate");
+    JodaBeanUtils.notNull(values, "values");
+    JodaBeanUtils.notNull(timeSeries, "timeSeries");
+    this.valuationDate = valuationDate;
+    this.values = ImmutableMap.copyOf(values);
+    this.timeSeries = ImmutableMap.copyOf(timeSeries);
   }
 
   @Override
@@ -387,8 +385,8 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
   private static final class Builder extends DirectFieldsBeanBuilder<MarketEnvironment> {
 
     private LocalDate valuationDate;
-    private Map<MarketDataId<?>, Object> values = ImmutableMap.of();
-    private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
+    private Map<? extends MarketDataId<?>, Object> values = ImmutableMap.of();
+    private Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -419,10 +417,10 @@ public final class MarketEnvironment implements ImmutableBean, MarketDataLookup 
           this.valuationDate = (LocalDate) newValue;
           break;
         case -823812830:  // values
-          this.values = (Map<MarketDataId<?>, Object>) newValue;
+          this.values = (Map<? extends MarketDataId<?>, Object>) newValue;
           break;
         case 779431844:  // timeSeries
-          this.timeSeries = (Map<ObservableId, LocalDateDoubleTimeSeries>) newValue;
+          this.timeSeries = (Map<? extends ObservableId, LocalDateDoubleTimeSeries>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

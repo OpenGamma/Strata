@@ -16,7 +16,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -32,7 +31,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Primitives;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 
@@ -49,7 +47,7 @@ import com.opengamma.strata.engine.calculations.function.CalculationSingleFuncti
  * 
  * @param <T>  the type of the calculation target
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class FunctionConfig<T extends CalculationTarget> implements ImmutableBean {
 
   private static final Logger log = LoggerFactory.getLogger(FunctionConfig.class);
@@ -108,16 +106,6 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
   @SuppressWarnings("unchecked")
   public static <T extends CalculationTarget> FunctionConfig<T> missing() {
     return (FunctionConfig<T>) MISSING;
-  }
-
-  // package-private constructor used by FunctionConfigBuilder
-  @ImmutableConstructor
-  FunctionConfig(
-      Class<? extends CalculationSingleFunction<T, ?>> functionType,
-      Map<String, Object> arguments) {
-
-    this.functionType = ArgChecker.notNull(functionType, "functionType");
-    this.arguments = ImmutableMap.copyOf(arguments);
   }
 
   // TODO Method returning parameter metadata for the required constructor arguments?
@@ -285,6 +273,20 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
 
   static {
     JodaBeanUtils.registerMetaBean(FunctionConfig.Meta.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * @param functionType  the value of the property, not null
+   * @param arguments  the value of the property, not null
+   */
+  FunctionConfig(
+      Class<? extends CalculationSingleFunction<T, ?>> functionType,
+      Map<String, Object> arguments) {
+    JodaBeanUtils.notNull(functionType, "functionType");
+    JodaBeanUtils.notNull(arguments, "arguments");
+    this.functionType = functionType;
+    this.arguments = ImmutableMap.copyOf(arguments);
   }
 
   @SuppressWarnings("unchecked")
