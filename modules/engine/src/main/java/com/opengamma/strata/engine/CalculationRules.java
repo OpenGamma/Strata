@@ -440,7 +440,7 @@ public final class CalculationRules implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code pricingRules} property in the builder.
+     * Sets the rules defining how calculations should be performed.
      * @param pricingRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -451,7 +451,7 @@ public final class CalculationRules implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code marketDataRules} property in the builder.
+     * Sets the rules defining what market data should be used in each calculation.
      * @param marketDataRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -462,7 +462,7 @@ public final class CalculationRules implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code reportingRules} property in the builder.
+     * Sets the rules defining how calculation results should be reported.
      * @param reportingRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -473,7 +473,7 @@ public final class CalculationRules implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code marketDataConfig} property in the builder.
+     * Sets the configuration needed to build non-observable market data, for example curves or surfaces.
      * @param marketDataConfig  the new value, not null
      * @return this, for chaining, not null
      */

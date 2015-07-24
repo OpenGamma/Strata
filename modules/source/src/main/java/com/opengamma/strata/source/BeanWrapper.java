@@ -354,7 +354,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code bean} property in the builder.
+     * Sets the bean to associate the additional identifiers with.
      * @param bean  the new value, not null
      * @return this, for chaining, not null
      */
@@ -365,7 +365,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
     }
 
     /**
-     * Sets the {@code additionalIdentifiers} property in the builder.
+     * Sets the set of additional identifiers to be associated with the bean.
+     * May be empty.
      * @param additionalIdentifiers  the new value, not null
      * @return this, for chaining, not null
      */

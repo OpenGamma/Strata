@@ -313,7 +313,8 @@ public final class FixedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rate} property in the builder.
+     * Sets the fixed rate to be paid.
+     * A 5% rate will be expressed as 0.05.
      * @param rate  the new value
      * @return this, for chaining, not null
      */

@@ -492,7 +492,10 @@ public final class IborAveragedFixing
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code fixingDate} property in the builder.
+     * Sets the fixing date to use to determine a rate for the reset period.
+     * <p>
+     * This is an adjusted date with any business day rule applied.
+     * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
      * @param fixingDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -503,7 +506,15 @@ public final class IborAveragedFixing
     }
 
     /**
-     * Sets the {@code fixedRate} property in the builder.
+     * Sets the fixed rate for the fixing date, optional.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * In certain circumstances two counterparties agree the rate of a fixing when the contract starts.
+     * It is used in place of an observed fixing.
+     * Other calculation elements, such as gearing or spread, still apply.
+     * <p>
+     * If the value not present, which is the normal case, then the rate is
+     * observed via the normal fixing process.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
@@ -513,7 +524,9 @@ public final class IborAveragedFixing
     }
 
     /**
-     * Sets the {@code weight} property in the builder.
+     * Sets the weight to apply to this fixing.
+     * <p>
+     * If the averaging is unweighted, then all weights must be one.
      * @param weight  the new value
      * @return this, for chaining, not null
      */

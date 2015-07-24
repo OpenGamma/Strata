@@ -356,7 +356,7 @@ public final class DiscountingCurveMapping
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveGroupName} property in the builder.
+     * Sets the name of the curve group from which discounting curves should be taken.
      * @param curveGroupName  the new value, not null
      * @return this, for chaining, not null
      */
@@ -367,7 +367,7 @@ public final class DiscountingCurveMapping
     }
 
     /**
-     * Sets the {@code marketDataFeed} property in the builder.
+     * Sets the market data feed which provides quotes used to build the curve.
      * @param marketDataFeed  the new value, not null
      * @return this, for chaining, not null
      */

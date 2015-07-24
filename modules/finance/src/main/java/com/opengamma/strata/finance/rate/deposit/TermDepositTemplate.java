@@ -402,7 +402,7 @@ public final class TermDepositTemplate
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code depositPeriod} property in the builder.
+     * Sets the period between the start date and the end date.
      * @param depositPeriod  the new value, not null
      * @return this, for chaining, not null
      */
@@ -413,7 +413,9 @@ public final class TermDepositTemplate
     }
 
     /**
-     * Sets the {@code convention} property in the builder.
+     * Sets the underlying term deposit convention.
+     * <p>
+     * This specifies the standard convention of the term deposit to be created.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */

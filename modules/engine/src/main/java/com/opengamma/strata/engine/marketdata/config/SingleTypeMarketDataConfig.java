@@ -383,7 +383,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code configType} property in the builder.
+     * Sets the type of the configuration objects.
      * @param configType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -394,7 +394,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code configObjects} property in the builder.
+     * Sets the configuration objects, keyed by name.
      * @param configObjects  the new value, not null
      * @return this, for chaining, not null
      */

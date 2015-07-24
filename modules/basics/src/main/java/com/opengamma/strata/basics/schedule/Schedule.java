@@ -698,7 +698,12 @@ public final class Schedule
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code periods} property in the builder.
+     * Sets the schedule periods.
+     * <p>
+     * There will be at least one period.
+     * The periods are ordered from earliest to latest.
+     * It is intended that each period is adjacent to the next one, however each
+     * period is independent and non-adjacent periods are allowed.
      * @param periods  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -719,7 +724,10 @@ public final class Schedule
     }
 
     /**
-     * Sets the {@code frequency} property in the builder.
+     * Sets the periodic frequency used when building the schedule.
+     * <p>
+     * If the schedule was not built from a regular periodic frequency,
+     * then the frequency should be a suitable estimate.
      * @param frequency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -730,7 +738,9 @@ public final class Schedule
     }
 
     /**
-     * Sets the {@code rollConvention} property in the builder.
+     * Sets the roll convention used when building the schedule.
+     * <p>
+     * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
      * @param rollConvention  the new value, not null
      * @return this, for chaining, not null
      */

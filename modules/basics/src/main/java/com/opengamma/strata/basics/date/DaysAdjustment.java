@@ -595,7 +595,10 @@ public final class DaysAdjustment
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code days} property in the builder.
+     * Sets the number of days to be added.
+     * <p>
+     * When the adjustment is performed, this amount will be added to the input date
+     * using the calendar to determine the addition type.
      * @param days  the new value, not null
      * @return this, for chaining, not null
      */
@@ -606,7 +609,16 @@ public final class DaysAdjustment
     }
 
     /**
-     * Sets the {@code calendar} property in the builder.
+     * Sets the holiday calendar that defines the meaning of a day when performing the addition.
+     * <p>
+     * When the adjustment is performed, this calendar is used to determine which days are business days.
+     * <p>
+     * If the holiday calendar is 'None' then addition uses simple date addition arithmetic without
+     * considering any days as holidays or weekends.
+     * If the holiday calendar is anything other than 'None' then addition uses that calendar,
+     * effectively repeatedly finding the next business day.
+     * <p>
+     * See the class-level documentation for more information.
      * @param calendar  the new value, not null
      * @return this, for chaining, not null
      */
@@ -617,7 +629,15 @@ public final class DaysAdjustment
     }
 
     /**
-     * Sets the {@code adjustment} property in the builder.
+     * Sets the business day adjustment that is performed to the result of the addition.
+     * <p>
+     * This adjustment is applied to the result of the period addition calculation.
+     * If the addition is performed using business days then any adjustment here is expected to
+     * have a different holiday calendar to that used during addition.
+     * <p>
+     * If no adjustment is required, use the 'None' business day adjustment.
+     * <p>
+     * See the class-level documentation for more information.
      * @param adjustment  the new value, not null
      * @return this, for chaining, not null
      */

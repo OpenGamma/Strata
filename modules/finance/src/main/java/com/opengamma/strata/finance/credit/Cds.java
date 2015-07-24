@@ -666,7 +666,10 @@ public final class Cds
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code buySellProtection} property in the builder.
+     * Sets whether the CDS is buy or sell.
+     * <p>
+     * A value of 'Buy' implies that the fee leg payments are being paid, and protection is being bought.
+     * A value of 'Sell' implies that the fee leg payments are being received, and protection is being sold.
      * @param buySellProtection  the new value, not null
      * @return this, for chaining, not null
      */
@@ -677,7 +680,12 @@ public final class Cds
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the first date of the term of the trade.
+     * <p>
+     * This day may be subject to adjustment in accordance with a business day convention.
+     * This is typically the previous CDS date (quarter on 20th) before the trade date, adjusted.
+     * <p>
+     * ISDA 2003 Term: Effective Date.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -688,7 +696,12 @@ public final class Cds
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the scheduled date on which the credit protection will lapse.
+     * <p>
+     * This day may be subject to adjustment in accordance with a business day convention.
+     * This is typically an unadjusted CDS date.
+     * <p>
+     * ISDA 2003 Term: Scheduled Termination Date.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -699,7 +712,9 @@ public final class Cds
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end dates.
+     * <p>
+     * ISDA 2003 Terms: Business Day and Business Day Convention.
      * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -710,7 +725,10 @@ public final class Cds
     }
 
     /**
-     * Sets the {@code referenceInformation} property in the builder.
+     * Sets the reference against which protection applies.
+     * <p>
+     * For a single-name CDS, this contains information on the entity/issue
+     * For a CDS index, this contains information about the index.
      * @param referenceInformation  the new value, not null
      * @return this, for chaining, not null
      */
@@ -721,7 +739,10 @@ public final class Cds
     }
 
     /**
-     * Sets the {@code feeLeg} property in the builder.
+     * Sets the fee leg.
+     * <p>
+     * This contains all the terms relevant to defining the fixed amounts/payments
+     * per the applicable ISDA definitions.
      * @param feeLeg  the new value, not null
      * @return this, for chaining, not null
      */
@@ -732,7 +753,7 @@ public final class Cds
     }
 
     /**
-     * Sets the {@code payAccruedOnDefault} property in the builder.
+     * Sets whether the accrued premium is paid in the event of a default.
      * @param payAccruedOnDefault  the new value, not null
      * @return this, for chaining, not null
      */

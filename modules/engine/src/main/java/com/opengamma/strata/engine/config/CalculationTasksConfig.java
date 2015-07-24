@@ -336,7 +336,7 @@ public final class CalculationTasksConfig implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code taskConfigurations} property in the builder.
+     * Sets configuration for each of tasks that perform the individual calculations.
      * @param taskConfigurations  the new value, not null
      * @return this, for chaining, not null
      */
@@ -357,7 +357,7 @@ public final class CalculationTasksConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code columns} property in the builder.
+     * Sets the columns that define the calculations.
      * @param columns  the new value, not null
      * @return this, for chaining, not null
      */

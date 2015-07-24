@@ -436,7 +436,7 @@ public final class CalculationResult implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code target} property in the builder.
+     * Sets the target of the calculation, often a trade.
      * @param target  the new value, not null
      * @return this, for chaining, not null
      */
@@ -447,7 +447,7 @@ public final class CalculationResult implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code rowIndex} property in the builder.
+     * Sets the row index of the value in the results grid.
      * @param rowIndex  the new value
      * @return this, for chaining, not null
      */
@@ -457,7 +457,7 @@ public final class CalculationResult implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code columnIndex} property in the builder.
+     * Sets the column index of the value in the results grid.
      * @param columnIndex  the new value
      * @return this, for chaining, not null
      */
@@ -467,7 +467,7 @@ public final class CalculationResult implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code result} property in the builder.
+     * Sets the result of the calculation.
      * @param result  the new value, not null
      * @return this, for chaining, not null
      */

@@ -406,7 +406,11 @@ public final class ExpandedSwap
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code legs} property in the builder.
+     * Sets the legs of the swap.
+     * <p>
+     * A swap consists of one or more legs.
+     * The legs of a swap are essentially unordered, however it is more efficient
+     * and closer to user expectation to treat them as being ordered.
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */

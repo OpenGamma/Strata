@@ -609,7 +609,7 @@ public final class IborFuture
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency that the future is quoted in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -620,7 +620,11 @@ public final class IborFuture
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount.
+     * <p>
+     * This is the full notional of the deposit, such as 1 million dollars.
+     * The notional expressed here must be positive.
+     * The currency of the notional is specified by {@code currency}.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -631,7 +635,12 @@ public final class IborFuture
     }
 
     /**
-     * Sets the {@code accrualFactor} property in the builder.
+     * Sets the accrual factor, defaulted from the index if not set.
+     * <p>
+     * This is the year fraction of the contract, typically 0.25 for a 3 month deposit.
+     * <p>
+     * When building, this will default to the number of months in the index divided by 12
+     * if not specified. However, if the index is not month-based, no defaulting will occur.
      * @param accrualFactor  the new value
      * @return this, for chaining, not null
      */
@@ -642,7 +651,9 @@ public final class IborFuture
     }
 
     /**
-     * Sets the {@code lastTradeDate} property in the builder.
+     * Sets the last date of trading.
+     * This date is also the fixing date for the IBOR-like index.
+     * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
      * @param lastTradeDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -653,7 +664,10 @@ public final class IborFuture
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the underlying IBOR-like index.
+     * <p>
+     * The future is based on this index.
+     * It will be a well known market index such as 'USD-LIBOR-3M'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -664,7 +678,12 @@ public final class IborFuture
     }
 
     /**
-     * Sets the {@code rounding} property in the builder.
+     * Sets the definition of how to round the futures price, defaulted to no rounding.
+     * <p>
+     * The price is represented in decimal form, not percentage form.
+     * As such, the decimal places expressed by the rounding refers to this decimal form.
+     * For example, the common market price of 99.7125 for a 0.2875% rate is
+     * represented as 0.997125 which has 6 decimal places.
      * @param rounding  the new value, not null
      * @return this, for chaining, not null
      */

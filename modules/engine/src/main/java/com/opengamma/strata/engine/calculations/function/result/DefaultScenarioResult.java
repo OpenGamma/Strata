@@ -347,7 +347,7 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code results} property in the builder.
+     * Sets the individual results.
      * @param results  the new value, not null
      * @return this, for chaining, not null
      */

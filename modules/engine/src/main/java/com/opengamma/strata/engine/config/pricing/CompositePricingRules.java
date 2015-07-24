@@ -313,7 +313,7 @@ final class CompositePricingRules implements PricingRules, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rules} property in the builder.
+     * Sets delegate pricing rules.
      * @param rules  the new value, not null
      * @return this, for chaining, not null
      */

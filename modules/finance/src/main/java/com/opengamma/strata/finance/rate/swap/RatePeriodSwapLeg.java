@@ -834,7 +834,9 @@ public final class RatePeriodSwapLeg
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code type} property in the builder.
+     * Sets the type of the leg, such as Fixed or Ibor.
+     * <p>
+     * This provides a high level categorization of the swap leg.
      * @param type  the new value, not null
      * @return this, for chaining, not null
      */
@@ -845,7 +847,14 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code payReceive} property in the builder.
+     * Sets whether the leg is pay or receive.
+     * <p>
+     * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+     * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+     * Note that negative interest rates can result in a payment in the opposite
+     * direction to that implied by this indicator.
+     * <p>
+     * The value of this flag should match the signs of the payment period notionals.
      * @param payReceive  the new value, not null
      * @return this, for chaining, not null
      */
@@ -856,7 +865,14 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code paymentPeriods} property in the builder.
+     * Sets the payment periods that combine to form the swap leg.
+     * <p>
+     * Each payment period represents part of the life-time of the leg.
+     * In most cases, the periods do not overlap. However, since each payment period
+     * is essentially independent the data model allows overlapping periods.
+     * <p>
+     * The start date and end date of the leg are determined from the first and last period.
+     * As such, the periods should be sorted.
      * @param paymentPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -877,7 +893,15 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code initialExchange} property in the builder.
+     * Sets the flag indicating whether to exchange the initial notional.
+     * <p>
+     * Setting this to true indicates that the notional is transferred at the start of the trade.
+     * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+     * <p>
+     * This flag controls whether a notional exchange object is created when the leg is expanded.
+     * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
+     * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+     * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
      * @param initialExchange  the new value
      * @return this, for chaining, not null
      */
@@ -887,7 +911,16 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code intermediateExchange} property in the builder.
+     * Sets the flag indicating whether to exchange the differences in the notional during the lifetime of the swap.
+     * <p>
+     * Setting this to true indicates that the notional is transferred when it changes during the trade.
+     * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+     * <p>
+     * This flag controls whether a notional exchange object is created when the leg is expanded.
+     * It covers an exchange on each intermediate payment date of the swap leg.
+     * If set to true, the behavior depends on whether an FX reset payment period is defined.
+     * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
+     * If there is no FX reset, then a {@link NotionalExchange} object will be created.
      * @param intermediateExchange  the new value
      * @return this, for chaining, not null
      */
@@ -897,7 +930,15 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code finalExchange} property in the builder.
+     * Sets the flag indicating whether to exchange the final notional.
+     * <p>
+     * Setting this to true indicates that the notional is transferred at the end of the trade.
+     * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+     * <p>
+     * This flag controls whether a notional exchange object is created when the leg is expanded.
+     * It covers an exchange on the final payment date of the swap leg.
+     * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+     * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
      * @param finalExchange  the new value
      * @return this, for chaining, not null
      */
@@ -907,7 +948,10 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code paymentEvents} property in the builder.
+     * Sets the additional payment events that are associated with the swap leg.
+     * <p>
+     * Payment events include fees.
+     * Notional exchange may also be specified here instead of via the dedicated fields.
      * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */
@@ -928,7 +972,9 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code paymentBusinessDayAdjustment} property in the builder.
+     * Sets the business day date adjustment to be applied to each payment date, default is to apply no adjustment.
+     * <p>
+     * The business day adjustment is applied to period, exchange and event payment dates.
      * @param paymentBusinessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */

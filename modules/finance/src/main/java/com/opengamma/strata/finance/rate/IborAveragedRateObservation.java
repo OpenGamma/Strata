@@ -402,7 +402,10 @@ public final class IborAveragedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the IBOR-like index.
+     * <p>
+     * The rate to be paid is based on this index
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -413,7 +416,10 @@ public final class IborAveragedRateObservation
     }
 
     /**
-     * Sets the {@code fixings} property in the builder.
+     * Sets the list of fixings.
+     * <p>
+     * A fixing will be taken for each reset period, with the final rate
+     * being an average of the fixings.
      * @param fixings  the new value, not empty
      * @return this, for chaining, not null
      */

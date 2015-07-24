@@ -749,7 +749,10 @@ public final class IborFixingDepositConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the Ibor index.
+     * <p>
+     * The floating rate to be paid or received is based on this index
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -760,7 +763,13 @@ public final class IborFixingDepositConvention
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency, optional with defaulting getter.
+     * <p>
+     * This is the currency of the deposit and the currency that payment is made in.
+     * The data model permits this currency to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * This will default to the currency of the index if not specified.
      * @param currency  the new value
      * @return this, for chaining, not null
      */
@@ -770,7 +779,13 @@ public final class IborFixingDepositConvention
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable, optional with defaulting getter.
+     * <p>
+     * This is used to convert dates to a numerical value.
+     * The data model permits the day count to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * This will default to the day count of the index if not specified.
      * @param dayCount  the new value
      * @return this, for chaining, not null
      */
@@ -780,7 +795,13 @@ public final class IborFixingDepositConvention
     }
 
     /**
-     * Sets the {@code spotDateOffset} property in the builder.
+     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the trade date and is typically plus 2 business days.
+     * The start date of the term deposit is equal to the spot date
+     * and the end date of the term deposit is relative to the start date.
+     * <p>
+     * This will default to the effective date offset of the index if not specified.
      * @param spotDateOffset  the new value
      * @return this, for chaining, not null
      */
@@ -790,7 +811,13 @@ public final class IborFixingDepositConvention
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end date, optional with defaulting getter.
+     * <p>
+     * The start and end date are typically defined as valid business days and thus
+     * do not need to be adjusted. If this optional property is present, then the
+     * start and end date will be adjusted as defined here.
+     * <p>
+     * This will default to 'ModifiedFollowing' using the index fixing calendar if not specified.
      * @param businessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -800,7 +827,13 @@ public final class IborFixingDepositConvention
     }
 
     /**
-     * Sets the {@code fixingDateOffset} property in the builder.
+     * Sets the offset of the fixing date from the start date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the start date and is typically minus 2 business days.
+     * The data model permits the offset to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * This will default to the fixing date offset of the index if not specified.
      * @param fixingDateOffset  the new value
      * @return this, for chaining, not null
      */

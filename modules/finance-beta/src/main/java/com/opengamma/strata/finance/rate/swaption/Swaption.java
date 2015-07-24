@@ -579,7 +579,10 @@ public class Swaption
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code longShort} property in the builder.
+     * Sets whether the option is long or short.
+     * <p>
+     * Long indicates that the owner wants the option to be in the money at expiry.
+     * Short indicates that the owner wants the option to be out of the money at expiry.
      * @param longShort  the new value
      * @return this, for chaining, not null
      */
@@ -589,7 +592,9 @@ public class Swaption
     }
 
     /**
-     * Sets the {@code cashSettled} property in the builder.
+     * Sets whether the option is cash settled, defaulted to physical.
+     * TODO: cash/physical could be better. There is an enumeration of possibilities in FPML and ISDA definitions
+     * Probably a different class is required for cash settlement vs a swap index as we need a new field for the swap index.
      * @param cashSettled  the new value
      * @return this, for chaining, not null
      */
@@ -599,7 +604,9 @@ public class Swaption
     }
 
     /**
-     * Sets the {@code expiryDate} property in the builder.
+     * Sets the expiry date of the option.
+     * <p>
+     * The option is European, and can only be exercised on the expiration date.
      * @param expiryDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -610,7 +617,9 @@ public class Swaption
     }
 
     /**
-     * Sets the {@code expiryTime} property in the builder.
+     * Sets the expiry time of the option.
+     * <p>
+     * The expiry time is related to the expiration date and time-zone.
      * @param expiryTime  the new value, not null
      * @return this, for chaining, not null
      */
@@ -621,7 +630,9 @@ public class Swaption
     }
 
     /**
-     * Sets the {@code expiryZone} property in the builder.
+     * Sets the time-zone of the expiry time.
+     * <p>
+     * The expiry time-zone is related to the expiration date and time.
      * @param expiryZone  the new value, not null
      * @return this, for chaining, not null
      */
@@ -632,7 +643,10 @@ public class Swaption
     }
 
     /**
-     * Sets the {@code underlying} property in the builder.
+     * Sets the underlying swap.
+     * <p>
+     * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap
+     * as viewed by the party long the option.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */

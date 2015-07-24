@@ -404,7 +404,7 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code marketDataFeed} property in the builder.
+     * Sets market data feed system that is the source of observable market data, for example Bloomberg or Reuters.
      * @param marketDataFeed  the new value, not null
      * @return this, for chaining, not null
      */
@@ -415,7 +415,9 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
     }
 
     /**
-     * Sets the {@code mappings} property in the builder.
+     * Sets mappings that translate data requests from calculators into requests that can be used to look
+     * up the data in the global set of market data. They are keyed by the type of the market data
+     * ID they can handle.
      * @param mappings  the new value, not null
      * @return this, for chaining, not null
      */

@@ -296,7 +296,7 @@ public class ReportRequirements implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tradeMeasureRequirements} property in the builder.
+     * Sets the trade-level measure requirements
      * @param tradeMeasureRequirements  the new value, not null
      * @return this, for chaining, not null
      */

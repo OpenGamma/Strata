@@ -396,7 +396,7 @@ public final class FunctionRequirements implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code singleValueRequirements} property in the builder.
+     * Sets keys identifying the market data values required for the calculations.
      * @param singleValueRequirements  the new value, not null
      * @return this, for chaining, not null
      */
@@ -407,7 +407,17 @@ public final class FunctionRequirements implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code timeSeriesRequirements} property in the builder.
+     * Sets the {@code singleValueRequirements} property in the builder
+     * from an array of objects.
+     * @param singleValueRequirements  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder singleValueRequirements(MarketDataKey<?>... singleValueRequirements) {
+      return singleValueRequirements(ImmutableSet.copyOf(singleValueRequirements));
+    }
+
+    /**
+     * Sets keys identifying the time series of market data values required for the calculations.
      * @param timeSeriesRequirements  the new value, not null
      * @return this, for chaining, not null
      */
@@ -428,7 +438,9 @@ public final class FunctionRequirements implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code outputCurrencies} property in the builder.
+     * Sets the currencies used in the calculation results. The market data must include FX rates in the
+     * to allow conversion into the reporting currency. The FX rates must have the output currency as the base
+     * currency and the reporting currency as the counter currency.
      * @param outputCurrencies  the new value, not null
      * @return this, for chaining, not null
      */

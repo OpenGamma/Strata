@@ -439,7 +439,9 @@ public final class InflationMonthlyRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the index of prices.
+     * <p>
+     * The pay-off is computed based on this index
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -450,7 +452,9 @@ public final class InflationMonthlyRateObservation
     }
 
     /**
-     * Sets the {@code referenceStartMonth} property in the builder.
+     * Sets the reference month for the index relative to the accrual start date.
+     * <p>
+     * The reference month is typically three months before the accrual start date.
      * @param referenceStartMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -461,7 +465,10 @@ public final class InflationMonthlyRateObservation
     }
 
     /**
-     * Sets the {@code referenceEndMonth} property in the builder.
+     * Sets the reference month for the index relative to the accrual end date.
+     * <p>
+     * The reference month is typically three months before the accrual end date.
+     * Must be after the reference start month.
      * @param referenceEndMonth  the new value, not null
      * @return this, for chaining, not null
      */

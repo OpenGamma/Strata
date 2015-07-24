@@ -303,7 +303,7 @@ final class CompositeMarketDataRules implements MarketDataRules, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rules} property in the builder.
+     * Sets delegate market data rules.
      * @param rules  the new value, not null
      * @return this, for chaining, not null
      */

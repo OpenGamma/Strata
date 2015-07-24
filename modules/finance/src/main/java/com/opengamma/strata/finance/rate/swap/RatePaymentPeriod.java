@@ -687,7 +687,10 @@ public final class RatePaymentPeriod
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the date that payment occurs.
+     * <p>
+     * The date that payment is made for the accrual periods.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -698,7 +701,11 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * Sets the {@code accrualPeriods} property in the builder.
+     * Sets the accrual periods that combine to form the payment period.
+     * <p>
+     * Each accrual period includes the applicable dates and details of how to observe the rate.
+     * In most cases, there will be one accrual period.
+     * If there is more than one accrual period then compounding may apply.
      * @param accrualPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -719,7 +726,13 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency of the payment period.
+     * <p>
+     * This is the currency of the swap leg and the currency that interest calculation is made in.
+     * <p>
+     * The amounts of the notional are usually expressed in terms of this currency,
+     * however they can be converted from amounts in a different currency.
+     * See the optional {@code fxReset} property.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -730,7 +743,15 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * Sets the {@code fxReset} property in the builder.
+     * Sets the FX reset definition, optional.
+     * <p>
+     * This property is used when the defined amount of the notional is specified in
+     * a currency other than the currency of the swap leg. When this occurs, the notional
+     * amount has to be converted using an FX rate to the swap leg currency.
+     * <p>
+     * The FX reset definition must be valid. It must have a reference currency that is
+     * different to that of this period, and the currency of this period must be
+     * one of those defined by the FX reset index.
      * @param fxReset  the new value
      * @return this, for chaining, not null
      */
@@ -740,7 +761,11 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount, positive if receiving, negative if paying.
+     * <p>
+     * The notional amount applicable during the period.
+     * The currency of the notional is specified by {@code currency} unless there
+     * is the {@code fxReset} property is present.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -750,7 +775,9 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * Sets the {@code compoundingMethod} property in the builder.
+     * Sets the compounding method to use when there is more than one accrual period, default is 'None'.
+     * <p>
+     * Compounding is used when combining accrual periods.
      * @param compoundingMethod  the new value, not null
      * @return this, for chaining, not null
      */

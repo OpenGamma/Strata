@@ -856,7 +856,10 @@ public final class IborFixingDeposit
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code buySell} property in the builder.
+     * Sets whether the Ibor fixing deposit is 'Buy' or 'Sell'.
+     * <p>
+     * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received.
+     * A value of 'Sell' implies that the floating rate is received from the counterparty, with the fixed rate being paid.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */
@@ -867,7 +870,13 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency, defaulted to the currency of the index.
+     * <p>
+     * This is the currency of the deposit and the currency that payment is made in.
+     * The data model permits this currency to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * When building, this will default to the currency of the index if not specified.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -878,7 +887,10 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount.
+     * <p>
+     * The notional expressed here must be non-negative.
+     * The currency of the notional is specified by {@code currency}.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -889,7 +901,11 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date of the deposit.
+     * <p>
+     * Interest accrues from this date.
+     * This date is typically set to be a valid business day.
+     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -900,7 +916,12 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date of the deposit.
+     * <p>
+     * Interest accrues until this date.
+     * This date is typically set to be a valid business day.
+     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
+     * This date must be after the start date.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -911,7 +932,11 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end date, optional.
+     * <p>
+     * The start and end date are typically defined as valid business days and thus
+     * do not need to be adjusted. If this optional property is present, then the
+     * start and end date will be adjusted as defined here.
      * @param businessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -921,7 +946,12 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the Ibor index.
+     * <p>
+     * The floating rate to be paid or received is based on this index
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
+     * <p>
+     * See {@code buySell} to determine whether this rate is paid or received.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -932,7 +962,13 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code fixingDateOffset} property in the builder.
+     * Sets the offset of the fixing date from the start date.
+     * <p>
+     * The offset is applied to the start date and is typically minus 2 business days.
+     * The data model permits the offset to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * When building, this will default to the fixing date offset of the index if not specified.
      * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -943,7 +979,13 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable, defaulted to the day count of the index.
+     * <p>
+     * This is used to convert dates to a numerical value.
+     * The data model permits the day count to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * When building, this will default to the day count of the index if not specified.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -954,7 +996,8 @@ public final class IborFixingDeposit
     }
 
     /**
-     * Sets the {@code fixedRate} property in the builder.
+     * Sets the fixed interest rate to be paid.
+     * A 5% rate will be expressed as 0.05.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */

@@ -458,7 +458,12 @@ public final class FxReset
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the FX index used to obtain the FX reset rate.
+     * <p>
+     * This is the index of FX used to obtain the FX reset rate.
+     * An FX index is a daily rate of exchange between two currencies.
+     * Note that the order of the currencies in the index does not matter, as the
+     * conversion direction is fully defined by the reference and swap leg currencies.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -469,7 +474,15 @@ public final class FxReset
     }
 
     /**
-     * Sets the {@code referenceCurrency} property in the builder.
+     * Sets the currency of the notional amount defined in the contract.
+     * <p>
+     * This is the currency of notional amount as defined in the contract.
+     * The amount will be converted from this reference currency to the swap leg currency
+     * when calculating the value of the leg.
+     * <p>
+     * The reference currency must be one of the two currencies of the index.
+     * <p>
+     * The reference currency is also known as the <i>constant currency</i>.
      * @param referenceCurrency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -480,7 +493,10 @@ public final class FxReset
     }
 
     /**
-     * Sets the {@code fixingDate} property in the builder.
+     * Sets the date of the FX reset fixing.
+     * <p>
+     * This is an adjusted date with any business day rule applied.
+     * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
      * @param fixingDate  the new value, not null
      * @return this, for chaining, not null
      */

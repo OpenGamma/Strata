@@ -870,7 +870,10 @@ public final class FraConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the IBOR-like index.
+     * <p>
+     * The floating rate to be paid is based on this index
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -881,7 +884,13 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency, optional with defaulting getter.
+     * <p>
+     * This is the currency of the FRA and the currency that payment is made in.
+     * The data model permits this currency to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * This will default to the currency of the index if not specified.
      * @param currency  the new value
      * @return this, for chaining, not null
      */
@@ -891,7 +900,13 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable, optional with defaulting getter.
+     * <p>
+     * This is used to convert dates to a numerical value.
+     * The data model permits the day count to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * This will default to the day count of the index if not specified.
      * @param dayCount  the new value
      * @return this, for chaining, not null
      */
@@ -901,7 +916,12 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code spotDateOffset} property in the builder.
+     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the trade date and is typically plus 2 business days.
+     * The start and end date of the FRA term are relative to the spot date.
+     * <p>
+     * This will default to the effective date offset of the index if not specified.
      * @param spotDateOffset  the new value
      * @return this, for chaining, not null
      */
@@ -911,7 +931,13 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end date, optional with defaulting getter.
+     * <p>
+     * The start and end date are typically defined as valid business days and thus
+     * do not need to be adjusted. If this optional property is present, then the
+     * start and end date will be adjusted as defined here.
+     * <p>
+     * This will default to 'ModifiedFollowing' using the index fixing calendar if not specified.
      * @param businessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -921,7 +947,13 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code fixingDateOffset} property in the builder.
+     * Sets the offset of the fixing date from the start date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the start date and is typically minus 2 business days.
+     * The data model permits the offset to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * This will default to the fixing date offset of the index if not specified.
      * @param fixingDateOffset  the new value
      * @return this, for chaining, not null
      */
@@ -931,7 +963,12 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code paymentDateOffset} property in the builder.
+     * Sets the offset of the payment date from the start date, optional with defaulting getter.
+     * <p>
+     * Defines the offset from the start date to the payment date.
+     * In most cases, the payment date is the same as the start date, so the default of zero is appropriate.
+     * <p>
+     * This will default to zero if not specified.
      * @param paymentDateOffset  the new value
      * @return this, for chaining, not null
      */
@@ -941,7 +978,13 @@ public final class FraConvention
     }
 
     /**
-     * Sets the {@code discounting} property in the builder.
+     * Sets the method to use for discounting, optional with defaulting getter.
+     * <p>
+     * There are different approaches FRA pricing in the area of discounting.
+     * This method specifies the approach for this FRA.
+     * <p>
+     * This will default 'AFMA' if the index has the currency
+     * 'AUD' or 'NZD' and to 'ISDA' otherwise.
      * @param discounting  the new value
      * @return this, for chaining, not null
      */

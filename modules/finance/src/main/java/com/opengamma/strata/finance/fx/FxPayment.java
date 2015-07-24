@@ -437,7 +437,10 @@ public final class FxPayment
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code value} property in the builder.
+     * Sets the value of the payment.
+     * <p>
+     * The payment value is signed.
+     * A negative value indicates a payment while a positive value indicates receipt.
      * @param value  the new value, not null
      * @return this, for chaining, not null
      */
@@ -448,7 +451,9 @@ public final class FxPayment
     }
 
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the date that the payment is made.
+     * <p>
+     * This date should be a valid business day.
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */

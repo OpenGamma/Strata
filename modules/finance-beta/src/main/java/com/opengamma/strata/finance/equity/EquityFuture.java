@@ -473,7 +473,9 @@ public final class EquityFuture
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code expirationDate} property in the builder.
+     * Sets the expiration date of the contract.
+     * <p>
+     * This is the last trading date of the contract.
      * @param expirationDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -484,7 +486,9 @@ public final class EquityFuture
     }
 
     /**
-     * Sets the {@code settlementDate} property in the builder.
+     * Sets the settlement date of the contract.
+     * <p>
+     * This is the date that the asset transfer takes place.
      * @param settlementDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -495,7 +499,10 @@ public final class EquityFuture
     }
 
     /**
-     * Sets the {@code strikePrice} property in the builder.
+     * Sets the strike price.
+     * <p>
+     * The future price of the equity agreed at the start of the contract.
+     * The equity will be exchanged at this price on the settlement date.
      * @param strikePrice  the new value, not null
      * @return this, for chaining, not null
      */
@@ -506,7 +513,9 @@ public final class EquityFuture
     }
 
     /**
-     * Sets the {@code unitAmount} property in the builder.
+     * Sets the unit amount.
+     * <p>
+     * The value that one contract will move by when the equity price moves by one point.
      * @param unitAmount  the new value, not null
      * @return this, for chaining, not null
      */

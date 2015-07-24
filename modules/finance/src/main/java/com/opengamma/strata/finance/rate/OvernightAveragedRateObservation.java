@@ -549,7 +549,10 @@ public final class OvernightAveragedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the Overnight index.
+     * <p>
+     * The rate to be paid is based on this index.
+     * It will be a well known market index such as 'USD-FED-FUND'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -560,7 +563,13 @@ public final class OvernightAveragedRateObservation
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the first date in the fixing period.
+     * <p>
+     * The overnight rate is observed from this date onwards.
+     * <p>
+     * In general, the fixing dates and accrual dates are the same for an overnight index.
+     * However, in the case of a Tomorrow/Next index, the fixing period is one business day
+     * before the accrual period.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -571,7 +580,14 @@ public final class OvernightAveragedRateObservation
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the last date in the fixing period.
+     * <p>
+     * The overnight rate is observed until this date.
+     * The last fixing date will be one business day before this date.
+     * <p>
+     * In general, the fixing dates and accrual dates are the same for an overnight index.
+     * However, in the case of a Tomorrow/Next index, the fixing period is one business day
+     * before the accrual period.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -582,7 +598,21 @@ public final class OvernightAveragedRateObservation
     }
 
     /**
-     * Sets the {@code rateCutOffDays} property in the builder.
+     * Sets the number of business days before the end of the period that the rate is cut off.
+     * <p>
+     * When a rate cut-off applies, the final daily rate is determined this number of days
+     * before the end of the period, with any subsequent days having the same rate.
+     * <p>
+     * The amount must be zero or positive.
+     * A value of zero or one will have no effect on the standard calculation.
+     * The fixing holiday calendar of the index is used to determine business days.
+     * <p>
+     * For example, a value of {@code 3} means that the rate observed on
+     * {@code (periodEndDate - 3 business days)} is also to be used on
+     * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
+     * <p>
+     * If there are multiple accrual periods in the payment period, then this
+     * should typically only be non-zero in the last accrual period.
      * @param rateCutOffDays  the new value
      * @return this, for chaining, not null
      */

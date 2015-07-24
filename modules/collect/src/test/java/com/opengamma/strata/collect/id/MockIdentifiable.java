@@ -419,7 +419,7 @@ public final class MockIdentifiable
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code standardId} property in the builder.
+     * Sets the standardId.
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -430,7 +430,7 @@ public final class MockIdentifiable
     }
 
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the name.
      * @param name  the new value
      * @return this, for chaining, not null
      */
@@ -440,7 +440,7 @@ public final class MockIdentifiable
     }
 
     /**
-     * Sets the {@code link} property in the builder.
+     * Sets the link.
      * @param link  the new value
      * @return this, for chaining, not null
      */

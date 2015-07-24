@@ -631,7 +631,7 @@ public final class ImmutableOvernightIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the index name, such as 'GBP-SONIA'.
      * @param name  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -642,7 +642,7 @@ public final class ImmutableOvernightIndex
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency of the index.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -653,7 +653,9 @@ public final class ImmutableOvernightIndex
     }
 
     /**
-     * Sets the {@code fixingCalendar} property in the builder.
+     * Sets the calendar that the index uses.
+     * <p>
+     * All dates are calculated with reference to the same calendar.
      * @param fixingCalendar  the new value, not null
      * @return this, for chaining, not null
      */
@@ -664,7 +666,11 @@ public final class ImmutableOvernightIndex
     }
 
     /**
-     * Sets the {@code publicationDateOffset} property in the builder.
+     * Sets the number of days to add to the fixing date to obtain the publication date.
+     * <p>
+     * In most cases, the fixing rate is available on the fixing date.
+     * In a few cases, publication of the fixing rate is delayed until the following business day.
+     * This property is zero if publication is on the fixing date, or one if it is the next day.
      * @param publicationDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -675,7 +681,12 @@ public final class ImmutableOvernightIndex
     }
 
     /**
-     * Sets the {@code effectiveDateOffset} property in the builder.
+     * Sets the number of days to add to the fixing date to obtain the effective date.
+     * <p>
+     * In most cases, the settlement date and start of the implied deposit is on the fixing date.
+     * In a few cases, the settlement date is the following business day.
+     * This property is zero if settlement is on the fixing date, or one if it is the next day.
+     * Maturity is always one business day after the settlement date.
      * @param effectiveDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -686,7 +697,7 @@ public final class ImmutableOvernightIndex
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
