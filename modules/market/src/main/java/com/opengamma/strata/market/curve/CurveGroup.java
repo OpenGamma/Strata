@@ -409,7 +409,7 @@ public final class CurveGroup implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the name of the curve group.
      * @param name  the new value, not null
      * @return this, for chaining, not null
      */
@@ -420,7 +420,7 @@ public final class CurveGroup implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code discountCurves} property in the builder.
+     * Sets the discount curves in the group, keyed by currency.
      * @param discountCurves  the new value, not null
      * @return this, for chaining, not null
      */
@@ -431,7 +431,7 @@ public final class CurveGroup implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code forwardCurves} property in the builder.
+     * Sets the forward curves in the group, keyed by currency.
      * @param forwardCurves  the new value, not null
      * @return this, for chaining, not null
      */

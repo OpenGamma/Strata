@@ -470,7 +470,9 @@ public final class EquityFutureTrade
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tradeInfo} property in the builder.
+     * Sets the additional trade information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the trade.
      * @param tradeInfo  the new value
      * @return this, for chaining, not null
      */
@@ -480,7 +482,10 @@ public final class EquityFutureTrade
     }
 
     /**
-     * Sets the {@code securityLink} property in the builder.
+     * Sets the link to the future that was traded.
+     * <p>
+     * This property returns a link to the security via a {@link StandardId}.
+     * See {@link #getSecurity()} and {@link SecurityLink} for more details.
      * @param securityLink  the new value, not null
      * @return this, for chaining, not null
      */
@@ -491,7 +496,9 @@ public final class EquityFutureTrade
     }
 
     /**
-     * Sets the {@code quantity} property in the builder.
+     * Sets the quantity, indicating the number of future contracts in the trade.
+     * <p>
+     * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
@@ -501,7 +508,9 @@ public final class EquityFutureTrade
     }
 
     /**
-     * Sets the {@code initialPrice} property in the builder.
+     * Sets the initial price of the future.
+     * <p>
+     * This is the price agreed when the trade occurred.
      * @param initialPrice  the new value
      * @return this, for chaining, not null
      */

@@ -472,7 +472,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -483,7 +483,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code yValueType} property in the builder.
+     * Sets the y-value type.
      * @param yValueType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -494,7 +494,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code interpolator} property in the builder.
+     * Sets the interpolator.
      * @param interpolator  the new value, not null
      * @return this, for chaining, not null
      */
@@ -505,7 +505,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code leftExtrapolator} property in the builder.
+     * Sets the left extrapolator.
      * @param leftExtrapolator  the new value, not null
      * @return this, for chaining, not null
      */
@@ -516,7 +516,7 @@ public final class LoadedCurveSettings implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code rightExtrapolator} property in the builder.
+     * Sets the right extrapolator.
      * @param rightExtrapolator  the new value, not null
      * @return this, for chaining, not null
      */

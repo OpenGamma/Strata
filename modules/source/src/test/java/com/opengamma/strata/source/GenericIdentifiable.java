@@ -397,7 +397,7 @@ public final class GenericIdentifiable<T>
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code standardId} property in the builder.
+     * Sets the standardId.
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -408,7 +408,7 @@ public final class GenericIdentifiable<T>
     }
 
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the name.
      * @param name  the new value
      * @return this, for chaining, not null
      */
@@ -418,7 +418,7 @@ public final class GenericIdentifiable<T>
     }
 
     /**
-     * Sets the {@code data} property in the builder.
+     * Sets the data.
      * @param data  the new value
      * @return this, for chaining, not null
      */

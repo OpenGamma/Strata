@@ -486,7 +486,7 @@ public final class ImmutableFxIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the FX index name.
      * @param name  the new value, not null
      * @return this, for chaining, not null
      */
@@ -497,7 +497,13 @@ public final class ImmutableFxIndex
     }
 
     /**
-     * Sets the {@code currencyPair} property in the builder.
+     * Sets the currency pair.
+     * <p>
+     * An index defines an FX rate in a single direction, such as from EUR to USD.
+     * This currency pair defines that direction.
+     * <p>
+     * In most cases, the same index can be used to convert in both directions
+     * by taking the rate or the reciprocal as necessary.
      * @param currencyPair  the new value, not null
      * @return this, for chaining, not null
      */
@@ -508,7 +514,9 @@ public final class ImmutableFxIndex
     }
 
     /**
-     * Sets the {@code fixingCalendar} property in the builder.
+     * Sets the calendar that determines which dates are fixing dates.
+     * <p>
+     * The fixing date is when the rate is determined.
      * @param fixingCalendar  the new value, not null
      * @return this, for chaining, not null
      */
@@ -519,7 +527,10 @@ public final class ImmutableFxIndex
     }
 
     /**
-     * Sets the {@code maturityDateOffset} property in the builder.
+     * Sets the adjustment applied to the fixing date to obtain the maturity date.
+     * <p>
+     * The maturity date is the start date of the indexed deposit.
+     * In most cases, the maturity date is 2 days after the fixing date.
      * @param maturityDateOffset  the new value, not null
      * @return this, for chaining, not null
      */

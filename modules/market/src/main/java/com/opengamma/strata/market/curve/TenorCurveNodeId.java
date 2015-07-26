@@ -305,7 +305,7 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tenor} property in the builder.
+     * Sets the tenor of the curve node.
      * @param tenor  the new value, not null
      * @return this, for chaining, not null
      */

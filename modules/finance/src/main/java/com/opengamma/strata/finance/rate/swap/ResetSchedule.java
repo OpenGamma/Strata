@@ -460,7 +460,15 @@ public final class ResetSchedule
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code resetFrequency} property in the builder.
+     * Sets the periodic frequency of reset dates.
+     * <p>
+     * Reset dates will be calculated within each accrual period based on unadjusted dates.
+     * The frequency must be the same as, or smaller than, the accrual periodic frequency.
+     * When calculating the reset dates, the roll convention of the accrual periods will be used.
+     * Once the unadjusted date calculation is complete, the business day adjustment specified
+     * here will be used.
+     * <p>
+     * Averaging applies if the reset frequency does not equal the accrual frequency.
      * @param resetFrequency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -471,7 +479,9 @@ public final class ResetSchedule
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to each reset date.
+     * <p>
+     * This adjustment is applied to each reset date to ensure it is a valid business day.
      * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -482,7 +492,14 @@ public final class ResetSchedule
     }
 
     /**
-     * Sets the {@code averagingMethod} property in the builder.
+     * Sets the rate averaging method, defaulted to 'Unweighted'.
+     * <p>
+     * This is used when more than one fixing contributes to the accrual period.
+     * <p>
+     * Averaging may be weighted by the number of days that the fixing is applicable for.
+     * The number of days is based on the reset period, not the period between two fixing dates.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.2a.
      * @param averagingMethod  the new value, not null
      * @return this, for chaining, not null
      */

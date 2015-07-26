@@ -678,7 +678,10 @@ public final class FxVanillaOption
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code putCall} property in the builder.
+     * Sets whether the option is put or call.
+     * <p>
+     * A call gives the owner the right, but not obligation, to exercise the underlying foreign exchange.
+     * A put gives a similar option to exercise the inverse of the underlying.
      * @param putCall  the new value, not null
      * @return this, for chaining, not null
      */
@@ -689,7 +692,10 @@ public final class FxVanillaOption
     }
 
     /**
-     * Sets the {@code longShort} property in the builder.
+     * Sets whether the option is long or short.
+     * <p>
+     * Long indicates that the owner wants the option to be in the money at expiry.
+     * Short indicates that the owner wants the option to be out of the money at expiry.
      * @param longShort  the new value, not null
      * @return this, for chaining, not null
      */
@@ -700,7 +706,9 @@ public final class FxVanillaOption
     }
 
     /**
-     * Sets the {@code expiryDate} property in the builder.
+     * Sets the expiry date of the option.
+     * <p>
+     * The option is European, and can only be exercised on the expiry date.
      * @param expiryDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -711,7 +719,9 @@ public final class FxVanillaOption
     }
 
     /**
-     * Sets the {@code expiryTime} property in the builder.
+     * Sets the expiry time of the option.
+     * <p>
+     * The expiry time is related to the expiry date and time-zone.
      * @param expiryTime  the new value, not null
      * @return this, for chaining, not null
      */
@@ -722,7 +732,9 @@ public final class FxVanillaOption
     }
 
     /**
-     * Sets the {@code expiryZone} property in the builder.
+     * Sets the time-zone of the expiry time.
+     * <p>
+     * The expiry time-zone is related to the expiry date and time.
      * @param expiryZone  the new value, not null
      * @return this, for chaining, not null
      */
@@ -733,7 +745,11 @@ public final class FxVanillaOption
     }
 
     /**
-     * Sets the {@code underlying} property in the builder.
+     * Sets the underlying foreign exchange transaction.
+     * <p>
+     * At expiry, if the option is in the money, this foreign exchange will occur.
+     * A call option permits the transaction as specified to occur.
+     * A put option permits the inverse transaction to occur.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
@@ -744,7 +760,9 @@ public final class FxVanillaOption
     }
 
     /**
-     * Sets the {@code strike} property in the builder.
+     * Sets the strike of the option.
+     * <p>
+     * The moneyness of the option is determined based on this strike.
      * @param strike  the new value, not null
      * @return this, for chaining, not null
      */

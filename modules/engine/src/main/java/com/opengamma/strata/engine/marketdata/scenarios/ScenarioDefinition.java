@@ -831,7 +831,7 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code mappings} property in the builder.
+     * Sets the market data filters and perturbations that define the scenarios.
      * @param mappings  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -842,7 +842,17 @@ public final class ScenarioDefinition implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code scenarioNames} property in the builder.
+     * Sets the {@code mappings} property in the builder
+     * from an array of objects.
+     * @param mappings  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder mappings(PerturbationMapping<?>... mappings) {
+      return mappings(ImmutableList.copyOf(mappings));
+    }
+
+    /**
+     * Sets the names of the scenarios.
      * @param scenarioNames  the new value, not null
      * @return this, for chaining, not null
      */

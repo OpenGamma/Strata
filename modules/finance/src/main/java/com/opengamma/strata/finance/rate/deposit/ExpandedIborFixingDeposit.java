@@ -647,7 +647,11 @@ public final class ExpandedIborFixingDeposit
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency.
+     * <p>
+     * This is the currency of the deposit and the currency that payment is made in.
+     * The data model permits this currency to differ from that of the index,
+     * however the two are typically the same.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -658,7 +662,12 @@ public final class ExpandedIborFixingDeposit
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount.
+     * <p>
+     * The amount that is deposited. It is a positive signed amount if the deposit is 'Buy',
+     * and a negative signed amount if the deposit is 'Sell'.
+     * <p>
+     * The currency of the notional is specified by {@code currency}.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -668,7 +677,11 @@ public final class ExpandedIborFixingDeposit
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date of the deposit.
+     * <p>
+     * This is the first date that interest accrues.
+     * <p>
+     * This is an adjusted date, which should be a valid business day
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -679,7 +692,12 @@ public final class ExpandedIborFixingDeposit
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date of the deposit.
+     * <p>
+     * This is the last day that interest accrues.
+     * This date must be after the start date.
+     * <p>
+     * This is an adjusted date, which should be a valid business day
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -690,7 +708,11 @@ public final class ExpandedIborFixingDeposit
     }
 
     /**
-     * Sets the {@code yearFraction} property in the builder.
+     * Sets the year fraction between the start and end date.
+     * <p>
+     * The value is usually calculated using a {@link DayCount}.
+     * Typically the value will be close to 1 for one year and close to 0.5 for six months.
+     * The fraction may be greater than 1, but not less than 0.
      * @param yearFraction  the new value
      * @return this, for chaining, not null
      */
@@ -701,7 +723,8 @@ public final class ExpandedIborFixingDeposit
     }
 
     /**
-     * Sets the {@code fixedRate} property in the builder.
+     * Sets the fixed rate of interest.
+     * A 5% rate will be expressed as 0.05.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
@@ -711,7 +734,10 @@ public final class ExpandedIborFixingDeposit
     }
 
     /**
-     * Sets the {@code floatingRate} property in the builder.
+     * Sets the floating rate of interest.
+     * <p>
+     * The floating rate to be paid is based on this index.
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
      * @param floatingRate  the new value, not null
      * @return this, for chaining, not null
      */

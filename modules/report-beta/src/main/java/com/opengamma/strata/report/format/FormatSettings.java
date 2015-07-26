@@ -346,7 +346,7 @@ public class FormatSettings implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code category} property in the builder.
+     * Sets the category of this type.
      * @param category  the new value, not null
      * @return this, for chaining, not null
      */
@@ -357,7 +357,7 @@ public class FormatSettings implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code formatter} property in the builder.
+     * Sets the formatter to use to convert this type into a string.
      * @param formatter  the new value
      * @return this, for chaining, not null
      */

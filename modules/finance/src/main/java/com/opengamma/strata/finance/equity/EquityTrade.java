@@ -471,7 +471,9 @@ public final class EquityTrade
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tradeInfo} property in the builder.
+     * Sets the additional trade information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the trade.
      * @param tradeInfo  the new value
      * @return this, for chaining, not null
      */
@@ -481,7 +483,10 @@ public final class EquityTrade
     }
 
     /**
-     * Sets the {@code securityLink} property in the builder.
+     * Sets the link to the equity that was traded.
+     * <p>
+     * This property returns a link to the security via a {@link StandardId}.
+     * See {@link #getSecurity()} and {@link SecurityLink} for more details.
      * @param securityLink  the new value, not null
      * @return this, for chaining, not null
      */
@@ -492,7 +497,9 @@ public final class EquityTrade
     }
 
     /**
-     * Sets the {@code quantity} property in the builder.
+     * Sets the quantity of the equity that has been traded.
+     * <p>
+     * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
@@ -502,7 +509,9 @@ public final class EquityTrade
     }
 
     /**
-     * Sets the {@code premium} property in the builder.
+     * Sets the premium paid for the trade.
+     * <p>
+     * The premium may be negative if money was received rather than paid.
      * @param premium  the new value
      * @return this, for chaining, not null
      */

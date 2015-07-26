@@ -719,7 +719,10 @@ public final class InterpolatedNodalCurve
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code metadata} property in the builder.
+     * Sets the curve metadata.
+     * <p>
+     * The metadata includes an optional list of parameter metadata.
+     * If present, the size of the parameter metadata list will match the number of parameters of this curve.
      * @param metadata  the new value, not null
      * @return this, for chaining, not null
      */
@@ -730,7 +733,9 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * Sets the {@code xValues} property in the builder.
+     * Sets the array of x-values, one for each point.
+     * <p>
+     * This array will contains at least two elements and be of the same length as y-values.
      * @param xValues  the new value, not null
      * @return this, for chaining, not null
      */
@@ -741,7 +746,9 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * Sets the {@code yValues} property in the builder.
+     * Sets the array of y-values, one for each point.
+     * <p>
+     * This array will contains at least two elements and be of the same length as x-values.
      * @param yValues  the new value, not null
      * @return this, for chaining, not null
      */
@@ -752,7 +759,8 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * Sets the {@code extrapolatorLeft} property in the builder.
+     * Sets the extrapolator for x-values on the left, defaulted to 'Flat".
+     * This is used for x-values smaller than the smallest known x-value.
      * @param extrapolatorLeft  the new value, not null
      * @return this, for chaining, not null
      */
@@ -763,7 +771,8 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * Sets the {@code interpolator} property in the builder.
+     * Sets the interpolator.
+     * This is used for x-values between the smallest and largest known x-value.
      * @param interpolator  the new value, not null
      * @return this, for chaining, not null
      */
@@ -774,7 +783,8 @@ public final class InterpolatedNodalCurve
     }
 
     /**
-     * Sets the {@code extrapolatorRight} property in the builder.
+     * Sets the extrapolator for x-values on the right, defaulted to 'Flat".
+     * This is used for x-values larger than the largest known x-value.
      * @param extrapolatorRight  the new value, not null
      * @return this, for chaining, not null
      */

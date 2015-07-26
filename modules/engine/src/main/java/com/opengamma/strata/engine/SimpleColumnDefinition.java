@@ -341,7 +341,7 @@ final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code measure} property in the builder.
+     * Sets the measure displayed in the column.
      * @param measure  the new value, not null
      * @return this, for chaining, not null
      */
@@ -352,7 +352,7 @@ final class SimpleColumnDefinition implements ColumnDefinition, ImmutableBean {
     }
 
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the column name.
      * @param name  the new value, not null
      * @return this, for chaining, not null
      */

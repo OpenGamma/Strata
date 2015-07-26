@@ -561,7 +561,10 @@ public final class IborIborSwapConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code spreadLeg} property in the builder.
+     * Sets the market convention of the floating leg that has the spread applied.
+     * <p>
+     * The spread is the market price of the instrument.
+     * It is added to the observed interest rate.
      * @param spreadLeg  the new value, not null
      * @return this, for chaining, not null
      */
@@ -572,7 +575,7 @@ public final class IborIborSwapConvention
     }
 
     /**
-     * Sets the {@code flatLeg} property in the builder.
+     * Sets the market convention of the floating leg that does not have the spread applied.
      * @param flatLeg  the new value, not null
      * @return this, for chaining, not null
      */
@@ -583,7 +586,10 @@ public final class IborIborSwapConvention
     }
 
     /**
-     * Sets the {@code spotDateOffset} property in the builder.
+     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the trade date and is typically plus 2 business days.
+     * The start date of the swap is relative to the spot date.
      * @param spotDateOffset  the new value
      * @return this, for chaining, not null
      */

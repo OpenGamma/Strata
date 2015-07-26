@@ -529,7 +529,10 @@ public final class UnitSecurity<P extends Product>
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code standardId} property in the builder.
+     * Sets the primary standard identifier for the security.
+     * <p>
+     * The standard identifier is used to identify the security.
+     * It will typically be an identifier in an external data system.
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -540,7 +543,10 @@ public final class UnitSecurity<P extends Product>
     }
 
     /**
-     * Sets the {@code attributes} property in the builder.
+     * Sets the extensible set of attributes.
+     * <p>
+     * Most data is available as bean properties.
+     * Attributes are used to tag the object with additional information.
      * @param attributes  the new value, not null
      * @return this, for chaining, not null
      */
@@ -551,7 +557,7 @@ public final class UnitSecurity<P extends Product>
     }
 
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the name of the security, defaulted to an empty string.
      * @param name  the new value, not null
      * @return this, for chaining, not null
      */
@@ -562,7 +568,10 @@ public final class UnitSecurity<P extends Product>
     }
 
     /**
-     * Sets the {@code product} property in the builder.
+     * Sets the product that was agreed when the trade occurred.
+     * <p>
+     * All trades essentially refer to some kind of product.
+     * The product captures the financial details of the security contract.
      * @param product  the new value, not null
      * @return this, for chaining, not null
      */

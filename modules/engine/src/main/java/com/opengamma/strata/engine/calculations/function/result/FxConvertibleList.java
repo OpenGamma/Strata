@@ -338,7 +338,7 @@ public final class FxConvertibleList
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code values} property in the builder.
+     * Sets the currency values.
      * @param values  the new value, not null
      * @return this, for chaining, not null
      */
@@ -346,6 +346,16 @@ public final class FxConvertibleList
       JodaBeanUtils.notNull(values, "values");
       this.values = values;
       return this;
+    }
+
+    /**
+     * Sets the {@code values} property in the builder
+     * from an array of objects.
+     * @param values  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder values(FxConvertible<?>... values) {
+      return values(ImmutableList.copyOf(values));
     }
 
     //-----------------------------------------------------------------------

@@ -398,7 +398,17 @@ public final class Search
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code categorisingType} property in the builder.
+     * Sets type that specifies to search for instances that are the
+     * same type or subclasses of the specified type.
+     * <p>
+     * If the specified type is an interface then ideally
+     * the interface should be annotated with
+     * {@link ClassifyingType}. This will result in better
+     * performance. Note that if the specified type is too broad,
+     * the search may be slow.
+     * <p>
+     * Note that a default value of {@code Object.class} is used,
+     * but this will be ignored when the search is actually executed.
      * @param categorisingType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -409,7 +419,10 @@ public final class Search
     }
 
     /**
-     * Sets the {@code attributes} property in the builder.
+     * Sets specifies attributes to be searched for. All attributes
+     * must match exactly for an object to be matched. Note that
+     * attributes that have been indexed will likely perform much
+     * better than those that have not.
      * @param attributes  the new value, not null
      * @return this, for chaining, not null
      */

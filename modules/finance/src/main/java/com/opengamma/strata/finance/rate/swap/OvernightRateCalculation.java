@@ -785,7 +785,11 @@ public final class OvernightRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable.
+     * <p>
+     * This is used to convert dates to a numerical value.
+     * <p>
+     * When building, this will default to the day count of the index if not specified.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -796,7 +800,10 @@ public final class OvernightRateCalculation
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the Overnight index.
+     * <p>
+     * The rate to be paid is based on this index
+     * It will be a well known market index such as 'GBP-SONIA'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -807,7 +814,10 @@ public final class OvernightRateCalculation
     }
 
     /**
-     * Sets the {@code accrualMethod} property in the builder.
+     * Sets the method of accruing overnight interest, defaulted to 'Compounded'.
+     * <p>
+     * Two methods of accrual are supported - compounding and averaging.
+     * Averaging is primarily related to the 'USD-FED-FUND' index.
      * @param accrualMethod  the new value, not null
      * @return this, for chaining, not null
      */
@@ -818,7 +828,12 @@ public final class OvernightRateCalculation
     }
 
     /**
-     * Sets the {@code negativeRateMethod} property in the builder.
+     * Sets the negative rate method, defaulted to 'AllowNegative'.
+     * <p>
+     * This is used when the interest rate, observed or calculated, goes negative.
+     * It does not apply if the rate is fixed, such as in a stub or using {@code firstRegularRate}.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.4.
      * @param negativeRateMethod  the new value, not null
      * @return this, for chaining, not null
      */
@@ -829,7 +844,21 @@ public final class OvernightRateCalculation
     }
 
     /**
-     * Sets the {@code rateCutOffDays} property in the builder.
+     * Sets the number of business days before the end of the period that the rate is cut off, defaulted to zero.
+     * <p>
+     * When a rate cut-off applies, the final daily rate is determined this number of days
+     * before the end of the period, with any subsequent days having the same rate.
+     * <p>
+     * The amount must be zero or positive.
+     * A value of zero or one will have no effect on the standard calculation.
+     * The fixing holiday calendar of the index is used to determine business days.
+     * <p>
+     * For example, a value of {@code 3} means that the rate observed on
+     * {@code (periodEndDate - 3 business days)} is also to be used on
+     * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
+     * <p>
+     * If there are multiple accrual periods in the payment period, then this
+     * will only apply to the last accrual period in the payment period.
      * @param rateCutOffDays  the new value
      * @return this, for chaining, not null
      */
@@ -840,7 +869,18 @@ public final class OvernightRateCalculation
     }
 
     /**
-     * Sets the {@code gearing} property in the builder.
+     * Sets the gearing multiplier, optional.
+     * <p>
+     * This defines the gearing as an initial value and a list of adjustments.
+     * The gearing is only permitted to change at accrual period boundaries.
+     * <p>
+     * When calculating the rate, the fixing rate is multiplied by the gearing.
+     * A gearing of 1 has no effect.
+     * If both gearing and spread exist, then the gearing is applied first.
+     * <p>
+     * If this property is not present, then no gearing applies.
+     * <p>
+     * Gearing is also known as <i>leverage</i>.
      * @param gearing  the new value
      * @return this, for chaining, not null
      */
@@ -850,7 +890,20 @@ public final class OvernightRateCalculation
     }
 
     /**
-     * Sets the {@code spread} property in the builder.
+     * Sets the spread rate, optional.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * This defines the spread as an initial value and a list of adjustments.
+     * The spread is only permitted to change at accrual period boundaries.
+     * Spread is a per annum rate.
+     * <p>
+     * When calculating the rate, the spread is added to the fixing rate.
+     * A spread of 0 has no effect.
+     * If both gearing and spread exist, then the gearing is applied first.
+     * <p>
+     * If this property is not present, then no spread applies.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.2e.
      * @param spread  the new value
      * @return this, for chaining, not null
      */

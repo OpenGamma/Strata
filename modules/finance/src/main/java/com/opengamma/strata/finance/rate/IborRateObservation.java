@@ -375,7 +375,10 @@ public final class IborRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the IBOR-like index.
+     * <p>
+     * The rate to be paid is based on this index.
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -386,7 +389,10 @@ public final class IborRateObservation
     }
 
     /**
-     * Sets the {@code fixingDate} property in the builder.
+     * Sets the date of the index fixing.
+     * <p>
+     * This is an adjusted date with any business day applied.
+     * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
      * @param fixingDate  the new value, not null
      * @return this, for chaining, not null
      */

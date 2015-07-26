@@ -501,7 +501,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code marketDataType} property in the builder.
+     * Sets the type of market data handled by this mapping.
      * @param marketDataType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -512,7 +512,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code filter} property in the builder.
+     * Sets the filter that decides whether the perturbations should be applied to a piece of market data.
      * @param filter  the new value, not null
      * @return this, for chaining, not null
      */
@@ -523,7 +523,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code perturbations} property in the builder.
+     * Sets perturbations that should be applied to market data over multiple calculation cycles as part of a scenario.
      * @param perturbations  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -531,6 +531,16 @@ public final class PerturbationMapping<T> implements ImmutableBean {
       JodaBeanUtils.notEmpty(perturbations, "perturbations");
       this.perturbations = perturbations;
       return this;
+    }
+
+    /**
+     * Sets the {@code perturbations} property in the builder
+     * from an array of objects.
+     * @param perturbations  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder<T> perturbations(Perturbation<T>... perturbations) {
+      return perturbations(ImmutableList.copyOf(perturbations));
     }
 
     //-----------------------------------------------------------------------

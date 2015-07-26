@@ -705,7 +705,10 @@ public final class TermDeposit
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code buySell} property in the builder.
+     * Sets whether the term deposit is 'Buy' or 'Sell'.
+     * <p>
+     * A value of 'Buy' implies payment of the principal at the start date and receipt of the
+     * principal plus interest at the end date. A value of 'Sell' implies the opposite.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */
@@ -716,7 +719,9 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency.
+     * <p>
+     * This is the currency of the term deposit and the currency that payment is made in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -727,7 +732,10 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount.
+     * <p>
+     * The notional represents the principal amount, and must be non-negative.
+     * The currency of the notional is specified by {@code currency}.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -738,7 +746,11 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date of the deposit.
+     * <p>
+     * Interest accrues from this date.
+     * This date is typically set to be a valid business day.
+     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -749,7 +761,12 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date of the deposit.
+     * <p>
+     * Interest accrues until this date.
+     * This date is typically set to be a valid business day.
+     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
+     * This date must be after the start date.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -760,7 +777,11 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end date, optional.
+     * <p>
+     * The start and end date are typically defined as valid business days and thus
+     * do not need to be adjusted. If this optional property is present, then the
+     * start and end date will be adjusted as defined here.
      * @param businessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -770,7 +791,9 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention.
+     * <p>
+     * This is used to convert dates to a numerical value.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -781,7 +804,8 @@ public final class TermDeposit
     }
 
     /**
-     * Sets the {@code rate} property in the builder.
+     * Sets the fixed interest rate to be paid.
+     * A 5% rate will be expressed as 0.05.
      * @param rate  the new value
      * @return this, for chaining, not null
      */

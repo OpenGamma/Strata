@@ -392,7 +392,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveGroupName} property in the builder.
+     * Sets the name of the curve group containing the curve.
      * @param curveGroupName  the new value, not null
      * @return this, for chaining, not null
      */
@@ -403,7 +403,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
     }
 
     /**
-     * Sets the {@code curveName} property in the builder.
+     * Sets the name of the curve.
      * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */
@@ -414,7 +414,7 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
     }
 
     /**
-     * Sets the {@code marketDataFeed} property in the builder.
+     * Sets the market data feed providing the market quotes.
      * @param marketDataFeed  the new value, not null
      * @return this, for chaining, not null
      */

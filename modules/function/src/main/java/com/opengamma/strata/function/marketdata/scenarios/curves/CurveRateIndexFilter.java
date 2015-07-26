@@ -304,7 +304,7 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the curve index.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */

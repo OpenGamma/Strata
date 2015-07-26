@@ -675,7 +675,7 @@ public final class ImmutableIborIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the index name, such as 'GBP-LIBOR-3M'.
      * @param name  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -686,7 +686,7 @@ public final class ImmutableIborIndex
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency of the index.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -697,7 +697,9 @@ public final class ImmutableIborIndex
     }
 
     /**
-     * Sets the {@code fixingCalendar} property in the builder.
+     * Sets the calendar that determines which dates are fixing dates.
+     * <p>
+     * The fixing date is when the rate is determined.
      * @param fixingCalendar  the new value, not null
      * @return this, for chaining, not null
      */
@@ -708,7 +710,11 @@ public final class ImmutableIborIndex
     }
 
     /**
-     * Sets the {@code fixingDateOffset} property in the builder.
+     * Sets the adjustment applied to the effective date to obtain the fixing date.
+     * <p>
+     * The fixing date is the date on which the index is to be observed.
+     * In most cases, the fixing date is 0 or 2 days before the effective date.
+     * This data structure allows the complex rules of some indices to be represented.
      * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -719,7 +725,11 @@ public final class ImmutableIborIndex
     }
 
     /**
-     * Sets the {@code effectiveDateOffset} property in the builder.
+     * Sets the adjustment applied to the fixing date to obtain the effective date.
+     * <p>
+     * The effective date is the start date of the indexed deposit.
+     * In most cases, the effective date is 0 or 2 days after the fixing date.
+     * This data structure allows the complex rules of some indices to be represented.
      * @param effectiveDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -730,7 +740,10 @@ public final class ImmutableIborIndex
     }
 
     /**
-     * Sets the {@code maturityDateOffset} property in the builder.
+     * Sets the adjustment applied to the effective date to obtain the maturity date.
+     * <p>
+     * The maturity date is the end date of the indexed deposit and is relative to the effective date.
+     * This data structure allows the complex rules of some indices to be represented.
      * @param maturityDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -741,7 +754,7 @@ public final class ImmutableIborIndex
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */

@@ -472,7 +472,10 @@ public final class FixedIborSwapTemplate
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code periodToStart} property in the builder.
+     * Sets the period between the spot value date and the start date.
+     * <p>
+     * This is often zero, but can be greater if the swap if <i>forward starting</i>.
+     * This must not be negative.
      * @param periodToStart  the new value, not null
      * @return this, for chaining, not null
      */
@@ -483,7 +486,9 @@ public final class FixedIborSwapTemplate
     }
 
     /**
-     * Sets the {@code tenor} property in the builder.
+     * Sets the tenor of the swap.
+     * <p>
+     * This is the period from the first accrual date to the last accrual date.
      * @param tenor  the new value, not null
      * @return this, for chaining, not null
      */
@@ -494,7 +499,7 @@ public final class FixedIborSwapTemplate
     }
 
     /**
-     * Sets the {@code convention} property in the builder.
+     * Sets the market convention of the swap.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */

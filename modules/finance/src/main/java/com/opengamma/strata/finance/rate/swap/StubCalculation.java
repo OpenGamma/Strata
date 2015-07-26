@@ -544,7 +544,14 @@ public final class StubCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code fixedRate} property in the builder.
+     * Sets the fixed rate to use in the stub.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * In certain circumstances two counterparties agree a fixed rate for the stub.
+     * It is used in place of an observed fixing.
+     * Other calculation elements, such as gearing or spread, still apply.
+     * <p>
+     * If the fixed rate is present, then {@code index} and {@code indexInterpolated} must not be present.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
@@ -554,7 +561,11 @@ public final class StubCalculation
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the IBOR-like index to be used for the stub.
+     * <p>
+     * This will be used throughout the stub unless {@code indexInterpolated} is present.
+     * <p>
+     * If the index is present, then {@code rate} must not be present.
      * @param index  the new value
      * @return this, for chaining, not null
      */
@@ -564,7 +575,13 @@ public final class StubCalculation
     }
 
     /**
-     * Sets the {@code indexInterpolated} property in the builder.
+     * Sets the second IBOR-like index to be used for the stub, linearly interpolated.
+     * <p>
+     * This will be used with {@code index} to linearly interpolate the rate.
+     * This index may be shorter or longer than {@code index}, but not the same.
+     * <p>
+     * If the interpolated index is present, then {@code index} must also be present
+     * and {@code rate} must not be present.
      * @param indexInterpolated  the new value
      * @return this, for chaining, not null
      */

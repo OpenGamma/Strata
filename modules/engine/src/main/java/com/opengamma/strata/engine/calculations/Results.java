@@ -445,7 +445,7 @@ public final class Results implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rowCount} property in the builder.
+     * Sets the number of rows in the results.
      * @param rowCount  the new value
      * @return this, for chaining, not null
      */
@@ -455,7 +455,7 @@ public final class Results implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code columnCount} property in the builder.
+     * Sets the number of columns in the results.
      * @param columnCount  the new value
      * @return this, for chaining, not null
      */
@@ -465,7 +465,13 @@ public final class Results implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code items} property in the builder.
+     * Sets the results, with results for each target grouped together, ordered by column.
+     * <p>
+     * For example, given a set of results with two target, t1 and t2, and two columns c1 and c2, the
+     * results will be:
+     * <pre>
+     * [t1c1, t1c2, t2c1, t2c2]
+     * </pre>
      * @param items  the new value, not null
      * @return this, for chaining, not null
      */
@@ -473,6 +479,16 @@ public final class Results implements ImmutableBean {
       JodaBeanUtils.notNull(items, "items");
       this.items = items;
       return this;
+    }
+
+    /**
+     * Sets the {@code items} property in the builder
+     * from an array of objects.
+     * @param items  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder items(Result<?>... items) {
+      return items(ImmutableList.copyOf(items));
     }
 
     //-----------------------------------------------------------------------

@@ -375,7 +375,7 @@ public final class TesterIdentifiable
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code standardId} property in the builder.
+     * Sets the standardId.
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -386,7 +386,7 @@ public final class TesterIdentifiable
     }
 
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the name.
      * @param name  the new value
      * @return this, for chaining, not null
      */
@@ -396,7 +396,7 @@ public final class TesterIdentifiable
     }
 
     /**
-     * Sets the {@code widgetCount} property in the builder.
+     * Sets the widgetCount.
      * @param widgetCount  the new value
      * @return this, for chaining, not null
      */

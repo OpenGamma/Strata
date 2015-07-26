@@ -597,7 +597,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code target} property in the builder.
+     * Sets the target for which the value will be calculated.
      * @param target  the new value, not null
      * @return this, for chaining, not null
      */
@@ -608,7 +608,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code rowIndex} property in the builder.
+     * Sets the row index of the value in the results grid.
      * @param rowIndex  the new value
      * @return this, for chaining, not null
      */
@@ -618,7 +618,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code columnIndex} property in the builder.
+     * Sets the column index of the value in the results grid.
      * @param columnIndex  the new value
      * @return this, for chaining, not null
      */
@@ -628,7 +628,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code functionConfig} property in the builder.
+     * Sets configuration of the function that will calculate the value.
      * @param functionConfig  the new value, not null
      * @return this, for chaining, not null
      */
@@ -639,7 +639,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code functionArguments} property in the builder.
+     * Sets the constructor arguments from the pricing rules, used when creating the function instance.
      * @param functionArguments  the new value, not null
      * @return this, for chaining, not null
      */
@@ -650,7 +650,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code marketDataMappings} property in the builder.
+     * Sets mappings that specify the market data that should be used in the calculation.
      * @param marketDataMappings  the new value, not null
      * @return this, for chaining, not null
      */
@@ -661,7 +661,7 @@ public final class CalculationTaskConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code reportingRules} property in the builder.
+     * Sets the rules for reporting the calculated values.
      * @param reportingRules  the new value, not null
      * @return this, for chaining, not null
      */

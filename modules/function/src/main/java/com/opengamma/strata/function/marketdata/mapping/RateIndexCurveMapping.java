@@ -356,7 +356,7 @@ public final class RateIndexCurveMapping
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveGroupName} property in the builder.
+     * Sets the name of the curve group from which the curve should be taken.
      * @param curveGroupName  the new value, not null
      * @return this, for chaining, not null
      */
@@ -367,7 +367,7 @@ public final class RateIndexCurveMapping
     }
 
     /**
-     * Sets the {@code marketDataFeed} property in the builder.
+     * Sets the market data feed used to source any quotes used to build the curve.
      * @param marketDataFeed  the new value, not null
      * @return this, for chaining, not null
      */

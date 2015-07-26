@@ -334,7 +334,9 @@ public final class DefaultPricingRules implements PricingRules, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rules} property in the builder.
+     * Sets the individual rules that make up this set of pricing rules.
+     * <p>
+     * The rules are checked in order and the first matching rule is used.
      * @param rules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -342,6 +344,16 @@ public final class DefaultPricingRules implements PricingRules, ImmutableBean {
       JodaBeanUtils.notNull(rules, "rules");
       this.rules = rules;
       return this;
+    }
+
+    /**
+     * Sets the {@code rules} property in the builder
+     * from an array of objects.
+     * @param rules  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rules(PricingRule<?>... rules) {
+      return rules(ImmutableList.copyOf(rules));
     }
 
     //-----------------------------------------------------------------------

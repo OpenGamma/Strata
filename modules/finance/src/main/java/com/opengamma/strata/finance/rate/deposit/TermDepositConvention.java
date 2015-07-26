@@ -582,7 +582,9 @@ public final class TermDepositConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency.
+     * <p>
+     * This is the currency of the term deposit and the currency that payment is made in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -593,7 +595,9 @@ public final class TermDepositConvention
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end date.
+     * <p>
+     * The start and end date will be adjusted as defined here.
      * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -604,7 +608,9 @@ public final class TermDepositConvention
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention.
+     * <p>
+     * This is used to convert dates to a numerical value.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -615,7 +621,11 @@ public final class TermDepositConvention
     }
 
     /**
-     * Sets the {@code spotDateOffset} property in the builder.
+     * Sets the offset of the spot value date from the trade date.
+     * <p>
+     * The offset is applied to the trade date and is typically plus 2 business days.
+     * The start date of the term deposit is equal to the spot date
+     * and the end date of the term deposit is relative to the start date.
      * @param spotDateOffset  the new value, not null
      * @return this, for chaining, not null
      */

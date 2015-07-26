@@ -557,7 +557,7 @@ public final class DefaultCurveMetadata
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveName} property in the builder.
+     * Sets the curve name.
      * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */
@@ -568,7 +568,12 @@ public final class DefaultCurveMetadata
     }
 
     /**
-     * Sets the {@code xValueType} property in the builder.
+     * Sets the x-value type, providing meaning to the x-values of the curve.
+     * <p>
+     * This type provides meaning to the x-values. For example, the x-value might
+     * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+     * <p>
+     * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
      * @param xValueType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -579,7 +584,12 @@ public final class DefaultCurveMetadata
     }
 
     /**
-     * Sets the {@code yValueType} property in the builder.
+     * Sets the y-value type, providing meaning to the y-values of the curve.
+     * <p>
+     * This type provides meaning to the y-values. For example, the y-value might
+     * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+     * <p>
+     * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
      * @param yValueType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -590,7 +600,10 @@ public final class DefaultCurveMetadata
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count, optional.
+     * <p>
+     * If the x-value of the curve represents time as a year fraction, the day count
+     * can be specified to define how the year fraction is calculated.
      * @param dayCount  the new value
      * @return this, for chaining, not null
      */
@@ -600,7 +613,9 @@ public final class DefaultCurveMetadata
     }
 
     /**
-     * Sets the {@code parameterMetadata} property in the builder.
+     * Sets the metadata about the parameters.
+     * <p>
+     * If present, the parameter metadata will match the number of parameters on the curve.
      * @param parameterMetadata  the new value
      * @return this, for chaining, not null
      */
