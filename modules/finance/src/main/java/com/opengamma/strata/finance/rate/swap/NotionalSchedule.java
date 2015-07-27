@@ -802,7 +802,13 @@ public final class NotionalSchedule
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency of the swap leg associated with the notional.
+     * <p>
+     * This is the currency of the swap leg and the currency that interest calculation is made in.
+     * <p>
+     * The amounts of the notional are usually expressed in terms of this currency,
+     * however they can be converted from amounts in a different currency.
+     * See the optional {@code fxReset} property.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -813,7 +819,16 @@ public final class NotionalSchedule
     }
 
     /**
-     * Sets the {@code fxReset} property in the builder.
+     * Sets the FX reset definition, optional.
+     * <p>
+     * This property is used when the defined amount of the notional is specified in
+     * a currency other than the currency of the swap leg. When this occurs, the notional
+     * amount has to be converted using an FX rate to the swap leg currency. This conversion
+     * occurs at each payment period boundary and usually corresponds to an actual
+     * exchange of money between the counterparties.
+     * <p>
+     * When building the notional schedule, if an {@code FxResetCalculation} is present,
+     * then the notional exchange flags will be set to true.
      * @param fxReset  the new value
      * @return this, for chaining, not null
      */
@@ -823,7 +838,13 @@ public final class NotionalSchedule
     }
 
     /**
-     * Sets the {@code amount} property in the builder.
+     * Sets the notional amount.
+     * <p>
+     * This defines the notional as an initial amount and a list of adjustments.
+     * The notional expressed here is intended to always be positive.
+     * <p>
+     * The notional is only allowed to change at payment period boundaries.
+     * As such, the {@code ValueSchedule} steps are defined relative to the payment schedule.
      * @param amount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -834,7 +855,10 @@ public final class NotionalSchedule
     }
 
     /**
-     * Sets the {@code initialExchange} property in the builder.
+     * Sets the flag indicating whether to exchange the initial notional.
+     * <p>
+     * Setting this to true indicates that the notional is transferred at the start of the trade.
+     * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
      * @param initialExchange  the new value
      * @return this, for chaining, not null
      */
@@ -844,7 +868,10 @@ public final class NotionalSchedule
     }
 
     /**
-     * Sets the {@code intermediateExchange} property in the builder.
+     * Sets the flag indicating whether to exchange the differences in the notional during the lifetime of the swap.
+     * <p>
+     * Setting this to true indicates that the notional is transferred when it changes during the trade.
+     * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
      * @param intermediateExchange  the new value
      * @return this, for chaining, not null
      */
@@ -854,7 +881,10 @@ public final class NotionalSchedule
     }
 
     /**
-     * Sets the {@code finalExchange} property in the builder.
+     * Sets the flag indicating whether to exchange the final notional.
+     * <p>
+     * Setting this to true indicates that the notional is transferred at the end of the trade.
+     * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
      * @param finalExchange  the new value
      * @return this, for chaining, not null
      */

@@ -304,7 +304,7 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveName} property in the builder.
+     * Sets the name of the curve matched by this filter.
      * @param curveName  the new value, not null
      * @return this, for chaining, not null
      */

@@ -340,7 +340,7 @@ public final class ParRates implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rates} property in the builder.
+     * Sets the par rates, keyed by ID.
      * @param rates  the new value, not null
      * @return this, for chaining, not null
      */
@@ -351,7 +351,7 @@ public final class ParRates implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code curveMetadata} property in the builder.
+     * Sets the metadata for the curve.
      * @param curveMetadata  the new value, not null
      * @return this, for chaining, not null
      */

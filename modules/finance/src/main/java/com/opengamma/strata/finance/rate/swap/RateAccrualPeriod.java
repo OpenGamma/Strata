@@ -791,7 +791,10 @@ public final class RateAccrualPeriod
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date of the accrual period.
+     * <p>
+     * This is the first accrual date in the period.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -802,7 +805,10 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date of the accrual period.
+     * <p>
+     * This is the last accrual date in the period.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -813,7 +819,11 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code unadjustedStartDate} property in the builder.
+     * Sets the unadjusted start date.
+     * <p>
+     * The start date before any business day adjustment is applied.
+     * <p>
+     * When building, this will default to the start date if not specified.
      * @param unadjustedStartDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -824,7 +834,11 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code unadjustedEndDate} property in the builder.
+     * Sets the unadjusted end date.
+     * <p>
+     * The end date before any business day adjustment is applied.
+     * <p>
+     * When building, this will default to the end date if not specified.
      * @param unadjustedEndDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -835,7 +849,11 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code yearFraction} property in the builder.
+     * Sets the year fraction that the accrual period represents.
+     * <p>
+     * The value is usually calculated using a {@link DayCount} which may be different to that of the index.
+     * Typically the value will be close to 1 for one year and close to 0.5 for six months.
+     * The fraction may be greater than 1, but not less than 0.
      * @param yearFraction  the new value
      * @return this, for chaining, not null
      */
@@ -846,7 +864,12 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code rateObservation} property in the builder.
+     * Sets the rate to be observed.
+     * <p>
+     * The value of the period is based on this rate.
+     * Different implementations of the {@code RateObservation} interface have different
+     * approaches to observing the rate, including averaging, overnight and interpolation.
+     * For example, it might be a well known market index such as 'GBP-LIBOR-3M'.
      * @param rateObservation  the new value, not null
      * @return this, for chaining, not null
      */
@@ -857,7 +880,15 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code gearing} property in the builder.
+     * Sets the gearing multiplier, defaulted to 1.
+     * <p>
+     * This defines the gearing, which is used to multiply the observed rate.
+     * <p>
+     * When calculating the rate, the observed rate is multiplied by the gearing.
+     * If both gearing and spread exist, then the gearing is applied first.
+     * A gearing of 1 has no effect.
+     * <p>
+     * Gearing is also known as <i>leverage</i>.
      * @param gearing  the new value
      * @return this, for chaining, not null
      */
@@ -867,7 +898,16 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code spread} property in the builder.
+     * Sets the spread rate, defaulted to 0.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * This defines the spread, which is used to add an amount the observed rate.
+     * <p>
+     * When calculating the rate, the spread is added to the observed rate.
+     * If both gearing and spread exist, then the gearing is applied first.
+     * A spread of 0 has no effect.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.2e.
      * @param spread  the new value
      * @return this, for chaining, not null
      */
@@ -877,7 +917,15 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code negativeRateMethod} property in the builder.
+     * Sets the negative rate method, defaulted to 'AllowNegative'.
+     * <p>
+     * This is used when the interest rate, observed or calculated, goes negative.
+     * <p>
+     * When observing or calculating the rate, the value may go negative.
+     * If it does, then this method is used to validate whether the negative rate is allowed.
+     * It is applied after any applicable gearing or spread.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.4.
      * @param negativeRateMethod  the new value, not null
      * @return this, for chaining, not null
      */

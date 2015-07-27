@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance;
 
-import org.joda.beans.ImmutableBean;
-
 /**
  * A market convention.
  * <p>
@@ -25,7 +23,6 @@ import org.joda.beans.ImmutableBean;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface Convention
-    extends ImmutableBean {
+public interface Convention {
 
 }

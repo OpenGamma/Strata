@@ -14,7 +14,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -27,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.engine.config.FunctionConfig;
 import com.opengamma.strata.engine.config.Measure;
 
@@ -36,7 +34,7 @@ import com.opengamma.strata.engine.config.Measure;
  * 
  * @param <T>  the type of the calculation target
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class DefaultFunctionGroup<T extends CalculationTarget>
     implements ImmutableBean, FunctionGroup<T> {
 
@@ -65,20 +63,6 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
    */
   public static <T extends CalculationTarget> DefaultFunctionGroupBuilder<T> builder(Class<T> targetType) {
     return new DefaultFunctionGroupBuilder<>(targetType);
-  }
-
-  // package-private for the builder
-  @ImmutableConstructor
-  DefaultFunctionGroup(
-      FunctionGroupName name,
-      Class<T> targetType,
-      Map<Measure, FunctionConfig<T>> functionConfig,
-      Map<String, Object> functionArguments) {
-
-    this.name = ArgChecker.notNull(name, "name");
-    this.targetType = ArgChecker.notNull(targetType, "targetType");
-    this.functionConfig = ImmutableMap.copyOf(functionConfig);
-    this.functionArguments = ImmutableMap.copyOf(functionArguments);
   }
 
   /**
@@ -127,6 +111,28 @@ public final class DefaultFunctionGroup<T extends CalculationTarget>
 
   static {
     JodaBeanUtils.registerMetaBean(DefaultFunctionGroup.Meta.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * @param name  the value of the property, not null
+   * @param targetType  the value of the property, not null
+   * @param functionConfig  the value of the property, not null
+   * @param functionArguments  the value of the property, not null
+   */
+  DefaultFunctionGroup(
+      FunctionGroupName name,
+      Class<T> targetType,
+      Map<Measure, FunctionConfig<T>> functionConfig,
+      Map<String, Object> functionArguments) {
+    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(targetType, "targetType");
+    JodaBeanUtils.notNull(functionConfig, "functionConfig");
+    JodaBeanUtils.notNull(functionArguments, "functionArguments");
+    this.name = name;
+    this.targetType = targetType;
+    this.functionConfig = ImmutableMap.copyOf(functionConfig);
+    this.functionArguments = ImmutableMap.copyOf(functionArguments);
   }
 
   @SuppressWarnings("unchecked")

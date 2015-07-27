@@ -399,7 +399,9 @@ public final class BusinessDayAdjustment
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code convention} property in the builder.
+     * Sets the convention used to the adjust the date if it does not fall on a business day.
+     * <p>
+     * The convention determines whether to move forwards or backwards when it is a holiday.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */
@@ -410,7 +412,9 @@ public final class BusinessDayAdjustment
     }
 
     /**
-     * Sets the {@code calendar} property in the builder.
+     * Sets the calendar that defines holidays and business days.
+     * <p>
+     * When the adjustment is made, this calendar is used to skip holidays.
      * @param calendar  the new value, not null
      * @return this, for chaining, not null
      */

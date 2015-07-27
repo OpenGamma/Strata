@@ -434,7 +434,7 @@ public final class CurveGroupEntry implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code curveConfig} property in the builder.
+     * Sets the configuration of the curve.
      * @param curveConfig  the new value, not null
      * @return this, for chaining, not null
      */
@@ -445,7 +445,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code discountingCurrency} property in the builder.
+     * Sets the currency for which the curve provides discount rates, not present if it is not used for discounting.
      * @param discountingCurrency  the new value
      * @return this, for chaining, not null
      */
@@ -455,7 +455,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code iborIndices} property in the builder.
+     * Sets the IBOR indices for which the curve provides forward rates.
      * @param iborIndices  the new value, not null
      * @return this, for chaining, not null
      */
@@ -476,7 +476,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code overnightIndices} property in the builder.
+     * Sets the overnight indices for which the curve provides forward rates.
      * @param overnightIndices  the new value, not null
      * @return this, for chaining, not null
      */

@@ -19,8 +19,6 @@ import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -41,7 +39,7 @@ import com.opengamma.strata.collect.tuple.Pair;
  * Note that {@link Double#NaN} is used internally as a sentinel
  * value and is therefore not allowed as a value.
  */
-public interface LocalDateDoubleTimeSeries extends ImmutableBean {
+public interface LocalDateDoubleTimeSeries {
 
   /**
    * Returns an empty time-series. Generally a singleton instance

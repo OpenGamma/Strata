@@ -21,10 +21,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import org.joda.beans.MetaBean;
-import org.joda.beans.Property;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -367,22 +364,6 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     public double firstDerivative(double x) {
       throw new UnsupportedOperationException();
     }
-
-    @Override
-    public MetaBean metaBean() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <R> Property<R> property(String arg0) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<String> propertyNames() {
-      throw new UnsupportedOperationException();
-    }
-
   }
   
 }

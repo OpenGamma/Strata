@@ -603,7 +603,12 @@ public final class SecurityLink<P extends Product>
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code standardId} property in the builder.
+     * Sets the primary standard identifier of the security.
+     * <p>
+     * The standard identifier is used to identify the security.
+     * It will typically be an identifier in an external data system.
+     * <p>
+     * This is used when the link is in the resolvable state.
      * @param standardId  the new value
      * @return this, for chaining, not null
      */
@@ -613,7 +618,9 @@ public final class SecurityLink<P extends Product>
     }
 
     /**
-     * Sets the {@code productType} property in the builder.
+     * Sets the type of the product.
+     * <p>
+     * This is used when the link is in the resolvable state.
      * @param productType  the new value
      * @return this, for chaining, not null
      */
@@ -623,7 +630,9 @@ public final class SecurityLink<P extends Product>
     }
 
     /**
-     * Sets the {@code target} property in the builder.
+     * Sets the embedded link target.
+     * <p>
+     * This is used when the link is in the resolved state.
      * @param target  the new value
      * @return this, for chaining, not null
      */

@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance;
 
-import org.joda.beans.ImmutableBean;
-
 /**
  * A template used to create a trade.
  * <p>
@@ -21,7 +19,6 @@ import org.joda.beans.ImmutableBean;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface Template
-    extends ImmutableBean {
+public interface Template {
 
 }

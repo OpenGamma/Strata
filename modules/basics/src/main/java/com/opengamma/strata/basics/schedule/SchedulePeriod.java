@@ -666,7 +666,10 @@ public final class SchedulePeriod
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date of this period, used for financial calculations such as interest accrual.
+     * <p>
+     * The first date in the schedule period, typically treated as inclusive.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -677,7 +680,10 @@ public final class SchedulePeriod
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date of this period, used for financial calculations such as interest accrual.
+     * <p>
+     * The last date in the schedule period, typically treated as exclusive.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -688,7 +694,13 @@ public final class SchedulePeriod
     }
 
     /**
-     * Sets the {@code unadjustedStartDate} property in the builder.
+     * Sets the unadjusted start date.
+     * <p>
+     * The start date before any business day adjustment.
+     * If the schedule adjusts for business days, then this is typically the regular periodic date.
+     * If the schedule does not adjust for business days, then this is the same as the start date.
+     * <p>
+     * When building, this will default to the start date if not specified.
      * @param unadjustedStartDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -699,7 +711,13 @@ public final class SchedulePeriod
     }
 
     /**
-     * Sets the {@code unadjustedEndDate} property in the builder.
+     * Sets the unadjusted end date.
+     * <p>
+     * The end date before any business day adjustment.
+     * If the schedule adjusts for business days, then this is typically the regular periodic date.
+     * If the schedule does not adjust for business days, then this is the same as the end date.
+     * <p>
+     * When building, this will default to the end date if not specified.
      * @param unadjustedEndDate  the new value, not null
      * @return this, for chaining, not null
      */

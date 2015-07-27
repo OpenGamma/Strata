@@ -509,7 +509,7 @@ public final class Column implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code definition} property in the builder.
+     * Sets the definition of the column which specifies the column name and the measures it contains.
      * @param definition  the new value, not null
      * @return this, for chaining, not null
      */
@@ -520,7 +520,7 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code pricingRules} property in the builder.
+     * Sets the pricing rules that apply to this column in addition to the default rules.
      * @param pricingRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -531,7 +531,7 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code marketDataRules} property in the builder.
+     * Sets the market data rules that apply to this column in addition to the default rules.
      * @param marketDataRules  the new value, not null
      * @return this, for chaining, not null
      */
@@ -542,7 +542,7 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code reportingRules} property in the builder.
+     * Sets the reporting rules that apply to this column in addition to the default rules.
      * @param reportingRules  the new value, not null
      * @return this, for chaining, not null
      */

@@ -407,7 +407,9 @@ public final class FixedRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable.
+     * <p>
+     * This is used to convert schedule period dates to a numerical value.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -418,7 +420,11 @@ public final class FixedRateCalculation
     }
 
     /**
-     * Sets the {@code rate} property in the builder.
+     * Sets the interest rate to be paid.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * This defines the rate as an initial amount and a list of adjustments.
+     * The rate is only permitted to change at accrual period boundaries.
      * @param rate  the new value, not null
      * @return this, for chaining, not null
      */

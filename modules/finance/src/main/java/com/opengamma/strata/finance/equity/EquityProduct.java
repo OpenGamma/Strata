@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.equity;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.finance.Product;
 
 /**
@@ -18,6 +16,6 @@ import com.opengamma.strata.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface EquityProduct
-    extends Product, ImmutableBean {
+    extends Product {
 
 }

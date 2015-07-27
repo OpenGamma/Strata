@@ -1099,7 +1099,11 @@ public final class IborRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable.
+     * <p>
+     * This is used to convert dates to a numerical value.
+     * <p>
+     * When building, this will default to the day count of the index if not specified.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1110,7 +1114,10 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the IBOR-like index.
+     * <p>
+     * The rate to be paid is based on this index
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1121,7 +1128,14 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code resetPeriods} property in the builder.
+     * Sets the reset schedule, used when averaging rates, optional.
+     * <p>
+     * Most swaps have a single fixing for each accrual period.
+     * This property allows multiple fixings to be defined by dividing the accrual periods into reset periods.
+     * <p>
+     * If this property is not present, then the reset period is the same as the accrual period.
+     * If this property is present, then the accrual period is divided as per the information
+     * in the reset schedule, multiple fixing dates are calculated, and rate averaging performed.
      * @param resetPeriods  the new value
      * @return this, for chaining, not null
      */
@@ -1131,7 +1145,12 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code fixingRelativeTo} property in the builder.
+     * Sets the base date that each fixing is made relative to, defaulted to 'PeriodStart'.
+     * <p>
+     * The fixing date is relative to either the start or end of each reset period.
+     * <p>
+     * Note that in most cases, the reset frequency matches the accrual frequency
+     * and thus there is only one fixing for the accrual period.
      * @param fixingRelativeTo  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1142,7 +1161,15 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code fixingDateOffset} property in the builder.
+     * Sets the offset of the fixing date from each adjusted reset date.
+     * <p>
+     * The offset is applied to the base date specified by {@code fixingRelativeTo}.
+     * The offset is typically a negative number of business days.
+     * <p>
+     * Note that in most cases, the reset frequency matches the accrual frequency
+     * and thus there is only one fixing for the accrual period.
+     * <p>
+     * When building, this will default to the fixing offset of the index if not specified.
      * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1153,7 +1180,12 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code negativeRateMethod} property in the builder.
+     * Sets the negative rate method, defaulted to 'AllowNegative'.
+     * <p>
+     * This is used when the interest rate, observed or calculated, goes negative.
+     * It does not apply if the rate is fixed, such as in a stub or using {@code firstRegularRate}.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.4.
      * @param negativeRateMethod  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1164,7 +1196,19 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code firstRegularRate} property in the builder.
+     * Sets the first rate of the first regular reset period, optional.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * In certain circumstances two counterparties agree the rate of the first fixing when the contract starts.
+     * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
+     * It is used in place of an observed fixing.
+     * Other calculation elements, such as gearing or spread, still apply.
+     * After the first reset period, the rate is observed via the normal fixing process.
+     * <p>
+     * If the first floating rate applies to the initial stub rather than the regular accrual periods
+     * it must be specified using {@code initialStub}.
+     * <p>
+     * If this property is not present, then the first rate is observed via the normal fixing process.
      * @param firstRegularRate  the new value
      * @return this, for chaining, not null
      */
@@ -1174,7 +1218,15 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code initialStub} property in the builder.
+     * Sets the rate to be used in initial stub, optional.
+     * <p>
+     * The initial stub of a swap may have different rate rules to the regular accrual periods.
+     * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
+     * This may not be present if there is no initial stub, or if the index during the stub is the same
+     * as the main floating rate index.
+     * <p>
+     * If this property is not present, then the main index applies during any initial stub.
+     * If this property is present and there is no initial stub, it is ignored.
      * @param initialStub  the new value
      * @return this, for chaining, not null
      */
@@ -1184,7 +1236,15 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code finalStub} property in the builder.
+     * Sets the rate to be used in final stub, optional.
+     * <p>
+     * The final stub of a swap may have different rate rules to the regular accrual periods.
+     * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
+     * This may not be present if there is no final stub, or if the index during the stub is the same
+     * as the main floating rate index.
+     * <p>
+     * If this property is not present, then the main index applies during any final stub.
+     * If this property is present and there is no final stub, it is ignored.
      * @param finalStub  the new value
      * @return this, for chaining, not null
      */
@@ -1194,7 +1254,18 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code gearing} property in the builder.
+     * Sets the gearing multiplier, optional.
+     * <p>
+     * This defines the gearing as an initial value and a list of adjustments.
+     * The gearing is only permitted to change at accrual period boundaries.
+     * <p>
+     * When calculating the rate, the fixing rate is multiplied by the gearing.
+     * A gearing of 1 has no effect.
+     * If both gearing and spread exist, then the gearing is applied first.
+     * <p>
+     * If this property is not present, then no gearing applies.
+     * <p>
+     * Gearing is also known as <i>leverage</i>.
      * @param gearing  the new value
      * @return this, for chaining, not null
      */
@@ -1204,7 +1275,19 @@ public final class IborRateCalculation
     }
 
     /**
-     * Sets the {@code spread} property in the builder.
+     * Sets the spread rate, with a 5% rate expressed as 0.05, optional.
+     * <p>
+     * This defines the spread as an initial value and a list of adjustments.
+     * The spread is only permitted to change at accrual period boundaries.
+     * Spread is a per annum rate.
+     * <p>
+     * When calculating the rate, the spread is added to the fixing rate.
+     * A spread of 0 has no effect.
+     * If both gearing and spread exist, then the gearing is applied first.
+     * <p>
+     * If this property is not present, then no spread applies.
+     * <p>
+     * Defined by the 2006 ISDA definitions article 6.2e.
      * @param spread  the new value
      * @return this, for chaining, not null
      */

@@ -377,7 +377,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code marketEnvironment} property in the builder.
+     * Sets the market data that was successfully built.
      * @param marketEnvironment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -388,7 +388,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code singleValueFailures} property in the builder.
+     * Sets details of failures when building single market data values.
      * @param singleValueFailures  the new value, not null
      * @return this, for chaining, not null
      */
@@ -399,7 +399,7 @@ public final class MarketEnvironmentResult implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code timeSeriesFailures} property in the builder.
+     * Sets details of failures when building time series of market data values.
      * @param timeSeriesFailures  the new value, not null
      * @return this, for chaining, not null
      */

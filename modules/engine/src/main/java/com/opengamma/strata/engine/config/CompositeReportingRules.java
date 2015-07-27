@@ -302,7 +302,7 @@ final class CompositeReportingRules implements ReportingRules, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rules} property in the builder.
+     * Sets the delegate rules.
      * @param rules  the new value, not null
      * @return this, for chaining, not null
      */

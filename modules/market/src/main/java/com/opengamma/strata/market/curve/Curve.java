@@ -7,8 +7,6 @@ package com.opengamma.strata.market.curve;
 
 import java.time.Period;
 
-import org.joda.beans.ImmutableBean;
-
 /**
  * A curve that maps a {@code double} x-value to a {@code double} y-value.
  * <p>
@@ -20,8 +18,7 @@ import org.joda.beans.ImmutableBean;
  * 
  * @see InterpolatedNodalCurve
  */
-public interface Curve
-    extends ImmutableBean {
+public interface Curve {
 
   /**
    * Gets the curve metadata.

@@ -6,6 +6,8 @@
 package com.opengamma.strata.pricer.rate.deposit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.deposit.IborFixingDepositProduct;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -17,16 +19,26 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 public class DiscountingIborFixingDepositTradePricer {
 
-  /** The associated product pricer. */
-  private static final DiscountingIborFixingDepositProductPricer PRODUCT_PRICER =
-      DiscountingIborFixingDepositProductPricer.DEFAULT;
-  
   /**
    * Default implementation.
    */
-  public static final DiscountingIborFixingDepositTradePricer DEFAULT =
-      new DiscountingIborFixingDepositTradePricer();
-  
+  public static final DiscountingIborFixingDepositTradePricer DEFAULT = new DiscountingIborFixingDepositTradePricer(
+      DiscountingIborFixingDepositProductPricer.DEFAULT);
+
+  /**
+   * Pricer for {@link IborFixingDepositProduct}.
+   */
+  private final DiscountingIborFixingDepositProductPricer productPricer;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param productPricer  the pricer for {@link IborFixingDepositProduct}
+   */
+  public DiscountingIborFixingDepositTradePricer(DiscountingIborFixingDepositProductPricer productPricer) {
+    this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the Ibor fixing deposit trade.
@@ -38,11 +50,11 @@ public class DiscountingIborFixingDepositTradePricer {
    * @return the present value of the product
    */
   public CurrencyAmount presentValue(IborFixingDepositTrade trade, RatesProvider provider) {
-    return PRODUCT_PRICER.presentValue(trade.getProduct(), provider);
+    return productPricer.presentValue(trade.getProduct(), provider);
   }
 
   /**
-   * Calculates the present value sensitivity of the Ibor fixing trade.
+   * Calculates the present value sensitivity of the Ibor fixing deposit trade.
    * <p>
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
@@ -52,7 +64,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @return the point sensitivity of the present value
    */
   public PointSensitivities presentValueSensitivity(IborFixingDepositTrade trade, RatesProvider provider) {
-    return PRODUCT_PRICER.presentValueSensitivity(trade.getProduct(), provider);
+    return productPricer.presentValueSensitivity(trade.getProduct(), provider);
   }
 
   //-------------------------------------------------------------------------
@@ -64,7 +76,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @return the par spread
    */
   public double parSpread(IborFixingDepositTrade trade, RatesProvider provider) {
-    return PRODUCT_PRICER.parSpread(trade.getProduct(), provider);
+    return productPricer.parSpread(trade.getProduct(), provider);
   }
 
   /**
@@ -75,7 +87,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @return the par spread curve sensitivity
    */
   public PointSensitivities parSpreadSensitivity(IborFixingDepositTrade trade, RatesProvider provider) {
-    return PRODUCT_PRICER.parSpreadSensitivity(trade.getProduct(), provider);
+    return productPricer.parSpreadSensitivity(trade.getProduct(), provider);
   }
 
 }

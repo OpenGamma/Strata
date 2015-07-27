@@ -484,7 +484,9 @@ public final class GenericFutureTrade
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tradeInfo} property in the builder.
+     * Sets the additional trade information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the trade.
      * @param tradeInfo  the new value
      * @return this, for chaining, not null
      */
@@ -494,7 +496,10 @@ public final class GenericFutureTrade
     }
 
     /**
-     * Sets the {@code securityLink} property in the builder.
+     * Sets the link to the future that was traded.
+     * <p>
+     * This property returns a link to the security via a {@link StandardId}.
+     * See {@link #getSecurity()} and {@link SecurityLink} for more details.
      * @param securityLink  the new value, not null
      * @return this, for chaining, not null
      */
@@ -505,7 +510,9 @@ public final class GenericFutureTrade
     }
 
     /**
-     * Sets the {@code quantity} property in the builder.
+     * Sets the quantity, indicating the number of contracts in the trade.
+     * <p>
+     * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
@@ -515,7 +522,13 @@ public final class GenericFutureTrade
     }
 
     /**
-     * Sets the {@code initialPrice} property in the builder.
+     * Sets the initial price of the future, represented in decimal form.
+     * <p>
+     * This is the price agreed when the trade occurred.
+     * This must be represented in decimal form.
+     * <p>
+     * No indication is provided as to the meaning of one unit of this price.
+     * It may be an amount in a currency, a percentage or something else entirely.
      * @param initialPrice  the new value
      * @return this, for chaining, not null
      */

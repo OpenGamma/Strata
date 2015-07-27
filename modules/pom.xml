@@ -508,7 +508,7 @@
     <findbugs.version>1.3.9</findbugs.version>
     <guava.version>18.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
-    <joda-beans.version>1.5.1</joda-beans.version>
+    <joda-beans.version>1.6</joda-beans.version>
     <jool.version>0.9.6</jool.version>
     <og-analytics.version>3.0.0-SNAPSHOT</og-analytics.version>
     <slf4j.version>1.7.12</slf4j.version>

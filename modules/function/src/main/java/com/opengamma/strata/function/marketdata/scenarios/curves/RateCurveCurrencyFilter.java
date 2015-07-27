@@ -308,7 +308,7 @@ public final class RateCurveCurrencyFilter implements MarketDataFilter<Curve, Ra
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency matched by this filter.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */

@@ -8,6 +8,10 @@ package com.opengamma.strata.report.result;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+
 import com.google.common.collect.Sets;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -29,17 +33,19 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
 
   @Override
   public Set<String> tokens(Trade trade) {
-    return Sets.union(trade.propertyNames(), trade.getTradeInfo().propertyNames());
+    MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
+    return Sets.union(metaBean.metaPropertyMap().keySet(), trade.getTradeInfo().propertyNames());
   }
 
   @Override
   public Result<?> evaluate(Trade trade, String token) {
+    MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
     // trade
-    Optional<String> propertyName1 = trade.propertyNames().stream()
+    Optional<String> propertyName1 = metaBean.metaPropertyMap().keySet().stream()
         .filter(p -> p.equalsIgnoreCase(token))
         .findFirst();
     if (propertyName1.isPresent()) {
-      Object propertyValue = trade.property(propertyName1.get()).get();
+      Object propertyValue = metaBean.metaProperty(propertyName1.get()).get((Bean) trade);
       return propertyValue != null ? Result.success(propertyValue) : Result.failure(FailureReason.INVALID_INPUT,
           Messages.format("Property '{}' not set", token));
     }

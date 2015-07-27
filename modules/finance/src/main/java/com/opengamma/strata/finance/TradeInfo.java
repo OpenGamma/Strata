@@ -600,7 +600,14 @@ public final class TradeInfo
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code id} property in the builder.
+     * Sets the primary identifier for the trade, optional.
+     * <p>
+     * The identifier is used to identify the trade.
+     * It will typically be an identifier in an external data system.
+     * <p>
+     * A trade may have multiple active identifiers. Any identifier may be chosen here.
+     * Certain uses of the identifier, such as storage in a database, require that the
+     * identifier does not change over time, and this should be considered best practice.
      * @param id  the new value
      * @return this, for chaining, not null
      */
@@ -610,7 +617,9 @@ public final class TradeInfo
     }
 
     /**
-     * Sets the {@code counterparty} property in the builder.
+     * Sets the counterparty identifier, optional.
+     * <p>
+     * An identifier used to specify the counterparty of the trade.
      * @param counterparty  the new value
      * @return this, for chaining, not null
      */
@@ -620,7 +629,7 @@ public final class TradeInfo
     }
 
     /**
-     * Sets the {@code tradeDate} property in the builder.
+     * Sets the trade date, optional.
      * @param tradeDate  the new value
      * @return this, for chaining, not null
      */
@@ -630,7 +639,7 @@ public final class TradeInfo
     }
 
     /**
-     * Sets the {@code tradeTime} property in the builder.
+     * Sets the trade time, optional.
      * @param tradeTime  the new value
      * @return this, for chaining, not null
      */
@@ -640,7 +649,7 @@ public final class TradeInfo
     }
 
     /**
-     * Sets the {@code zone} property in the builder.
+     * Sets the trade time-zone, optional.
      * @param zone  the new value
      * @return this, for chaining, not null
      */
@@ -650,7 +659,7 @@ public final class TradeInfo
     }
 
     /**
-     * Sets the {@code settlementDate} property in the builder.
+     * Sets the settlement date, optional.
      * @param settlementDate  the new value
      * @return this, for chaining, not null
      */
@@ -660,7 +669,10 @@ public final class TradeInfo
     }
 
     /**
-     * Sets the {@code attributes} property in the builder.
+     * Sets the set of additional trade attributes.
+     * <p>
+     * Most data in the trade is available as bean properties.
+     * Attributes are typically used to tag the object with additional information.
      * @param attributes  the new value, not null
      * @return this, for chaining, not null
      */

@@ -5,7 +5,7 @@
  */
 
 /**
- * Pricer API.
+ * Calculators for financial instruments.
  * <p>
  * Defines the API for pricing financial instruments.
  */

@@ -581,7 +581,10 @@ public final class InflationRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the index of prices.
+     * <p>
+     * The pay-off is computed based on this index
+     * The most common implementations are provided in {@link PriceIndices}.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -592,7 +595,16 @@ public final class InflationRateCalculation
     }
 
     /**
-     * Sets the {@code lag} property in the builder.
+     * Sets the positive period between the price index and the accrual date,
+     * typically a number of months.
+     * <p>
+     * A price index is typically published monthly and has a delay before publication.
+     * The lag is subtracted from the accrual start and end date to locate the
+     * month of the data to be observed.
+     * <p>
+     * For example, the September data may be published in October or November.
+     * A 3 month lag will cause an accrual date in December to be based on the
+     * observed data for September, which should be available by then.
      * @param lag  the new value, not null
      * @return this, for chaining, not null
      */
@@ -603,7 +615,13 @@ public final class InflationRateCalculation
     }
 
     /**
-     * Sets the {@code interpolated} property in the builder.
+     * Sets how the reference index calculation occurs, defaulted to false.
+     * <p>
+     * If true, the reference index is linearly interpolated between two months.
+     * The interpolation is done with the number of days of the payment month.
+     * <p>
+     * If false, the reference index is the price index of a month.
+     * The reference month is linked to the payment date.
      * @param interpolated  the new value, not null
      * @return this, for chaining, not null
      */
@@ -614,7 +632,17 @@ public final class InflationRateCalculation
     }
 
     /**
-     * Sets the {@code gearing} property in the builder.
+     * Sets the gearing multiplier, optional.
+     * <p>
+     * This defines the gearing as an initial value and a list of adjustments.
+     * <p>
+     * When calculating the index, the gearing acts as a overall factor of pay-off.
+     * The pay-off is {@code Gearing_Factor * (Index_End / Index_Start - 1)}.
+     * A gearing of 1 has no effect.
+     * <p>
+     * If this property is not present, then no gearing applies.
+     * <p>
+     * Gearing is also known as <i>leverage</i>.
      * @param gearing  the new value
      * @return this, for chaining, not null
      */

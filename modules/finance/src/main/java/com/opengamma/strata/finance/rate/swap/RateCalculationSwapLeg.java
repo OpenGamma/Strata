@@ -686,7 +686,12 @@ public final class RateCalculationSwapLeg
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code payReceive} property in the builder.
+     * Sets whether the leg is pay or receive.
+     * <p>
+     * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+     * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+     * Note that negative interest rates can result in a payment in the opposite
+     * direction to that implied by this indicator.
      * @param payReceive  the new value, not null
      * @return this, for chaining, not null
      */
@@ -697,7 +702,10 @@ public final class RateCalculationSwapLeg
     }
 
     /**
-     * Sets the {@code accrualSchedule} property in the builder.
+     * Sets the accrual schedule.
+     * <p>
+     * This is used to define the accrual periods.
+     * These are used directly or indirectly to determine other dates in the swap.
      * @param accrualSchedule  the new value, not null
      * @return this, for chaining, not null
      */
@@ -708,7 +716,10 @@ public final class RateCalculationSwapLeg
     }
 
     /**
-     * Sets the {@code paymentSchedule} property in the builder.
+     * Sets the payment schedule.
+     * <p>
+     * This is used to define the payment periods, including any compounding.
+     * The payment period dates are based on the accrual schedule.
      * @param paymentSchedule  the new value, not null
      * @return this, for chaining, not null
      */
@@ -719,7 +730,11 @@ public final class RateCalculationSwapLeg
     }
 
     /**
-     * Sets the {@code notionalSchedule} property in the builder.
+     * Sets the notional schedule.
+     * <p>
+     * The notional amount schedule, which can vary during the lifetime of the swap.
+     * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
+     * However, in certain cases, initial, final or intermediate amounts are exchanged.
      * @param notionalSchedule  the new value, not null
      * @return this, for chaining, not null
      */
@@ -730,7 +745,10 @@ public final class RateCalculationSwapLeg
     }
 
     /**
-     * Sets the {@code calculation} property in the builder.
+     * Sets the interest rate accrual calculation.
+     * <p>
+     * Different kinds of swap leg are determined by the subclass used here.
+     * See {@link FixedRateCalculation}, {@link IborRateCalculation} and {@link OvernightRateCalculation}.
      * @param calculation  the new value, not null
      * @return this, for chaining, not null
      */

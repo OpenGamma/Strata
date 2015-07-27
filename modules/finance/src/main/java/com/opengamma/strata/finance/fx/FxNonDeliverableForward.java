@@ -528,7 +528,13 @@ public final class FxNonDeliverableForward
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code settlementCurrencyNotional} property in the builder.
+     * Sets the notional amount in the settlement currency, positive if receiving, negative if paying.
+     * <p>
+     * The amount is signed.
+     * A positive amount indicates the payment is to be received.
+     * A negative amount indicates the payment is to be paid.
+     * <p>
+     * This must be specified in one of the two currencies of the forward.
      * @param settlementCurrencyNotional  the new value, not null
      * @return this, for chaining, not null
      */
@@ -539,7 +545,12 @@ public final class FxNonDeliverableForward
     }
 
     /**
-     * Sets the {@code agreedFxRate} property in the builder.
+     * Sets the FX rate agreed for the value date at the inception of the trade.
+     * <p>
+     * The settlement amount is based on the difference between this rate and the
+     * rate observed on the fixing date using the {@code index}.
+     * <p>
+     * The forward is between the two currencies defined by the rate.
      * @param agreedFxRate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -550,7 +561,12 @@ public final class FxNonDeliverableForward
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the index defining the FX rate to observe on the fixing date.
+     * <p>
+     * The index is used to settle the trade by providing the actual FX rate on the fixing date.
+     * The value of the trade is based on the difference between the actual rate and the agreed rate.
+     * <p>
+     * The forward is between the two currencies defined by the index.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -561,7 +577,10 @@ public final class FxNonDeliverableForward
     }
 
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the date that the forward settles.
+     * <p>
+     * On this date, the settlement amount will be exchanged.
+     * This date should be a valid business day.
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */

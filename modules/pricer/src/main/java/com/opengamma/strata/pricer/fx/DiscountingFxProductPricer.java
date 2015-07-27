@@ -113,6 +113,7 @@ public class DiscountingFxProductPricer {
     return pvCounterCcy / (notionalBaseCcy * dfEnd);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Computes the forward exchange rate.
    * 

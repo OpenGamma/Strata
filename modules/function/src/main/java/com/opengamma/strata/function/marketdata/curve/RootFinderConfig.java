@@ -402,7 +402,7 @@ public final class RootFinderConfig implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code absoluteTolerance} property in the builder.
+     * Sets the absolute tolerance for the root finder.
      * @param absoluteTolerance  the new value
      * @return this, for chaining, not null
      */
@@ -413,7 +413,7 @@ public final class RootFinderConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code relativeTolerance} property in the builder.
+     * Sets the relative tolerance for the root finder.
      * @param relativeTolerance  the new value
      * @return this, for chaining, not null
      */
@@ -424,7 +424,7 @@ public final class RootFinderConfig implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code maximumSteps} property in the builder.
+     * Sets the maximum number of steps for the root finder.
      * @param maximumSteps  the new value
      * @return this, for chaining, not null
      */

@@ -586,7 +586,10 @@ public final class FxResetNotionalExchange
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the date that the payment is made.
+     * <p>
+     * Each payment event has a single payment date.
+     * This date has been adjusted to be a valid business day.
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -597,7 +600,13 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * Sets the {@code referenceCurrency} property in the builder.
+     * Sets the currency of the notional amount defined in the contract.
+     * <p>
+     * This is the currency of notional amount as defined in the contract.
+     * The notional will be converted from this currency to the payment currency using the specified index.
+     * ISDA refers to this as the <i>constant currency</i>.
+     * <p>
+     * The reference currency must be one of the two currencies of the index.
      * @param referenceCurrency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -608,7 +617,11 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount, positive if receiving, negative if paying.
+     * <p>
+     * The notional amount applicable during the period.
+     * The currency of the notional is specified by {@code referenceCurrency} but will
+     * be paid after FX conversion using the index.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -618,7 +631,12 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the FX index used to obtain the FX reset rate.
+     * <p>
+     * This is the index of FX used to obtain the FX reset rate.
+     * An FX index is a daily rate of exchange between two currencies.
+     * Note that the order of the currencies in the index does not matter, as the
+     * conversion direction is fully defined by the currency of the reference amount.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -629,7 +647,10 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * Sets the {@code fixingDate} property in the builder.
+     * Sets the date of the FX reset fixing.
+     * <p>
+     * This is an adjusted date with any business day rule applied.
+     * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
      * @param fixingDate  the new value, not null
      * @return this, for chaining, not null
      */

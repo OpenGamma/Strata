@@ -57,8 +57,11 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.StandaloneMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.test.BeanAssert;
+import org.joda.beans.test.JodaBeanTests;
 import org.joda.convert.StringConvert;
 
 import com.google.common.collect.ImmutableList;
@@ -559,6 +562,8 @@ public class TestHelper {
         for (String setStr : sampleStrings(mp)) {
           ignoreThrows(() -> metaBean.builder().setString(mp.name(), setStr));
         }
+        ignoreThrows(() -> metaBean.builder().setString(mp, JodaBeanTests.TEST_COVERAGE_STRING));
+        ignoreThrows(() -> metaBean.builder().setString(mp.name(), JodaBeanTests.TEST_COVERAGE_STRING));
       }
       ignoreThrows(() -> {
         Method m = metaBean.getClass().getDeclaredMethod(mp.name());
@@ -578,6 +583,12 @@ public class TestHelper {
       m.setAccessible(true);
       m.invoke(metaBean, bean, "Not a real property name", true);
     });
+    MetaProperty<String> fakeMetaProp = StandaloneMetaProperty.of("fake", metaBean, String.class);
+    ignoreThrows(() -> metaBean.builder().set(fakeMetaProp, JodaBeanTests.TEST_COVERAGE_STRING));
+    ignoreThrows(() -> metaBean.builder().setString(fakeMetaProp, JodaBeanTests.TEST_COVERAGE_STRING));
+    ignoreThrows(() -> metaBean.builder().set(JodaBeanTests.TEST_COVERAGE_PROPERTY, JodaBeanTests.TEST_COVERAGE_STRING));
+    ignoreThrows(() -> metaBean.builder().setString(JodaBeanTests.TEST_COVERAGE_PROPERTY, JodaBeanTests.TEST_COVERAGE_STRING));
+    ignoreThrows(() -> bean.property(JodaBeanTests.TEST_COVERAGE_PROPERTY));
   }
 
   // cover parts of a bean that are not property-based
@@ -590,12 +601,14 @@ public class TestHelper {
     assertThrows(() -> metaBean.builder().setString("foo_bar", ""), NoSuchElementException.class);
     assertThrows(() -> metaBean.metaProperty("foo_bar"), NoSuchElementException.class);
 
-    DirectMetaProperty<String> dummy = DirectMetaProperty.ofReadWrite(metaBean, "foo_bar", metaBean.beanType(), String.class);
-    assertThrows(() -> dummy.get(bean), NoSuchElementException.class);
-    assertThrows(() -> dummy.set(bean, ""), NoSuchElementException.class);
-    assertThrows(() -> dummy.setString(bean, ""), NoSuchElementException.class);
-    assertThrows(() -> metaBean.builder().get(dummy), NoSuchElementException.class);
-    assertThrows(() -> metaBean.builder().set(dummy, ""), NoSuchElementException.class);
+    if (metaBean instanceof DirectMetaBean) {
+      DirectMetaProperty<String> dummy = DirectMetaProperty.ofReadWrite(metaBean, "foo_bar", metaBean.beanType(), String.class);
+      assertThrows(() -> dummy.get(bean), NoSuchElementException.class);
+      assertThrows(() -> dummy.set(bean, ""), NoSuchElementException.class);
+      assertThrows(() -> dummy.setString(bean, ""), NoSuchElementException.class);
+      assertThrows(() -> metaBean.builder().get(dummy), NoSuchElementException.class);
+      assertThrows(() -> metaBean.builder().set(dummy, ""), NoSuchElementException.class);
+    }
 
     Set<String> propertyNameSet = bean.propertyNames();
     assertNotNull(propertyNameSet);

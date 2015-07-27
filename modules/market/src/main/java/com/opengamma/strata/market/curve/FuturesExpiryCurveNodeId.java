@@ -317,7 +317,7 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code expiry} property in the builder.
+     * Sets the year and month of the futures expiry date.
      * @param expiry  the new value, not null
      * @return this, for chaining, not null
      */

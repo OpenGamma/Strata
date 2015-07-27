@@ -46,7 +46,7 @@ import com.opengamma.strata.engine.config.Measure;
  * 
  * @param <T>  the type of the calculation target
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class PricingRule<T extends CalculationTarget>
     implements ImmutableBean {
 

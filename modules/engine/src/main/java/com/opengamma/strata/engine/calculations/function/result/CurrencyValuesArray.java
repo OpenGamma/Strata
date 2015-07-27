@@ -395,7 +395,7 @@ public final class CurrencyValuesArray
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency of the values.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -406,7 +406,7 @@ public final class CurrencyValuesArray
     }
 
     /**
-     * Sets the {@code values} property in the builder.
+     * Sets the currency values.
      * @param values  the new value, not null
      * @return this, for chaining, not null
      */

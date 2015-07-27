@@ -471,7 +471,8 @@ public final class SingleNameReferenceInformation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code referenceEntityId} property in the builder.
+     * Sets the CDS single-name identifier, such as a RED entity code.
+     * This identifies the legal entity.
      * @param referenceEntityId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -482,7 +483,9 @@ public final class SingleNameReferenceInformation
     }
 
     /**
-     * Sets the {@code seniority} property in the builder.
+     * Sets the seniority.
+     * This is a property of the reference obligation. Senior obligations will have
+     * a higher recovery rate applied during pricing than subordinate securities.
      * @param seniority  the new value, not null
      * @return this, for chaining, not null
      */
@@ -493,7 +496,7 @@ public final class SingleNameReferenceInformation
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency of the reference.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -504,7 +507,7 @@ public final class SingleNameReferenceInformation
     }
 
     /**
-     * Sets the {@code restructuringClause} property in the builder.
+     * Sets the applicable restructuring.
      * @param restructuringClause  the new value, not null
      * @return this, for chaining, not null
      */

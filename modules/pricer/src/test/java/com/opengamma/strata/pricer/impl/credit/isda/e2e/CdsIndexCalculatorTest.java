@@ -21,8 +21,7 @@ import java.util.BitSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.convention.businessday.BusinessDayDateUtils;
-import com.opengamma.analytics.convention.daycount.DayCounts;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticCdsPricer;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
@@ -205,7 +204,7 @@ public class CdsIndexCalculatorTest extends IsdaBaseTest {
     refAvgSpread /= intrinsicDataWithDefaulted.getIndexFactor();
     assertEquals(refAvgSpread, resDefaultedAvgSpread, tol);
 
-    final double valTime = (DayCounts.ACT_365F).yearFraction(TRADE_DATE, BusinessDayDateUtils.addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR));
+    final double valTime = DayCounts.ACT_365F.yearFraction(TRADE_DATE, DEFAULT_CALENDAR.shift(TRADE_DATE, 3));
     final double resWithValTime = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA, CdsPriceType.CLEAN, valTime);
     assertEquals(res * INTRINSIC_DATA.getIndexFactor(), resWithValTime, tol);
 

@@ -377,7 +377,7 @@ public class TradeReportColumn implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code header} property in the builder.
+     * Sets the column header.
      * @param header  the new value, not null
      * @return this, for chaining, not null
      */
@@ -388,7 +388,7 @@ public class TradeReportColumn implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code value} property in the builder.
+     * Sets the reference to a value to display in this column.
      * @param value  the new value
      * @return this, for chaining, not null
      */
@@ -398,7 +398,7 @@ public class TradeReportColumn implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code ignoreFailures} property in the builder.
+     * Sets whether to ignore failures, or report the errors.
      * @param ignoreFailures  the new value
      * @return this, for chaining, not null
      */

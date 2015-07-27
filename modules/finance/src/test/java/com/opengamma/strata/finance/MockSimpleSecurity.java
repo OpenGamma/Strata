@@ -317,7 +317,7 @@ public class MockSimpleSecurity
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the name.
      * @param name  the new value
      * @return this, for chaining, not null
      */

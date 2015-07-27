@@ -493,7 +493,7 @@ public class CashFlowReport implements Report, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code valuationDate} property in the builder.
+     * Sets the valuation date.
      * @param valuationDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -504,7 +504,7 @@ public class CashFlowReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code runInstant} property in the builder.
+     * Sets the instant at which the report was run.
      * @param runInstant  the new value, not null
      * @return this, for chaining, not null
      */
@@ -515,7 +515,7 @@ public class CashFlowReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code columnKeys} property in the builder.
+     * Sets the keys corresponding to the columns.
      * @param columnKeys  the new value, not null
      * @return this, for chaining, not null
      */
@@ -526,7 +526,17 @@ public class CashFlowReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code columnHeaders} property in the builder.
+     * Sets the {@code columnKeys} property in the builder
+     * from an array of objects.
+     * @param columnKeys  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder columnKeys(ExplainKey<?>... columnKeys) {
+      return columnKeys(ImmutableList.copyOf(columnKeys));
+    }
+
+    /**
+     * Sets the column headers.
      * @param columnHeaders  the new value, not null
      * @return this, for chaining, not null
      */
@@ -537,7 +547,7 @@ public class CashFlowReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code data} property in the builder.
+     * Sets the cashflow data table.
      * @param data  the new value, not null
      * @return this, for chaining, not null
      */

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda.e2e;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getNextIMMDate;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
 import static org.testng.AssertJUnit.assertEquals;
@@ -70,7 +69,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     System.out.println("\nyieldCurveDemo");
 
     //The yield curve is snapped on 29-Jun-2014 and the spot date is 2-Jul-2014 (three working days on)
-    final LocalDate spotDate = addWorkDays(TRADE_DATE.minusDays(1), 3, DEFAULT_CALENDAR);
+    final LocalDate spotDate = DEFAULT_CALENDAR.shift(TRADE_DATE.minusDays(1), 3);
 
     //USD conventions 
     final String[] periods = new String[] {
@@ -140,7 +139,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
 
     //standard CDS settings 
     final LocalDate stepinDate = TRADE_DATE.plusDays(1); // 1-Jul-2014
-    final LocalDate cashSettleDate = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // 3-Jul-2014
+    final LocalDate cashSettleDate = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // 3-Jul-2014
     final LocalDate accStartDate = FOLLOWING.adjust(getPrevIMMDate(TRADE_DATE), DEFAULT_CALENDAR); // 20-Jun-2014
     final LocalDate endDate = getNextIMMDate(TRADE_DATE).plus(cdsTerm); // 20-Sep-2019
 
@@ -238,7 +237,7 @@ public class CdsAnalyticsDemo extends IsdaBaseTest {
     System.out.format("cash Settlement: %.2f\n", cashSettlement);
 
     //The market value is the value of the CDS on the trade date
-    final LocalDate cashSettleDate = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // 3-Jul-2014
+    final LocalDate cashSettleDate = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // 3-Jul-2014
     final double df = YIELD_CURVE.getDiscountFactor(ACT365F.yearFraction(TRADE_DATE, cashSettleDate));
     final double marketValue = df * cashSettlement;
     System.out.format("Market value: %.2f\n", marketValue);

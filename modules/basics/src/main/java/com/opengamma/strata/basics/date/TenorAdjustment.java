@@ -512,7 +512,9 @@ public final class TenorAdjustment
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tenor} property in the builder.
+     * Sets the tenor to be added.
+     * <p>
+     * When the adjustment is performed, this tenor will be added to the input date.
      * @param tenor  the new value, not null
      * @return this, for chaining, not null
      */
@@ -523,7 +525,11 @@ public final class TenorAdjustment
     }
 
     /**
-     * Sets the {@code additionConvention} property in the builder.
+     * Sets the addition convention to apply.
+     * <p>
+     * When the adjustment is performed, this convention is used to refine the adjusted date.
+     * The most common convention is to move the end date to the last business day of the month
+     * if the start date is the last business day of the month.
      * @param additionConvention  the new value, not null
      * @return this, for chaining, not null
      */
@@ -534,7 +540,11 @@ public final class TenorAdjustment
     }
 
     /**
-     * Sets the {@code adjustment} property in the builder.
+     * Sets the business day adjustment that is performed to the result of the addition.
+     * <p>
+     * This adjustment is applied to the result of the addition calculation.
+     * <p>
+     * If no adjustment is required, use the 'None' business day adjustment.
      * @param adjustment  the new value, not null
      * @return this, for chaining, not null
      */

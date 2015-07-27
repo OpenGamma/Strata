@@ -435,7 +435,7 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code template} property in the builder.
+     * Sets the template for the FRA associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
@@ -446,7 +446,7 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     }
 
     /**
-     * Sets the {@code rateKey} property in the builder.
+     * Sets the key identifying the market data value which provides the rate.
      * @param rateKey  the new value, not null
      * @return this, for chaining, not null
      */
@@ -457,7 +457,7 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     }
 
     /**
-     * Sets the {@code spread} property in the builder.
+     * Sets the spread added to the rate.
      * @param spread  the new value
      * @return this, for chaining, not null
      */

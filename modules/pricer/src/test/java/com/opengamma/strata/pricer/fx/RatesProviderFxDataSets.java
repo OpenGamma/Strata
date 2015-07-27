@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
 
 import java.time.LocalDate;
 
@@ -108,7 +109,7 @@ public class RatesProviderFxDataSets {
         .build();
   }
 
-  public static RatesProvider createProviderEURUSD() {
+  public static ImmutableRatesProvider createProviderEURUSD() {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
     return ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE_2014_01_22)
@@ -116,6 +117,7 @@ public class RatesProviderFxDataSets {
             .put(EUR, EUR_DSC)
             .put(USD, USD_DSC)
             .build())
+        .timeSeries(ImmutableMap.of(ECB_EUR_USD, LocalDateDoubleTimeSeries.empty()))
         .fxMatrix(fxMatrix)
         .build();
   }

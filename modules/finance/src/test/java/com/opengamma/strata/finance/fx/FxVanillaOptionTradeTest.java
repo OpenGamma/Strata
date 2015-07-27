@@ -89,4 +89,5 @@ public class FxVanillaOptionTradeTest {
         .build();
     assertSerialization(test);
   }
+
 }

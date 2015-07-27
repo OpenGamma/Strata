@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -37,12 +36,12 @@ public class UpfrontFlatTest {
 
   private static final LocalDate TODAY = LocalDate.of(2008, Month.SEPTEMBER, 19);
   private static final LocalDate STEPIN_DATE = TODAY.plusDays(1);
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TODAY, 3); // AKA valuation date
   private static final LocalDate START_DATE = LocalDate.of(2007, Month.MARCH, 20);
   private static final LocalDate END_DATE = LocalDate.of(2013, Month.JUNE, 20);
 
   // yield curve
-  private static final LocalDate SPOT_DATE = addWorkDays(TODAY, 2, DEFAULT_CALENDAR);
+  private static final LocalDate SPOT_DATE = DEFAULT_CALENDAR.shift(TODAY, 2);
   private static final IsdaCompliantYieldCurve YIELD_CURVE;
 
   static {

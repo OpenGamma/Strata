@@ -184,4 +184,5 @@ public class FxVanillaOptionTest {
         .build();
     assertSerialization(test);
   }
+
 }

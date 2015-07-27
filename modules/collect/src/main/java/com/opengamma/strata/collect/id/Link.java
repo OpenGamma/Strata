@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.collect.id;
 
-import org.joda.beans.ImmutableBean;
-
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -35,7 +33,7 @@ import com.google.common.reflect.TypeToken;
  * @param <T> the type of the target
  */
 public interface Link<T extends IdentifiableBean>
-    extends StandardIdentifiable, ImmutableBean {
+    extends StandardIdentifiable {
 
   /**
    * Checks if the link is resolved.

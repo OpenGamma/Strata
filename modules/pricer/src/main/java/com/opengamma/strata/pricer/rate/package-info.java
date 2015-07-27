@@ -5,9 +5,7 @@
  */
 
 /**
- * Rate pricer API.
- * <p>
- * Provides the ability to price rate products.
+ * Calculators for rates instruments, such as Forward Rate Agreement (FRA) and interest rate swap.
  * <p>
  * This package contains an interface to allow a rate, such as 'GBP-LIBOR-3M', to be observed.
  */

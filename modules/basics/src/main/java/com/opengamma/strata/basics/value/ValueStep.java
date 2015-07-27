@@ -516,7 +516,16 @@ public final class ValueStep
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code periodIndex} property in the builder.
+     * Sets the index of the schedule period boundary at which the change occurs.
+     * <p>
+     * This property is used to define the date that the step occurs in relative terms.
+     * The date is identified by specifying the zero-based index of the schedule period boundary.
+     * The change will occur at the start of the specified period.
+     * Thus an index of zero is the start of the first period or initial stub.
+     * The index must be one or greater, as a change is not permitted at the start of the first period.
+     * <p>
+     * For example, consider a 5 year swap from 2012-02-01 to 2017-02-01 with 6 month frequency.
+     * A zero-based index of '2' would refer to start of the 3rd period, which would be 2013-02-01.
      * @param periodIndex  the new value
      * @return this, for chaining, not null
      */
@@ -526,7 +535,14 @@ public final class ValueStep
     }
 
     /**
-     * Sets the {@code date} property in the builder.
+     * Sets the date of the schedule period boundary at which the change occurs.
+     * <p>
+     * This property is used to define the date that the step occurs in absolute terms.
+     * This must be one of the unadjusted dates in the schedule period schedule.
+     * This is an unadjusted date and calculation period business day adjustments will apply.
+     * <p>
+     * For example, consider a 5 year swap from 2012-02-01 to 2017-02-01 with 6 month frequency.
+     * The date '2013-02-01' is an unadjusted schedule period boundary, and so may be specified here.
      * @param date  the new value
      * @return this, for chaining, not null
      */
@@ -536,7 +552,9 @@ public final class ValueStep
     }
 
     /**
-     * Sets the {@code value} property in the builder.
+     * Sets the value representing the change that occurs.
+     * <p>
+     * The adjustment can be an absolute value, or various kinds of relative values.
      * @param value  the new value, not null
      * @return this, for chaining, not null
      */

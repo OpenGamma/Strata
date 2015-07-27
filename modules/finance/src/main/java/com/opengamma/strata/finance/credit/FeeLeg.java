@@ -372,7 +372,10 @@ public final class FeeLeg
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code upfrontFee} property in the builder.
+     * Sets the upfront fee.
+     * <p>
+     * This specifies a single amount payable by the buyer to the seller
+     * This amount occurs on the specified date and is considered to be a fee separate from the regular payments.
      * @param upfrontFee  the new value, not null
      * @return this, for chaining, not null
      */
@@ -383,7 +386,15 @@ public final class FeeLeg
     }
 
     /**
-     * Sets the {@code periodicPayments} property in the builder.
+     * Sets the periodic schedule of payments.
+     * <p>
+     * This specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller
+     * on the fixed rate payer payment dates. The fixed amount to be paid on each payment date can be
+     * specified in terms of a known currency amount or as an amount calculated on a formula basis
+     * by reference to a per annum fixed rate. The applicable business day convention and business
+     * day for adjusting any fixed rate payer payment date if it would otherwise fall on a day that
+     * is not a business day are those specified in the dateAdjustments element within the
+     * generalTerms component.
      * @param periodicPayments  the new value, not null
      * @return this, for chaining, not null
      */

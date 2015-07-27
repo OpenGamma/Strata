@@ -504,7 +504,9 @@ public final class FraTemplate
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code periodToStart} property in the builder.
+     * Sets the period between the spot value date and the start date.
+     * <p>
+     * In a FRA described as '2 x 5', the period to the start date is 2 months.
      * @param periodToStart  the new value, not null
      * @return this, for chaining, not null
      */
@@ -515,7 +517,13 @@ public final class FraTemplate
     }
 
     /**
-     * Sets the {@code periodToEnd} property in the builder.
+     * Sets the period between the spot value date and the end date.
+     * <p>
+     * In a FRA described as '2 x 5', the period to the end date is 5 months.
+     * The difference between the start date and the end date typically matches the tenor of the index,
+     * however this is not validated.
+     * <p>
+     * When building, this will default to the period to start plus the tenor of the index if not specified.
      * @param periodToEnd  the new value, not null
      * @return this, for chaining, not null
      */
@@ -526,7 +534,9 @@ public final class FraTemplate
     }
 
     /**
-     * Sets the {@code convention} property in the builder.
+     * Sets the underlying FRA convention.
+     * <p>
+     * This specifies the market convention of the FRA to be created.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */

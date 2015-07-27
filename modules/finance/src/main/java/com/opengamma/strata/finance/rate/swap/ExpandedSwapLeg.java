@@ -565,7 +565,9 @@ public final class ExpandedSwapLeg
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code type} property in the builder.
+     * Sets the type of the leg, such as Fixed or Ibor.
+     * <p>
+     * This provides a high level categorization of the swap leg.
      * @param type  the new value, not null
      * @return this, for chaining, not null
      */
@@ -576,7 +578,14 @@ public final class ExpandedSwapLeg
     }
 
     /**
-     * Sets the {@code payReceive} property in the builder.
+     * Sets whether the leg is pay or receive.
+     * <p>
+     * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+     * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+     * Note that negative interest rates can result in a payment in the opposite
+     * direction to that implied by this indicator.
+     * <p>
+     * The value of this flag should match the signs of the payment period notionals.
      * @param payReceive  the new value, not null
      * @return this, for chaining, not null
      */
@@ -587,7 +596,14 @@ public final class ExpandedSwapLeg
     }
 
     /**
-     * Sets the {@code paymentPeriods} property in the builder.
+     * Sets the payment periods that combine to form the swap leg.
+     * <p>
+     * Each payment period represents part of the life-time of the leg.
+     * In most cases, the periods do not overlap. However, since each payment period
+     * is essentially independent the data model allows overlapping periods.
+     * <p>
+     * The start date and end date of the leg are determined from the first and last period.
+     * As such, the periods should be sorted.
      * @param paymentPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -608,7 +624,9 @@ public final class ExpandedSwapLeg
     }
 
     /**
-     * Sets the {@code paymentEvents} property in the builder.
+     * Sets the payment events that are associated with the swap leg.
+     * <p>
+     * Payment events include notional exchange and fees.
      * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */

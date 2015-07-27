@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.basics.CalculationTarget;
 
 /**
@@ -19,7 +17,7 @@ import com.opengamma.strata.basics.CalculationTarget;
  * Implementations of this interface must be immutable beans.
  */
 public interface Trade
-    extends CalculationTarget, ImmutableBean {
+    extends CalculationTarget {
 
   /**
    * The additional trade information.
