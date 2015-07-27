@@ -54,6 +54,11 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
       double spread) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
@@ -61,8 +66,6 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
     double strikeRate = strike.fxRate(strikePair);
     boolean isCall = option.getPutCall().isCall();
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
     double undiscountedPrice = BlackFormulaRepository.price(
         forwardRate, strikeRate + spread, timeToExpiry, volatility, isCall);
     return undiscountedPrice;
@@ -74,6 +77,11 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
       double spread) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
@@ -81,8 +89,6 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
     double strikeRate = strike.fxRate(strikePair);
     boolean isCall = option.getPutCall().isCall();
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
     double undiscountedDelta = BlackFormulaRepository.delta(
         forwardRate, strikeRate + spread, timeToExpiry, volatility, isCall);
     return undiscountedDelta;
@@ -94,14 +100,17 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
       double spread) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
     double undiscountedGamma = BlackFormulaRepository.gamma(forwardRate, strikeRate + spread, timeToExpiry, volatility);
     return undiscountedGamma;
   }
@@ -112,14 +121,17 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
       double spread) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
     double undiscountedVega = BlackFormulaRepository.vega(forwardRate, strikeRate + spread, timeToExpiry, volatility);
     return undiscountedVega;
   }
@@ -130,14 +142,17 @@ public class BlackFxVanillaOptionProductPricer extends FxVanillaOptionProductPri
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
       double spread) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = strike.fxRate(strikePair);
     double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiryDate(), strikeRate, forwardRate);
-    double timeToExpiry =
-        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
     double undiscountedTheta =
         BlackFormulaRepository.driftlessTheta(forwardRate, strikeRate + spread, timeToExpiry, volatility);
     return undiscountedTheta;

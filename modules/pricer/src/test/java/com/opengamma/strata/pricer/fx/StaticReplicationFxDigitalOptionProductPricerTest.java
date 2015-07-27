@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.fx;
 
 import static com.opengamma.strata.basics.LongShort.LONG;
@@ -8,7 +13,9 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,15 +27,19 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.FxDigitalOption;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
+/**
+ * Test {@link StaticReplicationFxDigitalOptionProductPricer}.
+ */
 @Test
 public class StaticReplicationFxDigitalOptionProductPricerTest {
-  private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final ImmutableRatesProvider RATES_PROVIDER = RatesProviderFxDataSets.createProviderEURUSD();
   private static final double[] TIME_TO_EXPIRY = new double[] {0.01, 0.252, 0.501, 1.0, 2.0, 5.0 };
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16 };
@@ -97,12 +108,21 @@ public class StaticReplicationFxDigitalOptionProductPricerTest {
       .strike(STRIKE.inverse())
       .notional(NOTIONAL)
       .build();
-
+  private static final LocalDate EARLY_EXPIRY = LocalDate.of(2014, 1, 9);
+  private static final FxDigitalOption OPTION_EXPIRED = FxDigitalOption.builder()
+      .putCall(CALL)
+      .longShort(SHORT)
+      .expiryDate(EARLY_EXPIRY)
+      .expiryTime(EXPIRY_TIME)
+      .expiryZone(ZONE)
+      .index(ECB_EUR_USD)
+      .payoffCurrency(USD)
+      .strike(STRIKE)
+      .notional(NOTIONAL)
+      .build();
   private static final BlackFxDigitalOptionProductPricer PRICER_BLACK = BlackFxDigitalOptionProductPricer.DEFAULT;
   private static final StaticReplicationFxDigitalOptionProductPricer PRICER_REPLI = StaticReplicationFxDigitalOptionProductPricer.DEFAULT;
   private static final double TOL = PRICER_REPLI.getSpread();
-
-  //TODO expired options, needs handling in vanilla pricer, needs test for vanillas as well.
 
   //-------------------------------------------------------------------------
   public void test_price_presentValue() {
@@ -137,6 +157,14 @@ public class StaticReplicationFxDigitalOptionProductPricerTest {
     assertEquals(pvForRepli.getCurrency(), EUR);
     assertEquals(pvDomRepli.getAmount(), pvDomBlack.getAmount(), NOTIONAL * TOL);
     assertEquals(pvForRepli.getAmount(), pvForBlack.getAmount(), NOTIONAL * TOL);
+  }
+
+  public void test_price_presentValue_expired() {
+    double price = PRICER_REPLI.price(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pv = PRICER_REPLI.presentValue(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(price, 0d, TOL);
+    assertEquals(pv.getCurrency(), USD);
+    assertEquals(pv.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   //-------------------------------------------------------------------------
@@ -174,6 +202,45 @@ public class StaticReplicationFxDigitalOptionProductPricerTest {
     assertEquals(pvDeltaForRepli.getAmount(), pvDeltaForBlack.getAmount(), NOTIONAL * TOL);
   }
 
+  public void test_delta_presentValueDelta_expired() {
+    double delta = PRICER_REPLI.delta(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvDelta = PRICER_REPLI.presentValueDelta(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(delta, 0d, TOL);
+    assertEquals(pvDelta.getCurrency(), USD);
+    assertEquals(pvDelta.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueSensitivity() {
+    PointSensitivities curveSensiDomBlack =
+        PRICER_BLACK.presentValueSensitivity(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities curveSensiForBlack =
+        PRICER_BLACK.presentValueSensitivity(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities curveSensiDomRepli =
+        PRICER_REPLI.presentValueSensitivity(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities curveSensiForRepli =
+        PRICER_REPLI.presentValueSensitivity(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    assertTrue(curveSensiDomRepli.equalWithTolerance(curveSensiDomBlack, NOTIONAL * TOL));
+    assertTrue(curveSensiForRepli.equalWithTolerance(curveSensiForBlack, NOTIONAL * TOL));
+  }
+
+  public void test_presentValueSensitivity_inverse() {
+    PointSensitivities curveSensiDomBlack =
+        PRICER_BLACK.presentValueSensitivity(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities curveSensiForBlack =
+        PRICER_BLACK.presentValueSensitivity(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities curveSensiDomRepli =
+        PRICER_REPLI.presentValueSensitivity(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities curveSensiForRepli =
+        PRICER_REPLI.presentValueSensitivity(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    assertTrue(curveSensiDomRepli.equalWithTolerance(curveSensiDomBlack, NOTIONAL * TOL));
+    assertTrue(curveSensiForRepli.equalWithTolerance(curveSensiForBlack, NOTIONAL * TOL));
+  }
+
+  public void test_presentValueSensitivity_expired() {
+    PointSensitivities computed = PRICER_REPLI.presentValueSensitivity(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(computed, PointSensitivities.empty());
+  }
+
   //-------------------------------------------------------------------------
   public void test_gamma_presentValueGamma() {
     double gammaDomBlack = PRICER_BLACK.gamma(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
@@ -207,6 +274,14 @@ public class StaticReplicationFxDigitalOptionProductPricerTest {
     assertEquals(pvGammaForRepli.getCurrency(), EUR);
     assertEquals(pvGammaDomRepli.getAmount(), pvGammaDomBlack.getAmount(), NOTIONAL * TOL);
     assertEquals(pvGammaForRepli.getAmount(), pvGammaForBlack.getAmount(), NOTIONAL * TOL);
+  }
+
+  public void test_gamma_presentValueGamma_expired() {
+    double gamma = PRICER_REPLI.gamma(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvGamma = PRICER_REPLI.presentValueGamma(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(gamma, 0d, TOL);
+    assertEquals(pvGamma.getCurrency(), USD);
+    assertEquals(pvGamma.getAmount(), 0d, NOTIONAL * TOL);
   }
 
   //-------------------------------------------------------------------------
@@ -244,6 +319,46 @@ public class StaticReplicationFxDigitalOptionProductPricerTest {
     assertEquals(pvVegaForRepli.getAmount(), pvVegaForBlack.getAmount(), NOTIONAL * TOL);
   }
 
+  public void test_vega_presentValueVega_expired() {
+    double vega = PRICER_REPLI.vega(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvVega = PRICER_REPLI.presentValueVega(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(vega, 0d, TOL);
+    assertEquals(pvVega.getCurrency(), USD);
+    assertEquals(pvVega.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  public void test_presentValueSensitivityBlackVolatility() {
+    PointSensitivityBuilder volSensiDomBlack =
+        PRICER_BLACK.presentValueSensitivityBlackVolatility(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder volSensiForBlack =
+        PRICER_BLACK.presentValueSensitivityBlackVolatility(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder volSensiDomRepli =
+        PRICER_REPLI.presentValueSensitivityBlackVolatility(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder volSensiForRepli =
+        PRICER_REPLI.presentValueSensitivityBlackVolatility(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    assertTrue(volSensiDomRepli.build().equalWithTolerance(volSensiDomBlack.build(), NOTIONAL * TOL));
+    assertTrue(volSensiForRepli.build().equalWithTolerance(volSensiForBlack.build(), NOTIONAL * TOL));
+  }
+
+  public void test_presentValueSensitivityBlackVolatility_inverse() {
+    PointSensitivityBuilder volSensiDomBlack =
+        PRICER_BLACK.presentValueSensitivityBlackVolatility(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder volSensiForBlack =
+        PRICER_BLACK.presentValueSensitivityBlackVolatility(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder volSensiDomRepli =
+        PRICER_REPLI.presentValueSensitivityBlackVolatility(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder volSensiForRepli =
+        PRICER_REPLI.presentValueSensitivityBlackVolatility(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    assertTrue(volSensiDomRepli.build().equalWithTolerance(volSensiDomBlack.build(), NOTIONAL * TOL));
+    assertTrue(volSensiForRepli.build().equalWithTolerance(volSensiForBlack.build(), NOTIONAL * TOL));
+  }
+
+  public void test_presentValueSensitivityBlackVolatility_expired() {
+    PointSensitivityBuilder computed =
+        PRICER_REPLI.presentValueSensitivityBlackVolatility(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(computed, PointSensitivityBuilder.none());
+  }
+
   //-------------------------------------------------------------------------
   public void test_theta_presentValueTheta() {
     double thetaDomBlack = PRICER_BLACK.theta(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
@@ -277,5 +392,64 @@ public class StaticReplicationFxDigitalOptionProductPricerTest {
     assertEquals(pvThetaForRepli.getCurrency(), EUR);
     assertEquals(pvThetaDomRepli.getAmount(), pvThetaDomBlack.getAmount(), NOTIONAL * TOL);
     assertEquals(pvThetaForRepli.getAmount(), pvThetaForBlack.getAmount(), NOTIONAL * TOL);
+  }
+
+  public void test_theta_presentValueTheta_expired() {
+    double theta = PRICER_REPLI.theta(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvTheta = PRICER_REPLI.presentValueTheta(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(theta, 0d, TOL);
+    assertEquals(pvTheta.getCurrency(), USD);
+    assertEquals(pvTheta.getAmount(), 0d, NOTIONAL * TOL);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    MultiCurrencyAmount ceDomBlack = PRICER_BLACK.currencyExposure(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceForBlack = PRICER_BLACK.currencyExposure(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceDomRepli = PRICER_REPLI.currencyExposure(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceForRepli = PRICER_REPLI.currencyExposure(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(ceDomRepli.getAmount(EUR).getAmount(), ceDomBlack.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceDomRepli.getAmount(USD).getAmount(), ceDomBlack.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceForRepli.getAmount(EUR).getAmount(), ceForBlack.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceForRepli.getAmount(USD).getAmount(), ceForBlack.getAmount(USD).getAmount(), NOTIONAL * TOL);
+  }
+
+  public void test_currencyExposure_inverse() {
+    MultiCurrencyAmount ceDomBlack = PRICER_BLACK.currencyExposure(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceForBlack = PRICER_BLACK.currencyExposure(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceDomRepli = PRICER_REPLI.currencyExposure(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceForRepli = PRICER_REPLI.currencyExposure(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(ceDomRepli.getAmount(EUR).getAmount(), ceDomBlack.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceDomRepli.getAmount(USD).getAmount(), ceDomBlack.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceForRepli.getAmount(EUR).getAmount(), ceForBlack.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceForRepli.getAmount(USD).getAmount(), ceForBlack.getAmount(USD).getAmount(), NOTIONAL * TOL);
+  }
+
+  public void test_currencyExposure_expired() {
+    MultiCurrencyAmount computed = PRICER_REPLI.currencyExposure(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(computed, MultiCurrencyAmount.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_impliedVolatility() {
+    double volDomBlack = PRICER_BLACK.impliedVolatility(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    double volForBlack = PRICER_BLACK.impliedVolatility(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double volDomRepli = PRICER_REPLI.impliedVolatility(OPTION_EURUSD_USD, RATES_PROVIDER, VOL_PROVIDER);
+    double volForRepli = PRICER_REPLI.impliedVolatility(OPTION_EURUSD_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(volDomRepli, volDomBlack, TOL);
+    assertEquals(volForRepli, volForBlack, TOL);
+  }
+
+  public void test_impliedVolatility_inverse() {
+    double volDomBlack = PRICER_BLACK.impliedVolatility(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double volForBlack = PRICER_BLACK.impliedVolatility(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    double volDomRepli = PRICER_REPLI.impliedVolatility(OPTION_USDEUR_EUR, RATES_PROVIDER, VOL_PROVIDER);
+    double volForRepli = PRICER_REPLI.impliedVolatility(OPTION_USDEUR_USD, RATES_PROVIDER, VOL_PROVIDER);
+    assertEquals(volDomRepli, volDomBlack, TOL);
+    assertEquals(volForRepli, volForBlack, TOL);
+  }
+
+  public void test_impliedVolatility_expired() {
+    assertThrowsIllegalArg(() -> PRICER_REPLI.impliedVolatility(OPTION_EXPIRED, RATES_PROVIDER, VOL_PROVIDER));
   }
 }

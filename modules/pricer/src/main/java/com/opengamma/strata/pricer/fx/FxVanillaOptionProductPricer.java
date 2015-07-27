@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.fx;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -129,6 +134,9 @@ public abstract class FxVanillaOptionProductPricer {
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    if (volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone()) <= 0d) {
+      return PointSensitivities.empty();
+    }
     Fx underlying = option.getUnderlying();
     double undiscountedDelta = undiscountedDelta(option, ratesProvider, volatilityProvider, 0d);
     double discountFactor = ratesProvider.discountFactor(option.getPayoffCurrency(), underlying.getPaymentDate());
@@ -243,10 +251,15 @@ public abstract class FxVanillaOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public FxOptionSensitivity presentValueSensitivityBlackVolatility(
+  public PointSensitivityBuilder presentValueSensitivityBlackVolatility(
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return PointSensitivityBuilder.none();
+    }
     Fx underlying = option.getUnderlying();
     FxRate forward = getDiscountingFxProductPricer().forwardFxRate(underlying, ratesProvider);
     FxRate strike = option.getStrike();
@@ -322,6 +335,11 @@ public abstract class FxVanillaOptionProductPricer {
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      throw new IllegalArgumentException("valuation is after option's expiry.");
+    }
     FxRate forward = getDiscountingFxProductPricer().forwardFxRate(option.getUnderlying(), ratesProvider);
     FxRate strike = option.getStrike();
     CurrencyPair strikePair = strike.getPair();
@@ -342,6 +360,11 @@ public abstract class FxVanillaOptionProductPricer {
       FxVanillaOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
+    double timeToExpiry =
+        volatilityProvider.relativeTime(option.getExpiryDate(), option.getExpiryTime(), option.getExpiryZone());
+    if (timeToExpiry <= 0d) {
+      return MultiCurrencyAmount.empty();
+    }
     CurrencyPair strikePair = option.getStrike().getPair();
     double price = price(option, ratesProvider, volatilityProvider);
     double delta = delta(option, ratesProvider, volatilityProvider);
