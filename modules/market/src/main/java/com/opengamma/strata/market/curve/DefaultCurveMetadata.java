@@ -15,7 +15,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -77,7 +76,7 @@ public final class DefaultCurveMetadata
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.
    */
-  @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>")
+  @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>", builderType = "List<? extends CurveParameterMetadata>")
   private final ImmutableList<CurveParameterMetadata> parameterMetadata;
 
   //-------------------------------------------------------------------------
@@ -112,23 +111,6 @@ public final class DefaultCurveMetadata
     builder.yValueType = ValueType.UNKNOWN;
   }
 
-  @ImmutableConstructor
-  private DefaultCurveMetadata(
-      CurveName name,
-      ValueType xValueType,
-      ValueType yValueType,
-      DayCount dayCount,
-      List<? extends CurveParameterMetadata> parameterMetadata) {
-    JodaBeanUtils.notNull(name, "curveName");
-    JodaBeanUtils.notNull(xValueType, "xValueType");
-    JodaBeanUtils.notNull(yValueType, "yValueType");
-    this.curveName = name;
-    this.xValueType = xValueType;
-    this.yValueType = yValueType;
-    this.dayCount = dayCount;
-    this.parameterMetadata = (parameterMetadata != null ? ImmutableList.copyOf(parameterMetadata) : null);
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public DefaultCurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata) {
@@ -160,6 +142,22 @@ public final class DefaultCurveMetadata
    */
   public static DefaultCurveMetadata.Builder builder() {
     return new DefaultCurveMetadata.Builder();
+  }
+
+  private DefaultCurveMetadata(
+      CurveName curveName,
+      ValueType xValueType,
+      ValueType yValueType,
+      DayCount dayCount,
+      List<? extends CurveParameterMetadata> parameterMetadata) {
+    JodaBeanUtils.notNull(curveName, "curveName");
+    JodaBeanUtils.notNull(xValueType, "xValueType");
+    JodaBeanUtils.notNull(yValueType, "yValueType");
+    this.curveName = curveName;
+    this.xValueType = xValueType;
+    this.yValueType = yValueType;
+    this.dayCount = dayCount;
+    this.parameterMetadata = (parameterMetadata != null ? ImmutableList.copyOf(parameterMetadata) : null);
   }
 
   @Override
@@ -456,7 +454,7 @@ public final class DefaultCurveMetadata
     private ValueType xValueType;
     private ValueType yValueType;
     private DayCount dayCount;
-    private List<CurveParameterMetadata> parameterMetadata;
+    private List<? extends CurveParameterMetadata> parameterMetadata;
 
     /**
      * Restricted constructor.
@@ -513,7 +511,7 @@ public final class DefaultCurveMetadata
           this.dayCount = (DayCount) newValue;
           break;
         case -1169106440:  // parameterMetadata
-          this.parameterMetadata = (List<CurveParameterMetadata>) newValue;
+          this.parameterMetadata = (List<? extends CurveParameterMetadata>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -619,7 +617,7 @@ public final class DefaultCurveMetadata
      * @param parameterMetadata  the new value
      * @return this, for chaining, not null
      */
-    public Builder parameterMetadata(List<CurveParameterMetadata> parameterMetadata) {
+    public Builder parameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata) {
       this.parameterMetadata = parameterMetadata;
       return this;
     }

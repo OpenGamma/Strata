@@ -16,7 +16,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -93,14 +92,6 @@ public final class ConstantNodalCurve
   }
 
   //-------------------------------------------------------------------------
-  // restricted constructor
-  @ImmutableConstructor
-  private ConstantNodalCurve(CurveMetadata metadata, double yValue) {
-    JodaBeanUtils.notNull(metadata, "metadata");
-    this.metadata = metadata;
-    this.yValue = yValue;
-  }
-
   // ensure standard constructor is invoked
   private Object readResolve() {
     return new ConstantNodalCurve(metadata, yValue);
@@ -173,6 +164,15 @@ public final class ConstantNodalCurve
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
+
+  private ConstantNodalCurve(
+      CurveMetadata metadata,
+      double yValue) {
+    JodaBeanUtils.notNull(metadata, "metadata");
+    JodaBeanUtils.notNull(yValue, "yValue");
+    this.metadata = metadata;
+    this.yValue = yValue;
+  }
 
   @Override
   public ConstantNodalCurve.Meta metaBean() {

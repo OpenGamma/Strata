@@ -6,27 +6,20 @@
 package com.opengamma.strata.pricer.impl.option;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 /**
  * A data bundle with the data require for the normal option model (Bachelier model).
  */
-@BeanDefinition(style = "minimal", builderScope = "private")
+@BeanDefinition(style = "light")
 public final class NormalFunctionData
     implements ImmutableBean, Serializable {
 
@@ -65,14 +58,15 @@ public final class NormalFunctionData
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code NormalFunctionData}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(NormalFunctionData.class);
+
+  /**
+   * The meta-bean for {@code NormalFunctionData}.
    * @return the meta-bean, not null
    */
-  public static NormalFunctionData.Meta meta() {
-    return NormalFunctionData.Meta.INSTANCE;
-  }
-
-  static {
-    JodaBeanUtils.registerMetaBean(NormalFunctionData.Meta.INSTANCE);
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   /**
@@ -90,8 +84,8 @@ public final class NormalFunctionData
   }
 
   @Override
-  public NormalFunctionData.Meta metaBean() {
-    return NormalFunctionData.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -165,194 +159,6 @@ public final class NormalFunctionData
     buf.append("normalVolatility").append('=').append(JodaBeanUtils.toString(getNormalVolatility()));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code NormalFunctionData}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code forward} property.
-     */
-    private final MetaProperty<Double> forward = DirectMetaProperty.ofImmutable(
-        this, "forward", NormalFunctionData.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code numeraire} property.
-     */
-    private final MetaProperty<Double> numeraire = DirectMetaProperty.ofImmutable(
-        this, "numeraire", NormalFunctionData.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code normalVolatility} property.
-     */
-    private final MetaProperty<Double> normalVolatility = DirectMetaProperty.ofImmutable(
-        this, "normalVolatility", NormalFunctionData.class, Double.TYPE);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "forward",
-        "numeraire",
-        "normalVolatility");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -677145915:  // forward
-          return forward;
-        case 1747324302:  // numeraire
-          return numeraire;
-        case -995555220:  // normalVolatility
-          return normalVolatility;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends NormalFunctionData> builder() {
-      return new NormalFunctionData.Builder();
-    }
-
-    @Override
-    public Class<? extends NormalFunctionData> beanType() {
-      return NormalFunctionData.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case -677145915:  // forward
-          return ((NormalFunctionData) bean).getForward();
-        case 1747324302:  // numeraire
-          return ((NormalFunctionData) bean).getNumeraire();
-        case -995555220:  // normalVolatility
-          return ((NormalFunctionData) bean).getNormalVolatility();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code NormalFunctionData}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<NormalFunctionData> {
-
-    private double forward;
-    private double numeraire;
-    private double normalVolatility;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -677145915:  // forward
-          return forward;
-        case 1747324302:  // numeraire
-          return numeraire;
-        case -995555220:  // normalVolatility
-          return normalVolatility;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case -677145915:  // forward
-          this.forward = (Double) newValue;
-          break;
-        case 1747324302:  // numeraire
-          this.numeraire = (Double) newValue;
-          break;
-        case -995555220:  // normalVolatility
-          this.normalVolatility = (Double) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public NormalFunctionData build() {
-      return new NormalFunctionData(
-          forward,
-          numeraire,
-          normalVolatility);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("NormalFunctionData.Builder{");
-      buf.append("forward").append('=').append(JodaBeanUtils.toString(forward)).append(',').append(' ');
-      buf.append("numeraire").append('=').append(JodaBeanUtils.toString(numeraire)).append(',').append(' ');
-      buf.append("normalVolatility").append('=').append(JodaBeanUtils.toString(normalVolatility));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON

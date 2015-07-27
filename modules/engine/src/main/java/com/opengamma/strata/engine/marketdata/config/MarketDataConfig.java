@@ -14,7 +14,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -32,7 +31,7 @@ import com.opengamma.strata.collect.type.TypedString;
  * <p>
  * This class is effectively a map of arbitrary objects, keyed by their type and a name.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class MarketDataConfig implements ImmutableBean {
 
   /** An empty set of market data configuration. */
@@ -58,17 +57,6 @@ public final class MarketDataConfig implements ImmutableBean {
    */
   public static MarketDataConfigBuilder builder() {
     return new MarketDataConfigBuilder();
-  }
-
-  /**
-   * Package-private constructor used by the builder.
-   *
-   * @param configs  sets of configuration keyed by their type
-   */
-  @ImmutableConstructor
-  MarketDataConfig(Map<Class<?>, SingleTypeMarketDataConfig> configs) {
-    JodaBeanUtils.notNull(configs, "configs");
-    this.configs = ImmutableMap.copyOf(configs);
   }
 
   /**
@@ -121,6 +109,16 @@ public final class MarketDataConfig implements ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(MarketDataConfig.Meta.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * @param configs  the value of the property, not null
+   */
+  MarketDataConfig(
+      Map<Class<?>, SingleTypeMarketDataConfig> configs) {
+    JodaBeanUtils.notNull(configs, "configs");
+    this.configs = ImmutableMap.copyOf(configs);
   }
 
   @Override
