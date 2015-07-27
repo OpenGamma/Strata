@@ -820,7 +820,13 @@ public final class GenericFutureOption
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code productId} property in the builder.
+     * Sets the base product identifier.
+     * <p>
+     * The identifier that is used for the base product, also known as the symbol.
+     * A future option typically expires monthly or quarterly, thus the product referred to here
+     * is the base product of a series of contracts. A unique identifier for the contract is formed
+     * by combining the base product, put/call, strike and expiration month.
+     * For example, 'Eurex~OGBL' could be used to refer to the Euro-Bund option base product at Eurex.
      * @param productId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -831,7 +837,14 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code expirationMonth} property in the builder.
+     * Sets the expiration month.
+     * <p>
+     * The month used to identify the expiration of the option.
+     * When the option expires, trading stops.
+     * <p>
+     * Options expire on a specific date, but as there is typically only one contract per month,
+     * the month is used to refer to the future. Note that it is possible for the expiration
+     * date to be in a different calendar month to that used to refer to the option.
      * @param expirationMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -842,7 +855,10 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code putCall} property in the builder.
+     * Sets whether the option is put or call.
+     * <p>
+     * A call gives the owner the right, but not obligation, to buy the underlying at
+     * an agreed price in the future. A put gives a similar option to sell.
      * @param putCall  the new value
      * @return this, for chaining, not null
      */
@@ -852,7 +868,13 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code strikePrice} property in the builder.
+     * Sets the strike price, represented in decimal form.
+     * <p>
+     * This is the price at which the option applies and refers to the price of the underlying future.
+     * This must be represented in decimal form.
+     * <p>
+     * No indication is provided as to the meaning of one unit of this price.
+     * It may be an amount in a currency, a percentage or something else entirely.
      * @param strikePrice  the new value
      * @return this, for chaining, not null
      */
@@ -862,7 +884,12 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code expirationDate} property in the builder.
+     * Sets the expiration date, optional.
+     * <p>
+     * This is the date that the option expires.
+     * A generic future option is intended to be used for future options that expire monthly or quarterly.
+     * As such, the {@code expirationMonth} field is used to identify the contract and this
+     * date is primarily for information.
      * @param expirationDate  the new value
      * @return this, for chaining, not null
      */
@@ -872,7 +899,10 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code tickSize} property in the builder.
+     * Sets the size of each tick.
+     * <p>
+     * The tick size is defined as a decimal number.
+     * If the tick size is 1/32, the tick size would be 0.03125.
      * @param tickSize  the new value
      * @return this, for chaining, not null
      */
@@ -882,7 +912,9 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code tickValue} property in the builder.
+     * Sets the monetary value of one tick.
+     * <p>
+     * When the price changes by one tick, this amount is gained/lost.
      * @param tickValue  the new value, not null
      * @return this, for chaining, not null
      */
@@ -893,7 +925,9 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code underlyingQuantity} property in the builder.
+     * Sets the quantity of the underlying future that the option refers to, defaulted to 1.
+     * <p>
+     * An option typically refers to one future, and this will be set by default.
      * @param underlyingQuantity  the new value
      * @return this, for chaining, not null
      */
@@ -903,7 +937,10 @@ public final class GenericFutureOption
     }
 
     /**
-     * Sets the {@code underlyingLink} property in the builder.
+     * Sets the link to the underlying future.
+     * <p>
+     * This property returns a link to the security via a {@link StandardId}.
+     * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
      * @param underlyingLink  the new value
      * @return this, for chaining, not null
      */

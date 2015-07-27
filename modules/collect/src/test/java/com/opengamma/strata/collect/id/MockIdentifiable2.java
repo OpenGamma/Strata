@@ -287,7 +287,7 @@ public final class MockIdentifiable2
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code standardId} property in the builder.
+     * Sets the standardId.
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */

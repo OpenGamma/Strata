@@ -196,6 +196,27 @@ public class DiscountingSwapProductPricer {
     }
   }
 
+  /**
+   * Computes the par spread for swaps. 
+   * <p>
+   * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
+   * <p>
+   * The par spread will be computed with respect to the first leg. For that leg, all the payments have a unique 
+   * accrual period (no compounding) and no FX reset.
+   * 
+   * @param product  the swap product for which the par rate should be computed
+   * @param provider  the rates provider
+   * @return the par rate
+   */
+  public double parSpread(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap swap = product.expand();
+    SwapLeg referenceLeg = swap.getLegs().get(0);
+    Currency ccyReferenceLeg = referenceLeg.getCurrency();
+    double convertedPv = presentValue(swap, ccyReferenceLeg, provider).getAmount();
+    double pvbp = legPricer.pvbp(referenceLeg, provider);
+    return -convertedPv / pvbp;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value sensitivity of the swap product.
@@ -212,6 +233,28 @@ public class DiscountingSwapProductPricer {
         product.expand(),
         provider,
         legPricer::presentValueSensitivity);
+  }
+
+  /**
+   * Calculates the present value sensitivity of the swap product converted in a given currency.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param product  the product to price
+   * @param currency  the currency to convert to
+   * @param provider  the rates provider
+   * @return the present value curve sensitivity of the swap product converted in the given currency
+   */
+  public PointSensitivityBuilder presentValueSensitivity(SwapProduct product, Currency currency, RatesProvider provider) {
+    PointSensitivityBuilder builder = PointSensitivityBuilder.none();
+    for (ExpandedSwapLeg leg : product.expand().getLegs()) {
+      PointSensitivityBuilder ls = legPricer.presentValueSensitivity(leg, provider);
+      PointSensitivityBuilder lsConverted = 
+          ls.withCurrency(currency).multipliedBy(provider.fxRate(leg.getCurrency(), currency));
+      builder = builder.combinedWith(lsConverted);
+    }
+    return builder;    
   }
 
   /**
@@ -245,7 +288,7 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Calculates the par rate curve sensitivity for a fixed swap leg. 
+   * Calculates the par rate curve sensitivity for a swap with a fixed leg. 
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
@@ -288,6 +331,32 @@ public class DiscountingSwapProductPricer {
     return pvbpFixedLegDr.multipliedBy(pvbpFixedLegBar)
         .combinedWith(fixedLegEventsPvDr.multipliedBy(fixedLegEventsPvBar))
         .combinedWith(otherLegsConvertedPvDr.multipliedBy(otherLegsConvertedPvBar));
+  }
+
+  /**
+   * Calculates the par spread curve sensitivity for a swap. 
+   * <p>
+   * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
+   * <p>
+   * The par spread is computed with respect to the first leg. For that leg, all the payments have a unique 
+   * accrual period (no compounding) and no FX reset.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the par spread curve sensitivity of the swap product
+   */
+  public PointSensitivityBuilder parSpreadSensitivity(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap swap = product.expand();
+    SwapLeg referenceLeg = swap.getLegs().get(0);
+    Currency ccyReferenceLeg = referenceLeg.getCurrency();
+    double convertedPv = presentValue(swap, ccyReferenceLeg, provider).getAmount();
+    double pvbp = legPricer.pvbp(referenceLeg, provider);
+    // Backward sweep
+    double convertedPvBar = -1d / pvbp;
+    double pvbpBar = convertedPv / (pvbp * pvbp);
+    PointSensitivityBuilder pvbpDr = legPricer.pvbpSensitivity(referenceLeg, provider);
+    PointSensitivityBuilder convertedPvDr = presentValueSensitivity(swap, ccyReferenceLeg, provider);
+    return convertedPvDr.multipliedBy(convertedPvBar).combinedWith(pvbpDr.multipliedBy(pvbpBar));
   }
 
   //-------------------------------------------------------------------------

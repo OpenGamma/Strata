@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementations of the pricer API.
+ * Internal implementations.
  * <p>
  * This package and sub-packages contain the internal implementation of pricers.
  * <p>

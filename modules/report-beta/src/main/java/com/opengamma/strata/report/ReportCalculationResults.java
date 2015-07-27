@@ -442,7 +442,7 @@ public class ReportCalculationResults implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code valuationDate} property in the builder.
+     * Sets the valuation date.
      * @param valuationDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -453,7 +453,7 @@ public class ReportCalculationResults implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code trades} property in the builder.
+     * Sets the trades on which the results are calculated.
      * @param trades  the new value, not null
      * @return this, for chaining, not null
      */
@@ -474,7 +474,7 @@ public class ReportCalculationResults implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code columns} property in the builder.
+     * Sets the columns contained in the results.
      * @param columns  the new value, not null
      * @return this, for chaining, not null
      */
@@ -495,7 +495,7 @@ public class ReportCalculationResults implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code calculationResults} property in the builder.
+     * Sets the calculation results.
      * @param calculationResults  the new value, not null
      * @return this, for chaining, not null
      */

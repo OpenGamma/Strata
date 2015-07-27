@@ -833,7 +833,10 @@ public final class FxDigitalOption
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code putCall} property in the builder.
+     * Sets whether the option is put or call.
+     * <p>
+     * A call pays one unit of base/counter currency if the exchange spot rate is above the strike rate at expiry.
+     * A put pays one unit of base/counter currency if the exchange spot rate is below the strike rate at expiry.
      * @param putCall  the new value, not null
      * @return this, for chaining, not null
      */
@@ -844,7 +847,10 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code longShort} property in the builder.
+     * Sets whether the option is long or short.
+     * <p>
+     * Long indicates that the owner wants the option to be in the money at expiry.
+     * Short indicates that the owner wants the option to be out of the money at expiry.
      * @param longShort  the new value, not null
      * @return this, for chaining, not null
      */
@@ -855,7 +861,7 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -866,7 +872,9 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code expiryDate} property in the builder.
+     * Sets the expiry date of the option.
+     * <p>
+     * The option is European, and can only be exercised on the expiry date.
      * @param expiryDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -877,7 +885,9 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code expiryTime} property in the builder.
+     * Sets the expiry time of the option.
+     * <p>
+     * The expiry time is related to the expiry date and time-zone.
      * @param expiryTime  the new value, not null
      * @return this, for chaining, not null
      */
@@ -888,7 +898,9 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code expiryZone} property in the builder.
+     * Sets the time-zone of the expiry time.
+     * <p>
+     * The expiry time-zone is related to the expiry date and time.
      * @param expiryZone  the new value, not null
      * @return this, for chaining, not null
      */
@@ -899,7 +911,9 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the date that option's payoff settles.
+     * <p>
+     * This should not be before expiry date.
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -910,7 +924,9 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code payoffCurrency} property in the builder.
+     * Sets the currency in which the unit amount is delivered.
+     * <p>
+     * This is be one of the currency pair of the FX index.
      * @param payoffCurrency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -921,7 +937,10 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the index defining the FX rate to observe on the expiry date.
+     * <p>
+     * The index is used to decide the exercisability of the option by providing the actual FX rate on the expiry date.
+     * The value of the trade is based on the relative magnitude between the actual rate and the agreed rate.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -932,7 +951,10 @@ public final class FxDigitalOption
     }
 
     /**
-     * Sets the {@code strike} property in the builder.
+     * Sets the strike of the option.
+     * <p>
+     * The moneyness of the option is determined based on this strike in terms of direction and value.
+     * The currency pair of the strike should match the currency pair (or the inverse of the pair) of {@code index}.
      * @param strike  the new value, not null
      * @return this, for chaining, not null
      */

@@ -324,7 +324,9 @@ public final class DefaultMarketDataRules implements MarketDataRules, ImmutableB
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rules} property in the builder.
+     * Sets the individual rules making up this set of market data rules.
+     * <p>
+     * The rules are checked in order and the first matching rule is used.
      * @param rules  the new value, not null
      * @return this, for chaining, not null
      */

@@ -547,7 +547,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code parameters} property in the builder.
+     * Sets the normal volatility surface.
+     * The order of the dimensions is expiry/simple moneyness.
      * @param parameters  the new value, not null
      * @return this, for chaining, not null
      */
@@ -558,7 +559,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     }
 
     /**
-     * Sets the {@code isMoneynessOnPrice} property in the builder.
+     * Sets flag indicating if the moneyness is on the price (true) or on the rate (false).
      * @param isMoneynessOnPrice  the new value
      * @return this, for chaining, not null
      */
@@ -568,7 +569,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the Ibor index of the underlying future.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -579,7 +580,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count applicable to the model.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -590,7 +591,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     }
 
     /**
-     * Sets the {@code valuationDateTime} property in the builder.
+     * Sets the valuation date-time.
+     * All data items in this provider is calibrated for this date-time.
      * @param valuationDateTime  the new value, not null
      * @return this, for chaining, not null
      */

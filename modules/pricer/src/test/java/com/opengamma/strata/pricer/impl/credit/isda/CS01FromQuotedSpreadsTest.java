@@ -5,14 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -24,7 +23,7 @@ public class CS01FromQuotedSpreadsTest extends IsdaBaseTest {
   protected static final double NOTIONAL = 1e6;
   private static final LocalDate TRADE_DATE = LocalDate.of(2013, 6, 4); //today
   private static final LocalDate EFFECTIVE_DATE = TRADE_DATE.plusDays(1); // AKA stepin date
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // AKA valuation date
   private static final LocalDate STARTDATE = LocalDate.of(2013, 3, 20);
   private static final LocalDate[] MATURITIES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20),
     LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20), LocalDate.of(2014, 12, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20),
@@ -162,7 +161,8 @@ public class CS01FromQuotedSpreadsTest extends IsdaBaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CdsAnalytic cds = new CdsAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(cds, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(
+          cds, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
       for (int j = 0; j < m; j++) {
         bucketedCS01[j] *= scale;
@@ -186,10 +186,12 @@ public class CS01FromQuotedSpreadsTest extends IsdaBaseTest {
     for (int i = 0; i < n; i++) {
       tradedCDSs[i] = new CdsAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
-    final double[][] cs01Mat = CS01_CAL.bucketedCS01FromQuotedSpreads(tradedCDSs, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
+    final double[][] cs01Mat = CS01_CAL.bucketedCS01FromQuotedSpreads(
+        tradedCDSs, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
     for (int i = 0; i < n; i++) {
-      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(tradedCDSs[i], COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(
+          tradedCDSs[i], COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
       for (int j = 0; j < m; j++) {
         //this is a regression test, so expect exact match 

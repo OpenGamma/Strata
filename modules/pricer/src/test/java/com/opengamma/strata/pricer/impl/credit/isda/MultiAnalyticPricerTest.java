@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getIMMDateSet;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getNextIMMDate;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
@@ -49,7 +48,7 @@ public class MultiAnalyticPricerTest extends IsdaBaseTest {
     final LocalDate tradeDate = LocalDate.of(2013, Month.AUGUST, 30);
     final LocalDate effectiveDate = FOLLOWING.adjust(getPrevIMMDate(tradeDate), DEFAULT_CALENDAR);
     final LocalDate stepinDate = tradeDate.plusDays(1);
-    final LocalDate valueDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR);
+    final LocalDate valueDate = DEFAULT_CALENDAR.shift(tradeDate, 3);
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final int matIndex = 4;
     LocalDate temp = nextIMM;
@@ -78,7 +77,7 @@ public class MultiAnalyticPricerTest extends IsdaBaseTest {
     final LocalDate tradeDate = LocalDate.of(2013, Month.AUGUST, 30);
     final LocalDate effectiveDate = FOLLOWING.adjust(getPrevIMMDate(tradeDate), DEFAULT_CALENDAR);
     final LocalDate stepinDate = tradeDate.plusDays(1);
-    final LocalDate valueDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR);
+    final LocalDate valueDate = DEFAULT_CALENDAR.shift(tradeDate, 3);
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final int[] matIndex = new int[] {1, 2, 4, 8, 12, 20, 28 };
     final int nMat = matIndex.length;
@@ -217,7 +216,7 @@ public class MultiAnalyticPricerTest extends IsdaBaseTest {
     final LocalDate tradeDate = LocalDate.of(2013, Month.AUGUST, 30);
     final LocalDate effectiveDate = FOLLOWING.adjust(getPrevIMMDate(tradeDate), DEFAULT_CALENDAR);
     final LocalDate stepinDate = tradeDate.plusDays(1);
-    final LocalDate valueDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR);
+    final LocalDate valueDate = DEFAULT_CALENDAR.shift(tradeDate, 3);
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final int matIndex0 = 4;
     final int matIndex1 = 8;
@@ -282,7 +281,7 @@ public class MultiAnalyticPricerTest extends IsdaBaseTest {
     final LocalDate tradeDate = LocalDate.of(2013, Month.JANUARY, 31);
     final LocalDate effectiveDate = FOLLOWING.adjust(getPrevIMMDate(tradeDate), DEFAULT_CALENDAR);
     final LocalDate stepinDate = tradeDate.plusDays(1);
-    final LocalDate valueDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR);
+    final LocalDate valueDate = DEFAULT_CALENDAR.shift(tradeDate, 3);
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final int matIndex0 = 4;
     final int matIndex1 = 6;

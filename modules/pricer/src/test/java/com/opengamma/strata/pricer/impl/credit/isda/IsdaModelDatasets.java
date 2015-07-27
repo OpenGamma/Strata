@@ -10,7 +10,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import com.opengamma.analytics.util.time.DateUtils;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.ArgChecker;
@@ -22,8 +21,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public abstract class IsdaModelDatasets {
 
-  // to convert LocalDate to ZonedDateTime (actual date used here is irrelevant)
-  protected static final LocalTime LOCAL_TIME = DateUtils.getUTCDate(2013, 4, 21).toLocalTime(); // to convert LocalDate to ZonedDateTime
+  protected static final LocalTime LOCAL_TIME = LocalTime.MIDNIGHT;
   protected static final ZoneId TIME_ZONE = ZoneId.of("Z");
 
   protected static final DayCount ACT360 = DayCounts.ACT_360;

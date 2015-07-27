@@ -362,7 +362,9 @@ public final class SinglePayment
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code fixedAmount} property in the builder.
+     * Sets the fixed payment amount.
+     * <p>
+     * ISDA 2003 Term: Fixed Amount
      * @param fixedAmount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -373,7 +375,9 @@ public final class SinglePayment
     }
 
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the adjusted payment date.
+     * <p>
+     * This is an adjusted date, which should be a valid business day
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */

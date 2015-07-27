@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -40,7 +39,7 @@ public class CdsJapanTest extends IsdaBaseTest {
       0.01585, 0.017925 };
 
     final LocalDate tradeDate = LocalDate.of(2013, Month.OCTOBER, 16);
-    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, TYO_CAL);
+    final LocalDate spotDate = TYO_CAL.shift(tradeDate.minusDays(1), 3);
 
     final IsdaCompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, ACT_ACT_ISDA, Period.ofMonths(6), TYO_CAL);
     final CdsAnalytic cds = FACTORY.makeImmCds(tradeDate, Period.ofYears(5));

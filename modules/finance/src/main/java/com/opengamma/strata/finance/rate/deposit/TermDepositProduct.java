@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.rate.deposit;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.finance.Expandable;
 import com.opengamma.strata.finance.Product;
 
@@ -20,6 +18,6 @@ import com.opengamma.strata.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface TermDepositProduct
-    extends Product, Expandable<ExpandedTermDeposit>, ImmutableBean {
+    extends Product, Expandable<ExpandedTermDeposit> {
 
 }

@@ -1064,7 +1064,11 @@ public final class Fra
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code buySell} property in the builder.
+     * Sets whether the FRA is buy or sell.
+     * <p>
+     * A value of 'Buy' implies that the floating rate is received from the counterparty,
+     * with the fixed rate being paid. A value of 'Sell' implies that the floating rate
+     * is paid to the counterparty, with the fixed rate being received.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1075,7 +1079,13 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency, defaulted to the currency of the index.
+     * <p>
+     * This is the currency of the FRA and the currency that payment is made in.
+     * The data model permits this currency to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * When building, this will default to the currency of the index if not specified.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1086,7 +1096,10 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount.
+     * <p>
+     * The notional expressed here must be positive.
+     * The currency of the notional is specified by {@code currency}.
      * @param notional  the new value
      * @return this, for chaining, not null
      */
@@ -1097,7 +1110,12 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date, which is the effective date of the FRA.
+     * <p>
+     * This is the first date that interest accrues.
+     * <p>
+     * This date is typically set to be a valid business day.
+     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1108,7 +1126,13 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date, which is the termination date of the FRA.
+     * <p>
+     * This is the last day that interest accrues.
+     * This date must be after the start date.
+     * <p>
+     * This date is typically set to be a valid business day.
+     * Optionally, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1119,7 +1143,11 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end date, optional.
+     * <p>
+     * The start and end date are typically defined as valid business days and thus
+     * do not need to be adjusted. If this optional property is present, then the
+     * start and end date will be adjusted as defined here.
      * @param businessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -1129,7 +1157,11 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code paymentDateOffset} property in the builder.
+     * Sets the offset of the payment date from the start date, optional.
+     * <p>
+     * Defines the offset from the start date to the payment date.
+     * If this optional property is present, then the offset will be applied to the start to obtain the payment date.
+     * In most cases, the payment date is the same as the start date, so this property is empty.
      * @param paymentDateOffset  the new value
      * @return this, for chaining, not null
      */
@@ -1139,7 +1171,10 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code fixedRate} property in the builder.
+     * Sets the fixed rate of interest.
+     * A 5% rate will be expressed as 0.05.
+     * <p>
+     * See {@code buySell} to determine whether this rate is paid or received.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
@@ -1149,7 +1184,13 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the IBOR-like index.
+     * <p>
+     * The floating rate to be paid is based on this index
+     * It will be a well known market index such as 'GBP-LIBOR-3M'.
+     * This will be used throughout unless {@code indexInterpolated} is present.
+     * <p>
+     * See {@code buySell} to determine whether this rate is paid or received.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1160,7 +1201,11 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code indexInterpolated} property in the builder.
+     * Sets the second IBOR-like index to be used for linear interpolation, optional.
+     * <p>
+     * This will be used with {@code index} to linearly interpolate the rate.
+     * It will be a well known market index such as 'GBP-LIBOR-6M'.
+     * This index may be shorter or longer than {@code index}, but not the same.
      * @param indexInterpolated  the new value
      * @return this, for chaining, not null
      */
@@ -1170,7 +1215,13 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code fixingDateOffset} property in the builder.
+     * Sets the offset of the fixing date from the start date.
+     * <p>
+     * The offset is applied to the start date and is typically minus 2 business days.
+     * The data model permits the offset to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * When building, this will default to the fixing date offset of the index if not specified.
      * @param fixingDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1181,7 +1232,13 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable, defaulted to the day count of the index.
+     * <p>
+     * This is used to convert dates to a numerical value.
+     * The data model permits the day count to differ from that of the index,
+     * however the two are typically the same.
+     * <p>
+     * When building, this will default to the day count of the index if not specified.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1192,7 +1249,13 @@ public final class Fra
     }
 
     /**
-     * Sets the {@code discounting} property in the builder.
+     * Sets the method to use for discounting, defaulted to 'ISDA' or 'AFMA'.
+     * <p>
+     * There are different approaches FRA pricing in the area of discounting.
+     * This method specifies the approach for this FRA.
+     * <p>
+     * When building, this will default 'AFMA' if the index has the currency
+     * 'AUD' or 'NZD' and to 'ISDA' otherwise.
      * @param discounting  the new value, not null
      * @return this, for chaining, not null
      */

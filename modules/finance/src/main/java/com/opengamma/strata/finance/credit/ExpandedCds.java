@@ -885,7 +885,10 @@ public class ExpandedCds
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code buySellProtection} property in the builder.
+     * Sets whether the CDS is buy or sell.
+     * <p>
+     * A value of 'Buy' implies that the fee leg payments are being paid, and protection is being bought.
+     * A value of 'Sell' implies that the fee leg payments are being received, and protection is being sold.
      * @param buySellProtection  the new value, not null
      * @return this, for chaining, not null
      */
@@ -896,7 +899,9 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the primary currency.
+     * <p>
+     * This is the currency of the CDS and the currency that payments are made in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -907,7 +912,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount used to calculate fee payments.
      * @param notional  the new value, not null
      * @return this, for chaining, not null
      */
@@ -918,7 +923,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code coupon} property in the builder.
+     * Sets the coupon used to calculate fee payments.
      * @param coupon  the new value, not null
      * @return this, for chaining, not null
      */
@@ -929,7 +934,12 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the date that the CDS nominally starts in terms of premium payments.
+     * <p>
+     * The number of days in the first period, and thus the amount of the first premium payment,
+     * is counted from this date.
+     * <p>
+     * This should be adjusted according business day and holidays.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -940,7 +950,12 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the date that the contract expires and protection ends.
+     * <p>
+     * Any default after this date does not trigger a payment.
+     * The protection ends at the end of day.
+     * <p>
+     * This is an adjusted date and can fall on a holiday or weekend.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -951,7 +966,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start and end dates.
      * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -962,7 +977,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code payAccruedOnDefault} property in the builder.
+     * Sets whether the accrued premium is paid in the event of a default.
      * @param payAccruedOnDefault  the new value, not null
      * @return this, for chaining, not null
      */
@@ -973,7 +988,9 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code paymentInterval} property in the builder.
+     * Sets the nominal period between premium payments, such as 3 months or 6 months.
+     * <p>
+     * Regular payments will be made at the specified periodic frequency.
      * @param paymentInterval  the new value, not null
      * @return this, for chaining, not null
      */
@@ -984,7 +1001,10 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code stubConvention} property in the builder.
+     * Sets the stub convention to use.
+     * <p>
+     * This may be 'ShortInitial', 'LongInitial', 'ShortFinal', or 'LongFinal'.
+     * The values 'None' and 'Both' are not allowed.
      * @param stubConvention  the new value, not null
      * @return this, for chaining, not null
      */
@@ -995,7 +1015,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code accrualDayCount} property in the builder.
+     * Sets the day count convention to be used for calculating the accrual.
      * @param accrualDayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1006,7 +1026,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code upfrontFeeAmount} property in the builder.
+     * Sets the upfront fee amount, optional.
      * @param upfrontFeeAmount  the new value
      * @return this, for chaining, not null
      */
@@ -1016,7 +1036,7 @@ public class ExpandedCds
     }
 
     /**
-     * Sets the {@code upfrontFeePaymentDate} property in the builder.
+     * Sets the upfront fee date, optional.
      * @param upfrontFeePaymentDate  the new value
      * @return this, for chaining, not null
      */

@@ -59,6 +59,13 @@ public class FixedIborSwapTemplateTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
+    FixedIborSwapTemplate test = FixedIborSwapTemplate.of(TENOR_10Y, CONV);
+    assertEquals(test.getPeriodToStart(), Period.ZERO);
+    assertEquals(test.getTenor(), TENOR_10Y);
+    assertEquals(test.getConvention(), CONV);
+  }
+
+  public void test_of_period() {
     FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     assertEquals(test.getPeriodToStart(), Period.ofMonths(3));
     assertEquals(test.getTenor(), TENOR_10Y);

@@ -450,7 +450,8 @@ public class SwapLegAmount
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code amount} property in the builder.
+     * Sets the amount associated with the leg.
+     * The meaning associated with this amount is implied by the context.
      * @param amount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -461,7 +462,7 @@ public class SwapLegAmount
     }
 
     /**
-     * Sets the {@code payReceive} property in the builder.
+     * Sets whether the leg is pay or receive.
      * @param payReceive  the new value, not null
      * @return this, for chaining, not null
      */
@@ -472,7 +473,7 @@ public class SwapLegAmount
     }
 
     /**
-     * Sets the {@code legType} property in the builder.
+     * Sets the type of the leg, such as Fixed or Ibor.
      * @param legType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -483,7 +484,8 @@ public class SwapLegAmount
     }
 
     /**
-     * Sets the {@code legCurrency} property in the builder.
+     * Sets the currency of the leg.
+     * This is not be affected by any currency conversion applied to the amount.
      * @param legCurrency  the new value, not null
      * @return this, for chaining, not null
      */

@@ -732,7 +732,8 @@ public final class ImmutableRatesProvider
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code valuationDate} property in the builder.
+     * Sets the valuation date.
+     * All curves and other data items in this provider are calibrated for this date.
      * @param valuationDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -743,7 +744,7 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the {@code fxMatrix} property in the builder.
+     * Sets the matrix of foreign exchange rates, defaulted to an empty matrix.
      * @param fxMatrix  the new value, not null
      * @return this, for chaining, not null
      */
@@ -754,7 +755,8 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the {@code discountCurves} property in the builder.
+     * Sets the discount curves, defaulted to an empty map.
+     * The curve data, predicting the future, associated with each currency.
      * @param discountCurves  the new value, not null
      * @return this, for chaining, not null
      */
@@ -765,7 +767,8 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the {@code indexCurves} property in the builder.
+     * Sets the forward curves, defaulted to an empty map.
+     * The curve data, predicting the future, associated with each index.
      * @param indexCurves  the new value, not null
      * @return this, for chaining, not null
      */
@@ -776,7 +779,8 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the {@code priceIndexValues} property in the builder.
+     * Sets the price index values, defaulted to an empty map.
+     * The curve data, predicting the future, associated with each index.
      * @param priceIndexValues  the new value, not null
      * @return this, for chaining, not null
      */
@@ -787,7 +791,8 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the {@code timeSeries} property in the builder.
+     * Sets the time-series, defaulted to an empty map.
+     * The historic data associated with each index.
      * @param timeSeries  the new value, not null
      * @return this, for chaining, not null
      */
@@ -798,7 +803,8 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * Sets the {@code additionalData} property in the builder.
+     * Sets the additional data, defaulted to an empty map.
+     * This allows application code to access additional market data.
      * @param additionalData  the new value, not null
      * @return this, for chaining, not null
      */

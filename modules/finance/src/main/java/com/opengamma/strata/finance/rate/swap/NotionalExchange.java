@@ -391,7 +391,10 @@ public final class NotionalExchange
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code paymentDate} property in the builder.
+     * Sets the date that the payment is made.
+     * <p>
+     * Each payment event has a single payment date.
+     * This date has been adjusted to be a valid business day.
      * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -402,7 +405,9 @@ public final class NotionalExchange
     }
 
     /**
-     * Sets the {@code paymentAmount} property in the builder.
+     * Sets the amount of the notional exchange.
+     * <p>
+     * This is the amount of the notional exchange.
      * @param paymentAmount  the new value, not null
      * @return this, for chaining, not null
      */

@@ -30,6 +30,7 @@ import com.opengamma.strata.finance.TradeInfo;
  */
 @Test
 public class FxVanillaOptionTradeTest {
+
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2015, 2, 14);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(12, 15);
   private static final ZoneId EXPIRY_ZONE = ZoneId.of("Z");
@@ -89,4 +90,5 @@ public class FxVanillaOptionTradeTest {
         .build();
     assertSerialization(test);
   }
+
 }

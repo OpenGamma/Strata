@@ -37,7 +37,7 @@ public class DiscountingIborFixingDepositProductPricer {
 
   /**
    * Creates an instance.
-   * @param rateObservationFn the rate obsevation function
+   * @param rateObservationFn the rate observation function
    */
   public DiscountingIborFixingDepositProductPricer(ForwardIborRateObservationFn rateObservationFn) {
     this.rateObservationFn = ArgChecker.notNull(rateObservationFn, "rateObservationFn");

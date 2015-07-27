@@ -486,7 +486,8 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code surface} property in the builder.
+     * Sets the black volatility surface.
+     * The order of the dimensions is expiry/strike.
      * @param surface  the new value, not null
      * @return this, for chaining, not null
      */
@@ -497,7 +498,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     }
 
     /**
-     * Sets the {@code currencyPair} property in the builder.
+     * Sets the currency pair for which the volatility data are presented.
      * @param currencyPair  the new value, not null
      * @return this, for chaining, not null
      */
@@ -508,7 +509,7 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count applicable to the model.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -519,7 +520,8 @@ public final class BlackVolatilitySurfaceFxProvider implements BlackVolatilityFx
     }
 
     /**
-     * Sets the {@code valuationDateTime} property in the builder.
+     * Sets the valuation date-time.
+     * All data items in this provider is calibrated for this date-time.
      * @param valuationDateTime  the new value, not null
      * @return this, for chaining, not null
      */

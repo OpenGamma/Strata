@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.credit;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.finance.Expandable;
 import com.opengamma.strata.finance.Product;
 
@@ -26,6 +24,6 @@ import com.opengamma.strata.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface CdsProduct
-    extends Product, Expandable<ExpandedCds>, ImmutableBean {
+    extends Product, Expandable<ExpandedCds> {
 
 }

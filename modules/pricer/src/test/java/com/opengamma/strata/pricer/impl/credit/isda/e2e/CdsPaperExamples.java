@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda.e2e;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getIMMDateSet;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getNextIMMDate;
 import static com.opengamma.strata.pricer.impl.credit.isda.ImmDateLogic.getPrevIMMDate;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -26,6 +24,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.curve.ShiftType;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
@@ -59,7 +58,7 @@ public class CdsPaperExamples extends IsdaBaseTest {
 
   private static final LocalDate TRADE_DATE = LocalDate.of(2011, Month.JUNE, 13);
   private static final LocalDate STEPIN = TRADE_DATE.plusDays(1);
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TRADE_DATE, 3); // AKA valuation date
   private static final LocalDate STARTDATE = FOLLOWING.adjust(getPrevIMMDate(TRADE_DATE), DEFAULT_CALENDAR); // LocalDate.of(2011, Month.MARCH, 21);
 
   private static final Period[] TENORS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3),
@@ -400,9 +399,10 @@ public class CdsPaperExamples extends IsdaBaseTest {
     CdsAnalytic cds = CDS_FACTORY.makeCds(TRADE_DATE, STARTDATE, mat);
     double[] analCS01 = ANALYTIC_SPREAD_SENSE_CAL
         .bucketedCS01FromCreditCurve(cds, COUPON, PILLAR_CDSS, YIELD_CURVE, CREDIT_CURVE);
-    double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromParSpreads(cds, COUPON, YIELD_CURVE, PILLAR_CDSS, SPREADS, ONE_BP,
-        BumpType.ADDITIVE);
-    double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(cds, COUPON, PILLAR_CDSS, YIELD_CURVE, CREDIT_CURVE, ONE_BP);
+    double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromParSpreads(
+        cds, COUPON, YIELD_CURVE, PILLAR_CDSS, SPREADS, ONE_BP, ShiftType.ABSOLUTE);
+    double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromCreditCurve(
+        cds, COUPON, PILLAR_CDSS, YIELD_CURVE, CREDIT_CURVE, ONE_BP);
 
     int nPillars = PILLAR_DATES.length;
     String[] columnHeadings = new String[nPillars + 2];
@@ -493,10 +493,10 @@ public class CdsPaperExamples extends IsdaBaseTest {
       double qs = puf_con.pufToQuotedSpread(cds[i], COUPON, YIELD_CURVE, puf);
       double[] spreads = new double[nPillars];
       Arrays.fill(spreads, qs);
-      double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromParSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP,
-          BumpType.ADDITIVE);
-      double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromParSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP,
-          BumpType.ADDITIVE);
+      double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromParSpreads(
+          cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP, ShiftType.ABSOLUTE);
+      double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromParSpreads(
+          cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, spreads, ONE_BP, ShiftType.ABSOLUTE);
 
       System.out.print(MATURITIES_1Y_STEP[i].format(DATE_FORMAT));
       double sum = 0;
@@ -528,10 +528,10 @@ public class CdsPaperExamples extends IsdaBaseTest {
       double qs = puf_con.pufToQuotedSpread(cds[i], COUPON, YIELD_CURVE, puf);
       double[] spreads = new double[nPillars];
       Arrays.fill(spreads, qs);
-      double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromQuotedSpreads(cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, SPREADS,
-          ONE_BP, BumpType.ADDITIVE);
-      double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromQuotedSpread(cds[i], COUPON, YIELD_CURVE, cds[i], qs, ONE_BP,
-          BumpType.ADDITIVE);
+      double[] bCS01 = FD_SPREAD_SENSE_CAL.bucketedCS01FromQuotedSpreads(
+          cds[i], COUPON, YIELD_CURVE, PILLAR_CDSS, SPREADS, ONE_BP, ShiftType.ABSOLUTE);
+      double pCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromQuotedSpread(
+          cds[i], COUPON, YIELD_CURVE, cds[i], qs, ONE_BP, ShiftType.ABSOLUTE);
 
       System.out.print(MATURITIES_1Y_STEP[i].format(DATE_FORMAT));
       double sum = 0;

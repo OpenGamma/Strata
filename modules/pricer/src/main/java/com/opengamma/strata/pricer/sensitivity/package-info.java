@@ -6,8 +6,6 @@
 
 /**
  * Calculators for sensitivities.
- * <p>
- * These classes are used to calculate sensitivity measures.
  */
 package com.opengamma.strata.pricer.sensitivity;
 

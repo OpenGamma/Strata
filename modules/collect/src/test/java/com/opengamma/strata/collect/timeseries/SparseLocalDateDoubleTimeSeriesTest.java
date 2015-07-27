@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -229,7 +230,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
 
   public void test_immutableDatesViaBeanGet() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
-    LocalDate[] array = (LocalDate[]) test.property("dates").get();
+    LocalDate[] array = (LocalDate[]) ((Bean) test).property("dates").get();
     array[0] = DATE_2012_01_01;
     LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
     assertEquals(points[0], LocalDateDoublePoint.of(DATE_2010_01_01, 10d));
@@ -239,7 +240,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
 
   public void test_immutableValuesViaBeanGet() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
-    double[] array = (double[]) test.property("values").get();
+    double[] array = (double[]) ((Bean) test).property("values").get();
     array[0] = -1;
     LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
     assertEquals(points[0], LocalDateDoublePoint.of(DATE_2010_01_01, 10d));

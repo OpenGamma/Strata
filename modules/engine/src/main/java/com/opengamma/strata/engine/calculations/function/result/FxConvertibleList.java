@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -51,7 +50,7 @@ public final class FxConvertibleList
     implements CurrencyConvertible<ScenarioResult<?>>, ScenarioResult<FxConvertible<?>>, ImmutableBean {
 
   /** The currency values. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends FxConvertible<?>>")
   private final List<FxConvertible<?>> values;
 
   /**
@@ -71,12 +70,6 @@ public final class FxConvertibleList
         .collect(toImmutableList());
 
     return DefaultScenarioResult.of(convertedValues);
-  }
-
-  // Hand-written constructor allows the values parameter to have a wildcard when the field doesn't
-  @ImmutableConstructor
-  private FxConvertibleList(List<? extends FxConvertible<?>> values) {
-    this.values = ImmutableList.copyOf(values);
   }
 
   @Override
@@ -114,6 +107,12 @@ public final class FxConvertibleList
    */
   public static FxConvertibleList.Builder builder() {
     return new FxConvertibleList.Builder();
+  }
+
+  private FxConvertibleList(
+      List<? extends FxConvertible<?>> values) {
+    JodaBeanUtils.notNull(values, "values");
+    this.values = ImmutableList.copyOf(values);
   }
 
   @Override
@@ -266,7 +265,7 @@ public final class FxConvertibleList
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FxConvertibleList> {
 
-    private List<FxConvertible<?>> values = ImmutableList.of();
+    private List<? extends FxConvertible<?>> values = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -298,7 +297,7 @@ public final class FxConvertibleList
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          this.values = (List<FxConvertible<?>>) newValue;
+          this.values = (List<? extends FxConvertible<?>>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -338,14 +337,24 @@ public final class FxConvertibleList
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code values} property in the builder.
+     * Sets the currency values.
      * @param values  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder values(List<FxConvertible<?>> values) {
+    public Builder values(List<? extends FxConvertible<?>> values) {
       JodaBeanUtils.notNull(values, "values");
       this.values = values;
       return this;
+    }
+
+    /**
+     * Sets the {@code values} property in the builder
+     * from an array of objects.
+     * @param values  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder values(FxConvertible<?>... values) {
+      return values(ImmutableList.copyOf(values));
     }
 
     //-----------------------------------------------------------------------

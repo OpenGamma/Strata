@@ -17,7 +17,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -29,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
@@ -51,7 +49,7 @@ import com.opengamma.strata.market.curve.ShiftType;
  *
  * @see CurveParameterMetadata#getIdentifier()
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean {
 
   /**
@@ -64,7 +62,7 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
    * The key is typically the node {@linkplain CurveParameterMetadata#getIdentifier() identifier}.
    * The key may also be the node {@linkplain CurveParameterMetadata#getLabel() label}.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "Map<?, Double>")
   private final ImmutableMap<Object, Double> shifts;
 
   //-------------------------------------------------------------------------
@@ -76,18 +74,6 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
    */
   public static CurvePointShiftBuilder builder(ShiftType shiftType) {
     return new CurvePointShiftBuilder(shiftType);
-  }
-
-  /**
-   * Package-private constructor used by {@link CurvePointShiftBuilder}.
-   *
-   * @param shiftType  the type of shift to apply to the rates
-   * @param shifts  the shift amounts, keyed by the node {@link CurveParameterMetadata#getIdentifier identifier}
-   */
-  @ImmutableConstructor
-  CurvePointShift(ShiftType shiftType, Map<Object, Double> shifts) {
-    this.shiftType = ArgChecker.notNull(shiftType, "shiftType");
-    this.shifts = ImmutableMap.copyOf(shifts);
   }
 
   //-------------------------------------------------------------------------
@@ -140,6 +126,20 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
 
   static {
     JodaBeanUtils.registerMetaBean(CurvePointShift.Meta.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * @param shiftType  the value of the property, not null
+   * @param shifts  the value of the property, not null
+   */
+  CurvePointShift(
+      ShiftType shiftType,
+      Map<?, Double> shifts) {
+    JodaBeanUtils.notNull(shiftType, "shiftType");
+    JodaBeanUtils.notNull(shifts, "shifts");
+    this.shiftType = shiftType;
+    this.shifts = ImmutableMap.copyOf(shifts);
   }
 
   @Override
@@ -317,7 +317,7 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
   private static final class Builder extends DirectFieldsBeanBuilder<CurvePointShift> {
 
     private ShiftType shiftType;
-    private Map<Object, Double> shifts = ImmutableMap.of();
+    private Map<?, Double> shifts = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -346,7 +346,7 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
           this.shiftType = (ShiftType) newValue;
           break;
         case -903338959:  // shifts
-          this.shifts = (Map<Object, Double>) newValue;
+          this.shifts = (Map<?, Double>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

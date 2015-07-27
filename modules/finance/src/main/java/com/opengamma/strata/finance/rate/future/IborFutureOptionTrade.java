@@ -481,7 +481,9 @@ public final class IborFutureOptionTrade
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tradeInfo} property in the builder.
+     * Sets the additional trade information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the trade.
      * @param tradeInfo  the new value
      * @return this, for chaining, not null
      */
@@ -491,7 +493,10 @@ public final class IborFutureOptionTrade
     }
 
     /**
-     * Sets the {@code securityLink} property in the builder.
+     * Sets the link to the option that was traded.
+     * <p>
+     * This property returns a link to the security via a {@link StandardId}.
+     * See {@link #getSecurity()} and {@link SecurityLink} for more details.
      * @param securityLink  the new value, not null
      * @return this, for chaining, not null
      */
@@ -502,7 +507,9 @@ public final class IborFutureOptionTrade
     }
 
     /**
-     * Sets the {@code quantity} property in the builder.
+     * Sets the quantity, indicating the number of option contracts in the trade.
+     * <p>
+     * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
@@ -512,7 +519,13 @@ public final class IborFutureOptionTrade
     }
 
     /**
-     * Sets the {@code initialPrice} property in the builder.
+     * Sets the initial price of the option, represented in decimal form.
+     * <p>
+     * This is the price agreed when the trade occurred.
+     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
+     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
+     * <p>
+     * This property should be set if the option has daily margining.
      * @param initialPrice  the new value
      * @return this, for chaining, not null
      */

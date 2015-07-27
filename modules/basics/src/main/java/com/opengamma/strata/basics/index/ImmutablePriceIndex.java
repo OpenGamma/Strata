@@ -434,7 +434,7 @@ public final class ImmutablePriceIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the index name, such as 'GB-HICP'.
      * @param name  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -445,7 +445,7 @@ public final class ImmutablePriceIndex
     }
 
     /**
-     * Sets the {@code region} property in the builder.
+     * Sets the region of the index.
      * @param region  the new value, not null
      * @return this, for chaining, not null
      */
@@ -456,7 +456,7 @@ public final class ImmutablePriceIndex
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency of the index.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -467,7 +467,8 @@ public final class ImmutablePriceIndex
     }
 
     /**
-     * Sets the {@code publicationFrequency} property in the builder.
+     * Sets the publication frequency of the index.
+     * Most price indices are published monthly, but some are published quarterly.
      * @param publicationFrequency  the new value, not null
      * @return this, for chaining, not null
      */

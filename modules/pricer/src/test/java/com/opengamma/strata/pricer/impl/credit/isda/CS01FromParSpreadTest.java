@@ -5,14 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Test.
@@ -22,7 +21,7 @@ public class CS01FromParSpreadTest extends IsdaBaseTest {
 
   private static final LocalDate TODAY = LocalDate.of(2013, 6, 4);
   private static final LocalDate EFFECTIVE_DATE = TODAY.plusDays(1); // AKA stepin date
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TODAY, 3); // AKA valuation date
   private static final LocalDate STARTDATE = LocalDate.of(2013, 2, 2);
   private static final LocalDate[] MATURITIES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20),
     LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20), LocalDate.of(2014, 12, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2015, 6, 20), LocalDate.of(2015, 9, 20), LocalDate.of(2015, 12, 20),
@@ -118,7 +117,8 @@ public class CS01FromParSpreadTest extends IsdaBaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CdsAnalytic cds = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(
+          cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, ShiftType.ABSOLUTE);
 
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01[i], cs01, 1e-14 * NOTIONAL);
     }
@@ -139,7 +139,8 @@ public class CS01FromParSpreadTest extends IsdaBaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CdsAnalytic cds = new CdsAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, BumpType.ADDITIVE);
+      final double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(
+          cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, ShiftType.ABSOLUTE);
       for (int j = 0; j < m; j++) {
         cs01[j] *= scale;
         assertEquals(MATURITIES[i].toString() + "\t" + BUCKET_DATES[j], BUCKETED_CS01[i][j], cs01[j], 1e-13 * NOTIONAL);

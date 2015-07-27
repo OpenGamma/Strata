@@ -496,7 +496,7 @@ public class TradeReport implements Report, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code valuationDate} property in the builder.
+     * Sets the valuation date.
      * @param valuationDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -507,7 +507,7 @@ public class TradeReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code runInstant} property in the builder.
+     * Sets the instant at which the report was run.
      * @param runInstant  the new value, not null
      * @return this, for chaining, not null
      */
@@ -518,7 +518,7 @@ public class TradeReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code columns} property in the builder.
+     * Sets the report columns, which may contain information required for formatting.
      * @param columns  the new value, not null
      * @return this, for chaining, not null
      */
@@ -539,7 +539,7 @@ public class TradeReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code columnHeaders} property in the builder.
+     * Sets the column headers.
      * @param columnHeaders  the new value, not null
      * @return this, for chaining, not null
      */
@@ -550,7 +550,7 @@ public class TradeReport implements Report, ImmutableBean {
     }
 
     /**
-     * Sets the {@code data} property in the builder.
+     * Sets the results table.
      * @param data  the new value, not null
      * @return this, for chaining, not null
      */

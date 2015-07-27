@@ -614,7 +614,9 @@ public class InflationInterpolatedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code index} property in the builder.
+     * Sets the index of prices.
+     * <p>
+     * The pay-off is computed based on this index
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -625,7 +627,9 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the {@code referenceStartMonth} property in the builder.
+     * Sets the reference month for the index relative to the accrual start date.
+     * <p>
+     * The reference month is typically three months before the accrual start date.
      * @param referenceStartMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -636,7 +640,11 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the {@code referenceStartInterpolationMonth} property in the builder.
+     * Sets the reference month used for interpolation for the index relative to the accrual start date.
+     * <p>
+     * The reference month for interpolation is typically one month after the reference start month.
+     * As such it is typically two months before the accrual start date.
+     * Must be after the reference start month.
      * @param referenceStartInterpolationMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -647,7 +655,10 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the {@code referenceEndMonth} property in the builder.
+     * Sets the reference month for the index relative to the accrual end date.
+     * <p>
+     * The reference month is typically three months before the accrual end date.
+     * Must be after the reference start month.
      * @param referenceEndMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -658,7 +669,11 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the {@code referenceEndInterpolationMonth} property in the builder.
+     * Sets the reference month used for interpolation for the index relative to the accrual end date.
+     * <p>
+     * The reference month for interpolation is typically one month after the reference end month.
+     * As such it is typically two months before the accrual end date.
+     * Must be after the reference end month.
      * @param referenceEndInterpolationMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -669,7 +684,11 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the {@code weight} property in the builder.
+     * Sets the positive weight used when interpolating.
+     * <p>
+     * Given two price index observations, typically in adjacent months, the weight is used
+     * to determine the adjusted index value. The value is given by the formula
+     * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
      * @param weight  the new value
      * @return this, for chaining, not null
      */

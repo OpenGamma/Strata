@@ -408,7 +408,7 @@ public final class IndexReferenceInformation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code indexId} property in the builder.
+     * Sets the CDS index identifier, such as a RED pair code.
      * @param indexId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -419,7 +419,7 @@ public final class IndexReferenceInformation
     }
 
     /**
-     * Sets the {@code indexSeries} property in the builder.
+     * Sets the CDS index series identifier.
      * @param indexSeries  the new value
      * @return this, for chaining, not null
      */
@@ -429,7 +429,8 @@ public final class IndexReferenceInformation
     }
 
     /**
-     * Sets the {@code indexAnnexVersion} property in the builder.
+     * Sets the CDS index series version identifier.
+     * Used to identify the version of the index over time.
      * @param indexAnnexVersion  the new value
      * @return this, for chaining, not null
      */

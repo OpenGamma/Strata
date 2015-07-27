@@ -527,7 +527,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code type} property in the builder.
+     * Sets the type.
      * @param type  the new value
      * @return this, for chaining, not null
      */
@@ -537,7 +537,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
 
     /**
-     * Sets the {@code payReceive} property in the builder.
+     * Sets the payReceive.
      * @param payReceive  the new value
      * @return this, for chaining, not null
      */
@@ -547,7 +547,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
 
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the startDate.
      * @param startDate  the new value
      * @return this, for chaining, not null
      */
@@ -557,7 +557,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the endDate.
      * @param endDate  the new value
      * @return this, for chaining, not null
      */
@@ -567,7 +567,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency.
      * @param currency  the new value
      * @return this, for chaining, not null
      */

@@ -5,9 +5,7 @@
  */
 
 /**
- * Futures pricer API.
- * <p>
- * Provides the ability to price rate futures.
+ * Calculators for Short Term Interest Rate futures (STIRs).
  */
 package com.opengamma.strata.pricer.rate.future;
 

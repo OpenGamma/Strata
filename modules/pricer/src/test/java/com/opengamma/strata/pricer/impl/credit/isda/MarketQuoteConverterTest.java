@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -39,7 +38,7 @@ public class MarketQuoteConverterTest {
 
   private static final LocalDate TODAY = LocalDate.of(2008, Month.SEPTEMBER, 19);
   private static final LocalDate STEPIN_DATE = TODAY.plusDays(1);
-  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // AKA valuation date
+  private static final LocalDate CASH_SETTLE_DATE = DEFAULT_CALENDAR.shift(TODAY, 3); // AKA valuation date
   private static final LocalDate START_DATE = LocalDate.of(2007, Month.MARCH, 20);
   private static final LocalDate END_DATE = LocalDate.of(2015, Month.DECEMBER, 20);
 
@@ -47,7 +46,7 @@ public class MarketQuoteConverterTest {
     LocalDate.of(2011, Month.JUNE, 20), LocalDate.of(2012, Month.JUNE, 20), LocalDate.of(2014, Month.JUNE, 20), LocalDate.of(2017, Month.JUNE, 20) };
 
   // yield curve
-  private static final LocalDate SPOT_DATE = addWorkDays(TODAY, 2, DEFAULT_CALENDAR);
+  private static final LocalDate SPOT_DATE = DEFAULT_CALENDAR.shift(TODAY, 2);
   private static final IsdaCompliantYieldCurve YIELD_CURVE;
 
   static {
@@ -163,7 +162,7 @@ public class MarketQuoteConverterTest {
 
     final LocalDate today = LocalDate.of(2011, 4, 21);
     final LocalDate stepIn = today.plusDays(1);
-    final LocalDate val = addWorkDays(today, 3, DEFAULT_CALENDAR);
+    final LocalDate val = DEFAULT_CALENDAR.shift(today, 3);
     final LocalDate start = ImmDateLogic.getPrevIMMDate(today);
     final LocalDate end = ImmDateLogic.getPrevIMMDate(today.plusYears(5));
     final LocalDate end1 = ImmDateLogic.getPrevIMMDate(today.plusYears(10));

@@ -360,7 +360,9 @@ public final class SwapTrade
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code tradeInfo} property in the builder.
+     * Sets the additional trade information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the trade.
      * @param tradeInfo  the new value
      * @return this, for chaining, not null
      */
@@ -370,7 +372,9 @@ public final class SwapTrade
     }
 
     /**
-     * Sets the {@code product} property in the builder.
+     * Sets the swap product that was agreed when the trade occurred.
+     * <p>
+     * The product captures the contracted financial details of the trade.
      * @param product  the new value, not null
      * @return this, for chaining, not null
      */

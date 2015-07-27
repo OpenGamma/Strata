@@ -16,7 +16,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -54,8 +53,8 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
  * user-facing data structure.
  */
 @SuppressWarnings("unchecked")
-@BeanDefinition(builderScope = "private")
-public class ScenarioCalculationEnvironment implements ImmutableBean {
+@BeanDefinition(builderScope = "private", constructorScope = "package")
+public final class ScenarioCalculationEnvironment implements ImmutableBean {
 
   /** The market data values which are the same in every scenario. */
   @PropertyDefinition(validate = "notNull")
@@ -71,15 +70,15 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
 
   // TODO Should there be separate maps for observable and non-observable data?
   /** Individual items of market data, keyed by ID, one for each scenario. */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull", get = "private", builderType = "ListMultimap<? extends MarketDataId<?>, ?>")
   private final ImmutableListMultimap<MarketDataId<?>, ?> values;
 
   /** Market dat values that are potentially applicable across all scenarios, keyed by ID. */
-  @PropertyDefinition(validate = "notNull", get = "private")
-  private final ImmutableMap<? extends MarketDataId<?>, Object> globalValues;
+  @PropertyDefinition(validate = "notNull", get = "private", builderType = "Map<? extends MarketDataId<?>, Object>")
+  private final ImmutableMap<MarketDataId<?>, Object> globalValues;
 
   /** Details of failures when building single market data values. */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, Failure>")
   private final ImmutableMap<MarketDataId<?>, Failure> singleValueFailures;
 
   /**
@@ -108,39 +107,6 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
         ImmutableListMultimap.of(),
         ImmutableMap.of(),
         ImmutableMap.of());
-  }
-
-  /**
-   * Package-private constructor used by the builder.
-   *
-   * @param sharedData  the set of market data that is the same in all scenarios
-   * @param scenarioCount  the number of scenarios
-   * @param valuationDates  the valuation date of each scenario
-   * @param values  the market data values
-   * @param globalValues  the single values that apply across all scenarios
-   * @param singleValueFailures  the single value failures
-   */
-  @ImmutableConstructor
-  ScenarioCalculationEnvironment(
-      CalculationEnvironment sharedData,
-      int scenarioCount,
-      List<LocalDate> valuationDates,
-      ListMultimap<MarketDataId<?>, ?> values,
-      Map<? extends MarketDataId<?>, Object> globalValues,
-      Map<MarketDataId<?>, Failure> singleValueFailures) {
-
-    ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
-    JodaBeanUtils.notNull(sharedData, "sharedData");
-    JodaBeanUtils.notNull(valuationDates, "valuationDates");
-    JodaBeanUtils.notNull(values, "values");
-    JodaBeanUtils.notNull(globalValues, "globalValues");
-    this.sharedData = sharedData;
-    this.scenarioCount = scenarioCount;
-    this.valuationDates = ImmutableList.copyOf(valuationDates);
-    this.values = ImmutableListMultimap.copyOf(values);
-    this.globalValues = ImmutableMap.copyOf(globalValues);
-    this.singleValueFailures = ImmutableMap.copyOf(singleValueFailures);
-    validate();
   }
 
   @ImmutableValidator
@@ -283,6 +249,37 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     JodaBeanUtils.registerMetaBean(ScenarioCalculationEnvironment.Meta.INSTANCE);
   }
 
+  /**
+   * Creates an instance.
+   * @param sharedData  the value of the property, not null
+   * @param scenarioCount  the value of the property
+   * @param valuationDates  the value of the property, not null
+   * @param values  the value of the property, not null
+   * @param globalValues  the value of the property, not null
+   * @param singleValueFailures  the value of the property, not null
+   */
+  ScenarioCalculationEnvironment(
+      CalculationEnvironment sharedData,
+      int scenarioCount,
+      List<LocalDate> valuationDates,
+      ListMultimap<? extends MarketDataId<?>, ?> values,
+      Map<? extends MarketDataId<?>, Object> globalValues,
+      Map<? extends MarketDataId<?>, Failure> singleValueFailures) {
+    JodaBeanUtils.notNull(sharedData, "sharedData");
+    ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    JodaBeanUtils.notNull(valuationDates, "valuationDates");
+    JodaBeanUtils.notNull(values, "values");
+    JodaBeanUtils.notNull(globalValues, "globalValues");
+    JodaBeanUtils.notNull(singleValueFailures, "singleValueFailures");
+    this.sharedData = sharedData;
+    this.scenarioCount = scenarioCount;
+    this.valuationDates = ImmutableList.copyOf(valuationDates);
+    this.values = ImmutableListMultimap.copyOf(values);
+    this.globalValues = ImmutableMap.copyOf(globalValues);
+    this.singleValueFailures = ImmutableMap.copyOf(singleValueFailures);
+    validate();
+  }
+
   @Override
   public ScenarioCalculationEnvironment.Meta metaBean() {
     return ScenarioCalculationEnvironment.Meta.INSTANCE;
@@ -339,7 +336,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
    * Gets market dat values that are potentially applicable across all scenarios, keyed by ID.
    * @return the value of the property, not null
    */
-  private ImmutableMap<? extends MarketDataId<?>, Object> getGlobalValues() {
+  private ImmutableMap<MarketDataId<?>, Object> getGlobalValues() {
     return globalValues;
   }
 
@@ -386,29 +383,21 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ScenarioCalculationEnvironment{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("sharedData").append('=').append(getSharedData()).append(',').append(' ');
+    buf.append("scenarioCount").append('=').append(getScenarioCount()).append(',').append(' ');
+    buf.append("valuationDates").append('=').append(getValuationDates()).append(',').append(' ');
+    buf.append("values").append('=').append(getValues()).append(',').append(' ');
+    buf.append("globalValues").append('=').append(getGlobalValues()).append(',').append(' ');
+    buf.append("singleValueFailures").append('=').append(JodaBeanUtils.toString(getSingleValueFailures()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("sharedData").append('=').append(JodaBeanUtils.toString(getSharedData())).append(',').append(' ');
-    buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(getScenarioCount())).append(',').append(' ');
-    buf.append("valuationDates").append('=').append(JodaBeanUtils.toString(getValuationDates())).append(',').append(' ');
-    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
-    buf.append("globalValues").append('=').append(JodaBeanUtils.toString(getGlobalValues())).append(',').append(' ');
-    buf.append("singleValueFailures").append('=').append(JodaBeanUtils.toString(getSingleValueFailures())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ScenarioCalculationEnvironment}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -440,7 +429,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code globalValues} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<? extends MarketDataId<?>, Object>> globalValues = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<MarketDataId<?>, Object>> globalValues = DirectMetaProperty.ofImmutable(
         this, "globalValues", ScenarioCalculationEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code singleValueFailures} property.
@@ -463,7 +452,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -505,7 +494,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code sharedData} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CalculationEnvironment> sharedData() {
+    public MetaProperty<CalculationEnvironment> sharedData() {
       return sharedData;
     }
 
@@ -513,7 +502,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code scenarioCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> scenarioCount() {
+    public MetaProperty<Integer> scenarioCount() {
       return scenarioCount;
     }
 
@@ -521,7 +510,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code valuationDates} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableList<LocalDate>> valuationDates() {
+    public MetaProperty<ImmutableList<LocalDate>> valuationDates() {
       return valuationDates;
     }
 
@@ -529,7 +518,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableListMultimap<MarketDataId<?>, ?>> values() {
+    public MetaProperty<ImmutableListMultimap<MarketDataId<?>, ?>> values() {
       return values;
     }
 
@@ -537,7 +526,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code globalValues} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<? extends MarketDataId<?>, Object>> globalValues() {
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Object>> globalValues() {
       return globalValues;
     }
 
@@ -545,7 +534,7 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
      * The meta-property for the {@code singleValueFailures} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures() {
+    public MetaProperty<ImmutableMap<MarketDataId<?>, Failure>> singleValueFailures() {
       return singleValueFailures;
     }
 
@@ -584,19 +573,19 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
   /**
    * The bean-builder for {@code ScenarioCalculationEnvironment}.
    */
-  private static class Builder extends DirectFieldsBeanBuilder<ScenarioCalculationEnvironment> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ScenarioCalculationEnvironment> {
 
     private CalculationEnvironment sharedData;
     private int scenarioCount;
     private List<LocalDate> valuationDates = ImmutableList.of();
-    private ListMultimap<MarketDataId<?>, ?> values = ImmutableListMultimap.of();
+    private ListMultimap<? extends MarketDataId<?>, ?> values = ImmutableListMultimap.of();
     private Map<? extends MarketDataId<?>, Object> globalValues = ImmutableMap.of();
-    private Map<MarketDataId<?>, Failure> singleValueFailures = ImmutableMap.of();
+    private Map<? extends MarketDataId<?>, Failure> singleValueFailures = ImmutableMap.of();
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -634,13 +623,13 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
           this.valuationDates = (List<LocalDate>) newValue;
           break;
         case -823812830:  // values
-          this.values = (ListMultimap<MarketDataId<?>, ?>) newValue;
+          this.values = (ListMultimap<? extends MarketDataId<?>, ?>) newValue;
           break;
         case -591591771:  // globalValues
           this.globalValues = (Map<? extends MarketDataId<?>, Object>) newValue;
           break;
         case -1633495726:  // singleValueFailures
-          this.singleValueFailures = (Map<MarketDataId<?>, Failure>) newValue;
+          this.singleValueFailures = (Map<? extends MarketDataId<?>, Failure>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -688,22 +677,14 @@ public class ScenarioCalculationEnvironment implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("ScenarioCalculationEnvironment.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("sharedData").append('=').append(JodaBeanUtils.toString(sharedData)).append(',').append(' ');
       buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount)).append(',').append(' ');
       buf.append("valuationDates").append('=').append(JodaBeanUtils.toString(valuationDates)).append(',').append(' ');
       buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');
       buf.append("globalValues").append('=').append(JodaBeanUtils.toString(globalValues)).append(',').append(' ');
-      buf.append("singleValueFailures").append('=').append(JodaBeanUtils.toString(singleValueFailures)).append(',').append(' ');
+      buf.append("singleValueFailures").append('=').append(JodaBeanUtils.toString(singleValueFailures));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

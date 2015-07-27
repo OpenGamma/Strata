@@ -968,7 +968,9 @@ public final class FixedRateSwapLegConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the leg currency.
+     * <p>
+     * This is the currency of the swap leg and the currency that payment is made in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -979,7 +981,9 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention applicable.
+     * <p>
+     * This is used to convert schedule period dates to a numerical value.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -990,7 +994,9 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code accrualFrequency} property in the builder.
+     * Sets the periodic frequency of accrual.
+     * <p>
+     * Interest will be accrued over periods at the specified periodic frequency, such as every 3 months.
      * @param accrualFrequency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1001,7 +1007,13 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code accrualBusinessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to accrual schedule dates.
+     * <p>
+     * Each date in the calculated schedule is determined without taking into account weekends and holidays.
+     * The adjustment specified here is used to convert those dates to valid business days.
+     * <p>
+     * The start date and end date may have their own business day adjustment rules.
+     * If those are not present, then this adjustment is used instead.
      * @param accrualBusinessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1012,7 +1024,12 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code startDateBusinessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the start date, optional with defaulting getter.
+     * <p>
+     * The start date property is an unadjusted date and as such might be a weekend or holiday.
+     * The adjustment specified here is used to convert the start date to a valid business day.
+     * <p>
+     * This will default to the {@code accrualDatesBusinessDayAdjustment} if not specified.
      * @param startDateBusinessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -1022,7 +1039,12 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code endDateBusinessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply to the end date, optional with defaulting getter.
+     * <p>
+     * The end date property is an unadjusted date and as such might be a weekend or holiday.
+     * The adjustment specified here is used to convert the end date to a valid business day.
+     * <p>
+     * This will default to the {@code accrualDatesBusinessDayAdjustment} if not specified.
      * @param endDateBusinessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -1032,7 +1054,13 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code stubConvention} property in the builder.
+     * Sets the convention defining how to handle stubs, optional with defaulting getter.
+     * <p>
+     * The stub convention is used during schedule construction to determine whether the irregular
+     * remaining period occurs at the start or end of the schedule.
+     * It also determines whether the irregular period is shorter or longer than the regular period.
+     * <p>
+     * This will default to 'ShortInitial' if not specified.
      * @param stubConvention  the new value
      * @return this, for chaining, not null
      */
@@ -1042,7 +1070,13 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code rollConvention} property in the builder.
+     * Sets the convention defining how to roll dates, optional with defaulting getter.
+     * <p>
+     * The schedule periods are determined at the high level by repeatedly adding
+     * the frequency to the start date, or subtracting it from the end date.
+     * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
+     * <p>
+     * This will default to 'None' if not specified.
      * @param rollConvention  the new value
      * @return this, for chaining, not null
      */
@@ -1052,7 +1086,14 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code paymentFrequency} property in the builder.
+     * Sets the periodic frequency of payments, optional with defaulting getter.
+     * <p>
+     * Regular payments will be made at the specified periodic frequency.
+     * The frequency must be the same as, or a multiple of, the accrual periodic frequency.
+     * <p>
+     * Compounding applies if the payment frequency does not equal the accrual frequency.
+     * <p>
+     * This will default to the accrual frequency if not specified.
      * @param paymentFrequency  the new value
      * @return this, for chaining, not null
      */
@@ -1062,7 +1103,12 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code paymentDateOffset} property in the builder.
+     * Sets the offset of payment from the base date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the unadjusted date specified by {@code paymentRelativeTo}.
+     * Offset can be based on calendar days or business days.
+     * <p>
+     * This will default to 'None' if not specified.
      * @param paymentDateOffset  the new value
      * @return this, for chaining, not null
      */
@@ -1072,7 +1118,12 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the {@code compoundingMethod} property in the builder.
+     * Sets the compounding method to use when there is more than one accrual period
+     * in each payment period, optional with defaulting getter.
+     * <p>
+     * Compounding is used when combining accrual periods.
+     * <p>
+     * This will default to 'None' if not specified.
      * @param compoundingMethod  the new value
      * @return this, for chaining, not null
      */

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import static com.opengamma.analytics.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.time.LocalDate;
@@ -59,7 +58,7 @@ public class IsdaCompliantCreditCurveCalibratorTest {
 
     final LocalDate today = LocalDate.of(2013, 2, 2);
     final LocalDate stepinDate = today.plusDays(1); // aka effective date
-    final LocalDate valueDate = addWorkDays(today, 3, DEFAULT_CALENDAR); // 3 working days on
+    final LocalDate valueDate = DEFAULT_CALENDAR.shift(today, 3); // 3 working days on
     final LocalDate startDate = LocalDate.of(2012, 7, 29);
     final LocalDate[] endDates = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 3, 20),
       LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };

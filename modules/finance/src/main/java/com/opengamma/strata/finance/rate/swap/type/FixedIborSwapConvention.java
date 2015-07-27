@@ -545,7 +545,7 @@ public final class FixedIborSwapConvention
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code fixedLeg} property in the builder.
+     * Sets the market convention of the fixed leg.
      * @param fixedLeg  the new value, not null
      * @return this, for chaining, not null
      */
@@ -556,7 +556,7 @@ public final class FixedIborSwapConvention
     }
 
     /**
-     * Sets the {@code floatingLeg} property in the builder.
+     * Sets the market convention of the floating leg.
      * @param floatingLeg  the new value, not null
      * @return this, for chaining, not null
      */
@@ -567,7 +567,10 @@ public final class FixedIborSwapConvention
     }
 
     /**
-     * Sets the {@code spotDateOffset} property in the builder.
+     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * <p>
+     * The offset is applied to the trade date and is typically plus 2 business days.
+     * The start date of the swap is relative to the spot date.
      * @param spotDateOffset  the new value
      * @return this, for chaining, not null
      */

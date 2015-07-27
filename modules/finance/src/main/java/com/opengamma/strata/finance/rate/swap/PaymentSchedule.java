@@ -587,7 +587,12 @@ public final class PaymentSchedule
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code paymentFrequency} property in the builder.
+     * Sets the periodic frequency of payments.
+     * <p>
+     * Regular payments will be made at the specified periodic frequency.
+     * The frequency must be the same as, or a multiple of, the accrual periodic frequency.
+     * <p>
+     * Compounding applies if the payment frequency does not equal the accrual frequency.
      * @param paymentFrequency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -598,7 +603,9 @@ public final class PaymentSchedule
     }
 
     /**
-     * Sets the {@code paymentRelativeTo} property in the builder.
+     * Sets the base date that each payment is made relative to, defaulted to 'PeriodEnd'.
+     * <p>
+     * The payment date is relative to either the start or end of the payment period.
      * @param paymentRelativeTo  the new value, not null
      * @return this, for chaining, not null
      */
@@ -609,7 +616,10 @@ public final class PaymentSchedule
     }
 
     /**
-     * Sets the {@code paymentDateOffset} property in the builder.
+     * Sets the offset of payment from the base calculation period date.
+     * <p>
+     * The offset is applied to the unadjusted date specified by {@code paymentRelativeTo}.
+     * Offset can be based on calendar days or business days.
      * @param paymentDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
@@ -620,7 +630,9 @@ public final class PaymentSchedule
     }
 
     /**
-     * Sets the {@code compoundingMethod} property in the builder.
+     * Sets the compounding method to use when there is more than one accrual period, defaulted to 'None'.
+     * <p>
+     * Compounding is used when combining accrual periods.
      * @param compoundingMethod  the new value, not null
      * @return this, for chaining, not null
      */

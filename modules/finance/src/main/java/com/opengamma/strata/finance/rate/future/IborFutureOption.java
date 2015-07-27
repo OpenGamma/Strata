@@ -763,7 +763,10 @@ public class IborFutureOption
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code putCall} property in the builder.
+     * Sets whether the option is put or call.
+     * <p>
+     * A call gives the owner the right, but not obligation, to buy the underlying at
+     * an agreed price in the future. A put gives a similar option to sell.
      * @param putCall  the new value
      * @return this, for chaining, not null
      */
@@ -773,7 +776,12 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code strikePrice} property in the builder.
+     * Sets the strike price, represented in decimal form.
+     * <p>
+     * This is the price at which the option applies and refers to the price of the underlying future.
+     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
+     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
+     * The rate implied by the strike can take negative values.
      * @param strikePrice  the new value
      * @return this, for chaining, not null
      */
@@ -783,7 +791,10 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code expirationDate} property in the builder.
+     * Sets the expiration date of the option.
+     * <p>
+     * The expiration date is related to the expiration time and time-zone.
+     * The date must not be after last trade date of the underlying future.
      * @param expirationDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -794,7 +805,9 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code expirationTime} property in the builder.
+     * Sets the expiration time of the option.
+     * <p>
+     * The expiration time is related to the expiration date and time-zone.
      * @param expirationTime  the new value, not null
      * @return this, for chaining, not null
      */
@@ -805,7 +818,9 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code expirationZone} property in the builder.
+     * Sets the time-zone of the expiration time.
+     * <p>
+     * The expiration time-zone is related to the expiration date and time.
      * @param expirationZone  the new value, not null
      * @return this, for chaining, not null
      */
@@ -816,7 +831,9 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code premiumStyle} property in the builder.
+     * Sets the style of the option premium.
+     * <p>
+     * The two options are daily margining and upfront premium.
      * @param premiumStyle  the new value, not null
      * @return this, for chaining, not null
      */
@@ -827,7 +844,12 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code rounding} property in the builder.
+     * Sets the definition of how to round the option price, defaulted to no rounding.
+     * <p>
+     * The price is represented in decimal form, not percentage form.
+     * As such, the decimal places expressed by the rounding refers to this decimal form.
+     * For example, the common market price of 99.7125 is represented as 0.997125 which
+     * has 6 decimal places.
      * @param rounding  the new value, not null
      * @return this, for chaining, not null
      */
@@ -838,7 +860,10 @@ public class IborFutureOption
     }
 
     /**
-     * Sets the {@code underlyingLink} property in the builder.
+     * Sets the link to the underlying future.
+     * <p>
+     * This property returns a link to the security via a {@link StandardId}.
+     * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
      * @param underlyingLink  the new value, not null
      * @return this, for chaining, not null
      */

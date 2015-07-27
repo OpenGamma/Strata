@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.fx;
 
-import org.joda.beans.ImmutableBean;
-
 import com.opengamma.strata.finance.Expandable;
 import com.opengamma.strata.finance.Product;
 
@@ -22,6 +20,6 @@ import com.opengamma.strata.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface FxProduct
-    extends Product, Expandable<ExpandedFx>, ImmutableBean {
+    extends Product, Expandable<ExpandedFx> {
 
 }

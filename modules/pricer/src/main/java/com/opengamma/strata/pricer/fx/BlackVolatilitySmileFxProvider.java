@@ -505,7 +505,9 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code smile} property in the builder.
+     * Sets the volatility model.
+     * <p>
+     * This represents expiration dependent smile which consists of ATM, risk reversal and strangle as used in FX market.
      * @param smile  the new value, not null
      * @return this, for chaining, not null
      */
@@ -516,7 +518,7 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
     }
 
     /**
-     * Sets the {@code currencyPair} property in the builder.
+     * Sets the currency pair for which the volatility data are presented.
      * @param currencyPair  the new value, not null
      * @return this, for chaining, not null
      */
@@ -527,7 +529,7 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count applicable to the model.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -538,7 +540,8 @@ public final class BlackVolatilitySmileFxProvider implements BlackVolatilityFxPr
     }
 
     /**
-     * Sets the {@code valuationDateTime} property in the builder.
+     * Sets the valuation date-time.
+     * All data items in this provider is calibrated for this date-time.
      * @param valuationDateTime  the new value, not null
      * @return this, for chaining, not null
      */

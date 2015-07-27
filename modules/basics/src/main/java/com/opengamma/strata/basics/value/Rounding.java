@@ -8,8 +8,6 @@ package com.opengamma.strata.basics.value;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.joda.beans.ImmutableBean;
-
 /**
  * A convention defining how to round a number.
  * <p>
@@ -25,8 +23,7 @@ import org.joda.beans.ImmutableBean;
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
-public interface Rounding
-    extends ImmutableBean {
+public interface Rounding {
 
   /**
    * Obtains an instance that performs no rounding.

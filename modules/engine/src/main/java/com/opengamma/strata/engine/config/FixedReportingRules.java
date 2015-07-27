@@ -298,7 +298,7 @@ final class FixedReportingRules implements ReportingRules, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the reporting currency that is used for every target.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */

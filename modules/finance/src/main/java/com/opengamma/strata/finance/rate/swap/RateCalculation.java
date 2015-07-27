@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.rate.swap;
 
-import org.joda.beans.ImmutableBean;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
@@ -20,8 +18,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface RateCalculation
-    extends ImmutableBean {
+public interface RateCalculation {
 
   /**
    * Gets the type of the leg, such as Fixed or Ibor.

@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -51,7 +51,7 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class ScenarioDefinition implements ImmutableBean {
 
   /** The market data filters and perturbations that define the scenarios. */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notEmpty", builderType = "List<? extends PerturbationMapping<?>>")
   private final ImmutableList<PerturbationMapping<?>> mappings;
 
   /** The names of the scenarios. */
@@ -508,35 +508,20 @@ public final class ScenarioDefinition implements ImmutableBean {
         .collect(toImmutableList());
   }
 
-  /**
-   * Checks that a set of scenario names contains no duplicates and converts them to an {@code ImmutableList}.
-   *
-   * @param names  a list of scenario names
-   * @return an immutable list of scenario names that is confirmed to have no duplicates
-   * @throws IllegalArgumentException if there are duplicate names in the input list
-   */
-  private static ImmutableList<String> validateNames(List<String> names) {
-    Map<String, List<String>> nameMap = names.stream().collect(groupingBy(name -> name));
+  // validtes that there are no duplicate scenario names
+  @ImmutableValidator
+  private void validate() {
+    Map<String, List<String>> nameMap = scenarioNames.stream().collect(groupingBy(name -> name));
     List<String> duplicateNames =
         Seq.seq(nameMap)
             .filter(tp -> tp.v2.size() > 1)
             .map(tp -> tp.v1)
             .collect(toImmutableList());
 
-    if (duplicateNames.isEmpty()) {
-      return ImmutableList.copyOf(names);
-    } else {
+    if (!duplicateNames.isEmpty()) {
       String duplicates = duplicateNames.stream().collect(joining(", "));
       throw new IllegalArgumentException("Scenario names must be unique but duplicates were found: " + duplicates);
     }
-  }
-
-  // This constructor is hand-written to allow a wildcard in the constructor signature without having one
-  // in the corresponding field
-  @ImmutableConstructor
-  private ScenarioDefinition(List<? extends PerturbationMapping<?>> mappings, List<String> scenarioNames) {
-    this.mappings = ImmutableList.copyOf(mappings);
-    this.scenarioNames = validateNames(scenarioNames);
   }
 
   /**
@@ -568,6 +553,16 @@ public final class ScenarioDefinition implements ImmutableBean {
    */
   public static ScenarioDefinition.Builder builder() {
     return new ScenarioDefinition.Builder();
+  }
+
+  private ScenarioDefinition(
+      List<? extends PerturbationMapping<?>> mappings,
+      List<String> scenarioNames) {
+    JodaBeanUtils.notEmpty(mappings, "mappings");
+    JodaBeanUtils.notNull(scenarioNames, "scenarioNames");
+    this.mappings = ImmutableList.copyOf(mappings);
+    this.scenarioNames = ImmutableList.copyOf(scenarioNames);
+    validate();
   }
 
   @Override
@@ -751,7 +746,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ScenarioDefinition> {
 
-    private List<PerturbationMapping<?>> mappings = ImmutableList.of();
+    private List<? extends PerturbationMapping<?>> mappings = ImmutableList.of();
     private List<String> scenarioNames = ImmutableList.of();
 
     /**
@@ -787,7 +782,7 @@ public final class ScenarioDefinition implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 194445669:  // mappings
-          this.mappings = (List<PerturbationMapping<?>>) newValue;
+          this.mappings = (List<? extends PerturbationMapping<?>>) newValue;
           break;
         case -1193464424:  // scenarioNames
           this.scenarioNames = (List<String>) newValue;
@@ -831,18 +826,28 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code mappings} property in the builder.
+     * Sets the market data filters and perturbations that define the scenarios.
      * @param mappings  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder mappings(List<PerturbationMapping<?>> mappings) {
+    public Builder mappings(List<? extends PerturbationMapping<?>> mappings) {
       JodaBeanUtils.notEmpty(mappings, "mappings");
       this.mappings = mappings;
       return this;
     }
 
     /**
-     * Sets the {@code scenarioNames} property in the builder.
+     * Sets the {@code mappings} property in the builder
+     * from an array of objects.
+     * @param mappings  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder mappings(PerturbationMapping<?>... mappings) {
+      return mappings(ImmutableList.copyOf(mappings));
+    }
+
+    /**
+     * Sets the names of the scenarios.
      * @param scenarioNames  the new value, not null
      * @return this, for chaining, not null
      */

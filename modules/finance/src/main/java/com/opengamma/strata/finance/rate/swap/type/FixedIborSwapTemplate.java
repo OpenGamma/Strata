@@ -81,10 +81,22 @@ public final class FixedIborSwapTemplate
 
   //-------------------------------------------------------------------------
   /**
+   * Creates a template based on the specified tenor and convention.
+   * <p>
+   * The swap will start on the spot date.
+   * 
+   * @param tenor  the tenor of the swap
+   * @param convention  the market convention
+   * @return the template
+   */
+  public static FixedIborSwapTemplate of(Tenor tenor, FixedIborSwapConvention convention) {
+    return of(Period.ZERO, tenor, convention);
+  }
+
+  /**
    * Creates a template based on the specified period, tenor and convention.
    * <p>
    * The period from the spot date to the start date is specified.
-   * The tenor from the start date to the end date is also specified.
    * 
    * @param periodToStart  the period between the spot date and the start date
    * @param tenor  the tenor of the swap
@@ -460,7 +472,10 @@ public final class FixedIborSwapTemplate
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code periodToStart} property in the builder.
+     * Sets the period between the spot value date and the start date.
+     * <p>
+     * This is often zero, but can be greater if the swap if <i>forward starting</i>.
+     * This must not be negative.
      * @param periodToStart  the new value, not null
      * @return this, for chaining, not null
      */
@@ -471,7 +486,9 @@ public final class FixedIborSwapTemplate
     }
 
     /**
-     * Sets the {@code tenor} property in the builder.
+     * Sets the tenor of the swap.
+     * <p>
+     * This is the period from the first accrual date to the last accrual date.
      * @param tenor  the new value, not null
      * @return this, for chaining, not null
      */
@@ -482,7 +499,7 @@ public final class FixedIborSwapTemplate
     }
 
     /**
-     * Sets the {@code convention} property in the builder.
+     * Sets the market convention of the swap.
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */

@@ -1333,7 +1333,16 @@ public final class PeriodicSchedule
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code startDate} property in the builder.
+     * Sets the start date, which is the start of the first schedule period.
+     * <p>
+     * This is the start date of the schedule.
+     * It is is unadjusted and as such might be a weekend or holiday.
+     * Any applicable business day adjustment will be applied when creating the schedule.
+     * This is also known as the unadjusted effective date.
+     * <p>
+     * In most cases, the start date of a financial instrument is just after the trade date,
+     * such as two business days later. However, the start date of a schedule is permitted
+     * to be any date, which includes dates before or after the trade date.
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1344,7 +1353,13 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code endDate} property in the builder.
+     * Sets the end date, which is the end of the last schedule period.
+     * <p>
+     * This is the end date of the schedule.
+     * It is is unadjusted and as such might be a weekend or holiday.
+     * Any applicable business day adjustment will be applied when creating the schedule.
+     * This is also known as the unadjusted maturity date or unadjusted termination date.
+     * This date must be after the start date.
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1355,7 +1370,10 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code frequency} property in the builder.
+     * Sets the regular periodic frequency to use.
+     * <p>
+     * Most dates are calculated using a regular periodic frequency, such as every 3 months.
+     * The actual day-of-month or day-of-week is selected using the roll and stub conventions.
      * @param frequency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1366,7 +1384,13 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code businessDayAdjustment} property in the builder.
+     * Sets the business day adjustment to apply.
+     * <p>
+     * Each date in the calculated schedule is determined without taking into account weekends and holidays.
+     * The adjustment specified here is used to convert those dates to valid business days.
+     * <p>
+     * The start date and end date may have their own business day adjustment rules.
+     * If those are not present, then this adjustment is used instead.
      * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1377,7 +1401,12 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code startDateBusinessDayAdjustment} property in the builder.
+     * Sets the optional business day adjustment to apply to the start date.
+     * <p>
+     * The start date property is an unadjusted date and as such might be a weekend or holiday.
+     * The adjustment specified here is used to convert the start date to a valid business day.
+     * <p>
+     * If this property is not present, the standard {@code businessDayAdjustment} property is used instead.
      * @param startDateBusinessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -1387,7 +1416,12 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code endDateBusinessDayAdjustment} property in the builder.
+     * Sets the optional business day adjustment to apply to the end date.
+     * <p>
+     * The end date property is an unadjusted date and as such might be a weekend or holiday.
+     * The adjustment specified here is used to convert the end date to a valid business day.
+     * <p>
+     * If this property is not present, the standard {@code businessDayAdjustment} property is used instead.
      * @param endDateBusinessDayAdjustment  the new value
      * @return this, for chaining, not null
      */
@@ -1397,7 +1431,26 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code stubConvention} property in the builder.
+     * Sets the optional convention defining how to handle stubs.
+     * <p>
+     * The stub convention is used during schedule construction to determine whether the irregular
+     * remaining period occurs at the start or end of the schedule.
+     * It also determines whether the irregular period is shorter or longer than the regular period.
+     * <p>
+     * The convention 'None' may be used to explicitly indicate there are no stubs.
+     * This will be validated during schedule construction.
+     * <p>
+     * The convention 'Both' may be used to explicitly indicate there is both an initial and final stub.
+     * The stubs themselves must be specified using explicit dates.
+     * This will be validated during schedule construction.
+     * <p>
+     * If the stub convention is not present, then the convention will be implied from the actual
+     * explicit dates that have been specified.
+     * <p>
+     * If both a stub convention and explicit dates are specified, then the combination will be
+     * validated during schedule construction. For example, the combination of an explicit dated
+     * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
+     * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
      * @param stubConvention  the new value
      * @return this, for chaining, not null
      */
@@ -1407,7 +1460,14 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code rollConvention} property in the builder.
+     * Sets the optional convention defining how to roll dates.
+     * <p>
+     * The schedule periods are determined at the high level by repeatedly adding
+     * the frequency to the start date, or subtracting it from the end date.
+     * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
+     * <p>
+     * During schedule generation, if this is present it will be used to determine the schedule.
+     * If not present, then the roll convention will be implied.
      * @param rollConvention  the new value
      * @return this, for chaining, not null
      */
@@ -1417,7 +1477,15 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code firstRegularStartDate} property in the builder.
+     * Sets the optional start date of the first regular schedule period, which is the end date of the initial stub.
+     * <p>
+     * This is used to identify the boundary date between the initial stub and the first regular schedule period.
+     * <p>
+     * This is an unadjusted date, and as such it might not be a valid business day.
+     * This date must be on or after 'startDate'.
+     * <p>
+     * During schedule generation, if this is present it will be used to determine the schedule.
+     * If not present, then the overall schedule start date will be used instead, resulting in no initial stub.
      * @param firstRegularStartDate  the new value
      * @return this, for chaining, not null
      */
@@ -1427,7 +1495,16 @@ public final class PeriodicSchedule
     }
 
     /**
-     * Sets the {@code lastRegularEndDate} property in the builder.
+     * Sets the optional end date of the last regular schedule period, which is the start date of the final stub.
+     * <p>
+     * This is used to identify the boundary date between the last regular schedule period and the final stub.
+     * <p>
+     * This is an unadjusted date, and as such it might not be a valid business day.
+     * This date must be after 'startDate' and after 'firstRegularStartDate'.
+     * This date must be on or before 'endDate'.
+     * <p>
+     * During schedule generation, if this is present it will be used to determine the schedule.
+     * If not present, then the overall schedule end date will be used instead, resulting in no final stub.
      * @param lastRegularEndDate  the new value
      * @return this, for chaining, not null
      */

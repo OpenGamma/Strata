@@ -17,7 +17,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -32,7 +31,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -86,7 +84,7 @@ public final class InterpolatedCurveConfig
    * <p>
    * The nodes are used to find the par rates and calibrate the curve.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends CurveNode>")
   private final ImmutableList<CurveNode> nodes;
   /**
    * The interpolator used to find points on the curve.
@@ -108,28 +106,6 @@ public final class InterpolatedCurveConfig
   private static void applyDefaults(Builder builder) {
     builder.xValueType = ValueType.UNKNOWN;
     builder.yValueType = ValueType.UNKNOWN;
-  }
-
-  // Hand-written constructor allows wildcard parameter without a wildcard in the field type
-  @ImmutableConstructor
-  private InterpolatedCurveConfig(
-      CurveName name,
-      ValueType xValueType,
-      ValueType yValueType,
-      DayCount dayCount,
-      List<? extends CurveNode> nodes,
-      CurveInterpolator interpolator,
-      CurveExtrapolator leftExtrapolator,
-      CurveExtrapolator rightExtrapolator) {
-
-    this.name = ArgChecker.notNull(name, "name");
-    this.xValueType = xValueType;
-    this.yValueType = yValueType;
-    this.dayCount = dayCount;
-    this.nodes = ImmutableList.copyOf(nodes);
-    this.interpolator = ArgChecker.notNull(interpolator, "interpolator");
-    this.leftExtrapolator = ArgChecker.notNull(leftExtrapolator, "leftExtrapolator");
-    this.rightExtrapolator = ArgChecker.notNull(rightExtrapolator, "rightExtrapolator");
   }
 
   //-------------------------------------------------------------------------
@@ -167,6 +143,32 @@ public final class InterpolatedCurveConfig
    */
   public static InterpolatedCurveConfig.Builder builder() {
     return new InterpolatedCurveConfig.Builder();
+  }
+
+  private InterpolatedCurveConfig(
+      CurveName name,
+      ValueType xValueType,
+      ValueType yValueType,
+      DayCount dayCount,
+      List<? extends CurveNode> nodes,
+      CurveInterpolator interpolator,
+      CurveExtrapolator leftExtrapolator,
+      CurveExtrapolator rightExtrapolator) {
+    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(xValueType, "xValueType");
+    JodaBeanUtils.notNull(yValueType, "yValueType");
+    JodaBeanUtils.notNull(nodes, "nodes");
+    JodaBeanUtils.notNull(interpolator, "interpolator");
+    JodaBeanUtils.notNull(leftExtrapolator, "leftExtrapolator");
+    JodaBeanUtils.notNull(rightExtrapolator, "rightExtrapolator");
+    this.name = name;
+    this.xValueType = xValueType;
+    this.yValueType = yValueType;
+    this.dayCount = dayCount;
+    this.nodes = ImmutableList.copyOf(nodes);
+    this.interpolator = interpolator;
+    this.leftExtrapolator = leftExtrapolator;
+    this.rightExtrapolator = rightExtrapolator;
   }
 
   @Override
@@ -549,7 +551,7 @@ public final class InterpolatedCurveConfig
     private ValueType xValueType;
     private ValueType yValueType;
     private DayCount dayCount;
-    private List<CurveNode> nodes = ImmutableList.of();
+    private List<? extends CurveNode> nodes = ImmutableList.of();
     private CurveInterpolator interpolator;
     private CurveExtrapolator leftExtrapolator;
     private CurveExtrapolator rightExtrapolator;
@@ -618,7 +620,7 @@ public final class InterpolatedCurveConfig
           this.dayCount = (DayCount) newValue;
           break;
         case 104993457:  // nodes
-          this.nodes = (List<CurveNode>) newValue;
+          this.nodes = (List<? extends CurveNode>) newValue;
           break;
         case 2096253127:  // interpolator
           this.interpolator = (CurveInterpolator) newValue;
@@ -674,7 +676,7 @@ public final class InterpolatedCurveConfig
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code name} property in the builder.
+     * Sets the curve name.
      * @param name  the new value, not null
      * @return this, for chaining, not null
      */
@@ -685,7 +687,12 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code xValueType} property in the builder.
+     * Sets the x-value type, providing meaning to the x-values of the curve.
+     * <p>
+     * This type provides meaning to the x-values. For example, the x-value might
+     * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+     * <p>
+     * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
      * @param xValueType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -696,7 +703,12 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code yValueType} property in the builder.
+     * Sets the y-value type, providing meaning to the y-values of the curve.
+     * <p>
+     * This type provides meaning to the y-values. For example, the y-value might
+     * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+     * <p>
+     * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
      * @param yValueType  the new value, not null
      * @return this, for chaining, not null
      */
@@ -707,7 +719,10 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count, optional.
+     * <p>
+     * If the x-value of the curve represents time as a year fraction, the day count
+     * can be specified to define how the year fraction is calculated.
      * @param dayCount  the new value
      * @return this, for chaining, not null
      */
@@ -717,11 +732,13 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code nodes} property in the builder.
+     * Sets the nodes in the curve.
+     * <p>
+     * The nodes are used to find the par rates and calibrate the curve.
      * @param nodes  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder nodes(List<CurveNode> nodes) {
+    public Builder nodes(List<? extends CurveNode> nodes) {
       JodaBeanUtils.notNull(nodes, "nodes");
       this.nodes = nodes;
       return this;
@@ -738,7 +755,7 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code interpolator} property in the builder.
+     * Sets the interpolator used to find points on the curve.
      * @param interpolator  the new value, not null
      * @return this, for chaining, not null
      */
@@ -749,7 +766,7 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code leftExtrapolator} property in the builder.
+     * Sets the extrapolator used to find points to the left of the leftmost point on the curve.
      * @param leftExtrapolator  the new value, not null
      * @return this, for chaining, not null
      */
@@ -760,7 +777,7 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * Sets the {@code rightExtrapolator} property in the builder.
+     * Sets the extrapolator used to find points to the right of the rightmost point on the curve.
      * @param rightExtrapolator  the new value, not null
      * @return this, for chaining, not null
      */

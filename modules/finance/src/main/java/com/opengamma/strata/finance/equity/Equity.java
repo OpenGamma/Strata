@@ -293,7 +293,7 @@ public final class Equity
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
+     * Sets the currency that the equity is quoted in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */

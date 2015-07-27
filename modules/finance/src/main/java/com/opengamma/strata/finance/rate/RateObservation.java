@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.finance.rate;
 
-import org.joda.beans.ImmutableBean;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
 
@@ -24,8 +22,7 @@ import com.opengamma.strata.basics.index.Index;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface RateObservation
-    extends ImmutableBean {
+public interface RateObservation {
 
   /**
    * Collects all the indices referred to by this observation.

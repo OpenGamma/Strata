@@ -593,7 +593,10 @@ public final class PeriodicPayments
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code notional} property in the builder.
+     * Sets the notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis,
+     * i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction.
+     * <p>
+     * ISDA 2003 Term: Fixed Rate Payer Calculation Amount.
      * @param notional  the new value, not null
      * @return this, for chaining, not null
      */
@@ -604,7 +607,10 @@ public final class PeriodicPayments
     }
 
     /**
-     * Sets the {@code coupon} property in the builder.
+     * Sets the coupon.
+     * <p>
+     * The fixed rate to be paid relative to the notional. This is a per annum rate, expressed as a decimal.
+     * A fixed rate of 5% would be represented as 0.05.
      * @param coupon  the new value, not null
      * @return this, for chaining, not null
      */
@@ -615,7 +621,9 @@ public final class PeriodicPayments
     }
 
     /**
-     * Sets the {@code dayCount} property in the builder.
+     * Sets the day count convention.
+     * <p>
+     * ISDA 2003 Term: Fixed Rate Day Count Fraction.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -626,7 +634,9 @@ public final class PeriodicPayments
     }
 
     /**
-     * Sets the {@code paymentFrequency} property in the builder.
+     * Sets the periodic frequency defining when payments are made.
+     * <p>
+     * This represents the time interval between regular fixed rate payer payment dates.
      * @param paymentFrequency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -637,7 +647,12 @@ public final class PeriodicPayments
     }
 
     /**
-     * Sets the {@code stubConvention} property in the builder.
+     * Sets the stub convention to use.
+     * <p>
+     * This is needed when the maturity date does not land precisely on a CDS date.
+     * <p>
+     * This may be 'ShortInitial', 'LongInitial', 'ShortFinal', or 'LongFinal'.
+     * The values 'None' and 'Both' are not allowed.
      * @param stubConvention  the new value, not null
      * @return this, for chaining, not null
      */
@@ -648,7 +663,9 @@ public final class PeriodicPayments
     }
 
     /**
-     * Sets the {@code rollConvention} property in the builder.
+     * Sets the roll convention
+     * <p>
+     * This is used to calculate payment schedule.
      * @param rollConvention  the new value, not null
      * @return this, for chaining, not null
      */

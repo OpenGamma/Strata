@@ -450,7 +450,9 @@ public final class ValueSchedule
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code initialValue} property in the builder.
+     * Sets the initial value.
+     * <p>
+     * This is used for the lifetime of the trade unless specifically varied.
      * @param initialValue  the new value
      * @return this, for chaining, not null
      */
@@ -460,7 +462,9 @@ public final class ValueSchedule
     }
 
     /**
-     * Sets the {@code steps} property in the builder.
+     * Sets the steps defining the change in the value.
+     * <p>
+     * Each step consists of a key locating the date of the change and the adjustment that occurs.
      * @param steps  the new value, not null
      * @return this, for chaining, not null
      */
