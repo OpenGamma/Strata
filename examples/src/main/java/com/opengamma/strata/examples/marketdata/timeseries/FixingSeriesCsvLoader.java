@@ -15,10 +15,10 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
-import com.opengamma.strata.examples.marketdata.CsvFile;
 import com.opengamma.strata.examples.marketdata.LoaderUtils;
 import com.opengamma.strata.market.id.IndexRateId;
 

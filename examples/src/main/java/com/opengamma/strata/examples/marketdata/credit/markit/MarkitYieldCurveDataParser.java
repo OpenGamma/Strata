@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.examples.marketdata.CsvFile;
+import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.finance.credit.type.IsdaYieldCurveConvention;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
