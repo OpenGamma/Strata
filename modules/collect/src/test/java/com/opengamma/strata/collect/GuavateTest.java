@@ -7,6 +7,7 @@ package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
@@ -60,6 +61,13 @@ public class GuavateTest {
         .filter(Guavate.not(String::isEmpty))
         .collect(Collectors.toList());
     assertEquals(test, ImmutableList.of("a", "c"));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_ensureOnlyOne() {
+    assertEquals(Arrays.asList().stream().reduce(Guavate.ensureOnlyOne()), Optional.empty());
+    assertEquals(Arrays.asList("a").stream().reduce(Guavate.ensureOnlyOne()), Optional.of("a"));
+    assertThrowsIllegalArg(() -> Arrays.asList("a", "b").stream().reduce(Guavate.ensureOnlyOne()));
   }
 
   //-------------------------------------------------------------------------
