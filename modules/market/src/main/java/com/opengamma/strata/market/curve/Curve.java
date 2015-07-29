@@ -49,7 +49,7 @@ public interface Curve {
   /**
    * Gets the number of parameters in the curve.
    * <p>
-   * This returns the number of parameters (known points) in the curve.
+   * This returns the number of parameters that are used to define the curve.
    * 
    * @return the number of parameters
    */
@@ -70,9 +70,9 @@ public interface Curve {
    * This returns an array with one element for each parameter of the curve.
    * The array contains the sensitivity of the y-value at the specified x-value to each parameter.
    * 
-   * @param x  the x-value at which the parameter sensitivity is computed, not null
+   * @param x  the x-value at which the parameter sensitivity is computed
    * @return the sensitivity
-   * @throws UnsupportedOperationException if the sensitivity cannot be calculated
+   * @throws RuntimeException if the sensitivity cannot be calculated
    */
   public abstract double[] yValueParameterSensitivity(double x);
 
@@ -83,7 +83,7 @@ public interface Curve {
    * 
    * @param x  the x-value at which the derivative is taken
    * @return the first derivative
-   * @throws UnsupportedOperationException if the derivative cannot be calculated
+   * @throws RuntimeException if the derivative cannot be calculated
    */
   public abstract double firstDerivative(double x);
 

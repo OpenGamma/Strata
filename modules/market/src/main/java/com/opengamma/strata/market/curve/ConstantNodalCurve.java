@@ -35,7 +35,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * When queried, {@link #yValue(double)} always returns the constant value.
  * <p>
  * The {@link #getXValues()} method returns a single x-value of 0.
- * The {@link #getXValues()} method returns a single y-value of the constant.
+ * The {@link #getYValues()} method returns a single y-value of the constant.
  * The sensitivity is 1 and the first derivative is 0.
  */
 @BeanDefinition(builderScope = "private")
@@ -50,9 +50,7 @@ public final class ConstantNodalCurve
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveMetadata metadata;
   /**
-   * The array of x-values, one for each point.
-   * <p>
-   * This array will contains at least two elements and be of the same length as y-values.
+   * The single y-value.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final double yValue;
@@ -203,9 +201,7 @@ public final class ConstantNodalCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the array of x-values, one for each point.
-   * <p>
-   * This array will contains at least two elements and be of the same length as y-values.
+   * Gets the single y-value.
    * @return the value of the property, not null
    */
   private double getYValue() {

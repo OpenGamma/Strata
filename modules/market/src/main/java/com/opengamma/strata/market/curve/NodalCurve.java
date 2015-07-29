@@ -67,9 +67,9 @@ public interface NodalCurve
    * <p>
    * The desired adjustment is specified using {@link DoubleUnaryOperator}.
    * <p>
-   * The operator will be called once for each point on the curve.
-   * The input will be the x and y values of the point.
-   * The output will be the new y value.
+   * The operator will be called once for each parameter of the curve.
+   * The input will be the x and y values of the parameter.
+   * The output will be the new y-value.
    * 
    * @param operator  the operator that provides the change
    * @return the new curve
@@ -96,11 +96,10 @@ public interface NodalCurve
    * @return the new curve
    */
   public default NodalCurve shiftedBy(List<ValueAdjustment> adjustments) {
-    double[] yValues = getYValues();
-    double[] shifted = yValues.clone();
-    int minSize = Math.min(yValues.length, adjustments.size());
+    double[] shifted = getYValues();
+    int minSize = Math.min(shifted.length, adjustments.size());
     for (int i = 0; i < minSize; i++) {
-      shifted[i] = adjustments.get(i).adjust(yValues[i]);
+      shifted[i] = adjustments.get(i).adjust(shifted[i]);
     }
     return withYValues(shifted);
   }
