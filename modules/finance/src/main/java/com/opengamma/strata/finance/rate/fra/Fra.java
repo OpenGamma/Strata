@@ -33,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -122,14 +123,15 @@ public final class Fra
   @PropertyDefinition(get = "optional")
   private final BusinessDayAdjustment businessDayAdjustment;
   /**
-   * The offset of the payment date from the start date, optional.
+   * The payment date.
    * <p>
-   * Defines the offset from the start date to the payment date.
-   * If this optional property is present, then the offset will be applied to the start to obtain the payment date.
-   * In most cases, the payment date is the same as the start date, so this property is empty.
+   * The payment date is typically the same as the start date.
+   * The date may be subject to adjustment to ensure it is a business day.
+   * <p>
+   * When building, this will default to the start date with no adjustments if not specified.
    */
-  @PropertyDefinition(get = "optional")
-  private final DaysAdjustment paymentDateOffset;
+  @PropertyDefinition(validate = "notNull")
+  private final AdjustableDate paymentDate;
   /**
    * The fixed rate of interest.
    * A 5% rate will be expressed as 0.05.
@@ -210,6 +212,9 @@ public final class Fra
         builder.discounting = (curr.equals(AUD) || curr.equals(NZD) ? AFMA : ISDA);
       }
     }
+    if (builder.paymentDate == null && builder.startDate != null) {
+      builder.paymentDate = AdjustableDate.of(builder.startDate);
+    }
   }
 
   @ImmutableValidator
@@ -234,9 +239,8 @@ public final class Fra
   public ExpandedFra expand() {
     LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
     LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
-    LocalDate payment = getPaymentDateOffset().orElse(DaysAdjustment.NONE).adjust(start);
     return ExpandedFra.builder()
-        .paymentDate(payment)
+        .paymentDate(getPaymentDate().adjusted())
         .startDate(start)
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))
@@ -292,7 +296,7 @@ public final class Fra
       LocalDate startDate,
       LocalDate endDate,
       BusinessDayAdjustment businessDayAdjustment,
-      DaysAdjustment paymentDateOffset,
+      AdjustableDate paymentDate,
       double fixedRate,
       IborIndex index,
       IborIndex indexInterpolated,
@@ -304,6 +308,7 @@ public final class Fra
     ArgChecker.notNegative(notional, "notional");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
     JodaBeanUtils.notNull(dayCount, "dayCount");
@@ -314,7 +319,7 @@ public final class Fra
     this.startDate = startDate;
     this.endDate = endDate;
     this.businessDayAdjustment = businessDayAdjustment;
-    this.paymentDateOffset = paymentDateOffset;
+    this.paymentDate = paymentDate;
     this.fixedRate = fixedRate;
     this.index = index;
     this.indexInterpolated = indexInterpolated;
@@ -423,15 +428,16 @@ public final class Fra
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the offset of the payment date from the start date, optional.
+   * Gets the payment date.
    * <p>
-   * Defines the offset from the start date to the payment date.
-   * If this optional property is present, then the offset will be applied to the start to obtain the payment date.
-   * In most cases, the payment date is the same as the start date, so this property is empty.
-   * @return the optional value of the property, not null
+   * The payment date is typically the same as the start date.
+   * The date may be subject to adjustment to ensure it is a business day.
+   * <p>
+   * When building, this will default to the start date with no adjustments if not specified.
+   * @return the value of the property, not null
    */
-  public Optional<DaysAdjustment> getPaymentDateOffset() {
-    return Optional.ofNullable(paymentDateOffset);
+  public AdjustableDate getPaymentDate() {
+    return paymentDate;
   }
 
   //-----------------------------------------------------------------------
@@ -541,7 +547,7 @@ public final class Fra
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
-          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
+          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
           JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(indexInterpolated, other.indexInterpolated) &&
@@ -561,7 +567,7 @@ public final class Fra
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(indexInterpolated);
@@ -581,7 +587,7 @@ public final class Fra
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
     buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("indexInterpolated").append('=').append(indexInterpolated).append(',').append(' ');
@@ -633,10 +639,10 @@ public final class Fra
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "businessDayAdjustment", Fra.class, BusinessDayAdjustment.class);
     /**
-     * The meta-property for the {@code paymentDateOffset} property.
+     * The meta-property for the {@code paymentDate} property.
      */
-    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
-        this, "paymentDateOffset", Fra.class, DaysAdjustment.class);
+    private final MetaProperty<AdjustableDate> paymentDate = DirectMetaProperty.ofImmutable(
+        this, "paymentDate", Fra.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -678,7 +684,7 @@ public final class Fra
         "startDate",
         "endDate",
         "businessDayAdjustment",
-        "paymentDateOffset",
+        "paymentDate",
         "fixedRate",
         "index",
         "indexInterpolated",
@@ -707,8 +713,8 @@ public final class Fra
           return endDate;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
-        case -716438393:  // paymentDateOffset
-          return paymentDateOffset;
+        case -1540873516:  // paymentDate
+          return paymentDate;
         case 747425396:  // fixedRate
           return fixedRate;
         case 100346066:  // index
@@ -790,11 +796,11 @@ public final class Fra
     }
 
     /**
-     * The meta-property for the {@code paymentDateOffset} property.
+     * The meta-property for the {@code paymentDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> paymentDateOffset() {
-      return paymentDateOffset;
+    public MetaProperty<AdjustableDate> paymentDate() {
+      return paymentDate;
     }
 
     /**
@@ -861,8 +867,8 @@ public final class Fra
           return ((Fra) bean).getEndDate();
         case -1065319863:  // businessDayAdjustment
           return ((Fra) bean).businessDayAdjustment;
-        case -716438393:  // paymentDateOffset
-          return ((Fra) bean).paymentDateOffset;
+        case -1540873516:  // paymentDate
+          return ((Fra) bean).getPaymentDate();
         case 747425396:  // fixedRate
           return ((Fra) bean).getFixedRate();
         case 100346066:  // index
@@ -902,7 +908,7 @@ public final class Fra
     private LocalDate startDate;
     private LocalDate endDate;
     private BusinessDayAdjustment businessDayAdjustment;
-    private DaysAdjustment paymentDateOffset;
+    private AdjustableDate paymentDate;
     private double fixedRate;
     private IborIndex index;
     private IborIndex indexInterpolated;
@@ -927,7 +933,7 @@ public final class Fra
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.businessDayAdjustment = beanToCopy.businessDayAdjustment;
-      this.paymentDateOffset = beanToCopy.paymentDateOffset;
+      this.paymentDate = beanToCopy.getPaymentDate();
       this.fixedRate = beanToCopy.getFixedRate();
       this.index = beanToCopy.getIndex();
       this.indexInterpolated = beanToCopy.indexInterpolated;
@@ -952,8 +958,8 @@ public final class Fra
           return endDate;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
-        case -716438393:  // paymentDateOffset
-          return paymentDateOffset;
+        case -1540873516:  // paymentDate
+          return paymentDate;
         case 747425396:  // fixedRate
           return fixedRate;
         case 100346066:  // index
@@ -992,8 +998,8 @@ public final class Fra
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
-        case -716438393:  // paymentDateOffset
-          this.paymentDateOffset = (DaysAdjustment) newValue;
+        case -1540873516:  // paymentDate
+          this.paymentDate = (AdjustableDate) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -1053,7 +1059,7 @@ public final class Fra
           startDate,
           endDate,
           businessDayAdjustment,
-          paymentDateOffset,
+          paymentDate,
           fixedRate,
           index,
           indexInterpolated,
@@ -1157,16 +1163,18 @@ public final class Fra
     }
 
     /**
-     * Sets the offset of the payment date from the start date, optional.
+     * Sets the payment date.
      * <p>
-     * Defines the offset from the start date to the payment date.
-     * If this optional property is present, then the offset will be applied to the start to obtain the payment date.
-     * In most cases, the payment date is the same as the start date, so this property is empty.
-     * @param paymentDateOffset  the new value
+     * The payment date is typically the same as the start date.
+     * The date may be subject to adjustment to ensure it is a business day.
+     * <p>
+     * When building, this will default to the start date with no adjustments if not specified.
+     * @param paymentDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
-      this.paymentDateOffset = paymentDateOffset;
+    public Builder paymentDate(AdjustableDate paymentDate) {
+      JodaBeanUtils.notNull(paymentDate, "paymentDate");
+      this.paymentDate = paymentDate;
       return this;
     }
 
@@ -1276,7 +1284,7 @@ public final class Fra
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
-      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
+      buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated)).append(',').append(' ');
