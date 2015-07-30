@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.market.id.QuoteId;
 
