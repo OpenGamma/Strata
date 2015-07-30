@@ -96,7 +96,7 @@ public class FraTemplateTest {
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
         .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .paymentDateOffset(PLUS_TWO_DAYS)
+        .paymentDate(PLUS_TWO_DAYS.toAdjustedDate(date(2015, 8, 5)))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();

@@ -387,7 +387,7 @@ public final class FraConvention
             .startDate(startDate)
             .endDate(endDate)
             .businessDayAdjustment(getBusinessDayAdjustment())
-            .paymentDateOffset(getPaymentDateOffset() != DaysAdjustment.NONE ? getPaymentDateOffset() : null)
+            .paymentDate(getPaymentDateOffset().toAdjustedDate(startDate))
             .fixedRate(fixedRate)
             .index(index)
             .fixingDateOffset(getFixingDateOffset())

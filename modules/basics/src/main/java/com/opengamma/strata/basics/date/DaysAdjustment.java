@@ -23,8 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.collect.ArgChecker;
-
 /**
  * An adjustment that alters a date by adding a period of days.
  * <p>
@@ -192,7 +190,7 @@ public final class DaysAdjustment
    * The calculation is performed in two steps.
    * <p>
    * Step one, use {@link HolidayCalendar#shift(LocalDate, int)} to add the number of days.
-   * If the holiday calendar is 'None' this will effectively add using simple arithmetic.
+   * If the holiday calendar is 'None' this will effectively add calendar days.
    * <p>
    * Step two, use {@link BusinessDayAdjustment#adjust(LocalDate)} to adjust the result of step one.
    * 
@@ -201,9 +199,24 @@ public final class DaysAdjustment
    */
   @Override
   public LocalDate adjust(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate added = calendar.shift(date, days);
     return adjustment.adjust(added);
+  }
+
+  /**
+   * Returns an adjustable date instance resulting from applying this adjustment to a date.
+   * <p>
+   * The number of days of this adjustment is added to the specified date using the
+   * {@link HolidayCalendar#shift(LocalDate, int)}.
+   * If the holiday calendar is 'None' this will effectively add calendar days.
+   * The result is then created from the shifted date and the result of {@link #getAdjustment()}.
+   * 
+   * @param date  the date to adjust
+   * @return the adjusted date
+   */
+  public AdjustableDate toAdjustedDate(LocalDate date) {
+    LocalDate added = calendar.shift(date, days);
+    return AdjustableDate.of(added, adjustment);
   }
 
   /**
