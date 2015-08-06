@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata.mapping;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -44,7 +45,7 @@ import com.opengamma.strata.basics.market.SimpleMarketDataKey;
  */
 @SuppressWarnings("unchecked")
 @BeanDefinition
-public final class DefaultMarketDataMappings implements MarketDataMappings, ImmutableBean {
+public final class DefaultMarketDataMappings implements MarketDataMappings, ImmutableBean, Serializable {
 
   /** An empty set of market data mappings containing no mappers. */
   static final MarketDataMappings EMPTY = new DefaultMarketDataMappings(MarketDataFeed.NONE, ImmutableMap.of());
@@ -124,6 +125,11 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
   static {
     JodaBeanUtils.registerMetaBean(DefaultMarketDataMappings.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

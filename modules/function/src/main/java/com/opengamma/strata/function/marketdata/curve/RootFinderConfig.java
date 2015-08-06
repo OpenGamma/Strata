@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,7 +29,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Configuration for the root finder used when calibrating curves.
  */
 @BeanDefinition
-public final class RootFinderConfig implements ImmutableBean {
+public final class RootFinderConfig implements ImmutableBean, Serializable {
 
   /** The default absolute tolerance for the root finder. */
   public static final double DEFAULT_ABSOLUTE_TOLERANCE = 1e-9;
@@ -84,6 +85,11 @@ public final class RootFinderConfig implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(RootFinderConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

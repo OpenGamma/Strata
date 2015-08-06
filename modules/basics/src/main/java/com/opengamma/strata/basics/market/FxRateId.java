@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -37,7 +38,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * created from the two currencies.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean {
+public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Serializable {
 
   /** The currency pair whose rate this identifies. */
   @PropertyDefinition(validate = "notNull")
@@ -117,6 +118,11 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(FxRateId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public FxRateId.Meta metaBean() {

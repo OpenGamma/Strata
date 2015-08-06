@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve.config;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -51,7 +52,7 @@ import com.opengamma.strata.market.curve.CurveName;
  * Every curve must be associated with at least once key.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveGroupConfig implements ImmutableBean {
+public final class CurveGroupConfig implements ImmutableBean, Serializable {
 
   /** The name of the curve group. */
   @PropertyDefinition(validate = "notNull")
@@ -109,6 +110,11 @@ public final class CurveGroupConfig implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(CurveGroupConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public CurveGroupConfig.Meta metaBean() {

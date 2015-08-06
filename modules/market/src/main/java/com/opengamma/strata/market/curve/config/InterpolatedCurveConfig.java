@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve.config;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ import com.opengamma.strata.market.value.ValueType;
  */
 @BeanDefinition
 public final class InterpolatedCurveConfig
-    implements CurveConfig, ImmutableBean {
+    implements CurveConfig, ImmutableBean, Serializable {
 
   /**
    * The curve name.
@@ -136,6 +137,11 @@ public final class InterpolatedCurveConfig
   static {
     JodaBeanUtils.registerMetaBean(InterpolatedCurveConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

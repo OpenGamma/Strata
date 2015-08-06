@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.opengamma.strata.market.value.CdsRecoveryRate;
  */
 @BeanDefinition(builderScope = "private")
 public final class IsdaIndexRecoveryRateId
-    implements MarketDataId<CdsRecoveryRate>, ImmutableBean {
+    implements MarketDataId<CdsRecoveryRate>, ImmutableBean, Serializable {
 
   /**
    * The information that identifies the single-name.
@@ -69,6 +70,11 @@ public final class IsdaIndexRecoveryRateId
   static {
     JodaBeanUtils.registerMetaBean(IsdaIndexRecoveryRateId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private IsdaIndexRecoveryRateId(
       IndexReferenceInformation referenceInformation) {

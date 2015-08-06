@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata.config;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,7 +33,7 @@ import com.opengamma.strata.collect.type.TypedString;
  * This class is effectively a map of arbitrary objects, keyed by their type and a name.
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class MarketDataConfig implements ImmutableBean {
+public final class MarketDataConfig implements ImmutableBean, Serializable {
 
   /** An empty set of market data configuration. */
   private static final MarketDataConfig EMPTY = new MarketDataConfig(ImmutableMap.of());
@@ -110,6 +111,11 @@ public final class MarketDataConfig implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(MarketDataConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.
