@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.calculations.function.result;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -37,7 +38,7 @@ import com.google.common.collect.ImmutableList;
  * @param <T>  the type of the result
  */
 @BeanDefinition
-public final class DefaultScenarioResult<T> implements ScenarioResult<T>, ImmutableBean {
+public final class DefaultScenarioResult<T> implements ScenarioResult<T>, ImmutableBean, Serializable {
 
   /** The individual results. */
   @PropertyDefinition(validate = "notNull")
@@ -104,6 +105,11 @@ public final class DefaultScenarioResult<T> implements ScenarioResult<T>, Immuta
   static {
     JodaBeanUtils.registerMetaBean(DefaultScenarioResult.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

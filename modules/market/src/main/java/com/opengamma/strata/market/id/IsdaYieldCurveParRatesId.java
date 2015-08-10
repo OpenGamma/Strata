@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -32,7 +33,7 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
  */
 @BeanDefinition(builderScope = "private")
 public final class IsdaYieldCurveParRatesId
-    implements MarketDataId<IsdaYieldCurveParRates>, ImmutableBean {
+    implements MarketDataId<IsdaYieldCurveParRates>, ImmutableBean, Serializable {
 
   /**
    * The currency.
@@ -70,6 +71,11 @@ public final class IsdaYieldCurveParRatesId
   static {
     JodaBeanUtils.registerMetaBean(IsdaYieldCurveParRatesId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private IsdaYieldCurveParRatesId(
       Currency currency) {

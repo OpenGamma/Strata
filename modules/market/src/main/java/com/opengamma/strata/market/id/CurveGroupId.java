@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.opengamma.strata.market.curve.CurveGroupName;
  * Market data ID identifying a group of curves that are built together.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBean {
+public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBean, Serializable {
 
   /** The name of the curve group. */
   @PropertyDefinition(validate = "notNull")
@@ -80,6 +81,11 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   static {
     JodaBeanUtils.registerMetaBean(CurveGroupId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private CurveGroupId(
       CurveGroupName name,

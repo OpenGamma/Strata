@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.calculations;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -32,7 +33,7 @@ import com.opengamma.strata.basics.market.MarketDataKey;
  * used to identify failures when building market data.
  */
 @BeanDefinition(builderScope = "private")
-public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean {
+public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean, Serializable {
 
   /** The key identifying the market data required for the calculation. */
   @PropertyDefinition(validate = "notNull")
@@ -66,6 +67,11 @@ public final class MissingMappingId implements MarketDataId<Void>, ImmutableBean
   static {
     JodaBeanUtils.registerMetaBean(MissingMappingId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private MissingMappingId(
       MarketDataKey<?> key) {

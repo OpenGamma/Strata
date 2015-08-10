@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.config;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,7 +35,7 @@ import com.opengamma.strata.engine.Column;
  * The measures are included for reference.
  */
 @BeanDefinition
-public final class CalculationTasksConfig implements ImmutableBean {
+public final class CalculationTasksConfig implements ImmutableBean, Serializable {
 
   /** Configuration for each of tasks that perform the individual calculations. */
   @PropertyDefinition(validate = "notNull")
@@ -57,6 +58,11 @@ public final class CalculationTasksConfig implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(CalculationTasksConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

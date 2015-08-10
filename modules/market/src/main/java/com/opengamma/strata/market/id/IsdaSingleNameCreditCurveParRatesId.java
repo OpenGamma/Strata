@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -32,7 +33,7 @@ import com.opengamma.strata.market.curve.IsdaCreditCurveParRates;
  */
 @BeanDefinition(builderScope = "private")
 public final class IsdaSingleNameCreditCurveParRatesId
-    implements MarketDataId<IsdaCreditCurveParRates>, ImmutableBean {
+    implements MarketDataId<IsdaCreditCurveParRates>, ImmutableBean, Serializable {
 
   /**
    * The information that identifies the single-name.
@@ -70,6 +71,11 @@ public final class IsdaSingleNameCreditCurveParRatesId
   static {
     JodaBeanUtils.registerMetaBean(IsdaSingleNameCreditCurveParRatesId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private IsdaSingleNameCreditCurveParRatesId(
       SingleNameReferenceInformation referenceInformation) {

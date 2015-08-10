@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.config;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -33,7 +34,7 @@ import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
  * mappings that specify the market data that is used in the calculation.
  */
 @BeanDefinition
-public final class CalculationTaskConfig implements ImmutableBean {
+public final class CalculationTaskConfig implements ImmutableBean, Serializable {
 
   /** The target for which the value will be calculated. */
   @PropertyDefinition(validate = "notNull")
@@ -116,6 +117,11 @@ public final class CalculationTaskConfig implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(CalculationTaskConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

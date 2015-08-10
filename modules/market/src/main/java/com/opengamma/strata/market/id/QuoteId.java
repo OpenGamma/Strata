@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -59,7 +60,7 @@ import com.opengamma.strata.market.key.QuoteKey;
  * @see FieldName
  */
 @BeanDefinition(builderScope = "private")
-public final class QuoteId implements ObservableId, ImmutableBean {
+public final class QuoteId implements ObservableId, ImmutableBean, Serializable {
 
   /** The ID of the data, typically an ID from an external data provider. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -125,6 +126,11 @@ public final class QuoteId implements ObservableId, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(QuoteId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private QuoteId(
       StandardId standardId,

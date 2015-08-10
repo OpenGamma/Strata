@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.marketdata.mapping;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -38,7 +39,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
  */
 @BeanDefinition
 public final class DiscountFactorsMapping
-    implements MarketDataMapping<DiscountFactors, DiscountFactorsKey>, ImmutableBean {
+    implements MarketDataMapping<DiscountFactors, DiscountFactorsKey>, ImmutableBean, Serializable {
 
   /**
    * The name of the curve group from which discounting curves should be taken.
@@ -89,6 +90,11 @@ public final class DiscountFactorsMapping
   static {
     JodaBeanUtils.registerMetaBean(DiscountFactorsMapping.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

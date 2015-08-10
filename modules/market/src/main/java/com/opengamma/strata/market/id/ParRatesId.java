@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.opengamma.strata.market.curve.ParRates;
  * Market data ID for a set of par rates used when calibrating a curve.
  */
 @BeanDefinition
-public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
+public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean, Serializable {
 
   /** The name of the curve group containing the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -75,6 +76,11 @@ public final class ParRatesId implements MarketDataId<ParRates>, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(ParRatesId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

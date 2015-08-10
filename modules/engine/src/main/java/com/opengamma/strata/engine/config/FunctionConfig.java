@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.config;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -48,7 +49,7 @@ import com.opengamma.strata.engine.calculations.function.CalculationSingleFuncti
  * @param <T>  the type of the calculation target
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class FunctionConfig<T extends CalculationTarget> implements ImmutableBean {
+public final class FunctionConfig<T extends CalculationTarget> implements ImmutableBean, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(FunctionConfig.class);
 
@@ -274,6 +275,11 @@ public final class FunctionConfig<T extends CalculationTarget> implements Immuta
   static {
     JodaBeanUtils.registerMetaBean(FunctionConfig.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

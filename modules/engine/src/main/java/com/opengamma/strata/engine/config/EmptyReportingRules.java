@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.config;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,7 +29,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * A reporting currency rule that always returns an empty optional from {@link #reportingCurrency}.
  */
 @BeanDefinition(builderScope = "private")
-final class EmptyReportingRules implements ReportingRules, ImmutableBean {
+final class EmptyReportingRules implements ReportingRules, ImmutableBean, Serializable {
 
   /** The single, shared instance of this class. */
   static final EmptyReportingRules INSTANCE = new EmptyReportingRules();
@@ -57,6 +58,11 @@ final class EmptyReportingRules implements ReportingRules, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(EmptyReportingRules.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private EmptyReportingRules() {
   }

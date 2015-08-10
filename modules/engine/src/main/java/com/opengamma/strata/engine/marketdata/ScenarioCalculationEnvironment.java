@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,7 @@ import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
  */
 @SuppressWarnings("unchecked")
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class ScenarioCalculationEnvironment implements ImmutableBean {
+public final class ScenarioCalculationEnvironment implements ImmutableBean, Serializable {
 
   /** The market data values which are the same in every scenario. */
   @PropertyDefinition(validate = "notNull")
@@ -248,6 +249,11 @@ public final class ScenarioCalculationEnvironment implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(ScenarioCalculationEnvironment.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.

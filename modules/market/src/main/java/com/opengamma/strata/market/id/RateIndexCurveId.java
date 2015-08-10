@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.id;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -35,7 +36,7 @@ import com.opengamma.strata.market.curve.CurveGroupName;
  * Current and historical values for the index are identified with a {@link IndexRateId}.
  */
 @BeanDefinition(builderScope = "private")
-public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
+public final class RateIndexCurveId implements RateCurveId, ImmutableBean, Serializable {
 
   /** The index of the curve. */
   @PropertyDefinition(validate = "notNull")
@@ -90,6 +91,11 @@ public final class RateIndexCurveId implements RateCurveId, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(RateIndexCurveId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private RateIndexCurveId(
       RateIndex index,

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.engine.calculations;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,7 +29,7 @@ import com.opengamma.strata.collect.result.Result;
  * The result of a single calculation performed by a {@link CalculationRunner}.
  */
 @BeanDefinition
-public final class CalculationResult implements ImmutableBean {
+public final class CalculationResult implements ImmutableBean, Serializable {
 
   /** The target of the calculation, often a trade. */
   @PropertyDefinition(validate = "notNull")
@@ -79,6 +80,11 @@ public final class CalculationResult implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(CalculationResult.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

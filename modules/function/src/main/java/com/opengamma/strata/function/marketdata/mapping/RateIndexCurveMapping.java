@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.marketdata.mapping;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -35,7 +36,7 @@ import com.opengamma.strata.market.key.RateIndexCurveKey;
  */
 @BeanDefinition
 public final class RateIndexCurveMapping
-    implements MarketDataMapping<Curve, RateIndexCurveKey>, ImmutableBean {
+    implements MarketDataMapping<Curve, RateIndexCurveKey>, ImmutableBean, Serializable {
 
   /** The name of the curve group from which the curve should be taken. */
   @PropertyDefinition(validate = "notNull")
@@ -80,6 +81,11 @@ public final class RateIndexCurveMapping
   static {
     JodaBeanUtils.registerMetaBean(RateIndexCurveMapping.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
