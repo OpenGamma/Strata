@@ -325,14 +325,14 @@ public final class CurrencyAmount
   }
 
   /**
-   * Converts this amount to an equivalent amount the specified currency.
+   * Converts this amount to an equivalent amount in the specified currency.
    * <p>
    * The result will be expressed in terms of the given currency.
    * If conversion is needed, the provider will be used to supply the FX rate.
    * 
    * @param resultCurrency  the currency of the result
    * @param rateProvider  the provider of FX rates
-   * @return the converted instance, which should be expressed in the specified currency
+   * @return the converted instance, in the specified currency
    * @throws RuntimeException if no FX rate could be found
    */
   @Override
