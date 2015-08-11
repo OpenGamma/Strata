@@ -122,7 +122,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   public Map<DoublesPair, Double> nodeSensitivity(IborFutureOptionSensitivity point) {
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
-    double expiryTime = relativeTime(point.getExpiryDate()); // TODO: time and zone
+    double expiryTime = relativeTime(point.getExpiry());
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = parameters.getInterpolator().getNodeSensitivitiesForValue(
         (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(),

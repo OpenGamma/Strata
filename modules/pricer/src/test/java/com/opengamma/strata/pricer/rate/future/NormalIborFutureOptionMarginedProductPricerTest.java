@@ -189,7 +189,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityNormalVolatility(
         FUTURE_OPTION_PRODUCT, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertEquals(optionVegaComputed.getSensitivity(), optionVegaExpected, TOLERANCE_PRICE);
-    assertEquals(optionVegaComputed.getExpiryDate(), FUTURE_OPTION_PRODUCT.getExpirationDateTime());
+    assertEquals(optionVegaComputed.getExpiry(), FUTURE_OPTION_PRODUCT.getExpirationDateTime());
     assertEquals(optionVegaComputed.getFixingDate(), FUTURE_OPTION_PRODUCT.getUnderlying().getFixingDate());
     assertEquals(optionVegaComputed.getStrikePrice(), FUTURE_OPTION_PRODUCT.getStrikePrice());
     assertEquals(optionVegaComputed.getFuturePrice(), futurePrice);
