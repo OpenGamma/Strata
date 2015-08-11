@@ -6,8 +6,6 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -37,12 +35,12 @@ import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
  * Data provider of volatility for Ibor future options in the normal or Bachelier model. 
  * <p>
  * The volatility is represented by a surface on the expiration and simple moneyness. 
+ * The expiration is measured in number of days (not time) according to a day-count convention.
  * The simple moneyness can be on the price or on the rate (1-price).
  */
 @BeanDefinition
 public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     implements NormalVolatilityIborFutureProvider, ImmutableBean {
-  // TODO: Day count handling time, not just dates
 
   /**
    * The normal volatility surface.
@@ -96,9 +94,9 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice) {
+  public double getVolatility(ZonedDateTime expiryDateTime, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
-    double expiryTime = relativeYearFraction(expiryDate, null, null); // TODO: time and zone
+    double expiryTime = relativeTime(expiryDateTime);
     return parameters.getZValue(expiryTime, simpleMoneyness);
   }
 
@@ -109,9 +107,9 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double relativeYearFraction(LocalDate date, LocalTime time, ZoneId zone) {
-    ArgChecker.notNull(date, "date");
-    return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), date);
+  public double relativeTime(ZonedDateTime zonedDateTime) {
+    ArgChecker.notNull(zonedDateTime, "date");
+    return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), zonedDateTime.toLocalDate());
   }
 
   /**
@@ -122,10 +120,9 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
    * @return the sensitivity to the surface nodes
    */
   public Map<DoublesPair, Double> nodeSensitivity(IborFutureOptionSensitivity point) {
-    // TODO: should this be on the interface?
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
-    double expiryTime = relativeYearFraction(point.getExpiryDate(), null, null); // TODO: time and zone
+    double expiryTime = relativeTime(point.getExpiryDate()); // TODO: time and zone
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = parameters.getInterpolator().getNodeSensitivitiesForValue(
         (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(),

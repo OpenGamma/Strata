@@ -7,6 +7,7 @@ package com.opengamma.strata.market.sensitivity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -48,7 +49,7 @@ public final class IborFutureOptionSensitivity
    * The expiration date of the option.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate expiryDate;
+  private final ZonedDateTime expiryDate;
   /**
    * The underlying future last trading or fixing date.
    */
@@ -91,7 +92,7 @@ public final class IborFutureOptionSensitivity
    */
   public static IborFutureOptionSensitivity of(
       IborIndex index,
-      LocalDate expiryDate,
+      ZonedDateTime expiryDate,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
@@ -115,7 +116,7 @@ public final class IborFutureOptionSensitivity
    */
   public static IborFutureOptionSensitivity of(
       IborIndex index,
-      LocalDate expiryDate,
+      ZonedDateTime expiryDate,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
@@ -212,7 +213,7 @@ public final class IborFutureOptionSensitivity
 
   private IborFutureOptionSensitivity(
       IborIndex index,
-      LocalDate expiryDate,
+      ZonedDateTime expiryDate,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
@@ -260,7 +261,7 @@ public final class IborFutureOptionSensitivity
    * Gets the expiration date of the option.
    * @return the value of the property, not null
    */
-  public LocalDate getExpiryDate() {
+  public ZonedDateTime getExpiryDate() {
     return expiryDate;
   }
 
@@ -376,8 +377,8 @@ public final class IborFutureOptionSensitivity
     /**
      * The meta-property for the {@code expiryDate} property.
      */
-    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
-        this, "expiryDate", IborFutureOptionSensitivity.class, LocalDate.class);
+    private final MetaProperty<ZonedDateTime> expiryDate = DirectMetaProperty.ofImmutable(
+        this, "expiryDate", IborFutureOptionSensitivity.class, ZonedDateTime.class);
     /**
      * The meta-property for the {@code fixingDate} property.
      */
@@ -471,7 +472,7 @@ public final class IborFutureOptionSensitivity
      * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> expiryDate() {
+    public MetaProperty<ZonedDateTime> expiryDate() {
       return expiryDate;
     }
 
@@ -555,7 +556,7 @@ public final class IborFutureOptionSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<IborFutureOptionSensitivity> {
 
     private IborIndex index;
-    private LocalDate expiryDate;
+    private ZonedDateTime expiryDate;
     private LocalDate fixingDate;
     private double strikePrice;
     private double futurePrice;
@@ -598,7 +599,7 @@ public final class IborFutureOptionSensitivity
           this.index = (IborIndex) newValue;
           break;
         case -816738431:  // expiryDate
-          this.expiryDate = (LocalDate) newValue;
+          this.expiryDate = (ZonedDateTime) newValue;
           break;
         case 1255202043:  // fixingDate
           this.fixingDate = (LocalDate) newValue;
