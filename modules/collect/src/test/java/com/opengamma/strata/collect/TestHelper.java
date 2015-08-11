@@ -103,6 +103,19 @@ public class TestHelper {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates a {@code ZonedDateTime} from the date. The time is start of day and the zone is UTC.
+   * 
+   * @param year  the year
+   * @param month  the month
+   * @param dayOfMonth  the dayOfMonth
+   * @return the date
+   */
+  public static ZonedDateTime dateUtc(int year, int month, int dayOfMonth) {
+    return LocalDate.of(year, month, dayOfMonth).atStartOfDay(ZoneOffset.UTC);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Asserts that two beans are equal.
    * Provides better error messages than a normal {@code assertEquals} comparison.
    * 
