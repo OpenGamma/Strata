@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.Payment;
 
 /**
  * Test {@link Fx}.
@@ -163,8 +164,8 @@ public class FxTest {
   public void test_expand() {
     Fx fwd = Fx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     ExpandedFx test = fwd.expand();
-    assertEquals(test.getBaseCurrencyPayment(), FxPayment.of(GBP_P1000, DATE_2015_06_30));
-    assertEquals(test.getCounterCurrencyPayment(), FxPayment.of(USD_M1600, DATE_2015_06_30));
+    assertEquals(test.getBaseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertEquals(test.getCounterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
   }
 

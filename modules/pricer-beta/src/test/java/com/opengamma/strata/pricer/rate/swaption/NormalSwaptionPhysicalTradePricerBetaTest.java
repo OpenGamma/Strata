@@ -23,14 +23,14 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.N
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.FxPayment;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
 import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
-import com.opengamma.strata.pricer.fx.DiscountingFxPaymentPricer;
 import com.opengamma.strata.pricer.provider.NormalVolatilityExpiryTenorSwaptionProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
@@ -58,14 +58,14 @@ public class NormalSwaptionPhysicalTradePricerBetaTest {
   private static final Swaption SWAPTION_LONG_REC = Swaption.builder().cashSettled(false)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final FxPayment PREMIUM_FWD_PAY = FxPayment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), SWAP_EFFECTIVE_DATE);
+  private static final Payment PREMIUM_FWD_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), SWAP_EFFECTIVE_DATE);
   private static final SwaptionTrade SWAPTION_PREFWD_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
       .premium(PREMIUM_FWD_PAY).build();
-  private static final FxPayment PREMIUM_TRA_PAY = FxPayment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE);
+  private static final Payment PREMIUM_TRA_PAY = Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE);
   private static final SwaptionTrade SWAPTION_PRETOD_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
       .premium(PREMIUM_TRA_PAY).build();
-  private static final FxPayment PREMIUM_PAST_PAY = 
-      FxPayment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE.minusDays(1));
+  private static final Payment PREMIUM_PAST_PAY = 
+      Payment.of(CurrencyAmount.of(USD, -PREMIUM_AMOUNT), VALUATION_DATE.minusDays(1));
   private static final SwaptionTrade SWAPTION_PREPAST_LONG_REC = SwaptionTrade.builder().product(SWAPTION_LONG_REC)
       .premium(PREMIUM_PAST_PAY).build();
 
@@ -75,7 +75,7 @@ public class NormalSwaptionPhysicalTradePricerBetaTest {
       NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
   private static final NormalSwaptionPhysicalTradePricerBeta PRICER_SWAPTION_NORMAL_TRADE = 
       NormalSwaptionPhysicalTradePricerBeta.DEFAULT;
-  private static final DiscountingFxPaymentPricer PRICER_FX_PAYMENT = DiscountingFxPaymentPricer.DEFAULT;
+  private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   
   private static final ImmutableRatesProvider MULTI_USD = 
       RatesProviderDataSets.MULTI_USD.toBuilder().valuationDate(VALUATION_DATE).build();
@@ -93,7 +93,7 @@ public class NormalSwaptionPhysicalTradePricerBetaTest {
         PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvProduct = 
         PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    CurrencyAmount pvPremium = PRICER_FX_PAYMENT.presentValue(PREMIUM_FWD_PAY, MULTI_USD);
+    CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_FWD_PAY, MULTI_USD);
     assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOLERANCE_PV);
   }
   
@@ -103,7 +103,7 @@ public class NormalSwaptionPhysicalTradePricerBetaTest {
         PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PRETOD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvProduct = 
         PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    CurrencyAmount pvPremium = PRICER_FX_PAYMENT.presentValue(PREMIUM_TRA_PAY, MULTI_USD);
+    CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_TRA_PAY, MULTI_USD);
     assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOLERANCE_PV);
   }
   
@@ -152,7 +152,7 @@ public class NormalSwaptionPhysicalTradePricerBetaTest {
         .presentValueSensitivityStickyStrike(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    PointSensitivityBuilder pvcsPremium = PRICER_FX_PAYMENT.presentValueSensitivity(PREMIUM_FWD_PAY, MULTI_USD);
+    PointSensitivityBuilder pvcsPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM_FWD_PAY, MULTI_USD);
     CurveCurrencyParameterSensitivities pvpsTrade = 
         MULTI_USD.curveParameterSensitivity(pvcsTrade.build());
     CurveCurrencyParameterSensitivities pvpsProduct = 

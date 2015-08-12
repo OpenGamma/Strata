@@ -8,13 +8,14 @@ package com.opengamma.strata.pricer.fx;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.fx.ExpandedFx;
-import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.fx.FxProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.FxForwardRates;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -28,20 +29,20 @@ public class DiscountingFxProductPricer {
    * Default implementation.
    */
   public static final DiscountingFxProductPricer DEFAULT = new DiscountingFxProductPricer(
-      DiscountingFxPaymentPricer.DEFAULT);
+      DiscountingPaymentPricer.DEFAULT);
 
   /**
-   * Pricer for {@link FxPayment}.
+   * Pricer for {@link Payment}.
    */
-  private final DiscountingFxPaymentPricer paymentPricer;
+  private final DiscountingPaymentPricer paymentPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param paymentPricer  the pricer for {@link FxPayment}
+   * @param paymentPricer  the pricer for {@link Payment}
    */
   public DiscountingFxProductPricer(
-      DiscountingFxPaymentPricer paymentPricer) {
+      DiscountingPaymentPricer paymentPricer) {
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
 
@@ -104,8 +105,8 @@ public class DiscountingFxProductPricer {
    */
   public double parSpread(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
-    FxPayment basePayment = fx.getBaseCurrencyPayment();
-    FxPayment counterPayment = fx.getCounterCurrencyPayment();
+    Payment basePayment = fx.getBaseCurrencyPayment();
+    Payment counterPayment = fx.getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
     double pvCounterCcy = pv.convertedTo(counterPayment.getCurrency(), provider).getAmount();
     double dfEnd = provider.discountFactor(counterPayment.getCurrency(), fx.getPaymentDate());
@@ -124,8 +125,8 @@ public class DiscountingFxProductPricer {
   public FxRate forwardFxRate(FxProduct product, RatesProvider provider) {
     ExpandedFx fx = product.expand();
     FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
-    FxPayment basePayment = fx.getBaseCurrencyPayment();
-    FxPayment counterPayment = fx.getCounterCurrencyPayment();
+    Payment basePayment = fx.getBaseCurrencyPayment();
+    Payment counterPayment = fx.getCounterCurrencyPayment();
     double forwardRate = fxForwardRates.rate(basePayment.getCurrency(), fx.getPaymentDate());
     return FxRate.of(basePayment.getCurrency(), counterPayment.getCurrency(), forwardRate);
   }

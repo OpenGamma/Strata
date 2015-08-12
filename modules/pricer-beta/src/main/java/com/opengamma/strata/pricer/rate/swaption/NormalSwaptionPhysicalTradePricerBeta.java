@@ -9,11 +9,11 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.FxPayment;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
 import com.opengamma.strata.finance.rate.swaption.SwaptionTrade;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.fx.DiscountingFxPaymentPricer;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.provider.NormalVolatilitySwaptionProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
@@ -38,8 +38,8 @@ public class NormalSwaptionPhysicalTradePricerBeta {
 
   /** Pricer for {@link Swaption}. */
   private static final NormalSwaptionPhysicalProductPricerBeta PRICER_PRODUCT = NormalSwaptionPhysicalProductPricerBeta.DEFAULT;
-  /** Pricer for {@link FxPayment} which is used to described the premium. **/
-  private static final DiscountingFxPaymentPricer PRICER_PREMIUM = DiscountingFxPaymentPricer.DEFAULT;
+  /** Pricer for {@link Payment} which is used to described the premium. **/
+  private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
   
   /**
    * Calculates the present value of the swaption trade.
@@ -55,7 +55,7 @@ public class NormalSwaptionPhysicalTradePricerBeta {
       NormalVolatilitySwaptionProvider volatilities) {
     Swaption product = tradeSwaption.getProduct();
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(product, rates, volatilities);
-    FxPayment premium = tradeSwaption.getPremium();
+    Payment premium = tradeSwaption.getPremium();
     CurrencyAmount pvPremium = PRICER_PREMIUM.presentValue(premium, rates);
     return pvProduct.plus(pvPremium);
   }
@@ -84,8 +84,8 @@ public class NormalSwaptionPhysicalTradePricerBeta {
    * @return the current cash amount
    */
   public CurrencyAmount currentCash(SwaptionTrade tradeSwaption, LocalDate valuationDate) {
-    FxPayment premium = tradeSwaption.getPremium();
-    if(premium.getPaymentDate().equals(valuationDate)) {
+    Payment premium = tradeSwaption.getPremium();
+    if (premium.getDate().equals(valuationDate)) {
       return CurrencyAmount.of(premium.getCurrency(), premium.getAmount());
     }
     return CurrencyAmount.of(premium.getCurrency(), 0.0);
@@ -107,7 +107,7 @@ public class NormalSwaptionPhysicalTradePricerBeta {
       NormalVolatilitySwaptionProvider volatilities) {
     Swaption product = tradeSwaption.getProduct();
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT.presentValueSensitivityStickyStrike(product, rates, volatilities);
-    FxPayment premium = tradeSwaption.getPremium();
+    Payment premium = tradeSwaption.getPremium();
     PointSensitivityBuilder pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, rates);
     return pvcsProduct.combinedWith(pvcsPremium);
   }

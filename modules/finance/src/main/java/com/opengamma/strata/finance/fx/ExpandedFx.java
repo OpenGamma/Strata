@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -55,7 +56,7 @@ public final class ExpandedFx
    * A negative amount indicates the payment is to be paid.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxPayment baseCurrencyPayment;
+  private final Payment baseCurrencyPayment;
   /**
    * The payment in the counter currency, positive if receiving, negative if paying.
    * <p>
@@ -64,7 +65,7 @@ public final class ExpandedFx
    * A negative amount indicates the payment is to be paid.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxPayment counterCurrencyPayment;
+  private final Payment counterCurrencyPayment;
 
   //-------------------------------------------------------------------------
   /**
@@ -81,7 +82,7 @@ public final class ExpandedFx
    * @param payment2  the second payment
    * @return the expanded foreign exchange transaction
    */
-  public static ExpandedFx of(FxPayment payment1, FxPayment payment2) {
+  public static ExpandedFx of(Payment payment1, Payment payment2) {
     CurrencyPair pair = CurrencyPair.of(payment2.getCurrency(), payment1.getCurrency());
     if (pair.isConventional()) {
       return new ExpandedFx(payment2, payment1);
@@ -106,7 +107,7 @@ public final class ExpandedFx
    * @return the expanded foreign exchange transaction
    */
   public static ExpandedFx of(CurrencyAmount amount1, CurrencyAmount amount2, LocalDate valueDate) {
-    return ExpandedFx.of(FxPayment.of(amount1, valueDate), FxPayment.of(amount2, valueDate));
+    return ExpandedFx.of(Payment.of(amount1, valueDate), Payment.of(amount2, valueDate));
   }
 
   //-------------------------------------------------------------------------
@@ -119,7 +120,7 @@ public final class ExpandedFx
         Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
       throw new IllegalArgumentException("Payments must have different signs");
     }
-    ArgChecker.inOrderOrEqual(baseCurrencyPayment.getPaymentDate(), counterCurrencyPayment.getPaymentDate(),
+    ArgChecker.inOrderOrEqual(baseCurrencyPayment.getDate(), counterCurrencyPayment.getDate(),
         "baseCurrencyPayment.date", "counterCurrencyPayment.date");
   }
 
@@ -127,8 +128,8 @@ public final class ExpandedFx
   private static void preBuild(Builder builder) {
     // swap order to be base/counter if reverse is conventional
     // this handled deserialization where the base/counter rules differ from those applicable at serialization
-    FxPayment base = builder.baseCurrencyPayment;
-    FxPayment counter = builder.counterCurrencyPayment;
+    Payment base = builder.baseCurrencyPayment;
+    Payment counter = builder.counterCurrencyPayment;
     CurrencyPair pair = CurrencyPair.of(counter.getCurrency(), base.getCurrency());
     if (pair.isConventional()) {
       builder.baseCurrencyPayment = counter;
@@ -171,7 +172,7 @@ public final class ExpandedFx
    * @return the value date
    */
   public LocalDate getPaymentDate() {
-    return baseCurrencyPayment.getPaymentDate();
+    return baseCurrencyPayment.getDate();
   }
 
   //-------------------------------------------------------------------------
@@ -183,7 +184,7 @@ public final class ExpandedFx
    * @return the inverse transaction
    */
   public ExpandedFx inverse() {
-    return new ExpandedFx(baseCurrencyPayment.inverse(), counterCurrencyPayment.inverse());
+    return new ExpandedFx(baseCurrencyPayment.negated(), counterCurrencyPayment.negated());
   }
 
   //-------------------------------------------------------------------------
@@ -217,8 +218,8 @@ public final class ExpandedFx
   private static final long serialVersionUID = 1L;
 
   private ExpandedFx(
-      FxPayment baseCurrencyPayment,
-      FxPayment counterCurrencyPayment) {
+      Payment baseCurrencyPayment,
+      Payment counterCurrencyPayment) {
     JodaBeanUtils.notNull(baseCurrencyPayment, "baseCurrencyPayment");
     JodaBeanUtils.notNull(counterCurrencyPayment, "counterCurrencyPayment");
     this.baseCurrencyPayment = baseCurrencyPayment;
@@ -250,7 +251,7 @@ public final class ExpandedFx
    * A negative amount indicates the payment is to be paid.
    * @return the value of the property, not null
    */
-  public FxPayment getBaseCurrencyPayment() {
+  public Payment getBaseCurrencyPayment() {
     return baseCurrencyPayment;
   }
 
@@ -263,7 +264,7 @@ public final class ExpandedFx
    * A negative amount indicates the payment is to be paid.
    * @return the value of the property, not null
    */
-  public FxPayment getCounterCurrencyPayment() {
+  public Payment getCounterCurrencyPayment() {
     return counterCurrencyPayment;
   }
 
@@ -312,13 +313,13 @@ public final class ExpandedFx
     /**
      * The meta-property for the {@code baseCurrencyPayment} property.
      */
-    private final MetaProperty<FxPayment> baseCurrencyPayment = DirectMetaProperty.ofImmutable(
-        this, "baseCurrencyPayment", ExpandedFx.class, FxPayment.class);
+    private final MetaProperty<Payment> baseCurrencyPayment = DirectMetaProperty.ofImmutable(
+        this, "baseCurrencyPayment", ExpandedFx.class, Payment.class);
     /**
      * The meta-property for the {@code counterCurrencyPayment} property.
      */
-    private final MetaProperty<FxPayment> counterCurrencyPayment = DirectMetaProperty.ofImmutable(
-        this, "counterCurrencyPayment", ExpandedFx.class, FxPayment.class);
+    private final MetaProperty<Payment> counterCurrencyPayment = DirectMetaProperty.ofImmutable(
+        this, "counterCurrencyPayment", ExpandedFx.class, Payment.class);
     /**
      * The meta-properties.
      */
@@ -364,7 +365,7 @@ public final class ExpandedFx
      * The meta-property for the {@code baseCurrencyPayment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxPayment> baseCurrencyPayment() {
+    public MetaProperty<Payment> baseCurrencyPayment() {
       return baseCurrencyPayment;
     }
 
@@ -372,7 +373,7 @@ public final class ExpandedFx
      * The meta-property for the {@code counterCurrencyPayment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxPayment> counterCurrencyPayment() {
+    public MetaProperty<Payment> counterCurrencyPayment() {
       return counterCurrencyPayment;
     }
 
@@ -405,8 +406,8 @@ public final class ExpandedFx
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ExpandedFx> {
 
-    private FxPayment baseCurrencyPayment;
-    private FxPayment counterCurrencyPayment;
+    private Payment baseCurrencyPayment;
+    private Payment counterCurrencyPayment;
 
     /**
      * Restricted constructor.
@@ -431,10 +432,10 @@ public final class ExpandedFx
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 765258148:  // baseCurrencyPayment
-          this.baseCurrencyPayment = (FxPayment) newValue;
+          this.baseCurrencyPayment = (Payment) newValue;
           break;
         case -863240423:  // counterCurrencyPayment
-          this.counterCurrencyPayment = (FxPayment) newValue;
+          this.counterCurrencyPayment = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
