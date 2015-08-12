@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -26,7 +27,6 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.analytics.util.time.DateUtils;
 
 /**
  * Tests {@link NormalVolatilityExpSimpleMoneynessIborFutureProvider}
@@ -64,9 +64,8 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
       NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
           PARAMETERS_RATE, false, EUR_EURIBOR_3M, ACT_365F, VALUATION_DATE_TIME);
 
-  private static final ZonedDateTime[] TEST_EXPIRY =
-      new ZonedDateTime[] {DateUtils.getUTCDate(2015, 2, 17), DateUtils.getUTCDate(2015, 5, 17), 
-    DateUtils.getUTCDate(2015, 6, 17), DateUtils.getUTCDate(2017, 2, 17)};
+  private static final ZonedDateTime[] TEST_EXPIRY = new ZonedDateTime[] {
+      dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
   private static final int NB_TEST = TEST_EXPIRY.length;
   private static final LocalDate[] TEST_FIXING =
       new LocalDate[] {date(2015, 2, 17), date(2015, 5, 17), date(2015, 5, 17), date(2015, 5, 17)};
@@ -86,8 +85,8 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
 
   public void volatility_price() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
-      double volExpected = PARAMETERS_PRICE.getZValue(expiryTime, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
+      double expirationTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
+      double volExpected = PARAMETERS_PRICE.getZValue(expirationTime, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
       double volComputed = VOL_SIMPLE_MONEY_PRICE.getVolatility(TEST_EXPIRY[i], TEST_FIXING[i],
           TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
@@ -96,8 +95,8 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
 
   public void volatility_rate() {
     for (int i = 0; i < NB_TEST; i++) {
-      double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
-      double volExpected = PARAMETERS_RATE.getZValue(expiryTime, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
+      double expirationTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
+      double volExpected = PARAMETERS_RATE.getZValue(expirationTime, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
       double volComputed = VOL_SIMPLE_MONEY_RATE.getVolatility(TEST_EXPIRY[i], TEST_FIXING[i],
           TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);

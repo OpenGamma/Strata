@@ -44,7 +44,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   /**
    * The normal volatility surface.
-   * The order of the dimensions is expiry/simple moneyness.
+   * The order of the dimensions is expiration/simple moneyness.
    */
   @PropertyDefinition(validate = "notNull")
   private final InterpolatedDoublesSurface parameters;
@@ -94,10 +94,10 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(ZonedDateTime expiryDateTime, LocalDate fixingDate, double strikePrice, double futurePrice) {
+  public double getVolatility(ZonedDateTime expiration, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
-    double expiryTime = relativeTime(expiryDateTime);
-    return parameters.getZValue(expiryTime, simpleMoneyness);
+    double expirationTime = relativeTime(expiration);
+    return parameters.getZValue(expirationTime, simpleMoneyness);
   }
 
   @Override
@@ -122,11 +122,11 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   public Map<DoublesPair, Double> nodeSensitivity(IborFutureOptionSensitivity point) {
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
-    double expiryTime = relativeTime(point.getExpiry());
+    double expirationTime = relativeTime(point.getExpiration());
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = parameters.getInterpolator().getNodeSensitivitiesForValue(
         (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(),
-        DoublesPair.of(expiryTime, simpleMoneyness));
+        DoublesPair.of(expirationTime, simpleMoneyness));
     return result;
   }
 
@@ -187,7 +187,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   //-----------------------------------------------------------------------
   /**
    * Gets the normal volatility surface.
-   * The order of the dimensions is expiry/simple moneyness.
+   * The order of the dimensions is expiration/simple moneyness.
    * @return the value of the property, not null
    */
   public InterpolatedDoublesSurface getParameters() {
@@ -545,7 +545,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     //-----------------------------------------------------------------------
     /**
      * Sets the normal volatility surface.
-     * The order of the dimensions is expiry/simple moneyness.
+     * The order of the dimensions is expiration/simple moneyness.
      * @param parameters  the new value, not null
      * @return this, for chaining, not null
      */

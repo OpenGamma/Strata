@@ -144,7 +144,7 @@ public class IborFutureOption
    * 
    * @return the expiration date and time
    */
-  public ZonedDateTime getExpirationDateTime() {
+  public ZonedDateTime getExpiration() {
     return expirationDate.atTime(expirationTime).atZone(expirationZone);
   }
 

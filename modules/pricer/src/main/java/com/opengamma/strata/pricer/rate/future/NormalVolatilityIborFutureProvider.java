@@ -26,13 +26,13 @@ public interface NormalVolatilityIborFutureProvider
   /**
    * Returns the normal volatility.
    * 
-   * @param expiryDateTime  the option expiry
+   * @param expiration  the expiration date-time of the option
    * @param fixingDate  the underlying future fixing date
    * @param strikePrice  the option strike price
    * @param futurePrice  the price of the underlying future
    * @return the volatility
    */
-  public abstract double getVolatility(ZonedDateTime expiryDateTime, LocalDate fixingDate, double strikePrice, double futurePrice);
+  public abstract double getVolatility(ZonedDateTime expiration, LocalDate fixingDate, double strikePrice, double futurePrice);
 
   /**
    * Returns the index on which the underlying future is based.
