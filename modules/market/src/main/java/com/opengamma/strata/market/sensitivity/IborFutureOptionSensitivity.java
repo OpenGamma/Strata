@@ -7,6 +7,7 @@ package com.opengamma.strata.market.sensitivity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -45,10 +46,10 @@ public final class IborFutureOptionSensitivity
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
   /**
-   * The expiration date of the option.
+   * The expiration date-time of the option.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate expiryDate;
+  private final ZonedDateTime expiration;
   /**
    * The underlying future last trading or fixing date.
    */
@@ -82,7 +83,7 @@ public final class IborFutureOptionSensitivity
    * The currency is defaulted from the index.
    * 
    * @param index  the index of the curve
-   * @param expiryDate  the expiry date of the option
+   * @param expirationDate  the expiration date of the option
    * @param fixingDate  the fixing date of the underlying future
    * @param strikePrice  the strike price of the option
    * @param futurePrice  the price of the underlying future
@@ -91,21 +92,21 @@ public final class IborFutureOptionSensitivity
    */
   public static IborFutureOptionSensitivity of(
       IborIndex index,
-      LocalDate expiryDate,
+      ZonedDateTime expirationDate,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
       double sensitivity) {
 
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, index.getCurrency(), sensitivity);
+        index, expirationDate, fixingDate, strikePrice, futurePrice, index.getCurrency(), sensitivity);
   }
 
   /**
    * Obtains an {@code IborFutureOptionSensitivity} from the key, sensitivity currency and value.
    * 
    * @param index  the index of the curve
-   * @param expiryDate  the expiry date of the option
+   * @param expirationDate  the expiration date of the option
    * @param fixingDate  the fixing date of the underlying future
    * @param strikePrice  the strike price of the option
    * @param futurePrice  the price of the underlying future
@@ -115,7 +116,7 @@ public final class IborFutureOptionSensitivity
    */
   public static IborFutureOptionSensitivity of(
       IborIndex index,
-      LocalDate expiryDate,
+      ZonedDateTime expirationDate,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
@@ -123,7 +124,7 @@ public final class IborFutureOptionSensitivity
       double sensitivity) {
 
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
+        index, expirationDate, fixingDate, strikePrice, futurePrice, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -133,13 +134,13 @@ public final class IborFutureOptionSensitivity
       return this;
     }
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, currency, sensitivity);
+        index, expiration, fixingDate, strikePrice, futurePrice, currency, sensitivity);
   }
 
   @Override
   public IborFutureOptionSensitivity withSensitivity(double sensitivity) {
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, currency, sensitivity);
+        index, expiration, fixingDate, strikePrice, futurePrice, currency, sensitivity);
   }
 
   @Override
@@ -148,7 +149,7 @@ public final class IborFutureOptionSensitivity
       IborFutureOptionSensitivity otherOption = (IborFutureOptionSensitivity) other;
       return ComparisonChain.start()
           .compare(index.toString(), otherOption.index.toString())
-          .compare(expiryDate, otherOption.expiryDate)
+          .compare(expiration, otherOption.expiration)
           .compare(fixingDate, otherOption.fixingDate)
           .compare(strikePrice, otherOption.strikePrice)
           .compare(futurePrice, otherOption.futurePrice)
@@ -167,13 +168,13 @@ public final class IborFutureOptionSensitivity
   @Override
   public IborFutureOptionSensitivity multipliedBy(double factor) {
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, currency, sensitivity * factor);
+        index, expiration, fixingDate, strikePrice, futurePrice, currency, sensitivity * factor);
   }
 
   @Override
   public IborFutureOptionSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new IborFutureOptionSensitivity(
-        index, expiryDate, fixingDate, strikePrice, futurePrice, currency, operator.applyAsDouble(sensitivity));
+        index, expiration, fixingDate, strikePrice, futurePrice, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -212,18 +213,18 @@ public final class IborFutureOptionSensitivity
 
   private IborFutureOptionSensitivity(
       IborIndex index,
-      LocalDate expiryDate,
+      ZonedDateTime expiration,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice,
       Currency currency,
       double sensitivity) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(expiryDate, "expiryDate");
+    JodaBeanUtils.notNull(expiration, "expiration");
     JodaBeanUtils.notNull(fixingDate, "fixingDate");
     JodaBeanUtils.notNull(currency, "currency");
     this.index = index;
-    this.expiryDate = expiryDate;
+    this.expiration = expiration;
     this.fixingDate = fixingDate;
     this.strikePrice = strikePrice;
     this.futurePrice = futurePrice;
@@ -257,11 +258,11 @@ public final class IborFutureOptionSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiration date of the option.
+   * Gets the expiration date-time of the option.
    * @return the value of the property, not null
    */
-  public LocalDate getExpiryDate() {
-    return expiryDate;
+  public ZonedDateTime getExpiration() {
+    return expiration;
   }
 
   //-----------------------------------------------------------------------
@@ -320,7 +321,7 @@ public final class IborFutureOptionSensitivity
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFutureOptionSensitivity other = (IborFutureOptionSensitivity) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
+          JodaBeanUtils.equal(getExpiration(), other.getExpiration()) &&
           JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
           JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
           JodaBeanUtils.equal(getFuturePrice(), other.getFuturePrice()) &&
@@ -334,7 +335,7 @@ public final class IborFutureOptionSensitivity
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiration());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFuturePrice());
@@ -348,7 +349,7 @@ public final class IborFutureOptionSensitivity
     StringBuilder buf = new StringBuilder(256);
     buf.append("IborFutureOptionSensitivity{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
+    buf.append("expiration").append('=').append(getExpiration()).append(',').append(' ');
     buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
     buf.append("strikePrice").append('=').append(getStrikePrice()).append(',').append(' ');
     buf.append("futurePrice").append('=').append(getFuturePrice()).append(',').append(' ');
@@ -374,10 +375,10 @@ public final class IborFutureOptionSensitivity
     private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", IborFutureOptionSensitivity.class, IborIndex.class);
     /**
-     * The meta-property for the {@code expiryDate} property.
+     * The meta-property for the {@code expiration} property.
      */
-    private final MetaProperty<LocalDate> expiryDate = DirectMetaProperty.ofImmutable(
-        this, "expiryDate", IborFutureOptionSensitivity.class, LocalDate.class);
+    private final MetaProperty<ZonedDateTime> expiration = DirectMetaProperty.ofImmutable(
+        this, "expiration", IborFutureOptionSensitivity.class, ZonedDateTime.class);
     /**
      * The meta-property for the {@code fixingDate} property.
      */
@@ -409,7 +410,7 @@ public final class IborFutureOptionSensitivity
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "expiryDate",
+        "expiration",
         "fixingDate",
         "strikePrice",
         "futurePrice",
@@ -427,8 +428,8 @@ public final class IborFutureOptionSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -816738431:  // expiryDate
-          return expiryDate;
+        case -837465425:  // expiration
+          return expiration;
         case 1255202043:  // fixingDate
           return fixingDate;
         case 50946231:  // strikePrice
@@ -468,11 +469,11 @@ public final class IborFutureOptionSensitivity
     }
 
     /**
-     * The meta-property for the {@code expiryDate} property.
+     * The meta-property for the {@code expiration} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> expiryDate() {
-      return expiryDate;
+    public MetaProperty<ZonedDateTime> expiration() {
+      return expiration;
     }
 
     /**
@@ -521,8 +522,8 @@ public final class IborFutureOptionSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((IborFutureOptionSensitivity) bean).getIndex();
-        case -816738431:  // expiryDate
-          return ((IborFutureOptionSensitivity) bean).getExpiryDate();
+        case -837465425:  // expiration
+          return ((IborFutureOptionSensitivity) bean).getExpiration();
         case 1255202043:  // fixingDate
           return ((IborFutureOptionSensitivity) bean).getFixingDate();
         case 50946231:  // strikePrice
@@ -555,7 +556,7 @@ public final class IborFutureOptionSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<IborFutureOptionSensitivity> {
 
     private IborIndex index;
-    private LocalDate expiryDate;
+    private ZonedDateTime expiration;
     private LocalDate fixingDate;
     private double strikePrice;
     private double futurePrice;
@@ -574,8 +575,8 @@ public final class IborFutureOptionSensitivity
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case -816738431:  // expiryDate
-          return expiryDate;
+        case -837465425:  // expiration
+          return expiration;
         case 1255202043:  // fixingDate
           return fixingDate;
         case 50946231:  // strikePrice
@@ -597,8 +598,8 @@ public final class IborFutureOptionSensitivity
         case 100346066:  // index
           this.index = (IborIndex) newValue;
           break;
-        case -816738431:  // expiryDate
-          this.expiryDate = (LocalDate) newValue;
+        case -837465425:  // expiration
+          this.expiration = (ZonedDateTime) newValue;
           break;
         case 1255202043:  // fixingDate
           this.fixingDate = (LocalDate) newValue;
@@ -649,7 +650,7 @@ public final class IborFutureOptionSensitivity
     public IborFutureOptionSensitivity build() {
       return new IborFutureOptionSensitivity(
           index,
-          expiryDate,
+          expiration,
           fixingDate,
           strikePrice,
           futurePrice,
@@ -663,7 +664,7 @@ public final class IborFutureOptionSensitivity
       StringBuilder buf = new StringBuilder(256);
       buf.append("IborFutureOptionSensitivity.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
+      buf.append("expiration").append('=').append(JodaBeanUtils.toString(expiration)).append(',').append(' ');
       buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
       buf.append("futurePrice").append('=').append(JodaBeanUtils.toString(futurePrice)).append(',').append(' ');

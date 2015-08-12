@@ -29,7 +29,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.option.Strike;
 
 /**
- * Surface node metadata for a surface node with a specific time to expiry and strike.
+ * Surface node metadata for a surface node with a specific time to expiration and strike.
  */
 @BeanDefinition(builderScope = "private")
 public final class FxVolatilitySurfaceYearFractionNodeMetadata
@@ -38,7 +38,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   /**
    * The year fraction of the surface node.
    * <p>
-   * This is the time to expiry that the node on the surface is defined as.
+   * This is the time to expiration that the node on the surface is defined as.
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    */
   @PropertyDefinition
@@ -161,7 +161,7 @@ public final class FxVolatilitySurfaceYearFractionNodeMetadata
   /**
    * Gets the year fraction of the surface node.
    * <p>
-   * This is the time to expiry that the node on the surface is defined as.
+   * This is the time to expiration that the node on the surface is defined as.
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    * @return the value of the property
    */

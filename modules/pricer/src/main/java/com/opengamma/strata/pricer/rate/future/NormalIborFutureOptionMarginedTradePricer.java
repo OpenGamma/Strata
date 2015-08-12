@@ -76,7 +76,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * Computes the present value sensitivity to the normal volatility used in the pricing.
    * <p>
    * The result is a single sensitivity to the volatility used.
-   * The volatility is associated with the expiry/delay/strike/future price key combination.
+   * The volatility is associated with the expiration/delay/strike/future price key combination.
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
@@ -100,7 +100,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
    * based on the price of the underlying future.
    * <p>
    * The result is a single sensitivity to the volatility used.
-   * The volatility is associated with the expiry/delay/strike/future price key combination.
+   * The volatility is associated with the expiration/delay/strike/future price key combination.
    * 
    * @param futureOptionTrade  the trade to price
    * @param ratesProvider  the rates provider

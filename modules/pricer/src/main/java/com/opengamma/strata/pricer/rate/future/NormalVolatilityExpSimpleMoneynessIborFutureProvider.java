@@ -6,8 +6,6 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -37,16 +35,16 @@ import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
  * Data provider of volatility for Ibor future options in the normal or Bachelier model. 
  * <p>
  * The volatility is represented by a surface on the expiration and simple moneyness. 
+ * The expiration is measured in number of days (not time) according to a day-count convention.
  * The simple moneyness can be on the price or on the rate (1-price).
  */
 @BeanDefinition
 public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     implements NormalVolatilityIborFutureProvider, ImmutableBean {
-  // TODO: Day count handling time, not just dates
 
   /**
    * The normal volatility surface.
-   * The order of the dimensions is expiry/simple moneyness.
+   * The order of the dimensions is expiration/simple moneyness.
    */
   @PropertyDefinition(validate = "notNull")
   private final InterpolatedDoublesSurface parameters;
@@ -96,10 +94,10 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice) {
+  public double getVolatility(ZonedDateTime expiration, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
-    double expiryTime = relativeYearFraction(expiryDate, null, null); // TODO: time and zone
-    return parameters.getZValue(expiryTime, simpleMoneyness);
+    double expirationTime = relativeTime(expiration);
+    return parameters.getZValue(expirationTime, simpleMoneyness);
   }
 
   @Override
@@ -109,9 +107,9 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double relativeYearFraction(LocalDate date, LocalTime time, ZoneId zone) {
-    ArgChecker.notNull(date, "date");
-    return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), date);
+  public double relativeTime(ZonedDateTime zonedDateTime) {
+    ArgChecker.notNull(zonedDateTime, "date");
+    return dayCount.relativeYearFraction(valuationDateTime.toLocalDate(), zonedDateTime.toLocalDate());
   }
 
   /**
@@ -122,14 +120,13 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
    * @return the sensitivity to the surface nodes
    */
   public Map<DoublesPair, Double> nodeSensitivity(IborFutureOptionSensitivity point) {
-    // TODO: should this be on the interface?
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
-    double expiryTime = relativeYearFraction(point.getExpiryDate(), null, null); // TODO: time and zone
+    double expirationTime = relativeTime(point.getExpiration());
     @SuppressWarnings("unchecked")
     Map<DoublesPair, Double> result = parameters.getInterpolator().getNodeSensitivitiesForValue(
         (Map<Double, Interpolator1DDataBundle>) parameters.getInterpolatorData(),
-        DoublesPair.of(expiryTime, simpleMoneyness));
+        DoublesPair.of(expirationTime, simpleMoneyness));
     return result;
   }
 
@@ -190,7 +187,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
   //-----------------------------------------------------------------------
   /**
    * Gets the normal volatility surface.
-   * The order of the dimensions is expiry/simple moneyness.
+   * The order of the dimensions is expiration/simple moneyness.
    * @return the value of the property, not null
    */
   public InterpolatedDoublesSurface getParameters() {
@@ -548,7 +545,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     //-----------------------------------------------------------------------
     /**
      * Sets the normal volatility surface.
-     * The order of the dimensions is expiry/simple moneyness.
+     * The order of the dimensions is expiration/simple moneyness.
      * @param parameters  the new value, not null
      * @return this, for chaining, not null
      */

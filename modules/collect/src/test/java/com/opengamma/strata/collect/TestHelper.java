@@ -82,7 +82,7 @@ public class TestHelper {
    * 
    * @param year  the year
    * @param month  the month
-   * @param dayOfMonth  the dayOfMonth
+   * @param dayOfMonth  the day of month
    * @return the date
    */
   public static LocalDate date(int year, int month, int dayOfMonth) {
@@ -94,11 +94,26 @@ public class TestHelper {
    * 
    * @param year  the year
    * @param month  the month
-   * @param dayOfMonth  the dayOfMonth
+   * @param dayOfMonth  the day of month
    * @return the date
    */
   public static LocalDate date(int year, Month month, int dayOfMonth) {
     return LocalDate.of(year, month, dayOfMonth);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a {@code ZonedDateTime} from the date.
+   * <p>
+   * The time is start of day and the zone is UTC.
+   * 
+   * @param year  the year
+   * @param month  the month
+   * @param dayOfMonth  the day of month
+   * @return the date-time, representing the date at midnight UTC
+   */
+  public static ZonedDateTime dateUtc(int year, int month, int dayOfMonth) {
+    return LocalDate.of(year, month, dayOfMonth).atStartOfDay(ZoneOffset.UTC);
   }
 
   //-------------------------------------------------------------------------

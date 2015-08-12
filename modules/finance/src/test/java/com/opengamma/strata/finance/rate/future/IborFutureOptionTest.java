@@ -80,7 +80,7 @@ public class IborFutureOptionTest {
     assertEquals(test.getExpirationDate(), EXPIRY_DATE);
     assertEquals(test.getExpirationTime(), EXPIRY_TIME);
     assertEquals(test.getExpirationZone(), EXPIRY_ZONE);
-    assertEquals(test.getExpirationDateTime(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
+    assertEquals(test.getExpiration(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
     assertEquals(test.getRounding(), ROUNDING);
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolvable(ID_1, IborFuture.class));
     assertThrows(() -> test.getUnderlyingSecurity(), IllegalStateException.class);
@@ -102,7 +102,7 @@ public class IborFutureOptionTest {
     assertEquals(test.getExpirationDate(), EXPIRY_DATE);
     assertEquals(test.getExpirationTime(), EXPIRY_TIME);
     assertEquals(test.getExpirationZone(), EXPIRY_ZONE);
-    assertEquals(test.getExpirationDateTime(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
+    assertEquals(test.getExpiration(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
     assertEquals(test.getRounding(), Rounding.none());
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolved(IBOR_FUTURE_SECURITY_1));
     assertEquals(test.getUnderlyingSecurity(), IBOR_FUTURE_SECURITY_1);

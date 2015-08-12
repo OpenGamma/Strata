@@ -32,10 +32,10 @@ public final class EuropeanVanillaOption
   @PropertyDefinition
   private final double strike;
   /**
-   * The time to expiry, year fraction.
+   * The time to expiration, year fraction.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double timeToExpiry;
+  private final double timeToExpiration;
   /**
    * Call or put, true if call, false if put.
    */
@@ -47,12 +47,12 @@ public final class EuropeanVanillaOption
    * Obtains an instance.
    * 
    * @param strike  the strike
-   * @param timeToExpiry  the time to expiry, year fraction
+   * @param timeToExpiration  the time to expiration, year fraction
    * @param putCall  whether the option is put or call.
    * @return the option definition
    */
-  public static EuropeanVanillaOption of(double strike, double timeToExpiry, PutCall putCall) {
-    return new EuropeanVanillaOption(strike, timeToExpiry, putCall);
+  public static EuropeanVanillaOption of(double strike, double timeToExpiration, PutCall putCall) {
+    return new EuropeanVanillaOption(strike, timeToExpiration, putCall);
   }
 
   //-------------------------------------------------------------------------
@@ -87,12 +87,12 @@ public final class EuropeanVanillaOption
 
   private EuropeanVanillaOption(
       double strike,
-      double timeToExpiry,
+      double timeToExpiration,
       PutCall putCall) {
-    ArgChecker.notNegative(timeToExpiry, "timeToExpiry");
+    ArgChecker.notNegative(timeToExpiration, "timeToExpiration");
     JodaBeanUtils.notNull(putCall, "putCall");
     this.strike = strike;
-    this.timeToExpiry = timeToExpiry;
+    this.timeToExpiration = timeToExpiration;
     this.putCall = putCall;
   }
 
@@ -122,11 +122,11 @@ public final class EuropeanVanillaOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time to expiry, year fraction.
+   * Gets the time to expiration, year fraction.
    * @return the value of the property
    */
-  public double getTimeToExpiry() {
-    return timeToExpiry;
+  public double getTimeToExpiration() {
+    return timeToExpiration;
   }
 
   //-----------------------------------------------------------------------
@@ -147,7 +147,7 @@ public final class EuropeanVanillaOption
     if (obj != null && obj.getClass() == this.getClass()) {
       EuropeanVanillaOption other = (EuropeanVanillaOption) obj;
       return JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getTimeToExpiry(), other.getTimeToExpiry()) &&
+          JodaBeanUtils.equal(getTimeToExpiration(), other.getTimeToExpiration()) &&
           JodaBeanUtils.equal(getPutCall(), other.getPutCall());
     }
     return false;
@@ -157,7 +157,7 @@ public final class EuropeanVanillaOption
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeToExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeToExpiration());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPutCall());
     return hash;
   }
@@ -167,7 +167,7 @@ public final class EuropeanVanillaOption
     StringBuilder buf = new StringBuilder(128);
     buf.append("EuropeanVanillaOption{");
     buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("timeToExpiry").append('=').append(getTimeToExpiry()).append(',').append(' ');
+    buf.append("timeToExpiration").append('=').append(getTimeToExpiration()).append(',').append(' ');
     buf.append("putCall").append('=').append(JodaBeanUtils.toString(getPutCall()));
     buf.append('}');
     return buf.toString();

@@ -6,8 +6,6 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.index.IborIndex;
@@ -28,13 +26,13 @@ public interface NormalVolatilityIborFutureProvider
   /**
    * Returns the normal volatility.
    * 
-   * @param expiryDate  the option expiry
+   * @param expiration  the expiration date-time of the option
    * @param fixingDate  the underlying future fixing date
    * @param strikePrice  the option strike price
    * @param futurePrice  the price of the underlying future
    * @return the volatility
    */
-  public abstract double getVolatility(LocalDate expiryDate, LocalDate fixingDate, double strikePrice, double futurePrice);
+  public abstract double getVolatility(ZonedDateTime expiration, LocalDate fixingDate, double strikePrice, double futurePrice);
 
   /**
    * Returns the index on which the underlying future is based.
@@ -43,13 +41,11 @@ public interface NormalVolatilityIborFutureProvider
   public abstract IborIndex getFutureIndex();
 
   /**
-   * Converts a date to a relative year fraction.
+   * Converts a date to a relative {@code double} time.
    * 
-   * @param date  the date to find the relative year fraction of
-   * @param time  the time to find the relative year fraction of
-   * @param zone  the time zone
-   * @return the relative year fraction
+   * @param zonedDateTime  the zoned date time
+   * @return the relative time
    */
-  public abstract double relativeYearFraction(LocalDate date, LocalTime time, ZoneId zone);
+  public abstract double relativeTime(ZonedDateTime zonedDateTime);
 
 }

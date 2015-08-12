@@ -13,10 +13,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -31,11 +33,12 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 public class IborFutureOptionSensitivityTest {
 
   public void test_of_noCurrency() {
-    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    ZonedDateTime expirationDate = dateUtc(2015, 8, 27);
+    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, expirationDate,
         date(2015, 8, 28), 0.98, 0.99, 32d);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiryDate(), date(2015, 8, 27));
+    assertEquals(test.getExpiration(), expirationDate);
     assertEquals(test.getFixingDate(), date(2015, 8, 28));
     assertEquals(test.getStrikePrice(), 0.98);
     assertEquals(test.getFuturePrice(), 0.99);
@@ -43,11 +46,12 @@ public class IborFutureOptionSensitivityTest {
   }
 
   public void test_of_withCurrency() {
-    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    ZonedDateTime expirationDate = dateUtc(2015, 8, 27);
+    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, expirationDate,
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiryDate(), date(2015, 8, 27));
+    assertEquals(test.getExpiration(), expirationDate);
     assertEquals(test.getFixingDate(), date(2015, 8, 28));
     assertEquals(test.getStrikePrice(), 0.98);
     assertEquals(test.getFuturePrice(), 0.99);
@@ -56,11 +60,11 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_withCurrency() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     assertSame(base.withCurrency(GBP), base);
 
-    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, USD, 32d);
     IborFutureOptionSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);
@@ -68,9 +72,9 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_withSensitivity() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 20d);
     IborFutureOptionSensitivity test = base.withSensitivity(20d);
     assertEquals(test, expected);
@@ -78,21 +82,21 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_compareKey() {
-    IborFutureOptionSensitivity a1 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity a1 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity a2 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity a2 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity b = IborFutureOptionSensitivity.of(USD_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity b = IborFutureOptionSensitivity.of(USD_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity c = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 9, 27),
+    IborFutureOptionSensitivity c = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 9, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity d = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity d = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 9, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity e = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity e = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.99, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity f = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity f = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 1.00, GBP, 32d);
-    IborFutureOptionSensitivity g = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity g = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, USD, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
     assertEquals(a1.compareKey(a2), 0);
@@ -114,18 +118,18 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_convertedTo() {
-    LocalDate expiryDate = date(2015, 8, 27);
+    ZonedDateTime expirationDate = dateUtc(2015, 8, 27);
     LocalDate fixingDate = date(2015, 8, 28);
     double strike = 0.98d;
     double forward = 0.99d;
     double sensi = 32d;
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
-        GBP_LIBOR_3M, expiryDate, fixingDate, strike, forward, GBP, sensi);
+        GBP_LIBOR_3M, expirationDate, fixingDate, strike, forward, GBP, sensi);
     double rate = 1.5d;
     FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
     IborFutureOptionSensitivity test1 = (IborFutureOptionSensitivity) base.convertedTo(USD, matrix);
     IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
-        GBP_LIBOR_3M, expiryDate, fixingDate, strike, forward, USD, sensi * rate);
+        GBP_LIBOR_3M, expirationDate, fixingDate, strike, forward, USD, sensi * rate);
     assertEquals(test1, expected);
     IborFutureOptionSensitivity test2 = (IborFutureOptionSensitivity) base.convertedTo(GBP, matrix);
     assertEquals(test2, base);
@@ -133,9 +137,9 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d * 3.5d);
     IborFutureOptionSensitivity test = base.multipliedBy(3.5d);
     assertEquals(test, expected);
@@ -143,9 +147,9 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_mapSensitivity() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 1 / 32d);
     IborFutureOptionSensitivity test = base.mapSensitivity(s -> 1 / s);
     assertEquals(test, expected);
@@ -153,7 +157,7 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_normalize() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity test = base.normalize();
     assertSame(test, base);
@@ -161,7 +165,7 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_buildInto() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
@@ -171,7 +175,7 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_build() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
@@ -179,7 +183,7 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_cloned() {
-    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity test = base.cloned();
     assertSame(test, base);
@@ -187,16 +191,16 @@ public class IborFutureOptionSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     coverImmutableBean(test);
-    IborFutureOptionSensitivity test2 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity test2 = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, USD, 32d);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27),
+    IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     assertSerialization(test);
   }
