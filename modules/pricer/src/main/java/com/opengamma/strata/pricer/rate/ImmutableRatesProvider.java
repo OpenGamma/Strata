@@ -49,6 +49,8 @@ import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.market.value.PriceIndexValues;
+import com.opengamma.strata.market.value.SimpleDiscountFactors;
+import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 
 /**
@@ -177,6 +179,9 @@ public final class ImmutableRatesProvider
     Curve curve = discountCurves.get(currency);
     if (curve == null) {
       throw new IllegalArgumentException("Unable to find discount curve: " + currency);
+    }
+    if (curve.getMetadata().getYValueType().equals(ValueType.DISCOUNT_FACTOR)) {
+      return SimpleDiscountFactors.of(currency, valuationDate, curve);
     }
     return ZeroRateDiscountFactors.of(currency, valuationDate, curve);
   }

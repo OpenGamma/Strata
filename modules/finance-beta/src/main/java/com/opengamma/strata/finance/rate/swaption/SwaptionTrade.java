@@ -23,9 +23,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.FxPayment;
 
 /**
  * A trade in an option on an underlying swap.
@@ -60,7 +60,7 @@ public final class SwaptionTrade
    * positive for short swaption.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxPayment premium;
+  private final Payment premium;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -99,7 +99,7 @@ public final class SwaptionTrade
   private SwaptionTrade(
       TradeInfo tradeInfo,
       Swaption product,
-      FxPayment premium) {
+      Payment premium) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
     this.tradeInfo = tradeInfo;
@@ -154,7 +154,7 @@ public final class SwaptionTrade
    * positive for short swaption.
    * @return the value of the property, not null
    */
-  public FxPayment getPremium() {
+  public Payment getPremium() {
     return premium;
   }
 
@@ -224,8 +224,8 @@ public final class SwaptionTrade
     /**
      * The meta-property for the {@code premium} property.
      */
-    private final MetaProperty<FxPayment> premium = DirectMetaProperty.ofImmutable(
-        this, "premium", SwaptionTrade.class, FxPayment.class);
+    private final MetaProperty<Payment> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", SwaptionTrade.class, Payment.class);
     /**
      * The meta-properties.
      */
@@ -290,7 +290,7 @@ public final class SwaptionTrade
      * The meta-property for the {@code premium} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxPayment> premium() {
+    public MetaProperty<Payment> premium() {
       return premium;
     }
 
@@ -327,7 +327,7 @@ public final class SwaptionTrade
 
     private TradeInfo tradeInfo;
     private Swaption product;
-    private FxPayment premium;
+    private Payment premium;
 
     /**
      * Restricted constructor.
@@ -371,7 +371,7 @@ public final class SwaptionTrade
           this.product = (Swaption) newValue;
           break;
         case -318452137:  // premium
-          this.premium = (FxPayment) newValue;
+          this.premium = (Payment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -445,7 +445,7 @@ public final class SwaptionTrade
      * @param premium  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder premium(FxPayment premium) {
+    public Builder premium(Payment premium) {
       JodaBeanUtils.notNull(premium, "premium");
       this.premium = premium;
       return this;

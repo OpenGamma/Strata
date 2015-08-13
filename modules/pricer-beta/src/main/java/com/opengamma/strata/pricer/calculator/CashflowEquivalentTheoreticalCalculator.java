@@ -11,9 +11,9 @@ import java.util.List;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.fx.FxPayment;
 import com.opengamma.strata.finance.rate.FixedRateObservation;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
@@ -24,7 +24,7 @@ import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.fx.DiscountingFxPaymentPricer;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -42,7 +42,7 @@ public class CashflowEquivalentTheoreticalCalculator {
   public static final CashflowEquivalentTheoreticalCalculator DEFAULT = new CashflowEquivalentTheoreticalCalculator();
   
   /** The pricer to compute the present value and present value sensitivity of the cash flows. */
-  DiscountingFxPaymentPricer PRICER_CASH_FLOW = DiscountingFxPaymentPricer.DEFAULT;
+  DiscountingPaymentPricer PRICER_CASH_FLOW = DiscountingPaymentPricer.DEFAULT;
   
   /**
    * Computes the cash flow equivalent of a swap.
@@ -50,9 +50,9 @@ public class CashflowEquivalentTheoreticalCalculator {
    * @param provider the provider. It is used only for the valuation date and the fixing time series, not for the curves.
    * @return the cash flow equivalent as a list of payments
    */
-  public List<FxPayment> cashFlowEquivalent(Swap swap, RatesProvider provider) {
+  public List<Payment> cashFlowEquivalent(Swap swap, RatesProvider provider) {
     ExpandedSwap expanded = swap.expand();
-    List<FxPayment> list = new ArrayList<>();
+    List<Payment> list = new ArrayList<>();
     for(ExpandedSwapLeg leg: expanded.getLegs()) {
       list.addAll(cashFlowEquivalent(leg, provider));
     }
@@ -65,8 +65,8 @@ public class CashflowEquivalentTheoreticalCalculator {
    * @param provider the provider. It is used only for the valuation date and the fixing time series, not for the curves.
    * @return the cash flow equivalent as a list of payments
    */
-  public List<FxPayment> cashFlowEquivalent(ExpandedSwapLeg leg, RatesProvider provider) {
-    List<FxPayment> list = new ArrayList<>();
+  public List<Payment> cashFlowEquivalent(ExpandedSwapLeg leg, RatesProvider provider) {
+    List<Payment> list = new ArrayList<>();
     for(PaymentPeriod period: leg.getPaymentPeriods()) {
       list.addAll(cashFlowEquivalent(period, provider));
     }
@@ -80,7 +80,7 @@ public class CashflowEquivalentTheoreticalCalculator {
    * @param provider The rate provider. Required for valuation date and fixing time series.
    * @return the cash flow equivalent as a list of payments
    */
-  public List<FxPayment> cashFlowEquivalent(PaymentPeriod paymentPeriod, RatesProvider provider) {
+  public List<Payment> cashFlowEquivalent(PaymentPeriod paymentPeriod, RatesProvider provider) {
     ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "payment period should be of type RatePaymentPeriod");
     RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
     ArgChecker.isTrue(!ratePaymentPeriod.getFxReset().isPresent(), "FX reset is not supported");
@@ -92,13 +92,13 @@ public class CashflowEquivalentTheoreticalCalculator {
                 (accrualPeriod.getRateObservation() instanceof OvernightCompoundedRateObservation),
         "RateObservation must be instance of FixedRateObservation or IborRateObservation");
     LocalDate valuationDate = provider.getValuationDate();
-    List<FxPayment> list = new ArrayList<>();
+    List<Payment> list = new ArrayList<>();
     if(paymentPeriod.getPaymentDate().isBefore(valuationDate)) { // CF before valuation date not taken into account
       return list;
     }
     if (accrualPeriod.getRateObservation() instanceof FixedRateObservation) {
       FixedRateObservation fixed = (FixedRateObservation) accrualPeriod.getRateObservation();
-      FxPayment payment = FxPayment.of(
+      Payment payment = Payment.of(
           CurrencyAmount.of(paymentPeriod.getCurrency(),
               (accrualPeriod.getGearing() * fixed.getRate() + accrualPeriod.getSpread()) 
                   * accrualPeriod.getYearFraction() * ratePaymentPeriod.getNotional()),
@@ -110,7 +110,7 @@ public class CashflowEquivalentTheoreticalCalculator {
       IborRateObservation ibor = (IborRateObservation) accrualPeriod.getRateObservation();
       if (ibor.getFixingDate().isBefore(valuationDate)) { // fixing already took place
         double fixing = provider.iborIndexRates(ibor.getIndex()).rate(ibor.getFixingDate());
-        FxPayment payment = FxPayment.of(
+        Payment payment = Payment.of(
             CurrencyAmount.of(paymentPeriod.getCurrency(),
                 (accrualPeriod.getGearing() * fixing + accrualPeriod.getSpread())
                     * accrualPeriod.getYearFraction() * ratePaymentPeriod.getNotional()),
@@ -119,10 +119,10 @@ public class CashflowEquivalentTheoreticalCalculator {
         return list;
       }
       // fixing in the future: start and end date notional equivalent
-      FxPayment paymentStart = FxPayment.of(
+      Payment paymentStart = Payment.of(
           CurrencyAmount.of(paymentPeriod.getCurrency(), accrualPeriod.getGearing() * ratePaymentPeriod.getNotional()),
           accrualPeriod.getStartDate());
-      FxPayment paymentEnd = FxPayment.of(
+      Payment paymentEnd = Payment.of(
           CurrencyAmount.of(paymentPeriod.getCurrency(), -accrualPeriod.getGearing() * ratePaymentPeriod.getNotional()
               + accrualPeriod.getSpread() * accrualPeriod.getYearFraction() * ratePaymentPeriod.getNotional()),
           accrualPeriod.getEndDate());
@@ -134,10 +134,10 @@ public class CashflowEquivalentTheoreticalCalculator {
     OvernightIndex index = on.getIndex();
     if (!on.getStartDate().isBefore(valuationDate)) { // First fixing not taken place yet
       // TODO: spread, gearing
-      FxPayment paymentStart = FxPayment.of(
+      Payment paymentStart = Payment.of(
           CurrencyAmount.of(paymentPeriod.getCurrency(), ratePaymentPeriod.getNotional()),
           index.calculateEffectiveFromFixing(accrualPeriod.getStartDate()));
-      FxPayment paymentEnd = FxPayment.of(
+      Payment paymentEnd = Payment.of(
           CurrencyAmount.of(paymentPeriod.getCurrency(), -ratePaymentPeriod.getNotional()),
           index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(accrualPeriod.getEndDate())));
       list.add(paymentStart);
@@ -155,7 +155,7 @@ public class CashflowEquivalentTheoreticalCalculator {
       compositionFactor *= 1.0d + accrualFactor * rate;
       currentFixing = index.getFixingCalendar().next(currentFixing);
     }
-    FxPayment paymentEnd = FxPayment.of(
+    Payment paymentEnd = Payment.of(
         CurrencyAmount.of(paymentPeriod.getCurrency(), -ratePaymentPeriod.getNotional() * compositionFactor),
         index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(accrualPeriod.getEndDate())));
     list.add(paymentEnd);
@@ -169,9 +169,9 @@ public class CashflowEquivalentTheoreticalCalculator {
    * @param provider  the provider
    * @return the present value
    */
-  public MultiCurrencyAmount presentValue(List<FxPayment> payments, RatesProvider provider){
+  public MultiCurrencyAmount presentValue(List<Payment> payments, RatesProvider provider) {
     MultiCurrencyAmount pv = MultiCurrencyAmount.empty();
-    for(FxPayment payment: payments) {
+    for (Payment payment : payments) {
       pv = pv.plus(PRICER_CASH_FLOW.presentValue(payment, provider));
     }
     return pv;
@@ -183,9 +183,9 @@ public class CashflowEquivalentTheoreticalCalculator {
    * @param provider  the provider
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(List<FxPayment> payments, RatesProvider provider){
+  public PointSensitivityBuilder presentValueSensitivity(List<Payment> payments, RatesProvider provider) {
     PointSensitivityBuilder pv = PointSensitivityBuilder.none();
-    for(FxPayment payment: payments) {
+    for (Payment payment : payments) {
       pv = pv.combinedWith(PRICER_CASH_FLOW.presentValueSensitivity(payment, provider));
     }
     return pv;
