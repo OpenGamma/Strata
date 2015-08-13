@@ -40,18 +40,18 @@ public final class RepoCurveZeroRateSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-  * The currency of the curve for which the sensitivity is computed.
-  */
+   * The currency of the curve for which the sensitivity is computed.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Currency curveCurrency;
   /**
-  * The date that was looked up on the curve.
-  */
+   * The date that was looked up on the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate date;
   /**
-  * The currency of the sensitivity.
-  */
+   * The currency of the sensitivity.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
@@ -62,9 +62,9 @@ public final class RepoCurveZeroRateSensitivity
    */
   @PropertyDefinition(validate = "notNull")
   private final BondGroup bondGroup;
-  /**
-  * The value of the sensitivity.
-  */
+  /** 
+   * The value of the sensitivity. 
+   */
   @PropertyDefinition(overrideGet = true)
   private final double sensitivity;
 
