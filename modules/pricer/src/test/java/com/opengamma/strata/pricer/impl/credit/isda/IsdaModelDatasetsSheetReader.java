@@ -5,9 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.credit.isda;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,9 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import au.com.bytecode.opencsv.CSVReader;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Resources;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.io.CsvFile;
 
 /**
  * Simple class to read in a csv file with ISDA inputs load them into a test harness
@@ -30,7 +30,7 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
 
   private static final String SHEET_LOCATION = "isda_comparison_sheets/";
   private final List<ISDA_Results> _results = new ArrayList<>(100); // ~100 rows nominally
-  private CSVReader _csvReader;
+  private CsvFile _csvFile;
   private String[] _headers;
 
   // header fields we expect in the file (lowercased when loaded)
@@ -78,27 +78,22 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
   public IsdaModelDatasetsSheetReader(final String sheetName, final double recoveryRate) {
     ArgChecker.notEmpty(sheetName, "filename");
 
-    // Open file
-    final String sheetFilePath = SHEET_LOCATION + sheetName;
-    final InputStream is = IsdaModelDatasetsSheetReader.class.getClassLoader().getResourceAsStream(sheetFilePath);
-    if (is == null) {
+    // Set up CSV reader
+    String sheetFilePath = SHEET_LOCATION + sheetName;
+    URL resource = IsdaModelDatasetsSheetReader.class.getClassLoader().getResource(sheetFilePath);
+    if (resource == null) {
       throw new IllegalArgumentException(sheetFilePath + ": does not exist");
     }
-
-    // Set up CSV reader
-    _csvReader = new CSVReader(new InputStreamReader(is));
+    _csvFile = CsvFile.of(Resources.asCharSource(resource, StandardCharsets.UTF_8), true);
 
     // Set columns
     _headers = readHeaderRow();
 
-    Map<String, String> row;
-    while ((row = loadNextRow()) != null) {
-      ISDA_Results temp = getResult(row);
+    for (ImmutableList<String> line : _csvFile.lines()) {
+      ISDA_Results temp = getResult(parseRow(line));
       temp.recoveryRate = recoveryRate;
       _results.add(temp);
-
     }
-
   }
 
   private ISDA_Results getResult(Map<String, String> fields) {
@@ -157,19 +152,13 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
 
   private String[] readHeaderRow() {
     // Read in the header row
-    String[] rawRow;
-    try {
-      rawRow = _csvReader.readNext();
-    } catch (IOException ex) {
-      throw new IllegalArgumentException("Error reading CSV file header row: " + ex.getMessage());
-    }
-
+    ImmutableList<String> rawRow = _csvFile.headers();
     final List<LocalDate> parSpreadDates = new ArrayList<>();
 
     // Normalise read-in headers (to lower case) and set as columns
-    String[] columns = new String[rawRow.length];
-    for (int i = 0; i < rawRow.length; i++) {
-      columns[i] = rawRow[i].trim();
+    String[] columns = new String[rawRow.size()];
+    for (int i = 0; i < rawRow.size(); i++) {
+      columns[i] = rawRow.get(i).trim();
 
       // if a date add to list of spread dates
       try {
@@ -190,32 +179,17 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
     return columns;
   }
 
-  public Map<String, String> loadNextRow() {
-
-    // Read in next row
-    String[] rawRow;
-    try {
-      rawRow = _csvReader.readNext();
-    } catch (IOException ex) {
-      throw new IllegalArgumentException("Error reading CSV file data row: " + ex.getMessage());
-    }
-
-    // Return null if EOF
-    if (rawRow == null) {
-      return null;
-    }
-
-    // Map read-in row onto expected columns
+  // map row onto expected columns
+  public Map<String, String> parseRow(ImmutableList<String> rawRow) {
     Map<String, String> result = new HashMap<>();
     for (int i = 0; i < _headers.length; i++) {
-      if (i >= rawRow.length) {
+      if (i >= rawRow.size()) {
         break;
       }
-      if (rawRow[i] != null && rawRow[i].trim().length() > 0) {
-        result.put(_headers[i], rawRow[i]);
+      if (rawRow.get(i) != null && rawRow.get(i).trim().length() > 0) {
+        result.put(_headers[i], rawRow.get(i));
       }
     }
-
     return result;
   }
 
