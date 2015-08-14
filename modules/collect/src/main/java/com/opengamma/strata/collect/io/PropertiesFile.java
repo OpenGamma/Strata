@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.collect.io;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Properties;
@@ -15,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Unchecked;
 
 /**
  * A properties file.
@@ -62,20 +62,18 @@ public final class PropertiesFile {
    * 
    * @param source  the properties file resource, not null
    * @return the properties file, not null
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
    */
   public static PropertiesFile of(CharSource source) {
     ArgChecker.notNull(source, "source");
-    try {
-      PropertySet keyValues = parse(source);
-      return new PropertiesFile(keyValues);
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
-    }
+    ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
+    PropertySet keyValues = parse(lines);
+    return new PropertiesFile(keyValues);
   }
 
   // parses the properties file format
-  private static PropertySet parse(CharSource source) throws IOException {
-    ImmutableList<String> lines = source.readLines();
+  private static PropertySet parse(ImmutableList<String> lines) {
     Multimap<String, String> parsed = ArrayListMultimap.create();
     int lineNum = 0;
     for (String line : lines) {

@@ -6,20 +6,20 @@
 package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static java.util.stream.Collectors.toCollection;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
-import com.google.common.io.LineProcessor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.Unchecked;
 
 /**
  * A CSV file.
@@ -63,50 +63,37 @@ public final class CsvFile {
    * @param source  the CSV file resource
    * @param headerRow  whether the source has a header row
    * @return the CSV file
-   * @throws IllegalArgumentException if the file is invalid
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
    */
   public static CsvFile of(CharSource source, boolean headerRow) {
     ArgChecker.notNull(source, "source");
-    List<ImmutableList<String>> lines;
-    try {
-      lines = parse(source);
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
-    }
+    ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
+    ArrayList<ImmutableList<String>> parsedCsv = parse(lines);
     if (headerRow) {
-      if (lines.isEmpty()) {
+      if (parsedCsv.isEmpty()) {
         throw new IllegalArgumentException("Could not read header row from empty CSV file");
       }
-      ImmutableList<String> headers = lines.remove(0);
-      ImmutableList<ImmutableList<String>> dataLines = ImmutableList.copyOf(lines);
+      ImmutableList<String> headers = parsedCsv.remove(0);
+      ImmutableList<ImmutableList<String>> dataLines = ImmutableList.copyOf(parsedCsv);
       return new CsvFile(headers, dataLines);
     } else {
-      return new CsvFile(ImmutableList.of(), ImmutableList.copyOf(lines));
+      return new CsvFile(ImmutableList.of(), ImmutableList.copyOf(parsedCsv));
     }
   }
 
   //------------------------------------------------------------------------
   // parses the CSV file format
-  private static ArrayList<ImmutableList<String>> parse(CharSource source) throws IOException {
-    return source.readLines(new LineProcessor<ArrayList<ImmutableList<String>>>() {
-      private final ArrayList<ImmutableList<String>> result = new ArrayList<>();
-
-      @Override
-      public boolean processLine(String line) throws IOException {
-        parseLine(line.trim(), result);
-        return true;
-      }
-
-      @Override
-      public ArrayList<ImmutableList<String>> getResult() {
-        return result;
-      }
-    });
+  private static ArrayList<ImmutableList<String>> parse(ImmutableList<String> lines) {
+    return lines.stream()
+        .flatMap(line -> parseLine(line))
+        .collect(toCollection(ArrayList::new));
   }
 
-  private static void parseLine(String line, ArrayList<ImmutableList<String>> result) {
+  // return Stream rather than Optional as works better with flatMap
+  private static Stream<ImmutableList<String>> parseLine(String line) {
     if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
-      return;
+      return Stream.empty();
     }
     ImmutableList.Builder<String> builder = ImmutableList.builder();
     int start = 0;
@@ -133,9 +120,10 @@ public final class CsvFile {
       nextComma = terminated.indexOf(',', start);
     }
     ImmutableList<String> fields = builder.build();
-    if (hasContent(fields)) {
-      result.add(fields);
+    if (!hasContent(fields)) {
+      return Stream.empty();
     }
+    return Stream.of(fields);
   }
 
   // determines whether there is any content on a line

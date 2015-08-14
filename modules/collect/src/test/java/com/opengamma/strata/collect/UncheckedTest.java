@@ -8,6 +8,7 @@ package com.opengamma.strata.collect;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -23,11 +24,64 @@ import java.util.function.UnaryOperator;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.function.CheckedRunnable;
+import com.opengamma.strata.collect.function.CheckedSupplier;
+
 /**
  * Test Unchecked.
  */
 @Test
 public class UncheckedTest {
+
+  //-------------------------------------------------------------------------
+  public void test_wrap_runnable1() {
+    // cannot use assertThrows() here
+    try {
+      Unchecked.wrap((CheckedRunnable) () -> {
+        throw new IOException();
+      });
+      fail();
+    } catch (UncheckedIOException ex) {
+      // success
+    }
+  }
+
+  public void test_wrap_runnable2() {
+    // cannot use assertThrows() here
+    try {
+      Unchecked.wrap((CheckedRunnable) () -> {
+        throw new Exception();
+      });
+      fail();
+    } catch (RuntimeException ex) {
+      // success
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_wrap_supplier() {
+    // cannot use assertThrows() here
+    try {
+      Unchecked.wrap((CheckedSupplier<String>) () -> {
+        throw new IOException();
+      });
+      fail();
+    } catch (UncheckedIOException ex) {
+      // success
+    }
+  }
+
+  public void test_wrap_supplier2() {
+    // cannot use assertThrows() here
+    try {
+      Unchecked.wrap((CheckedSupplier<String>) () -> {
+        throw new Exception();
+      });
+      fail();
+    } catch (RuntimeException ex) {
+      // success
+    }
+  }
 
   //-------------------------------------------------------------------------
   public void test_runnable_fail1() {

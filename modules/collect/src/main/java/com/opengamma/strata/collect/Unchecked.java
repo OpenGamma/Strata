@@ -31,9 +31,13 @@ import com.opengamma.strata.collect.function.CheckedSupplier;
 import com.opengamma.strata.collect.function.CheckedUnaryOperator;
 
 /**
- * Static utility methods that allow a lambda block to be decorated to avoid
- * handling checked exceptions.
+ * Static utility methods that convert checked exceptions to unchecked.
  * <p>
+ * Two {@code wrap()} methods are provided that can wrap an arbitrary piece of logic
+ * and convert checked exceptions to unchecked.
+ * <p>
+ * A number of other methods are provided that allow a lambda block to be decorated
+ * to avoid handling checked exceptions.
  * For example, the method {@link File#getCanonicalFile()} throws an {@link IOException}
  * which can be handled as follows:
  * <pre>
@@ -56,9 +60,62 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
+   * Wraps a block of code, converting checked exceptions to unchecked.
+   * <pre>
+   *   Unchecked.wrap(() -&gt; {
+   *     // any code that throws a checked exception
+   *   }
+   * </pre>
+   * <p>
+   * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
+   * or {@link RuntimeException} as appropriate.
+   *
+   * @param block  the code block to wrap
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws RuntimeException if an exception occurs
+   */
+  public static void wrap(CheckedRunnable block) {
+    try {
+      block.run();
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    } catch (Throwable ex) {
+      throw Throwables.propagate(ex);
+    }
+  }
+
+  /**
+   * Wraps a block of code, converting checked exceptions to unchecked.
+   * <pre>
+   *   Unchecked.wrap(() -&gt; {
+   *     // any code that throws a checked exception
+   *   }
+   * </pre>
+   * <p>
+   * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
+   * or {@link RuntimeException} as appropriate.
+   *
+   * @param <T> the type of the result
+   * @param block  the code block to wrap
+   * @return the wrapper for unchecked exceptions
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws RuntimeException if an exception occurs
+   */
+  public static <T> T wrap(CheckedSupplier<T> block) {
+    try {
+      return block.get();
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    } catch (Throwable ex) {
+      throw Throwables.propagate(ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Converts checked exceptions to unchecked based on the {@code Runnable} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified runnable returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -81,7 +138,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code Function} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified function returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -105,7 +162,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code BiFunction} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified function returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -131,7 +188,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code UnaryOperator} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified operator returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -154,7 +211,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code BinaryOperator} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified operator returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -178,7 +235,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code Predicate} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified predicate returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -201,7 +258,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code BiPredicate} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified predicate returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -226,7 +283,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code Consumer} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified consumer returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -249,7 +306,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code BiConsumer} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified consumer returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
@@ -274,7 +331,7 @@ public final class Unchecked {
   /**
    * Converts checked exceptions to unchecked based on the {@code Supplier} interface.
    * <p>
-   * This executes the specified block of code.
+   * This wraps the specified supplier returning an instance that handles checked exceptions.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
