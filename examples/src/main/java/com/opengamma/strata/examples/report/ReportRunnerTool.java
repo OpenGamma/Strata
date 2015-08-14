@@ -10,11 +10,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.google.common.base.Strings;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
@@ -139,7 +138,7 @@ public class ReportRunnerTool {
     CalculationEngine calculationEngine = ExampleEngine.create();
     
     List<Trade> trades;
-    if (StringUtils.isBlank(idSearch)) {
+    if (Strings.nullToEmpty(idSearch).trim().isEmpty()) {
       trades = portfolio.getTrades();
     } else {
       trades = portfolio.getTrades().stream()

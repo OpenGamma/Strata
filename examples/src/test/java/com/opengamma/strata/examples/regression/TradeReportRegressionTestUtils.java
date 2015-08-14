@@ -9,9 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
 
+import com.google.common.base.Strings;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -61,7 +61,7 @@ public final class TradeReportRegressionTestUtils {
 
   private static List<String> toLines(String asciiTable) {
     return Arrays.asList(asciiTable.split("\\r?\\n")).stream()
-        .filter(line -> StringUtils.isNotBlank(line))
+        .filter(line -> !Strings.nullToEmpty(line).trim().isEmpty())
         .collect(Collectors.toList());
   }
 
