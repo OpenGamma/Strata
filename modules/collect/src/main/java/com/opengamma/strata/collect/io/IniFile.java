@@ -7,7 +7,6 @@ package com.opengamma.strata.collect.io;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Unchecked;
 
 /**
  * An INI file.
@@ -93,19 +93,16 @@ public final class IniFile {
    * 
    * @param source  the INI file resource
    * @return the INI file
-   * @throws UncheckedIOException if an IO error occurs
-   * @throws IllegalArgumentException if the configuration is invalid
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
    */
   public static IniFile of(CharSource source) {
     ArgChecker.notNull(source, "source");
-    try {
-      Map<String, Multimap<String, String>> parsedIni = parse(source);
-      ImmutableMap.Builder<String, PropertySet> builder = ImmutableMap.builder();
-      parsedIni.forEach((sectionName, sectionData) -> builder.put(sectionName, PropertySet.of(sectionData)));
-      return new IniFile(builder.build());
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
-    }
+    ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
+    Map<String, Multimap<String, String>> parsedIni = parse(lines);
+    ImmutableMap.Builder<String, PropertySet> builder = ImmutableMap.builder();
+    parsedIni.forEach((sectionName, sectionData) -> builder.put(sectionName, PropertySet.of(sectionData)));
+    return new IniFile(builder.build());
   }
 
   //-------------------------------------------------------------------------
@@ -162,8 +159,7 @@ public final class IniFile {
 
   //-------------------------------------------------------------------------
   // parses the INI file format
-  private static Map<String, Multimap<String, String>> parse(CharSource source) throws IOException {
-    ImmutableList<String> lines = source.readLines();
+  private static Map<String, Multimap<String, String>> parse(ImmutableList<String> lines) {
     Map<String, Multimap<String, String>> ini = new LinkedHashMap<>();
     Multimap<String, String> currentSection = null;
     int lineNum = 0;
