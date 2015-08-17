@@ -44,7 +44,7 @@ public final class QuotesCsvLoader {
   public static Map<QuoteId, Double> loadQuotes(ResourceLocator quotesResource, LocalDate marketDataDate) {
     Map<QuoteId, Double> map = new HashMap<>();
     CsvFile csv = CsvFile.of(quotesResource.getCharSource(), true);
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String dateText = csv.field(i, DATE_NAME);
       LocalDate date = LocalDate.parse(dateText);
       if (!date.equals(marketDataDate)) {

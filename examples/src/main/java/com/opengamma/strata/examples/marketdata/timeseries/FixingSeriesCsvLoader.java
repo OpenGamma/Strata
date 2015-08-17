@@ -70,7 +70,7 @@ public class FixingSeriesCsvLoader {
       throw new IllegalArgumentException(
           Messages.format("Error processing resource as CSV file: {}", resourceLocator), e);
     }
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String reference = csv.field(i, REFERENCE_FIELD);
       String dateText = csv.field(i, DATE_FIELD);
       String valueText = csv.field(i, VALUE_FIELD);

@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static java.util.stream.Collectors.toCollection;
 
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -54,7 +56,7 @@ public final class CsvFile {
   /**
    * The data rows in the CSV file.
    */
-  private final ImmutableList<ImmutableList<String>> lines;
+  private final ImmutableList<ImmutableList<String>> rows;
 
   //------------------------------------------------------------------------
   /**
@@ -70,16 +72,14 @@ public final class CsvFile {
     ArgChecker.notNull(source, "source");
     ImmutableList<String> lines = Unchecked.wrap(() -> source.readLines());
     ArrayList<ImmutableList<String>> parsedCsv = parse(lines);
-    if (headerRow) {
-      if (parsedCsv.isEmpty()) {
-        throw new IllegalArgumentException("Could not read header row from empty CSV file");
-      }
-      ImmutableList<String> headers = parsedCsv.remove(0);
-      ImmutableList<ImmutableList<String>> dataLines = ImmutableList.copyOf(parsedCsv);
-      return new CsvFile(headers, dataLines);
-    } else {
+    if (!headerRow) {
       return new CsvFile(ImmutableList.of(), ImmutableList.copyOf(parsedCsv));
     }
+    if (parsedCsv.isEmpty()) {
+      throw new IllegalArgumentException("Could not read header row from empty CSV file");
+    }
+    ImmutableList<String> headers = parsedCsv.remove(0);
+    return new CsvFile(headers, ImmutableList.copyOf(parsedCsv));
   }
 
   //------------------------------------------------------------------------
@@ -139,17 +139,42 @@ public final class CsvFile {
 
   //------------------------------------------------------------------------
   /**
+   * Creates an instance from a list of headers and rows.
+   * <p>
+   * The headers may be an empty list.
+   * All the rows must contain a list of the same size, matching the header if present.
+   * 
+   * @param headers  the headers, empty if no headers
+   * @param rows  the data rows
+   * @return the CSV file
+   * @throws IllegalArgumentException if the rows do not match the headers
+   */
+  public static CsvFile of(List<String> headers, List<? extends List<String>> rows) {
+    ArgChecker.notNull(headers, "headers");
+    ArgChecker.notNull(rows, "rows");
+    int size = (headers.size() == 0 && rows.size() > 0 ? rows.get(0).size() : headers.size());
+    if (rows.stream().filter(row -> row.size() != size).findAny().isPresent()) {
+      throw new IllegalArgumentException("Invalid data rows, each row must have same columns as header row");
+    }
+    ImmutableList<ImmutableList<String>> copiedRows = rows.stream()
+        .map(row -> ImmutableList.copyOf(row))
+        .collect(toImmutableList());
+    return new CsvFile(ImmutableList.copyOf(headers), copiedRows);
+  }
+
+  //------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    * 
    * @param headers  the header row
-   * @param lines  the data lines
+   * @param rows  the data rows
    */
-  private CsvFile(ImmutableList<String> headers, ImmutableList<ImmutableList<String>> lines) {
+  private CsvFile(ImmutableList<String> headers, ImmutableList<ImmutableList<String>> rows) {
     this.headers = headers;
     searchHeaders = IntStream.range(0, headers.size())
         .boxed()
         .collect(toImmutableMap(index -> headers.get(index).toLowerCase(Locale.ENGLISH)));
-    this.lines = lines;
+    this.rows = rows;
   }
 
   //------------------------------------------------------------------------
@@ -165,49 +190,49 @@ public final class CsvFile {
   }
 
   /**
-   * Gets all data lines in the file.
+   * Gets all data rows in the file.
    * 
-   * @return the data lines
+   * @return the data rows
    */
-  public ImmutableList<ImmutableList<String>> lines() {
-    return lines;
+  public ImmutableList<ImmutableList<String>> rows() {
+    return rows;
   }
 
   /**
-   * Gets the number of data lines.
+   * Gets the number of data rows.
    * 
-   * @return the number of data lines
+   * @return the number of data rows
    */
-  public int lineCount() {
-    return lines.size();
+  public int rowCount() {
+    return rows.size();
   }
 
   /**
-   * Gets a single line.
+   * Gets a single row.
    * 
-   * @param index  the line index
-   * @return the line
+   * @param index  the row index
+   * @return the row
    */
-  public ImmutableList<String> line(int index) {
-    return lines.get(index);
+  public ImmutableList<String> row(int index) {
+    return rows.get(index);
   }
 
   /**
-   * Gets a single field value from a line by column header.
+   * Gets a single field value from a row by column header.
    * <p>
-   * This is typically used by looping around each line by index.
+   * This is typically used by looping around each row by index.
    * 
-   * @param lineIndex  the line index
+   * @param rowIndex  the row index
    * @param header  the column header
    * @return the field value
    * @throws IllegalArgumentException if the header is not found
    */
-  public String field(int lineIndex, String header) {
+  public String field(int rowIndex, String header) {
     Integer headerIndex = searchHeaders.get(header.toLowerCase(Locale.ENGLISH));
     if (headerIndex == null) {
       throw new IllegalArgumentException(Messages.format("Header not found: {}", header));
     }
-    return line(lineIndex).get(headerIndex);
+    return row(rowIndex).get(headerIndex);
   }
 
   //-------------------------------------------------------------------------
@@ -226,7 +251,7 @@ public final class CsvFile {
     }
     if (obj instanceof CsvFile) {
       CsvFile other = (CsvFile) obj;
-      return headers.equals(other.headers) && lines.equals(other.lines);
+      return headers.equals(other.headers) && rows.equals(other.rows);
     }
     return false;
   }
@@ -238,7 +263,7 @@ public final class CsvFile {
    */
   @Override
   public int hashCode() {
-    return headers.hashCode() ^ lines.hashCode();
+    return headers.hashCode() ^ rows.hashCode();
   }
 
   /**
