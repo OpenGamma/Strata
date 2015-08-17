@@ -89,7 +89,7 @@ public class IsdaModelDatasetsSheetReader extends IsdaModelDatasets {
     // Set columns
     _headers = readHeaderRow();
 
-    for (ImmutableList<String> line : _csvFile.lines()) {
+    for (ImmutableList<String> line : _csvFile.rows()) {
       ISDA_Results temp = getResult(parseRow(line));
       temp.recoveryRate = recoveryRate;
       _results.add(temp);

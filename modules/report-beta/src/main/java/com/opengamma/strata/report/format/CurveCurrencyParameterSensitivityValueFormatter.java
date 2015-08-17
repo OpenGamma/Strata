@@ -10,8 +10,7 @@ import java.util.Optional;
 import java.util.function.DoubleFunction;
 import java.util.function.IntFunction;
 
-import org.apache.commons.lang3.StringUtils;
-
+import com.google.common.base.Strings;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
 
@@ -44,7 +43,7 @@ public class CurveCurrencyParameterSensitivityValueFormatter
       String formattedSensitivity = formatFn.apply(sensitivity.getSensitivity()[i]);
       String field = labelProvider.apply(i) + " = " + formattedSensitivity;
       if (pad) {
-        field = StringUtils.rightPad(field, PADDED_FIELD_WIDTH);
+        field = Strings.padEnd(field, PADDED_FIELD_WIDTH, ' ');
       }
       sb.append(field);
       if (i < sensitivity.getSensitivity().length - 1) {

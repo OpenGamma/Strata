@@ -16,9 +16,9 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.beans.Bean;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.opengamma.strata.collect.Messages;
@@ -158,7 +158,7 @@ public class ValuePathEvaluator {
 
   // gets the result supplier for measures
   private IntFunction<Result<?>> getMeasureSupplier(Queue<String> tokens, ReportCalculationResults results) {
-    if (tokens.isEmpty() || StringUtils.isBlank(tokens.peek())) {
+    if (tokens.isEmpty() || Strings.nullToEmpty(tokens.peek()).trim().isEmpty()) {
       return i -> {
         Trade trade = results.getTrades().get(i);
         Set<Measure> validMeasures = OpenGammaPricingRules.standard().configuredMeasures(trade);

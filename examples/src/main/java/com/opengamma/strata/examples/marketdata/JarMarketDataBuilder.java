@@ -12,8 +12,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -103,7 +101,7 @@ public class JarMarketDataBuilder extends MarketDataBuilder {
         String entryName = entry.getName();
         if (entryName.startsWith(rootPath) && !entryName.equals(rootPath)) {
           String relativeEntryPath = entryName.substring(rootPath.length() + 1);
-          if (!StringUtils.isBlank(relativeEntryPath)) {
+          if (!relativeEntryPath.trim().isEmpty()) {
             builder.add(relativeEntryPath);
           }
         }

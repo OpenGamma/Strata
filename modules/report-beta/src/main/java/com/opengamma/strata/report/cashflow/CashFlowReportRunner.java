@@ -14,8 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -238,7 +236,7 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
   
   private Object mapValue(ExplainKey<?> key, Object value, int level) {
     if (ExplainKey.ENTRY_TYPE.equals(key) && level > 0) {
-      return removeCamelCase((String) value);
+      return humanizeUpperCamelCase((String) value);
     }
     return value;
   }
@@ -248,12 +246,22 @@ public class CashFlowReportRunner implements ReportRunner<CashFlowReportTemplate
     if (header != null) {
       return header;
     }
-    return removeCamelCase(key.toString());
+    return humanizeUpperCamelCase(key.toString());
   }
 
-  private String removeCamelCase(String s) {
-    String[] headerWords = StringUtils.splitByCharacterTypeCamelCase(s);
-    return String.join(" ", headerWords);
+  private String humanizeUpperCamelCase(String str) {
+    StringBuilder buf = new StringBuilder(str.length() + 4);
+    int lastIndex = 0;
+    for (int i = 2; i < str.length(); i++) {
+      char cur = str.charAt(i);
+      char last = str.charAt(i - 1);
+      if (Character.getType(last) == Character.UPPERCASE_LETTER && Character.getType(cur) == Character.LOWERCASE_LETTER) {
+        buf.append(str.substring(lastIndex, i - 1)).append(' ');
+        lastIndex = i - 1;
+      }
+    }
+    buf.append(str.substring(lastIndex));
+    return buf.toString();
   }
 
   private List<ExplainKey<?>> getKeys(List<ExplainMap> explainMap) {

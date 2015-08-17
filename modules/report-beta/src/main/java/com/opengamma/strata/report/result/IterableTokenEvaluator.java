@@ -8,13 +8,13 @@ package com.opengamma.strata.report.result;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.beans.Bean;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
+import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.result.Result;
@@ -50,8 +50,8 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
 
   @Override
   public Result<?> evaluate(Iterable<?> iterable, String token) {
-    if (NumberUtils.isDigits(token)) {
-      int index = Integer.parseInt(token);
+    Integer index = Ints.tryParse(token);
+    if (index != null) {
       try {
         return Result.success(Iterables.get(iterable, index));
       } catch (IndexOutOfBoundsException e) {

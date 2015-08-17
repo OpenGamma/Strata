@@ -178,7 +178,7 @@ public class MarkitSingleNameCreditCurveDataParser {
   private static Map<MarkitRedCode, CdsConvention> parseStaticData(CharSource source) {
     CsvFile csv = CsvFile.of(source, true);
     Map<MarkitRedCode, CdsConvention> result = Maps.newHashMap();
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String redCodeText = csv.field(i, "RedCode");
       String conventionText = csv.field(i, "Convention");
       result.put(MarkitRedCode.of(redCodeText), CdsConvention.of(conventionText));

@@ -46,7 +46,7 @@ public class MarkitYieldCurveDataParser {
     // parse the curve data
     Map<IsdaYieldCurveConvention, List<Point>> curveData = Maps.newHashMap();
     CsvFile csv = CsvFile.of(source, true);
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String dateText = csv.field(i, DATE);
       String tenorText = csv.field(i, TENOR);
       String instrumentText = csv.field(i, INSTRUMENT);

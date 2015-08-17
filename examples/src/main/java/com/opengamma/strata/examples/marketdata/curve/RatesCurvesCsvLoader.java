@@ -184,7 +184,7 @@ public final class RatesCurvesCsvLoader {
   private static Map<LoadedCurveName, LoadedCurveSettings> loadCurveSettings(ResourceLocator settingsResource) {
     Map<LoadedCurveName, LoadedCurveSettings> settingsMap = new HashMap<>();
     CsvFile csv = CsvFile.of(settingsResource.getCharSource(), true);
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String curveGroupName = csv.field(i, SETTINGS_GROUP_NAME);
       String curveName = csv.field(i, SETTINGS_CURVE_NAME);
       String dayCountName = csv.field(i, SETTINGS_DAY_COUNT);
@@ -220,7 +220,7 @@ public final class RatesCurvesCsvLoader {
   private static Map<LoadedCurveName, Set<RateCurveId>> loadCurveGroups(ResourceLocator groupsResource) {
     Map<LoadedCurveName, Set<RateCurveId>> curveGroups = new HashMap<>();
     CsvFile csv = CsvFile.of(groupsResource.getCharSource(), true);
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String curveGroupText = csv.field(i, GROUPS_NAME);
       String curveType = csv.field(i, GROUPS_CURVE_TYPE);
       String reference = csv.field(i, GROUPS_REFERENCE);
@@ -260,7 +260,7 @@ public final class RatesCurvesCsvLoader {
     // parse the curve nodes
     CsvFile csv = CsvFile.of(curvesResource.getCharSource(), true);
     Map<LoadedCurveKey, List<LoadedCurveNode>> builders = new HashMap<>();
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String valuationDateText = csv.field(i, CURVE_DATE);
       String curveGroup = csv.field(i, CURVE_GROUP_NAME);
       String curveName = csv.field(i, CURVE_NAME);

@@ -84,7 +84,7 @@ public class MarkitIndexCreditCurveDataParser {
     Map<MarkitRedCode, StaticData> staticDataMap = parseStaticData(staticDataSource);
 
     CsvFile csv = CsvFile.of(curveSource, true);
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
 
       String seriesText = csv.field(i, Columns.Series.getColumnName());
       String versionText = csv.field(i, Columns.Version.getColumnName());
@@ -167,7 +167,7 @@ public class MarkitIndexCreditCurveDataParser {
     CsvFile csv = CsvFile.of(source, true);
 
     Map<MarkitRedCode, StaticData> result = Maps.newHashMap();
-    for (int i = 0; i < csv.lineCount(); i++) {
+    for (int i = 0; i < csv.rowCount(); i++) {
       String redCodeText = csv.field(i, "RedCode");
       String fromDateText = csv.field(i, "From Date");
       String conventionText = csv.field(i, "Convention");
