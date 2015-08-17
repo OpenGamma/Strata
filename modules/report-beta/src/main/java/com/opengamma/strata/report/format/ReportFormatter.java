@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.report.format;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -16,7 +16,8 @@ import java.util.stream.IntStream;
 import com.bethecoder.table.ASCIITableHeader;
 import com.bethecoder.table.AsciiTableInstance;
 import com.bethecoder.table.spec.AsciiTable;
-import com.opencsv.CSVWriter;
+import com.opengamma.strata.collect.Unchecked;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.report.Report;
 
 /**
@@ -42,16 +43,12 @@ public abstract class ReportFormatter<R extends Report> {
   @SuppressWarnings("resource")
   public void writeCsv(R report, OutputStream out) {
     OutputStreamWriter outputWriter = new OutputStreamWriter(out);
-    CSVWriter writer = new CSVWriter(outputWriter);
-    writer.writeNext(report.getColumnHeaders());
-    for (int r = 0; r < report.getRowCount(); r++) {
-      writer.writeNext(formatRow(report, r, ReportOutputFormat.CSV));
-    }
-    try {
-      writer.flush();
-    } catch (IOException ex) {
-      // do nothing
-    }
+    CsvOutput csvOut = new CsvOutput(outputWriter);
+    csvOut.writeLine(Arrays.asList(report.getColumnHeaders()));
+    IntStream.range(0, report.getRowCount())
+        .mapToObj(rowIdx -> Arrays.asList(formatRow(report, rowIdx, ReportOutputFormat.CSV)))
+        .forEachOrdered(csvOut::writeLine);
+    Unchecked.wrap(() -> outputWriter.flush());
   }
 
   /**
