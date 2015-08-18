@@ -45,8 +45,7 @@ public class XmlElementTest {
     assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
     assertThrowsIllegalArg(() -> test.getAttribute("notFound"));
     assertThrows(() -> test.getChild(0), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> test.getChildFirst("notFound"));
-    assertThrowsIllegalArg(() -> test.getChildSingle("notFound"));
+    assertThrowsIllegalArg(() -> test.getChild("notFound"));
     assertEquals(test.getChildOptional("notFound"), Optional.empty());
     assertEquals(test.getChildren("notFound"), ImmutableList.of());
     assertEquals(test.toString(), "<test></test>");
@@ -60,9 +59,10 @@ public class XmlElementTest {
     assertEquals(test.getContent(), "");
     assertEquals(test.getChildren(), CHILD_LIST_ONE);
     assertEquals(test.getAttribute("key"), "value");
+    assertEquals(test.getAttributeOptional("key"), Optional.of("value"));
+    assertEquals(test.getAttributeOptional("none"), Optional.empty());
     assertEquals(test.getChild(0), LEAF1);
-    assertEquals(test.getChildFirst("leaf1"), LEAF1);
-    assertEquals(test.getChildSingle("leaf1"), LEAF1);
+    assertEquals(test.getChild("leaf1"), LEAF1);
     assertEquals(test.getChildOptional("leaf1"), Optional.of(LEAF1));
     assertEquals(test.getChildren("leaf1"), ImmutableList.of(LEAF1));
     assertEquals(test.toString(), "<test key=\"value\" og=\"strata\">" +
@@ -73,6 +73,7 @@ public class XmlElementTest {
     XmlElement test = XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI);
     assertEquals(test.getName(), "test");
     assertEquals(test.getAttributes(), ATTR_MAP);
+    assertEquals(test.getAttribute("key"), "value");
     assertEquals(test.hasContent(), false);
     assertEquals(test.getContent(), "");
     assertEquals(test.getChildren(), CHILD_LIST_MULTI);
@@ -80,10 +81,8 @@ public class XmlElementTest {
     assertEquals(test.getChild(0), LEAF1);
     assertEquals(test.getChild(1), LEAF2A);
     assertEquals(test.getChild(2), LEAF2B);
-    assertEquals(test.getChildFirst("leaf1"), LEAF1);
-    assertEquals(test.getChildFirst("leaf2"), LEAF2A);
-    assertEquals(test.getChildSingle("leaf1"), LEAF1);
-    assertThrowsIllegalArg(() -> test.getChildSingle("leaf2"));
+    assertEquals(test.getChild("leaf1"), LEAF1);
+    assertThrowsIllegalArg(() -> test.getChild("leaf2"));
     assertEquals(test.getChildOptional("leaf1"), Optional.of(LEAF1));
     assertThrowsIllegalArg(() -> test.getChildOptional("leaf2"));
     assertEquals(test.getChildren("leaf1"), ImmutableList.of(LEAF1));
@@ -100,8 +99,7 @@ public class XmlElementTest {
     assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
     assertThrowsIllegalArg(() -> test.getAttribute("notFound"));
     assertThrows(() -> test.getChild(0), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> test.getChildFirst("notFound"));
-    assertThrowsIllegalArg(() -> test.getChildSingle("notFound"));
+    assertThrowsIllegalArg(() -> test.getChild("notFound"));
     assertEquals(test.getChildOptional("notFound"), Optional.empty());
     assertEquals(test.getChildren("notFound"), ImmutableList.of());
     assertEquals(test.toString(), "<test>hello</test>");
@@ -116,8 +114,7 @@ public class XmlElementTest {
     assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
     assertThrowsIllegalArg(() -> test.getAttribute("notFound"));
     assertThrows(() -> test.getChild(0), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> test.getChildFirst("notFound"));
-    assertThrowsIllegalArg(() -> test.getChildSingle("notFound"));
+    assertThrowsIllegalArg(() -> test.getChild("notFound"));
     assertEquals(test.getChildOptional("notFound"), Optional.empty());
     assertEquals(test.getChildren("notFound"), ImmutableList.of());
     assertEquals(test.toString(), "<test></test>");

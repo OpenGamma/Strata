@@ -160,13 +160,13 @@ public final class XmlElement
   }
 
   /**
-   * Gets an attribute by name.
+   * Gets an attribute by name, throwing an exception if not found.
    * <p>
    * This returns the value of the attribute with the specified name.
    * An exception is thrown if the attribute does not exist.
    * 
    * @param attrName  the attribute name to find
-   * @return the attribute
+   * @return the attribute value
    * @throws IllegalArgumentException if the attribute name does not exist
    */
   public String getAttribute(String attrName) {
@@ -176,6 +176,19 @@ public final class XmlElement
           "Unknown attribute '{}' on element '{}'", attrName, name));
     }
     return attrValue;
+  }
+
+  /**
+   * Gets an attribute by name, or empty if not found.
+   * <p>
+   * This returns the value of the attribute with the specified name.
+   * An exception is thrown if the attribute does not exist.
+   * 
+   * @param attrName  the attribute name to find
+   * @return the attribute value, optional
+   */
+  public Optional<String> getAttributeOptional(String attrName) {
+    return Optional.ofNullable(attributes.get(attrName));
   }
 
   /**
@@ -234,21 +247,7 @@ public final class XmlElement
   }
 
   /**
-   * Gets the single matching child element with the specified name, or empty if not found.
-   * <p>
-   * This returns the child element with the specified name.
-   * An exception is thrown if there is more than one matching child.
-   * 
-   * @param childName  the name to match
-   * @return the child matching the name
-   * @throws IllegalArgumentException if there is more than one match
-   */
-  public Optional<XmlElement> getChildOptional(String childName) {
-    return streamChildren(childName).reduce(ensureOnlyOne());
-  }
-
-  /**
-   * Gets the single matching child element with the specified name.
+   * Gets the child element with the specified name, throwing an exception if not found or more than one.
    * <p>
    * This returns the child element with the specified name.
    * An exception is thrown if there is more than one matching child or the child does not exist.
@@ -257,27 +256,25 @@ public final class XmlElement
    * @return the child matching the name
    * @throws IllegalArgumentException if there is more than one match or no matches
    */
-  public XmlElement getChildSingle(String childName) {
+  public XmlElement getChild(String childName) {
     return getChildOptional(childName)
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
             "Unknown element '{}' in element '{}'", childName, name)));
   }
 
   /**
-   * Gets the first matching child element with the specified name.
+   * Gets the child element with the specified name, or empty if not found,
+   * throwing an exception if more than one.
    * <p>
-   * This returns the first child element with the specified name.
-   * An exception is thrown if the child does not exist.
+   * This returns the child element with the specified name.
+   * An exception is thrown if there is more than one matching child.
    * 
    * @param childName  the name to match
-   * @return the child matching the name
-   * @throws IllegalArgumentException if there is no match
+   * @return the child matching the name, optional
+   * @throws IllegalArgumentException if there is more than one match
    */
-  public XmlElement getChildFirst(String childName) {
-    return streamChildren(childName)
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
-            "Unknown element '{}' in element '{}'", childName, name)));
+  public Optional<XmlElement> getChildOptional(String childName) {
+    return streamChildren(childName).reduce(ensureOnlyOne());
   }
 
   /**
