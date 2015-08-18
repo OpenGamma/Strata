@@ -75,6 +75,9 @@ public final class XmlFile {
    * This supports capturing attribute references, such as an id/href pair.
    * Wherever the parser finds an attribute with the specified name, the element is added
    * to the internal map, accessible by calling {@link #getReferences()}.
+   * <p>
+   * For example, if one part of the XML has {@code <foo id="fooId">}, the references map will
+   * contain an entry mapping "fooId" to the parsed element {@code <foo>}.
    * 
    * @param source  the XML source data
    * @param refAttrName  the attribute name that should be parsed as a reference
@@ -126,9 +129,12 @@ public final class XmlFile {
       int event = reader.next();
       while (event != XMLStreamConstants.END_ELEMENT) {
         switch (event) {
+        // parse child when start element found
           case XMLStreamConstants.START_ELEMENT:
             childBuilder.add(parse(reader, refAttr, refs));
             break;
+          // append content when characters found
+          // since XMLStreamReader has IS_COALESCING=true means there should only be one content call
           case XMLStreamConstants.CHARACTERS:
           case XMLStreamConstants.CDATA:
             content += reader.getText();
@@ -160,7 +166,7 @@ public final class XmlFile {
       event = reader.next();
     }
     String prefix = reader.getPrefix();
-    if (prefix.length() == 0) {
+    if (prefix == null || prefix.isEmpty()) {
       return reader.getLocalName();
     }
     return prefix + ':' + reader.getLocalName();
@@ -176,7 +182,7 @@ public final class XmlFile {
       ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
       for (int i = 0; i < reader.getAttributeCount(); i++) {
         String prefix = reader.getAttributePrefix(i);
-        if (prefix.length() == 0) {
+        if (prefix == null || prefix.isEmpty()) {
           builder.put(reader.getAttributeLocalName(i), reader.getAttributeValue(i));
         } else {
           builder.put(prefix + ':' + reader.getAttributeLocalName(i), reader.getAttributeValue(i));
@@ -196,7 +202,8 @@ public final class XmlFile {
   }
 
   //-------------------------------------------------------------------------
-  // creates the XML input factory., recreated each time to avoid JDK-8028111.
+  // creates the XML input factory, recreated each time to avoid JDK-8028111
+  // this also provides some protection against hackers attacking XML
   private static XMLInputFactory xmlInputFactory() {
     XMLInputFactory factory = XMLInputFactory.newFactory();
     factory.setProperty(XMLInputFactory.IS_COALESCING, true);
@@ -212,7 +219,7 @@ public final class XmlFile {
    */
   private XmlFile(XmlElement root, Map<String, XmlElement> refs) {
     this.root = ArgChecker.notNull(root, "root");
-    this.refs = ImmutableMap.copyOf(ArgChecker.notNull(refs, "refs"));
+    this.refs = ImmutableMap.copyOf(refs);
   }
 
   //-------------------------------------------------------------------------
@@ -243,7 +250,7 @@ public final class XmlFile {
   /**
    * Checks if this file equals another.
    * <p>
-   * The comparison checks the content.
+   * The comparison checks the content and reference map.
    * 
    * @param obj  the other section, null returns false
    * @return true if equal
@@ -254,7 +261,8 @@ public final class XmlFile {
       return true;
     }
     if (obj instanceof XmlFile) {
-      return root.equals(((XmlFile) obj).root);
+      XmlFile other = (XmlFile) obj;
+      return root.equals(other.root) && refs.equals(other.refs);
     }
     return false;
   }
@@ -266,7 +274,7 @@ public final class XmlFile {
    */
   @Override
   public int hashCode() {
-    return root.hashCode();
+    return root.hashCode() ^ refs.hashCode();
   }
 
   /**

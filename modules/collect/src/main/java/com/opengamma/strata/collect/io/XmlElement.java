@@ -358,6 +358,7 @@ public final class XmlElement
     result = prime * result + name.hashCode();
     result = prime * result + content.hashCode();
     result = prime * result + attributes.hashCode();
+    result = prime * result + children.size();
     return result;
   }
 

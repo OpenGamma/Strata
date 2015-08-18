@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -65,9 +66,9 @@ public class GuavateTest {
 
   //-------------------------------------------------------------------------
   public void test_ensureOnlyOne() {
-    assertEquals(Arrays.asList().stream().reduce(Guavate.ensureOnlyOne()), Optional.empty());
-    assertEquals(Arrays.asList("a").stream().reduce(Guavate.ensureOnlyOne()), Optional.of("a"));
-    assertThrowsIllegalArg(() -> Arrays.asList("a", "b").stream().reduce(Guavate.ensureOnlyOne()));
+    assertEquals(Stream.empty().reduce(Guavate.ensureOnlyOne()), Optional.empty());
+    assertEquals(Stream.of("a").reduce(Guavate.ensureOnlyOne()), Optional.of("a"));
+    assertThrowsIllegalArg(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
   }
 
   //-------------------------------------------------------------------------
