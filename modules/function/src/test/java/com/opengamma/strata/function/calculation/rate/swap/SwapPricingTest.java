@@ -76,6 +76,7 @@ import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.IborIndexRatesMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.Curve;
@@ -164,7 +165,8 @@ public class SwapPricingTest {
         FeedIdMapping.identity(),
         new DiscountCurveMarketDataFunction(),
         new DiscountFactorsMarketDataFunction(),
-        new RateIndexCurveMarketDataFunction());
+        new RateIndexCurveMarketDataFunction(),
+        new IborIndexRatesMarketDataFunction());
 
     List<SwapTrade> trades = ImmutableList.of(trade);
     Column pvColumn = Column.of(Measure.PRESENT_VALUE);

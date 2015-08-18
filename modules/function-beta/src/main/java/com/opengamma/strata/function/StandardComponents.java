@@ -25,6 +25,7 @@ import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.IborIndexRatesMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.ParRatesMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
@@ -108,6 +109,7 @@ public class StandardComponents {
         new DiscountCurveMarketDataFunction(),
         new RateIndexCurveMarketDataFunction(),
         new DiscountFactorsMarketDataFunction(),
+        new IborIndexRatesMarketDataFunction(),
         new CurveGroupMarketDataFunction(RootFinderConfig.defaults()), // RootFinderConfig will be removed #343
         new ParRatesMarketDataFunction());
   }

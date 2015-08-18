@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
@@ -28,6 +29,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -81,7 +83,7 @@ public abstract class AbstractSwapFunction<T>
 
     Set<MarketDataKey<?>> indexCurveKeys =
         indices.stream()
-            .map(MarketDataKeys::indexCurve)
+            .map(this::indexCurveKey)
             .collect(toImmutableSet());
 
     Set<DiscountFactorsKey> discountCurveKeys =
@@ -95,6 +97,13 @@ public abstract class AbstractSwapFunction<T>
         .timeSeriesRequirements(indexRateKeys)
         .outputCurrencies(swap.getLegs().stream().map(SwapLeg::getCurrency).collect(toImmutableSet()))
         .build();
+  }
+
+  private MarketDataKey<?> indexCurveKey(Index index) {
+    if (index instanceof IborIndex) {
+      return IborIndexRatesKey.of((IborIndex) index);
+    }
+    return MarketDataKeys.indexCurve(index);
   }
 
   @Override

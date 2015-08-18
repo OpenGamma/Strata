@@ -8,6 +8,7 @@ package com.opengamma.strata.function.marketdata.curve;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -56,9 +57,11 @@ import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
+import com.opengamma.strata.market.value.DiscountIborIndexRates;
+import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
@@ -110,15 +113,16 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
     Curve curve = curveGroup.getDiscountCurve(Currency.USD).get();
+    DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
+    IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
-    RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
+    IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
-    DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
         .put(discountFactorsKey, discountFactors)
-        .put(forwardCurveKey, curve)
+        .put(forwardCurveKey, iborIndexRates)
         .build();
     Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =
         ImmutableMap.of(IndexRateKey.of(IborIndices.USD_LIBOR_3M), LocalDateDoubleTimeSeries.empty());
@@ -162,14 +166,15 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroup curveGroup = result.getValue();
     Curve curve = curveGroup.getDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
+    IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
-    RateIndexCurveKey forwardCurveKey = RateIndexCurveKey.of(IborIndices.USD_LIBOR_3M);
+    IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
     Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
         .put(discountFactorsKey, discountFactors)
-        .put(forwardCurveKey, curve)
+        .put(forwardCurveKey, iborIndexRates)
         .build();
     Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =
         ImmutableMap.of(IndexRateKey.of(IborIndices.USD_LIBOR_3M), LocalDateDoubleTimeSeries.empty());
