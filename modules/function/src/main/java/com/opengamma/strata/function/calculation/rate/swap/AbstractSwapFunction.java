@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
@@ -31,7 +32,7 @@ import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.MarketDataKeys;
+import com.opengamma.strata.market.key.OvernightIndexRatesKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
@@ -99,11 +100,15 @@ public abstract class AbstractSwapFunction<T>
         .build();
   }
 
+  // create a suitable key
   private MarketDataKey<?> indexCurveKey(Index index) {
     if (index instanceof IborIndex) {
       return IborIndexRatesKey.of((IborIndex) index);
     }
-    return MarketDataKeys.indexCurve(index);
+    if (index instanceof OvernightIndex) {
+      return OvernightIndexRatesKey.of((OvernightIndex) index);
+    }
+    throw new IllegalArgumentException("Unknown index type: " + index.getName());
   }
 
   @Override

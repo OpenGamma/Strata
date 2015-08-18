@@ -21,6 +21,7 @@ import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.IborIndexRatesMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.OvernightIndexRatesMarketDataFunction;
 
 /**
  * Contains utility methods for obtaining a calculation engine configured for use
@@ -57,7 +58,8 @@ public final class ExampleEngine {
         ObservableMarketDataFunction.none(),
         FeedIdMapping.identity(),
         new DiscountFactorsMarketDataFunction(),
-        new IborIndexRatesMarketDataFunction());
+        new IborIndexRatesMarketDataFunction(),
+        new OvernightIndexRatesMarketDataFunction());
 
     // combine the runner and market data factory
     return new DefaultCalculationEngine(calcRunner, marketDataFactory, LinkResolver.none());
