@@ -78,24 +78,6 @@ public class ImmutableRatesProviderTest {
     assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(WM_GBP_USD, ts));
   }
 
-  public void test_builder_invalidAdditionalData() {
-    assertThrowsIllegalArg(() -> ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(String.class, YearMonth.now()))
-        .build());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_data() {
-    YearMonth sample = YearMonth.now();
-    ImmutableRatesProvider test = ImmutableRatesProvider.builder()
-        .valuationDate(VAL_DATE)
-        .additionalData(ImmutableMap.of(YearMonth.class, sample))
-        .build();
-    assertEquals(test.data(YearMonth.class), sample);
-    assertThrowsIllegalArg(() -> test.data(String.class));
-  }
-
   //-------------------------------------------------------------------------
   public void test_discountFactors() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()

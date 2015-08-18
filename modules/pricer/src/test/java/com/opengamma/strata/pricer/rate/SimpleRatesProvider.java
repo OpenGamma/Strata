@@ -95,11 +95,6 @@ public class SimpleRatesProvider
   }
 
   @Override
-  public <T> T data(Class<T> type) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
     throw new UnsupportedOperationException();
   }
