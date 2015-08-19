@@ -321,7 +321,7 @@ public final class XmlElement
   /**
    * Checks if this element equals another.
    * <p>
-   * This compares the entire state of the elements.
+   * This compares the entire state of the element, including all children.
    * 
    * @param obj  the other element, null returns false
    * @return true if equal
@@ -344,7 +344,7 @@ public final class XmlElement
   /**
    * Returns a suitable hash code.
    * <p>
-   * Note that the has code excludes the children to ensure performance is reasonable in large trees.
+   * This includes the entire state of the element, including all children.
    * 
    * @return the hash code
    */
@@ -355,7 +355,7 @@ public final class XmlElement
     result = prime * result + name.hashCode();
     result = prime * result + content.hashCode();
     result = prime * result + attributes.hashCode();
-    result = prime * result + children.size();
+    result = prime * result + children.hashCode();
     return result;
   }
 
