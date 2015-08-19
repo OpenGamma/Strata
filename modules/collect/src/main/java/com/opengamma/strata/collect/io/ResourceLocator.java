@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.io;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -119,13 +120,16 @@ public final class ResourceLocator {
   @FromString
   public static Stream<ResourceLocator> streamOfClasspathResources(String classpathResourceName) {
     ArgChecker.notNull(classpathResourceName, "classpathResourceName");
-    return Unchecked.wrap(() -> {
-      ClassLoader classLoader = firstNonNull(
-          Thread.currentThread().getContextClassLoader(),
-          ResourceLocator.class.getClassLoader());
-      return Collections.list(classLoader.getResources(classpathResourceName)).stream()
-          .map(url -> ResourceLocator.ofClasspathUrl(url));
-    });
+    return Unchecked.wrap(() -> stream(classpathResourceName));
+  }
+
+  // break method out to avoid Eclipse compiler issues
+  private static Stream<ResourceLocator> stream(String classpathResourceName) throws IOException {
+    ClassLoader classLoader = firstNonNull(
+        Thread.currentThread().getContextClassLoader(),
+        ResourceLocator.class.getClassLoader());
+    return Collections.list(classLoader.getResources(classpathResourceName)).stream()
+        .map(url -> ResourceLocator.ofClasspathUrl(url));
   }
 
   //-------------------------------------------------------------------------
