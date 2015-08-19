@@ -53,12 +53,12 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The notional amount, positive if receiving, negative if paying.
+   * The notional amount, must be positive. 
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
   /**
    * The start date of the coupon period.
@@ -200,7 +200,7 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount, positive if receiving, negative if paying.
+   * Gets the notional amount, must be positive.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
@@ -657,7 +657,7 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * Sets the notional amount, positive if receiving, negative if paying.
+     * Sets the notional amount, must be positive.
      * <p>
      * The notional amount applicable during the period.
      * The currency of the notional is specified by {@code currency}.
@@ -665,6 +665,7 @@ public final class FixedCouponBondPaymentPeriod
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
+      ArgChecker.notNegative(notional, "notional");
       this.notional = notional;
       return this;
     }

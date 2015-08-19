@@ -79,7 +79,7 @@ public final class ExpandedFixedCouponBond
   /**
    * Yield convention.
    * <p>
-   * The convention defines accrued interest calculation type of the product.  
+   * The convention defines how to convert from yield to price and inversely.  
    */
   @PropertyDefinition(validate = "notNull")
   private final YieldConvention yieldConvention;
@@ -246,7 +246,7 @@ public final class ExpandedFixedCouponBond
   /**
    * Gets yield convention.
    * <p>
-   * The convention defines accrued interest calculation type of the product.
+   * The convention defines how to convert from yield to price and inversely.
    * @return the value of the property, not null
    */
   public YieldConvention getYieldConvention() {
@@ -675,7 +675,7 @@ public final class ExpandedFixedCouponBond
     /**
      * Sets yield convention.
      * <p>
-     * The convention defines accrued interest calculation type of the product.
+     * The convention defines how to convert from yield to price and inversely.
      * @param yieldConvention  the new value, not null
      * @return this, for chaining, not null
      */

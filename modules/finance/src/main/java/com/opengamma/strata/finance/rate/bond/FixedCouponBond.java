@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -30,6 +31,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -55,16 +57,21 @@ public final class FixedCouponBond
     implements FixedCouponBondProduct, ImmutableBean, Serializable {
 
   /**
-   * The notional amount of the product.
+   * The primary currency of the product.
    * <p>
-   * The amount is signed.
-   * A positive amount indicates the payments are to be received.
-   * A negative amount indicates the payments are to be paid.
-   * <p>
-   * This must be specified in one of the two currencies of the forward.
+   * The amounts of the notional are usually expressed in terms of this currency,
+   * however they can be converted from amounts in a different currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurrencyAmount notionalAmount;
+  private final Currency currency;
+  /**
+   * The notional amount, must be positive. 
+   * <p>
+   * The notional expressed here must be positive.
+   * The currency of the notional is specified by {@code currency}.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double notional;
   /**
    * The accrual schedule.
    * <p>
@@ -91,7 +98,7 @@ public final class FixedCouponBond
   /**
    * Yield convention.
    * <p>
-   * The convention defines accrued interest calculation type of the product.  
+   * The convention defines how to convert from yield to price and inversely.  
    */
   @PropertyDefinition(validate = "notNull")
   private final YieldConvention yieldConvention;
@@ -124,14 +131,14 @@ public final class FixedCouponBond
           .unadjustedEndDate(period.getUnadjustedEndDate())
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .notional(notionalAmount.getAmount())
-          .currency(notionalAmount.getCurrency())
+          .notional(notional)
+          .currency(currency)
           .fixedRate(fixedRate)
           .build());
     }
     ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = accrualPeriods.build();
     FixedCouponBondPaymentPeriod lastPeriod = periodicPayments.get(periodicPayments.size() - 1);
-    Payment nominalPayment = Payment.of(notionalAmount, lastPeriod.getPaymentDate());
+    Payment nominalPayment = Payment.of(CurrencyAmount.of(currency, notional), lastPeriod.getPaymentDate());
     return ExpandedFixedCouponBond.builder()
         .legalEntityId(legalEntityId)
         .nominalPayment(nominalPayment)
@@ -170,20 +177,23 @@ public final class FixedCouponBond
   }
 
   private FixedCouponBond(
-      CurrencyAmount notionalAmount,
+      Currency currency,
+      double notional,
       PeriodicSchedule periodicSchedule,
       double fixedRate,
       DayCount dayCount,
       YieldConvention yieldConvention,
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset) {
-    JodaBeanUtils.notNull(notionalAmount, "notionalAmount");
+    JodaBeanUtils.notNull(currency, "currency");
+    ArgChecker.notNegative(notional, "notional");
     JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
-    this.notionalAmount = notionalAmount;
+    this.currency = currency;
+    this.notional = notional;
     this.periodicSchedule = periodicSchedule;
     this.fixedRate = fixedRate;
     this.dayCount = dayCount;
@@ -209,17 +219,26 @@ public final class FixedCouponBond
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount of the product.
+   * Gets the primary currency of the product.
    * <p>
-   * The amount is signed.
-   * A positive amount indicates the payments are to be received.
-   * A negative amount indicates the payments are to be paid.
-   * <p>
-   * This must be specified in one of the two currencies of the forward.
+   * The amounts of the notional are usually expressed in terms of this currency,
+   * however they can be converted from amounts in a different currency.
    * @return the value of the property, not null
    */
-  public CurrencyAmount getNotionalAmount() {
-    return notionalAmount;
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount, must be positive.
+   * <p>
+   * The notional expressed here must be positive.
+   * The currency of the notional is specified by {@code currency}.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return notional;
   }
 
   //-----------------------------------------------------------------------
@@ -261,7 +280,7 @@ public final class FixedCouponBond
   /**
    * Gets yield convention.
    * <p>
-   * The convention defines accrued interest calculation type of the product.
+   * The convention defines how to convert from yield to price and inversely.
    * @return the value of the property, not null
    */
   public YieldConvention getYieldConvention() {
@@ -309,7 +328,8 @@ public final class FixedCouponBond
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedCouponBond other = (FixedCouponBond) obj;
-      return JodaBeanUtils.equal(getNotionalAmount(), other.getNotionalAmount()) &&
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getPeriodicSchedule(), other.getPeriodicSchedule()) &&
           JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
@@ -323,7 +343,8 @@ public final class FixedCouponBond
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodicSchedule());
     hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
@@ -335,9 +356,10 @@ public final class FixedCouponBond
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("FixedCouponBond{");
-    buf.append("notionalAmount").append('=').append(getNotionalAmount()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("periodicSchedule").append('=').append(getPeriodicSchedule()).append(',').append(' ');
     buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
@@ -359,10 +381,15 @@ public final class FixedCouponBond
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code notionalAmount} property.
+     * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<CurrencyAmount> notionalAmount = DirectMetaProperty.ofImmutable(
-        this, "notionalAmount", FixedCouponBond.class, CurrencyAmount.class);
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", FixedCouponBond.class, Currency.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", FixedCouponBond.class, Double.TYPE);
     /**
      * The meta-property for the {@code periodicSchedule} property.
      */
@@ -398,7 +425,8 @@ public final class FixedCouponBond
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "notionalAmount",
+        "currency",
+        "notional",
         "periodicSchedule",
         "fixedRate",
         "dayCount",
@@ -415,8 +443,10 @@ public final class FixedCouponBond
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -902123592:  // notionalAmount
-          return notionalAmount;
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case 1847018066:  // periodicSchedule
           return periodicSchedule;
         case 747425396:  // fixedRate
@@ -450,11 +480,19 @@ public final class FixedCouponBond
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code notionalAmount} property.
+     * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> notionalAmount() {
-      return notionalAmount;
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> notional() {
+      return notional;
     }
 
     /**
@@ -509,8 +547,10 @@ public final class FixedCouponBond
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -902123592:  // notionalAmount
-          return ((FixedCouponBond) bean).getNotionalAmount();
+        case 575402001:  // currency
+          return ((FixedCouponBond) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((FixedCouponBond) bean).getNotional();
         case 1847018066:  // periodicSchedule
           return ((FixedCouponBond) bean).getPeriodicSchedule();
         case 747425396:  // fixedRate
@@ -544,7 +584,8 @@ public final class FixedCouponBond
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FixedCouponBond> {
 
-    private CurrencyAmount notionalAmount;
+    private Currency currency;
+    private double notional;
     private PeriodicSchedule periodicSchedule;
     private double fixedRate;
     private DayCount dayCount;
@@ -563,7 +604,8 @@ public final class FixedCouponBond
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FixedCouponBond beanToCopy) {
-      this.notionalAmount = beanToCopy.getNotionalAmount();
+      this.currency = beanToCopy.getCurrency();
+      this.notional = beanToCopy.getNotional();
       this.periodicSchedule = beanToCopy.getPeriodicSchedule();
       this.fixedRate = beanToCopy.getFixedRate();
       this.dayCount = beanToCopy.getDayCount();
@@ -576,8 +618,10 @@ public final class FixedCouponBond
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -902123592:  // notionalAmount
-          return notionalAmount;
+        case 575402001:  // currency
+          return currency;
+        case 1585636160:  // notional
+          return notional;
         case 1847018066:  // periodicSchedule
           return periodicSchedule;
         case 747425396:  // fixedRate
@@ -598,8 +642,11 @@ public final class FixedCouponBond
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -902123592:  // notionalAmount
-          this.notionalAmount = (CurrencyAmount) newValue;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
           break;
         case 1847018066:  // periodicSchedule
           this.periodicSchedule = (PeriodicSchedule) newValue;
@@ -652,7 +699,8 @@ public final class FixedCouponBond
     @Override
     public FixedCouponBond build() {
       return new FixedCouponBond(
-          notionalAmount,
+          currency,
+          notional,
           periodicSchedule,
           fixedRate,
           dayCount,
@@ -663,19 +711,30 @@ public final class FixedCouponBond
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the notional amount of the product.
+     * Sets the primary currency of the product.
      * <p>
-     * The amount is signed.
-     * A positive amount indicates the payments are to be received.
-     * A negative amount indicates the payments are to be paid.
-     * <p>
-     * This must be specified in one of the two currencies of the forward.
-     * @param notionalAmount  the new value, not null
+     * The amounts of the notional are usually expressed in terms of this currency,
+     * however they can be converted from amounts in a different currency.
+     * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder notionalAmount(CurrencyAmount notionalAmount) {
-      JodaBeanUtils.notNull(notionalAmount, "notionalAmount");
-      this.notionalAmount = notionalAmount;
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the notional amount, must be positive.
+     * <p>
+     * The notional expressed here must be positive.
+     * The currency of the notional is specified by {@code currency}.
+     * @param notional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      ArgChecker.notNegative(notional, "notional");
+      this.notional = notional;
       return this;
     }
 
@@ -722,7 +781,7 @@ public final class FixedCouponBond
     /**
      * Sets yield convention.
      * <p>
-     * The convention defines accrued interest calculation type of the product.
+     * The convention defines how to convert from yield to price and inversely.
      * @param yieldConvention  the new value, not null
      * @return this, for chaining, not null
      */
@@ -764,9 +823,10 @@ public final class FixedCouponBond
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("FixedCouponBond.Builder{");
-      buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(notionalAmount)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("periodicSchedule").append('=').append(JodaBeanUtils.toString(periodicSchedule)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');

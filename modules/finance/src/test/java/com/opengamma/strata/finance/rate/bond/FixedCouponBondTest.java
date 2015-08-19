@@ -39,7 +39,7 @@ public class FixedCouponBondTest {
 
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
-  private static final CurrencyAmount NOTIONAL = CurrencyAmount.of(EUR, 1.0e7);
+  private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final HolidayCalendar EUR_CALENDAR = HolidayCalendars.EUTA;
   private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUR_CALENDAR);
@@ -56,7 +56,8 @@ public class FixedCouponBondTest {
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
-        .notionalAmount(NOTIONAL)
+        .currency(EUR)
+        .notional(NOTIONAL)
         .periodicSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
@@ -64,7 +65,8 @@ public class FixedCouponBondTest {
     assertEquals(test.getDayCount(), DAY_COUNT);
     assertEquals(test.getFixedRate(), FIXED_RATE);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getNotionalAmount(), NOTIONAL);
+    assertEquals(test.getCurrency(), EUR);
+    assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getPeriodicSchedule(), PERIOD_SCHEDULE);
     assertEquals(test.getSettlementDateOffset(), DATE_OFFSET);
     assertEquals(test.getYieldConvention(), YIELD_CONVENTION);
@@ -75,7 +77,8 @@ public class FixedCouponBondTest {
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
-        .notionalAmount(NOTIONAL)
+        .currency(EUR)
+        .notional(NOTIONAL)
         .periodicSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
@@ -92,7 +95,7 @@ public class FixedCouponBondTest {
     for (int i = 0; i < expNum; ++i) {
       FixedCouponBondPaymentPeriod payment = periodicPayments.get(expNum - 1 - i);
       assertEquals(payment.getCurrency(), EUR);
-      assertEquals(payment.getNotional(), NOTIONAL.getAmount());
+      assertEquals(payment.getNotional(), NOTIONAL);
       assertEquals(payment.getFixedRate(), FIXED_RATE);
       assertEquals(payment.getUnadjustedEndDate(), unadjusted);
       assertEquals(payment.getEndDate(), BUSINESS_ADJUST.adjust(unadjusted));
@@ -101,7 +104,7 @@ public class FixedCouponBondTest {
       assertEquals(payment.getUnadjustedStartDate(), unadjusted);
       assertEquals(payment.getStartDate(), BUSINESS_ADJUST.adjust(unadjusted));
     }
-    Payment expectedPayment = Payment.of(NOTIONAL, BUSINESS_ADJUST.adjust(END_DATE));
+    Payment expectedPayment = Payment.of(CurrencyAmount.of(EUR, NOTIONAL), BUSINESS_ADJUST.adjust(END_DATE));
     assertEquals(expanded.getNominalPayment(), expectedPayment);
   }
 
@@ -111,7 +114,8 @@ public class FixedCouponBondTest {
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
-        .notionalAmount(NOTIONAL)
+        .currency(EUR)
+        .notional(NOTIONAL)
         .periodicSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
@@ -125,7 +129,8 @@ public class FixedCouponBondTest {
         .dayCount(DayCounts.ACT_360)
         .fixedRate(0.005)
         .legalEntityId(StandardId.of("OG-Ticker", "BUN EUR 2"))
-        .notionalAmount(CurrencyAmount.of(GBP, 1.0e6))
+        .currency(GBP)
+        .notional(1.0e6)
         .periodicSchedule(sche)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.SAT_SUN))
         .yieldConvention(YieldConvention.UK_BUMP_DMO)
@@ -138,7 +143,8 @@ public class FixedCouponBondTest {
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
-        .notionalAmount(CurrencyAmount.of(EUR, 1.0e7))
+        .currency(EUR)
+        .notional(NOTIONAL)
         .periodicSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
