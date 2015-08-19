@@ -64,11 +64,6 @@ public class MockRatesProvider
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public <T> T data(Class<T> type) {
-    throw new UnsupportedOperationException();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {

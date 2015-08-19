@@ -33,27 +33,6 @@ public interface RatesProvider
     extends BaseProvider {
 
   /**
-   * Gets additional market data of a specific type.
-   * <p>
-   * In general, it is desirable to pass the specific market data needed for pricing into
-   * the pricing method. However, in some cases, notably swaps, this is not feasible.
-   * This method can be used to access additional data of a specific type.
-   * <pre>
-   *   MarketVolatilityData vol = provider.data(MarketVolatilityData.class);
-   * </pre>
-   * It is strongly recommended to clearly state on pricing methods what additional data is required.
-   * <p>
-   * The specific methods on this interface for Ibor and Overnight indices exist because
-   * they are common cases. The data could also be made available via this method.
-   * 
-   * @param type  the type of additional data to obtain
-   * @return the additional data
-   * @throws IllegalArgumentException if the additional data is not available
-   */
-  public abstract <T> T data(Class<T> type);
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the rates for an FX index.
    * <p>
    * This returns an object that can provide historic and forward rates for the specified index.

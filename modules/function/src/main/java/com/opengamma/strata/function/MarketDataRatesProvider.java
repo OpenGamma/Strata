@@ -80,11 +80,6 @@ public final class MarketDataRatesProvider
     return marketData.getValue(key);
   }
 
-  @Override
-  public <T> T data(Class<T> type) {
-    throw new IllegalArgumentException("Unknown type: " + type.getName());
-  }
-
   //-------------------------------------------------------------------------
   // finds the time-series
   private LocalDateDoubleTimeSeries timeSeries(Index index) {
