@@ -8,6 +8,7 @@ package com.opengamma.strata.collect;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -87,6 +88,30 @@ public final class Guavate {
    */
   public static <R> Predicate<R> not(Predicate<R> predicate) {
     return predicate.negate();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Reducer used in a stream to ensure there is no more than one matching element.
+   * <p>
+   * This method returns an operator that can be used with {@link Stream#reduce(BinaryOperator)}
+   * that returns either zero or one elements from the stream. Unlike {@link Stream#findFirst()}
+   * or {@link Stream#findAny()}, this approach ensures an exception is thrown if there
+   * is more than one element in the stream.
+   * <p>
+   * This would be used as follows:
+   * <pre>
+   *   stream.filter(...).reduce(Guavate.ensureOnlyOne()).get();
+   * </pre>
+   * 
+   * @param <T>  the type of element in the stream
+   * @return the operator
+   */
+  public static <T> BinaryOperator<T> ensureOnlyOne() {
+    return (a, b) -> {
+      throw new IllegalArgumentException(Messages.format(
+          "Multiple values found where only one was expected: {} and {}", a, b));
+    };
   }
 
   //-------------------------------------------------------------------------
