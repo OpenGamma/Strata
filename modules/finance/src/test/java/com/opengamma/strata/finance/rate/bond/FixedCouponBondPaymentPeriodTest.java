@@ -106,7 +106,7 @@ public class FixedCouponBondPaymentPeriodTest {
         .unadjustedStartDate(LocalDate.of(2014, 3, 2))
         .endDate(LocalDate.of(2015, 3, 4))
         .unadjustedEndDate(LocalDate.of(2015, 3, 3))
-        .notional(-NOTIONAL)
+        .notional(1.0e8)
         .fixedRate(0.005)
         .build();
     coverBeanEquals(test1, test2);
