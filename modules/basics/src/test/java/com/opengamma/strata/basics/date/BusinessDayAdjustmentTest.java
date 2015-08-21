@@ -60,6 +60,15 @@ public class BusinessDayAdjustmentTest {
     coverImmutableBean(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN));
   }
 
+  public void coverage_builder() {
+    BusinessDayAdjustment test = BusinessDayAdjustment.builder()
+        .convention(MODIFIED_FOLLOWING)
+        .calendar(SAT_SUN)
+        .build();
+    assertEquals(test.getConvention(), MODIFIED_FOLLOWING);
+    assertEquals(test.getCalendar(), SAT_SUN);
+  }
+
   public void test_serialization() {
     assertSerialization(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN));
   }
