@@ -16,7 +16,6 @@ import com.opengamma.strata.finance.Product;
  * <p>
  * The periodic payments are made {@code n} times a year with a fixed coupon rate at individual coupon dates.   
  * The nominal payment is the unique payment at the final coupon date.
- * </ul>
  */
 public interface FixedCouponBondProduct
     extends Product, Expandable<ExpandedFixedCouponBond> {

@@ -23,8 +23,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.credit.CdsIndexTradeTest;
-import com.opengamma.strata.finance.credit.CdsSingleNameTradeTest;
+import com.opengamma.strata.finance.credit.CdsTestUtils;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 
@@ -114,7 +113,7 @@ public class CdsConventionTest {
             RestructuringClause.NO_RESTRUCTURING_2014,
             1_000_000d,
             date(2014, 3, 23)),
-        CdsSingleNameTradeTest.sut());
+        CdsTestUtils.singleNameTrade());
   }
 
   public void test_index() {
@@ -131,7 +130,7 @@ public class CdsConventionTest {
             8,
             1_000_000d,
             date(2014, 3, 23)),
-        CdsIndexTradeTest.sut());
+        CdsTestUtils.indexTrade());
   }
 
 }

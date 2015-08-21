@@ -24,10 +24,10 @@ public class YieldConventionTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {YieldConvention.UK_BUMP_DMO, "UK_BUMP_DMO" },
-      {YieldConvention.US_STREET, "US_STREET" },
-      {YieldConvention.GERMAN_BONDS, "GERMAN_BONDS" },
-      {YieldConvention.JAPAN_SIMPLE, "JAPAN_SIMPLE" },
+        {YieldConvention.UK_BUMP_DMO, "UK_BUMP_DMO"},
+        {YieldConvention.US_STREET, "US_STREET"},
+        {YieldConvention.GERMAN_BONDS, "GERMAN_BONDS"},
+        {YieldConvention.JAPAN_SIMPLE, "JAPAN_SIMPLE"},
     };
   }
 

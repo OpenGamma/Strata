@@ -200,6 +200,17 @@ public class DaysAdjustmentTest {
     coverImmutableBean(DaysAdjustment.ofCalendarDays(4, BDA_FOLLOW_SAT_SUN));
   }
 
+  public void coverage_builder() {
+    DaysAdjustment test = DaysAdjustment.builder()
+        .days(1)
+        .calendar(HOLCAL_SAT_SUN)
+        .adjustment(BDA_FOLLOW_WED_THU)
+        .build();
+    assertEquals(test.getDays(), 1);
+    assertEquals(test.getCalendar(), HOLCAL_SAT_SUN);
+    assertEquals(test.getAdjustment(), BDA_FOLLOW_WED_THU);
+  }
+
   public void test_serialization() {
     assertSerialization(DaysAdjustment.ofCalendarDays(4, BDA_FOLLOW_SAT_SUN));
   }

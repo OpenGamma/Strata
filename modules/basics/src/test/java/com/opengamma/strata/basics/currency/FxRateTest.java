@@ -169,6 +169,14 @@ public class FxRateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_convert() {
+    FxRate test = FxRate.of(GBP, USD, 1.25d);
+    assertEquals(test.convert(100, GBP, USD), 125d);
+    assertEquals(test.convert(100, USD, GBP), 100d / 1.25d);
+    assertThrowsIllegalArg(() -> test.convert(100, GBP, AUD));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals_hashCode() {
     FxRate a1 = FxRate.of(AUD, GBP, 1.25d);
     FxRate a2 = FxRate.of(AUD, GBP, 1.25d);

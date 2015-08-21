@@ -16,10 +16,12 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.finance"/>
 <listEntry value="com.opengamma.strata.finance.credit"/>
+<listEntry value="com.opengamma.strata.finance.credit.type"/>
 <listEntry value="com.opengamma.strata.finance.equity"/>
 <listEntry value="com.opengamma.strata.finance.future"/>
 <listEntry value="com.opengamma.strata.finance.fx"/>
 <listEntry value="com.opengamma.strata.finance.rate"/>
+<listEntry value="com.opengamma.strata.finance.rate.bond"/>
 <listEntry value="com.opengamma.strata.finance.rate.deposit"/>
 <listEntry value="com.opengamma.strata.finance.rate.fra"/>
 <listEntry value="com.opengamma.strata.finance.rate.future"/>
