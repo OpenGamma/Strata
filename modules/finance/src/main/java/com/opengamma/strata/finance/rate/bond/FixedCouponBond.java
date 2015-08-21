@@ -47,10 +47,9 @@ import com.opengamma.strata.collect.id.StandardId;
  * The nominal payment is defined from the last period of the periodic coupon payment schedule and {@code notionalAmount}. 
  * <p>
  * The accrual factor between two dates is computed {@code dayCount}. 
- * The legal entity of this fixed coupon bond is identified by {@link StandardId}. The enum, {@link YieldConvention}, 
- * specifies the yield computation convention, and {@link DaysAdjustment} does the number of days between valuation 
- * date and settlement date. 
- * </ul>
+ * The legal entity of this fixed coupon bond is identified by {@link StandardId}.
+ * The enum, {@link YieldConvention}, specifies the yield computation convention,
+ * and {@link DaysAdjustment} does the number of days between valuation date and settlement date. 
  */
 @BeanDefinition
 public final class FixedCouponBond
@@ -120,6 +119,7 @@ public final class FixedCouponBond
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
 
+  //-------------------------------------------------------------------------
   @Override
   public ExpandedFixedCouponBond expand() {
     Schedule accrualSchedule = periodicSchedule.createSchedule();

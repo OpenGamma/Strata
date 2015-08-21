@@ -36,54 +36,54 @@ import com.opengamma.strata.collect.id.StandardId;
  */
 @Test
 public class ExpandedFixedCouponBondTest {
-  
+
   private static final double FIXED_RATE = 0.0125;
   private static final double NOTIONAL = 1.0e7;
   private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(EUR, NOTIONAL);
-  
+
   private static final FixedCouponBondPaymentPeriod PAYMENT_1 = FixedCouponBondPaymentPeriod.builder()
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .startDate(LocalDate.of(2015, 4, 13))
-        .unadjustedStartDate(LocalDate.of(2015, 4, 12))
-        .endDate(LocalDate.of(2015, 10, 12))
-        .unadjustedEndDate(LocalDate.of(2015, 10, 12))
-        .fixedRate(FIXED_RATE)
-        .build();
+      .currency(EUR)
+      .notional(NOTIONAL)
+      .startDate(LocalDate.of(2015, 4, 13))
+      .unadjustedStartDate(LocalDate.of(2015, 4, 12))
+      .endDate(LocalDate.of(2015, 10, 12))
+      .unadjustedEndDate(LocalDate.of(2015, 10, 12))
+      .fixedRate(FIXED_RATE)
+      .build();
   private static final FixedCouponBondPaymentPeriod PAYMENT_2 = FixedCouponBondPaymentPeriod.builder()
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .startDate(LocalDate.of(2015, 10, 12))
-        .unadjustedStartDate(LocalDate.of(2015, 10, 12))
-        .endDate(LocalDate.of(2016, 4, 12))
-        .unadjustedEndDate(LocalDate.of(2016, 4, 12))
-        .fixedRate(FIXED_RATE)
-        .build();
+      .currency(EUR)
+      .notional(NOTIONAL)
+      .startDate(LocalDate.of(2015, 10, 12))
+      .unadjustedStartDate(LocalDate.of(2015, 10, 12))
+      .endDate(LocalDate.of(2016, 4, 12))
+      .unadjustedEndDate(LocalDate.of(2016, 4, 12))
+      .fixedRate(FIXED_RATE)
+      .build();
   private static final FixedCouponBondPaymentPeriod PAYMENT_3 = FixedCouponBondPaymentPeriod.builder()
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .startDate(LocalDate.of(2016, 4, 12))
-        .unadjustedStartDate(LocalDate.of(2016, 4, 12))
-        .endDate(LocalDate.of(2016, 10, 12))
-        .unadjustedEndDate(LocalDate.of(2016, 10, 12))
-        .fixedRate(FIXED_RATE)
-        .build();
+      .currency(EUR)
+      .notional(NOTIONAL)
+      .startDate(LocalDate.of(2016, 4, 12))
+      .unadjustedStartDate(LocalDate.of(2016, 4, 12))
+      .endDate(LocalDate.of(2016, 10, 12))
+      .unadjustedEndDate(LocalDate.of(2016, 10, 12))
+      .fixedRate(FIXED_RATE)
+      .build();
   private static final FixedCouponBondPaymentPeriod PAYMENT_4 = FixedCouponBondPaymentPeriod.builder()
-        .currency(EUR)
-        .notional(NOTIONAL)
-        .startDate(LocalDate.of(2016, 10, 12))
-        .unadjustedStartDate(LocalDate.of(2016, 10, 12))
-        .endDate(LocalDate.of(2017, 4, 12))
-        .unadjustedEndDate(LocalDate.of(2017, 4, 12))
-        .fixedRate(FIXED_RATE)
-        .build();
+      .currency(EUR)
+      .notional(NOTIONAL)
+      .startDate(LocalDate.of(2016, 10, 12))
+      .unadjustedStartDate(LocalDate.of(2016, 10, 12))
+      .endDate(LocalDate.of(2017, 4, 12))
+      .unadjustedEndDate(LocalDate.of(2017, 4, 12))
+      .fixedRate(FIXED_RATE)
+      .build();
   private static final ImmutableList<FixedCouponBondPaymentPeriod> PERIODIC_PAYMENTS =
       ImmutableList.<FixedCouponBondPaymentPeriod>of(PAYMENT_1, PAYMENT_2, PAYMENT_3, PAYMENT_4);
 
   private static final LocalDate START = PAYMENT_1.getStartDate();
   private static final LocalDate MATURITY = PAYMENT_4.getEndDate();
   private static final Payment PAYMENT = Payment.of(CURRENCY_NOTIONAL, MATURITY);
-  
+
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final HolidayCalendar EUR_CALENDAR = HolidayCalendars.EUTA;
