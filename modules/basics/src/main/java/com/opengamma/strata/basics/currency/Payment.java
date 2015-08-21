@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
 /**
  * A single payment of a known amount on a specific date.
@@ -124,6 +126,21 @@ public final class Payment
    */
   public PayReceive getPayReceive() {
     return PayReceive.ofSignedAmount(value.getAmount());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adjusts the payment date using the rules of the specified adjuster.
+   * <p>
+   * The adjuster is typically an instance of {@link BusinessDayAdjustment}.
+   * If the date is unchanged by the adjuster, {@code this} payment will be returned.
+   * 
+   * @param adjuster  the adjuster to apply to the payment date
+   * @return the adjusted payment
+   */
+  public Payment adjustDate(TemporalAdjuster adjuster) {
+    LocalDate adjusted = date.with(adjuster);
+    return adjusted.equals(date) ? this : toBuilder().date(adjusted).build();
   }
 
   //-------------------------------------------------------------------------

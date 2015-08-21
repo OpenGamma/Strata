@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl.rate.swap;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.finance.rate.swap.KnownAmountPaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -25,21 +26,29 @@ public class DispatchingPaymentPeriodPricer
    * Default implementation.
    */
   public static final DispatchingPaymentPeriodPricer DEFAULT = new DispatchingPaymentPeriodPricer(
-      DiscountingRatePaymentPeriodPricer.DEFAULT);
+      DiscountingRatePaymentPeriodPricer.DEFAULT,
+      DiscountingKnownAmountPaymentPeriodPricer.DEFAULT);
 
   /**
    * Pricer for {@link RatePaymentPeriod}.
    */
   private final PaymentPeriodPricer<RatePaymentPeriod> ratePaymentPeriodPricer;
+  /**
+   * Pricer for {@link KnownAmountPaymentPeriod}.
+   */
+  private final PaymentPeriodPricer<KnownAmountPaymentPeriod> knownAmountPaymentPeriodPricer;
 
   /**
    * Creates an instance.
    * 
    * @param ratePaymentPeriodPricer  the pricer for {@link RatePaymentPeriod}
+   * @param knownAmountPaymentPeriodPricer  the pricer for {@link KnownAmountPaymentPeriod}
    */
   public DispatchingPaymentPeriodPricer(
-      PaymentPeriodPricer<RatePaymentPeriod> ratePaymentPeriodPricer) {
+      PaymentPeriodPricer<RatePaymentPeriod> ratePaymentPeriodPricer,
+      PaymentPeriodPricer<KnownAmountPaymentPeriod> knownAmountPaymentPeriodPricer) {
     this.ratePaymentPeriodPricer = ArgChecker.notNull(ratePaymentPeriodPricer, "ratePaymentPeriodPricer");
+    this.knownAmountPaymentPeriodPricer = ArgChecker.notNull(knownAmountPaymentPeriodPricer, "knownAmountPaymentPeriodPricer");
   }
 
   //-------------------------------------------------------------------------
@@ -48,6 +57,8 @@ public class DispatchingPaymentPeriodPricer
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       return ratePaymentPeriodPricer.presentValue((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.presentValue((KnownAmountPaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
@@ -59,6 +70,8 @@ public class DispatchingPaymentPeriodPricer
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       return ratePaymentPeriodPricer.presentValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.presentValueSensitivity((KnownAmountPaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
@@ -70,6 +83,8 @@ public class DispatchingPaymentPeriodPricer
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       return ratePaymentPeriodPricer.futureValue((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.futureValue((KnownAmountPaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
@@ -81,6 +96,8 @@ public class DispatchingPaymentPeriodPricer
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       return ratePaymentPeriodPricer.futureValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.futureValueSensitivity((KnownAmountPaymentPeriod) paymentPeriod, provider);
     } else {
       throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
     }
@@ -92,6 +109,8 @@ public class DispatchingPaymentPeriodPricer
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       ratePaymentPeriodPricer.explainPresentValue((RatePaymentPeriod) paymentPeriod, provider, builder);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      knownAmountPaymentPeriodPricer.explainPresentValue((KnownAmountPaymentPeriod) paymentPeriod, provider, builder);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentPeriod.getClass().getSimpleName());
     }
