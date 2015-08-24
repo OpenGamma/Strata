@@ -63,6 +63,8 @@ public class MarketDataMappingsBuilder {
     mappings.add(DiscountingCurveMapping.of(curveGroupName, marketDataFeed));
     mappings.add(RateIndexCurveMapping.of(curveGroupName, marketDataFeed));
     mappings.add(DiscountFactorsMapping.of(curveGroupName, marketDataFeed));
+    mappings.add(IborIndexRatesMapping.of(curveGroupName, marketDataFeed));
+    mappings.add(OvernightIndexRatesMapping.of(curveGroupName, marketDataFeed));
     return this;
   }
 

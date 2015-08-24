@@ -188,6 +188,7 @@ public class CurveEndToEndTest {
     DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();
     RateIndexCurveMarketDataFunction forwardCurveFunction = new RateIndexCurveMarketDataFunction();
     DiscountFactorsMarketDataFunction discountFactorsFunction = new DiscountFactorsMarketDataFunction();
+    IborIndexRatesMarketDataFunction iborIndexRatesFunction = new IborIndexRatesMarketDataFunction();
 
     // Calculation engine ------------------------------------------------------
 
@@ -201,7 +202,8 @@ public class CurveEndToEndTest {
         curveGroupFunction,
         discountCurveFunction,
         forwardCurveFunction,
-        discountFactorsFunction);
+        discountFactorsFunction,
+        iborIndexRatesFunction);
 
     CalculationEngine engine = new DefaultCalculationEngine(calculationRunner, factory, LinkResolver.none());
 

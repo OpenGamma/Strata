@@ -22,22 +22,19 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.market.key.OvernightIndexRatesKey;
 import com.opengamma.strata.market.key.PriceIndexValuesKey;
-import com.opengamma.strata.market.key.RateIndexCurveKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountFxForwardRates;
 import com.opengamma.strata.market.value.DiscountFxIndexRates;
-import com.opengamma.strata.market.value.DiscountIborIndexRates;
-import com.opengamma.strata.market.value.DiscountOvernightIndexRates;
 import com.opengamma.strata.market.value.FxForwardRates;
 import com.opengamma.strata.market.value.FxIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
 import com.opengamma.strata.market.value.OvernightIndexRates;
 import com.opengamma.strata.market.value.PriceIndexValues;
-import com.opengamma.strata.market.value.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 
 /**
@@ -125,19 +122,13 @@ public final class MarketDataRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
-    Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
-    return DiscountIborIndexRates.of(index, timeSeries, dfc);
+    return marketData.getValue(IborIndexRatesKey.of(index));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeries(index);
-    Curve curve = marketData.getValue(RateIndexCurveKey.of(index));
-    DiscountFactors dfc = ZeroRateDiscountFactors.of(index.getCurrency(), getValuationDate(), curve);
-    return DiscountOvernightIndexRates.of(index, timeSeries, dfc);
+    return marketData.getValue(OvernightIndexRatesKey.of(index));
   }
 
   //-------------------------------------------------------------------------

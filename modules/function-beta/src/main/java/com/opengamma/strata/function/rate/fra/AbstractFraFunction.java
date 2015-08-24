@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
@@ -29,8 +29,8 @@ import com.opengamma.strata.finance.rate.fra.Fra;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
+import com.opengamma.strata.market.key.IborIndexRatesKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
@@ -81,7 +81,7 @@ public abstract class AbstractFraFunction<T>
     Fra fra = trade.getProduct();
 
     // Create a set of all indices referenced by the FRA
-    Set<Index> indices = new HashSet<>();
+    Set<IborIndex> indices = new HashSet<>();
 
     // The main index is always present
     indices.add(fra.getIndex());
@@ -96,7 +96,7 @@ public abstract class AbstractFraFunction<T>
 
     // Create a key identifying the forward curve of each index referenced by the FRA
     Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
-        .map(MarketDataKeys::indexCurve)
+        .map(IborIndexRatesKey::of)
         .collect(toImmutableSet());
 
     // Create a key identifying the discount factors for the FRA currency
