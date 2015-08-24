@@ -49,8 +49,8 @@ public final class BusinessDayAdjustment
   /**
    * An instance that performs no adjustment.
    */
-  public static final BusinessDayAdjustment NONE =
-      new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
+  public static final BusinessDayAdjustment NONE = new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST,
+      HolidayCalendars.NO_HOLIDAYS);
 
   /**
    * The convention used to the adjust the date if it does not fall on a business day.

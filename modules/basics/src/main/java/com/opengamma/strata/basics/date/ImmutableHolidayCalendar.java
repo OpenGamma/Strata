@@ -110,8 +110,7 @@ public final class ImmutableHolidayCalendar
    * @param secondWeekendDay  the second weekend day, may be same as first
    * @return the holiday calendar
    */
-  public static ImmutableHolidayCalendar of(
-      String name, Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
+  public static ImmutableHolidayCalendar of(String name, Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
     ArgChecker.notNull(name, "name");
     ArgChecker.noNulls(holidays, "holidays");
     ArgChecker.notNull(firstWeekendDay, "firstWeekendDay");
@@ -134,8 +133,7 @@ public final class ImmutableHolidayCalendar
    * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
    * @return the holiday calendar
    */
-  public static ImmutableHolidayCalendar of(
-      String name, Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
+  public static ImmutableHolidayCalendar of(String name, Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
     ArgChecker.notNull(name, "name");
     ArgChecker.noNulls(holidays, "holidays");
     ArgChecker.noNulls(weekendDays, "weekendDays");
@@ -176,11 +174,7 @@ public final class ImmutableHolidayCalendar
 
   // create and populate the int[] lookup
   // use 1 for business days and 0 for holidays
-  private static int[] buildLookupArray(
-      SortedSet<LocalDate> holidays,
-      Set<DayOfWeek> weekendDays,
-      int startYear,
-      int endYearExclusive) {
+  private static int[] buildLookupArray(SortedSet<LocalDate> holidays, Set<DayOfWeek> weekendDays, int startYear, int endYearExclusive) {
     // array that has one entry for each month
     int[] array = new int[(endYearExclusive - startYear) * 12];
     // loop through all months to handle end-of-month and weekends
@@ -432,10 +426,9 @@ public final class ImmutableHolidayCalendar
     }
     if (other instanceof ImmutableHolidayCalendar) {
       ImmutableHolidayCalendar otherCal = (ImmutableHolidayCalendar) other;
-      LocalDateRange newRange = range.union(otherCal.range);  // exception if no overlap
-      ImmutableSortedSet<LocalDate> newHolidays =
-          ImmutableSortedSet.copyOf(Iterables.concat(holidays, otherCal.holidays))
-              .subSet(newRange.getStart(), newRange.getEndExclusive());
+      LocalDateRange newRange = range.union(otherCal.range);// exception if no overlap
+      ImmutableSortedSet<LocalDate> newHolidays = ImmutableSortedSet.copyOf(Iterables.concat(holidays, otherCal.holidays))
+          .subSet(newRange.getStart(), newRange.getEndExclusive());
       ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(weekendDays, otherCal.weekendDays));
       String combinedName = name + "+" + otherCal.name;
       return new ImmutableHolidayCalendar(combinedName, newHolidays, newWeekends);

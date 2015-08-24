@@ -192,8 +192,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((Object[]) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_Array_empty() {
     ArgChecker.notEmpty(new Object[] {}, "name");
   }
@@ -203,8 +202,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((Object[][]) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_2DArray_empty() {
     ArgChecker.notEmpty(new Object[0][0], "name");
   }
@@ -221,8 +219,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((int[]) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_intArray_empty() {
     ArgChecker.notEmpty(new int[0], "name");
   }
@@ -239,8 +236,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((long[]) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_longArray_empty() {
     ArgChecker.notEmpty(new long[0], "name");
   }
@@ -257,8 +253,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((double[]) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_doubleArray_empty() {
     ArgChecker.notEmpty(new double[0], "name");
   }
@@ -275,8 +270,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((Iterable<?>) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*iterable.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*iterable.*'name'.*empty.*")
   public void test_notEmpty_Iterable_empty() {
     ArgChecker.notEmpty((Iterable<?>) Collections.emptyList(), "name");
   }
@@ -293,8 +287,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((Collection<?>) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*collection.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*collection.*'name'.*empty.*")
   public void test_notEmpty_Collection_empty() {
     ArgChecker.notEmpty(Collections.emptyList(), "name");
   }
@@ -311,8 +304,7 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty((Map<?, ?>) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*map.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*map.*'name'.*empty.*")
   public void test_notEmpty_Map_empty() {
     ArgChecker.notEmpty(Collections.emptyMap(), "name");
   }
@@ -334,8 +326,7 @@ public class ArgCheckerTest {
     ArgChecker.noNulls((Object[]) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*null.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*null.*")
   public void test_noNulls_Array_nullElement() {
     ArgChecker.noNulls(new Object[] {null}, "name");
   }
@@ -357,8 +348,7 @@ public class ArgCheckerTest {
     ArgChecker.noNulls((Iterable<?>) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*iterable.*'name'.*null.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*iterable.*'name'.*null.*")
   public void test_noNulls_Iterable_nullElement() {
     ArgChecker.noNulls(Arrays.asList((Object) null), "name");
   }
@@ -380,8 +370,7 @@ public class ArgCheckerTest {
     ArgChecker.noNulls((Map<Object, Object>) null, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*map.*'name'.*null.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*map.*'name'.*null.*")
   public void test_noNulls_Map_nullKey() {
     Map<Object, Object> map = new HashMap<>();
     map.put("A", "B");
@@ -389,8 +378,7 @@ public class ArgCheckerTest {
     ArgChecker.noNulls(map, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*map.*'name'.*null.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*map.*'name'.*null.*")
   public void test_noNulls_Map_nullValue() {
     Map<Object, Object> map = new HashMap<>();
     map.put("A", "B");
@@ -404,8 +392,7 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegative(1, "name"), 1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
   public void test_notNegative_int_negative() {
     ArgChecker.notNegative(-1, "name");
   }
@@ -415,8 +402,7 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegative(1L, "name"), 1L);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
   public void test_notNegative_long_negative() {
     ArgChecker.notNegative(-1L, "name");
   }
@@ -426,8 +412,7 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegative(1d, "name"), 1d, 0.0001d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
   public void test_notNegative_double_negative() {
     ArgChecker.notNegative(-1.0d, "name");
   }
@@ -437,14 +422,12 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegativeOrZero(1, "name"), 1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
   public void test_notNegativeOrZero_int_zero() {
     ArgChecker.notNegativeOrZero(0, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
   public void test_notNegativeOrZero_int_negative() {
     ArgChecker.notNegativeOrZero(-1, "name");
   }
@@ -453,14 +436,12 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegativeOrZero(1L, "name"), 1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
   public void test_notNegativeOrZero_long_zero() {
     ArgChecker.notNegativeOrZero(0L, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
   public void test_notNegativeOrZero_long_negative() {
     ArgChecker.notNegativeOrZero(-1L, "name");
   }
@@ -469,14 +450,12 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegativeOrZero(1d, "name"), 1d, 0.0001d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
   public void test_notNegativeOrZero_double_zero() {
     ArgChecker.notNegativeOrZero(0.0d, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
   public void test_notNegativeOrZero_double_negative() {
     ArgChecker.notNegativeOrZero(-1.0d, "name");
   }
@@ -486,14 +465,12 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notNegativeOrZero(0.1d, 0.0001d, "name"), 0.1d, 0.0001d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
   public void test_notNegativeOrZero_double_eps_zero() {
     ArgChecker.notNegativeOrZero(0.0000001d, 0.0001d, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*greater.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*greater.*zero.*")
   public void test_notNegativeOrZero_double_eps_negative() {
     ArgChecker.notNegativeOrZero(-1.0d, 0.0001d, "name");
   }
@@ -503,8 +480,7 @@ public class ArgCheckerTest {
     assertEquals(ArgChecker.notZero(1d, 0.1d, "name"), 1d, 0.0001d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
   public void test_notZero_double_zero() {
     ArgChecker.notZero(0d, 0.1d, "name");
   }
@@ -546,8 +522,7 @@ public class ArgCheckerTest {
     assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void testNotEmptyLongArray() {
     ArgChecker.notEmpty(new double[0], "name");
   }

@@ -155,7 +155,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
 
   public void densityChoosesImplementation() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder()
-        .put(date(2015, 1, 5), 14) // Monday
+        .put(date(2015, 1, 5), 14)// Monday
         .put(date(2015, 1, 12), 12)
         .put(date(2015, 1, 19), 13)
         .build();
@@ -182,7 +182,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
 
     // Now add in a weekend date, which means we have 9/15
     LocalDateDoubleTimeSeries series4 = series3.toBuilder()
-        .put(date(2015, 1, 10), 12) // Saturday
+        .put(date(2015, 1, 10), 12)// Saturday
         .build();
 
     assertEquals(series4.getClass(), SparseLocalDateDoubleTimeSeries.class);

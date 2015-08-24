@@ -102,11 +102,7 @@ public final class SchedulePeriod
    * @param unadjustedEndDate  the adjusted end date
    * @return the period
    */
-  public static SchedulePeriod of(
-      LocalDate startDate,
-      LocalDate endDate,
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate) {
+  public static SchedulePeriod of(LocalDate startDate, LocalDate endDate, LocalDate unadjustedStartDate, LocalDate unadjustedEndDate) {
     return new SchedulePeriod(startDate, endDate, unadjustedStartDate, unadjustedEndDate);
   }
 
@@ -119,9 +115,7 @@ public final class SchedulePeriod
    * @param endDate  the end date, used for financial calculations such as interest accrual
    * @return the period
    */
-  public static SchedulePeriod of(
-      LocalDate startDate,
-      LocalDate endDate) {
+  public static SchedulePeriod of(LocalDate startDate, LocalDate endDate) {
     return new SchedulePeriod(startDate, endDate, startDate, endDate);
   }
 
@@ -235,11 +229,7 @@ public final class SchedulePeriod
    * @return the sub-schedule
    * @throws ScheduleException if the schedule cannot be created
    */
-  public Schedule subSchedule(
-      Frequency frequency,
-      RollConvention rollConvention,
-      StubConvention stubConvention,
-      BusinessDayAdjustment adjustment) {
+  public Schedule subSchedule(Frequency frequency, RollConvention rollConvention, StubConvention stubConvention, BusinessDayAdjustment adjustment) {
     ArgChecker.notNull(frequency, "frequency");
     ArgChecker.notNull(rollConvention, "rollConvention");
     ArgChecker.notNull(stubConvention, "stubConvention");

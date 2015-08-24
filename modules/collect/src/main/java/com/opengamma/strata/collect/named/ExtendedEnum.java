@@ -122,9 +122,7 @@ public final class ExtendedEnum<T extends Named> {
 
   // parses the alternate names
   @SuppressWarnings("unchecked")
-  private static <R extends Named> ImmutableList<NamedLookup<R>> parseProviders(
-      IniFile config,
-      Class<R> enumType) {
+  private static <R extends Named> ImmutableList<NamedLookup<R>> parseProviders(IniFile config, Class<R> enumType) {
 
     if (!config.contains(PROVIDERS_SECTION)) {
       return ImmutableList.of();

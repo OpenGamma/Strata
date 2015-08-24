@@ -10,4 +10,3 @@
  * This package contains support for data types.
  */
 package com.opengamma.strata.collect.type;
-

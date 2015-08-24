@@ -297,8 +297,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_immutableValuesViaBeanGet() {
 
-    LocalDateDoubleTimeSeries test =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     double[] array = (double[]) ((Bean) test).property("points").get();
     array[0] = -1;
     LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
@@ -328,7 +327,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void test_earliest_with_subseries() {
 
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder()
-        .put(DATE_2015_01_03, 3d) // Saturday, so include weekends
+        .put(DATE_2015_01_03, 3d)// Saturday, so include weekends
         .put(DATE_2015_01_05, 5d)
         .put(DATE_2015_01_06, 6d)
         .put(DATE_2015_01_07, 7d)
@@ -366,10 +365,9 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   @Test(dataProvider = "subSeries")
   public void test_subSeries(LocalDate start, LocalDate end, int[] expected) {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder()
-            .putAll(DATES_2015_1_WEEK, VALUES_1_WEEK)
-            .build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder()
+        .putAll(DATES_2015_1_WEEK, VALUES_1_WEEK)
+        .build();
 
     LocalDateDoubleTimeSeries test = base.subSeries(start, end);
 
@@ -392,21 +390,20 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_subSeries_startAfterEnd() {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     base.subSeries(date(2011, 1, 2), DATE_2011_01_01);
   }
 
   public void test_subSeries_picks_valid_dates() {
 
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder()
-        .put(DATE_2015_01_02, 10)  // Friday
-        .put(DATE_2015_01_05, 11)  // Mon
+        .put(DATE_2015_01_02, 10)// Friday
+        .put(DATE_2015_01_05, 11)// Mon
         .put(DATE_2015_01_06, 12)
         .put(DATE_2015_01_07, 13)
         .put(DATE_2015_01_08, 14)
-        .put(DATE_2015_01_09, 15)  // Fri
-        .put(DATE_2015_01_12, 16)  // Mon
+        .put(DATE_2015_01_09, 15)// Fri
+        .put(DATE_2015_01_12, 16)// Mon
         .build();
 
     // Pick using weekend dates
@@ -440,8 +437,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   @Test(dataProvider = "headSeries")
   public void test_headSeries(int count, int[] expected) {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     LocalDateDoubleTimeSeries test = base.headSeries(count);
     assertEquals(test.size(), expected.length);
     for (int i = 0; i < DATES_2015_1_WEEK.size(); i++) {
@@ -483,8 +479,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   @Test(dataProvider = "tailSeries")
   public void test_tailSeries(int count, int[] expected) {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     LocalDateDoubleTimeSeries test = base.tailSeries(count);
     assertEquals(test.size(), expected.length);
     for (int i = 0; i < DATES_2015_1_WEEK.size(); i++) {
@@ -512,8 +507,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   public void test_stream() {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
     Object[] test = base.stream().toArray();
     assertEquals(test[0], LocalDateDoublePoint.of(DATE_2010_01_01, 10));
     assertEquals(test[1], LocalDateDoublePoint.of(DATE_2011_01_01, 11));
@@ -522,8 +516,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_stream_withCollector() {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
     LocalDateDoubleTimeSeries test = base.stream()
         .map(point -> point.withValue(1.5d))
         .collect(LocalDateDoubleTimeSeries.collector());
@@ -545,8 +538,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_valueStream() {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
     double[] test = base.values().toArray();
     assertEquals(test[0], 10, TOLERANCE);
     assertEquals(test[1], 11, TOLERANCE);
@@ -565,13 +557,11 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   public void test_intersection_withNoMatchingElements() {
 
-    LocalDateDoubleTimeSeries series1 =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
 
     List<LocalDate> dates2 = dates(DATE_2010_06_01, DATE_2011_06_01, DATE_2012_06_01, DATE_2013_06_01, DATE_2014_06_01);
 
-    LocalDateDoubleTimeSeries series2 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_WEEK).build();
 
     LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test, LocalDateDoubleTimeSeries.empty());
@@ -579,8 +569,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_intersection_withSomeMatchingElements() {
 
-    LocalDateDoubleTimeSeries series1 =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
 
     Map<LocalDate, Double> updates = ImmutableMap.of(
         DATE_2015_01_02, 1.0,
@@ -589,10 +578,9 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         DATE_2015_01_09, 1.3,
         DATE_2015_01_12, 1.4);
 
-    LocalDateDoubleTimeSeries series2 =
-        LocalDateDoubleTimeSeries.builder()
-            .putAll(updates)
-            .build();
+    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder()
+        .putAll(updates)
+        .build();
 
     LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
     assertEquals(test.size(), 3);
@@ -623,13 +611,11 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     List<LocalDate> dates1 = DATES_2015_1_WEEK;
     List<Double> values1 = values(10, 11, 12, 13, 14);
 
-    LocalDateDoubleTimeSeries series1 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates1, values1).build();
+    LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(dates1, values1).build();
     List<LocalDate> dates2 = DATES_2015_1_WEEK;
     List<Double> values2 = values(1.0, 1.1, 1.2, 1.3, 1.4);
 
-    LocalDateDoubleTimeSeries series2 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
+    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
     LocalDateDoubleTimeSeries combined = series1.intersection(series2, Double::sum);
     assertEquals(combined.size(), 5);
@@ -647,10 +633,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
     List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_06);
     List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_08);
-    LocalDateDoubleTimeSeries series1 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
-    LocalDateDoubleTimeSeries series2 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_4_7).build();
+    LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_4_7).build();
 
     LocalDateDoubleTimeSeries test = series1.union(series2, Double::sum);
     assertEquals(test.size(), 5);
@@ -667,10 +651,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
     List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_06);
     List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_04, DATE_2015_01_08);
-    LocalDateDoubleTimeSeries series1 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
-    LocalDateDoubleTimeSeries series2 =
-        LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_3).build();
+    LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_3).build();
 
     LocalDateDoubleTimeSeries test = series1.union(series2, Double::sum);
     assertEquals(test.size(), 6);
@@ -696,8 +678,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_mapValues_multiplySeries() {
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
 
     LocalDateDoubleTimeSeries test = base.mapValues(d -> d * 5);
     List<Double> expectedValues = values(50, 55, 60, 65, 70);
@@ -708,8 +689,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void test_mapValues_invertSeries() {
     List<Double> values = values(1, 2, 4, 5, 8);
 
-    LocalDateDoubleTimeSeries base =
-        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, values).build();
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, values).build();
     LocalDateDoubleTimeSeries test = base.mapValues(d -> 1 / d);
     List<Double> expectedValues = values(1, 0.5, 0.25, 0.2, 0.125);
 
@@ -858,11 +838,11 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void underOneWeekNoWeekend() {
 
     Map<LocalDate, Double> map = ImmutableMap.<LocalDate, Double>builder()
-        .put(dt(2015, 1, 5), 12d) // Monday
+        .put(dt(2015, 1, 5), 12d)// Monday
         .put(dt(2015, 1, 6), 13d)
         .put(dt(2015, 1, 7), 14d)
         .put(dt(2015, 1, 8), 15d)
-        .put(dt(2015, 1, 9), 16d) // Friday
+        .put(dt(2015, 1, 9), 16d)// Friday
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
@@ -873,13 +853,13 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void underOneWeekWithWeekend() {
 
     Map<LocalDate, Double> map = ImmutableMap.<LocalDate, Double>builder()
-        .put(dt(2015, 1, 1), 10d) // Thursday
-        .put(dt(2015, 1, 2), 11d) // Friday
+        .put(dt(2015, 1, 1), 10d)// Thursday
+        .put(dt(2015, 1, 2), 11d)// Friday
         .put(dt(2015, 1, 5), 12d)
         .put(dt(2015, 1, 6), 13d)
         .put(dt(2015, 1, 7), 14d)
-        .put(dt(2015, 1, 8), 15d) // Thursday
-        .put(dt(2015, 1, 9), 16d) // Friday
+        .put(dt(2015, 1, 8), 15d)// Thursday
+        .put(dt(2015, 1, 9), 16d)// Friday
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
@@ -894,13 +874,13 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void roundTrip() {
     Map<LocalDate, Double> in = ImmutableMap.<LocalDate, Double>builder()
-        .put(dt(2015, 1, 1), 10d) // Thursday
-        .put(dt(2015, 1, 2), 11d) // Friday
+        .put(dt(2015, 1, 1), 10d)// Thursday
+        .put(dt(2015, 1, 2), 11d)// Friday
         .put(dt(2015, 1, 5), 12d)
         .put(dt(2015, 1, 6), 13d)
         .put(dt(2015, 1, 7), 14d)
-        .put(dt(2015, 1, 8), 15d) // Thursday
-        .put(dt(2015, 1, 9), 16d) // Friday
+        .put(dt(2015, 1, 8), 15d)// Thursday
+        .put(dt(2015, 1, 9), 16d)// Friday
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(in).build();
@@ -912,8 +892,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void partitionEmptySeries() {
 
-    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
-        LocalDateDoubleTimeSeries.empty().partition((ld, d) -> ld.getYear() == 2015);
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned = LocalDateDoubleTimeSeries.empty()
+        .partition((ld, d) -> ld.getYear() == 2015);
 
     assertThat(partitioned.getFirst()).isEqualTo(LocalDateDoubleTimeSeries.empty());
     assertThat(partitioned.getSecond()).isEqualTo(LocalDateDoubleTimeSeries.empty());
@@ -922,19 +902,18 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void partitionSeries() {
 
     Map<LocalDate, Double> in = ImmutableMap.<LocalDate, Double>builder()
-        .put(dt(2015, 1, 1), 10d) // Thursday
-        .put(dt(2015, 1, 2), 11d) // Friday
+        .put(dt(2015, 1, 1), 10d)// Thursday
+        .put(dt(2015, 1, 2), 11d)// Friday
         .put(dt(2015, 1, 5), 12d)
         .put(dt(2015, 1, 6), 13d)
         .put(dt(2015, 1, 7), 14d)
-        .put(dt(2015, 1, 8), 15d) // Thursday
-        .put(dt(2015, 1, 9), 16d) // Friday
+        .put(dt(2015, 1, 8), 15d)// Thursday
+        .put(dt(2015, 1, 9), 16d)// Friday
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(in).build();
 
-    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
-        ts.partition((ld, d) -> ld.getDayOfMonth() % 2 == 0);
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned = ts.partition((ld, d) -> ld.getDayOfMonth() % 2 == 0);
 
     LocalDateDoubleTimeSeries even = partitioned.getFirst();
     LocalDateDoubleTimeSeries odd = partitioned.getSecond();
@@ -953,8 +932,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void partitionByValueEmptySeries() {
 
-    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
-        LocalDateDoubleTimeSeries.empty().partitionByValue(d -> d > 10);
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned = LocalDateDoubleTimeSeries.empty()
+        .partitionByValue(d -> d > 10);
 
     assertThat(partitioned.getFirst()).isEqualTo(LocalDateDoubleTimeSeries.empty());
     assertThat(partitioned.getSecond()).isEqualTo(LocalDateDoubleTimeSeries.empty());
@@ -963,19 +942,18 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void partitionByValueSeries() {
 
     Map<LocalDate, Double> in = ImmutableMap.<LocalDate, Double>builder()
-        .put(dt(2015, 1, 1), 10d) // Thursday
-        .put(dt(2015, 1, 2), 11d) // Friday
+        .put(dt(2015, 1, 1), 10d)// Thursday
+        .put(dt(2015, 1, 2), 11d)// Friday
         .put(dt(2015, 1, 5), 12d)
         .put(dt(2015, 1, 6), 13d)
         .put(dt(2015, 1, 7), 14d)
-        .put(dt(2015, 1, 8), 15d) // Thursday
-        .put(dt(2015, 1, 9), 16d) // Friday
+        .put(dt(2015, 1, 8), 15d)// Thursday
+        .put(dt(2015, 1, 9), 16d)// Friday
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(in).build();
 
-    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
-        ts.partitionByValue(d -> d < 12 || d > 15);
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned = ts.partitionByValue(d -> d < 12 || d > 15);
 
     LocalDateDoubleTimeSeries extreme = partitioned.getFirst();
     LocalDateDoubleTimeSeries mid = partitioned.getSecond();

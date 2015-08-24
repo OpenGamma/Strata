@@ -70,11 +70,7 @@ public final class FailureItem
   private final Class<? extends Exception> causeType;
 
   @ImmutableConstructor
-  private FailureItem(
-      FailureReason reason,
-      String message,
-      String stackTrace,
-      Class<? extends Exception> causeType) {
+  private FailureItem(FailureReason reason, String message, String stackTrace, Class<? extends Exception> causeType) {
     JodaBeanUtils.notNull(reason, "reason");
     JodaBeanUtils.notEmpty(message, "message");
     JodaBeanUtils.notNull(stackTrace, "stackTrace");
@@ -93,8 +89,7 @@ public final class FailureItem
    * @param causeType  the cause type, may be null
    * @return the failure item
    */
-  static FailureItem of(
-      FailureReason reason, String message, String stackTrace, Class<? extends Exception> causeType) {
+  static FailureItem of(FailureReason reason, String message, String stackTrace, Class<? extends Exception> causeType) {
     return new FailureItem(reason, message, stackTrace, causeType);
   }
 

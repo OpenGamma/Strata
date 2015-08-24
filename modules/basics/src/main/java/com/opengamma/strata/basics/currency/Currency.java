@@ -49,13 +49,11 @@ public final class Currency
   /**
    * The configured instances.
    */
-  private static final ImmutableMap<String, Currency> CONFIGURED =
-      CurrencyDataLoader.loadCurrencies(false);
+  private static final ImmutableMap<String, Currency> CONFIGURED = CurrencyDataLoader.loadCurrencies(false);
   /**
    * A cache of dynamically created instances, initialized with some historic currencies.
    */
-  private static final ConcurrentMap<String, Currency> DYNAMIC =
-      new ConcurrentHashMap<>(CurrencyDataLoader.loadCurrencies(true));
+  private static final ConcurrentMap<String, Currency> DYNAMIC = new ConcurrentHashMap<>(CurrencyDataLoader.loadCurrencies(true));
 
   // a selection of commonly traded, stable currencies
   /**

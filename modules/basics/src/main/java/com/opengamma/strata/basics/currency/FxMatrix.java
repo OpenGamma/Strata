@@ -480,8 +480,8 @@ public final class FxMatrix
           .filter(other.currencies::containsKey)
           .findFirst();
 
-      Currency commonCurrency = common.orElseThrow(() ->
-          new IllegalArgumentException("There are no currencies in common between " +
+      Currency commonCurrency = common
+          .orElseThrow(() -> new IllegalArgumentException("There are no currencies in common between " +
               currencies.keySet() + " and " + other.currencies.keySet()));
 
       // Add in all currencies that we don't already have
@@ -603,10 +603,9 @@ public final class FxMatrix
     private void ensureCapacity(Stream<Currency> potentialCurrencies) {
       // If adding the currencies would mean we have more
       // currencies than matrix size, create an expanded array
-      int requiredOrder =
-          (int) Stream.concat(currencies.keySet().stream(), potentialCurrencies)
-              .distinct()
-              .count();
+      int requiredOrder = (int) Stream.concat(currencies.keySet().stream(), potentialCurrencies)
+          .distinct()
+          .count();
 
       ensureCapacity(requiredOrder);
     }

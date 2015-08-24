@@ -95,8 +95,7 @@ public final class TenorAdjustment
    * @param adjustment  the business day adjustment to apply to the result of the addition
    * @return the tenor adjustment
    */
-  public static TenorAdjustment of(
-      Tenor tenor, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
+  public static TenorAdjustment of(Tenor tenor, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
     return new TenorAdjustment(tenor, additionConvention, adjustment);
   }
 

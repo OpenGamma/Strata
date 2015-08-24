@@ -25,6 +25,7 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
 
   // lookup of conventions
   static final ImmutableMap<String, RollConvention> MAP;
+
   static {
     MAP = Stream.concat(Stream.of(Dom.CONVENTIONS), Stream.of(Dow.CONVENTIONS))
         .collect(Guavate.toImmutableMap(RollConvention::getName));
@@ -53,6 +54,7 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
     private static final long serialVersionUID = 1L;
     // cache of conventions
     private static final RollConvention[] CONVENTIONS = new RollConvention[30];
+
     static {
       for (int i = 0; i < 30; i++) {
         CONVENTIONS[i] = new Dom(i + 1);
@@ -123,6 +125,7 @@ final class DayRollConventions implements NamedLookup<RollConvention> {
     private static final String NAMES = "DayMonDayTueDayWedDayThuDayFriDaySatDaySun";
     // cache of conventions
     private static final RollConvention[] CONVENTIONS = new RollConvention[7];
+
     static {
       for (int i = 0; i < 7; i++) {
         DayOfWeek dow = DayOfWeek.of(i + 1);

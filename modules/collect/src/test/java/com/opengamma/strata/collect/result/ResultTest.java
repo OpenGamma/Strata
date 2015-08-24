@@ -40,10 +40,8 @@ public class ResultTest {
 
   private static final Function<String, Integer> MAP_STRLEN = String::length;
 
-  private static final Function<String, Result<Integer>> FUNCTION_STRLEN =
-      input -> Result.success(input.length());
-  private static final BiFunction<String, String, Result<String>> FUNCTION_MERGE =
-      (t, u) -> Result.success(t + " " + u);
+  private static final Function<String, Result<Integer>> FUNCTION_STRLEN = input -> Result.success(input.length());
+  private static final BiFunction<String, String, Result<String>> FUNCTION_MERGE = (t, u) -> Result.success(t + " " + u);
 
   //-------------------------------------------------------------------------
   public void success() {

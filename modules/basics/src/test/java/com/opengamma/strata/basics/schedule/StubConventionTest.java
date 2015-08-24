@@ -119,8 +119,7 @@ public class StubConventionTest {
   }
 
   @Test(dataProvider = "roll")
-  public void test_toRollConvention(
-      StubConvention conv, LocalDate start, LocalDate end, Frequency freq, boolean eom, RollConvention expected) {
+  public void test_toRollConvention(StubConvention conv, LocalDate start, LocalDate end, Frequency freq, boolean eom, RollConvention expected) {
     assertEquals(conv.toRollConvention(start, end, freq, eom), expected);
   }
 
@@ -161,8 +160,7 @@ public class StubConventionTest {
   }
 
   @Test(dataProvider = "implicit")
-  public void test_toImplicit(
-      StubConvention conv, boolean initialStub, boolean finalStub, StubConvention expected) {
+  public void test_toImplicit(StubConvention conv, boolean initialStub, boolean finalStub, StubConvention expected) {
     if (expected == null) {
       assertThrowsIllegalArg(() -> conv.toImplicit(null, initialStub, finalStub));
     } else {

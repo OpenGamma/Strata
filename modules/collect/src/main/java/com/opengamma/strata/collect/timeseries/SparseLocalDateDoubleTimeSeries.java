@@ -56,8 +56,7 @@ final class SparseLocalDateDoubleTimeSeries
   /**
    * An empty time-series.
    */
-  static final LocalDateDoubleTimeSeries EMPTY =
-      new SparseLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
+  static final LocalDateDoubleTimeSeries EMPTY = new SparseLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
 
   /**
    * The dates in the series.

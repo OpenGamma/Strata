@@ -210,11 +210,10 @@ public class GuavateTest {
 
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
     Map<String, Integer> expected = ImmutableMap.of("a", 1, "c", 3, "e", 5);
-    ImmutableMap<String, Integer> output =
-        input.entrySet()
-            .stream()
-            .filter(e -> e.getValue() % 2 == 1)
-            .collect(entriesToImmutableMap());
+    ImmutableMap<String, Integer> output = input.entrySet()
+        .stream()
+        .filter(e -> e.getValue() % 2 == 1)
+        .collect(entriesToImmutableMap());
     assertEquals(output, expected);
   }
 
@@ -223,11 +222,10 @@ public class GuavateTest {
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
     Map<String, Double> expected = ImmutableMap.of("A", 1.0, "B", 4.0, "C", 9.0, "D", 16.0);
 
-    ImmutableMap<String, Double> output =
-        input.entrySet()
-            .stream()
-            .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
-            .collect(pairsToImmutableMap());
+    ImmutableMap<String, Double> output = input.entrySet()
+        .stream()
+        .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
+        .collect(pairsToImmutableMap());
     assertEquals(output, expected);
   }
 

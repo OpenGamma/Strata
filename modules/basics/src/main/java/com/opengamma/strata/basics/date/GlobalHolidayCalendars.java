@@ -191,8 +191,8 @@ final class GlobalHolidayCalendars {
       holidays.add(christmas(year));
       holidays.add(boxingDay(year));
     }
-    holidays.add(date(2011, 4, 29));  // royal wedding
-    holidays.add(date(1999, 12, 31));  // millenium
+    holidays.add(date(2011, 4, 29));// royal wedding
+    holidays.add(date(1999, 12, 31));// millenium
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("GBLO", holidays, SATURDAY, SUNDAY);
   }
@@ -210,23 +210,23 @@ final class GlobalHolidayCalendars {
   static ImmutableHolidayCalendar generateParis() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
-      holidays.add(date(year, 1, 1));  // new year
-      holidays.add(easter(year).minusDays(2));  // good friday
-      holidays.add(easter(year).plusDays(1));  // easter monday
-      holidays.add(date(year, 5, 1));  // labour day
-      holidays.add(date(year, 5, 8));  // victory in europe
-      holidays.add(easter(year).plusDays(39));  // ascension day
+      holidays.add(date(year, 1, 1));// new year
+      holidays.add(easter(year).minusDays(2));// good friday
+      holidays.add(easter(year).plusDays(1));// easter monday
+      holidays.add(date(year, 5, 1));// labour day
+      holidays.add(date(year, 5, 8));// victory in europe
+      holidays.add(easter(year).plusDays(39));// ascension day
       if (year <= 2004 || year >= 2008) {
-        holidays.add(easter(year).plusDays(50));  // whit monday
+        holidays.add(easter(year).plusDays(50));// whit monday
       }
-      holidays.add(date(year, 7, 14));  // bastille
-      holidays.add(date(year, 8, 15));  // assumption of mary
-      holidays.add(date(year, 11, 1));  // all saints
-      holidays.add(date(year, 11, 11));  // armistice day
-      holidays.add(date(year, 12, 25));  // christmas day
-      holidays.add(date(year, 12, 26));  // saint stephen
+      holidays.add(date(year, 7, 14));// bastille
+      holidays.add(date(year, 8, 15));// assumption of mary
+      holidays.add(date(year, 11, 1));// all saints
+      holidays.add(date(year, 11, 11));// armistice day
+      holidays.add(date(year, 12, 25));// christmas day
+      holidays.add(date(year, 12, 26));// saint stephen
     }
-    holidays.add(date(1999, 12, 31));  // millenium
+    holidays.add(date(1999, 12, 31));// millenium
     applyBridging(holidays);
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
@@ -242,19 +242,19 @@ final class GlobalHolidayCalendars {
   static ImmutableHolidayCalendar generateZurich() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
-      holidays.add(date(year, 1, 1));  // new year
-      holidays.add(date(year, 1, 2));  // saint berchtoldstag
-      holidays.add(easter(year).minusDays(2));  // good friday
-      holidays.add(easter(year).plusDays(1));  // easter monday
-      holidays.add(date(year, 5, 1));  // labour day
-      holidays.add(easter(year).plusDays(39));  // ascension day
-      holidays.add(easter(year).plusDays(50));  // whit monday
-      holidays.add(date(year, 8, 1));  // national day
-      holidays.add(date(year, 12, 25));  // christmas day
-      holidays.add(date(year, 12, 26));  // saint stephen
+      holidays.add(date(year, 1, 1));// new year
+      holidays.add(date(year, 1, 2));// saint berchtoldstag
+      holidays.add(easter(year).minusDays(2));// good friday
+      holidays.add(easter(year).plusDays(1));// easter monday
+      holidays.add(date(year, 5, 1));// labour day
+      holidays.add(easter(year).plusDays(39));// ascension day
+      holidays.add(easter(year).plusDays(50));// whit monday
+      holidays.add(date(year, 8, 1));// national day
+      holidays.add(date(year, 12, 25));// christmas day
+      holidays.add(date(year, 12, 26));// saint stephen
     }
-    holidays.add(date(1999, 12, 31));  // millenium
-    holidays.add(date(2000, 1, 3));  // millenium
+    holidays.add(date(1999, 12, 31));// millenium
+    holidays.add(date(2000, 1, 3));// millenium
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
   }
@@ -282,7 +282,7 @@ final class GlobalHolidayCalendars {
         holidays.add(date(year, 5, 1));
         holidays.add(date(year, 12, 25));
         holidays.add(date(year, 12, 26));
-      } else {  // 1997 to 1999
+      } else {// 1997 to 1999
         holidays.add(date(year, 1, 1));
         holidays.add(date(year, 12, 25));
       }
@@ -296,8 +296,7 @@ final class GlobalHolidayCalendars {
 
   //-------------------------------------------------------------------------
   // common US holidays
-  private static void usCommon(
-      List<LocalDate> holidays, int year, boolean bumpBack, boolean columbusVeteran, int mlkStartYear) {
+  private static void usCommon(List<LocalDate> holidays, int year, boolean bumpBack, boolean columbusVeteran, int mlkStartYear) {
     // new year, adjusted if Sunday
     holidays.add(bumpSunToMon(date(year, 1, 1)));
     // martin luther king
@@ -417,60 +416,60 @@ final class GlobalHolidayCalendars {
     holidays.add(date(1976, 11, 2));
     holidays.add(date(1980, 11, 4));
     // special days
-    holidays.add(date(1955, 12, 24));  // Christmas Eve
-    holidays.add(date(1956, 12, 24));  // Christmas Eve
-    holidays.add(date(1958, 12, 26));  // Day after Christmas
-    holidays.add(date(1961, 5, 29));  // Decoration day
-    holidays.add(date(1963, 11, 25));  // Death of John F Kennedy
-    holidays.add(date(1965, 12, 24));  // Christmas Eve
-    holidays.add(date(1968, 2, 12));  // Lincoln birthday
-    holidays.add(date(1968, 4, 9));  // Death of Martin Luther King
-    holidays.add(date(1968, 6, 12));  // Paperwork crisis
-    holidays.add(date(1968, 6, 19));  // Paperwork crisis
-    holidays.add(date(1968, 6, 26));  // Paperwork crisis
-    holidays.add(date(1968, 7, 3));  // Paperwork crisis
-    holidays.add(date(1968, 7, 5));  // Day after independence
-    holidays.add(date(1968, 7, 10));  // Paperwork crisis
-    holidays.add(date(1968, 7, 17));  // Paperwork crisis
-    holidays.add(date(1968, 7, 24));  // Paperwork crisis
-    holidays.add(date(1968, 7, 31));  // Paperwork crisis
-    holidays.add(date(1968, 8, 7));  // Paperwork crisis
-    holidays.add(date(1968, 8, 13));  // Paperwork crisis
-    holidays.add(date(1968, 8, 21));  // Paperwork crisis
-    holidays.add(date(1968, 8, 28));  // Paperwork crisis
-    holidays.add(date(1968, 9, 4));  // Paperwork crisis
-    holidays.add(date(1968, 9, 11));  // Paperwork crisis
-    holidays.add(date(1968, 9, 18));  // Paperwork crisis
-    holidays.add(date(1968, 9, 25));  // Paperwork crisis
-    holidays.add(date(1968, 10, 2));  // Paperwork crisis
-    holidays.add(date(1968, 10, 9));  // Paperwork crisis
-    holidays.add(date(1968, 10, 16));  // Paperwork crisis
-    holidays.add(date(1968, 10, 23));  // Paperwork crisis
-    holidays.add(date(1968, 10, 30));  // Paperwork crisis
-    holidays.add(date(1968, 11, 6));  // Paperwork crisis
-    holidays.add(date(1968, 11, 13));  // Paperwork crisis
-    holidays.add(date(1968, 11, 20));  // Paperwork crisis
-    holidays.add(date(1968, 11, 27));  // Paperwork crisis
-    holidays.add(date(1968, 12, 4));  // Paperwork crisis
-    holidays.add(date(1968, 12, 11));  // Paperwork crisis
-    holidays.add(date(1968, 12, 18));  // Paperwork crisis
-    holidays.add(date(1968, 12, 25));  // Paperwork crisis
-    holidays.add(date(1968, 12, 31));  // Paperwork crisis
-    holidays.add(date(1969, 2, 10));  // Snow
-    holidays.add(date(1969, 3, 31));  // Death of Dwight Eisenhower
-    holidays.add(date(1969, 7, 21));  // Lunar exploration
-    holidays.add(date(1972, 12, 28));  // Death of Harry Truman
-    holidays.add(date(1973, 1, 25));  // Death of Lyndon Johnson
-    holidays.add(date(1977, 7, 14));  // Blackout
-    holidays.add(date(1985, 9, 27));  // Hurricane Gloria
-    holidays.add(date(1994, 4, 27));  // Death of Richard Nixon
-    holidays.add(date(2001, 9, 11));  // 9/11 attack
-    holidays.add(date(2001, 9, 12));  // 9/11 attack
-    holidays.add(date(2001, 9, 13));  // 9/11 attack
-    holidays.add(date(2001, 9, 14));  // 9/11 attack
-    holidays.add(date(2004, 6, 11));  // Death of Ronald Reagan
-    holidays.add(date(2007, 1, 2));  // Death of Gerald Ford
-    holidays.add(date(2012, 10, 30));  // Hurricane Sandy
+    holidays.add(date(1955, 12, 24));// Christmas Eve
+    holidays.add(date(1956, 12, 24));// Christmas Eve
+    holidays.add(date(1958, 12, 26));// Day after Christmas
+    holidays.add(date(1961, 5, 29));// Decoration day
+    holidays.add(date(1963, 11, 25));// Death of John F Kennedy
+    holidays.add(date(1965, 12, 24));// Christmas Eve
+    holidays.add(date(1968, 2, 12));// Lincoln birthday
+    holidays.add(date(1968, 4, 9));// Death of Martin Luther King
+    holidays.add(date(1968, 6, 12));// Paperwork crisis
+    holidays.add(date(1968, 6, 19));// Paperwork crisis
+    holidays.add(date(1968, 6, 26));// Paperwork crisis
+    holidays.add(date(1968, 7, 3));// Paperwork crisis
+    holidays.add(date(1968, 7, 5));// Day after independence
+    holidays.add(date(1968, 7, 10));// Paperwork crisis
+    holidays.add(date(1968, 7, 17));// Paperwork crisis
+    holidays.add(date(1968, 7, 24));// Paperwork crisis
+    holidays.add(date(1968, 7, 31));// Paperwork crisis
+    holidays.add(date(1968, 8, 7));// Paperwork crisis
+    holidays.add(date(1968, 8, 13));// Paperwork crisis
+    holidays.add(date(1968, 8, 21));// Paperwork crisis
+    holidays.add(date(1968, 8, 28));// Paperwork crisis
+    holidays.add(date(1968, 9, 4));// Paperwork crisis
+    holidays.add(date(1968, 9, 11));// Paperwork crisis
+    holidays.add(date(1968, 9, 18));// Paperwork crisis
+    holidays.add(date(1968, 9, 25));// Paperwork crisis
+    holidays.add(date(1968, 10, 2));// Paperwork crisis
+    holidays.add(date(1968, 10, 9));// Paperwork crisis
+    holidays.add(date(1968, 10, 16));// Paperwork crisis
+    holidays.add(date(1968, 10, 23));// Paperwork crisis
+    holidays.add(date(1968, 10, 30));// Paperwork crisis
+    holidays.add(date(1968, 11, 6));// Paperwork crisis
+    holidays.add(date(1968, 11, 13));// Paperwork crisis
+    holidays.add(date(1968, 11, 20));// Paperwork crisis
+    holidays.add(date(1968, 11, 27));// Paperwork crisis
+    holidays.add(date(1968, 12, 4));// Paperwork crisis
+    holidays.add(date(1968, 12, 11));// Paperwork crisis
+    holidays.add(date(1968, 12, 18));// Paperwork crisis
+    holidays.add(date(1968, 12, 25));// Paperwork crisis
+    holidays.add(date(1968, 12, 31));// Paperwork crisis
+    holidays.add(date(1969, 2, 10));// Snow
+    holidays.add(date(1969, 3, 31));// Death of Dwight Eisenhower
+    holidays.add(date(1969, 7, 21));// Lunar exploration
+    holidays.add(date(1972, 12, 28));// Death of Harry Truman
+    holidays.add(date(1973, 1, 25));// Death of Lyndon Johnson
+    holidays.add(date(1977, 7, 14));// Blackout
+    holidays.add(date(1985, 9, 27));// Hurricane Gloria
+    holidays.add(date(1994, 4, 27));// Death of Richard Nixon
+    holidays.add(date(2001, 9, 11));// 9/11 attack
+    holidays.add(date(2001, 9, 12));// 9/11 attack
+    holidays.add(date(2001, 9, 13));// 9/11 attack
+    holidays.add(date(2001, 9, 14));// 9/11 attack
+    holidays.add(date(2004, 6, 11));// Death of Ronald Reagan
+    holidays.add(date(2007, 1, 2));// Death of Gerald Ford
+    holidays.add(date(2012, 10, 30));// Hurricane Sandy
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("NYSE", holidays, SATURDAY, SUNDAY);
   }
@@ -568,10 +567,10 @@ final class GlobalHolidayCalendars {
       // new years eve - bank of Japan, but not national holiday
       holidays.add(bumpSunToMon(date(year, 12, 31)));
     }
-    holidays.add(date(1959, 4, 10));  // marriage akihito
-    holidays.add(date(1989, 2, 24));  // funeral showa
-    holidays.add(date(1990, 11, 12));  // enthrone akihito
-    holidays.add(date(1993, 6, 9));  // marriage naruhito
+    holidays.add(date(1959, 4, 10));// marriage akihito
+    holidays.add(date(1989, 2, 24));// funeral showa
+    holidays.add(date(1990, 11, 12));// enthrone akihito
+    holidays.add(date(1993, 6, 9));// marriage naruhito
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of("JPTO", holidays, SATURDAY, SUNDAY);
   }

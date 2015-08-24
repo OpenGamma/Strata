@@ -247,8 +247,7 @@ public enum StubConvention {
    * @param preferEndOfMonth  whether to prefer the end-of-month when rolling
    * @return the derived roll convention
    */
-  public final RollConvention toRollConvention(
-      LocalDate start, LocalDate end, Frequency frequency, boolean preferEndOfMonth) {
+  public final RollConvention toRollConvention(LocalDate start, LocalDate end, Frequency frequency, boolean preferEndOfMonth) {
     ArgChecker.notNull(start, "start");
     ArgChecker.notNull(end, "end");
     ArgChecker.notNull(frequency, "frequency");
@@ -298,8 +297,7 @@ public enum StubConvention {
    * @return the effective stub convention
    * @throws ScheduleException if the input data is invalid
    */
-  abstract StubConvention toImplicit(
-      PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub);
+  abstract StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub);
 
   //-------------------------------------------------------------------------
   /**

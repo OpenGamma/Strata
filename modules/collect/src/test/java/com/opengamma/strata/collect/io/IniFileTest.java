@@ -141,8 +141,7 @@ public class IniFileTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_propertyAtStart() {
-    String invalid =
-        "a = x\n";
+    String invalid = "a = x\n";
     IniFile.of(CharSource.wrap(invalid));
   }
 

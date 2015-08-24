@@ -25,4 +25,3 @@
  * provide the glue to make currency conversion easy.
  */
 package com.opengamma.strata.basics.currency;
-

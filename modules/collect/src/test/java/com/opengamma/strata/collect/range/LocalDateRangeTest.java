@@ -389,8 +389,7 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "intersection")
-  public void test_intersection(
-      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+  public void test_intersection(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
 
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
@@ -400,8 +399,7 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "intersection")
-  public void test_intersection_reverse(
-      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+  public void test_intersection_reverse(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
 
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
@@ -428,8 +426,7 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "union")
-  public void test_union(
-      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+  public void test_union(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
 
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
@@ -439,8 +436,7 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "union")
-  public void test_union_reverse(
-      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+  public void test_union_reverse(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
 
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);

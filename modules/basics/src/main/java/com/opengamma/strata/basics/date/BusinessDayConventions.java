@@ -29,16 +29,16 @@ public final class BusinessDayConventions {
    * <p>
    * The input date will not be adjusted even if it is not a business day.
    */
-  public static final BusinessDayConvention NO_ADJUST =
-      BusinessDayConvention.of(StandardBusinessDayConventions.NO_ADJUST.getName());
+  public static final BusinessDayConvention NO_ADJUST = BusinessDayConvention
+      .of(StandardBusinessDayConventions.NO_ADJUST.getName());
   /**
    * The 'Following' convention which adjusts to the next business day.
    * <p>
    * If the input date is not a business day then the date is adjusted.
    * The adjusted date is the next business day.
    */
-  public static final BusinessDayConvention FOLLOWING =
-      BusinessDayConvention.of(StandardBusinessDayConventions.FOLLOWING.getName());
+  public static final BusinessDayConvention FOLLOWING = BusinessDayConvention
+      .of(StandardBusinessDayConventions.FOLLOWING.getName());
   /**
    * The 'ModifiedFollowing' convention which adjusts to the next business day without crossing month end.
    * <p>
@@ -46,8 +46,8 @@ public final class BusinessDayConventions {
    * The adjusted date is the next business day unless that day is in a different
    * calendar month, in which case the previous business day is returned.
    */
-  public static final BusinessDayConvention MODIFIED_FOLLOWING =
-      BusinessDayConvention.of(StandardBusinessDayConventions.MODIFIED_FOLLOWING.getName());
+  public static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConvention
+      .of(StandardBusinessDayConventions.MODIFIED_FOLLOWING.getName());
   /**
    * The 'ModifiedFollowingBiMonthly' convention which adjusts to the next business day without
    * crossing mid-month or month end.
@@ -57,16 +57,16 @@ public final class BusinessDayConventions {
    * The adjusted date is the next business day unless that day is in a different half-month,
    * in which case the previous business day is returned.
    */
-  public static final BusinessDayConvention MODIFIED_FOLLOWING_BI_MONTHLY =
-      BusinessDayConvention.of(StandardBusinessDayConventions.MODIFIED_FOLLOWING_BI_MONTHLY.getName());
+  public static final BusinessDayConvention MODIFIED_FOLLOWING_BI_MONTHLY = BusinessDayConvention
+      .of(StandardBusinessDayConventions.MODIFIED_FOLLOWING_BI_MONTHLY.getName());
   /**
    * The 'Preceding' convention which adjusts to the previous business day.
    * <p>
    * If the input date is not a business day then the date is adjusted.
    * The adjusted date is the previous business day.
    */
-  public static final BusinessDayConvention PRECEDING =
-      BusinessDayConvention.of(StandardBusinessDayConventions.PRECEDING.getName());
+  public static final BusinessDayConvention PRECEDING = BusinessDayConvention
+      .of(StandardBusinessDayConventions.PRECEDING.getName());
   /**
    * The 'ModifiedPreceding' convention which adjusts to the previous business day without crossing month start.
    * <p>
@@ -74,8 +74,8 @@ public final class BusinessDayConventions {
    * The adjusted date is the previous business day unless that day is in a different
    * calendar month, in which case the next business day is returned.
    */
-  public static final BusinessDayConvention MODIFIED_PRECEDING =
-      BusinessDayConvention.of(StandardBusinessDayConventions.MODIFIED_PRECEDING.getName());
+  public static final BusinessDayConvention MODIFIED_PRECEDING = BusinessDayConvention
+      .of(StandardBusinessDayConventions.MODIFIED_PRECEDING.getName());
   /**
    * The 'Nearest' convention which adjusts Sunday and Monday forward, and other days backward.
    * <p>
@@ -85,8 +85,7 @@ public final class BusinessDayConventions {
    * <p>
    * Note that despite the name, the algorithm may not return the business day that is actually nearest.
    */
-  public static final BusinessDayConvention NEAREST =
-      BusinessDayConvention.of(StandardBusinessDayConventions.NEAREST.getName());
+  public static final BusinessDayConvention NEAREST = BusinessDayConvention.of(StandardBusinessDayConventions.NEAREST.getName());
 
   //-------------------------------------------------------------------------
   /**

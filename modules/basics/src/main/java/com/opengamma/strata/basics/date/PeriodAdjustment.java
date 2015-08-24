@@ -102,8 +102,7 @@ public final class PeriodAdjustment
    * @param adjustment  the business day adjustment to apply to the result of the addition
    * @return the period adjustment
    */
-  public static PeriodAdjustment of(
-      Period period, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
+  public static PeriodAdjustment of(Period period, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
     return new PeriodAdjustment(period, additionConvention, adjustment);
   }
 

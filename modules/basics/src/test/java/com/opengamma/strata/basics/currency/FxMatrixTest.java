@@ -111,20 +111,19 @@ public class FxMatrixTest {
   }
 
   public void cannotAddEntryWithNoCommonCurrencyAndBuild() {
-    assertThrows(() ->
-        FxMatrix.builder()
-            .addRate(GBP, USD, 1.6)
-            .addRate(CHF, AUD, 1.6)
-            .build(),
+    assertThrows(() -> FxMatrix.builder()
+        .addRate(GBP, USD, 1.6)
+        .addRate(CHF, AUD, 1.6)
+        .build(),
         IllegalStateException.class);
   }
 
   public void canAddEntryWithNoCommonCurrencyIfSuppliedBySubsequentEntries() {
     FxMatrix.builder()
         .addRate(GBP, USD, 1.6)
-        .addRate(CHF, AUD, 1.6)  // Cannot be added as nothing to tie it to USD or GBP
-        .addRate(EUR, CHF, 1.2)  // Again cannot be added
-        .addRate(EUR, USD, 1.4)  // Now everything can be tied together
+        .addRate(CHF, AUD, 1.6)// Cannot be added as nothing to tie it to USD or GBP
+        .addRate(EUR, CHF, 1.2)// Again cannot be added
+        .addRate(EUR, USD, 1.4)// Now everything can be tied together
         .build();
   }
 
@@ -160,17 +159,17 @@ public class FxMatrixTest {
 
     /*
     Expected data as produced from old analytics FxMatrix
-
+    
     [USD, GBP,    EUR] - {
     USD {1.0 ,0.666, 0.714283},
     GBP {1.5, 1.0,   1.071428},
     EUR {1.4, 0.933, 1.0}}
-
+    
     [USD,     GBP,    EUR] - {
     {1.0,     0.625,  0.66964},
     {1.6,     1.0,    1.071428},
     {1.49333, 0.9333, 1.0}}
-
+    
      [USD,    GBP,    EUR] - {
      {1.0,    0.625,  0.71428},
      {1.6,    1.0,    1.14285},
@@ -205,9 +204,9 @@ public class FxMatrixTest {
 
     // Matrix2 update was restating USD wrt GBP so
     // EUR/USD is affected
-    assertThat(matrix2.fxRate(EUR, USD)).isEqualTo(1.4 * (1.6 / 1.5), TOL); // = 1.49333
+    assertThat(matrix2.fxRate(EUR, USD)).isEqualTo(1.4 * (1.6 / 1.5), TOL);// = 1.49333
     // but EUR/GBP is not
-    assertThat(matrix2.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.5, TOL);  // = 0.9333
+    assertThat(matrix2.fxRate(EUR, GBP)).isEqualTo(1.4 / 1.5, TOL);// = 0.9333
 
     // The rate we updated
     assertThat(matrix3.fxRate(GBP, USD)).isEqualTo(1.6);
@@ -216,7 +215,7 @@ public class FxMatrixTest {
     // no effect on EUR/USD
     assertThat(matrix3.fxRate(EUR, USD)).isEqualTo(1.4);
     // but there is an effect on EUR/GBP
-    assertThat(matrix3.fxRate(EUR, GBP)).isEqualTo((1.4 / 1.5) * (1.5 / 1.6), TOL); // = 0.875
+    assertThat(matrix3.fxRate(EUR, GBP)).isEqualTo((1.4 / 1.5) * (1.5 / 1.6), TOL);// = 0.875
   }
 
   public void rateCanBeUpdatedWithDirectionSwitched() {
@@ -262,10 +261,9 @@ public class FxMatrixTest {
     LinkedHashMap<CurrencyPair, Double> rates = new LinkedHashMap<>();
     rates.put(CurrencyPair.of(GBP, USD), 1.6);
     rates.put(CurrencyPair.of(EUR, USD), 1.4);
-    rates.put(CurrencyPair.of(JPY, CAD), 0.01); // Neither currency linked to one of the others
+    rates.put(CurrencyPair.of(JPY, CAD), 0.01);// Neither currency linked to one of the others
 
-    assertThrows(() ->
-        FxMatrix.builder().addRates(rates).build(),
+    assertThrows(() -> FxMatrix.builder().addRates(rates).build(),
         IllegalStateException.class);
   }
 
@@ -278,9 +276,9 @@ public class FxMatrixTest {
     LinkedHashMap<CurrencyPair, Double> rates = new LinkedHashMap<>();
     rates.put(CurrencyPair.of(GBP, USD), 1.6);
     rates.put(CurrencyPair.of(EUR, USD), 1.4);
-    rates.put(CurrencyPair.of(CHF, AUD), 1.2);  // Neither currency seen before
-    rates.put(CurrencyPair.of(SEK, AUD), 0.16); // AUD seen before but not added yet
-    rates.put(CurrencyPair.of(JPY, CAD), 0.01); // Neither currency seen before
+    rates.put(CurrencyPair.of(CHF, AUD), 1.2);// Neither currency seen before
+    rates.put(CurrencyPair.of(SEK, AUD), 0.16);// AUD seen before but not added yet
+    rates.put(CurrencyPair.of(JPY, CAD), 0.01);// Neither currency seen before
     rates.put(CurrencyPair.of(EUR, CHF), 1.2);
     rates.put(CurrencyPair.of(JPY, USD), 0.0084);
 
@@ -300,16 +298,15 @@ public class FxMatrixTest {
   public void streamEntriesToMatrix() {
 
     // If we obtain a stream of rates we can collect to an fx matrix
-    Map<CurrencyPair, Double> rates =
-        ImmutableMap.<CurrencyPair, Double>builder()
-            .put(CurrencyPair.of(GBP, USD), 1.6)
-            .put(CurrencyPair.of(EUR, USD), 1.4)
-            .put(CurrencyPair.of(CHF, AUD), 1.2) // Neither currency seen before
-            .put(CurrencyPair.of(SEK, AUD), 0.1) // AUD seen before but not added yet
-            .put(CurrencyPair.of(JPY, CAD), 0.0) // Neither currency seen before
-            .put(CurrencyPair.of(EUR, CHF), 1.2)
-            .put(CurrencyPair.of(JPY, USD), 0.008)
-            .build();
+    Map<CurrencyPair, Double> rates = ImmutableMap.<CurrencyPair, Double>builder()
+        .put(CurrencyPair.of(GBP, USD), 1.6)
+        .put(CurrencyPair.of(EUR, USD), 1.4)
+        .put(CurrencyPair.of(CHF, AUD), 1.2)// Neither currency seen before
+        .put(CurrencyPair.of(SEK, AUD), 0.1)// AUD seen before but not added yet
+        .put(CurrencyPair.of(JPY, CAD), 0.0)// Neither currency seen before
+        .put(CurrencyPair.of(EUR, CHF), 1.2)
+        .put(CurrencyPair.of(JPY, USD), 0.008)
+        .build();
 
     FxMatrix matrix = rates.entrySet()
         .stream()
@@ -324,20 +321,19 @@ public class FxMatrixTest {
     // If we obtain a stream of pairs with rates we can stream them
     // This could happen if an entry set undergoes a map operation
 
-    Map<CurrencyPair, Double> rates =
-        ImmutableMap.<CurrencyPair, Double>builder()
-            .put(CurrencyPair.of(GBP, USD), 1.6)
-            .put(CurrencyPair.of(EUR, USD), 1.4)
-            .put(CurrencyPair.of(CHF, AUD), 1.2) // Neither currency seen before
-            .put(CurrencyPair.of(SEK, AUD), 0.1) // AUD seen before but not added yet
-            .put(CurrencyPair.of(JPY, CAD), 0.0) // Neither currency seen before
-            .put(CurrencyPair.of(EUR, CHF), 1.2)
-            .put(CurrencyPair.of(JPY, USD), 0.008)
-            .build();
+    Map<CurrencyPair, Double> rates = ImmutableMap.<CurrencyPair, Double>builder()
+        .put(CurrencyPair.of(GBP, USD), 1.6)
+        .put(CurrencyPair.of(EUR, USD), 1.4)
+        .put(CurrencyPair.of(CHF, AUD), 1.2)// Neither currency seen before
+        .put(CurrencyPair.of(SEK, AUD), 0.1)// AUD seen before but not added yet
+        .put(CurrencyPair.of(JPY, CAD), 0.0)// Neither currency seen before
+        .put(CurrencyPair.of(EUR, CHF), 1.2)
+        .put(CurrencyPair.of(JPY, USD), 0.008)
+        .build();
 
     FxMatrix matrix = rates.entrySet()
         .stream()
-        .map(e -> Pair.of(e.getKey(), e.getValue() * 1.01)) // Apply some shift
+        .map(e -> Pair.of(e.getKey(), e.getValue() * 1.01))// Apply some shift
         .collect(pairsToFxMatrix());
 
     assertThat(matrix.fxRate(GBP, USD)).isEqualTo(1.616);

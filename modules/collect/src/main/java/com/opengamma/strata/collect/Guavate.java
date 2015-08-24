@@ -67,9 +67,7 @@ public final class Guavate {
    * @return a stream containing a single value if the optional has a value, else a stream with no values.
    */
   public static <T> Stream<T> stream(Optional<T> optional) {
-    return optional.isPresent() ?
-        Stream.of(optional.get()) :
-        Stream.empty();
+    return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -162,8 +160,7 @@ public final class Guavate {
    * @param <T>  the type of element in the sorted set
    * @return the immutable sorted set collector
    */
-  public static <T extends Comparable<?>>
-      Collector<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>> toImmutableSortedSet() {
+  public static <T extends Comparable<?>> Collector<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>> toImmutableSortedSet() {
     return Collector.of(
         (Supplier<ImmutableSortedSet.Builder<T>>) ImmutableSortedSet::naturalOrder,
         ImmutableSortedSet.Builder<T>::add,
@@ -183,8 +180,7 @@ public final class Guavate {
    * @param comparator  the comparator
    * @return the immutable sorted set collector
    */
-  public static <T> Collector<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>>
-      toImmutableSortedSet(Comparator<? super T> comparator) {
+  public static <T> Collector<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>> toImmutableSortedSet(Comparator<? super T> comparator) {
     return Collector.of(
         (Supplier<ImmutableSortedSet.Builder<T>>) () -> new ImmutableSortedSet.Builder<>(comparator),
         ImmutableSortedSet.Builder<T>::add,
@@ -231,8 +227,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <T, K> Collector<T, ?, ImmutableMap<K, T>> toImmutableMap(
-      Function<? super T, ? extends K> keyExtractor) {
+  public static <T, K> Collector<T, ?, ImmutableMap<K, T>> toImmutableMap(Function<? super T, ? extends K> keyExtractor) {
 
     return toImmutableMap(keyExtractor, Function.identity());
   }
@@ -256,9 +251,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <T, K, V> Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
-      Function<? super T, ? extends K> keyExtractor,
-      Function<? super T, ? extends V> valueExtractor) {
+  public static <T, K, V> Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(Function<? super T, ? extends K> keyExtractor, Function<? super T, ? extends V> valueExtractor) {
 
     return Collector.of(
         ImmutableMap.Builder<K, V>::new,
@@ -287,8 +280,7 @@ public final class Guavate {
    * @return the immutable sorted map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <T, K extends Comparable<?>> Collector<T, ?, ImmutableSortedMap<K, T>> toImmutableSortedMap(
-      Function<? super T, ? extends K> keyExtractor) {
+  public static <T, K extends Comparable<?>> Collector<T, ?, ImmutableSortedMap<K, T>> toImmutableSortedMap(Function<? super T, ? extends K> keyExtractor) {
 
     return toImmutableSortedMap(keyExtractor, Function.identity());
   }
@@ -312,9 +304,7 @@ public final class Guavate {
    * @return the immutable sorted map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K, V>> toImmutableSortedMap(
-      Function<? super T, ? extends K> keyExtractor,
-      Function<? super T, ? extends V> valueExtractor) {
+  public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K, V>> toImmutableSortedMap(Function<? super T, ? extends K> keyExtractor, Function<? super T, ? extends V> valueExtractor) {
 
     return Collector.of(
         (Supplier<ImmutableSortedMap.Builder<K, V>>) ImmutableSortedMap::naturalOrder,
@@ -342,8 +332,7 @@ public final class Guavate {
    * @param keyExtractor  function to produce keys from stream elements
    * @return the immutable multimap collector
    */
-  public static <T, K> Collector<T, ?, ImmutableListMultimap<K, T>> toImmutableListMultimap(
-      Function<? super T, ? extends K> keyExtractor) {
+  public static <T, K> Collector<T, ?, ImmutableListMultimap<K, T>> toImmutableListMultimap(Function<? super T, ? extends K> keyExtractor) {
 
     return toImmutableListMultimap(keyExtractor, Function.identity());
   }
@@ -365,9 +354,7 @@ public final class Guavate {
    * @param valueExtractor  function to produce values from stream elements
    * @return the immutable multimap collector
    */
-  public static <T, K, V> Collector<T, ?, ImmutableListMultimap<K, V>> toImmutableListMultimap(
-      Function<? super T, ? extends K> keyExtractor,
-      Function<? super T, ? extends V> valueExtractor) {
+  public static <T, K, V> Collector<T, ?, ImmutableListMultimap<K, V>> toImmutableListMultimap(Function<? super T, ? extends K> keyExtractor, Function<? super T, ? extends V> valueExtractor) {
 
     return Collector.of(
         ImmutableListMultimap.Builder<K, V>::new,
@@ -395,8 +382,7 @@ public final class Guavate {
    * @param keyExtractor  function to produce keys from stream elements
    * @return the immutable multimap collector
    */
-  public static <T, K> Collector<T, ?, ImmutableSetMultimap<K, T>> toImmutableSetMultimap(
-      Function<? super T, ? extends K> keyExtractor) {
+  public static <T, K> Collector<T, ?, ImmutableSetMultimap<K, T>> toImmutableSetMultimap(Function<? super T, ? extends K> keyExtractor) {
 
     return toImmutableSetMultimap(keyExtractor, Function.identity());
   }
@@ -418,9 +404,7 @@ public final class Guavate {
    * @param valueExtractor  function to produce values from stream elements
    * @return the immutable multimap collector
    */
-  public static <T, K, V> Collector<T, ?, ImmutableSetMultimap<K, V>> toImmutableSetMultimap(
-      Function<? super T, ? extends K> keyExtractor,
-      Function<? super T, ? extends V> valueExtractor) {
+  public static <T, K, V> Collector<T, ?, ImmutableSetMultimap<K, V>> toImmutableSetMultimap(Function<? super T, ? extends K> keyExtractor, Function<? super T, ? extends V> valueExtractor) {
 
     return Collector.of(
         ImmutableSetMultimap.Builder<K, V>::new,

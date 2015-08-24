@@ -56,8 +56,8 @@ public class ImmutableHolidayCalendarTest {
   private static final LocalDate TUE_2014_07_22 = LocalDate.of(2014, 7, 22);
   private static final LocalDate WED_2014_07_23 = LocalDate.of(2014, 7, 23);
 
-  private static final ImmutableHolidayCalendar HOLCAL_MON_WED =
-      ImmutableHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
+  private static final ImmutableHolidayCalendar HOLCAL_MON_WED = ImmutableHolidayCalendar.of("Test",
+      ImmutableList.of(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
 
   private static final LocalDate MON_2014_12_29 = LocalDate.of(2014, 12, 29);
   private static final LocalDate TUE_2014_12_30 = LocalDate.of(2014, 12, 30);
@@ -69,18 +69,18 @@ public class ImmutableHolidayCalendarTest {
   private static final LocalDate TUE_2015_03_31 = LocalDate.of(2015, 3, 31);
   private static final LocalDate WED_2015_04_01 = LocalDate.of(2015, 4, 1);
 
-  private static final ImmutableHolidayCalendar HOLCAL_YEAR_END =
-      ImmutableHolidayCalendar.of("TestYearEnd", ImmutableList.of(TUE_2014_12_30, THU_2015_01_01), SATURDAY, SUNDAY);
+  private static final ImmutableHolidayCalendar HOLCAL_YEAR_END = ImmutableHolidayCalendar.of("TestYearEnd",
+      ImmutableList.of(TUE_2014_12_30, THU_2015_01_01), SATURDAY, SUNDAY);
 
-  private static final ImmutableHolidayCalendar HOLCAL_SAT_SUN =
-      ImmutableHolidayCalendar.of("TestSatSun", ImmutableList.of(), SATURDAY, SUNDAY);
+  private static final ImmutableHolidayCalendar HOLCAL_SAT_SUN = ImmutableHolidayCalendar.of("TestSatSun", ImmutableList.of(),
+      SATURDAY, SUNDAY);
 
   private static final LocalDate MON_2014_06_30 = LocalDate.of(2014, 6, 30);
   private static final LocalDate WED_2014_07_30 = LocalDate.of(2014, 7, 30);
   private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
 
-  private static final ImmutableHolidayCalendar HOLCAL_END_MONTH =
-      ImmutableHolidayCalendar.of("TestEndOfMonth", ImmutableList.of(MON_2014_06_30, THU_2014_07_31), SATURDAY, SUNDAY);
+  private static final ImmutableHolidayCalendar HOLCAL_END_MONTH = ImmutableHolidayCalendar.of("TestEndOfMonth",
+      ImmutableList.of(MON_2014_06_30, THU_2014_07_31), SATURDAY, SUNDAY);
 
   private static final LocalDate FRI_2015_02_27 = LocalDate.of(2015, 2, 27);
   private static final LocalDate SAT_2015_02_28 = LocalDate.of(2015, 2, 28);
@@ -874,7 +874,7 @@ public class ImmutableHolidayCalendarTest {
     ImmutableHolidayCalendar c = ImmutableHolidayCalendar.of("Test1", Arrays.asList(THU_2014_07_10), SATURDAY, SUNDAY);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), true);  // only name compared
+    assertEquals(a1.equals(c), true);// only name compared
   }
 
   //-------------------------------------------------------------------------

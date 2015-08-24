@@ -75,8 +75,7 @@ public final class DaysAdjustment
   /**
    * An instance that performs no adjustment.
    */
-  public static final DaysAdjustment NONE =
-      new DaysAdjustment(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
+  public static final DaysAdjustment NONE = new DaysAdjustment(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
 
   /**
    * The number of days to be added.
@@ -175,10 +174,7 @@ public final class DaysAdjustment
    * @param adjustment  the business day adjustment to apply to the result of the addition
    * @return the days adjustment
    */
-  public static DaysAdjustment ofBusinessDays(
-      int numberOfDays,
-      HolidayCalendar holidayCalendar,
-      BusinessDayAdjustment adjustment) {
+  public static DaysAdjustment ofBusinessDays(int numberOfDays, HolidayCalendar holidayCalendar, BusinessDayAdjustment adjustment) {
     return new DaysAdjustment(numberOfDays, holidayCalendar, adjustment);
   }
 

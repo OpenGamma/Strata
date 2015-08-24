@@ -30,8 +30,8 @@ public final class PeriodAdditionConventions {
    * <p>
    * For example, adding a period of 1 month to June 30th will result in July 30th.
    */
-  public static final PeriodAdditionConvention NONE =
-      PeriodAdditionConvention.of(StandardPeriodAdditionConventions.NONE.getName());
+  public static final PeriodAdditionConvention NONE = PeriodAdditionConvention
+      .of(StandardPeriodAdditionConventions.NONE.getName());
   /**
    * Convention applying a last day of month rule, <i>ignoring business days</i>.
    * <p>
@@ -42,8 +42,8 @@ public final class PeriodAdditionConventions {
    * <p>
    * For example, adding a period of 1 month to June 30th will result in July 31st.
    */
-  public static final PeriodAdditionConvention LAST_DAY =
-      PeriodAdditionConvention.of(StandardPeriodAdditionConventions.LAST_DAY.getName());
+  public static final PeriodAdditionConvention LAST_DAY = PeriodAdditionConvention
+      .of(StandardPeriodAdditionConventions.LAST_DAY.getName());
   /**
    * Convention applying a last <i>business</i> day of month rule.
    * <p>
@@ -55,8 +55,8 @@ public final class PeriodAdditionConventions {
    * For example, adding a period of 1 month to June 29th will result in July 31st
    * assuming that June 30th is not a valid business day and July 31st is.
    */
-  public static final PeriodAdditionConvention LAST_BUSINESS_DAY =
-      PeriodAdditionConvention.of(StandardPeriodAdditionConventions.LAST_BUSINESS_DAY.getName());
+  public static final PeriodAdditionConvention LAST_BUSINESS_DAY = PeriodAdditionConvention
+      .of(StandardPeriodAdditionConventions.LAST_BUSINESS_DAY.getName());
 
   //-------------------------------------------------------------------------
   /**

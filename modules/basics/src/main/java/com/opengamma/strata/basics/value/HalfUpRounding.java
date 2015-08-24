@@ -50,6 +50,7 @@ public final class HalfUpRounding
    * so some limited caching makes sense.
    */
   private static final HalfUpRounding[] CACHE = new HalfUpRounding[16];
+
   static {
     for (int i = 0; i < 16; i++) {
       CACHE[i] = new HalfUpRounding(i, 0);
@@ -127,9 +128,7 @@ public final class HalfUpRounding
   //-------------------------------------------------------------------------
   // constructor
   @ImmutableConstructor
-  private HalfUpRounding(
-      int decimalPlaces,
-      int fraction) {
+  private HalfUpRounding(int decimalPlaces, int fraction) {
 
     if (decimalPlaces < 0 || decimalPlaces > 255) {
       throw new IllegalArgumentException("Invalid decimal places, must be from 0 to 255 inclusive");

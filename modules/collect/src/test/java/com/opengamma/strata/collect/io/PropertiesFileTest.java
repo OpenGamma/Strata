@@ -51,15 +51,13 @@ public class PropertiesFileTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_propertyNoEquals() {
-    String invalid =
-        "b\n";
+    String invalid = "b\n";
     PropertiesFile.of(CharSource.wrap(invalid));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_emptyKey() {
-    String invalid =
-        "= y\n";
+    String invalid = "= y\n";
     PropertiesFile.of(CharSource.wrap(invalid));
   }
 

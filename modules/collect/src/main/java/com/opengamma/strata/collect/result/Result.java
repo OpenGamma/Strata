@@ -338,11 +338,7 @@ public final class Result<T>
    * @param messageArgs  the arguments for the message
    * @return a success result if the value is non-null, else a failure result
    */
-  public static <R> Result<R> ofNullable(
-      R value,
-      FailureReason reason,
-      String message,
-      Object... messageArgs) {
+  public static <R> Result<R> ofNullable(R value, FailureReason reason, String message, Object... messageArgs) {
 
     if (value != null) {
       return success(value);
@@ -467,14 +463,10 @@ public final class Result<T>
    * @return a success result holding the result of applying the function to the
    *   input results if they were all successes, a failure otherwise
    */
-  public static <T, R> Result<R> combine(
-      Iterable<? extends Result<T>> results,
-      Function<Stream<T>, R> function) {
+  public static <T, R> Result<R> combine(Iterable<? extends Result<T>> results, Function<Stream<T>, R> function) {
 
     try {
-      return allSuccessful(results) ?
-          success(function.apply(extractSuccesses(results))) :
-          failure(results);
+      return allSuccessful(results) ? success(function.apply(extractSuccesses(results))) : failure(results);
 
     } catch (Exception e) {
       return failure(e, "Error whilst combining success results");
@@ -523,14 +515,10 @@ public final class Result<T>
    * @return a result holding the result of applying the function to the
    *   input results if they were all successes, a failure otherwise
    */
-  public static <T, R> Result<R> flatCombine(
-      Iterable<? extends Result<T>> results,
-      Function<Stream<T>, Result<R>> function) {
+  public static <T, R> Result<R> flatCombine(Iterable<? extends Result<T>> results, Function<Stream<T>, Result<R>> function) {
 
     try {
-      return allSuccessful(results) ?
-          function.apply(extractSuccesses(results)) :
-          failure(results);
+      return allSuccessful(results) ? function.apply(extractSuccesses(results)) : failure(results);
 
     } catch (Exception e) {
       return failure(e, "Error whilst combining success results");

@@ -572,8 +572,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
 
-    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition =
-        series.partition((ld, d) -> ld.getYear() % 2 == 0);
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition = series.partition((ld, d) -> ld.getYear() % 2 == 0);
 
     LocalDateDoubleTimeSeries even = partition.getFirst();
     LocalDateDoubleTimeSeries odd = partition.getSecond();
@@ -593,8 +592,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
 
-    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition =
-        series.partitionByValue(d -> d > 10 && d < 14);
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition = series.partitionByValue(d -> d > 10 && d < 14);
 
     LocalDateDoubleTimeSeries mid = partition.getFirst();
     LocalDateDoubleTimeSeries extreme = partition.getSecond();

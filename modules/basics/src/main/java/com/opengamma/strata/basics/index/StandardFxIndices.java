@@ -41,8 +41,7 @@ final class StandardFxIndices {
   public static final FxIndex WM_USD_JPY = wm(USD, JPY, USNY, JPTO);
 
   // ecb
-  private static FxIndex ecb(
-      Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
+  private static FxIndex ecb(Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
     DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(2, baseHoliday.combineWith(counterHoliday));
     return ImmutableFxIndex.builder()
         .name("ECB-" + base.getCode() + "-" + counter.getCode())
@@ -53,8 +52,7 @@ final class StandardFxIndices {
   }
 
   // wm
-  private static FxIndex wm(
-      Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
+  private static FxIndex wm(Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
     DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(2, baseHoliday.combineWith(counterHoliday));
     return ImmutableFxIndex.builder()
         .name("WM-" + base.getCode() + "-" + counter.getCode())

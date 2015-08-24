@@ -252,13 +252,7 @@ public final class PeriodicSchedule
    * @param preferEndOfMonth  whether to prefer the end-of-month when rolling
    * @return the definition
    */
-  public static PeriodicSchedule of(
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      Frequency frequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      boolean preferEndOfMonth) {
+  public static PeriodicSchedule of(LocalDate unadjustedStartDate, LocalDate unadjustedEndDate, Frequency frequency, BusinessDayAdjustment businessDayAdjustment, StubConvention stubConvention, boolean preferEndOfMonth) {
     ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
     ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNull(frequency, "frequency");
@@ -289,13 +283,7 @@ public final class PeriodicSchedule
    * @param rollConvention  the non-null convention defining how to roll dates
    * @return the definition
    */
-  public static PeriodicSchedule of(
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      Frequency frequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      RollConvention rollConvention) {
+  public static PeriodicSchedule of(LocalDate unadjustedStartDate, LocalDate unadjustedEndDate, Frequency frequency, BusinessDayAdjustment businessDayAdjustment, StubConvention stubConvention, RollConvention rollConvention) {
     ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
     ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNull(frequency, "frequency");
@@ -416,9 +404,9 @@ public final class PeriodicSchedule
     // calculate base schedule excluding explicit stubs
     RollConvention rollConv = getEffectiveRollConvention();
     StubConvention implicitStubConv = generateImplicitStubConvention(explicitInitialStub, explicitFinalStub);
-    List<LocalDate> unadj = (implicitStubConv.isCalculateBackwards() ?
-        generateBackwards(regStart, regEnd, rollConv, implicitStubConv) :
-        generateForwards(regStart, regEnd, rollConv, implicitStubConv));
+    List<LocalDate> unadj = (implicitStubConv.isCalculateBackwards()
+        ? generateBackwards(regStart, regEnd, rollConv, implicitStubConv)
+        : generateForwards(regStart, regEnd, rollConv, implicitStubConv));
     // add explicit stubs
     if (explicitInitialStub) {
       unadj.add(0, startDate);

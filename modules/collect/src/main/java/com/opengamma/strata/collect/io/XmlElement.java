@@ -137,11 +137,7 @@ public final class XmlElement
    * @param content  the content, empty if the element has no content
    * @param children  the children, empty if the element has no children
    */
-  private XmlElement(
-      String name,
-      ImmutableMap<String, String> attributes,
-      String content,
-      ImmutableList<XmlElement> children) {
+  private XmlElement(String name, ImmutableMap<String, String> attributes, String content, ImmutableList<XmlElement> children) {
 
     this.name = ArgChecker.notEmpty(name, "name");
     this.attributes = ArgChecker.notNull(attributes, "attributes");

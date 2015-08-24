@@ -74,8 +74,7 @@ final class CurrencyDataLoader {
       String currencyCode = entry.getKey();
       if (Currency.REGEX_FORMAT.matcher(currencyCode).matches()) {
         PropertySet properties = entry.getValue();
-        boolean isHistoric =
-            (properties.keys().contains("historic") && Boolean.parseBoolean(properties.getValue("historic")));
+        boolean isHistoric = (properties.keys().contains("historic") && Boolean.parseBoolean(properties.getValue("historic")));
         if (isHistoric == loadHistoric) {
           Integer minorUnits = Integer.parseInt(properties.getValue("minorUnitDigits"));
           String triangulationCurrency = properties.getValue("triangulationCurrency");

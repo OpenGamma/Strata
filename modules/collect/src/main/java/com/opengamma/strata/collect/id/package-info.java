@@ -16,4 +16,3 @@
  * This provides loose coupling between different parts of the object model.
  */
 package com.opengamma.strata.collect.id;
-

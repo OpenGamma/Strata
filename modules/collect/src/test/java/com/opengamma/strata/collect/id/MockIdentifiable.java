@@ -54,8 +54,8 @@ public final class MockIdentifiable
   /**
    * Resolvable link to MOCK2.
    */
-  public static final StandardLink<MockIdentifiable> LINK_RESOLVABLE_MOCK2 =
-      StandardLink.resolvable(STANDARD_ID_2, MockIdentifiable.class);
+  public static final StandardLink<MockIdentifiable> LINK_RESOLVABLE_MOCK2 = StandardLink.resolvable(STANDARD_ID_2,
+      MockIdentifiable.class);
   /**
    * Resolved link to MOCK2.
    */

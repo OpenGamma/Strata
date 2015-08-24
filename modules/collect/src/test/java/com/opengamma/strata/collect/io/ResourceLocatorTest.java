@@ -84,8 +84,7 @@ public class ResourceLocatorTest {
 
   //-------------------------------------------------------------------------
   public void test_streamOfClasspathResources() throws Exception {
-    Stream<ResourceLocator> stream =
-        ResourceLocator.streamOfClasspathResources("com/opengamma/strata/collect/io/TestFile.txt");
+    Stream<ResourceLocator> stream = ResourceLocator.streamOfClasspathResources("com/opengamma/strata/collect/io/TestFile.txt");
     List<ResourceLocator> list = stream.collect(Collectors.toList());
     assertEquals(list.size(), 1);
     ResourceLocator test = list.get(0);

@@ -132,8 +132,8 @@ public interface LocalDateDoubleTimeSeries {
    * @throws NoSuchElementException if the time-series is empty
    */
   public default LocalDate getEarliestDate() {
-    return dates().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest date, time-series is empty"));
+    return dates().findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Unable to return earliest date, time-series is empty"));
   }
 
   /**
@@ -145,8 +145,8 @@ public interface LocalDateDoubleTimeSeries {
    * @throws NoSuchElementException if the time-series is empty
    */
   public default double getEarliestValue() {
-    return values().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest value, time-series is empty"));
+    return values().findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Unable to return earliest value, time-series is empty"));
   }
 
   /**
@@ -303,7 +303,7 @@ public interface LocalDateDoubleTimeSeries {
             .map(pt -> LocalDateDoublePoint.of(
                 pt.getDate(),
                 mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
-        .build();
+                    .build();
   }
 
   /**
@@ -336,8 +336,7 @@ public interface LocalDateDoubleTimeSeries {
    *   made of all the points in this series which match the predicate. The
    *   second is a series made of the points which do not match.
    */
-  public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition(
-      ObjDoublePredicate<LocalDate> predicate) {
+  public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition(ObjDoublePredicate<LocalDate> predicate) {
 
     Map<Boolean, LocalDateDoubleTimeSeries> partitioned = stream()
         .collect(
@@ -359,8 +358,7 @@ public interface LocalDateDoubleTimeSeries {
    *   made of all the points in this series which match the predicate. The
    *   second is a series made of the points which do not match.
    */
-  public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitionByValue(
-      DoublePredicate predicate) {
+  public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitionByValue(DoublePredicate predicate) {
     return partition((obj, value) -> predicate.test(value));
   }
 

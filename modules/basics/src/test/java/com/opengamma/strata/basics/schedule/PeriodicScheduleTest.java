@@ -351,9 +351,7 @@ public class PeriodicScheduleTest {
   }
 
   @Test(dataProvider = "generation")
-  public void test_monthly_schedule(
-      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+  public void test_monthly_schedule(LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -378,9 +376,7 @@ public class PeriodicScheduleTest {
   }
 
   @Test(dataProvider = "generation")
-  public void test_monthly_unadjusted(
-      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+  public void test_monthly_unadjusted(LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -396,9 +392,7 @@ public class PeriodicScheduleTest {
   }
 
   @Test(dataProvider = "generation")
-  public void test_monthly_adjusted(
-      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+  public void test_monthly_adjusted(LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -617,9 +611,7 @@ public class PeriodicScheduleTest {
     defn.createSchedule();
   }
 
-  @Test(
-      expectedExceptions = ScheduleException.class,
-      expectedExceptionsMessageRegExp = "Schedule calculation resulted in invalid period")
+  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = "Schedule calculation resulted in invalid period")
   public void test_brokenWhenAdjusted_twoPeriods_createSchedule() {
     // generate unadjusted dates that are sorted (Wed, then Fri, then Sun)
     // use weird BusinessDayConvention to move Sunday back to Thursday
@@ -687,9 +679,7 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   @Test(dataProvider = "generation")
-  public void coverage_equals(
-      LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv,
-      LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
+  public void coverage_equals(LocalDate start, LocalDate end, Frequency freq, StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg, List<LocalDate> unadjusted, List<LocalDate> adjusted) {
     PeriodicSchedule a1 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
     PeriodicSchedule a2 = of(start, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
     PeriodicSchedule b = of(LocalDate.MIN, end, freq, BDA, stubConv, rollConv, firstReg, lastReg, null, null);
@@ -719,10 +709,7 @@ public class PeriodicScheduleTest {
     assertEquals(a1.equals(k), false);
   }
 
-  private PeriodicSchedule of(
-      LocalDate start, LocalDate end, Frequency freq, BusinessDayAdjustment bda,
-      StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg,
-      BusinessDayAdjustment startBda, BusinessDayAdjustment endBda) {
+  private PeriodicSchedule of(LocalDate start, LocalDate end, Frequency freq, BusinessDayAdjustment bda, StubConvention stubConv, RollConvention rollConv, LocalDate firstReg, LocalDate lastReg, BusinessDayAdjustment startBda, BusinessDayAdjustment endBda) {
     return PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)

@@ -203,11 +203,7 @@ class DenseLocalDateDoubleTimeSeries
    * @param dateCalculation  the date calculation method to be used
    * @return a new time-series
    */
-  static LocalDateDoubleTimeSeries of(
-      LocalDate startDate,
-      LocalDate endDate,
-      Stream<LocalDateDoublePoint> values,
-      DenseTimeSeriesCalculation dateCalculation) {
+  static LocalDateDoubleTimeSeries of(LocalDate startDate, LocalDate endDate, Stream<LocalDateDoublePoint> values, DenseTimeSeriesCalculation dateCalculation) {
 
     double[] points = new double[dateCalculation.calculatePosition(startDate, endDate) + 1];
     Arrays.fill(points, Double.NaN);
@@ -217,11 +213,7 @@ class DenseLocalDateDoubleTimeSeries
 
   // Private constructor, the trusted flag indicates whether the
   // points array should be cloned. If trusted, it will not be cloned.
-  private DenseLocalDateDoubleTimeSeries(
-      LocalDate startDate,
-      double[] points,
-      DenseTimeSeriesCalculation dateCalculation,
-      boolean trusted) {
+  private DenseLocalDateDoubleTimeSeries(LocalDate startDate, double[] points, DenseTimeSeriesCalculation dateCalculation, boolean trusted) {
 
     ArgChecker.notNull(points, "points");
     this.startDate = ArgChecker.notNull(startDate, "startDate");
@@ -230,10 +222,7 @@ class DenseLocalDateDoubleTimeSeries
   }
 
   @ImmutableConstructor
-  private DenseLocalDateDoubleTimeSeries(
-      LocalDate startDate,
-      double[] points,
-      DenseTimeSeriesCalculation dateCalculation) {
+  private DenseLocalDateDoubleTimeSeries(LocalDate startDate, double[] points, DenseTimeSeriesCalculation dateCalculation) {
     this(startDate, points, dateCalculation, false);
   }
 
@@ -286,8 +275,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToObj(this::calculateDateFromPosition)
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest date, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest date, time-series is empty"));
   }
 
   @Override
@@ -295,8 +283,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToDouble(i -> points[i])
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest value, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest value, time-series is empty"));
   }
 
   //-------------------------------------------------------------------------
@@ -404,8 +391,7 @@ class DenseLocalDateDoubleTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public LocalDateDoubleTimeSeries filter(ObjDoublePredicate<LocalDate> predicate) {
-    Stream<LocalDateDoublePoint> filteredPoints =
-        stream().filter(pt -> predicate.test(pt.getDate(), pt.getValue()));
+    Stream<LocalDateDoublePoint> filteredPoints = stream().filter(pt -> predicate.test(pt.getDate(), pt.getValue()));
 
     // As we may have changed the density of the series by filtering
     // go via the builder to get the best implementation
@@ -432,8 +418,7 @@ class DenseLocalDateDoubleTimeSeries
 
   @Override
   public void forEach(ObjDoubleConsumer<LocalDate> action) {
-    validIndices().forEach(i ->
-        action.accept(calculateDateFromPosition(i), points[i]));
+    validIndices().forEach(i -> action.accept(calculateDateFromPosition(i), points[i]));
   }
 
   @Override
