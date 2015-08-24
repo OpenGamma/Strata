@@ -297,12 +297,11 @@ public interface LocalDateDoubleTimeSeries {
   public default LocalDateDoubleTimeSeries intersection(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
     ArgChecker.notNull(other, "other");
     ArgChecker.notNull(mapper, "mapper");
-    return new LocalDateDoubleTimeSeriesBuilder(
-        stream()
+    return new LocalDateDoubleTimeSeriesBuilder()
+        .putAll(stream()
             .filter(pt -> other.containsDate(pt.getDate()))
             .map(pt -> LocalDateDoublePoint.of(
-                pt.getDate(),
-                mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
+                pt.getDate(), mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
         .build();
   }
 
