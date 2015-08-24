@@ -874,7 +874,7 @@ public class ImmutableHolidayCalendarTest {
     ImmutableHolidayCalendar c = ImmutableHolidayCalendar.of("Test1", Arrays.asList(THU_2014_07_10), SATURDAY, SUNDAY);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), true);  // only name compared
+    assertEquals(a1.equals(c), true);// only name compared
   }
 
   //-------------------------------------------------------------------------

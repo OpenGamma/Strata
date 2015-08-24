@@ -341,7 +341,7 @@ enum StandardDayCounts implements DayCount {
       }
       if (d2 == 31) {
         d2 = 1;
-        m2 = m2 + 1;  // nature of calculation means no need to adjust Dec to Jan
+        m2 = m2 + 1;// nature of calculation means no need to adjust Dec to Jan
       }
       return thirty360(
           firstDate.getYear(), m1, d1,

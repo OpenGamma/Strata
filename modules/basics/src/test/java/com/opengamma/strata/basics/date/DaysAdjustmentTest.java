@@ -63,8 +63,8 @@ public class DaysAdjustmentTest {
 
   public void test_ofCalendarDays1_adjust() {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(2);
-    LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 17));  // Sun
+    LocalDate base = date(2014, 8, 15);// Fri
+    assertEquals(test.adjust(base), date(2014, 8, 17));// Sun
   }
 
   public void test_ofCalendarDays2_oneDay() {
@@ -85,8 +85,8 @@ public class DaysAdjustmentTest {
 
   public void test_ofCalendarDays2_adjust() {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(2, BDA_FOLLOW_SAT_SUN);
-    LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 18));  // Mon
+    LocalDate base = date(2014, 8, 15);// Fri
+    assertEquals(test.adjust(base), date(2014, 8, 18));// Mon
   }
 
   public void test_ofCalendarDays2_null() {
@@ -112,8 +112,8 @@ public class DaysAdjustmentTest {
 
   public void test_ofBusinessDays2_adjust() {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN);
-    LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 19));  // Tue
+    LocalDate base = date(2014, 8, 15);// Fri
+    assertEquals(test.adjust(base), date(2014, 8, 19));// Tue
   }
 
   public void test_ofBusinessDays2_null() {
@@ -141,8 +141,8 @@ public class DaysAdjustmentTest {
 
   public void test_ofBusinessDays3_adjust() {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, BDA_FOLLOW_WED_THU);
-    LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
+    LocalDate base = date(2014, 8, 15);// Fri
+    assertEquals(test.adjust(base), date(2014, 8, 22));// Fri (3 days gives Wed, following moves to Fri)
   }
 
   public void test_ofBusinessDays3_null() {

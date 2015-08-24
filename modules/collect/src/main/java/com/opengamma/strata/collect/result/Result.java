@@ -472,9 +472,7 @@ public final class Result<T>
       Function<Stream<T>, R> function) {
 
     try {
-      return allSuccessful(results) ?
-          success(function.apply(extractSuccesses(results))) :
-          failure(results);
+      return allSuccessful(results) ? success(function.apply(extractSuccesses(results))) : failure(results);
 
     } catch (Exception e) {
       return failure(e, "Error whilst combining success results");
@@ -528,9 +526,7 @@ public final class Result<T>
       Function<Stream<T>, Result<R>> function) {
 
     try {
-      return allSuccessful(results) ?
-          function.apply(extractSuccesses(results)) :
-          failure(results);
+      return allSuccessful(results) ? function.apply(extractSuccesses(results)) : failure(results);
 
     } catch (Exception e) {
       return failure(e, "Error whilst combining success results");

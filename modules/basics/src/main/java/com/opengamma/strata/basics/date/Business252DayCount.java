@@ -43,7 +43,7 @@ final class Business252DayCount implements NamedLookup<DayCount> {
   }
 
   // obtains the day count
-  DayCount of(HolidayCalendar calendar) {
+      DayCount of(HolidayCalendar calendar) {
     return BY_CALENDAR.computeIfAbsent(calendar.getName(), this::createByCalendarName);
   }
 
@@ -67,7 +67,7 @@ final class Business252DayCount implements NamedLookup<DayCount> {
       HolidayCalendar cal = HolidayCalendar.of(name.substring(8));
       return new Bus252(name, cal);
     }
-    return null;  // name not a Bus/252 calendar
+    return null;// name not a Bus/252 calendar
   }
 
   //-------------------------------------------------------------------------

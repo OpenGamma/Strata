@@ -10,4 +10,3 @@
  * This package contains a class representing a range of dates.
  */
 package com.opengamma.strata.collect.range;
-

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 public class MessagesTest {
 
   @DataProvider(name = "formatMessageSingle")
-  Object[][] data_formatMessageSingle() {
+      Object[][] data_formatMessageSingle() {
     return new Object[][] {
         // null template
         {null, null, "", " - [null]"},
@@ -64,7 +64,7 @@ public class MessagesTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "formatMessage")
-  Object[][] data_formatMessage() {
+      Object[][] data_formatMessage() {
     return new Object[][] {
         // null template
         {null, null, "", ""},

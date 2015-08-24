@@ -28,7 +28,7 @@ public interface ObjLongFunction<T, R> {
    * @param value  the second argument
    * @return the result of the function
    */
-  R apply(T obj, long value);
+      R apply(T obj, long value);
 
   /**
    * Returns a new function that composes this function and the specified function.

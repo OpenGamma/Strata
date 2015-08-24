@@ -60,6 +60,6 @@ public interface ObservableKey
    * @param marketDataFeed  the market data feed that is the source of the observable market data
    * @return the identifier corresponding to this key
    */
-  ObservableId toObservableId(MarketDataFeed marketDataFeed);
+      ObservableId toObservableId(MarketDataFeed marketDataFeed);
 
 }

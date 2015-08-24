@@ -26,7 +26,7 @@ public interface ObjLongPredicate<T> {
    * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T obj, long value);
+      boolean test(T obj, long value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.

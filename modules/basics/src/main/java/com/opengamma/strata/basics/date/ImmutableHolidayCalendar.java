@@ -432,7 +432,7 @@ public final class ImmutableHolidayCalendar
     }
     if (other instanceof ImmutableHolidayCalendar) {
       ImmutableHolidayCalendar otherCal = (ImmutableHolidayCalendar) other;
-      LocalDateRange newRange = range.union(otherCal.range);  // exception if no overlap
+      LocalDateRange newRange = range.union(otherCal.range);// exception if no overlap
       ImmutableSortedSet<LocalDate> newHolidays =
           ImmutableSortedSet.copyOf(Iterables.concat(holidays, otherCal.holidays))
               .subSet(newRange.getStart(), newRange.getEndExclusive());

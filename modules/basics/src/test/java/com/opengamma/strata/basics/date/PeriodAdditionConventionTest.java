@@ -53,17 +53,17 @@ public class PeriodAdditionConventionTest {
   static Object[][] data_convention() {
     return new Object[][] {
         // None
-        {NONE, date(2014, 7, 11), 1, date(2014, 8, 11)},  // Fri, Mon
-        {NONE, date(2014, 7, 31), 1, date(2014, 8, 31)},  // Thu, Sun
-        {NONE, date(2014, 6, 30), 2, date(2014, 8, 30)},  // Mon, Sat
+        {NONE, date(2014, 7, 11), 1, date(2014, 8, 11)}, // Fri, Mon
+        {NONE, date(2014, 7, 31), 1, date(2014, 8, 31)}, // Thu, Sun
+        {NONE, date(2014, 6, 30), 2, date(2014, 8, 30)}, // Mon, Sat
         // LastDay
-        {LAST_DAY, date(2014, 7, 11), 1, date(2014, 8, 11)},  // Fri, Mon
-        {LAST_DAY, date(2014, 7, 31), 1, date(2014, 8, 31)},  // Thu, Sun
-        {LAST_DAY, date(2014, 6, 30), 2, date(2014, 8, 31)},  // Mon, Sun
+        {LAST_DAY, date(2014, 7, 11), 1, date(2014, 8, 11)}, // Fri, Mon
+        {LAST_DAY, date(2014, 7, 31), 1, date(2014, 8, 31)}, // Thu, Sun
+        {LAST_DAY, date(2014, 6, 30), 2, date(2014, 8, 31)}, // Mon, Sun
         // LastBusinessDay
-        {LAST_BUSINESS_DAY, date(2014, 7, 11), 1, date(2014, 8, 11)},  // Fri, Mon
-        {LAST_BUSINESS_DAY, date(2014, 7, 31), 1, date(2014, 8, 29)},  // Thu, Sun to Fri
-        {LAST_BUSINESS_DAY, date(2014, 6, 30), 2, date(2014, 8, 29)},  // Mon, Sun to Fri
+        {LAST_BUSINESS_DAY, date(2014, 7, 11), 1, date(2014, 8, 11)}, // Fri, Mon
+        {LAST_BUSINESS_DAY, date(2014, 7, 31), 1, date(2014, 8, 29)}, // Thu, Sun to Fri
+        {LAST_BUSINESS_DAY, date(2014, 6, 30), 2, date(2014, 8, 29)},// Mon, Sun to Fri
     };
   }
 

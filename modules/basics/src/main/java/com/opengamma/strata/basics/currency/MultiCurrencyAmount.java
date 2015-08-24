@@ -171,7 +171,7 @@ public final class MultiCurrencyAmount
         (map1, map2) -> {
           map2.values().forEach((ca2) -> map1.merge(ca2.getCurrency(), ca2, CurrencyAmount::plus));
           return map1;
-        },
+        } ,
         // convert to MultiCurrencyAmount
         map -> new MultiCurrencyAmount(ImmutableSortedSet.copyOf(map.values())),
         UNORDERED);

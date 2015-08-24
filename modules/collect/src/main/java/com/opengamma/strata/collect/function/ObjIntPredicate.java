@@ -26,7 +26,7 @@ public interface ObjIntPredicate<T> {
    * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T obj, int value);
+      boolean test(T obj, int value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.

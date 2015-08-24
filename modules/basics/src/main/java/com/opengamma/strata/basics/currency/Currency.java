@@ -432,7 +432,7 @@ public final class Currency
   }
 
   // called by CurrencyAmount
-  boolean equals(Currency other) {
+      boolean equals(Currency other) {
     // hash code is unique so can be used for equals
     return other.cachedHashCode == cachedHashCode;
   }

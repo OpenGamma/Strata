@@ -28,7 +28,7 @@ public interface ObjIntFunction<T, R> {
    * @param value  the second argument
    * @return the result of the function
    */
-  R apply(T obj, int value);
+      R apply(T obj, int value);
 
   /**
    * Returns a new function that composes this function and the specified function.

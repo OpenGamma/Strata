@@ -191,7 +191,7 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "generation")
-  Object[][] data_generation() {
+      Object[][] data_generation() {
     return new Object[][] {
         // stub null
         {JUN_17, SEP_17, P1M, null, null, null, null,

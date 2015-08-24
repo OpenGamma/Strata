@@ -260,9 +260,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
 
     // Depending on how dense the data is, judge which type of time series
     // is the best fit
-    return density() > DENSITY_THRESHOLD ?
-        createDenseSeries() :
-        createSparseSeries();
+    return density() > DENSITY_THRESHOLD ? createDenseSeries() : createSparseSeries();
   }
 
   private LocalDateDoubleTimeSeries createDenseSeries() {

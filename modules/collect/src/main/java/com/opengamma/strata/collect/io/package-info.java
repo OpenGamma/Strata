@@ -15,4 +15,3 @@
  * This package adds specific extensions to handle resources and specific file formats.
  */
 package com.opengamma.strata.collect.io;
-

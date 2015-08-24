@@ -129,7 +129,7 @@ public final class XmlFile {
       int event = reader.next();
       while (event != XMLStreamConstants.END_ELEMENT) {
         switch (event) {
-        // parse child when start element found
+          // parse child when start element found
           case XMLStreamConstants.START_ELEMENT:
             childBuilder.add(parse(reader, refAttr, refs));
             break;
@@ -145,9 +145,8 @@ public final class XmlFile {
         event = reader.next();
       }
       ImmutableList<XmlElement> children = childBuilder.build();
-      XmlElement parsed = children.isEmpty() ?
-          XmlElement.ofContent(elementName, attrs, content) :
-          XmlElement.ofChildren(elementName, attrs, children);
+      XmlElement parsed = children.isEmpty() ? XmlElement.ofContent(elementName, attrs, content)
+          : XmlElement.ofChildren(elementName, attrs, children);
       String ref = attrs.get(refAttr);
       if (ref != null) {
         refs.put(ref, parsed);

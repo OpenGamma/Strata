@@ -121,7 +121,7 @@ public final class ValueStep
    * @param periods  the list of schedule periods
    * @return the index of the schedule period
    */
-  int findIndex(List<SchedulePeriod> periods) {
+      int findIndex(List<SchedulePeriod> periods) {
     // either periodIndex or date is non-null, not both
     if (periodIndex != null) {
       // index based

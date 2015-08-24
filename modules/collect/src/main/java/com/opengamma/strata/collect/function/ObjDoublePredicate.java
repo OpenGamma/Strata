@@ -26,7 +26,7 @@ public interface ObjDoublePredicate<T> {
    * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T obj, double value);
+      boolean test(T obj, double value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.

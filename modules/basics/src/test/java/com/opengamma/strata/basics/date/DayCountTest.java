@@ -496,14 +496,14 @@ public class DayCountTest {
         {2004, 2, 28, 2005, 2, 28, 1d},
         {2004, 2, 28, 2005, 3, 1, 1d + (2d / 366d)},
         {2004, 2, 28, 2008, 2, 27, 3d + (365d / 366d)},
-        {2004, 2, 28, 2008, 2, 28, 4d},                   // ISDA end-of-February would give (4d + (1d / 365d))
+        {2004, 2, 28, 2008, 2, 28, 4d}, // ISDA end-of-February would give (4d + (1d / 365d))
         {2004, 2, 28, 2008, 2, 29, 4d + (1d / 365d)},
         {2004, 2, 28, 2008, 3, 1, 4d + (2d / 366d)},
         // from Feb29 2004
         {2004, 2, 29, 2005, 2, 28, 365d / 366d},
         {2004, 2, 29, 2005, 3, 1, 1d + (1d / 366d)},
         {2004, 2, 29, 2008, 2, 27, 3d + (364d / 366d)},
-        {2004, 2, 29, 2008, 2, 28, 3d + (365d / 366d)},   // ISDA end-of-February would give (4d)
+        {2004, 2, 29, 2008, 2, 28, 3d + (365d / 366d)}, // ISDA end-of-February would give (4d)
         {2004, 2, 29, 2008, 2, 29, 4d},
         {2004, 2, 29, 2008, 3, 1, 4d + (1d / 366d)},
         // from Mar01 2004
@@ -515,9 +515,9 @@ public class DayCountTest {
         {2004, 3, 1, 2008, 3, 1, 4d},
         // from Mar01 2003
         {2003, 3, 1, 2005, 2, 27, 1d + (363d / 365d)},
-        {2003, 3, 1, 2005, 2, 28, 1d + (364d / 365d)},    // ISDA end-of-February would give (2d)
+        {2003, 3, 1, 2005, 2, 28, 1d + (364d / 365d)}, // ISDA end-of-February would give (2d)
         {2003, 3, 1, 2005, 3, 1, 2d},
-        {2003, 3, 1, 2008, 2, 27, 4d + (363d / 365d)},    // ISDA end-of-February would give (5d)
+        {2003, 3, 1, 2008, 2, 27, 4d + (363d / 365d)}, // ISDA end-of-February would give (5d)
         {2003, 3, 1, 2008, 2, 28, 4d + (364d / 365d)},
         {2003, 3, 1, 2008, 2, 29, 5d},
         {2003, 3, 1, 2008, 3, 1, 5d},
@@ -531,9 +531,9 @@ public class DayCountTest {
         {2005, 2, 28, 2007, 3, 1, 2d + (1d / 365d)},
         {2005, 3, 1, 2007, 3, 1, 2d},
         // up to Feb28 in leap year from leap year
-        {2004, 2, 27, 2008, 2, 28, 4d + (1d / 365d)},     // ISDA end-of-February would give (4d + (2d / 365d))
-        {2004, 2, 28, 2008, 2, 28, 4d},                   // ISDA end-of-February would give (4d + (1d / 365d))
-        {2004, 2, 29, 2008, 2, 28, 3d + (365d / 366d)},   // ISDA end-of-February would give (4d)
+        {2004, 2, 27, 2008, 2, 28, 4d + (1d / 365d)}, // ISDA end-of-February would give (4d + (2d / 365d))
+        {2004, 2, 28, 2008, 2, 28, 4d}, // ISDA end-of-February would give (4d + (1d / 365d))
+        {2004, 2, 29, 2008, 2, 28, 3d + (365d / 366d)}, // ISDA end-of-February would give (4d)
         {2004, 3, 1, 2008, 2, 28, 3d + (364d / 365d)},
         // up to Feb28 in leap year from non leap year
         {2006, 2, 27, 2008, 2, 28, 2d + (1d / 365d)},
@@ -603,7 +603,7 @@ public class DayCountTest {
     // nominals, 2011-08-31 (P91D) 2011-11-30 (P91D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
-    LocalDate end = LocalDate.of(2011, 11, 12);  // before first nominal
+    LocalDate end = LocalDate.of(2011, 11, 12);// before first nominal
     ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (42d / (91d * 4d)), TOLERANCE_ZERO);
   }
@@ -612,7 +612,7 @@ public class DayCountTest {
     // nominals, 2011-08-31 (P91D) 2011-11-30 (P91D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
-    LocalDate end = LocalDate.of(2012, 1, 12);  // after first nominal
+    LocalDate end = LocalDate.of(2012, 1, 12);// after first nominal
     ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (60d / (91d * 4d)) + (43d / (91d * 4d)), TOLERANCE_ZERO);
   }
@@ -621,7 +621,7 @@ public class DayCountTest {
     // nominals, 2011-05-31 (P92D) 2011-08-31 (P91D) 2011-11-30 (P91D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 7, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
-    LocalDate end = LocalDate.of(2011, 8, 12);  // before first nominal
+    LocalDate end = LocalDate.of(2011, 8, 12);// before first nominal
     ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (42d / (92d * 4d)), TOLERANCE_ZERO);
   }
@@ -639,7 +639,7 @@ public class DayCountTest {
     // nominals, 2011-08-29 (P92D) 2011-11-29 (P92D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
-    LocalDate end = LocalDate.of(2011, 11, 12);  // before first nominal
+    LocalDate end = LocalDate.of(2011, 11, 12);// before first nominal
     ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (42d / (92d * 4d)), TOLERANCE_ZERO);
   }
@@ -648,7 +648,7 @@ public class DayCountTest {
     // nominals, 2011-08-29 (P92D) 2011-11-29 (P92D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
-    LocalDate end = LocalDate.of(2012, 1, 12);  // after first nominal
+    LocalDate end = LocalDate.of(2012, 1, 12);// after first nominal
     ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (59d / (92d * 4d)) + (44d / (92d * 4d)), TOLERANCE_ZERO);
   }
@@ -658,7 +658,7 @@ public class DayCountTest {
     // nominals, 2011-08-31 (P91D) 2011-11-30 (P91D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 8, 31);
     LocalDate periodEnd = LocalDate.of(2012, 1, 31);
-    LocalDate end = LocalDate.of(2011, 11, 12);  // before first nominal
+    LocalDate end = LocalDate.of(2011, 11, 12);// before first nominal
     ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (73d / (91d * 4d)), TOLERANCE_ZERO);
   }
@@ -667,7 +667,7 @@ public class DayCountTest {
     // nominals, 2011-08-31 (P91D) 2011-11-30 (P91D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 8, 31);
     LocalDate periodEnd = LocalDate.of(2012, 1, 31);
-    LocalDate end = LocalDate.of(2012, 1, 12);  // after first nominal
+    LocalDate end = LocalDate.of(2012, 1, 12);// after first nominal
     ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (91d / (91d * 4d)) + (43d / (91d * 4d)), TOLERANCE_ZERO);
   }
@@ -676,7 +676,7 @@ public class DayCountTest {
     // nominals, 2012-02-29 (P90D) 2012-05-29 (P92D) 2012-08-29
     LocalDate start = LocalDate.of(2012, 2, 29);
     LocalDate periodEnd = LocalDate.of(2012, 7, 31);
-    LocalDate end = LocalDate.of(2012, 4, 1);  // before first nominal
+    LocalDate end = LocalDate.of(2012, 4, 1);// before first nominal
     ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (32d / (90d * 4d)), TOLERANCE_ZERO);
   }
@@ -685,7 +685,7 @@ public class DayCountTest {
     // nominals, 2012-02-29 (P90D) 2012-05-29 (P92D) 2012-08-29
     LocalDate start = LocalDate.of(2012, 2, 29);
     LocalDate periodEnd = LocalDate.of(2012, 7, 31);
-    LocalDate end = LocalDate.of(2012, 6, 1);  // after first nominal
+    LocalDate end = LocalDate.of(2012, 6, 1);// after first nominal
     ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (90d / (90d * 4d)) + (3d / (92d * 4d)), TOLERANCE_ZERO);
   }
@@ -706,8 +706,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(1999, 2, 1);
     LocalDate firstRegular = LocalDate.of(1999, 7, 1);
     LocalDate end = LocalDate.of(2000, 7, 1);
-    ScheduleInfo info1 = new Info(start, end.plus(P12M), firstRegular, true, P12M);  // initial period
-    ScheduleInfo info2 = new Info(start, end.plus(P12M), end, true, P12M);  // regular period
+    ScheduleInfo info1 = new Info(start, end.plus(P12M), firstRegular, true, P12M);// initial period
+    ScheduleInfo info2 = new Info(start, end.plus(P12M), end, true, P12M);// regular period
     assertEquals(ACT_ACT_ISDA.yearFraction(start, firstRegular), (150d / 365d), TOLERANCE_ZERO);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, firstRegular, info1), (150d / (365d * 1d)), TOLERANCE_ZERO);
     assertEquals(ACT_ACT_AFB.yearFraction(start, firstRegular), (150d / (365d)), TOLERANCE_ZERO);
@@ -721,8 +721,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2002, 8, 15);
     LocalDate firstRegular = LocalDate.of(2003, 7, 15);
     LocalDate end = LocalDate.of(2004, 1, 15);
-    ScheduleInfo info1 = new Info(start, end, firstRegular, true, P6M);  // initial period
-    ScheduleInfo info2 = new Info(start, end, end, true, P6M);  // regular period
+    ScheduleInfo info1 = new Info(start, end, firstRegular, true, P6M);// initial period
+    ScheduleInfo info2 = new Info(start, end, end, true, P6M);// regular period
     assertEquals(ACT_ACT_ISDA.yearFraction(start, firstRegular), (334d / 365d), TOLERANCE_ZERO);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, firstRegular, info1),
         (181d / (181d * 2d)) + (153d / (184d * 2d)), TOLERANCE_ZERO);
@@ -737,8 +737,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(1999, 7, 30);
     LocalDate lastRegular = LocalDate.of(2000, 1, 30);
     LocalDate end = LocalDate.of(2000, 6, 30);
-    ScheduleInfo info1 = new Info(start, end, lastRegular, true, P6M);  // regular period
-    ScheduleInfo info2 = new Info(start, end, end, true, P6M);  // final period
+    ScheduleInfo info1 = new Info(start, end, lastRegular, true, P6M);// regular period
+    ScheduleInfo info2 = new Info(start, end, end, true, P6M);// final period
     assertEquals(ACT_ACT_ISDA.yearFraction(start, lastRegular), (155d / 365d) + (29d / 366d), TOLERANCE_ZERO);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, lastRegular, info1), (184d / (184d * 2d)), TOLERANCE_ZERO);
     assertEquals(ACT_ACT_AFB.yearFraction(start, lastRegular), (184d / 365d), TOLERANCE_ZERO);

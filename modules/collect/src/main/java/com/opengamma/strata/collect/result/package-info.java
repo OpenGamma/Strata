@@ -12,4 +12,3 @@
  * Instead of using exceptions, code will return failure results.
  */
 package com.opengamma.strata.collect.result;
-

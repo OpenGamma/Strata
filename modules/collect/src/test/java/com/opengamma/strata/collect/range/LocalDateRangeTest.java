@@ -296,7 +296,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "encloses")
-  Object[][] data_encloses() {
+      Object[][] data_encloses() {
     return new Object[][] {
         // before start
         {DATE_2012_07_01, DATE_2012_07_27, false},
@@ -373,7 +373,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "intersection")
-  Object[][] data_intersection() {
+      Object[][] data_intersection() {
     return new Object[][] {
         // adjacent
         {DATE_2012_07_01, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_28},
@@ -412,7 +412,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "union")
-  Object[][] data_union() {
+      Object[][] data_union() {
     return new Object[][] {
         // adjacent
         {DATE_2012_07_01, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_01, DATE_2012_07_30},
@@ -451,7 +451,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "noOverlap")
-  Object[][] data_noOverlap() {
+      Object[][] data_noOverlap() {
     return new Object[][] {
         {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_28, DATE_2012_07_29},
         {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_29, DATE_2012_07_30},
@@ -525,7 +525,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "isBefore")
-  Object[][] data_isBefore() {
+      Object[][] data_isBefore() {
     return new Object[][] {
         // before start
         {DATE_2012_07_01, DATE_2012_07_27, false},
@@ -590,7 +590,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "isAfter")
-  Object[][] data_isAfter() {
+      Object[][] data_isAfter() {
     return new Object[][] {
         // before start
         {DATE_2012_07_01, DATE_2012_07_27, true},

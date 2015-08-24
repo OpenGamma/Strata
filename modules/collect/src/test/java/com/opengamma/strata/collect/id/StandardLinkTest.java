@@ -150,7 +150,7 @@ public class StandardLinkTest {
       @SuppressWarnings("unchecked")
       @Override
       public <T extends IdentifiableBean> T resolve(StandardId id, TypeToken<T> targetType) {
-        fail();  // resolver must not be called as already resolved
+        fail();// resolver must not be called as already resolved
         return (T) MOCK2;
       }
     };
@@ -163,7 +163,7 @@ public class StandardLinkTest {
       @SuppressWarnings("unchecked")
       @Override
       public <T extends IdentifiableBean> T resolve(StandardId id, TypeToken<T> targetType) {
-        fail();  // resolver must not be called as not resolvable
+        fail();// resolver must not be called as not resolvable
         return (T) MOCK2;
       }
     };
