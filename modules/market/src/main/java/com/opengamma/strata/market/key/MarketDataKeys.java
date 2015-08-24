@@ -6,7 +6,9 @@
 package com.opengamma.strata.market.key;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
@@ -25,8 +27,12 @@ public final class MarketDataKeys {
    * @param index  the index
    * @return a market data key for the forward curve for the index
    */
-  public static RateIndexCurveKey indexCurve(Index index) {
-    if (index instanceof RateIndex) {
+  public static MarketDataKey<?> indexCurve(Index index) {
+    if (index instanceof IborIndex) {
+      return IborIndexRatesKey.of((IborIndex) index);
+    } else if (index instanceof OvernightIndex) {
+      return OvernightIndexRatesKey.of((OvernightIndex) index);
+    } else if (index instanceof RateIndex) {
       return RateIndexCurveKey.of((RateIndex) index);
     } else {
       // TODO Support FX and inflation curves when they're added
