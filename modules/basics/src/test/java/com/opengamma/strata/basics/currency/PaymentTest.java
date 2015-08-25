@@ -12,8 +12,10 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
 import org.testng.annotations.Test;
 
@@ -69,6 +71,18 @@ public class PaymentTest {
     assertEquals(test.getAmount(), 1_000, 0d);
     assertEquals(test.getPayReceive(), PayReceive.RECEIVE);
     assertEquals(test.getDate(), DATE_2015_06_30);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_adjustDate() {
+    Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_29);
+    Payment expected = Payment.of(GBP_P1000, DATE_2015_06_29.plusDays(1));
+    assertEquals(test.adjustDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(1))), expected);
+  }
+
+  public void test_adjustDate_noChange() {
+    Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_29);
+    assertSame(test.adjustDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(1).minusDays(1))), test);
   }
 
   //-------------------------------------------------------------------------
