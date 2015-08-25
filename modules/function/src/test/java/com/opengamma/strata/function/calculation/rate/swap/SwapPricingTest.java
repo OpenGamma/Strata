@@ -31,7 +31,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -41,7 +40,6 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.Column;
@@ -73,6 +71,7 @@ import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
@@ -108,30 +107,26 @@ public class SwapPricingTest {
 
   //-------------------------------------------------------------------------
   public void presentValueVanillaFixedVsLibor1mSwap() {
-    RateCalculationSwapLeg payLeg = fixedLeg(
+    SwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), Frequency.P6M, PayReceive.PAY, NOTIONAL, 0.0125, null);
 
-    RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
-        .accrualSchedule(
-            PeriodicSchedule.builder()
-                .startDate(LocalDate.of(2014, 9, 12))
-                .endDate(LocalDate.of(2016, 9, 12))
-                .frequency(Frequency.P1M)
-                .businessDayAdjustment(BDA_MF)
-                .build())
-        .paymentSchedule(
-            PaymentSchedule.builder()
-                .paymentFrequency(Frequency.P1M)
-                .paymentDateOffset(DaysAdjustment.NONE)
-                .build())
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(LocalDate.of(2014, 9, 12))
+            .endDate(LocalDate.of(2016, 9, 12))
+            .frequency(Frequency.P1M)
+            .businessDayAdjustment(BDA_MF)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P1M)
+            .paymentDateOffset(DaysAdjustment.NONE)
+            .build())
         .notionalSchedule(NOTIONAL)
-        .calculation(
-            IborRateCalculation.builder()
-                .dayCount(DayCounts.ACT_360)
-                .index(USD_LIBOR_1M)
-                .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-                .build())
+        .calculation(IborRateCalculation.builder()
+            .index(USD_LIBOR_1M)
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
+            .build())
         .build();
 
     SwapTrade trade = SwapTrade.builder()
@@ -192,31 +187,25 @@ public class SwapPricingTest {
     assertThat(pv.getAmount()).isCloseTo(-1003684.8402, offset(TOLERANCE_PV));
   }
 
-  private static RateCalculationSwapLeg fixedLeg(
+  private static SwapLeg fixedLeg(
       LocalDate start, LocalDate end, Frequency frequency,
       PayReceive payReceive, NotionalSchedule notional, double fixedRate, StubConvention stubConvention) {
 
     return RateCalculationSwapLeg.builder()
         .payReceive(payReceive)
-        .accrualSchedule(
-            PeriodicSchedule.builder()
-                .startDate(start)
-                .endDate(end)
-                .frequency(frequency)
-                .businessDayAdjustment(BDA_MF)
-                .stubConvention(stubConvention)
-                .build())
-        .paymentSchedule(
-            PaymentSchedule.builder()
-                .paymentFrequency(frequency)
-                .paymentDateOffset(DaysAdjustment.NONE)
-                .build())
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(start)
+            .endDate(end)
+            .frequency(frequency)
+            .businessDayAdjustment(BDA_MF)
+            .stubConvention(stubConvention)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(frequency)
+            .paymentDateOffset(DaysAdjustment.NONE)
+            .build())
         .notionalSchedule(notional)
-        .calculation(
-            FixedRateCalculation.builder()
-                .dayCount(THIRTY_U_360)
-                .rate(ValueSchedule.of(fixedRate))
-                .build())
+        .calculation(FixedRateCalculation.of(fixedRate, THIRTY_U_360))
         .build();
   }
 

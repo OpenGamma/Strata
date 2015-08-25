@@ -44,6 +44,7 @@ import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -181,15 +182,15 @@ public class CurveGammaCalculatorTest {
   // swap USD standard conventions- TODO: replace by a template when available
   private static Swap swapUsd(LocalDate start, LocalDate end, PayReceive payReceive,
       NotionalSchedule notional, double fixedRate) {
-    RateCalculationSwapLeg fixedLeg =
+    SwapLeg fixedLeg =
         fixedLeg(start, end, Frequency.P6M, payReceive, notional, fixedRate, StubConvention.SHORT_INITIAL);
-    RateCalculationSwapLeg iborLeg =
+    SwapLeg iborLeg =
         iborLeg(start, end, USD_LIBOR_3M, (payReceive == PAY) ? RECEIVE : PAY, notional, StubConvention.SHORT_INITIAL);
     return Swap.of(fixedLeg, iborLeg);
   }
 
   // fixed rate leg
-  private static RateCalculationSwapLeg fixedLeg(
+  private static SwapLeg fixedLeg(
       LocalDate start, LocalDate end, Frequency frequency,
       PayReceive payReceive, NotionalSchedule notional, double fixedRate, StubConvention stubConvention) {
 
@@ -215,7 +216,7 @@ public class CurveGammaCalculatorTest {
   }
 
   // fixed rate leg
-  private static RateCalculationSwapLeg iborLeg(
+  private static SwapLeg iborLeg(
       LocalDate start, LocalDate end, IborIndex index,
       PayReceive payReceive, NotionalSchedule notional, StubConvention stubConvention) {
     Frequency freq = Frequency.of(index.getTenor().getPeriod());
@@ -234,7 +235,6 @@ public class CurveGammaCalculatorTest {
             .build())
         .notionalSchedule(notional)
         .calculation(IborRateCalculation.builder()
-            .dayCount(index.getDayCount())
             .index(index)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, index.getFixingCalendar(), BDA_P))
             .build())

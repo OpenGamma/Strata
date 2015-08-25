@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static org.testng.Assert.assertEquals;
 
@@ -44,6 +43,7 @@ import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.impl.Legacy;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -90,7 +90,7 @@ public class SwapCrossCurrencyEnd2EndTest {
   //-----------------------------------------------------------------------
   // XCcy swap with exchange of notional
   public void test_XCcyEur3MSpreadVsUSD3M() {
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -109,14 +109,13 @@ public class SwapCrossCurrencyEnd2EndTest {
             .currency(EUR)
             .build())
         .calculation(IborRateCalculation.builder()
-            .dayCount(ACT_360)
             .index(EUR_EURIBOR_3M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
             .spread(ValueSchedule.of(0.0020))
             .build())
         .build();
 
-    RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -135,7 +134,6 @@ public class SwapCrossCurrencyEnd2EndTest {
             .currency(USD)
             .build())
         .calculation(IborRateCalculation.builder()
-            .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
             .build())
@@ -157,8 +155,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
   public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
-
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -177,14 +174,13 @@ public class SwapCrossCurrencyEnd2EndTest {
             .currency(EUR)
             .build())
         .calculation(IborRateCalculation.builder()
-            .dayCount(ACT_360)
             .index(EUR_EURIBOR_3M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
             .spread(ValueSchedule.of(0.0020))
             .build())
         .build();
 
-    RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -208,7 +204,6 @@ public class SwapCrossCurrencyEnd2EndTest {
                 .build())
             .build())
         .calculation(IborRateCalculation.builder()
-            .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
             .build())

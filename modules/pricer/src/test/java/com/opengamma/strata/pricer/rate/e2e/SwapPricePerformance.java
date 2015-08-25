@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate.e2e;
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -38,6 +37,7 @@ import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
@@ -74,10 +74,10 @@ public class SwapPricePerformance {
   }
 
   //-----------------------------------------------------------------------
-  private static final RateCalculationSwapLeg PAY1 = fixedLeg(
+  private static final SwapLeg PAY1 = fixedLeg(
       LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), P6M, PAY, NOTIONAL, 0.0125, null);
 
-  private static final RateCalculationSwapLeg RECEIVE1 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE1 = RateCalculationSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 9, 12))
@@ -91,7 +91,6 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_1M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .build())
@@ -110,10 +109,10 @@ public class SwapPricePerformance {
   }
 
   //-----------------------------------------------------------------------
-  private static final RateCalculationSwapLeg PAY2 = fixedLeg(
+  private static final SwapLeg PAY2 = fixedLeg(
       LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
 
-  private static final RateCalculationSwapLeg RECEIVE2 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE2 = RateCalculationSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 9, 12))
@@ -127,7 +126,6 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_3M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .build())
@@ -145,10 +143,10 @@ public class SwapPricePerformance {
   }
 
   //-------------------------------------------------------------------------
-  private static final RateCalculationSwapLeg PAY3 = fixedLeg(
+  private static final SwapLeg PAY3 = fixedLeg(
       LocalDate.of(2013, 9, 12), LocalDate.of(2020, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
 
-  private static final RateCalculationSwapLeg RECEIVE3 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE3 = RateCalculationSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2013, 9, 12))
@@ -162,7 +160,6 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_3M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .build())
@@ -180,7 +177,7 @@ public class SwapPricePerformance {
   }
 
   //-------------------------------------------------------------------------
-  private static final RateCalculationSwapLeg PAY4 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg PAY4 = RateCalculationSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -194,13 +191,12 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_6M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .build())
       .build();
 
-  private static final RateCalculationSwapLeg RECEIVE4 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE4 = RateCalculationSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -214,7 +210,6 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_3M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .spread(ValueSchedule.of(0.0010))
@@ -233,7 +228,7 @@ public class SwapPricePerformance {
   }
 
   //-------------------------------------------------------------------------
-  private static final RateCalculationSwapLeg RECEIVE5 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE5 = RateCalculationSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -248,13 +243,12 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_1M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .build())
       .build();
 
-  private static final RateCalculationSwapLeg PAY5 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg PAY5 = RateCalculationSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -268,7 +262,6 @@ public class SwapPricePerformance {
           .build())
       .notionalSchedule(NOTIONAL)
       .calculation(IborRateCalculation.builder()
-          .dayCount(ACT_360)
           .index(USD_LIBOR_3M)
           .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
           .build())
@@ -287,7 +280,7 @@ public class SwapPricePerformance {
 
   //-------------------------------------------------------------------------
   // fixed rate leg
-  private static RateCalculationSwapLeg fixedLeg(
+  private static SwapLeg fixedLeg(
       LocalDate start,
       LocalDate end,
       Frequency frequency,
