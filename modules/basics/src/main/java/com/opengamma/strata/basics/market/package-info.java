@@ -23,4 +23,3 @@
  * quotes, curves, surfaces and cubes.
  */
 package com.opengamma.strata.basics.market;
-

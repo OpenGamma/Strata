@@ -243,9 +243,9 @@ final class StandardIborIndices {
 
   // maturity rule for LIBOR
   private static TenorAdjustment maturity(Tenor tenor, HolidayCalendar calendar) {
-    TenorAdjustment maturity = tenor.isMonthBased() ?
-        TenorAdjustment.ofLastBusinessDay(tenor, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, calendar)) :
-        TenorAdjustment.of(tenor, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, calendar));
+    TenorAdjustment maturity =
+        tenor.isMonthBased() ? TenorAdjustment.ofLastBusinessDay(tenor, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, calendar))
+            : TenorAdjustment.of(tenor, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, calendar));
     return maturity;
   }
 

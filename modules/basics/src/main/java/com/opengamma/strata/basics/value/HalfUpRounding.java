@@ -50,6 +50,7 @@ public final class HalfUpRounding
    * so some limited caching makes sense.
    */
   private static final HalfUpRounding[] CACHE = new HalfUpRounding[16];
+
   static {
     for (int i = 0; i < 16; i++) {
       CACHE[i] = new HalfUpRounding(i, 0);

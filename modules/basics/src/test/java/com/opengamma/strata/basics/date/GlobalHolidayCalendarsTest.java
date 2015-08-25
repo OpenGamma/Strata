@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 public class GlobalHolidayCalendarsTest {
 
   @DataProvider(name = "easter")
-  Object[][] data_easter() {
+      Object[][] data_easter() {
     return new Object[][] {
         {15, 4, 1900},
         {15, 4, 1900},
@@ -239,7 +239,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar GBLO = GlobalHolidayCalendars.generateLondon();
 
   @DataProvider(name = "gblo")
-  Object[][] data_gblo() {
+      Object[][] data_gblo() {
     return new Object[][] {
         // Whitsun, Last Mon Aug - http://hansard.millbanksystems.com/commons/1964/mar/04/staggered-holidays
         {1965, mds(1965, md(4, 16), md(4, 19), md(6, 7), md(8, 30), md(12, 27), md(12, 28))},
@@ -281,7 +281,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar FRPA = GlobalHolidayCalendars.generateParis();
 
   @DataProvider(name = "frpa")
-  Object[][] data_frpa() {
+      Object[][] data_frpa() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
         {2003, mds(2003, md(1, 1), md(4, 18), md(4, 21), md(5, 1), md(5, 2), md(5, 8), md(5, 9), md(5, 29), md(5, 30),
@@ -324,7 +324,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar CHZU = GlobalHolidayCalendars.generateZurich();
 
   @DataProvider(name = "chzu")
-  Object[][] data_chzu() {
+      Object[][] data_chzu() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
         {2012, mds(2012, md(1, 1), md(1, 2), md(4, 6), md(4, 9), md(5, 1), md(5, 17), md(5, 28),
@@ -354,7 +354,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar EUTA = GlobalHolidayCalendars.generateEuropeanTarget();
 
   @DataProvider(name = "euta")
-  Object[][] data_euta() {
+      Object[][] data_euta() {
     return new Object[][] {
         // 1997 - 1998 (testing phase), Jan 1, christmas day
         {1997, mds(1997, md(1, 1), md(12, 25))},
@@ -388,7 +388,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar USGS = GlobalHolidayCalendars.generateUsGovtSecurities();
 
   @DataProvider(name = "usgs")
-  Object[][] data_usgs() {
+      Object[][] data_usgs() {
     return new Object[][] {
         // http://www.sifma.org/uploadedfiles/research/statistics/statisticsfiles/misc-us-historical-holiday-market-recommendations-sifma.pdf?n=53384
         {1996, mds(1996, md(1, 1), md(1, 15), md(2, 19), md(4, 5), md(5, 27), md(7, 4),
@@ -448,7 +448,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar USNY = GlobalHolidayCalendars.generateUsNewYork();
 
   @DataProvider(name = "usny")
-  Object[][] data_usny() {
+      Object[][] data_usny() {
     return new Object[][] {
         // http://www.cs.ny.gov/attendance_leave/2012_legal_holidays.cfm
         // change year for other pages
@@ -485,7 +485,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NYFD = GlobalHolidayCalendars.generateNewYorkFed();
 
   @DataProvider(name = "nyfd")
-  Object[][] data_nyfd() {
+      Object[][] data_nyfd() {
     return new Object[][] {
         // http://www.ny.frb.org/aboutthefed/holiday_schedule.html
         // http://web.archive.org/web/20080403230805/http://www.ny.frb.org/aboutthefed/holiday_schedule.html
@@ -541,7 +541,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar NYSE = GlobalHolidayCalendars.generateNewYorkStockExchange();
 
   @DataProvider(name = "nyse")
-  Object[][] data_nyse() {
+      Object[][] data_nyse() {
     return new Object[][] {
         // https://www.nyse.com/markets/hours-calendars
         // http://web.archive.org/web/20110320011340/http://www.nyse.com/about/newsevents/1176373643795.html?sa_campaign=/internal_ads/homepage/08262008holidays
@@ -579,7 +579,7 @@ public class GlobalHolidayCalendarsTest {
   private static final HolidayCalendar JPTO = GlobalHolidayCalendars.generateTokyo();
 
   @DataProvider(name = "jpto")
-  Object[][] data_jpto() {
+      Object[][] data_jpto() {
     return new Object[][] {
         // https://www.boj.or.jp/en/about/outline/holi.htm/
         // http://web.archive.org/web/20110513190217/http://www.boj.or.jp/en/about/outline/holi.htm/

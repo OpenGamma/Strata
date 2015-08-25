@@ -111,11 +111,10 @@ public class FxMatrixTest {
   }
 
   public void cannotAddEntryWithNoCommonCurrencyAndBuild() {
-    assertThrows(() ->
-        FxMatrix.builder()
-            .addRate(GBP, USD, 1.6)
-            .addRate(CHF, AUD, 1.6)
-            .build(),
+    assertThrows(() -> FxMatrix.builder()
+        .addRate(GBP, USD, 1.6)
+        .addRate(CHF, AUD, 1.6)
+        .build(),
         IllegalStateException.class);
   }
 
@@ -160,17 +159,17 @@ public class FxMatrixTest {
 
     /*
     Expected data as produced from old analytics FxMatrix
-
+    
     [USD, GBP,    EUR] - {
     USD {1.0 ,0.666, 0.714283},
     GBP {1.5, 1.0,   1.071428},
     EUR {1.4, 0.933, 1.0}}
-
+    
     [USD,     GBP,    EUR] - {
     {1.0,     0.625,  0.66964},
     {1.6,     1.0,    1.071428},
     {1.49333, 0.9333, 1.0}}
-
+    
      [USD,    GBP,    EUR] - {
      {1.0,    0.625,  0.71428},
      {1.6,    1.0,    1.14285},
@@ -264,8 +263,7 @@ public class FxMatrixTest {
     rates.put(CurrencyPair.of(EUR, USD), 1.4);
     rates.put(CurrencyPair.of(JPY, CAD), 0.01); // Neither currency linked to one of the others
 
-    assertThrows(() ->
-        FxMatrix.builder().addRates(rates).build(),
+    assertThrows(() -> FxMatrix.builder().addRates(rates).build(),
         IllegalStateException.class);
   }
 

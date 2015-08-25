@@ -8,4 +8,3 @@
  * Basic tools to work with financial markets.
  */
 package com.opengamma.strata.basics;
-

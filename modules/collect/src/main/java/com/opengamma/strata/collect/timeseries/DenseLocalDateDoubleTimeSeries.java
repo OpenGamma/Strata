@@ -63,7 +63,7 @@ class DenseLocalDateDoubleTimeSeries
      */
     SKIP_WEEKENDS {
       @Override
-      int calculatePosition(LocalDate startDate, LocalDate date) {
+          int calculatePosition(LocalDate startDate, LocalDate date) {
         int unadjusted = (int) DAYS.between(startDate, date);
         // If the day for the start date is after the day of the date of
         // interest then there is an additional weekend that the
@@ -77,7 +77,7 @@ class DenseLocalDateDoubleTimeSeries
       }
 
       @Override
-      LocalDate calculateDateFromPosition(LocalDate startDate, int position) {
+          LocalDate calculateDateFromPosition(LocalDate startDate, int position) {
         int numWeekends = position / 5;
         int remaining = position % 5;
         // As above we add adjustment for an uncaptured weekend
@@ -86,7 +86,7 @@ class DenseLocalDateDoubleTimeSeries
       }
 
       @Override
-      boolean allowsDate(LocalDate date) {
+          boolean allowsDate(LocalDate date) {
         return !isWeekend(date);
       }
 
@@ -101,17 +101,17 @@ class DenseLocalDateDoubleTimeSeries
      */
     INCLUDE_WEEKENDS {
       @Override
-      int calculatePosition(LocalDate startDate, LocalDate date) {
+          int calculatePosition(LocalDate startDate, LocalDate date) {
         return (int) DAYS.between(startDate, date);
       }
 
       @Override
-      LocalDate calculateDateFromPosition(LocalDate startDate, int position) {
+          LocalDate calculateDateFromPosition(LocalDate startDate, int position) {
         return startDate.plusDays(position);
       }
 
       @Override
-      boolean allowsDate(LocalDate date) {
+          boolean allowsDate(LocalDate date) {
         return true;
       }
 
@@ -286,8 +286,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToObj(this::calculateDateFromPosition)
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest date, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest date, time-series is empty"));
   }
 
   @Override
@@ -295,8 +294,7 @@ class DenseLocalDateDoubleTimeSeries
     return reversedValidIndices()
         .mapToDouble(i -> points[i])
         .findFirst()
-        .orElseThrow(() ->
-            new NoSuchElementException("Unable to return latest value, time-series is empty"));
+        .orElseThrow(() -> new NoSuchElementException("Unable to return latest value, time-series is empty"));
   }
 
   //-------------------------------------------------------------------------
@@ -432,8 +430,7 @@ class DenseLocalDateDoubleTimeSeries
 
   @Override
   public void forEach(ObjDoubleConsumer<LocalDate> action) {
-    validIndices().forEach(i ->
-        action.accept(calculateDateFromPosition(i), points[i]));
+    validIndices().forEach(i -> action.accept(calculateDateFromPosition(i), points[i]));
   }
 
   @Override

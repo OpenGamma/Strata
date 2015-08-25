@@ -24,7 +24,7 @@ public class ObjectDoublePairTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
-  Object[][] data_factory() {
+      Object[][] data_factory() {
     return new Object[][] {
         {"A", 2.5d},
         {"B", 200.2d},

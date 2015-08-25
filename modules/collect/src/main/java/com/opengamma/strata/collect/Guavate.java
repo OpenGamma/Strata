@@ -67,9 +67,7 @@ public final class Guavate {
    * @return a stream containing a single value if the optional has a value, else a stream with no values.
    */
   public static <T> Stream<T> stream(Optional<T> optional) {
-    return optional.isPresent() ?
-        Stream.of(optional.get()) :
-        Stream.empty();
+    return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
   }
 
   //-------------------------------------------------------------------------

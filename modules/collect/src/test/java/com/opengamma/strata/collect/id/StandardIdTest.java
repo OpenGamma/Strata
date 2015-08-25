@@ -45,7 +45,7 @@ public class StandardIdTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "formats")
-  Object[][] data_formats() {
+      Object[][] data_formats() {
     return new Object[][] {
         {"Value", "A~Value"},
         {"a+b", "A~a+b"},
@@ -74,7 +74,7 @@ public class StandardIdTest {
   }
 
   @DataProvider(name = "parseInvalidFormat")
-  Object[][] data_parseInvalidFormat() {
+      Object[][] data_parseInvalidFormat() {
     return new Object[][] {
         {"Scheme"},
         {"Scheme~"},

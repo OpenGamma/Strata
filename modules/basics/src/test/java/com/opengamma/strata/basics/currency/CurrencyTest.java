@@ -74,7 +74,7 @@ public class CurrencyTest {
   }
 
   @DataProvider(name = "ofBad")
-  Object[][] data_ofBad() {
+      Object[][] data_ofBad() {
     return new Object[][] {
         {""},
         {"AB"},
@@ -112,7 +112,7 @@ public class CurrencyTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+      Object[][] data_parseBad() {
     return new Object[][] {
         {""},
         {"AB"},

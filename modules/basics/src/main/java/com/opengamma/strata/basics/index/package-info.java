@@ -11,4 +11,3 @@
  * such as exchange rate or interest rates. Most common indices are fixed daily.
  */
 package com.opengamma.strata.basics.index;
-

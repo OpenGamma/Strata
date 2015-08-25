@@ -33,4 +33,3 @@
  * entity objects to represent different kinds of adjustment.
  */
 package com.opengamma.strata.basics.date;
-

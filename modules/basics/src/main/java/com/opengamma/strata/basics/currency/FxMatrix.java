@@ -480,8 +480,8 @@ public final class FxMatrix
           .filter(other.currencies::containsKey)
           .findFirst();
 
-      Currency commonCurrency = common.orElseThrow(() ->
-          new IllegalArgumentException("There are no currencies in common between " +
+      Currency commonCurrency =
+          common.orElseThrow(() -> new IllegalArgumentException("There are no currencies in common between " +
               currencies.keySet() + " and " + other.currencies.keySet()));
 
       // Add in all currencies that we don't already have
