@@ -169,7 +169,7 @@ public final class RateCalculationSwapLeg
     return ExpandedSwapLeg.builder()
         .type(getType())
         .payReceive(payReceive)
-        .paymentPeriods(ImmutableList.copyOf(payPeriods))  // copyOf changes generics of list without an actual copy
+        .paymentPeriods(payPeriods)
         .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate()))
         .build();
   }

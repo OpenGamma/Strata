@@ -254,7 +254,7 @@ public final class RatePeriodSwapLeg
     return ExpandedSwapLeg.builder()
         .type(type)
         .payReceive(payReceive)
-        .paymentPeriods(ImmutableList.copyOf(adjusted))  // copyOf needed for type conversion
+        .paymentPeriods(adjusted)
         .paymentEvents(createEvents(adjusted))
         .build();
   }

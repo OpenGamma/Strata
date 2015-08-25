@@ -191,10 +191,7 @@ public class SwapTradeModelDemo {
             .currency(Currency.USD)
             .amount(ValueSchedule.of(100_000_000))
             .build())
-        .calculation(FixedRateCalculation.builder()
-            .dayCount(DayCounts.THIRTY_U_360)
-            .rate(ValueSchedule.of(0.015))
-            .build())
+        .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
         .build();
     // we are receiving USD LIBOR 3M every 3 months with a 100 million notional
     RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
@@ -214,11 +211,7 @@ public class SwapTradeModelDemo {
             .currency(Currency.USD)
             .amount(ValueSchedule.of(100_000_000))
             .build())
-        .calculation(IborRateCalculation.builder()
-            .dayCount(DayCounts.ACT_360)
-            .index(IborIndices.USD_LIBOR_3M)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY))
-            .build())
+        .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
         .build();
     // a SwapTrade combines the two legs
     SwapTrade trade = SwapTrade.builder()

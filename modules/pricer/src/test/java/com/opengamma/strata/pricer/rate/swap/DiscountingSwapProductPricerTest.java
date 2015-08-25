@@ -5,19 +5,21 @@
  */
 package com.opengamma.strata.pricer.rate.swap;
 
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.BuySell.BUY;
+import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.Tenor.TENOR_5Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
-import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_GBP;
@@ -36,8 +38,6 @@ import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.SWAP_CROSS_CUR
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.SWAP_INFLATION;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.SWAP_TRADE;
 import static com.opengamma.strata.pricer.rate.swap.SwapDummyData.SWAP_TRADE_CROSS_CURRENCY;
-import static com.opengamma.strata.basics.date.Tenor.TENOR_5Y;
-import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -74,6 +74,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.PaymentSchedule;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.finance.rate.swap.Swap;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
@@ -265,7 +266,7 @@ public class DiscountingSwapProductPricerTest {
   }
 
   public void test_parRate_inflation_periodic() {
-    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+    SwapLeg fixedLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
@@ -293,7 +294,7 @@ public class DiscountingSwapProductPricerTest {
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
     double parRateComputed = pricerSwap.parRate(swap, prov);
-    RateCalculationSwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
+    SwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
