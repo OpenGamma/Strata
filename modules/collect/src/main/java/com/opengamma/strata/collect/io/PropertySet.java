@@ -12,6 +12,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -104,14 +105,29 @@ public final class PropertySet {
   }
 
   /**
-   * Returns the property set as a map.
+   * Returns the property set as a multimap.
    * <p>
    * The iteration order of the map matches that of the input data.
    * 
    * @return the key-value map
    */
-  public ImmutableListMultimap<String, String> asMap() {
+  public ImmutableListMultimap<String, String> asMultimap() {
     return keyValueMap;
+  }
+
+  /**
+   * Returns the property set as a map, throwing an exception if any key has multiple values.
+   * <p>
+   * The iteration order of the map matches that of the input data.
+   * 
+   * @return the key-value map
+   */
+  public ImmutableMap<String, String> asMap() {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (String key : keys()) {
+      builder.put(key, value(key));
+    }
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -145,7 +161,7 @@ public final class PropertySet {
    * @return the value
    * @throws IllegalArgumentException if the key does not exist, or if more than one value is associated
    */
-  public String getValue(String key) {
+  public String value(String key) {
     ArgChecker.notNull(key, "key");
     ImmutableList<String> values = keyValueMap.get(key);
     if (values.size() == 0) {
@@ -168,7 +184,7 @@ public final class PropertySet {
    * @param key  the key name
    * @return the list of values associated with the key
    */
-  public ImmutableList<String> getValueList(String key) {
+  public ImmutableList<String> valueList(String key) {
     ArgChecker.notNull(key, "key");
     return MoreObjects.firstNonNull(keyValueMap.get(key), ImmutableList.<String>of());
   }
@@ -191,9 +207,9 @@ public final class PropertySet {
       return other;
     }
     ListMultimap<String, String> map = ArrayListMultimap.create(keyValueMap);
-    for (String key : other.asMap().keySet()) {
+    for (String key : other.asMultimap().keySet()) {
       map.removeAll(key);
-      map.putAll(key, other.getValueList(key));
+      map.putAll(key, other.valueList(key));
     }
     return new PropertySet(ImmutableListMultimap.copyOf(map));
   }

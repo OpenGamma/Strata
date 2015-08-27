@@ -30,8 +30,8 @@ public class PropertySetTest {
 
     assertEquals(test.isEmpty(), true);
     assertEquals(test.contains("unknown"), false);
-    assertEquals(test.getValueList("unknown"), ImmutableList.of());
-    assertThrowsIllegalArg(() -> test.getValue("unknown"));
+    assertEquals(test.valueList("unknown"), ImmutableList.of());
+    assertThrowsIllegalArg(() -> test.value("unknown"));
     assertEquals(test.toString(), "{}");
   }
 
@@ -41,17 +41,18 @@ public class PropertySetTest {
 
     assertEquals(test.isEmpty(), false);
     assertEquals(test.contains("a"), true);
-    assertEquals(test.getValue("a"), "x");
-    assertEquals(test.getValueList("a"), ImmutableList.of("x"));
+    assertEquals(test.value("a"), "x");
+    assertEquals(test.valueList("a"), ImmutableList.of("x"));
     assertEquals(test.contains("b"), true);
-    assertEquals(test.getValue("b"), "y");
-    assertEquals(test.getValueList("b"), ImmutableList.of("y"));
+    assertEquals(test.value("b"), "y");
+    assertEquals(test.valueList("b"), ImmutableList.of("y"));
     assertEquals(test.contains("c"), false);
     assertEquals(test.keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.asMap(), ImmutableListMultimap.of("a", "x", "b", "y"));
-    assertEquals(test.getValueList("unknown"), ImmutableSet.of());
+    assertEquals(test.asMap(), ImmutableMap.of("a", "x", "b", "y"));
+    assertEquals(test.asMultimap(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.valueList("unknown"), ImmutableSet.of());
 
-    assertThrowsIllegalArg(() -> test.getValue("unknown"));
+    assertThrowsIllegalArg(() -> test.value("unknown"));
     assertEquals(test.toString(), "{a=[x], b=[y]}");
   }
 
@@ -61,17 +62,18 @@ public class PropertySetTest {
 
     assertEquals(test.isEmpty(), false);
     assertEquals(test.contains("a"), true);
-    assertThrowsIllegalArg(() -> test.getValue("a"));
-    assertEquals(test.getValueList("a"), ImmutableList.of("x", "y"));
+    assertThrowsIllegalArg(() -> test.value("a"));
+    assertEquals(test.valueList("a"), ImmutableList.of("x", "y"));
     assertEquals(test.contains("b"), true);
-    assertEquals(test.getValue("b"), "z");
-    assertEquals(test.getValueList("b"), ImmutableList.of("z"));
+    assertEquals(test.value("b"), "z");
+    assertEquals(test.valueList("b"), ImmutableList.of("z"));
     assertEquals(test.contains("c"), false);
     assertEquals(test.keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.asMap(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
-    assertEquals(test.getValueList("unknown"), ImmutableSet.of());
+    assertEquals(test.asMultimap(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
+    assertEquals(test.valueList("unknown"), ImmutableSet.of());
 
-    assertThrowsIllegalArg(() -> test.getValue("unknown"));
+    assertThrowsIllegalArg(() -> test.asMap());
+    assertThrowsIllegalArg(() -> test.value("unknown"));
     assertEquals(test.toString(), "{a=[x, y], b=[z]}");
   }
 

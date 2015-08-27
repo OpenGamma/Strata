@@ -75,10 +75,10 @@ final class CurrencyDataLoader {
       if (Currency.REGEX_FORMAT.matcher(currencyCode).matches()) {
         PropertySet properties = entry.getValue();
         boolean isHistoric =
-            (properties.keys().contains("historic") && Boolean.parseBoolean(properties.getValue("historic")));
+            (properties.keys().contains("historic") && Boolean.parseBoolean(properties.value("historic")));
         if (isHistoric == loadHistoric) {
-          Integer minorUnits = Integer.parseInt(properties.getValue("minorUnitDigits"));
-          String triangulationCurrency = properties.getValue("triangulationCurrency");
+          Integer minorUnits = Integer.parseInt(properties.value("minorUnitDigits"));
+          String triangulationCurrency = properties.value("triangulationCurrency");
           builder.put(currencyCode, new Currency(currencyCode, minorUnits, triangulationCurrency));
         }
       }
@@ -115,7 +115,7 @@ final class CurrencyDataLoader {
       if (CurrencyPair.REGEX_FORMAT.matcher(pairStr).matches()) {
         CurrencyPair pair = CurrencyPair.parse(pairStr);
         PropertySet properties = entry.getValue();
-        Integer rateDigits = Integer.parseInt(properties.getValue("rateDigits"));
+        Integer rateDigits = Integer.parseInt(properties.value("rateDigits"));
         builder.put(pair, rateDigits);
       }
     }
@@ -132,8 +132,8 @@ final class CurrencyDataLoader {
     try {
       Stream<ResourceLocator> resourceLocators = ResourceLocator.streamOfClasspathResources(CURRENCY_DATA_INI);
       IniFile ini = IniFile.ofChained(resourceLocators.map(ResourceLocator::getCharSource));
-      PropertySet section = ini.getSection("marketConventionPriority");
-      String list = section.getValue("ordering");
+      PropertySet section = ini.section("marketConventionPriority");
+      String list = section.value("ordering");
       // The currency ordering is defined as a comma-separated list
       List<Currency> currencies = Arrays.stream(list.split(","))
           .map(String::trim)
