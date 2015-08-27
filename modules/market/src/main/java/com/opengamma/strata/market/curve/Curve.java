@@ -30,8 +30,7 @@ public interface Curve {
    * The metadata could be used to describe each parameter in terms of a {@link Period}.
    * <p>
    * The metadata includes an optional list of parameter metadata.
-   * If parameter metadata is not known, the list will be empty.
-   * Otherwise, the size of the parameter metadata list will match the number of parameters of this curve.
+   * If parameter metadata is present, the size of the list will match the number of parameters of this curve.
    * 
    * @return the metadata
    */

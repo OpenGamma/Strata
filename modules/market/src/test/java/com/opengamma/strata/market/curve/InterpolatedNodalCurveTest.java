@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1Y;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -226,6 +227,11 @@ public class InterpolatedNodalCurveTest {
         .extrapolatorRight(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR_INSTANCE)
         .build();
     coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    assertSerialization(test);
   }
 
 }
