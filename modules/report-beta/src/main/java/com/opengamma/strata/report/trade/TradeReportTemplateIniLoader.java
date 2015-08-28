@@ -37,11 +37,11 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
   @Override
   public TradeReportTemplate load(IniFile iniFile) {
     List<TradeReportColumn> reportColumns = new ArrayList<TradeReportColumn>();
-    for (String columnName : iniFile.keys()) {
+    for (String columnName : iniFile.sections()) {
       if (columnName.toLowerCase().equals(SETTINGS_SECTION)) {
         continue;
       }
-      PropertySet properties = iniFile.getSection(columnName);
+      PropertySet properties = iniFile.section(columnName);
       reportColumns.add(parseColumn(columnName, properties));
     }
     return TradeReportTemplate.builder()
@@ -54,10 +54,10 @@ public class TradeReportTemplateIniLoader implements ReportTemplateIniLoader<Tra
     columnBuilder.header(columnName);
 
     if (properties.contains(VALUE_PROPERTY)) {
-      columnBuilder.value(properties.getValue(VALUE_PROPERTY));
+      columnBuilder.value(properties.value(VALUE_PROPERTY));
     }
     if (properties.contains(IGNORE_FAILURES_PROPERTY)) {
-      String ignoreFailuresValue = properties.getValue(IGNORE_FAILURES_PROPERTY);
+      String ignoreFailuresValue = properties.value(IGNORE_FAILURES_PROPERTY);
       boolean ignoresFailure = Boolean.valueOf(ignoreFailuresValue);
       columnBuilder.ignoreFailures(ignoresFailure);
     }

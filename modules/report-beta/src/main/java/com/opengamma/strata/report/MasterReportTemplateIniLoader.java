@@ -25,13 +25,13 @@ public class MasterReportTemplateIniLoader {
 
   @SuppressWarnings("unchecked")
   public ReportTemplate load(IniFile iniFile) {
-    String settingsSectionKey = iniFile.keys().stream()
+    String settingsSectionKey = iniFile.sections().stream()
         .filter(k -> k.toLowerCase().equals(ReportTemplateIniLoader.SETTINGS_SECTION))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(
             Messages.format("Report template INI file must contain a {} section", ReportTemplateIniLoader.SETTINGS_SECTION)));
-    PropertySet settingsSection = iniFile.getSection(settingsSectionKey);
-    String reportType = settingsSection.getValue(ReportTemplateIniLoader.SETTINGS_REPORT_TYPE);
+    PropertySet settingsSection = iniFile.section(settingsSectionKey);
+    String reportType = settingsSection.value(ReportTemplateIniLoader.SETTINGS_REPORT_TYPE);
     ReportTemplateIniLoader<ReportTemplate> iniLoader = (ReportTemplateIniLoader<ReportTemplate>) LOADERS.stream()
         .filter(loader -> loader.getReportType().toLowerCase().equals(reportType.toLowerCase()))
         .findFirst()

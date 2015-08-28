@@ -92,33 +92,33 @@ public class IniFileTest {
         ImmutableMap.of("section", PropertySet.of(keyValues1), "name", PropertySet.of(keyValues2)));
 
     assertEquals(test.contains("section"), true);
-    assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
-    assertEquals(test.getSection("section").contains("a"), true);
-    assertEquals(test.getSection("section").getValue("a"), "x");
-    assertEquals(test.getSection("section").getValueList("a"), ImmutableList.of("x"));
-    assertEquals(test.getSection("section").contains("b"), true);
-    assertEquals(test.getSection("section").getValue("b"), "y");
-    assertEquals(test.getSection("section").getValueList("b"), ImmutableList.of("y"));
-    assertEquals(test.getSection("section").contains("c"), false);
-    assertEquals(test.getSection("section").keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.getSection("section").asMap(), ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertEquals(test.section("section"), PropertySet.of(keyValues1));
+    assertEquals(test.section("section").contains("a"), true);
+    assertEquals(test.section("section").value("a"), "x");
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of("x"));
+    assertEquals(test.section("section").contains("b"), true);
+    assertEquals(test.section("section").value("b"), "y");
+    assertEquals(test.section("section").valueList("b"), ImmutableList.of("y"));
+    assertEquals(test.section("section").contains("c"), false);
+    assertEquals(test.section("section").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", "x", "b", "y"));
 
     assertEquals(test.contains("name"), true);
-    assertEquals(test.getSection("name"), PropertySet.of(keyValues2));
-    assertEquals(test.getSection("name").contains("a"), true);
-    assertEquals(test.getSection("name").getValue("a"), "m");
-    assertEquals(test.getSection("name").getValueList("a"), ImmutableList.of("m"));
-    assertEquals(test.getSection("name").contains("b"), true);
-    assertEquals(test.getSection("name").getValue("b"), "n");
-    assertEquals(test.getSection("name").getValueList("b"), ImmutableList.of("n"));
-    assertEquals(test.getSection("name").contains("c"), false);
-    assertEquals(test.getSection("name").keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.getSection("name").asMap(), ImmutableListMultimap.of("a", "m", "b", "n"));
+    assertEquals(test.section("name"), PropertySet.of(keyValues2));
+    assertEquals(test.section("name").contains("a"), true);
+    assertEquals(test.section("name").value("a"), "m");
+    assertEquals(test.section("name").valueList("a"), ImmutableList.of("m"));
+    assertEquals(test.section("name").contains("b"), true);
+    assertEquals(test.section("name").value("b"), "n");
+    assertEquals(test.section("name").valueList("b"), ImmutableList.of("n"));
+    assertEquals(test.section("name").contains("c"), false);
+    assertEquals(test.section("name").keys(), ImmutableSet.of("a", "b"));
+    assertEquals(test.section("name").asMultimap(), ImmutableListMultimap.of("a", "m", "b", "n"));
 
     assertEquals(test.contains("unknown"), false);
-    assertThrowsIllegalArg(() -> test.getSection("unknown"));
-    assertEquals(test.getSection("section").getValueList("unknown"), ImmutableList.of());
-    assertThrowsIllegalArg(() -> test.getSection("section").getValue("unknown"));
+    assertThrowsIllegalArg(() -> test.section("unknown"));
+    assertEquals(test.section("section").valueList("unknown"), ImmutableList.of());
+    assertThrowsIllegalArg(() -> test.section("section").value("unknown"));
     assertEquals(test.toString(), "{section={a=[x], b=[y]}, name={a=[m], b=[n]}}");
   }
 
@@ -129,13 +129,13 @@ public class IniFileTest {
     keyValues1.put("a", "y");
     assertEquals(test.asMap(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
 
-    assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
-    assertEquals(test.getSection("section").contains("a"), true);
-    assertThrowsIllegalArg(() -> test.getSection("section").getValue("a"));
-    assertEquals(test.getSection("section").getValueList("a"), ImmutableList.of("x", "y"));
-    assertEquals(test.getSection("section").contains("b"), false);
-    assertEquals(test.getSection("section").keys(), ImmutableSet.of("a"));
-    assertEquals(test.getSection("section").asMap(), ImmutableListMultimap.of("a", "x", "a", "y"));
+    assertEquals(test.section("section"), PropertySet.of(keyValues1));
+    assertEquals(test.section("section").contains("a"), true);
+    assertThrowsIllegalArg(() -> test.section("section").value("a"));
+    assertEquals(test.section("section").valueList("a"), ImmutableList.of("x", "y"));
+    assertEquals(test.section("section").contains("b"), false);
+    assertEquals(test.section("section").keys(), ImmutableSet.of("a"));
+    assertEquals(test.section("section").asMultimap(), ImmutableListMultimap.of("a", "x", "a", "y"));
     assertEquals(test.toString(), "{section={a=[x, y]}}");
   }
 
@@ -245,12 +245,12 @@ public class IniFileTest {
     IniFile a2 = IniFile.of(CharSource.wrap(INI1));
     IniFile b = IniFile.of(CharSource.wrap(INI2));
 
-    assertEquals(a1.getSection("name").equals(a1.getSection("name")), true);
-    assertEquals(a1.getSection("name").equals(a2.getSection("name")), true);
-    assertEquals(a1.getSection("name").equals(b.getSection("section")), false);
-    assertEquals(a1.getSection("name").equals(null), false);
-    assertEquals(a1.getSection("name").equals(""), false);
-    assertEquals(a1.getSection("name").hashCode(), a2.getSection("name").hashCode());
+    assertEquals(a1.section("name").equals(a1.section("name")), true);
+    assertEquals(a1.section("name").equals(a2.section("name")), true);
+    assertEquals(a1.section("name").equals(b.section("section")), false);
+    assertEquals(a1.section("name").equals(null), false);
+    assertEquals(a1.section("name").equals(""), false);
+    assertEquals(a1.section("name").hashCode(), a2.section("name").hashCode());
   }
 
 }
