@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import org.jooq.lambda.Seq;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -135,7 +134,8 @@ public class CurveEndToEndTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
+    Map<ObservableKey, Double> quotesMap = parRateData.entrySet().stream()
+        .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotesMap);
     Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotesMap);
     Trade swap1yTrade = swap1yNode.trade(valuationDate, quotesMap);

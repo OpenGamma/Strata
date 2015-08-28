@@ -271,11 +271,6 @@
         <optional>true</optional><!-- needed only for annotations -->
       </dependency>
       <dependency>
-        <groupId>org.jooq</groupId>
-        <artifactId>jool</artifactId>
-        <version>${jool.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>

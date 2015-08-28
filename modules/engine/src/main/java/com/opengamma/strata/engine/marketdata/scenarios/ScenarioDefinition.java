@@ -7,6 +7,7 @@ package com.opengamma.strata.engine.marketdata.scenarios;
 
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.zipWithIndex;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 
@@ -30,7 +31,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.jooq.lambda.Seq;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
@@ -425,9 +425,8 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     int count = countScenarios(mappings, true);
 
-    return Seq.seq(mappings)
-        .zipWithIndex()
-        .map(tp -> multiplyPerturbations(tp.v1, count, tp.v2.intValue()))
+    return zipWithIndex(mappings.stream())
+        .map(tp -> multiplyPerturbations(tp.getFirst(), count, tp.getSecond()))
         .collect(toImmutableList());
   }
 
@@ -512,11 +511,10 @@ public final class ScenarioDefinition implements ImmutableBean {
   @ImmutableValidator
   private void validate() {
     Map<String, List<String>> nameMap = scenarioNames.stream().collect(groupingBy(name -> name));
-    List<String> duplicateNames =
-        Seq.seq(nameMap)
-            .filter(tp -> tp.v2.size() > 1)
-            .map(tp -> tp.v1)
-            .collect(toImmutableList());
+    List<String> duplicateNames = nameMap.entrySet().stream()
+        .filter(tp -> tp.getValue().size() > 1)
+        .map(tp -> tp.getKey())
+        .collect(toImmutableList());
 
     if (!duplicateNames.isEmpty()) {
       String duplicates = duplicateNames.stream().collect(joining(", "));

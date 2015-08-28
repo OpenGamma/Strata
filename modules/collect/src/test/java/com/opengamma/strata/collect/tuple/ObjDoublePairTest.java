@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.TestHelper;
  * Test.
  */
 @Test
-public class ObjectDoublePairTest {
+public class ObjDoublePairTest {
 
   private static final double TOLERANCE = 0.00001d;
 
@@ -35,7 +35,7 @@ public class ObjectDoublePairTest {
 
   @Test(dataProvider = "factory")
   public void test_of_getters(String first, double second) {
-    ObjectDoublePair<String> test = ObjectDoublePair.of(first, second);
+    ObjDoublePair<String> test = ObjDoublePair.of(first, second);
     assertEquals(test.getFirst(), first);
     assertEquals(test.getSecond(), second, TOLERANCE);
   }
@@ -43,36 +43,36 @@ public class ObjectDoublePairTest {
   @Test(dataProvider = "factory")
   public void test_ofPair(String first, double second) {
     Pair<String, Double> pair = Pair.of(first, second);
-    ObjectDoublePair<String> test = ObjectDoublePair.ofPair(pair);
+    ObjDoublePair<String> test = ObjDoublePair.ofPair(pair);
     assertEquals(test.getFirst(), first);
     assertEquals(test.getSecond(), second, TOLERANCE);
   }
 
   @Test(dataProvider = "factory")
   public void test_sizeElements(String first, double second) {
-    ObjectDoublePair<String> test = ObjectDoublePair.of(first, second);
+    ObjDoublePair<String> test = ObjDoublePair.of(first, second);
     assertEquals(test.size(), 2);
     assertEquals(test.elements(), ImmutableList.of(first, second));
   }
 
   @Test(dataProvider = "factory")
   public void test_toString(String first, double second) {
-    ObjectDoublePair<String> test = ObjectDoublePair.of(first, second);
+    ObjDoublePair<String> test = ObjDoublePair.of(first, second);
     String str = "[" + first + ", " + second + "]";
     assertEquals(test.toString(), str);
   }
 
   @Test(dataProvider = "factory")
   public void test_toPair(String first, double second) {
-    ObjectDoublePair<String> test = ObjectDoublePair.of(first, second);
+    ObjDoublePair<String> test = ObjDoublePair.of(first, second);
     assertEquals(test.toPair(), Pair.of(first, second));
   }
 
   //-------------------------------------------------------------------------
   public void test_compareTo() {
-    ObjectDoublePair<String> p12 = ObjectDoublePair.of("1", 2d);
-    ObjectDoublePair<String> p13 = ObjectDoublePair.of("1", 3d);
-    ObjectDoublePair<String> p21 = ObjectDoublePair.of("2", 1d);
+    ObjDoublePair<String> p12 = ObjDoublePair.of("1", 2d);
+    ObjDoublePair<String> p13 = ObjDoublePair.of("1", 3d);
+    ObjDoublePair<String> p21 = ObjDoublePair.of("2", 1d);
 
     assertTrue(p12.compareTo(p12) == 0);
     assertTrue(p12.compareTo(p13) < 0);
@@ -90,18 +90,18 @@ public class ObjectDoublePairTest {
   @Test(expectedExceptions = ClassCastException.class)
   public void test_compareTo_notComparable() {
     Runnable notComparable = () -> {};
-    ObjectDoublePair<Runnable> test1 = ObjectDoublePair.of(notComparable, 2d);
-    ObjectDoublePair<Runnable> test2 = ObjectDoublePair.of(notComparable, 2d);
+    ObjDoublePair<Runnable> test1 = ObjDoublePair.of(notComparable, 2d);
+    ObjDoublePair<Runnable> test2 = ObjDoublePair.of(notComparable, 2d);
     test1.compareTo(test2);
   }
 
   //-------------------------------------------------------------------------
   public void test_equals() {
-    ObjectDoublePair<String> a = ObjectDoublePair.of("1", 2.0d);
-    ObjectDoublePair<String> a2 = ObjectDoublePair.of("1", 2.0d);
-    ObjectDoublePair<String> b = ObjectDoublePair.of("1", 3.0d);
-    ObjectDoublePair<String> c = ObjectDoublePair.of("2", 2.0d);
-    ObjectDoublePair<String> d = ObjectDoublePair.of("2", 3.0d);
+    ObjDoublePair<String> a = ObjDoublePair.of("1", 2.0d);
+    ObjDoublePair<String> a2 = ObjDoublePair.of("1", 2.0d);
+    ObjDoublePair<String> b = ObjDoublePair.of("1", 3.0d);
+    ObjDoublePair<String> c = ObjDoublePair.of("2", 2.0d);
+    ObjDoublePair<String> d = ObjDoublePair.of("2", 3.0d);
 
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(b), false);
@@ -126,20 +126,20 @@ public class ObjectDoublePairTest {
   }
 
   public void test_equals_bad() {
-    ObjectDoublePair<String> a = ObjectDoublePair.of("1", 1.7d);
+    ObjDoublePair<String> a = ObjDoublePair.of("1", 1.7d);
     assertEquals(a.equals(null), false);
     assertEquals(a.equals(""), false);
     assertEquals(a.equals(Pair.of(Integer.valueOf(1), Double.valueOf(1.7d))), false);
   }
 
   public void test_hashCode() {
-    ObjectDoublePair<String> a1 = ObjectDoublePair.of("1", 1.7d);
-    ObjectDoublePair<String> a2 = ObjectDoublePair.of("1", 1.7d);
+    ObjDoublePair<String> a1 = ObjDoublePair.of("1", 1.7d);
+    ObjDoublePair<String> a2 = ObjDoublePair.of("1", 1.7d);
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 
   public void coverage() {
-    ObjectDoublePair<String> test = ObjectDoublePair.of("1", 1.7d);
+    ObjDoublePair<String> test = ObjDoublePair.of("1", 1.7d);
     TestHelper.coverImmutableBean(test);
   }
 

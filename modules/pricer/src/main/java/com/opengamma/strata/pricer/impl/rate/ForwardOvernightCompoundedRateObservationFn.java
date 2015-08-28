@@ -11,7 +11,7 @@ import java.util.OptionalDouble;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.ObjectDoublePair;
+import com.opengamma.strata.collect.tuple.ObjDoublePair;
 import com.opengamma.strata.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -191,7 +191,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     }
 
     // Composition - forward part in non-cutoff period; past/valuation date case dealt with in previous methods
-    private ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff() {
+    private ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff() {
       if (nextFixing.isBefore(lastFixingNonCutoff)) {
         LocalDate startDate = index.calculateEffectiveFromFixing(nextFixing);
         LocalDate endDate = index.calculateMaturityFromEffective(
@@ -200,9 +200,9 @@ public class ForwardOvernightCompoundedRateObservationFn
         double rate = rates.periodRate(startDate, endDate);
         PointSensitivityBuilder rateSensitivity = rates.periodRatePointSensitivity(startDate, endDate);
         rateSensitivity = rateSensitivity.multipliedBy(accrualFactor);
-        return ObjectDoublePair.of(rateSensitivity, 1.0d + accrualFactor * rate);
+        return ObjDoublePair.of(rateSensitivity, 1.0d + accrualFactor * rate);
       }
-      return ObjectDoublePair.of(PointSensitivityBuilder.none(), 1.0d);
+      return ObjDoublePair.of(PointSensitivityBuilder.none(), 1.0d);
     }
 
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
@@ -219,7 +219,7 @@ public class ForwardOvernightCompoundedRateObservationFn
     }
 
     // Composition - forward part in the cutoff period; past/valuation date case dealt with in previous methods
-    private ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff() {
+    private ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff() {
       if (nextFixing.isBefore(lastFixingNonCutoff)) {
         double rate = rates.rate(lastFixingNonCutoff);
         double compositionFactor = 1.0d;
@@ -232,9 +232,9 @@ public class ForwardOvernightCompoundedRateObservationFn
         PointSensitivityBuilder rateSensitivity =
             cutoffOffset <= 1 ? PointSensitivityBuilder.none() : rates.ratePointSensitivity(lastFixingNonCutoff);
         rateSensitivity = rateSensitivity.multipliedBy(compositionFactorDerivative);
-        return ObjectDoublePair.of(rateSensitivity, compositionFactor);
+        return ObjDoublePair.of(rateSensitivity, compositionFactor);
       }
-      return ObjectDoublePair.of(PointSensitivityBuilder.none(), 1.0d);
+      return ObjDoublePair.of(PointSensitivityBuilder.none(), 1.0d);
     }
 
     // Calculate the total rate
@@ -246,8 +246,8 @@ public class ForwardOvernightCompoundedRateObservationFn
     // Calculate the total rate sensitivity
     private PointSensitivityBuilder calculateRateSensitivity() {
       double factor = pastCompositionFactor() * valuationCompositionFactor() / accrualFactorTotal;
-      ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff = compositionFactorAndSensitivityNonCutoff();
-      ObjectDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff = compositionFactorAndSensitivityCutoff();
+      ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityNonCutoff = compositionFactorAndSensitivityNonCutoff();
+      ObjDoublePair<PointSensitivityBuilder> compositionFactorAndSensitivityCutoff = compositionFactorAndSensitivityCutoff();
 
       PointSensitivityBuilder combinedPointSensitivity = compositionFactorAndSensitivityNonCutoff.getFirst().
           multipliedBy(compositionFactorAndSensitivityCutoff.getSecond() * factor);

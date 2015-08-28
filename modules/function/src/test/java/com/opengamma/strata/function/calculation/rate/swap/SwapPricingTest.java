@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-import org.jooq.lambda.Seq;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -216,14 +216,14 @@ public class SwapPricingTest {
         multicurve.getForwardIborCurves();
     Map<IndexON, YieldAndDiscountCurve> legacyOvernightCurves = multicurve.getForwardONCurves();
 
-    Map<Currency, Curve> discountCurves =
-        Seq.seq(legacyDiscountCurves).toMap(tp -> tp.v1, tp -> Legacy.curve(tp.v2));
+    Map<Currency, Curve> discountCurves = legacyDiscountCurves.entrySet().stream()
+        .collect(toImmutableMap(tp -> tp.getKey(), tp -> Legacy.curve(tp.getValue())));
 
-    Map<Index, Curve> iborCurves =
-        Seq.seq(legacyIborCurves).toMap(tp -> Legacy.iborIndex(tp.v1), tp -> Legacy.curve(tp.v2));
+    Map<Index, Curve> iborCurves = legacyIborCurves.entrySet().stream()
+        .collect(toImmutableMap(tp -> Legacy.iborIndex(tp.getKey()), tp -> Legacy.curve(tp.getValue())));
 
-    Map<Index, Curve> overnightCurves =
-        Seq.seq(legacyOvernightCurves).toMap(tp -> Legacy.overnightIndex(tp.v1), tp -> Legacy.curve(tp.v2));
+    Map<Index, Curve> overnightCurves = legacyOvernightCurves.entrySet().stream()
+        .collect(toImmutableMap(tp -> Legacy.overnightIndex(tp.getKey()), tp -> Legacy.curve(tp.getValue())));
 
     Map<Index, Curve> forwardCurves = ImmutableMap.<Index, Curve>builder()
         .putAll(iborCurves)

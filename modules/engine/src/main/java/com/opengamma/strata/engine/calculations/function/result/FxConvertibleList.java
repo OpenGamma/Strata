@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.calculations.function.result;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.zipWithIndex;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.jooq.lambda.Seq;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -65,8 +65,8 @@ public final class FxConvertibleList
 
   @Override
   public ScenarioResult<?> convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
-    List<?> convertedValues = Seq.zipWithIndex(values.stream())
-        .map(tp -> tp.v1.convertedTo(reportingCurrency, ScenarioRateProvider.of(marketData, tp.v2)))
+    List<?> convertedValues = zipWithIndex(values.stream())
+        .map(tp -> tp.getFirst().convertedTo(reportingCurrency, ScenarioRateProvider.of(marketData, (long) tp.getSecond())))
         .collect(toImmutableList());
 
     return DefaultScenarioResult.of(convertedValues);

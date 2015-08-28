@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.engine.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.HashMap;
@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
-
-import org.jooq.lambda.Seq;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -132,13 +130,14 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     } else {
       // If the intermediate values are not required then the results are filtered to only include the values
       // requested in the requirements
-      values = Seq.seq(calcEnv.getValues())
-          .filter(tp -> requirements.getNonObservables().contains(tp.v1) || requirements.getObservables().contains(tp.v1))
-          .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
-
-      timeSeries = Seq.seq(calcEnv.getTimeSeries())
-          .filter(tp -> requirements.getTimeSeries().contains(tp.v1))
-          .collect(toImmutableMap(tp -> tp.v1, tp -> tp.v2));
+      values = calcEnv.getValues().entrySet().stream()
+          .filter(
+              tp -> requirements.getNonObservables().contains(tp.getKey()) ||
+                  requirements.getObservables().contains(tp.getKey()))
+          .collect(entriesToImmutableMap());
+      timeSeries = calcEnv.getTimeSeries().entrySet().stream()
+          .filter(tp -> requirements.getTimeSeries().contains(tp.getKey()))
+          .collect(entriesToImmutableMap());
     }
     MarketEnvironment marketEnvironment = MarketEnvironment.builder(calcEnv.getValuationDate())
         .addAllValues(values)
@@ -546,10 +545,8 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     if (Result.anyFailures(results)) {
       resultMap.put(id, Result.failure(results));
     } else {
-      List<Result<?>> perturbedValues = Seq.seq(results.stream())
-          .map(Result::getValue)
-          .zipWithIndex()
-          .map(tp -> perturbValue(id, tp.v1, scenarioDefinition, tp.v2.intValue()))
+      List<Result<?>> perturbedValues = IntStream.range(0, results.size())
+          .mapToObj(index -> perturbValue(id, results.get(index).getValue(), scenarioDefinition, index))
           .collect(toImmutableList());
 
       if (Result.anyFailures(perturbedValues)) {

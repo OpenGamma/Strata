@@ -6,8 +6,12 @@
 package com.opengamma.strata.collect;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -26,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -70,6 +75,93 @@ public final class Guavate {
     return optional.isPresent() ?
         Stream.of(optional.get()) :
         Stream.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a stream that wraps a stream with the index.
+   * <p>
+   * Each input object is decorated with an {@link ObjIntPair}.
+   * The {@code int} is the index of the element in the stream.
+   *
+   * @param <T>  the type of the stream
+   * @param stream  the stream to index
+   * @return a stream of pairs, containing the element and index
+   */
+  public static <T> Stream<ObjIntPair<T>> zipWithIndex(Stream<T> stream) {
+    Spliterator<T> split1 = stream.spliterator();
+    Iterator<T> it1 = Spliterators.iterator(split1);
+    Iterator<ObjIntPair<T>> it = new Iterator<ObjIntPair<T>>() {
+      int index = 0;
+
+      @Override
+      public boolean hasNext() {
+        return it1.hasNext();
+      }
+
+      @Override
+      public ObjIntPair<T> next() {
+        return ObjIntPair.of(it1.next(), index++);
+      }
+    };
+    Spliterator<ObjIntPair<T>> split = Spliterators.spliterator(it, split1.getExactSizeIfKnown(), split1.characteristics());
+    return StreamSupport.stream(split, false);
+  }
+
+  /**
+   * Creates a stream that combines two other streams, continuing until either stream ends.
+   * <p>
+   * Each pair of input objects is combined into a {@link Pair}.
+   *
+   * @param <A>  the type of the first stream
+   * @param <B>  the type of the second stream
+   * @param stream1  the first stream
+   * @param stream2  the first stream
+   * @return a stream of pairs, one from each stream
+   */
+  public static <A, B> Stream<Pair<A, B>> zipPairs(Stream<A> stream1, Stream<B> stream2) {
+    return zip(stream1, stream2, (a, b) -> Pair.of(a, b));
+  }
+
+  /**
+   * Creates a stream that combines two other streams, continuing until either stream ends.
+   * <p>
+   * The combiner function is called once for each pair of objects found in the input streams.
+   *
+   * @param <A>  the type of the first stream
+   * @param <B>  the type of the second stream
+   * @param <R>  the type of the resulting stream
+   * @param stream1  the first stream
+   * @param stream2  the first stream
+   * @param zipper  the function used to combine the pair of objects
+   * @return a stream of pairs, one from each stream
+   */
+  private static <A, B, R> Stream<R> zip(Stream<A> stream1, Stream<B> stream2, BiFunction<A, B, R> zipper) {
+    // this is private for now, to see if it is really needed on the API
+    // it suffers from generics problems at the call site with common zipper functions
+    // as such, it is less useful than it might seem
+    Spliterator<A> split1 = stream1.spliterator();
+    Spliterator<B> split2 = stream2.spliterator();
+    // merged stream lacks some characteristics
+    int characteristics = split1.characteristics() & split2.characteristics() &
+        ~(Spliterator.DISTINCT | Spliterator.SORTED);
+    long size = Math.min(split1.getExactSizeIfKnown(), split2.getExactSizeIfKnown());
+
+    Iterator<A> it1 = Spliterators.iterator(split1);
+    Iterator<B> it2 = Spliterators.iterator(split2);
+    Iterator<R> it = new Iterator<R>() {
+      @Override
+      public boolean hasNext() {
+        return it1.hasNext() && it2.hasNext();
+      }
+
+      @Override
+      public R next() {
+        return zipper.apply(it1.next(), it2.next());
+      }
+    };
+    Spliterator<R> split = Spliterators.spliterator(it, size, characteristics);
+    return StreamSupport.stream(split, false);
   }
 
   //-------------------------------------------------------------------------
