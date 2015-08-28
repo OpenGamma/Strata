@@ -9,19 +9,23 @@
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS"/>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>
+<booleanAttribute key="org.testng.eclipse.DEBUG" value="false"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.strata.function.calculation.rate.fra"/>
+<listEntry value="com.opengamma.strata.function.calculation.rate.swap"/>
 <listEntry value="com.opengamma.strata.function.interpolator"/>
 <listEntry value="com.opengamma.strata.function.marketdata"/>
 <listEntry value="com.opengamma.strata.function.marketdata.curve"/>
 <listEntry value="com.opengamma.strata.function.marketdata.mapping"/>
 <listEntry value="com.opengamma.strata.function.marketdata.scenarios.curves"/>
-<listEntry value="com.opengamma.strata.function.rate.swap"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>
+<stringAttribute key="org.testng.eclipse.PROTOCOL" value="object"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>
+<booleanAttribute key="org.testng.eclipse.VERBOSE" value="false"/>
 </launchConfiguration>

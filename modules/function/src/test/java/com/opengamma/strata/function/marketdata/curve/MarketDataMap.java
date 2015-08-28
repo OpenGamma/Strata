@@ -18,7 +18,7 @@ import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 /**
  * Test implementation of {@link CalculationMarketData} backed by a map.
  */
-final class MarketDataMap implements CalculationMarketData {
+public final class MarketDataMap implements CalculationMarketData {
 
   private final LocalDate valuationDate;
 
@@ -26,7 +26,7 @@ final class MarketDataMap implements CalculationMarketData {
 
   private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap;
 
-  MarketDataMap(
+  public MarketDataMap(
       LocalDate valuationDate,
       Map<MarketDataKey<?>, Object> marketData,
       Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {

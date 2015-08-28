@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.fra;
+package com.opengamma.strata.function.calculation.rate.fra;
 
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.pricer.rate.RatesProvider;
