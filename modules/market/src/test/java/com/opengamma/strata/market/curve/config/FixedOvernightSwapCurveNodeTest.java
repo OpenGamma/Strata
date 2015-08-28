@@ -8,6 +8,7 @@ package com.opengamma.strata.market.curve.config;
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -103,12 +104,17 @@ public class FixedOvernightSwapCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FixedOvernightSwapCurveNode test1 = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
-    coverImmutableBean(test1);
+    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    coverImmutableBean(test);
     FixedOvernightSwapCurveNode test2 = FixedOvernightSwapCurveNode.of(
         FixedOvernightSwapTemplate.of(TENOR_6M, FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS),
         QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
-    coverBeanEquals(test1, test2);
+    coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertSerialization(test);
   }
 
 }

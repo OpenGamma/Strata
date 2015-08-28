@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,18 +27,25 @@ import com.opengamma.strata.basics.market.ObservableId;
 
 /**
  * The par rates used when calibrating a curve.
+ * <p>
+ * A curve is calibrated using par rates, which provide the current market value of a set of instruments.
  */
 @BeanDefinition
-public final class ParRates implements ImmutableBean {
+public final class ParRates
+    implements ImmutableBean, Serializable {
 
-  /** The par rates, keyed by ID. */
-  @PropertyDefinition(validate = "notNull")
+  /**
+   * The par rates.
+   */
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends ObservableId, Double>")
   private final ImmutableMap<ObservableId, Double> rates;
-
-  /** The metadata for the curve. */
+  /**
+   * The metadata for the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveMetadata curveMetadata;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a {@code ParRates} instance containing the specified rates.
    *
@@ -64,6 +72,11 @@ public final class ParRates implements ImmutableBean {
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -72,7 +85,7 @@ public final class ParRates implements ImmutableBean {
   }
 
   private ParRates(
-      Map<ObservableId, Double> rates,
+      Map<? extends ObservableId, Double> rates,
       CurveMetadata curveMetadata) {
     JodaBeanUtils.notNull(rates, "rates");
     JodaBeanUtils.notNull(curveMetadata, "curveMetadata");
@@ -97,7 +110,7 @@ public final class ParRates implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the par rates, keyed by ID.
+   * Gets the par rates.
    * @return the value of the property, not null
    */
   public ImmutableMap<ObservableId, Double> getRates() {
@@ -260,7 +273,7 @@ public final class ParRates implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ParRates> {
 
-    private Map<ObservableId, Double> rates = ImmutableMap.of();
+    private Map<? extends ObservableId, Double> rates = ImmutableMap.of();
     private CurveMetadata curveMetadata;
 
     /**
@@ -296,7 +309,7 @@ public final class ParRates implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 108285843:  // rates
-          this.rates = (Map<ObservableId, Double>) newValue;
+          this.rates = (Map<? extends ObservableId, Double>) newValue;
           break;
         case 278233406:  // curveMetadata
           this.curveMetadata = (CurveMetadata) newValue;
@@ -340,11 +353,11 @@ public final class ParRates implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the par rates, keyed by ID.
+     * Sets the par rates.
      * @param rates  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rates(Map<ObservableId, Double> rates) {
+    public Builder rates(Map<? extends ObservableId, Double> rates) {
       JodaBeanUtils.notNull(rates, "rates");
       this.rates = rates;
       return this;

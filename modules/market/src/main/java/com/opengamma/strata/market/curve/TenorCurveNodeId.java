@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -29,14 +31,20 @@ import com.opengamma.strata.basics.date.Tenor;
 
 /**
  * A curve node ID for a curve node with a specific tenor.
+ * <p>
+ * The node is identified by the tenor.
  */
-@BeanDefinition
-public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
+@BeanDefinition(builderScope = "private")
+public final class TenorCurveNodeId
+    implements CurveNodeId, ImmutableBean, Serializable {
 
-  /** The tenor of the curve node. */
+  /**
+   * The tenor of the curve node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Tenor tenor;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a curve node ID for a tenor.
    *
@@ -72,12 +80,9 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
   }
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * The serialization version id.
    */
-  public static TenorCurveNodeId.Builder builder() {
-    return new TenorCurveNodeId.Builder();
-  }
+  private static final long serialVersionUID = 1L;
 
   private TenorCurveNodeId(
       Tenor tenor) {
@@ -110,14 +115,6 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -184,7 +181,7 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
     }
 
     @Override
-    public TenorCurveNodeId.Builder builder() {
+    public BeanBuilder<? extends TenorCurveNodeId> builder() {
       return new TenorCurveNodeId.Builder();
     }
 
@@ -232,7 +229,7 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
   /**
    * The bean-builder for {@code TenorCurveNodeId}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<TenorCurveNodeId> {
+  private static final class Builder extends DirectFieldsBeanBuilder<TenorCurveNodeId> {
 
     private Tenor tenor;
 
@@ -240,14 +237,6 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(TenorCurveNodeId beanToCopy) {
-      this.tenor = beanToCopy.getTenor();
     }
 
     //-----------------------------------------------------------------------
@@ -301,18 +290,6 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
     public TenorCurveNodeId build() {
       return new TenorCurveNodeId(
           tenor);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the tenor of the curve node.
-     * @param tenor  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder tenor(Tenor tenor) {
-      JodaBeanUtils.notNull(tenor, "tenor");
-      this.tenor = tenor;
-      return this;
     }
 
     //-----------------------------------------------------------------------

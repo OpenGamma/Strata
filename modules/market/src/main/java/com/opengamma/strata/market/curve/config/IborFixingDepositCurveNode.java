@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -36,7 +37,8 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
  * A curve node whose instrument is an Ibor fixing deposit.
  */
 @BeanDefinition
-public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBean {
+public final class IborFixingDepositCurveNode
+    implements CurveNode, ImmutableBean, Serializable {
 
   /**
    * The template for the Ibor fixing deposit associated with this node.
@@ -86,10 +88,7 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
 
   @Override
   public IborFixingDepositTrade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
-    BuySell buySell = BuySell.BUY;
-    double notional = 1d;
-    double fixedRate = rate(marketData);
-    return template.toTrade(valuationDate, buySell, notional, fixedRate);
+    return template.toTrade(valuationDate, BuySell.BUY, 1d, rate(marketData));
   }
 
   @Override
@@ -99,9 +98,7 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
     return TenorCurveNodeMetadata.of(deposit.getEndDate(), endTenor);
   }
 
-  /**
-   * Returns the rate from the market data for the rate key or throws an exception if it isn't available.
-   */
+  // returns the rate from the market data for the rate key or throws an exception if it isn't available
   private double rate(Map<ObservableKey, Double> marketData) {
     Double rate = marketData.get(rateKey);
     if (rate == null) {
@@ -123,6 +120,11 @@ public final class IborFixingDepositCurveNode implements CurveNode, ImmutableBea
   static {
     JodaBeanUtils.registerMetaBean(IborFixingDepositCurveNode.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

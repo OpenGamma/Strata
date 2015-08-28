@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -26,7 +27,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
@@ -34,28 +34,34 @@ import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
 /**
- * A curve node whose instrument is a forward rate agreement (FRA).
+ * A curve node whose instrument is a Forward Rate Agreement (FRA).
  */
 @BeanDefinition
-public final class FraCurveNode implements CurveNode, ImmutableBean {
+public final class FraCurveNode
+    implements CurveNode, ImmutableBean, Serializable {
 
-  /** The template for the FRA associated with this node. */
+  /**
+   * The template for the FRA associated with this node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FraTemplate template;
-
-  /** The key identifying the market data value which provides the rate. */
+  /**
+   * The key identifying the market data value which provides the rate.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
-
-  /** The spread added to the rate. */
+  /**
+   * The spread added to the rate.
+   */
   @PropertyDefinition
   private final double spread;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a node whose instrument is built from the template using a market rate.
+   * Returns a curve node for a FRA using the specified instrument template and rate key.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node.
+   * @param rateKey  the key identifying the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
   public static FraCurveNode of(FraTemplate template, ObservableKey rateKey) {
@@ -63,10 +69,10 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
   }
 
   /**
-   * Returns a node whose instrument is built from the template using a market rate.
+   * Returns a curve node for a FRA using the specified instrument template, rate key and spread.
    *
-   * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node.
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
    * @param spread  the spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
@@ -74,17 +80,15 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     return new FraCurveNode(template, rateKey, spread);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
     return ImmutableSet.of(rateKey);
   }
 
   @Override
-  public Trade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
-    BuySell buySell = BuySell.BUY;
-    double notional = 1;
-    double fixedRate = rate(marketData);
-    return template.toTrade(valuationDate, buySell, notional, fixedRate);
+  public FraTrade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData) {
+    return template.toTrade(valuationDate, BuySell.BUY, 1d, rate(marketData));
   }
 
   @Override
@@ -94,12 +98,9 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
     return TenorCurveNodeMetadata.of(expandedFra.getEndDate(), Tenor.of(template.getPeriodToEnd()));
   }
 
-  /**
-   * Returns the rate from the market data for the rate key or throws an exception if it isn't available.
-   */
+  // returns the rate from the market data for the rate key or throws an exception if it isn't available
   private double rate(Map<ObservableKey, Double> marketData) {
     Double rate = marketData.get(rateKey);
-
     if (rate == null) {
       throw new IllegalArgumentException("No market data available for " + rateKey);
     }
@@ -119,6 +120,11 @@ public final class FraCurveNode implements CurveNode, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(FraCurveNode.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

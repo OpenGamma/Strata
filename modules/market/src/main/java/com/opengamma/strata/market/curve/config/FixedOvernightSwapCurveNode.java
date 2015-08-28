@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,10 +35,11 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
  * A curve node whose instrument is a Fixed-Overnight interest rate swap.
  */
 @BeanDefinition
-public final class FixedOvernightSwapCurveNode implements CurveNode, ImmutableBean {
+public final class FixedOvernightSwapCurveNode
+    implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the swap associated with the node.
+   * The template for the swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
   private final FixedOvernightSwapTemplate template;
@@ -54,23 +56,23 @@ public final class FixedOvernightSwapCurveNode implements CurveNode, ImmutableBe
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a fixed-float interest rate swap using the specified instrument template and rate.
+   * Returns a curve node for a Fixed-Overnight interest rate swap using the specified instrument template and rate.
    *
-   * @param template  template defining the node instrument
-   * @param rateKey  key identifying the market data providing the rate for the node instrument
-   * @return a curve node for a fixed-float interest rate swap using the specified instrument template and rate
+   * @param template  the template used for building the instrument for the node
+   * @param rateKey  the key identifying the market rate used when building the instrument for the node
+   * @return a node whose instrument is built from the template using a market rate
    */
   public static FixedOvernightSwapCurveNode of(FixedOvernightSwapTemplate template, ObservableKey rateKey) {
     return new FixedOvernightSwapCurveNode(template, rateKey, 0);
   }
 
   /**
-   * Returns a curve node for a fixed-float interest rate swap using the specified instrument template and rate.
+   * Returns a curve node for a Fixed-Overnight interest rate swap using the specified instrument template, rate key and spread.
    *
-   * @param template  template defining the node instrument
-   * @param rateKey  key identifying the market data providing the rate for the node instrument
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
    * @param spread  the spread amount added to the rate
-   * @return a curve node for a fixed-float interest rate swap using the specified instrument template and rate
+   * @return a node whose instrument is built from the template using a market rate
    */
   public static FixedOvernightSwapCurveNode of(FixedOvernightSwapTemplate template, ObservableKey rateKey, double spread) {
     return new FixedOvernightSwapCurveNode(template, rateKey, spread);
@@ -117,6 +119,11 @@ public final class FixedOvernightSwapCurveNode implements CurveNode, ImmutableBe
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -152,7 +159,7 @@ public final class FixedOvernightSwapCurveNode implements CurveNode, ImmutableBe
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the swap associated with the node.
+   * Gets the template for the swap associated with this node.
    * @return the value of the property, not null
    */
   public FixedOvernightSwapTemplate getTemplate() {
@@ -431,7 +438,7 @@ public final class FixedOvernightSwapCurveNode implements CurveNode, ImmutableBe
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the swap associated with the node.
+     * Sets the template for the swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
