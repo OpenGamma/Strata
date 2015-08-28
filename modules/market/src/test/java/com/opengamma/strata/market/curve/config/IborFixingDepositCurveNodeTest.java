@@ -8,6 +8,7 @@ package com.opengamma.strata.market.curve.config;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -118,11 +119,16 @@ public class IborFixingDepositCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborFixingDepositCurveNode test1 = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
-    coverImmutableBean(test1);
+    IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    coverImmutableBean(test);
     IborFixingDepositCurveNode test2 = IborFixingDepositCurveNode.of(
         IborFixingDepositTemplate.of(GBP_LIBOR_6M), QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
-    coverBeanEquals(test1, test2);
+    coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertSerialization(test);
   }
 
 }

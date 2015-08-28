@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,43 +35,50 @@ import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
  * A curve node whose instrument is a Fixed-Ibor interest rate swap.
  */
 @BeanDefinition
-public final class FixedIborSwapCurveNode implements CurveNode, ImmutableBean {
+public final class FixedIborSwapCurveNode
+    implements CurveNode, ImmutableBean, Serializable {
 
-  /** The template for the swap associated with the node. */
+  /**
+   * The template for the swap associated with this node.
+   */
   @PropertyDefinition(validate = "notNull")
   private final FixedIborSwapTemplate template;
-
-  /** The key identifying the market data value which provides the rate. */
+  /**
+   * The key identifying the market data value which provides the rate.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ObservableKey rateKey;
-
-  /** The spread added to the rate. */
+  /**
+   * The spread added to the rate.
+   */
   @PropertyDefinition
   private final double spread;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a fixed-float interest rate swap using the specified instrument template and rate.
+   * Returns a curve node for a Fixed-Ibor interest rate swap using the specified instrument template and rate.
    *
-   * @param template  template defining the node instrument
-   * @param rateKey  key identifying the market data providing the rate for the node instrument
-   * @return a curve node for a fixed-float interest rate swap using the specified instrument template and rate
+   * @param template  the template used for building the instrument for the node
+   * @param rateKey  the key identifying the market rate used when building the instrument for the node
+   * @return a node whose instrument is built from the template using a market rate
    */
   public static FixedIborSwapCurveNode of(FixedIborSwapTemplate template, ObservableKey rateKey) {
     return new FixedIborSwapCurveNode(template, rateKey, 0);
   }
 
   /**
-   * Returns a curve node for a fixed-float interest rate swap using the specified instrument template and rate.
+   * Returns a curve node for a Fixed-Ibor interest rate swap using the specified instrument template, rate key and spread.
    *
-   * @param template  template defining the node instrument
-   * @param rateKey  key identifying the market data providing the rate for the node instrument
+   * @param template  the template defining the node instrument
+   * @param rateKey  the key identifying the market data providing the rate for the node instrument
    * @param spread  the spread amount added to the rate
-   * @return a curve node for a fixed-float interest rate swap using the specified instrument template and rate
+   * @return a node whose instrument is built from the template using a market rate
    */
   public static FixedIborSwapCurveNode of(FixedIborSwapTemplate template, ObservableKey rateKey, double spread) {
     return new FixedIborSwapCurveNode(template, rateKey, spread);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<ObservableKey> requirements() {
     return ImmutableSet.of(rateKey);
@@ -111,6 +119,11 @@ public final class FixedIborSwapCurveNode implements CurveNode, ImmutableBean {
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -146,7 +159,7 @@ public final class FixedIborSwapCurveNode implements CurveNode, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the swap associated with the node.
+   * Gets the template for the swap associated with this node.
    * @return the value of the property, not null
    */
   public FixedIborSwapTemplate getTemplate() {
@@ -425,7 +438,7 @@ public final class FixedIborSwapCurveNode implements CurveNode, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the swap associated with the node.
+     * Sets the template for the swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */

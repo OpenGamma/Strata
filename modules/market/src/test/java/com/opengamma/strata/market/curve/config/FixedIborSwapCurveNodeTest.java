@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve.config;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -102,12 +103,17 @@ public class FixedIborSwapCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FixedIborSwapCurveNode test1 = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
-    coverImmutableBean(test1);
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    coverImmutableBean(test);
     FixedIborSwapCurveNode test2 = FixedIborSwapCurveNode.of(
         FixedIborSwapTemplate.of(TENOR_10Y, FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M),
         QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
-    coverBeanEquals(test1, test2);
+    coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    assertSerialization(test);
   }
 
 }

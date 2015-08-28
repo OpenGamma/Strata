@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
@@ -25,24 +26,29 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.BeanBuilder;
 
 /**
  * A curve node ID for a futures node.
  * <p>
  * The node is identified by the year and month of the futures expiry.
  */
-@BeanDefinition
-public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBean {
+@BeanDefinition(builderScope = "private")
+public final class FuturesExpiryCurveNodeId
+    implements CurveNodeId, ImmutableBean, Serializable {
 
-  /** The year and month of the futures expiry date. */
+  /**
+   * The year and month of the futures expiry date.
+   */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth expiry;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an ID for a curve node for futures that expire in the specified year and month.
    *
-   * @param year the year of the futures expiry
-   * @param month the month of the futures expiry
+   * @param year  the year of the futures expiry
+   * @param month  the month of the futures expiry
    * @return an ID for a curve node for futures that expire in the specified year and month
    */
   public static FuturesExpiryCurveNodeId of(int year, int month) {
@@ -59,10 +65,11 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
     return new FuturesExpiryCurveNodeId(expiry);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a list of IDs for futures with the specified expiries.
    *
-   * @param expiries expiries of the other curve nodes
+   * @param expiries  the expiries of the other curve nodes
    * @return IDs for curve nodes for futures with the specified expiries
    */
   public static List<FuturesExpiryCurveNodeId> listOf(YearMonth... expiries) {
@@ -84,12 +91,9 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
   }
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * The serialization version id.
    */
-  public static FuturesExpiryCurveNodeId.Builder builder() {
-    return new FuturesExpiryCurveNodeId.Builder();
-  }
+  private static final long serialVersionUID = 1L;
 
   private FuturesExpiryCurveNodeId(
       YearMonth expiry) {
@@ -122,14 +126,6 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -196,7 +192,7 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
     }
 
     @Override
-    public FuturesExpiryCurveNodeId.Builder builder() {
+    public BeanBuilder<? extends FuturesExpiryCurveNodeId> builder() {
       return new FuturesExpiryCurveNodeId.Builder();
     }
 
@@ -244,7 +240,7 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
   /**
    * The bean-builder for {@code FuturesExpiryCurveNodeId}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FuturesExpiryCurveNodeId> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FuturesExpiryCurveNodeId> {
 
     private YearMonth expiry;
 
@@ -252,14 +248,6 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FuturesExpiryCurveNodeId beanToCopy) {
-      this.expiry = beanToCopy.getExpiry();
     }
 
     //-----------------------------------------------------------------------
@@ -313,18 +301,6 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
     public FuturesExpiryCurveNodeId build() {
       return new FuturesExpiryCurveNodeId(
           expiry);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the year and month of the futures expiry date.
-     * @param expiry  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder expiry(YearMonth expiry) {
-      JodaBeanUtils.notNull(expiry, "expiry");
-      this.expiry = expiry;
-      return this;
     }
 
     //-----------------------------------------------------------------------
