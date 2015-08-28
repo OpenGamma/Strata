@@ -74,15 +74,14 @@ public final class InterpolatedNodalSurface
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final double[] zValues;
   /**
+   * The underlying interpolator.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final GridInterpolator2D interpolator;
+  /**
    * The underlying data bundle.
    */
   private transient final Map<Double, Interpolator1DDataBundle> underlyingDataBundle;  // derived and cached, not a property
-  /**
-   * The underlying interpolator.
-   */
-  // TODO: put back to transient, add SurfaceInterpolator
-  @PropertyDefinition(validate = "notNull")
-  private final GridInterpolator2D interpolator;  // derived and cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -294,7 +293,7 @@ public final class InterpolatedNodalSurface
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the interpolator.
+   * Gets the underlying interpolator.
    * @return the value of the property, not null
    */
   public GridInterpolator2D getInterpolator() {
@@ -666,7 +665,7 @@ public final class InterpolatedNodalSurface
     }
 
     /**
-     * Sets the interpolator.
+     * Sets the underlying interpolator.
      * @param interpolator  the new value, not null
      * @return this, for chaining, not null
      */
