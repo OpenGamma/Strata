@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.fra;
+package com.opengamma.strata.function.calculation.rate.fra;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 import static com.opengamma.strata.function.calculation.AbstractCalculationFunction.ONE_BASIS_POINT;

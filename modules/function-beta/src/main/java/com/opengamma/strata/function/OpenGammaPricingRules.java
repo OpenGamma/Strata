@@ -16,7 +16,7 @@ import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.credit.CdsFunctionGroups;
 import com.opengamma.strata.function.calculation.future.GenericFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunctionGroups;
-import com.opengamma.strata.function.rate.fra.FraFunctionGroups;
+import com.opengamma.strata.function.calculation.rate.fra.FraFunctionGroups;
 import com.opengamma.strata.function.rate.swap.SwapFunctionGroups;
 
 /**
