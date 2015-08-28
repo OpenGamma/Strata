@@ -7,6 +7,7 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
@@ -15,7 +16,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.jooq.lambda.Seq;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -118,7 +118,8 @@ public class CurveGroupMarketDataFunctionTest {
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
-    Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
+    Map<ObservableKey, Double> quotesMap = parRateData.entrySet().stream()
+        .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
         .put(discountFactorsKey, discountFactors)
@@ -170,7 +171,8 @@ public class CurveGroupMarketDataFunctionTest {
 
     DiscountFactorsKey discountFactorsKey = DiscountFactorsKey.of(Currency.USD);
     IborIndexRatesKey forwardCurveKey = IborIndexRatesKey.of(IborIndices.USD_LIBOR_3M);
-    Map<ObservableKey, Double> quotesMap = Seq.seq(parRateData).toMap(tp -> tp.v1.toObservableKey(), tp -> tp.v2);
+    Map<ObservableKey, Double> quotesMap = parRateData.entrySet().stream()
+        .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(quotesMap)
         .put(discountFactorsKey, discountFactors)

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.engine.calculations.function.result;
 
+import static com.opengamma.strata.collect.Guavate.zipPairs;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.jooq.lambda.Seq;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -73,8 +74,8 @@ public final class CurrencyValuesArray
     }
     List<FxRate> rates = marketData.getValues(FxRateKey.of(currency, reportingCurrency));
     checkNumberOfRates(rates);
-    double[] convertedValues = Seq.zip(Arrays.stream(values).boxed(), rates.stream())
-        .map(tp -> tp.v2.convert(tp.v1, currency, reportingCurrency))
+    double[] convertedValues = zipPairs(Arrays.stream(values).boxed(), rates.stream())
+        .map(tp -> tp.getSecond().convert(tp.getFirst(), currency, reportingCurrency))
         .mapToDouble(d -> d)
         .toArray();
 

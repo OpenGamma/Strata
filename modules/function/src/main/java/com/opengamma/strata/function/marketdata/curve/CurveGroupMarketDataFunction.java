@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jooq.lambda.Seq;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -212,14 +210,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Map<IborIndex, YieldAndDiscountCurve> legacyIborCurves = multicurve.getForwardIborCurves();
     Map<IndexON, YieldAndDiscountCurve> legacyOvernightCurves = multicurve.getForwardONCurves();
 
-    Map<Currency, Curve> discountCurves =
-        Seq.seq(legacyDiscountCurves).toMap(tp -> tp.v1, tp -> createCurve(tp.v2, curveMetadata));
+    Map<Currency, Curve> discountCurves = legacyDiscountCurves.entrySet().stream()
+        .collect(toImmutableMap(tp -> tp.getKey(), tp -> createCurve(tp.getValue(), curveMetadata)));
 
-    Map<Index, Curve> iborCurves =
-        Seq.seq(legacyIborCurves).toMap(tp -> Legacy.iborIndex(tp.v1), tp -> createCurve(tp.v2, curveMetadata));
+    Map<Index, Curve> iborCurves = legacyIborCurves.entrySet().stream()
+        .collect(toImmutableMap(tp -> Legacy.iborIndex(tp.getKey()), tp -> createCurve(tp.getValue(), curveMetadata)));
 
-    Map<Index, Curve> overnightCurves =
-        Seq.seq(legacyOvernightCurves).toMap(tp -> Legacy.overnightIndex(tp.v1), tp -> createCurve(tp.v2, curveMetadata));
+    Map<Index, Curve> overnightCurves = legacyOvernightCurves.entrySet().stream()
+        .collect(toImmutableMap(tp -> Legacy.overnightIndex(tp.getKey()), tp -> createCurve(tp.getValue(), curveMetadata)));
 
     Map<Index, Curve> forwardCurves = ImmutableMap.<Index, Curve>builder()
         .putAll(iborCurves)
