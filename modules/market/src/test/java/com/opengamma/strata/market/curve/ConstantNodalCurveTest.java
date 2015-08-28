@@ -20,7 +20,6 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
  * Test {@link ConstantNodalCurve}.
  */
 @Test
-@SuppressWarnings("deprecation")
 public class ConstantNodalCurveTest {
 
   private static final String NAME = "TestCurve";
