@@ -76,8 +76,7 @@ public interface Surface {
   /**
    * Computes the sensitivity of the z-value with respect to the surface parameters.
    * <p>
-   * This returns an array with one element for each parameter of the surface.
-   * The array contains the sensitivity of the y-value at the specified x-value to each parameter.
+   * This returns a map with one element for each x-y parameter of the surface.
    * 
    * @param x  the x-value at which the parameter sensitivity is computed
    * @param y  the x-value at which the parameter sensitivity is computed
@@ -89,8 +88,7 @@ public interface Surface {
   /**
    * Computes the sensitivity of the z-value with respect to the surface parameters.
    * <p>
-   * This returns an array with one element for each parameter of the surface.
-   * The array contains the sensitivity of the y-value at the specified x-value to each parameter.
+   * This returns a map with one element for each x-y parameter of the surface.
    * 
    * @param xyPair  the pair of x-value and y-value at which the parameter sensitivity is computed
    * @return the sensitivity at the x/y/ point
