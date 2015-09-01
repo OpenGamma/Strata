@@ -236,7 +236,7 @@ public final class ForwardPriceIndexValues
     double nbMonth = valuationMonth.until(month, MONTHS);
     int month0 = month.getMonthValue() - 1;
     double adjustment = seasonality.get(month0);
-    double[] unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth);
+    double[] unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth).getSensitivity();
     double[] adjustedSensitivity = new double[unadjustedSensitivity.length - 1];
     // remove first element which is to the last fixing
     for (int i = 0; i < unadjustedSensitivity.length - 1; i++) {

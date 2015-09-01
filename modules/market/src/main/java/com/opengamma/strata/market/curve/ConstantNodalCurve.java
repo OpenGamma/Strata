@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
  * A curve based on a single constant value.
@@ -118,8 +119,8 @@ public final class ConstantNodalCurve
   }
 
   @Override
-  public double[] yValueParameterSensitivity(double x) {
-    return new double[] {1d};
+  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
+    return CurveUnitParameterSensitivity.of(metadata, new double[] {1d});
   }
 
   @Override

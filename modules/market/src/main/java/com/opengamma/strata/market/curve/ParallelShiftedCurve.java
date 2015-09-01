@@ -23,6 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
+
 /**
  * A curve with a parallel shift applied to its y-values.
  * <p>
@@ -119,7 +121,7 @@ public final class ParallelShiftedCurve
   }
 
   @Override
-  public double[] yValueParameterSensitivity(double x) {
+  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
     return curve.yValueParameterSensitivity(x);
   }
 

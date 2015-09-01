@@ -27,7 +27,6 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -202,7 +201,7 @@ public class DiscountOvernightIndexRatesTest {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, SERIES_EMPTY, DFCURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
+        CURVE.yValueParameterSensitivity(relativeYearFraction));
     assertEquals(test.unitParameterSensitivity(DATE_VAL), expected);
   }
 
@@ -210,7 +209,7 @@ public class DiscountOvernightIndexRatesTest {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, SERIES, DFCURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
+        CURVE.yValueParameterSensitivity(relativeYearFraction));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 

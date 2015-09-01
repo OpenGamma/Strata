@@ -46,6 +46,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
@@ -356,8 +357,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     }
 
     @Override
-    public double[] yValueParameterSensitivity(double x) {
-      return new double[] {1d};
+    public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
+      return CurveUnitParameterSensitivity.of(metadata, new double[] {1d});
     }
 
     @Override

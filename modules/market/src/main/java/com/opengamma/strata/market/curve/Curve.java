@@ -7,6 +7,8 @@ package com.opengamma.strata.market.curve;
 
 import java.time.Period;
 
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
+
 /**
  * A curve that maps a {@code double} x-value to a {@code double} y-value.
  * <p>
@@ -73,7 +75,7 @@ public interface Curve {
    * @return the sensitivity
    * @throws RuntimeException if the sensitivity cannot be calculated
    */
-  public abstract double[] yValueParameterSensitivity(double x);
+  public abstract CurveUnitParameterSensitivity yValueParameterSensitivity(double x);
 
   /**
    * Computes the first derivative of the curve.
