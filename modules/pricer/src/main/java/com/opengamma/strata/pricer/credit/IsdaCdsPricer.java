@@ -15,6 +15,7 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveParRates;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
@@ -165,8 +166,8 @@ public class IsdaCdsPricer {
     }
 
     @Override
-    public double[] yValueParameterSensitivity(double x) {
-      return new double[0];
+    public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
+      return CurveUnitParameterSensitivity.of(curveMetadata, new double[0]);
     }
 
     @Override

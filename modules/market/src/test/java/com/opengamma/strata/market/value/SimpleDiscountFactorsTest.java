@@ -26,7 +26,6 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -104,7 +103,7 @@ public class SimpleDiscountFactorsTest {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(METADATA, CURVE.yValueParameterSensitivity(relativeYearFraction)));
+        CURVE.yValueParameterSensitivity(relativeYearFraction));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 

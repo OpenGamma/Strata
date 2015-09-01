@@ -29,6 +29,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
  * Test {@link InterpolatedNodalCurve}.
@@ -83,7 +84,8 @@ public class InterpolatedNodalCurveTest {
     assertThat(test.yValue(XVALUES[2])).isEqualTo(YVALUES[2]);
     assertThat(test.yValue(10d)).isEqualTo(COMBINED.interpolate(bundle, 10d));
 
-    assertThat(test.yValueParameterSensitivity(10d)).isEqualTo(COMBINED.getNodeSensitivitiesForValue(bundle, 10d));
+    assertThat(test.yValueParameterSensitivity(10d)).isEqualTo(
+        CurveUnitParameterSensitivity.of(METADATA, COMBINED.getNodeSensitivitiesForValue(bundle, 10d)));
 
     assertThat(test.firstDerivative(10d)).isEqualTo(COMBINED.firstDerivative(bundle, 10d));
   }

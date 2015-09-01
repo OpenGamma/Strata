@@ -27,7 +27,6 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -174,7 +173,7 @@ public class DiscountIborIndexRatesTest {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES_EMPTY, DFCURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
+        CURVE.yValueParameterSensitivity(relativeYearFraction));
     assertEquals(test.unitParameterSensitivity(DATE_VAL), expected);
   }
 
@@ -182,7 +181,7 @@ public class DiscountIborIndexRatesTest {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CurveUnitParameterSensitivity.of(CURVE.getMetadata(), CURVE.yValueParameterSensitivity(relativeYearFraction)));
+        CURVE.yValueParameterSensitivity(relativeYearFraction));
     assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
   }
 
