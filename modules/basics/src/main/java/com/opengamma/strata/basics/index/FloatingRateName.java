@@ -51,7 +51,7 @@ import com.opengamma.strata.collect.named.Named;
  * The most common implementations are provided in {@link FloatingRateNames}.
  * <p>
  * The set of supported values, and their mapping to {@code IborIndex} and
- * {@code OvernightIndex}, is defined in the {@code FpmlFloatingRateIndex.ini}
+ * {@code OvernightIndex}, is defined in the {@code FloatingRateName.ini}
  * config file.
  */
 @BeanDefinition(builderScope = "private")
@@ -71,7 +71,7 @@ public final class FloatingRateName
   /**
    * The root of the name of the index, such as 'GBP-LIBOR', to which the tenor is appended.
    * This name matches that used by {@link IborIndex} or {@link OvernightIndex}.
-   * Typically, multiple {@code FloatingRateIndex} names map to one Ibor or Overnight index.
+   * Typically, multiple {@code FloatingRateName} names map to one Ibor or Overnight index.
    */
   @PropertyDefinition(validate = "notEmpty")
   private final String indexName;
@@ -83,10 +83,10 @@ public final class FloatingRateName
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code FloatingRateIndex} from a unique name.
+   * Obtains a {@code FloatingRateName} from a unique name.
    * 
    * @param name  the unique name
-   * @return the index
+   * @return the name
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
@@ -120,7 +120,7 @@ public final class FloatingRateName
     }
   }
 
-  // parse the config file FloatingRateIndex.ini
+  // parse the config file FloatingRateName.ini
   private static ImmutableMap<String, FloatingRateName> parseIndices(IniFile ini) {
     ImmutableMap.Builder<String, FloatingRateName> builder = ImmutableMap.builder();
     PropertySet iborSection = ini.section("ibor");
@@ -263,7 +263,7 @@ public final class FloatingRateName
   /**
    * Gets the root of the name of the index, such as 'GBP-LIBOR', to which the tenor is appended.
    * This name matches that used by {@link IborIndex} or {@link OvernightIndex}.
-   * Typically, multiple {@code FloatingRateIndex} names map to one Ibor or Overnight index.
+   * Typically, multiple {@code FloatingRateName} names map to one Ibor or Overnight index.
    * @return the value of the property, not empty
    */
   public String getIndexName() {
