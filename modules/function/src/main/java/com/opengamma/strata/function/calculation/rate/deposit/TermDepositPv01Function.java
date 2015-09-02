@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.deposit;
+package com.opengamma.strata.function.calculation.rate.deposit;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;

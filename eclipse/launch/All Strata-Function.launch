@@ -15,6 +15,8 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.strata.function.calculation.rate"/>
+<listEntry value="com.opengamma.strata.function.calculation.rate.deposit"/>
 <listEntry value="com.opengamma.strata.function.calculation.rate.fra"/>
 <listEntry value="com.opengamma.strata.function.calculation.rate.swap"/>
 <listEntry value="com.opengamma.strata.function.interpolator"/>

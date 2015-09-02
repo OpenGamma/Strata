@@ -39,7 +39,7 @@ import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 
 /**
- * Calculates a result of a {@code CdsTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code CdsTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */

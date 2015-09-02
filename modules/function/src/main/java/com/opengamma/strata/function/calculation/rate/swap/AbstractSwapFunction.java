@@ -34,7 +34,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**
- * Calculates a result of a {@code SwapTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code SwapTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */
