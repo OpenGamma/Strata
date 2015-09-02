@@ -51,6 +51,8 @@ public final class TermDeposit
    * <p>
    * A value of 'Buy' implies payment of the principal at the start date and receipt of the
    * principal plus interest at the end date. A value of 'Sell' implies the opposite.
+   * In other words, 'Buy' refers to buying the service of "money storage", with the benefit
+   * of receiving interest.
    */
   @PropertyDefinition(validate = "notNull")
   private final BuySell buySell;
@@ -216,6 +218,8 @@ public final class TermDeposit
    * <p>
    * A value of 'Buy' implies payment of the principal at the start date and receipt of the
    * principal plus interest at the end date. A value of 'Sell' implies the opposite.
+   * In other words, 'Buy' refers to buying the service of "money storage", with the benefit
+   * of receiving interest.
    * @return the value of the property, not null
    */
   public BuySell getBuySell() {
@@ -709,6 +713,8 @@ public final class TermDeposit
      * <p>
      * A value of 'Buy' implies payment of the principal at the start date and receipt of the
      * principal plus interest at the end date. A value of 'Sell' implies the opposite.
+     * In other words, 'Buy' refers to buying the service of "money storage", with the benefit
+     * of receiving interest.
      * @param buySell  the new value, not null
      * @return this, for chaining, not null
      */

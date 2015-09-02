@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.deposit;
+package com.opengamma.strata.function.calculation.rate.deposit;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
 
@@ -14,7 +14,6 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
@@ -22,30 +21,25 @@ import com.opengamma.strata.finance.rate.deposit.ExpandedTermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.deposit.DiscountingTermDepositProductPricer;
 
 /**
- * Calculates a result for a {@code TermDepositTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code TermDepositTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */
 public abstract class AbstractTermDepositFunction<T>
-    implements CalculationSingleFunction<TermDepositTrade, ScenarioResult<T>> {
-
-  /**
-   * If this is true the value returned by the {@code execute} method will support automatic currency
-   * conversion if the underlying results support it.
-   */
-  private final boolean convertCurrencies;
+    extends AbstractCalculationFunction<TermDepositTrade, ScenarioResult<T>> {
 
   /**
    * Creates a new instance which will return results from the {@code execute} method that support automatic
    * currency conversion if the underlying results support it.
    */
   protected AbstractTermDepositFunction() {
-    this(true);
+    super();
   }
 
   /**
@@ -55,7 +49,7 @@ public abstract class AbstractTermDepositFunction<T>
    *   automatic currency conversion if the underlying results support it
    */
   protected AbstractTermDepositFunction(boolean convertCurrencies) {
-    this.convertCurrencies = convertCurrencies;
+    super(convertCurrencies);
   }
 
   /**
@@ -89,7 +83,7 @@ public abstract class AbstractTermDepositFunction<T>
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
-        .collect(toScenarioResult(convertCurrencies));
+        .collect(toScenarioResult(isConvertCurrencies()));
   }
 
   /**

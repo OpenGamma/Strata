@@ -22,7 +22,7 @@ import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
- * Calculates a result of a {@code GenericFutureOptionTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code GenericFutureOptionTrade} for each of a set of scenarios.
  * 
  * @param <T>  the return type
  */
