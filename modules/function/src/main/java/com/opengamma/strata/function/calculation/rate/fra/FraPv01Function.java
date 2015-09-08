@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
-import static com.opengamma.strata.function.calculation.AbstractCalculationFunction.ONE_BASIS_POINT;
-
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;

@@ -6,7 +6,6 @@
 package com.opengamma.strata.function.calculation.rate.fra;
 
 import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
-import static com.opengamma.strata.function.calculation.AbstractCalculationFunction.ONE_BASIS_POINT;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.HashSet;
