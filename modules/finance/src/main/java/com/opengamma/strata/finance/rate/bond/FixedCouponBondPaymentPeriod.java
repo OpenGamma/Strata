@@ -29,9 +29,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
+import com.opengamma.strata.finance.rate.swap.NotionalPaymentPeriod;
 
 /**
  * A period over which a fixed coupon is paid.
@@ -42,7 +43,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
  */
 @BeanDefinition
 public final class FixedCouponBondPaymentPeriod
-    implements PaymentPeriod, ImmutableBean, Serializable {
+    implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the payment period.
@@ -61,7 +62,7 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
   /**
-   * The start date of the coupon period.
+   * The start date of the payment period.
    * <p>
    * This is the first date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -69,7 +70,7 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate startDate;
   /**
-   * The end date of the coupon period.
+   * The end date of the payment period.
    * <p>
    * This is the last date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -103,7 +104,6 @@ public final class FixedCouponBondPaymentPeriod
   private final double fixedRate;
 
   //-------------------------------------------------------------------------
-
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     // no index
@@ -113,10 +113,15 @@ public final class FixedCouponBondPaymentPeriod
   public FixedCouponBondPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
     return this;
   }
-  
+
   @Override
   public LocalDate getPaymentDate() {
     return getEndDate();
+  }
+
+  @Override
+  public CurrencyAmount getNotionalAmount() {
+    return CurrencyAmount.of(currency, notional);
   }
 
   //-------------------------------------------------------------------------
@@ -212,7 +217,7 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start date of the coupon period.
+   * Gets the start date of the payment period.
    * <p>
    * This is the first date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -225,7 +230,7 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end date of the coupon period.
+   * Gets the end date of the payment period.
    * <p>
    * This is the last date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -671,7 +676,7 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * Sets the start date of the coupon period.
+     * Sets the start date of the payment period.
      * <p>
      * This is the first date in the period.
      * If the schedule adjusts for business days, then this is the adjusted date.
@@ -685,7 +690,7 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * Sets the end date of the coupon period.
+     * Sets the end date of the payment period.
      * <p>
      * This is the last date in the period.
      * If the schedule adjusts for business days, then this is the adjusted date.

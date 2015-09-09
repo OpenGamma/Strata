@@ -48,7 +48,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition
 public final class RatePaymentPeriod
-    implements PaymentPeriod, ImmutableBean, Serializable {
+    implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The date that payment occurs.
@@ -158,14 +158,15 @@ public final class RatePaymentPeriod
   }
 
   /**
-   * Gets the notional as a {@code CurrencyAmount}.
+   * Gets the notional amount, positive if receiving, negative if paying.
    * <p>
-   * The notional amount applicable during the period.
+   * This is the notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency} unless there
    * is the {@code fxReset} property is present.
    * 
-   * @return the notional as a  {@code CurrencyAmount}
+   * @return the notional as a {@code CurrencyAmount}
    */
+  @Override
   public CurrencyAmount getNotionalAmount() {
     if (fxReset != null) {
       return CurrencyAmount.of(fxReset.getReferenceCurrency(), notional);
