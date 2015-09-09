@@ -17,6 +17,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.CompoundingMethod;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwap;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
@@ -175,7 +176,9 @@ public class DiscountingSwapProductPricer {
       // Par rate
       return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
     } else {
-      RatePaymentPeriod payment = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
+      PaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
+      ArgChecker.isTrue(firstPeriod instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
+      RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
       if (payment.getAccrualPeriods().size() == 1) { // no compounding
         // PVBP
         double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
@@ -192,7 +195,7 @@ public class DiscountingSwapProductPricer {
       double nbAp = ap.size();
       double notional = payment.getNotional();
       double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
-      return Math.pow(-(otherLegsConvertedPv + fixedLegEventsPv) / notional / df + 1.0d, 1 / nbAp) - 1.0d;
+      return Math.pow(-(otherLegsConvertedPv + fixedLegEventsPv) / notional / df + 1d, 1 / nbAp) - 1d;
     }
   }
 

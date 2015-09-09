@@ -32,7 +32,7 @@ public class SwapLegPvFunction extends AbstractSwapFunction<LegAmounts> {
         .collect(Collectors.toList());
     return LegAmounts.of(legAmounts);
   }
-  
+
   private SwapLegAmount legAmount(ExpandedSwapLeg leg, RatesProvider provider) {
     CurrencyAmount amount = DiscountingSwapLegPricer.DEFAULT.presentValue(leg, provider);
     return SwapLegAmount.builder()
