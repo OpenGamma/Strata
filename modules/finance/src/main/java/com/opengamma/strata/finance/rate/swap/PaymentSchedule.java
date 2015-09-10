@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -133,6 +134,7 @@ public final class PaymentSchedule
    * @param accrualSchedule  the accrual schedule
    * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
+   * @param dayCount  the day count
    * @param notionalSchedule  the schedule of notionals
    * @param payReceive  the pay-receive flag
    * @return the list of payment periods
@@ -141,6 +143,7 @@ public final class PaymentSchedule
       Schedule accrualSchedule,
       Schedule paymentSchedule,
       List<RateAccrualPeriod> accrualPeriods,
+      DayCount dayCount,
       NotionalSchedule notionalSchedule,
       PayReceive payReceive) {
 
@@ -154,7 +157,7 @@ public final class PaymentSchedule
         SchedulePeriod period = paymentSchedule.getPeriod(index);
         double notional = payReceive.normalize(notionals.get(index));
         ImmutableList<RateAccrualPeriod> paymentAccrualPeriods = ImmutableList.of(accrualPeriods.get(index));
-        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, notionalSchedule, notional));
+        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, dayCount, notionalSchedule, notional));
       }
     } else {
       // multiple accrual periods per payment period
@@ -168,7 +171,7 @@ public final class PaymentSchedule
           accrual = accrualPeriods.get(++accrualIndex);
         }
         List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.subList(accrualStartIndex, accrualIndex + 1);
-        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, notionalSchedule, notional));
+        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, dayCount, notionalSchedule, notional));
         accrualIndex++;
       }
     }
@@ -179,11 +182,13 @@ public final class PaymentSchedule
   private RatePaymentPeriod createPaymentPeriod(
       SchedulePeriod paymentPeriod,
       List<RateAccrualPeriod> periods,
+      DayCount dayCount,
       NotionalSchedule notionalAmount,
       double notional) {
     return RatePaymentPeriod.builder()
         .paymentDate(paymentDateOffset.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod)))
         .accrualPeriods(periods)
+        .dayCount(dayCount)
         .currency(notionalAmount.getCurrency())
         .fxReset(createFxReset(notionalAmount, paymentPeriod))
         .notional(notional)

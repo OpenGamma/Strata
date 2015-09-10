@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.calculator;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
@@ -63,6 +64,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
           .accrualPeriods(FIXED_ACCRUAL)
           .notional(NOTIONAL)
           .paymentDate(PAYMENT_DATE)
+          .dayCount(ACT_365F)
           .currency(EUR)
           .build();
   /* Ibor rate observation */
@@ -80,6 +82,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
           .accrualPeriods(IBOR_ACCRUAL)
           .notional(NOTIONAL)
           .paymentDate(PAYMENT_DATE)
+          .dayCount(ACT_365F)
           .currency(EUR)
           .build();
   private static final double IBOR_SPREAD = 0.001;
@@ -98,6 +101,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
           .accrualPeriods(IBOR_ACCRUAL_S)
           .notional(NOTIONAL)
           .paymentDate(PAYMENT_DATE)
+          .dayCount(ACT_365F)
           .currency(EUR)
           .build();
   /* Overnight Compounding rate observation */
@@ -117,6 +121,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
           .accrualPeriods(ON_CMP_EUR_ACCRUAL)
           .notional(NOTIONAL)
           .paymentDate(PAYMENT_DATE)
+          .dayCount(ACT_365F)
           .currency(EUR)
           .build();
   private static final OvernightCompoundedRateObservation ON_CMP_CHF_OBS = 
@@ -133,6 +138,7 @@ public class CashflowEquivalentTheoreticalCalculatorTest {
           .accrualPeriods(ON_CMP_CHF_ACCRUAL)
           .notional(NOTIONAL)
           .paymentDate(PAYMENT_DATE)
+          .dayCount(ACT_365F)
           .currency(CHF)
           .build();
   /* Pricer */

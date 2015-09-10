@@ -210,6 +210,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
             .rateObservation(FixedRateObservation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .build();
@@ -221,6 +222,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
             .rateObservation(FixedRateObservation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .build();
@@ -233,6 +235,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
             .rateObservation(FixedRateObservation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .build();
@@ -289,6 +292,7 @@ public class RateCalculationSwapLegTest {
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
                 .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03))
                 .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .compoundingMethod(STRAIGHT)
@@ -311,6 +315,7 @@ public class RateCalculationSwapLegTest {
                 .yearFraction(ACT_365F.yearFraction(DATE_04_07, DATE_05_06))
                 .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_04_03))
                 .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1500d)
         .compoundingMethod(STRAIGHT)
@@ -324,6 +329,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_05_06, DATE_06_05))
             .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_05_01))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1500d)
         .compoundingMethod(STRAIGHT)
@@ -386,6 +392,7 @@ public class RateCalculationSwapLegTest {
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
                 .rateObservation(FixedRateObservation.of(0.025d))
                 .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .compoundingMethod(STRAIGHT)
@@ -437,6 +444,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
             .rateObservation(FixedRateObservation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_01_02))
@@ -449,6 +457,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
             .rateObservation(FixedRateObservation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_02_03))
@@ -462,6 +471,7 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
             .rateObservation(FixedRateObservation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
         .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_03_03))
@@ -566,6 +576,7 @@ public class RateCalculationSwapLegTest {
                     YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
                     YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3)))
             .build())
+        .dayCount(ONE_ONE)
         .currency(GBP)
         .notional(-1000d)
         .build();
@@ -629,6 +640,7 @@ public class RateCalculationSwapLegTest {
                     YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3),
                     weight))
             .build())
+        .dayCount(ONE_ONE)
         .currency(GBP)
         .notional(1000d)
         .build();
@@ -718,6 +730,7 @@ public class RateCalculationSwapLegTest {
         .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
         .accrualPeriods(rap0, rap1, rap2, rap3, rap4)
         .compoundingMethod(STRAIGHT)
+        .dayCount(ONE_ONE)
         .currency(GBP)
         .notional(1000d)
         .build();

@@ -33,6 +33,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
@@ -140,6 +142,11 @@ public final class InflationRateCalculation
   }
 
   @Override
+  public DayCount getDayCount() {
+    return DayCounts.ONE_ONE;  // inflation does not use a day count
+  }
+
+  @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     builder.add(index);
   }
@@ -155,7 +162,7 @@ public final class InflationRateCalculation
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
-          .yearFraction(1.0)  // no applicable year fraction
+          .yearFraction(1d)  // inflation does not use a day count
           .rateObservation(createRateObservation(period))
           .gearing(resolvedGearings.get(i))
           .build());

@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
 
@@ -67,6 +68,14 @@ public final class RatePaymentPeriod
    */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<RateAccrualPeriod> accrualPeriods;
+  /**
+   * The day count convention.
+   * <p>
+   * Each accrual period contains a year fraction calculated using this day count.
+   * This day count is used when there is a need to perform further calculations.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final DayCount dayCount;
   /**
    * The primary currency of the payment period.
    * <p>
@@ -229,16 +238,19 @@ public final class RatePaymentPeriod
   private RatePaymentPeriod(
       LocalDate paymentDate,
       List<RateAccrualPeriod> accrualPeriods,
+      DayCount dayCount,
       Currency currency,
       FxReset fxReset,
       double notional,
       CompoundingMethod compoundingMethod) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notEmpty(accrualPeriods, "accrualPeriods");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(compoundingMethod, "compoundingMethod");
     this.paymentDate = paymentDate;
     this.accrualPeriods = ImmutableList.copyOf(accrualPeriods);
+    this.dayCount = dayCount;
     this.currency = currency;
     this.fxReset = fxReset;
     this.notional = notional;
@@ -285,6 +297,18 @@ public final class RatePaymentPeriod
    */
   public ImmutableList<RateAccrualPeriod> getAccrualPeriods() {
     return accrualPeriods;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the day count convention.
+   * <p>
+   * Each accrual period contains a year fraction calculated using this day count.
+   * This day count is used when there is a need to perform further calculations.
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCount() {
+    return dayCount;
   }
 
   //-----------------------------------------------------------------------
@@ -362,6 +386,7 @@ public final class RatePaymentPeriod
       RatePaymentPeriod other = (RatePaymentPeriod) obj;
       return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
           JodaBeanUtils.equal(getAccrualPeriods(), other.getAccrualPeriods()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(fxReset, other.fxReset) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
@@ -375,6 +400,7 @@ public final class RatePaymentPeriod
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriods());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash = hash * 31 + JodaBeanUtils.hashCode(fxReset);
     hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
@@ -384,10 +410,11 @@ public final class RatePaymentPeriod
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("RatePaymentPeriod{");
     buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
     buf.append("accrualPeriods").append('=').append(getAccrualPeriods()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
     buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
@@ -418,6 +445,11 @@ public final class RatePaymentPeriod
     private final MetaProperty<ImmutableList<RateAccrualPeriod>> accrualPeriods = DirectMetaProperty.ofImmutable(
         this, "accrualPeriods", RatePaymentPeriod.class, (Class) ImmutableList.class);
     /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
+        this, "dayCount", RatePaymentPeriod.class, DayCount.class);
+    /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
@@ -444,6 +476,7 @@ public final class RatePaymentPeriod
         this, null,
         "paymentDate",
         "accrualPeriods",
+        "dayCount",
         "currency",
         "fxReset",
         "notional",
@@ -462,6 +495,8 @@ public final class RatePaymentPeriod
           return paymentDate;
         case -92208605:  // accrualPeriods
           return accrualPeriods;
+        case 1905311443:  // dayCount
+          return dayCount;
         case 575402001:  // currency
           return currency;
         case -449555555:  // fxReset
@@ -507,6 +542,14 @@ public final class RatePaymentPeriod
     }
 
     /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DayCount> dayCount() {
+      return dayCount;
+    }
+
+    /**
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
@@ -546,6 +589,8 @@ public final class RatePaymentPeriod
           return ((RatePaymentPeriod) bean).getPaymentDate();
         case -92208605:  // accrualPeriods
           return ((RatePaymentPeriod) bean).getAccrualPeriods();
+        case 1905311443:  // dayCount
+          return ((RatePaymentPeriod) bean).getDayCount();
         case 575402001:  // currency
           return ((RatePaymentPeriod) bean).getCurrency();
         case -449555555:  // fxReset
@@ -577,6 +622,7 @@ public final class RatePaymentPeriod
 
     private LocalDate paymentDate;
     private List<RateAccrualPeriod> accrualPeriods = ImmutableList.of();
+    private DayCount dayCount;
     private Currency currency;
     private FxReset fxReset;
     private double notional;
@@ -596,6 +642,7 @@ public final class RatePaymentPeriod
     private Builder(RatePaymentPeriod beanToCopy) {
       this.paymentDate = beanToCopy.getPaymentDate();
       this.accrualPeriods = beanToCopy.getAccrualPeriods();
+      this.dayCount = beanToCopy.getDayCount();
       this.currency = beanToCopy.getCurrency();
       this.fxReset = beanToCopy.fxReset;
       this.notional = beanToCopy.getNotional();
@@ -610,6 +657,8 @@ public final class RatePaymentPeriod
           return paymentDate;
         case -92208605:  // accrualPeriods
           return accrualPeriods;
+        case 1905311443:  // dayCount
+          return dayCount;
         case 575402001:  // currency
           return currency;
         case -449555555:  // fxReset
@@ -632,6 +681,9 @@ public final class RatePaymentPeriod
           break;
         case -92208605:  // accrualPeriods
           this.accrualPeriods = (List<RateAccrualPeriod>) newValue;
+          break;
+        case 1905311443:  // dayCount
+          this.dayCount = (DayCount) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -680,6 +732,7 @@ public final class RatePaymentPeriod
       return new RatePaymentPeriod(
           paymentDate,
           accrualPeriods,
+          dayCount,
           currency,
           fxReset,
           notional,
@@ -724,6 +777,20 @@ public final class RatePaymentPeriod
      */
     public Builder accrualPeriods(RateAccrualPeriod... accrualPeriods) {
       return accrualPeriods(ImmutableList.copyOf(accrualPeriods));
+    }
+
+    /**
+     * Sets the day count convention.
+     * <p>
+     * Each accrual period contains a year fraction calculated using this day count.
+     * This day count is used when there is a need to perform further calculations.
+     * @param dayCount  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder dayCount(DayCount dayCount) {
+      JodaBeanUtils.notNull(dayCount, "dayCount");
+      this.dayCount = dayCount;
+      return this;
     }
 
     /**
@@ -791,10 +858,11 @@ public final class RatePaymentPeriod
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("RatePaymentPeriod.Builder{");
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("accrualPeriods").append('=').append(JodaBeanUtils.toString(accrualPeriods)).append(',').append(' ');
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');

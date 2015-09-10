@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -65,12 +66,14 @@ public class RatePeriodSwapLegTest {
   private static final RatePaymentPeriod RPP1 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
       .accrualPeriods(RAP1)
+      .dayCount(ACT_365F)
       .currency(GBP)
       .notional(5000d)
       .build();
   private static final RatePaymentPeriod RPP1_FXRESET = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
       .accrualPeriods(RAP1)
+      .dayCount(ACT_365F)
       .currency(GBP)
       .fxReset(FxReset.of(WM_GBP_USD, USD, DATE_2014_06_28))
       .notional(8000d)
@@ -78,12 +81,14 @@ public class RatePeriodSwapLegTest {
   private static final RatePaymentPeriod RPP2 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_01_02)
       .accrualPeriods(RAP2)
+      .dayCount(ACT_365F)
       .currency(GBP)
       .notional(6000d)
       .build();
   private static final RatePaymentPeriod RPP3 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
       .accrualPeriods(RAP1)
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(6000d)
       .build();

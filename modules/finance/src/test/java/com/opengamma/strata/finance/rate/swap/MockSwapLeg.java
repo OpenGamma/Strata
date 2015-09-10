@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.finance.rate.swap.SwapLegType.IBOR;
@@ -54,6 +55,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
               .endDate(date(2012, 8, 15))
               .rateObservation(FixedRateObservation.of(0.012d))
               .build())
+          .dayCount(ACT_365F)
           .notional(1_000_000d)
           .currency(GBP)
           .build())
@@ -70,6 +72,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
               .endDate(date(2012, 8, 15))
               .rateObservation(FixedRateObservation.of(0.012d))
               .build())
+          .dayCount(ACT_365F)
           .notional(1_000_000d)
           .currency(USD)
           .build())
