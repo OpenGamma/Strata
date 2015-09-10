@@ -39,6 +39,9 @@ import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 
+/**
+ * Test {@link TermDepositFunctionGroups}.
+ */
 @Test
 public class TermDepositFunctionGroupsTest {
 

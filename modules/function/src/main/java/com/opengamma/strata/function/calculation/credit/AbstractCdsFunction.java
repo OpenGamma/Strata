@@ -98,7 +98,7 @@ public abstract class AbstractCdsFunction<T>
     // TODO the only real difference between single name and index trades is how the credit curves are keyed and the
     // TODO application of an index factor. We have two switch statements currently to handle this
     // TODO we should be able to handle that a bit more gracefully, but there seems little point in duplicating
-    // TODO all of the engine functions and the entire trade model when the vast majority of behavior is common
+    // TODO all of the calculation functions and the entire trade model when the vast majority of behavior is common
     Set<MarketDataKey<?>> spreadCurveKey;
     switch (cdsType) {
       case SINGLE_NAME:

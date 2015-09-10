@@ -11,7 +11,7 @@ import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.finance.credit.CdsTrade;
 
 /**
- * Contains function groups for built-in CDS engine functions.
+ * Contains function groups for built-in CDS calculation functions.
  * <p>
  * Function groups are used in pricing rules to allow the engine to calculate the
  * measures provided by the functions in the group.

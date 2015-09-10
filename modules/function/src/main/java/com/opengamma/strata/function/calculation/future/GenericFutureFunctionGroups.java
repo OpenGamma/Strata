@@ -11,7 +11,7 @@ import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
 
 /**
- * Contains function groups for built-in generic future engine functions.
+ * Contains function groups for built-in generic future calculation functions.
  * <p>
  * Function groups are used in pricing rules to allow the engine to calculate the
  * measures provided by the functions in the group.

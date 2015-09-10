@@ -37,6 +37,9 @@ import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.rate.fra.FraDummyData;
 
+/**
+ * Test {@link FraFunctionGroups}.
+ */
 @Test
 public class FraFunctionGroupsTest {
 
