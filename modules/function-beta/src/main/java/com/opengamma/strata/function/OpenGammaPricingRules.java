@@ -19,7 +19,7 @@ import com.opengamma.strata.function.calculation.future.GenericFutureFunctionGro
 import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.deposit.TermDepositFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.fra.FraFunctionGroups;
-import com.opengamma.strata.function.rate.swap.SwapFunctionGroups;
+import com.opengamma.strata.function.calculation.rate.swap.SwapFunctionGroups;
 
 /**
  * Contains standard sets of pricing rules that provide full access to the built-in asset class coverage.

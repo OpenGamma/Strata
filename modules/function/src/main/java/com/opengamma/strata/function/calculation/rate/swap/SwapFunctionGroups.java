@@ -3,23 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.rate.swap;
+package com.opengamma.strata.function.calculation.rate.swap;
 
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.function.calculation.rate.swap.SwapBucketedGammaPv01Function;
-import com.opengamma.strata.function.calculation.rate.swap.SwapBucketedPv01Function;
-import com.opengamma.strata.function.calculation.rate.swap.SwapExplainPvFunction;
-import com.opengamma.strata.function.calculation.rate.swap.SwapLegNotionalFunction;
-import com.opengamma.strata.function.calculation.rate.swap.SwapLegPvFunction;
-import com.opengamma.strata.function.calculation.rate.swap.SwapParRateFunction;
-import com.opengamma.strata.function.calculation.rate.swap.SwapPv01Function;
-import com.opengamma.strata.function.calculation.rate.swap.SwapPvFunction;
 
 /**
- * Contains function groups for built-in swap engine functions.
+ * Contains function groups for built-in Swap calculation functions.
  * <p>
  * Function groups are used in pricing rules to allow the engine to calculate the
  * measures provided by the functions in the group.
@@ -50,7 +42,7 @@ public final class SwapFunctionGroups {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the function group providing all built-in measures on swap trades,
+   * Obtains the function group providing all built-in measures on Swap trades,
    * using the standard discounting calculation method.
    * <p>
    * The supported built-in measures are:
