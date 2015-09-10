@@ -81,12 +81,7 @@ public class SwapLegNotionalFunction
         .map(pair -> pair.getSecond() != NOT_FOUND ? pair : Pair.of(pair.getFirst(), firstNotional))
         .collect(toList());
     ImmutableList<LegAmount> legAmounts = notionals.stream()
-        .map(pair -> SwapLegAmount.builder()
-            .amount(pair.getSecond())
-            .payReceive(pair.getFirst().getPayReceive())
-            .legType(pair.getFirst().getType())
-            .legCurrency(pair.getFirst().getCurrency())
-            .build())
+        .map(pair -> SwapLegAmount.of(pair.getFirst(), pair.getSecond()))
         .collect(toImmutableList());
     return LegAmounts.of(legAmounts);
   }

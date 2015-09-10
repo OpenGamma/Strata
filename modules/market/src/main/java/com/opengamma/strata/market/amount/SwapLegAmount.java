@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 
 /**
@@ -41,6 +42,7 @@ public class SwapLegAmount
   /**
    * The amount associated with the leg.
    * The meaning associated with this amount is implied by the context.
+   * This amount may have been currency converted.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurrencyAmount amount;
@@ -53,14 +55,32 @@ public class SwapLegAmount
    * The type of the leg, such as Fixed or Ibor.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SwapLegType legType;
+  private final SwapLegType type;
   /**
    * The currency of the leg.
    * This is not be affected by any currency conversion applied to the amount.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Currency legCurrency;
+  private final Currency currency;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a swap leg and amount.
+   * 
+   * @param leg  the swap leg
+   * @param amount  the amount
+   * @return the swap leg amount
+   */
+  public static SwapLegAmount of(SwapLeg leg, CurrencyAmount amount) {
+    return builder()
+        .amount(amount)
+        .payReceive(leg.getPayReceive())
+        .type(leg.getType())
+        .currency(leg.getCurrency())
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public SwapLegAmount convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     CurrencyAmount convertedAmount = amount.convertedTo(resultCurrency, rateProvider);
@@ -101,12 +121,12 @@ public class SwapLegAmount
   protected SwapLegAmount(SwapLegAmount.Builder builder) {
     JodaBeanUtils.notNull(builder.amount, "amount");
     JodaBeanUtils.notNull(builder.payReceive, "payReceive");
-    JodaBeanUtils.notNull(builder.legType, "legType");
-    JodaBeanUtils.notNull(builder.legCurrency, "legCurrency");
+    JodaBeanUtils.notNull(builder.type, "type");
+    JodaBeanUtils.notNull(builder.currency, "currency");
     this.amount = builder.amount;
     this.payReceive = builder.payReceive;
-    this.legType = builder.legType;
-    this.legCurrency = builder.legCurrency;
+    this.type = builder.type;
+    this.currency = builder.currency;
   }
 
   @Override
@@ -128,6 +148,7 @@ public class SwapLegAmount
   /**
    * Gets the amount associated with the leg.
    * The meaning associated with this amount is implied by the context.
+   * This amount may have been currency converted.
    * @return the value of the property, not null
    */
   @Override
@@ -149,8 +170,8 @@ public class SwapLegAmount
    * Gets the type of the leg, such as Fixed or Ibor.
    * @return the value of the property, not null
    */
-  public SwapLegType getLegType() {
-    return legType;
+  public SwapLegType getType() {
+    return type;
   }
 
   //-----------------------------------------------------------------------
@@ -159,8 +180,8 @@ public class SwapLegAmount
    * This is not be affected by any currency conversion applied to the amount.
    * @return the value of the property, not null
    */
-  public Currency getLegCurrency() {
-    return legCurrency;
+  public Currency getCurrency() {
+    return currency;
   }
 
   //-----------------------------------------------------------------------
@@ -181,8 +202,8 @@ public class SwapLegAmount
       SwapLegAmount other = (SwapLegAmount) obj;
       return JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
           JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getLegType(), other.getLegType()) &&
-          JodaBeanUtils.equal(getLegCurrency(), other.getLegCurrency());
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
     }
     return false;
   }
@@ -192,8 +213,8 @@ public class SwapLegAmount
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getAmount());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLegType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLegCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     return hash;
   }
 
@@ -213,8 +234,8 @@ public class SwapLegAmount
   protected void toString(StringBuilder buf) {
     buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
     buf.append("payReceive").append('=').append(JodaBeanUtils.toString(getPayReceive())).append(',').append(' ');
-    buf.append("legType").append('=').append(JodaBeanUtils.toString(getLegType())).append(',').append(' ');
-    buf.append("legCurrency").append('=').append(JodaBeanUtils.toString(getLegCurrency())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -238,15 +259,15 @@ public class SwapLegAmount
     private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
         this, "payReceive", SwapLegAmount.class, PayReceive.class);
     /**
-     * The meta-property for the {@code legType} property.
+     * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<SwapLegType> legType = DirectMetaProperty.ofImmutable(
-        this, "legType", SwapLegAmount.class, SwapLegType.class);
+    private final MetaProperty<SwapLegType> type = DirectMetaProperty.ofImmutable(
+        this, "type", SwapLegAmount.class, SwapLegType.class);
     /**
-     * The meta-property for the {@code legCurrency} property.
+     * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> legCurrency = DirectMetaProperty.ofImmutable(
-        this, "legCurrency", SwapLegAmount.class, Currency.class);
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", SwapLegAmount.class, Currency.class);
     /**
      * The meta-properties.
      */
@@ -254,8 +275,8 @@ public class SwapLegAmount
         this, null,
         "amount",
         "payReceive",
-        "legType",
-        "legCurrency");
+        "type",
+        "currency");
 
     /**
      * Restricted constructor.
@@ -270,10 +291,10 @@ public class SwapLegAmount
           return amount;
         case -885469925:  // payReceive
           return payReceive;
-        case 55438952:  // legType
-          return legType;
-        case -14415809:  // legCurrency
-          return legCurrency;
+        case 3575610:  // type
+          return type;
+        case 575402001:  // currency
+          return currency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -311,19 +332,19 @@ public class SwapLegAmount
     }
 
     /**
-     * The meta-property for the {@code legType} property.
+     * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SwapLegType> legType() {
-      return legType;
+    public final MetaProperty<SwapLegType> type() {
+      return type;
     }
 
     /**
-     * The meta-property for the {@code legCurrency} property.
+     * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> legCurrency() {
-      return legCurrency;
+    public final MetaProperty<Currency> currency() {
+      return currency;
     }
 
     //-----------------------------------------------------------------------
@@ -334,10 +355,10 @@ public class SwapLegAmount
           return ((SwapLegAmount) bean).getAmount();
         case -885469925:  // payReceive
           return ((SwapLegAmount) bean).getPayReceive();
-        case 55438952:  // legType
-          return ((SwapLegAmount) bean).getLegType();
-        case -14415809:  // legCurrency
-          return ((SwapLegAmount) bean).getLegCurrency();
+        case 3575610:  // type
+          return ((SwapLegAmount) bean).getType();
+        case 575402001:  // currency
+          return ((SwapLegAmount) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -361,8 +382,8 @@ public class SwapLegAmount
 
     private CurrencyAmount amount;
     private PayReceive payReceive;
-    private SwapLegType legType;
-    private Currency legCurrency;
+    private SwapLegType type;
+    private Currency currency;
 
     /**
      * Restricted constructor.
@@ -377,8 +398,8 @@ public class SwapLegAmount
     protected Builder(SwapLegAmount beanToCopy) {
       this.amount = beanToCopy.getAmount();
       this.payReceive = beanToCopy.getPayReceive();
-      this.legType = beanToCopy.getLegType();
-      this.legCurrency = beanToCopy.getLegCurrency();
+      this.type = beanToCopy.getType();
+      this.currency = beanToCopy.getCurrency();
     }
 
     //-----------------------------------------------------------------------
@@ -389,10 +410,10 @@ public class SwapLegAmount
           return amount;
         case -885469925:  // payReceive
           return payReceive;
-        case 55438952:  // legType
-          return legType;
-        case -14415809:  // legCurrency
-          return legCurrency;
+        case 3575610:  // type
+          return type;
+        case 575402001:  // currency
+          return currency;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -407,11 +428,11 @@ public class SwapLegAmount
         case -885469925:  // payReceive
           this.payReceive = (PayReceive) newValue;
           break;
-        case 55438952:  // legType
-          this.legType = (SwapLegType) newValue;
+        case 3575610:  // type
+          this.type = (SwapLegType) newValue;
           break;
-        case -14415809:  // legCurrency
-          this.legCurrency = (Currency) newValue;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -452,6 +473,7 @@ public class SwapLegAmount
     /**
      * Sets the amount associated with the leg.
      * The meaning associated with this amount is implied by the context.
+     * This amount may have been currency converted.
      * @param amount  the new value, not null
      * @return this, for chaining, not null
      */
@@ -474,24 +496,24 @@ public class SwapLegAmount
 
     /**
      * Sets the type of the leg, such as Fixed or Ibor.
-     * @param legType  the new value, not null
+     * @param type  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder legType(SwapLegType legType) {
-      JodaBeanUtils.notNull(legType, "legType");
-      this.legType = legType;
+    public Builder type(SwapLegType type) {
+      JodaBeanUtils.notNull(type, "type");
+      this.type = type;
       return this;
     }
 
     /**
      * Sets the currency of the leg.
      * This is not be affected by any currency conversion applied to the amount.
-     * @param legCurrency  the new value, not null
+     * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder legCurrency(Currency legCurrency) {
-      JodaBeanUtils.notNull(legCurrency, "legCurrency");
-      this.legCurrency = legCurrency;
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
       return this;
     }
 
@@ -512,8 +534,8 @@ public class SwapLegAmount
     protected void toString(StringBuilder buf) {
       buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
-      buf.append("legType").append('=').append(JodaBeanUtils.toString(legType)).append(',').append(' ');
-      buf.append("legCurrency").append('=').append(JodaBeanUtils.toString(legCurrency)).append(',').append(' ');
+      buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     }
 
   }

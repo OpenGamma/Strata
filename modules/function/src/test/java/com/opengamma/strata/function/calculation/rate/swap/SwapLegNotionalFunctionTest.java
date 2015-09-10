@@ -55,19 +55,8 @@ public class SwapLegNotionalFunctionTest {
     MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
 
     LegAmounts expected = LegAmounts.of(
-        SwapLegAmount.builder()
-            .amount(CurrencyAmount.of(ccy, notional))
-            .legCurrency(ccy)
-            .legType(firstLeg.getType())
-            .payReceive(firstLeg.getPayReceive())
-            .build(),
-        SwapLegAmount.builder()
-            .amount(CurrencyAmount.of(ccy, notional))
-            .legCurrency(ccy)
-            .legType(secondLeg.getType())
-            .payReceive(secondLeg.getPayReceive())
-            .build()
-        );
+        SwapLegAmount.of(firstLeg, CurrencyAmount.of(ccy, notional)),
+        SwapLegAmount.of(secondLeg, CurrencyAmount.of(ccy, notional)));
 
     Object execute = test.execute(SWAP_TRADE, md);
     assertThat(execute).isEqualTo(FxConvertibleList.of(ImmutableList.of(expected)));
@@ -88,19 +77,8 @@ public class SwapLegNotionalFunctionTest {
 
     double notional = secondLeg.getNotionalSchedule().getAmount().getInitialValue();
     LegAmounts expected = LegAmounts.of(
-        SwapLegAmount.builder()
-            .amount(CurrencyAmount.of(GBP, notional))
-            .legCurrency(GBP)
-            .legType(firstLeg.getType())
-            .payReceive(firstLeg.getPayReceive())
-            .build(),
-        SwapLegAmount.builder()
-            .amount(CurrencyAmount.of(GBP, notional))
-            .legCurrency(GBP)
-            .legType(secondLeg.getType())
-            .payReceive(secondLeg.getPayReceive())
-            .build()
-        );
+        SwapLegAmount.of(firstLeg, CurrencyAmount.of(GBP, notional)),
+        SwapLegAmount.of(secondLeg, CurrencyAmount.of(GBP, notional)));
 
     SwapLegNotionalFunction test = new SwapLegNotionalFunction();
     Object execute = test.execute(trade, md);
