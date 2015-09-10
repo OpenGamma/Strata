@@ -58,13 +58,13 @@ public final class OvernightRateCalculation
     implements RateCalculation, ImmutableBean, Serializable {
 
   /**
-   * The day count convention applicable.
+   * The day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
    * <p>
    * When building, this will default to the day count of the index if not specified.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
   /**
    * The Overnight index.
@@ -299,13 +299,14 @@ public final class OvernightRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention applicable.
+   * Gets the day count convention.
    * <p>
    * This is used to convert dates to a numerical value.
    * <p>
    * When building, this will default to the day count of the index if not specified.
    * @return the value of the property, not null
    */
+  @Override
   public DayCount getDayCount() {
     return dayCount;
   }
@@ -785,7 +786,7 @@ public final class OvernightRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the day count convention applicable.
+     * Sets the day count convention.
      * <p>
      * This is used to convert dates to a numerical value.
      * <p>

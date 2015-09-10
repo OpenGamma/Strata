@@ -7,6 +7,7 @@ package com.opengamma.strata.finance.rate.swap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Schedule;
 
@@ -28,6 +29,15 @@ public interface RateCalculation {
    * @return the leg type
    */
   public abstract SwapLegType getType();
+
+  /**
+   * Gets the day count convention.
+   * <p>
+   * This is used to convert schedule period dates to a numerical value.
+   * 
+   * @return the day count convention
+   */
+  public abstract DayCount getDayCount();
 
   /**
    * Collects all the indices referred to by this calculation.

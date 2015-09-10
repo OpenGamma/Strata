@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -52,12 +53,14 @@ public class ExpandedSwapTest {
   private static final RatePaymentPeriod RPP1 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
       .accrualPeriods(RAP)
+      .dayCount(ACT_365F)
       .currency(GBP)
       .notional(5000d)
       .build();
   private static final RatePaymentPeriod RPP2 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
       .accrualPeriods(RAP)
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(6000d)
       .build();

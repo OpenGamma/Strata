@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
@@ -127,12 +128,14 @@ public class DiscountingRatePaymentPeriodPricerTest {
   private static final RatePaymentPeriod PAYMENT_PERIOD_1 = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_1)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_1_FX = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_1)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .fxReset(FxReset.of(WM_GBP_USD, GBP, FX_DATE_1))
@@ -140,12 +143,14 @@ public class DiscountingRatePaymentPeriodPricerTest {
   private static final RatePaymentPeriod PAYMENT_PERIOD_1_GS = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_1)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_GS))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_1_NEG = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_1)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_NEG))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
@@ -153,12 +158,14 @@ public class DiscountingRatePaymentPeriodPricerTest {
   private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_GS, ACCRUAL_PERIOD_2_GS, ACCRUAL_PERIOD_3_GS))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX_USD = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_GS, ACCRUAL_PERIOD_2_GS, ACCRUAL_PERIOD_3_GS))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .fxReset(FxReset.of(WM_GBP_USD, GBP, FX_DATE_1))
@@ -166,6 +173,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX_GBP = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_GS, ACCRUAL_PERIOD_2_GS, ACCRUAL_PERIOD_3_GS))
+      .dayCount(ACT_365F)
       .currency(GBP)
       .notional(NOTIONAL_100)
       .fxReset(FxReset.of(WM_GBP_USD, USD, FX_DATE_1))
@@ -332,34 +340,34 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .gearing(GEARING)
       .spread(SPREAD)
       .build();
-  private static final RatePaymentPeriod PAYMENT_PERIOD_FLOATING = RatePaymentPeriod
-      .builder()
+  private static final RatePaymentPeriod PAYMENT_PERIOD_FLOATING = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
-  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_STRAIGHT = RatePaymentPeriod
-      .builder()
+  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_STRAIGHT = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
       .compoundingMethod(CompoundingMethod.STRAIGHT)
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
-  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_FLAT = RatePaymentPeriod
-      .builder()
+  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_FLAT = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
       .compoundingMethod(CompoundingMethod.FLAT)
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();
-  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_EXCLUSIVE = RatePaymentPeriod
-      .builder()
+  private static final RatePaymentPeriod PAYMENT_PERIOD_COMPOUNDING_EXCLUSIVE = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
       .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
       .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE)
+      .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
       .build();

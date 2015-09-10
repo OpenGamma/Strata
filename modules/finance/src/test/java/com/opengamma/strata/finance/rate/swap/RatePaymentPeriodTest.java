@@ -8,6 +8,8 @@ package com.opengamma.strata.finance.rate.swap;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -59,6 +61,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
@@ -79,6 +82,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
@@ -98,6 +102,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .fxReset(FX_RESET_USD)
         .notional(1000d)
@@ -117,6 +122,7 @@ public class RatePaymentPeriodTest {
     assertThrowsIllegalArg(() -> RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
+        .dayCount(ACT_365F)
         .currency(USD)
         .fxReset(FX_RESET_USD)
         .notional(1000d)
@@ -125,6 +131,7 @@ public class RatePaymentPeriodTest {
     assertThrowsIllegalArg(() -> RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
+        .dayCount(ACT_365F)
         .currency(EUR)
         .fxReset(FX_RESET_USD)
         .notional(1000d)
@@ -137,6 +144,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
@@ -144,6 +152,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod expected = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01.plusDays(2))
         .accrualPeriods(RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
@@ -157,6 +166,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
@@ -170,6 +180,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .fxReset(FX_RESET_USD)
@@ -185,6 +196,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .fxReset(FX_RESET_USD)
         .notional(1000d)
@@ -194,6 +206,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test2 = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_09_30)
         .accrualPeriods(RAP1)
+        .dayCount(ACT_360)
         .currency(USD)
         .notional(2000d)
         .compoundingMethod(CompoundingMethod.NONE)
@@ -205,6 +218,7 @@ public class RatePaymentPeriodTest {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
+        .dayCount(ACT_365F)
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)

@@ -44,11 +44,11 @@ public final class FixedRateCalculation
     implements RateCalculation, ImmutableBean, Serializable {
 
   /**
-   * The day count convention applicable.
+   * The day count convention.
    * <p>
    * This is used to convert schedule period dates to a numerical value.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
   /**
    * The interest rate to be paid.
@@ -160,11 +160,12 @@ public final class FixedRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention applicable.
+   * Gets the day count convention.
    * <p>
    * This is used to convert schedule period dates to a numerical value.
    * @return the value of the property, not null
    */
+  @Override
   public DayCount getDayCount() {
     return dayCount;
   }
@@ -407,7 +408,7 @@ public final class FixedRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the day count convention applicable.
+     * Sets the day count convention.
      * <p>
      * This is used to convert schedule period dates to a numerical value.
      * @param dayCount  the new value, not null
