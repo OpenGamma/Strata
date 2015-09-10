@@ -111,6 +111,10 @@ public class DispatchingPaymentPeriodPricerTest {
     ignoreThrows(() -> test.futureValueSensitivity(kapp, MOCK_PROV));
     ignoreThrows(() -> test.futureValueSensitivity(mockPaymentPeriod, MOCK_PROV));
 
+    ignoreThrows(() -> test.accruedInterest(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV));
+    ignoreThrows(() -> test.accruedInterest(kapp, MOCK_PROV));
+    ignoreThrows(() -> test.accruedInterest(mockPaymentPeriod, MOCK_PROV));
+
     ExplainMapBuilder explain = ExplainMap.builder();
     ignoreThrows(() -> test.explainPresentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainPresentValue(kapp, MOCK_PROV, explain));

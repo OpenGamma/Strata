@@ -142,6 +142,27 @@ public class DiscountingSwapProductPricer {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the accrued interest since the last payment.
+   * <p>
+   * This determines the payment period applicable at the valuation date and calculates
+   * the accrued interest since the last payment.
+   * 
+   * @param product  the product to price
+   * @param provider  the rates provider
+   * @return the accrued interest of the swap product
+   */
+  public MultiCurrencyAmount accruedInterest(SwapProduct product, RatesProvider provider) {
+    ExpandedSwap swap = product.expand();
+    MultiCurrencyAmount result = MultiCurrencyAmount.empty();
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      result = result.plus(legPricer.accruedInterest(leg, provider));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Computes the par rate for swaps with a fixed leg. 
    * <p>

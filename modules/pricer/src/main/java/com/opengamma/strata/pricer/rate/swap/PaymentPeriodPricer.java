@@ -91,6 +91,22 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the accrued interest since the last payment.
+   * <p>
+   * This calculates the interest that has accrued between the start of the period
+   * and the valuation date. Discounting is not applied.
+   * The amount is expressed in the currency of the period.
+   * It is intended that this method is called only with the period where the
+   * valuation date is after the start date and before or equal to the end date.
+   * 
+   * @param period  the period to price
+   * @param provider  the rates provider
+   * @return the accrued interest of the period
+   */
+  public abstract double accruedInterest(T period, RatesProvider provider);
+
+  //-------------------------------------------------------------------------
+  /**
    * Explains the present value of a single payment period.
    * <p>
    * This adds information to the {@link ExplainMapBuilder} to aid understanding of the calculation.

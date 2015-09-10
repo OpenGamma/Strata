@@ -105,6 +105,19 @@ public class DispatchingPaymentPeriodPricer
 
   //-------------------------------------------------------------------------
   @Override
+  public double accruedInterest(PaymentPeriod paymentPeriod, RatesProvider provider) {
+    // dispatch by runtime type
+    if (paymentPeriod instanceof RatePaymentPeriod) {
+      return ratePaymentPeriodPricer.accruedInterest((RatePaymentPeriod) paymentPeriod, provider);
+    } else if (paymentPeriod instanceof KnownAmountPaymentPeriod) {
+      return knownAmountPaymentPeriodPricer.accruedInterest((KnownAmountPaymentPeriod) paymentPeriod, provider);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentPeriod type: " + paymentPeriod.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public void explainPresentValue(PaymentPeriod paymentPeriod, RatesProvider provider, ExplainMapBuilder builder) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {

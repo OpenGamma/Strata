@@ -22,6 +22,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -39,33 +40,42 @@ public class ExpandedSwapLegTest {
 
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
+  private static final LocalDate DATE_2014_12_30 = date(2014, 12, 30);
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
+  private static final LocalDate DATE_2015_01_01 = date(2015, 1, 1);
   private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28));
+  private static final IborRateObservation GBP_LIBOR_3M_2014_09_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 9, 28));
   private static final NotionalExchange NOTIONAL_EXCHANGE =
       NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 2000d));
-  private static final RateAccrualPeriod RAP = RateAccrualPeriod.builder()
+  private static final RateAccrualPeriod RAP1 = RateAccrualPeriod.builder()
       .startDate(DATE_2014_06_30)
       .endDate(DATE_2014_09_30)
       .yearFraction(0.25d)
       .rateObservation(GBP_LIBOR_3M_2014_06_28)
       .build();
+  private static final RateAccrualPeriod RAP2 = RateAccrualPeriod.builder()
+      .startDate(DATE_2014_09_30)
+      .endDate(DATE_2014_12_30)
+      .yearFraction(0.25d)
+      .rateObservation(GBP_LIBOR_3M_2014_09_28)
+      .build();
   private static final RatePaymentPeriod RPP1 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
-      .accrualPeriods(RAP)
+      .accrualPeriods(RAP1)
       .dayCount(ACT_365F)
       .currency(GBP)
       .notional(5000d)
       .build();
   private static final RatePaymentPeriod RPP2 = RatePaymentPeriod.builder()
-      .paymentDate(DATE_2014_10_01)
-      .accrualPeriods(RAP)
+      .paymentDate(DATE_2015_01_01)
+      .accrualPeriods(RAP2)
       .dayCount(ACT_365F)
       .currency(GBP)
       .notional(6000d)
       .build();
   private static final RatePaymentPeriod RPP3 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
-      .accrualPeriods(RAP)
+      .accrualPeriods(RAP1)
       .dayCount(ACT_365F)
       .currency(USD)
       .notional(6000d)
@@ -97,6 +107,21 @@ public class ExpandedSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_findPaymentPeriod() {
+    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(RECEIVE)
+        .paymentPeriods(RPP1, RPP2)
+        .build();
+    assertEquals(test.findPaymentPeriod(RPP1.getStartDate()), Optional.empty());
+    assertEquals(test.findPaymentPeriod(RPP1.getStartDate().plusDays(1)), Optional.of(RPP1));
+    assertEquals(test.findPaymentPeriod(RPP1.getEndDate()), Optional.of(RPP1));
+    assertEquals(test.findPaymentPeriod(RPP2.getStartDate()), Optional.of(RPP1));
+    assertEquals(test.findPaymentPeriod(RPP2.getStartDate().plusDays(1)), Optional.of(RPP2));
+    assertEquals(test.findPaymentPeriod(RPP2.getEndDate()), Optional.of(RPP2));
+    assertEquals(test.findPaymentPeriod(RPP2.getEndDate().plusDays(1)), Optional.empty());
+  }
+
   public void test_collectIndices() {
     ExpandedSwapLeg test = ExpandedSwapLeg.builder()
         .type(IBOR)
