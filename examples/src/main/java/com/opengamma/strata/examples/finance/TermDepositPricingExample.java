@@ -32,7 +32,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -66,7 +66,7 @@ public class TermDepositPricingExample {
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
-        .pricingRules(OpenGammaPricingRules.standard())
+        .pricingRules(StandardComponents.pricingRules())
         .marketDataRules(marketDataBuilder.rules())
         .build();
 

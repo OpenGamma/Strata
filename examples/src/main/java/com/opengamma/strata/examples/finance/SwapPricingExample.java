@@ -49,7 +49,7 @@ import com.opengamma.strata.finance.rate.swap.StubCalculation;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -86,7 +86,7 @@ public class SwapPricingExample {
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
-        .pricingRules(OpenGammaPricingRules.standard())
+        .pricingRules(StandardComponents.pricingRules())
         .marketDataRules(marketDataBuilder.rules())
         .build();
 

@@ -25,7 +25,7 @@ import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.ReportRequirements;
@@ -123,7 +123,7 @@ public class ReportRunnerTool {
   private ReportCalculationResults runCalculationRequirements(ReportRequirements requirements) {
     List<Column> columns = requirements.getTradeMeasureRequirements();
 
-    PricingRules pricingRules = OpenGammaPricingRules.standard();
+    PricingRules pricingRules = StandardComponents.pricingRules();
 
     MarketDataBuilder marketDataBuilder = marketDataRoot == null ?
         ExampleMarketData.builder() : MarketDataBuilder.ofPath(marketDataRoot.toPath());

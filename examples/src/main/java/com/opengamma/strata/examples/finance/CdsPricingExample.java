@@ -25,7 +25,7 @@ import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.credit.RestructuringClause;
 import com.opengamma.strata.finance.credit.SeniorityLevel;
 import com.opengamma.strata.finance.credit.type.CdsConventions;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -67,7 +67,7 @@ public class CdsPricingExample {
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
-        .pricingRules(OpenGammaPricingRules.standard())
+        .pricingRules(StandardComponents.pricingRules())
         .marketDataRules(marketDataBuilder.rules())
         .build();
 
