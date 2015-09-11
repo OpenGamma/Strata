@@ -70,7 +70,7 @@ import com.opengamma.strata.market.id.RateCurveId;
  */
 public abstract class MarketDataBuilder {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataBuilder.class);
+  private static final Logger log = LoggerFactory.getLogger(MarketDataBuilder.class);
 
   /** The name of the subdirectory containing historical fixings. */
   private static final String HISTORICAL_FIXINGS_DIR = "historical-fixings";
@@ -223,7 +223,7 @@ public abstract class MarketDataBuilder {
   //-------------------------------------------------------------------------
   private void loadFixingSeries(MarketEnvironmentBuilder builder) {
     if (!subdirectoryExists(HISTORICAL_FIXINGS_DIR)) {
-      s_logger.debug("No historical fixings directory found");
+      log.debug("No historical fixings directory found");
       return;
     }
     try {
@@ -231,25 +231,25 @@ public abstract class MarketDataBuilder {
       Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.loadFixingSeries(fixingSeriesResources);
       builder.addAllTimeSeries(fixingSeries);
     } catch (Exception e) {
-      s_logger.error("Error loading fixing series", e);
+      log.error("Error loading fixing series", e);
     }
   }
 
   private void loadRatesCurves(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(CURVES_DIR)) {
-      s_logger.debug("No rates curves directory found");
+      log.debug("No rates curves directory found");
       return;
     }
 
     ResourceLocator curveGroupsResource = getResource(CURVES_DIR, CURVES_GROUPS_FILE);
     if (curveGroupsResource == null) {
-      s_logger.error("Unable to load rates curves: curve groups file not found at {}/{}", CURVES_DIR, CURVES_GROUPS_FILE);
+      log.error("Unable to load rates curves: curve groups file not found at {}/{}", CURVES_DIR, CURVES_GROUPS_FILE);
       return;
     }
 
     ResourceLocator curveSettingsResource = getResource(CURVES_DIR, CURVES_SETTINGS_FILE);
     if (curveSettingsResource == null) {
-      s_logger.error("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE);
+      log.error("Unable to load rates curves: curve settings file not found at {}/{}", CURVES_DIR, CURVES_SETTINGS_FILE);
       return;
     }
 
@@ -259,20 +259,20 @@ public abstract class MarketDataBuilder {
           RatesCurvesCsvLoader.loadCurves(curveGroupsResource, curveSettingsResource, curvesResources, marketDataDate);
       builder.addAllValues(ratesCurves);
     } catch (Exception e) {
-      s_logger.error("Error loading rates curves", e);
+      log.error("Error loading rates curves", e);
     }
   }
 
   // load quotes
   private void loadQuotes(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(QUOTES_DIR)) {
-      s_logger.debug("No quotes directory found");
+      log.debug("No quotes directory found");
       return;
     }
 
     ResourceLocator quotesResource = getResource(QUOTES_DIR, QUOTES_FILE);
     if (quotesResource == null) {
-      s_logger.error("Unable to load quotes: quotes file not found at {}/{}", QUOTES_DIR, QUOTES_FILE);
+      log.error("Unable to load quotes: quotes file not found at {}/{}", QUOTES_DIR, QUOTES_FILE);
       return;
     }
 
@@ -281,7 +281,7 @@ public abstract class MarketDataBuilder {
       builder.addAllValues(quotes);
 
     } catch (Exception ex) {
-      s_logger.error("Error loading quotes", ex);
+      log.error("Error loading quotes", ex);
     }
   }
 
@@ -300,7 +300,7 @@ public abstract class MarketDataBuilder {
 
   private void loadCreditMarketData(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(CREDIT_DIR)) {
-      s_logger.debug("No credit curves directory found");
+      log.debug("No credit curves directory found");
       return;
     }
 
@@ -310,7 +310,7 @@ public abstract class MarketDataBuilder {
         marketDataDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 
     if (!subdirectoryExists(creditMarketDataDateDirectory)) {
-      s_logger.debug("Unable to load market data: directory not found at {}", creditMarketDataDateDirectory);
+      log.debug("Unable to load market data: directory not found at {}", creditMarketDataDateDirectory);
       return;
     }
 
@@ -322,7 +322,7 @@ public abstract class MarketDataBuilder {
   private void loadCdsYieldCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
     ResourceLocator cdsYieldCurvesResource = getResource(creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE);
     if (cdsYieldCurvesResource == null) {
-      s_logger.debug("Unable to load cds yield curves: file not found at {}/{}", creditMarketDataDateDirectory,
+      log.debug("Unable to load cds yield curves: file not found at {}/{}", creditMarketDataDateDirectory,
           CDS_YIELD_CURVES_FILE);
       return;
     }
@@ -339,14 +339,14 @@ public abstract class MarketDataBuilder {
   private void loadCdsSingleNameSpreadCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
     ResourceLocator singleNameCurvesResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE);
     if (singleNameCurvesResource == null) {
-      s_logger.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
+      log.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
           SINGLE_NAME_CREDIT_CURVES_FILE);
       return;
     }
 
     ResourceLocator singleNameStaticDataResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_STATIC_DATA_FILE);
     if (singleNameStaticDataResource == null) {
-      s_logger.debug("Unable to load single name static data: file not found at {}/{}", creditMarketDataDateDirectory,
+      log.debug("Unable to load single name static data: file not found at {}/{}", creditMarketDataDateDirectory,
           SINGLE_NAME_STATIC_DATA_FILE);
       return;
     }
@@ -365,14 +365,14 @@ public abstract class MarketDataBuilder {
 
     ResourceLocator inputCurvesResource = getResource(creditMarketDataDateDirectory, INDEX_CREDIT_CURVES_FILE);
     if (inputCurvesResource == null) {
-      s_logger.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
+      log.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
           INDEX_CREDIT_CURVES_FILE);
       return;
     }
 
     ResourceLocator inputStaticDataResource = getResource(creditMarketDataDateDirectory, INDEX_STATIC_DATA_FILE);
     if (inputStaticDataResource == null) {
-      s_logger.debug("Unable to load index static data: file not found at {}/{}", creditMarketDataDateDirectory,
+      log.debug("Unable to load index static data: file not found at {}/{}", creditMarketDataDateDirectory,
           INDEX_STATIC_DATA_FILE);
       return;
     }
