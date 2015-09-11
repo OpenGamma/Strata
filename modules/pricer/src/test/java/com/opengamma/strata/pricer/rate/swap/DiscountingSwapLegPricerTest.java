@@ -261,6 +261,38 @@ public class DiscountingSwapLegPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_accruedInterest_firstAccrualPeriod() {
+    RatesProvider prov = new MockRatesProvider(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getStartDate().plusDays(7));
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    when(mockPeriod.accruedInterest(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, prov))
+        .thenReturn(1000d);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    CurrencyAmount expected = CurrencyAmount.of(GBP, 1000d);
+    assertEquals(test.accruedInterest(IBOR_EXPANDED_SWAP_LEG_REC_GBP, prov), expected);
+  }
+
+  public void test_accruedInterest_valDateBeforePeriod() {
+    RatesProvider prov = new MockRatesProvider(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getStartDate());
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    when(mockPeriod.accruedInterest(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, prov))
+        .thenReturn(1000d);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    assertEquals(test.accruedInterest(IBOR_EXPANDED_SWAP_LEG_REC_GBP, prov), CurrencyAmount.zero(GBP));
+  }
+
+  public void test_accruedInterest_valDateAfterPeriod() {
+    RatesProvider prov = new MockRatesProvider(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getEndDate().plusDays(1));
+    PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
+    when(mockPeriod.accruedInterest(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, prov))
+        .thenReturn(1000d);
+    PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
+    DiscountingSwapLegPricer test = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
+    assertEquals(test.accruedInterest(IBOR_EXPANDED_SWAP_LEG_REC_GBP, prov), CurrencyAmount.zero(GBP));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     ExpandedSwapLeg expSwapLeg = IBOR_EXPANDED_SWAP_LEG_REC_GBP;
     IborIndex index = GBP_LIBOR_3M;

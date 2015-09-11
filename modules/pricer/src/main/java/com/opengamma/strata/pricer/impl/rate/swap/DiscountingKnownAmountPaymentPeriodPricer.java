@@ -62,6 +62,19 @@ public class DiscountingKnownAmountPaymentPeriodPricer
     return period.getPayment().getAmount();
   }
 
+  @Override
+  public double accruedInterest(KnownAmountPaymentPeriod period, RatesProvider provider) {
+    // no day count available, so return the simple day-based fraction
+    LocalDate valDate = provider.getValuationDate();
+    if (valDate.compareTo(period.getStartDate()) <= 0 || valDate.compareTo(period.getEndDate()) > 0) {
+      return 0d;
+    }
+    double fv = futureValue(period, provider);
+    double totalDays = period.getStartDate().until(period.getEndDate(), DAYS);
+    double partialDays = period.getStartDate().until(valDate, DAYS);
+    return fv * (partialDays / totalDays);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public PointSensitivityBuilder presentValueSensitivity(KnownAmountPaymentPeriod period, RatesProvider provider) {

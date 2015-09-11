@@ -33,6 +33,9 @@ import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
 
+/**
+ * Test {@link SwapLegNotionalFunction}.
+ */
 @Test
 public class SwapLegNotionalFunctionTest {
 

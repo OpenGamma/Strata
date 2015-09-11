@@ -184,7 +184,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   // most testing on futureValue as methods only differ in discountFactor
   //-------------------------------------------------------------------------
   public void test_presentValue_single() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double pvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * DISCOUNT_FACTOR;
     double pvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.presentValue(PAYMENT_PERIOD_1, prov);
@@ -193,7 +193,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValue_single() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100;
     double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1, prov);
@@ -201,7 +201,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_single_fx() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX;
     double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_FX, prov);
@@ -209,7 +209,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_single_gearingSpread() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = (RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100;
     double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_GS, prov);
@@ -217,7 +217,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_single_gearingNoNegative() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvComputed = DiscountingRatePaymentPeriodPricer.DEFAULT.futureValue(PAYMENT_PERIOD_1_NEG, prov);
     assertEquals(fvComputed, 0d, TOLERANCE_PV);
@@ -225,7 +225,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValue_compoundNone() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100) +
@@ -236,7 +236,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundNone_fx() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
@@ -248,7 +248,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValue_compoundStraight() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.STRAIGHT).build();
@@ -261,7 +261,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundFlat() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.FLAT).build();
@@ -276,7 +276,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundFlat_notional() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod periodNot = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.FLAT).build();
@@ -288,7 +288,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundSpreadExclusive() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
@@ -302,7 +302,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_futureValue_compoundSpreadExclusive_fx() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX_USD.toBuilder()
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
@@ -593,8 +593,50 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_accruedInterest_firstAccrualPeriod() {
+    LocalDate valDate = PAYMENT_PERIOD_FULL_GS.getStartDate().plusDays(7);
+    SimpleRatesProvider prov = createProvider(valDate);
+
+    double partial = PAYMENT_PERIOD_FULL_GS.getDayCount().yearFraction(ACCRUAL_PERIOD_1_GS.getStartDate(), valDate);
+    double fraction = partial / ACCRUAL_FACTOR_1;
+    double expected = ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100) * fraction;
+
+    double computed = DiscountingRatePaymentPeriodPricer.DEFAULT.accruedInterest(PAYMENT_PERIOD_FULL_GS, prov);
+    assertEquals(computed, expected, TOLERANCE_PV);
+  }
+
+  public void test_accruedInterest_lastAccrualPeriod() {
+    LocalDate valDate = PAYMENT_PERIOD_FULL_GS.getEndDate().minusDays(7);
+    SimpleRatesProvider prov = createProvider(valDate);
+
+    double partial = PAYMENT_PERIOD_FULL_GS.getDayCount().yearFraction(ACCRUAL_PERIOD_3_GS.getStartDate(), valDate);
+    double fraction = partial / ACCRUAL_FACTOR_3;
+    double expected =
+        ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100) +
+            ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100) +
+            ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * fraction);
+
+    double computed = DiscountingRatePaymentPeriodPricer.DEFAULT.accruedInterest(PAYMENT_PERIOD_FULL_GS, prov);
+    assertEquals(computed, expected, TOLERANCE_PV);
+  }
+
+  public void test_accruedInterest_valDateBeforePeriod() {
+    SimpleRatesProvider prov = createProvider(PAYMENT_PERIOD_FULL_GS.getStartDate());
+
+    double computed = DiscountingRatePaymentPeriodPricer.DEFAULT.accruedInterest(PAYMENT_PERIOD_FULL_GS, prov);
+    assertEquals(computed, 0, TOLERANCE_PV);
+  }
+
+  public void test_accruedInterest_valDateAfterPeriod() {
+    SimpleRatesProvider prov = createProvider(PAYMENT_PERIOD_FULL_GS.getEndDate().plusDays(1));
+
+    double computed = DiscountingRatePaymentPeriodPricer.DEFAULT.accruedInterest(PAYMENT_PERIOD_FULL_GS, prov);
+    assertEquals(computed, 0, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_explainPresentValue_single() {
-    RatesProvider prov = createProvider();
+    RatesProvider prov = createProvider(VAL_DATE);
 
     DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
@@ -637,7 +679,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_explainPresentValue_single_paymentDateInPast() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
     prov.setValuationDate(VAL_DATE.plusYears(1));
 
     DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
@@ -660,7 +702,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_explainPresentValue_single_fx() {
-    RatesProvider prov = createProvider();
+    RatesProvider prov = createProvider(VAL_DATE);
 
     DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
@@ -711,7 +753,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   }
 
   public void test_explainPresentValue_single_gearingSpread() {
-    RatesProvider prov = createProvider();
+    RatesProvider prov = createProvider(VAL_DATE);
 
     DiscountingRatePaymentPeriodPricer test = DiscountingRatePaymentPeriodPricer.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
@@ -756,12 +798,12 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   // creates a simple provider
-  private SimpleRatesProvider createProvider() {
+  private SimpleRatesProvider createProvider(LocalDate valDate) {
     DiscountFactors mockDf = mock(DiscountFactors.class);
     when(mockDf.discountFactor(PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
     when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
-    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    SimpleRatesProvider prov = new SimpleRatesProvider(valDate);
     prov.setDayCount(DAY_COUNT);
     prov.setDiscountFactors(mockDf);
     prov.setFxIndexRates(mockFxRates);

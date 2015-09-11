@@ -123,8 +123,8 @@ public final class SwapDummyData {
    * RatePaymentPeriod (ibor).
    */
   public static final RatePaymentPeriod IBOR_RATE_PAYMENT_PERIOD_REC_GBP = RatePaymentPeriod.builder()
-      .paymentDate(date(2014, 10, 5))
-      .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD_2)
+      .paymentDate(date(2014, 10, 6))
+      .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD)
       .dayCount(ACT_365F)
       .currency(Currency.GBP)
       .notional(NOTIONAL)
@@ -134,7 +134,7 @@ public final class SwapDummyData {
    */
   public static final RatePaymentPeriod IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2 = RatePaymentPeriod.builder()
       .paymentDate(date(2015, 1, 4))
-      .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD)
+      .accrualPeriods(IBOR_RATE_ACCRUAL_PERIOD_2)
       .dayCount(ACT_365F)
       .currency(Currency.GBP)
       .notional(NOTIONAL)
@@ -163,7 +163,7 @@ public final class SwapDummyData {
   public static final RateCalculationSwapLeg IBOR_RATECALC_SWAP_LEG = RateCalculationSwapLeg.builder()
       .payReceive(PayReceive.RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
-          .startDate(date(2014, 7, 2))
+          .startDate(date(2014, 4, 2))
           .endDate(date(2014, 10, 2))
           .frequency(Frequency.P3M)
           .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
@@ -202,7 +202,7 @@ public final class SwapDummyData {
    * RatePaymentPeriod (fixed - receiver).
    */
   public static final RatePaymentPeriod FIXED_RATE_PAYMENT_PERIOD_REC_GBP = RatePaymentPeriod.builder()
-      .paymentDate(date(2014, 10, 4))
+      .paymentDate(date(2014, 10, 6))
       .accrualPeriods(FIXED_RATE_ACCRUAL_PERIOD)
       .dayCount(ACT_365F)
       .currency(Currency.GBP)
@@ -328,7 +328,7 @@ public final class SwapDummyData {
   public static final RateCalculationSwapLeg FIXED_RATECALC_SWAP_LEG = RateCalculationSwapLeg.builder()
       .payReceive(PayReceive.RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
-          .startDate(date(2014, 7, 2))
+          .startDate(date(2014, 4, 2))
           .endDate(date(2014, 10, 2))
           .frequency(Frequency.P3M)
           .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))

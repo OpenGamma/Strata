@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate.swap;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 import com.google.common.collect.ImmutableList;
@@ -120,6 +121,28 @@ public class DiscountingSwapLegPricer {
   double futureValueInternal(SwapLeg leg, RatesProvider provider) {
     ExpandedSwapLeg expanded = leg.expand();
     return futureValuePeriodsInternal(expanded, provider) + futureValueEventsInternal(expanded, provider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the accrued interest since the last payment.
+   * <p>
+   * This determines the payment period applicable at the valuation date and calculates
+   * the accrued interest since the last payment.
+   * The result is returned using the payment currency of the leg.
+   * 
+   * @param leg  the leg to price
+   * @param provider  the rates provider
+   * @return the accrued interest of the swap leg
+   */
+  public CurrencyAmount accruedInterest(SwapLeg leg, RatesProvider provider) {
+    ExpandedSwapLeg expanded = leg.expand();
+    Optional<PaymentPeriod> period = expanded.findPaymentPeriod(provider.getValuationDate());
+    if (period.isPresent()) {
+      double accruedInterest = paymentPeriodPricer.accruedInterest(period.get(), provider);
+      return CurrencyAmount.of(leg.getCurrency(), accruedInterest);
+    }
+    return CurrencyAmount.zero(leg.getCurrency());
   }
 
   //-------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,6 +34,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An expanded swap leg, with dates calculated ready for pricing.
@@ -108,12 +110,8 @@ public final class ExpandedSwapLeg
       List<? extends PaymentPeriod> paymentPeriods,
       List<? extends PaymentEvent> paymentEvents) {
 
-    JodaBeanUtils.notNull(type, "type");
-    JodaBeanUtils.notNull(payReceive, "payReceive");
-    JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
-    JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
-    this.type = type;
-    this.payReceive = payReceive;
+    this.type = ArgChecker.notNull(type, "type");
+    this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
     this.paymentEvents = ImmutableList.copyOf(paymentEvents);
     // determine and validate currency, with explicit error message
@@ -166,6 +164,21 @@ public final class ExpandedSwapLeg
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Finds the payment period applicable on the specified date.
+   * <p>
+   * Each payment period is considered to contain the end date but not the start date.
+   * If no payment period contains the date, an empty optional is returned.
+   * 
+   * @param date  the date to find
+   * @return the payment period applicable at the date
+   */
+  public Optional<PaymentPeriod> findPaymentPeriod(LocalDate date) {
+    return paymentPeriods.stream()
+        .filter(period -> period.getStartDate().compareTo(date) < 0 && date.compareTo(period.getEndDate()) <= 0)
+        .findFirst();
+  }
+
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     paymentPeriods.stream().forEach(period -> period.collectIndices(builder));

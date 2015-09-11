@@ -67,7 +67,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double pvExpected = AMOUNT_1000 * DISCOUNT_FACTOR;
     double pvComputed = PRICER.presentValue(PERIOD, prov);
@@ -75,7 +75,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_presentValue_inPast() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double pvComputed = PRICER.presentValue(PERIOD_PAST, prov);
     assertEquals(pvComputed, 0, TOLERANCE_PV);
@@ -83,7 +83,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValue() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = AMOUNT_1000;
     double fvComputed = PRICER.futureValue(PERIOD, prov);
@@ -91,7 +91,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_futureValue_inPast() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvComputed = PRICER.futureValue(PERIOD_PAST, prov);
     assertEquals(fvComputed, 0, TOLERANCE_PV);
@@ -99,7 +99,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     PointSensitivities point = PRICER.presentValueSensitivity(PERIOD, prov).build();
     double relativeYearFraction = DAY_COUNT.relativeYearFraction(VAL_DATE, PAYMENT_DATE);
@@ -112,7 +112,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_presentValueSensitivity_inPast() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     PointSensitivities computed = PRICER.presentValueSensitivity(PERIOD_PAST, prov)
         .build();
@@ -121,14 +121,38 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValueSensitivity() {
-    SimpleRatesProvider prov = createProvider();
+    SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     assertEquals(PRICER.futureValueSensitivity(PERIOD, prov), PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  public void test_accruedInterest() {
+    LocalDate valDate = PERIOD.getStartDate().plusDays(7);
+    SimpleRatesProvider prov = createProvider(valDate);
+
+    double expected = AMOUNT_1000 * (7d / (7 + 28 + 31 + 25));
+    double computed = PRICER.accruedInterest(PERIOD, prov);
+    assertEquals(computed, expected, TOLERANCE_PV);
+  }
+
+  public void test_accruedInterest_valDateBeforePeriod() {
+    SimpleRatesProvider prov = createProvider(PERIOD.getStartDate());
+
+    double computed = PRICER.accruedInterest(PERIOD, prov);
+    assertEquals(computed, 0, TOLERANCE_PV);
+  }
+
+  public void test_accruedInterest_valDateAfterPeriod() {
+    SimpleRatesProvider prov = createProvider(PERIOD.getEndDate().plusDays(1));
+
+    double computed = PRICER.accruedInterest(PERIOD, prov);
+    assertEquals(computed, 0, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_explainPresentValue() {
-    RatesProvider prov = createProvider();
+    RatesProvider prov = createProvider(VAL_DATE);
 
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValue(PERIOD, prov, builder);
@@ -153,7 +177,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   public void test_explainPresentValue_inPast() {
-    RatesProvider prov = createProvider();
+    RatesProvider prov = createProvider(VAL_DATE);
 
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValue(PERIOD_PAST, prov, builder);
@@ -178,10 +202,10 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   // creates a simple provider
-  private SimpleRatesProvider createProvider() {
+  private SimpleRatesProvider createProvider(LocalDate valDate) {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", DAY_COUNT), DISCOUNT_FACTOR);
-    DiscountFactors df = SimpleDiscountFactors.of(GBP, VAL_DATE, curve);
-    SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
+    DiscountFactors df = SimpleDiscountFactors.of(GBP, valDate, curve);
+    SimpleRatesProvider prov = new SimpleRatesProvider(valDate);
     prov.setDayCount(DAY_COUNT);
     prov.setDiscountFactors(df);
     return prov;
