@@ -23,7 +23,7 @@
 <listEntry value="com.opengamma.strata.function.marketdata"/>
 <listEntry value="com.opengamma.strata.function.marketdata.curve"/>
 <listEntry value="com.opengamma.strata.function.marketdata.mapping"/>
-<listEntry value="com.opengamma.strata.function.marketdata.scenarios.curves"/>
+<listEntry value="com.opengamma.strata.function.marketdata.scenario.curve"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

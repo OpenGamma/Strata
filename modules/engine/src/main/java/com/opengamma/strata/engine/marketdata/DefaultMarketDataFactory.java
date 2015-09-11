@@ -587,7 +587,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     // The perturbation is definitely compatible with the market data because the filter matched above
     Perturbation<Object> perturbation = (Perturbation<Object>) mapping.get().getPerturbations().get(scenarioIndex);
     try {
-      return Result.success(perturbation.apply(marketDataValue));
+      return Result.success(perturbation.applyTo(marketDataValue));
     } catch (Exception e) {
       return Result.failure(e);
     }

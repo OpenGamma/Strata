@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -36,7 +37,7 @@ import com.opengamma.strata.market.value.OvernightIndexRates;
  * The additional information required is the curve group and market data feed
  * that is the source of the curve.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class OvernightIndexRatesMapping
     implements MarketDataMapping<OvernightIndexRates, OvernightIndexRatesKey>, ImmutableBean, Serializable {
 
@@ -66,6 +67,7 @@ public final class OvernightIndexRatesMapping
     return new OvernightIndexRatesMapping(curveGroupName, marketDataFeed);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<OvernightIndexRatesKey> getMarketDataKeyType() {
     return OvernightIndexRatesKey.class;
@@ -94,14 +96,6 @@ public final class OvernightIndexRatesMapping
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static OvernightIndexRatesMapping.Builder builder() {
-    return new OvernightIndexRatesMapping.Builder();
-  }
 
   private OvernightIndexRatesMapping(
       CurveGroupName curveGroupName,
@@ -146,14 +140,6 @@ public final class OvernightIndexRatesMapping
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -231,7 +217,7 @@ public final class OvernightIndexRatesMapping
     }
 
     @Override
-    public OvernightIndexRatesMapping.Builder builder() {
+    public BeanBuilder<? extends OvernightIndexRatesMapping> builder() {
       return new OvernightIndexRatesMapping.Builder();
     }
 
@@ -289,7 +275,7 @@ public final class OvernightIndexRatesMapping
   /**
    * The bean-builder for {@code OvernightIndexRatesMapping}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<OvernightIndexRatesMapping> {
+  private static final class Builder extends DirectFieldsBeanBuilder<OvernightIndexRatesMapping> {
 
     private CurveGroupName curveGroupName;
     private MarketDataFeed marketDataFeed;
@@ -298,15 +284,6 @@ public final class OvernightIndexRatesMapping
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(OvernightIndexRatesMapping beanToCopy) {
-      this.curveGroupName = beanToCopy.getCurveGroupName();
-      this.marketDataFeed = beanToCopy.getMarketDataFeed();
     }
 
     //-----------------------------------------------------------------------
@@ -366,29 +343,6 @@ public final class OvernightIndexRatesMapping
       return new OvernightIndexRatesMapping(
           curveGroupName,
           marketDataFeed);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve group from which curves should be taken.
-     * @param curveGroupName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveGroupName(CurveGroupName curveGroupName) {
-      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
-      this.curveGroupName = curveGroupName;
-      return this;
-    }
-
-    /**
-     * Sets the market data feed which provides quotes used to build the curve.
-     * @param marketDataFeed  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataFeed(MarketDataFeed marketDataFeed) {
-      JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
-      this.marketDataFeed = marketDataFeed;
-      return this;
     }
 
     //-----------------------------------------------------------------------

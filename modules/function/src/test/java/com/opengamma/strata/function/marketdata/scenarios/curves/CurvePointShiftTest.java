@@ -18,6 +18,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
@@ -31,6 +32,9 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.ShiftType;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
+/**
+ * Test {@link CurvePointShift}.
+ */
 @Test
 public class CurvePointShiftTest {
 
@@ -52,7 +56,7 @@ public class CurvePointShiftTest {
         new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
-    Curve shiftedCurve = shift.apply(curve);
+    Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
@@ -85,7 +89,7 @@ public class CurvePointShiftTest {
         new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
-    Curve shiftedCurve = shift.apply(curve);
+    Curve shiftedCurve = shift.applyTo(curve);
 
     Curve expectedCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
@@ -107,13 +111,11 @@ public class CurvePointShiftTest {
         new double[] {5, 6, 7},
         CurveInterpolator.of(Interpolator1DFactory.DOUBLE_QUADRATIC));
 
-    CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE)
-        .addShift(Tenor.TENOR_1W, 0.1)
-        .addShift(Tenor.TENOR_1M, 0.2)
-        .addShift(Tenor.TENOR_3M, 0.3)
-        .build();
+    // use ImmutableMap to test coverage of builder.addShifts()
+    ImmutableMap<Tenor, Double> map = ImmutableMap.of(Tenor.TENOR_1W, 0.1, Tenor.TENOR_1M, 0.2, Tenor.TENOR_3M, 0.3);
+    CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE).addShifts(map).build();
 
-    assertThrows(() -> shift.apply(curve), IllegalArgumentException.class, ".* no parameter metadata.*");
+    assertThrows(() -> shift.applyTo(curve), IllegalArgumentException.class, ".* no parameter metadata.*");
   }
 
   public void notNodalCurve() {
@@ -127,7 +129,7 @@ public class CurvePointShiftTest {
         .addShift(Tenor.TENOR_3M, 0.3)
         .build();
 
-    assertThrows(() -> shift.apply(curve), IllegalArgumentException.class, ".* can only be applied to NodalCurve.*");
+    assertThrows(() -> shift.applyTo(curve), IllegalArgumentException.class, ".* can only be applied to NodalCurve.*");
   }
 
   //-------------------------------------------------------------------------

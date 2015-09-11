@@ -109,11 +109,12 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   public boolean matches(MarketDataId<?> marketDataId, Object marketData) {
     // The raw type is necessary to keep the compiler happy, the call is definitely safe because the
     // type of the ID is checked against the ID type handled by the filter
+    @SuppressWarnings("rawtypes")
     MarketDataFilter rawFilter = filter;
 
     return marketDataType.isInstance(marketData) &&
         filter.getMarketDataIdType().isInstance(marketDataId) &&
-        rawFilter.apply(marketDataId, marketData);
+        rawFilter.matches(marketDataId, marketData);
   }
 
   /**
@@ -136,7 +137,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
     }
     // T and U are the same type so the casts are safe
     return perturbations.stream()
-        .map(perturbation -> perturbation.apply(marketData))
+        .map(perturbation -> perturbation.applyTo(marketData))
         .collect(toImmutableList());
   }
 

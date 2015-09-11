@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountFactorsId;
@@ -37,7 +37,7 @@ import com.opengamma.strata.market.value.DiscountFactors;
  * The additional information required is the curve group and market data feed
  * that is the source of the curve.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class DiscountFactorsMapping
     implements MarketDataMapping<DiscountFactors, DiscountFactorsKey>, ImmutableBean, Serializable {
 
@@ -67,13 +67,14 @@ public final class DiscountFactorsMapping
     return new DiscountFactorsMapping(curveGroupName, marketDataFeed);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<DiscountFactorsKey> getMarketDataKeyType() {
     return DiscountFactorsKey.class;
   }
 
   @Override
-  public MarketDataId<DiscountFactors> getIdForKey(DiscountFactorsKey key) {
+  public DiscountFactorsId getIdForKey(DiscountFactorsKey key) {
     return DiscountFactorsId.of(key.getCurrency(), curveGroupName, marketDataFeed);
   }
 
@@ -95,14 +96,6 @@ public final class DiscountFactorsMapping
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static DiscountFactorsMapping.Builder builder() {
-    return new DiscountFactorsMapping.Builder();
-  }
 
   private DiscountFactorsMapping(
       CurveGroupName curveGroupName,
@@ -147,14 +140,6 @@ public final class DiscountFactorsMapping
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -232,7 +217,7 @@ public final class DiscountFactorsMapping
     }
 
     @Override
-    public DiscountFactorsMapping.Builder builder() {
+    public BeanBuilder<? extends DiscountFactorsMapping> builder() {
       return new DiscountFactorsMapping.Builder();
     }
 
@@ -290,7 +275,7 @@ public final class DiscountFactorsMapping
   /**
    * The bean-builder for {@code DiscountFactorsMapping}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<DiscountFactorsMapping> {
+  private static final class Builder extends DirectFieldsBeanBuilder<DiscountFactorsMapping> {
 
     private CurveGroupName curveGroupName;
     private MarketDataFeed marketDataFeed;
@@ -299,15 +284,6 @@ public final class DiscountFactorsMapping
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(DiscountFactorsMapping beanToCopy) {
-      this.curveGroupName = beanToCopy.getCurveGroupName();
-      this.marketDataFeed = beanToCopy.getMarketDataFeed();
     }
 
     //-----------------------------------------------------------------------
@@ -367,29 +343,6 @@ public final class DiscountFactorsMapping
       return new DiscountFactorsMapping(
           curveGroupName,
           marketDataFeed);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve group from which discounting curves should be taken.
-     * @param curveGroupName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveGroupName(CurveGroupName curveGroupName) {
-      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
-      this.curveGroupName = curveGroupName;
-      return this;
-    }
-
-    /**
-     * Sets the market data feed which provides quotes used to build the curve.
-     * @param marketDataFeed  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataFeed(MarketDataFeed marketDataFeed) {
-      JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
-      this.marketDataFeed = marketDataFeed;
-      return this;
     }
 
     //-----------------------------------------------------------------------

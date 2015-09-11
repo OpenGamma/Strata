@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMapping;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -34,20 +34,24 @@ import com.opengamma.strata.market.key.RateIndexCurveKey;
  * Market data mapping that accepts a {@link RateIndexCurveKey} and returns a {@link RateIndexCurveId}
  * with the name of the curve group that is the source of the curve.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class RateIndexCurveMapping
     implements MarketDataMapping<Curve, RateIndexCurveKey>, ImmutableBean, Serializable {
 
-  /** The name of the curve group from which the curve should be taken. */
+  /**
+   * The name of the curve group from which the curve should be taken.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveGroupName curveGroupName;
-
-  /** The market data feed used to source any quotes used to build the curve. */
+  /**
+   * The market data feed used to source any quotes used to build the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataFeed marketDataFeed;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a mapper that accepts a {@link RateIndexCurveKey} and returns a {@link RateIndexCurveId}
+   * Returns a mapping that accepts a {@link RateIndexCurveKey} and returns a {@link RateIndexCurveId}
    * with the name of the curve group that is the source of the curve.
    *
    * @param curveGroupName  the name of the curve group
@@ -58,13 +62,14 @@ public final class RateIndexCurveMapping
     return new RateIndexCurveMapping(curveGroupName, marketDataFeed);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<RateIndexCurveKey> getMarketDataKeyType() {
     return RateIndexCurveKey.class;
   }
 
   @Override
-  public MarketDataId<Curve> getIdForKey(RateIndexCurveKey key) {
+  public RateIndexCurveId getIdForKey(RateIndexCurveKey key) {
     return RateIndexCurveId.of(key.getIndex(), curveGroupName, marketDataFeed);
   }
 
@@ -86,14 +91,6 @@ public final class RateIndexCurveMapping
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static RateIndexCurveMapping.Builder builder() {
-    return new RateIndexCurveMapping.Builder();
-  }
 
   private RateIndexCurveMapping(
       CurveGroupName curveGroupName,
@@ -138,14 +135,6 @@ public final class RateIndexCurveMapping
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -223,7 +212,7 @@ public final class RateIndexCurveMapping
     }
 
     @Override
-    public RateIndexCurveMapping.Builder builder() {
+    public BeanBuilder<? extends RateIndexCurveMapping> builder() {
       return new RateIndexCurveMapping.Builder();
     }
 
@@ -281,7 +270,7 @@ public final class RateIndexCurveMapping
   /**
    * The bean-builder for {@code RateIndexCurveMapping}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<RateIndexCurveMapping> {
+  private static final class Builder extends DirectFieldsBeanBuilder<RateIndexCurveMapping> {
 
     private CurveGroupName curveGroupName;
     private MarketDataFeed marketDataFeed;
@@ -290,15 +279,6 @@ public final class RateIndexCurveMapping
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(RateIndexCurveMapping beanToCopy) {
-      this.curveGroupName = beanToCopy.getCurveGroupName();
-      this.marketDataFeed = beanToCopy.getMarketDataFeed();
     }
 
     //-----------------------------------------------------------------------
@@ -358,29 +338,6 @@ public final class RateIndexCurveMapping
       return new RateIndexCurveMapping(
           curveGroupName,
           marketDataFeed);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve group from which the curve should be taken.
-     * @param curveGroupName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveGroupName(CurveGroupName curveGroupName) {
-      JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
-      this.curveGroupName = curveGroupName;
-      return this;
-    }
-
-    /**
-     * Sets the market data feed used to source any quotes used to build the curve.
-     * @param marketDataFeed  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataFeed(MarketDataFeed marketDataFeed) {
-      JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
-      this.marketDataFeed = marketDataFeed;
-      return this;
     }
 
     //-----------------------------------------------------------------------

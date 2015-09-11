@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -28,14 +29,20 @@ import com.opengamma.strata.market.id.RateIndexCurveId;
 
 /**
  * A market data filter matching a curve for a rate index.
+ * <p>
+ * The {@link #matches} method returns true if the curve index equals the one specified on construction.
  */
-@BeanDefinition
-public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateIndexCurveId>, ImmutableBean {
+@BeanDefinition(builderScope = "private")
+public final class CurveRateIndexFilter
+    implements MarketDataFilter<Curve, RateIndexCurveId>, ImmutableBean {
 
-  /** The curve index. */
+  /**
+   * The curve index.
+   */
   @PropertyDefinition(validate = "notNull")
   private final RateIndex index;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a filter matching a curve for the specified index.
    *
@@ -46,8 +53,9 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
     return new CurveRateIndexFilter(index);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public boolean apply(RateIndexCurveId marketDataId, Curve curve) {
+  public boolean matches(RateIndexCurveId marketDataId, Curve curve) {
     return index.equals(marketDataId.getIndex());
   }
 
@@ -68,14 +76,6 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
 
   static {
     JodaBeanUtils.registerMetaBean(CurveRateIndexFilter.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurveRateIndexFilter.Builder builder() {
-    return new CurveRateIndexFilter.Builder();
   }
 
   private CurveRateIndexFilter(
@@ -109,14 +109,6 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -183,7 +175,7 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
     }
 
     @Override
-    public CurveRateIndexFilter.Builder builder() {
+    public BeanBuilder<? extends CurveRateIndexFilter> builder() {
       return new CurveRateIndexFilter.Builder();
     }
 
@@ -231,7 +223,7 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
   /**
    * The bean-builder for {@code CurveRateIndexFilter}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveRateIndexFilter> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveRateIndexFilter> {
 
     private RateIndex index;
 
@@ -239,14 +231,6 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveRateIndexFilter beanToCopy) {
-      this.index = beanToCopy.getIndex();
     }
 
     //-----------------------------------------------------------------------
@@ -300,18 +284,6 @@ public final class CurveRateIndexFilter implements MarketDataFilter<Curve, RateI
     public CurveRateIndexFilter build() {
       return new CurveRateIndexFilter(
           index);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the curve index.
-     * @param index  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder index(RateIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.function.marketdata.scenarios.curves;
 
-import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,37 +14,26 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.DiscountCurveId;
 
 /**
- * Test {@link CurveNameFilter}.
+ * Test {@link AnyDiscountCurveFilter}.
  */
 @Test
-public class CurveNameFilterTest {
+public class AnyDiscountCurveFilterTest {
 
   public void match() {
-    CurveNameFilter test = CurveNameFilter.of(CurveName.of("curveName"));
-    assertThat(test.getMarketDataIdType()).isEqualTo(CurveId.class);
+    AnyDiscountCurveFilter test = AnyDiscountCurveFilter.INSTANCE;
+    assertThat(test.getMarketDataIdType()).isEqualTo(DiscountCurveId.class);
     DiscountCurveId id = DiscountCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
     Curve curve = ConstantNodalCurve.of("curveName", 1);
     assertThat(test.matches(id, curve)).isTrue();
   }
 
-  public void noMatch() {
-    CurveNameFilter test = CurveNameFilter.of(CurveName.of("curveName"));
-    DiscountCurveId id = DiscountCurveId.of(Currency.GBP, CurveGroupName.of("curveGroupName"));
-    Curve curve = ConstantNodalCurve.of("notCurveName", 1);
-    assertThat(test.matches(id, curve)).isFalse();
-  }
-
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveNameFilter test = CurveNameFilter.of(CurveName.of("curveName1"));
+    AnyDiscountCurveFilter test = AnyDiscountCurveFilter.INSTANCE;
     coverImmutableBean(test);
-    CurveNameFilter test2 = CurveNameFilter.of(CurveName.of("curveName2"));
-    coverBeanEquals(test, test2);
   }
 
 }

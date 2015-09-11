@@ -77,7 +77,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   }
 
   @Override
-  public Curve apply(Curve curve) {
+  public Curve applyTo(Curve curve) {
     log.info("Applying {} parallel shift of {} to curve '{}'", shiftType, shiftAmount, curve.getName());
     return ParallelShiftedCurve.of(curve, shiftType, shiftAmount);
   }

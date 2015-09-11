@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.function.interpolator;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
@@ -13,6 +14,9 @@ import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.LogLinearExtrapolator1D;
 import com.opengamma.strata.basics.interpolator.CurveExtrapolator;
 
+/**
+ * Test {@link CurveExtrapolators}.
+ */
 @Test
 public class CurveExtrapolatorsTest {
 
@@ -26,4 +30,11 @@ public class CurveExtrapolatorsTest {
     CurveExtrapolator logLinear = CurveExtrapolators.LOG_LINEAR;
     assertThat(logLinear).isInstanceOf(LogLinearExtrapolator1D.class);
   }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(CurveExtrapolators.class);
+    coverPrivateConstructor(StandardCurveExtrapolators.class);
+  }
+
 }

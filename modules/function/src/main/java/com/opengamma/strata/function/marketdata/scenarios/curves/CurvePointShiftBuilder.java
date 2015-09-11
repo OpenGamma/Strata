@@ -16,12 +16,16 @@ import com.opengamma.strata.market.curve.ShiftType;
  */
 public final class CurvePointShiftBuilder {
 
-  /** The type of shift to apply to the rates. */
+  /**
+   * The type of shift to apply to the rates.
+   */
   private final ShiftType shiftType;
-
-  /** The shift amounts, keyed by the identifier of the node to which they should be applied. */
+  /**
+   * The shift amounts, keyed by the identifier of the node to which they should be applied.
+   */
   private final Map<Object, Double> shifts = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   /**
    * Restricted constructor used by {@link CurvePointShift#builder}.
    *
@@ -31,6 +35,7 @@ public final class CurvePointShiftBuilder {
     this.shiftType = ArgChecker.notNull(shiftType, "shiftType");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds a shift for a curve node to the builder.
    *
@@ -50,12 +55,13 @@ public final class CurvePointShiftBuilder {
    * @param shifts  the shift amounts, keyed by the identifier of the node to which they should be applied
    * @return this builder
    */
-  public CurvePointShiftBuilder addShifts(Map<Object, Double> shifts) {
+  public CurvePointShiftBuilder addShifts(Map<? extends Object, Double> shifts) {
     ArgChecker.notNull(shifts, "shifts");
     this.shifts.putAll(shifts);
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an instance of {@link CurvePointShift} built from the data in this builder.
    *
