@@ -47,4 +47,5 @@ final class StandardCurveInterpolators {
 
   /** Time square interpolator. */
   public static final CurveInterpolator TIME_SQUARE = new TimeSquareInterpolator1D();
+
 }

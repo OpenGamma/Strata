@@ -1562,7 +1562,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public boolean apply(I marketDataId, T marketData) {
+    public boolean matches(I marketDataId, T marketData) {
       return false;
     }
 
@@ -1584,7 +1584,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Double apply(Double marketData) {
+    public Double applyTo(Double marketData) {
       return marketData + shiftAmount;
     }
   }
@@ -1601,7 +1601,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public Double apply(Double marketData) {
+    public Double applyTo(Double marketData) {
       return marketData * (1 + shiftAmount);
     }
   }
@@ -1618,7 +1618,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public boolean apply(I marketDataId, T marketData) {
+    public boolean matches(I marketDataId, T marketData) {
       return id.equals(marketDataId);
     }
 
@@ -1686,7 +1686,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public String apply(String marketData) {
+    public String applyTo(String marketData) {
       return marketData + str;
     }
   }
@@ -1703,7 +1703,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public TestMarketDataC apply(TestMarketDataC marketData) {
+    public TestMarketDataC applyTo(TestMarketDataC marketData) {
       LocalDateDoubleTimeSeries perturbedSeries = marketData.timeSeries.mapValues(value -> value * scaleFactor);
       return new TestMarketDataC(perturbedSeries);
     }

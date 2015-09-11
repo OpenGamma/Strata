@@ -20,19 +20,26 @@ import com.opengamma.strata.market.curve.CurveGroupName;
  */
 public class MarketDataMappingsBuilder {
 
-  /** Market data feed that is the source for observable market data, for example Bloomberg or Reuters. */
+  /**
+   * Market data feed that is the source for observable market data, for example Bloomberg or Reuters.
+   */
   private final MarketDataFeed marketDataFeed;
-
   /**
    * Mappings that translate data requests from calculators into requests that can be used to look
    * up the data in the global set of market data.
    */
   private List<MarketDataMapping<?, ?>> mappings = new ArrayList<>();
 
+  /**
+   * Creates an instance.
+   * 
+   * @param marketDataFeed  the feed
+   */
   private MarketDataMappingsBuilder(MarketDataFeed marketDataFeed) {
     this.marketDataFeed = marketDataFeed;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an empty builder with a market data feed of {@link MarketDataFeed#NONE}.
    *
@@ -60,7 +67,7 @@ public class MarketDataMappingsBuilder {
    */
   public MarketDataMappingsBuilder curveGroup(CurveGroupName curveGroupName) {
     ArgChecker.notNull(curveGroupName, "curveGroupName");
-    mappings.add(DiscountingCurveMapping.of(curveGroupName, marketDataFeed));
+    mappings.add(DiscountCurveMapping.of(curveGroupName, marketDataFeed));
     mappings.add(RateIndexCurveMapping.of(curveGroupName, marketDataFeed));
     mappings.add(DiscountFactorsMapping.of(curveGroupName, marketDataFeed));
     mappings.add(IborIndexRatesMapping.of(curveGroupName, marketDataFeed));
@@ -89,4 +96,5 @@ public class MarketDataMappingsBuilder {
   public MarketDataMappings build() {
     return MarketDataMappings.of(marketDataFeed, mappings);
   }
+
 }

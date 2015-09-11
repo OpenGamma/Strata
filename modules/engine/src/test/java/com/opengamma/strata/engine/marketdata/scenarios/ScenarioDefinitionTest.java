@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.engine.marketdata.scenarios;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Objects;
@@ -235,7 +235,7 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
-    public Object apply(Object marketData) {
+    public Object applyTo(Object marketData) {
       return marketData;
     }
 
@@ -271,7 +271,7 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
-    public boolean apply(MarketDataId<Object> marketDataId, Object marketData) {
+    public boolean matches(MarketDataId<Object> marketDataId, Object marketData) {
       return false;
     }
 

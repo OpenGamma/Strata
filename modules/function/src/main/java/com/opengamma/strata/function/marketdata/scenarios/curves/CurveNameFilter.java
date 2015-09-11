@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -28,14 +29,20 @@ import com.opengamma.strata.market.id.CurveId;
 
 /**
  * A market data filter which matches a curve by name.
+ * <p>
+ * The {@link #matches} method returns true if the curve name equals the one specified on construction.
  */
-@BeanDefinition
-public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, ImmutableBean {
+@BeanDefinition(builderScope = "private")
+public final class CurveNameFilter
+    implements MarketDataFilter<Curve, CurveId>, ImmutableBean {
 
-  /** The name of the curve matched by this filter. */
+  /**
+   * The name of the curve matched by this filter.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveName curveName;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a filter matching curves with the specified name.
    *
@@ -46,8 +53,9 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
     return new CurveNameFilter(curveName);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public boolean apply(CurveId curveId, Curve curve) {
+  public boolean matches(CurveId curveId, Curve curve) {
     return curve.getName().equals(curveName);
   }
 
@@ -68,14 +76,6 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
 
   static {
     JodaBeanUtils.registerMetaBean(CurveNameFilter.Meta.INSTANCE);
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static CurveNameFilter.Builder builder() {
-    return new CurveNameFilter.Builder();
   }
 
   private CurveNameFilter(
@@ -109,14 +109,6 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -183,7 +175,7 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
     }
 
     @Override
-    public CurveNameFilter.Builder builder() {
+    public BeanBuilder<? extends CurveNameFilter> builder() {
       return new CurveNameFilter.Builder();
     }
 
@@ -231,7 +223,7 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
   /**
    * The bean-builder for {@code CurveNameFilter}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<CurveNameFilter> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurveNameFilter> {
 
     private CurveName curveName;
 
@@ -239,14 +231,6 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurveNameFilter beanToCopy) {
-      this.curveName = beanToCopy.getCurveName();
     }
 
     //-----------------------------------------------------------------------
@@ -300,18 +284,6 @@ public final class CurveNameFilter implements MarketDataFilter<Curve, CurveId>, 
     public CurveNameFilter build() {
       return new CurveNameFilter(
           curveName);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the name of the curve matched by this filter.
-     * @param curveName  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder curveName(CurveName curveName) {
-      JodaBeanUtils.notNull(curveName, "curveName");
-      this.curveName = curveName;
-      return this;
     }
 
     //-----------------------------------------------------------------------

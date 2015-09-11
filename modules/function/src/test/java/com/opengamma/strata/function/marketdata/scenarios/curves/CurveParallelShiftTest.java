@@ -32,18 +32,21 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 
+/**
+ * Test {@link CurveParallelShift}.
+ */
 @Test
 public class CurveParallelShiftTest {
 
   public void absolute() {
     CurveParallelShift shift = CurveParallelShift.absolute(0.1);
-    Curve shiftedCurve = shift.apply(ConstantNodalCurve.of("curveName", 2d));
+    Curve shiftedCurve = shift.applyTo(ConstantNodalCurve.of("curveName", 2d));
     checkCurveValues(shiftedCurve, 2.1);
   }
 
   public void relative() {
     CurveParallelShift shift = CurveParallelShift.relative(0.1);
-    Curve shiftedCurve = shift.apply(ConstantNodalCurve.of("curveName", 2d));
+    Curve shiftedCurve = shift.applyTo(ConstantNodalCurve.of("curveName", 2d));
     checkCurveValues(shiftedCurve, 2.2);
   }
 

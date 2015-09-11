@@ -24,16 +24,22 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.id.DiscountCurveId;
 
 /**
- * Market data filter that matches any discount curve.
+ * A market data filter that matches any discount curve.
+ * <p>
+ * The {@link #matches} method always returns true.
  */
 @BeanDefinition(builderScope = "private")
-public final class AnyDiscountCurveFilter implements MarketDataFilter<Curve, DiscountCurveId>, ImmutableBean {
+public final class AnyDiscountCurveFilter
+    implements MarketDataFilter<Curve, DiscountCurveId>, ImmutableBean {
 
-  /** The single shared instance. */
+  /**
+   * The single shared instance.
+   */
   public static final AnyDiscountCurveFilter INSTANCE = new AnyDiscountCurveFilter();
 
+  //-------------------------------------------------------------------------
   @Override
-  public boolean apply(DiscountCurveId marketDataId, Curve marketData) {
+  public boolean matches(DiscountCurveId marketDataId, Curve marketData) {
     return true;
   }
 

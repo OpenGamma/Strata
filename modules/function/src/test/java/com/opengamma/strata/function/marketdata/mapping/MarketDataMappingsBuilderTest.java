@@ -25,6 +25,9 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.PriceIndexValuesKey;
 import com.opengamma.strata.market.value.PriceIndexValues;
 
+/**
+ * Test {@link MarketDataMappingsBuilder}.
+ */
 @Test
 public class MarketDataMappingsBuilderTest {
 
@@ -87,4 +90,5 @@ public class MarketDataMappingsBuilderTest {
     MarketDataId<Double> id = mappings.getIdForObservableKey(IndexRateKey.of(IborIndices.CHF_LIBOR_12M));
     assertThat(id).isEqualTo(IndexRateId.of(IborIndices.CHF_LIBOR_12M, MarketDataFeed.NONE));
   }
+
 }

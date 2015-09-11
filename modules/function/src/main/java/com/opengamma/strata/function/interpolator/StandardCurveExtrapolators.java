@@ -51,4 +51,5 @@ final class StandardCurveExtrapolators {
   // Private constructor as this class only exists to hold the extrapolator constants
   private StandardCurveExtrapolators() {
   }
+
 }

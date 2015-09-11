@@ -7,7 +7,6 @@ package com.opengamma.strata.market.curve;
 
 import java.util.List;
 import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 
@@ -65,7 +64,7 @@ public interface NodalCurve
   /**
    * Returns a new curve for which each of the parameters has been shifted.
    * <p>
-   * The desired adjustment is specified using {@link DoubleUnaryOperator}.
+   * The desired adjustment is specified using {@link DoubleBinaryOperator}.
    * <p>
    * The operator will be called once for each parameter of the curve.
    * The input will be the x and y values of the parameter.

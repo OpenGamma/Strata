@@ -45,7 +45,7 @@ import com.opengamma.strata.market.curve.ShiftType;
  * A shift is not applied if there is no point on the curve with a matching identifier.
  * <p>
  * This shift can only be applied to an instance of {@link NodalCurve} which contains parameter
- * metadata. The {@link #apply} method will throw an exception for any other curves.
+ * metadata. The {@link #applyTo(Curve)} method will throw an exception for any other curves.
  *
  * @see CurveParameterMetadata#getIdentifier()
  */
@@ -78,7 +78,7 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
 
   //-------------------------------------------------------------------------
   @Override
-  public Curve apply(Curve curve) {
+  public Curve applyTo(Curve curve) {
     Optional<List<CurveParameterMetadata>> optionalNodeMetadata = curve.getMetadata().getParameterMetadata();
 
     // If there is no metadata for the curve nodes there is no way to find the nodes and apply the shifts
