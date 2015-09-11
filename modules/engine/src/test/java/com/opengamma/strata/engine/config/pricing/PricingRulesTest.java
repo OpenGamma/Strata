@@ -13,7 +13,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
+import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;

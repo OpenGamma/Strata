@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
 
 @Test
 public class MarketDataNodeTest {
@@ -287,7 +287,7 @@ public class MarketDataNodeTest {
     return MarketDataNode.root(Arrays.asList(children));
   }
 
-  private static MarketDataNode valueNode(MarketDataId id, MarketDataNode... children) {
+  private static MarketDataNode valueNode(MarketDataId<?> id, MarketDataNode... children) {
     return MarketDataNode.child(id, MarketDataNode.DataType.SINGLE_VALUE, Arrays.asList(children));
   }
 

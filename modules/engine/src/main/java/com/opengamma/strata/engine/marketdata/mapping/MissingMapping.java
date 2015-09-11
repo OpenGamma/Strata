@@ -6,8 +6,8 @@
 package com.opengamma.strata.engine.marketdata.mapping;
 
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.engine.calculations.MissingMappingId;
-import com.opengamma.strata.engine.marketdata.functions.MissingMappingMarketDataFunction;
+import com.opengamma.strata.engine.calculation.MissingMappingId;
+import com.opengamma.strata.engine.marketdata.function.MissingMappingMarketDataFunction;
 
 /**
  * Market data mapping implementation used when there is no mapping for a key.

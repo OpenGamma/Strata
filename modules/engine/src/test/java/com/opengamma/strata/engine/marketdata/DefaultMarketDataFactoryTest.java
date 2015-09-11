@@ -32,17 +32,17 @@ import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.engine.calculations.MissingMappingId;
-import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
+import com.opengamma.strata.engine.calculation.MissingMappingId;
+import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
-import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
+import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.engine.marketdata.scenarios.MarketDataFilter;
-import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
-import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
-import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
+import com.opengamma.strata.engine.marketdata.scenario.MarketDataFilter;
+import com.opengamma.strata.engine.marketdata.scenario.Perturbation;
+import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
+import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 
 @Test
 public class DefaultMarketDataFactoryTest {
