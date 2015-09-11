@@ -29,8 +29,8 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.engine.calculations.MissingMappingId;
-import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
+import com.opengamma.strata.engine.calculation.MissingMappingId;
+import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
 
 /**
  * A set of market data.

@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.CollectProjectAssertions;
-import com.opengamma.strata.engine.calculations.function.result.FxConvertibleList;
+import com.opengamma.strata.engine.calculation.function.result.FxConvertibleList;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.rate.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.finance.rate.swap.RateCalculationSwapLeg;

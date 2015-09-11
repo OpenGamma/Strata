@@ -13,7 +13,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
 import com.opengamma.strata.engine.Column;
-import com.opengamma.strata.engine.calculations.Results;
+import com.opengamma.strata.engine.calculation.Results;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.data.ExampleData;

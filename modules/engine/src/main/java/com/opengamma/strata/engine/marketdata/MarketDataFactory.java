@@ -6,7 +6,7 @@
 package com.opengamma.strata.engine.marketdata;
 
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
+import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 
 /**
  * A market data factory build market data. It can source observable data from a data provider

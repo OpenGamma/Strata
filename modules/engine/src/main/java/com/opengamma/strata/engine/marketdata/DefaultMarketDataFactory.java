@@ -27,17 +27,17 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
-import com.opengamma.strata.engine.marketdata.functions.MissingDataAwareObservableFunction;
-import com.opengamma.strata.engine.marketdata.functions.MissingDataAwareTimeSeriesProvider;
-import com.opengamma.strata.engine.marketdata.functions.MissingMappingMarketDataFunction;
-import com.opengamma.strata.engine.marketdata.functions.ObservableMarketDataFunction;
-import com.opengamma.strata.engine.marketdata.functions.TimeSeriesProvider;
+import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.MissingDataAwareObservableFunction;
+import com.opengamma.strata.engine.marketdata.function.MissingDataAwareTimeSeriesProvider;
+import com.opengamma.strata.engine.marketdata.function.MissingMappingMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MissingDataAwareFeedIdMapping;
-import com.opengamma.strata.engine.marketdata.scenarios.Perturbation;
-import com.opengamma.strata.engine.marketdata.scenarios.PerturbationMapping;
-import com.opengamma.strata.engine.marketdata.scenarios.ScenarioDefinition;
+import com.opengamma.strata.engine.marketdata.scenario.Perturbation;
+import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
+import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 
 /**
  * Co-ordinates building of market data.

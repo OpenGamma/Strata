@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.rate.fra;
 
-import static com.opengamma.strata.engine.calculations.function.FunctionUtils.toScenarioResult;
+import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.HashSet;
@@ -17,8 +17,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.calculations.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculations.function.result.ScenarioResult;
+import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
+import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.SingleCalculationMarketData;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;

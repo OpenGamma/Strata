@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Primitives;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.calculations.function.CalculationSingleFunction;
+import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 
 /**
  * Configuration of a function that performs a calculation.

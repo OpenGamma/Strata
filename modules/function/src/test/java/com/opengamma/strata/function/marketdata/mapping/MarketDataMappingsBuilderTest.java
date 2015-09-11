@@ -14,7 +14,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.engine.calculations.MissingMappingId;
+import com.opengamma.strata.engine.calculation.MissingMappingId;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;

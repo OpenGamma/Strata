@@ -8,9 +8,9 @@ package com.opengamma.strata.engine.marketdata;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.calculations.NoMatchingRuleId;
+import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.engine.marketdata.functions.MarketDataFunction;
+import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
 
 /**
  * Market data function that creates failures with helpful error messages when the market
