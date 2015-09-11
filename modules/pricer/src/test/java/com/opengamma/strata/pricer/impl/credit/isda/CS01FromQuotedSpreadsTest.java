@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.ShiftType;
+import com.opengamma.strata.market.curve.perturb.ShiftType;
 
 /**
  * Test.

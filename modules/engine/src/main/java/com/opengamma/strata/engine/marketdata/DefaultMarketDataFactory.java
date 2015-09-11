@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -35,7 +36,6 @@ import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunct
 import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.mapping.MissingDataAwareFeedIdMapping;
-import com.opengamma.strata.engine.marketdata.scenario.Perturbation;
 import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 

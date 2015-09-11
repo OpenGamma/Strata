@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.curve.perturb;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 
@@ -17,14 +17,14 @@ public enum ShiftType {
    * <p>
    * The shift amount is interpreted as a decimal percentage. For example, a shift amount of 0.1 is a
    * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift of -20%
-   * which multiplies the value by 0.8
+   * which multiplies the value by 0.8.
    * <p>
-   * {@code shiftedValue = (value x (1 + shiftAmount))}
+   * {@code shiftedValue = (value + value * shiftAmount)}
    */
   RELATIVE("Relative") {
     @Override
     public double applyShift(double value, double shiftAmount) {
-      return value * (1 + shiftAmount);
+      return value + value * shiftAmount;
     }
 
     @Override

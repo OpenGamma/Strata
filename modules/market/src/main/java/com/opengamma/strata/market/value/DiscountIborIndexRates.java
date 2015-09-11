@@ -27,8 +27,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
@@ -201,6 +203,11 @@ public final class DiscountIborIndexRates
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public DiscountIborIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
+    return withDiscountFactors(discountFactors.applyPerturbation(perturbation));
+  }
+
   /**
    * Returns a new instance with different discount factors.
    * 

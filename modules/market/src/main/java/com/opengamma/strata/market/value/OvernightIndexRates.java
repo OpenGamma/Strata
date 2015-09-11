@@ -8,7 +8,9 @@ package com.opengamma.strata.market.value;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivities;
@@ -153,5 +155,17 @@ public interface OvernightIndexRates {
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(OvernightRateSensitivity pointSensitivity);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Applies the specified perturbation to the underlying curve.
+   * <p>
+   * This returns an instance where the curve that has been changed by the {@link Perturbation} instance.
+   * 
+   * @param perturbation  the perturbation to apply
+   * @return the perturbed instance
+   * @throws RuntimeException if the perturbation cannot be applied
+   */
+  public abstract OvernightIndexRates applyPerturbation(Perturbation<Curve> perturbation);
 
 }

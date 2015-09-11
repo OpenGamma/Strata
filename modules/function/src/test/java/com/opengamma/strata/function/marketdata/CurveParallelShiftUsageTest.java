@@ -3,10 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.scenario.curve;
+package com.opengamma.strata.function.marketdata;
 
-import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -26,29 +24,19 @@ import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.function.marketdata.scenario.curve.CurveNameFilter;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
 import com.opengamma.strata.market.id.DiscountCurveId;
 
 /**
- * Test {@link CurveParallelShift}.
+ * Test usage of {@link CurveParallelShift}.
  */
 @Test
-public class CurveParallelShiftTest {
-
-  public void absolute() {
-    CurveParallelShift shift = CurveParallelShift.absolute(0.1);
-    Curve shiftedCurve = shift.applyTo(ConstantNodalCurve.of("curveName", 2d));
-    checkCurveValues(shiftedCurve, 2.1);
-  }
-
-  public void relative() {
-    CurveParallelShift shift = CurveParallelShift.relative(0.1);
-    Curve shiftedCurve = shift.applyTo(ConstantNodalCurve.of("curveName", 2d));
-    checkCurveValues(shiftedCurve, 2.2);
-  }
+public class CurveParallelShiftUsageTest {
 
   public void absoluteScenarios() {
     CurveName curveName = CurveName.of("curveName");
@@ -87,14 +75,6 @@ public class CurveParallelShiftTest {
     for (int i = 0; i < 10; i++) {
       assertThat(curve.yValue((double) i)).isEqualTo(expectedValue);
     }
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    CurveParallelShift test = CurveParallelShift.absolute(0.1);
-    coverImmutableBean(test);
-    CurveParallelShift test2 = CurveParallelShift.relative(0.1);
-    coverBeanEquals(test, test2);
   }
 
 }

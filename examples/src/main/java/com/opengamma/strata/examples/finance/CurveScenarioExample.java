@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.id.StandardId;
@@ -33,7 +34,6 @@ import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.ReportingRules;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
-import com.opengamma.strata.engine.marketdata.scenario.Perturbation;
 import com.opengamma.strata.engine.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.engine.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.examples.engine.ExampleEngine;
@@ -51,8 +51,8 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.scenario.curve.AnyCurveFilter;
-import com.opengamma.strata.function.marketdata.scenario.curve.CurveParallelShift;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
 
 /**
  * Example to illustrate using the scenario framework to apply shifts to calibrated curves.

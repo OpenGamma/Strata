@@ -20,6 +20,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -213,6 +215,12 @@ public class ZeroRateDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_applyPerturbation() {
+    Perturbation<Curve> perturbation = curve -> CURVE2;
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE).applyPerturbation(perturbation);
+    assertEquals(test.getCurve(), CURVE2);
+  }
+
   public void test_withCurve() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE).withCurve(CURVE2);
     assertEquals(test.getCurve(), CURVE2);

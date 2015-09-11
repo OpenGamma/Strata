@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.Messages;
 
 /**

@@ -107,7 +107,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
           .combinedWith(POINT_ON_1).combinedWith(POINT_ON_2).combinedWith(POINT_ON_3).combinedWith(POINT_ON_4);
 
   // curve providers
-  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
+  private static final LocalDateDoubleTimeSeries TS_EMPTY = LocalDateDoubleTimeSeries.empty();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR =
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
@@ -133,11 +133,11 @@ public class ImmutableRatesProviderParameterSensitivityTest {
       .discountCurves(Legacy.discountCurves(MULTICURVE))
       .indexCurves(Legacy.indexCurves(MULTICURVE))
       .timeSeries(ImmutableMap.of(
-          EUR_EURIBOR_3M, TS_EMTPY,
-          USD_LIBOR_1M, TS_EMTPY,
-          USD_LIBOR_3M, TS_EMTPY,
-          EUR_EONIA, TS_EMTPY,
-          USD_FED_FUND, TS_EMTPY))
+          EUR_EURIBOR_3M, TS_EMPTY,
+          USD_LIBOR_1M, TS_EMPTY,
+          USD_LIBOR_3M, TS_EMPTY,
+          EUR_EONIA, TS_EMPTY,
+          USD_FED_FUND, TS_EMPTY))
       .build();
 
   private static final double TOLERANCE_SENSI = 1.0E-8;
