@@ -41,7 +41,7 @@ public enum YieldConvention {
    * Japan Simple yield. 
    */
   JAPAN_SIMPLE;
-  
+
   //-------------------------------------------------------------------------
   /**
    * Obtains the convention from a unique name.

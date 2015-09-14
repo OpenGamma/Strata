@@ -218,7 +218,7 @@ public final class SchedulePeriod
     return !date.isBefore(startDate) && date.isBefore(endDate);
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Creates a sub-schedule within this period.
    * <p>

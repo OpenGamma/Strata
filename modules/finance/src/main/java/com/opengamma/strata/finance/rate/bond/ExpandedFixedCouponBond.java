@@ -43,10 +43,8 @@ import com.opengamma.strata.collect.id.StandardId;
  * whereas the nominal payment is defined by {@link Payment}.
  * <p>
  * The accrual factor between two dates is computed {@code dayCount}. 
- * The legal entity of this fixed coupon bond is identified by {@link StandardId}. The enum, {@link YieldConvention}, 
- * specifies the yield computation convention, and {@link DaysAdjustment} does the number of days between valuation 
- * date and settlement date. 
- * </ul>
+ * The legal entity of this fixed coupon bond is identified by {@link StandardId}.
+ * The enum, {@link YieldConvention}, specifies the yield computation convention.
  */
 @BeanDefinition
 public final class ExpandedFixedCouponBond
