@@ -124,7 +124,7 @@ public class FixedCouponBondTest {
     int expNum = 20;
     assertEquals(periodicPayments.size(), expNum);
     LocalDate unadjustedEnd = END_DATE;
-    Schedule unadjusted = base.createUnadjustedSchedule(PERIOD_SCHEDULE.createSchedule());
+    Schedule unadjusted = PERIOD_SCHEDULE.createSchedule().toUnadjusted();
     for (int i = 0; i < expNum; ++i) {
       FixedCouponBondPaymentPeriod payment = periodicPayments.get(expNum - 1 - i);
       assertEquals(payment.getCurrency(), EUR);
