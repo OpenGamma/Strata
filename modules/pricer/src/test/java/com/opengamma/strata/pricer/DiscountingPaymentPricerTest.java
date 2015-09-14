@@ -42,7 +42,10 @@ public class DiscountingPaymentPricerTest {
   private static final ConstantNodalCurve CURVE = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_365F), DF);
   private static final SimpleDiscountFactors DISCOUNT_FACTORS = SimpleDiscountFactors.of(USD, VAL_DATE_2014_01_22, CURVE);
   private static final BaseProvider PROVIDER = new SimpleRatesProvider(VAL_DATE_2014_01_22, DISCOUNT_FACTORS);
+  private static final double Z_SPREAD = 0.02;
+  private static final int PERIOD_PER_YEAR = 4;
   private static final double TOL = 1.0e-12;
+  private static final double EPS = 1.0e-6;
 
   //-------------------------------------------------------------------------
   public void test_presentValue_df() {
@@ -66,6 +69,32 @@ public class DiscountingPaymentPricerTest {
   public void test_presentValue_provider_ended() {
     CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, PROVIDER);
     assertEquals(computed, CurrencyAmount.zero(USD));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValue_df_spread_continuous() {
+    CurrencyAmount computed = PRICER.presentValue(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, false, 0);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
+    double expected = NOTIONAL_USD * DF * Math.exp(-Z_SPREAD * relativeYearFraction);
+    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+  }
+
+  public void test_presentValue_df_spread_periodic() {
+    CurrencyAmount computed = PRICER.presentValue(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, true, PERIOD_PER_YEAR);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
+    double rate = (Math.pow(DF, -1d / PERIOD_PER_YEAR / relativeYearFraction) - 1d) * PERIOD_PER_YEAR;
+    double expected = NOTIONAL_USD *
+        discountFactorFromPeriodicallyCompoundedRate(rate + Z_SPREAD, PERIOD_PER_YEAR, relativeYearFraction);
+    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+  }
+
+  public void test_presentValue_df_ended_spread() {
+    CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, true, 3);
+    assertEquals(computed, CurrencyAmount.zero(USD));
+  }
+
+  private double discountFactorFromPeriodicallyCompoundedRate(double rate, double periodPerYear, double time) {
+    return Math.pow(1d + rate / periodPerYear, -periodPerYear * time);
   }
 
   //-------------------------------------------------------------------------
@@ -99,6 +128,42 @@ public class DiscountingPaymentPricerTest {
 
   public void test_presentValueSensitivity_provider_ended() {
     PointSensitivities computed = PRICER.presentValueSensitivity(PAYMENT_PAST, PROVIDER).build();
+    assertEquals(computed, PointSensitivities.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_presentValueSensitivity_df_spread_continuous() {
+    PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, false, 0).build();
+    double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
+    double expected = -DF * relativeYearFraction * NOTIONAL_USD * Math.exp(-Z_SPREAD * relativeYearFraction);
+    ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
+    assertEquals(actual.getCurrency(), USD);
+    assertEquals(actual.getCurveCurrency(), USD);
+    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
+  }
+
+  public void test_presentValueSensitivity_df_spread_periodic() {
+    PointSensitivities point =
+        PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, true, PERIOD_PER_YEAR).build();
+    double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
+    double discountFactorUp = DF * Math.exp(-EPS * relativeYearFraction);
+    double discountFactorDw = DF * Math.exp(EPS * relativeYearFraction);
+    double rateUp = (Math.pow(discountFactorUp, -1d / PERIOD_PER_YEAR / relativeYearFraction) - 1d) * PERIOD_PER_YEAR;
+    double rateDw = (Math.pow(discountFactorDw, -1d / PERIOD_PER_YEAR / relativeYearFraction) - 1d) * PERIOD_PER_YEAR;
+    double expected = 0.5 * NOTIONAL_USD / EPS * (
+        discountFactorFromPeriodicallyCompoundedRate(rateUp + Z_SPREAD, PERIOD_PER_YEAR, relativeYearFraction) -
+        discountFactorFromPeriodicallyCompoundedRate(rateDw + Z_SPREAD, PERIOD_PER_YEAR, relativeYearFraction));
+    ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
+    assertEquals(actual.getCurrency(), USD);
+    assertEquals(actual.getCurveCurrency(), USD);
+    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * EPS);
+  }
+
+  public void test_presentValueSensitivity_df_spread_ended() {
+    PointSensitivities computed =
+        PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, true, 3).build();
     assertEquals(computed, PointSensitivities.empty());
   }
 
