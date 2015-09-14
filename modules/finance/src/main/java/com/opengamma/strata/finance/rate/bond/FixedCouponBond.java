@@ -92,6 +92,9 @@ public final class FixedCouponBond
    * <p>
    * The conversion from dates to a numerical value is made based on this day count. 
    * For the fixed bond, the day count convention is used to compute accrued interest.
+   * <p>
+   * Note that the year fraction of a coupon payment is computed based on the unadjusted
+   * dates in the schedule.
    */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
@@ -151,7 +154,7 @@ public final class FixedCouponBond
   @Override
   public ExpandedFixedCouponBond expand() {
     Schedule adjustedSchedule = periodicSchedule.createSchedule();
-    Schedule unadjustedSchedule = createUnadjustedSchedule(adjustedSchedule);
+    Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
     ImmutableList.Builder<FixedCouponBondPaymentPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
@@ -179,32 +182,6 @@ public final class FixedCouponBond
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
         .settlementDateOffset(settlementDateOffset)
-        .build();
-  }
-
-  /**
-   * Creates a new schedule with unadjusted dates from a schedule with adjusted dates. 
-   * <p>
-   * The start date and end date are unadjusted in the resulting {@code Schedule}, i.e., the {@code unadjustedStartDate} 
-   * and {@code unadjustedEndDate} coincide with {@code startDate} and {@code endDate}, respectively. 
-   * <p>
-   * The year fraction for a coupon payment of the fixed coupon bond is computed based on unadjusted dates. 
-   * Thus {@link DayCount}, and accordingly {@link SchedulePeriod}, require this schedule to compute year fraction for 
-   * the bond.  
-   * 
-   * @param adjustedSchedule  the adjusted schedule
-   * @return the unadjusted schedule
-   */
-  Schedule createUnadjustedSchedule(Schedule adjustedSchedule) {
-    ImmutableList.Builder<SchedulePeriod> periodsUnadjusted = ImmutableList.builder();
-    for (int i = 0; i < adjustedSchedule.getPeriods().size(); i++) {
-      SchedulePeriod period = adjustedSchedule.getPeriods().get(i);
-      periodsUnadjusted.add(SchedulePeriod.of(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()));
-    }
-    return Schedule.builder()
-        .periods(periodsUnadjusted.build())
-        .frequency(periodicSchedule.getFrequency())
-        .rollConvention(periodicSchedule.getEffectiveRollConvention())
         .build();
   }
 
@@ -333,6 +310,9 @@ public final class FixedCouponBond
    * <p>
    * The conversion from dates to a numerical value is made based on this day count.
    * For the fixed bond, the day count convention is used to compute accrued interest.
+   * <p>
+   * Note that the year fraction of a coupon payment is computed based on the unadjusted
+   * dates in the schedule.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
@@ -878,6 +858,9 @@ public final class FixedCouponBond
      * <p>
      * The conversion from dates to a numerical value is made based on this day count.
      * For the fixed bond, the day count convention is used to compute accrued interest.
+     * <p>
+     * Note that the year fraction of a coupon payment is computed based on the unadjusted
+     * dates in the schedule.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
