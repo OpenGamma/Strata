@@ -47,6 +47,11 @@ public final class SimpleDiscountFactors
     implements DiscountFactors, ImmutableBean, Serializable {
 
   /**
+   * Year fraction used as an effective zero.
+   */
+  private static final double EFFECTIVE_ZERO = 1e-10;
+
+  /**
    * The currency that the discount factors are for.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -124,6 +129,23 @@ public final class SimpleDiscountFactors
     return discountFactor(relativeYearFraction);
   }
 
+  @Override
+  public double discountFactorWithSpread(LocalDate date, double zSpread, boolean periodic, int periodPerYear) {
+    double yearFraction = relativeYearFraction(date);
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return 1d;
+    }
+    double df = discountFactor(date);
+    if (periodic) {
+      ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
+      double ratePeriodicAnnualPlusOne =
+          Math.pow(df, -1.0 / periodPerYear / yearFraction) + zSpread / periodPerYear;
+      return Math.pow(ratePeriodicAnnualPlusOne, -periodPerYear * yearFraction);
+    } else {
+      return df * Math.exp(-zSpread * yearFraction);
+    }
+  }
+
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // read discount factor directly off curve
@@ -143,6 +165,31 @@ public final class SimpleDiscountFactors
     return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
   }
 
+  @Override
+  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+      LocalDate date,
+      Currency sensitivityCurrency,
+      double zSpread,
+      boolean periodic,
+      int periodPerYear) {
+
+    double yearFraction = relativeYearFraction(date);
+    ZeroRateSensitivity sensi = zeroRatePointSensitivity(date, sensitivityCurrency);
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return sensi;
+    }
+    double factor;
+    if (periodic) {
+      double df = discountFactor(date);
+      double dfRoot = Math.pow(df, -1d / periodPerYear / yearFraction);
+      factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodPerYear, periodPerYear * yearFraction + 1d);
+    } else {
+      factor = Math.exp(-zSpread * yearFraction);
+    }
+    return sensi.multipliedBy(factor);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
