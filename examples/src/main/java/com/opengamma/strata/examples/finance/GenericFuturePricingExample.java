@@ -34,7 +34,7 @@ import com.opengamma.strata.finance.future.GenericFuture;
 import com.opengamma.strata.finance.future.GenericFutureOption;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -64,7 +64,7 @@ public class GenericFuturePricingExample {
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
-        .pricingRules(OpenGammaPricingRules.standard())
+        .pricingRules(StandardComponents.pricingRules())
         .marketDataRules(marketDataBuilder.rules())
         .build();
 

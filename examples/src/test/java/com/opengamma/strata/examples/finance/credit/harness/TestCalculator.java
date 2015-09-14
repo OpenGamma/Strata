@@ -24,7 +24,7 @@ import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.examples.engine.ExampleEngine;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 
 public class TestCalculator implements Calculator {
@@ -67,7 +67,7 @@ public class TestCalculator implements Calculator {
 
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.builder()
-        .pricingRules(OpenGammaPricingRules.standard())
+        .pricingRules(StandardComponents.pricingRules())
         .marketDataRules(marketDataBuilder.rules())
         .reportingRules(ReportingRules.fixedCurrency(Currency.USD))
         .build();

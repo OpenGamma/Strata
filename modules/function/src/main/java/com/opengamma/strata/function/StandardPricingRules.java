@@ -23,8 +23,10 @@ import com.opengamma.strata.function.calculation.rate.swap.SwapFunctionGroups;
 
 /**
  * Contains standard sets of pricing rules that provide full access to the built-in asset class coverage.
+ * <p>
+ * These rules can be obtained via {@link StandardComponents#pricingRules()}.
  */
-public final class OpenGammaPricingRules {
+final class StandardPricingRules {
 
   /**
    * The standard pricing rules.
@@ -40,7 +42,7 @@ public final class OpenGammaPricingRules {
   /**
    * Restricted constructor.
    */
-  private OpenGammaPricingRules() {
+  private StandardPricingRules() {
   }
 
   //-------------------------------------------------------------------------
@@ -53,16 +55,17 @@ public final class OpenGammaPricingRules {
    * <p>
    * The supported asset classes are:
    * <ul>
-   *   <li>Credit Default Swap - {@link CdsTrade}
-   *   <li>Forward Rate Agreement - {@link FraTrade}
-   *   <li>Generic Future - {@link GenericFutureTrade}
-   *   <li>Generic Future Option - {@link GenericFutureOptionTrade}
-   *   <li>Rate Swap - {@link SwapTrade}
+   *  <li>Credit Default Swap - {@link CdsTrade}
+   *  <li>Forward Rate Agreement - {@link FraTrade}
+   *  <li>Generic Future - {@link GenericFutureTrade}
+   *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
+   *  <li>Rate Swap - {@link SwapTrade}
+   *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    * 
    * @return the default pricing rules
    */
-  public static PricingRules standard() {
+  static PricingRules standard() {
     return STANDARD;
   }
 

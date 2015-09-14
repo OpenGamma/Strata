@@ -29,7 +29,7 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.finance.ProductTrade;
 import com.opengamma.strata.finance.SecurityTrade;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.function.OpenGammaPricingRules;
+import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 
 /**
@@ -161,7 +161,7 @@ public class ValuePathEvaluator {
     if (tokens.isEmpty() || Strings.nullToEmpty(tokens.peek()).trim().isEmpty()) {
       return i -> {
         Trade trade = results.getTrades().get(i);
-        Set<Measure> validMeasures = OpenGammaPricingRules.standard().configuredMeasures(trade);
+        Set<Measure> validMeasures = StandardComponents.pricingRules().configuredMeasures(trade);
         List<String> measureNames = validMeasures.stream()
             .map(m -> m.toString())
             .collect(Collectors.toList());

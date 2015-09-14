@@ -22,7 +22,7 @@ import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.fx.ExpandedFx;
 import com.opengamma.strata.finance.fx.Fx;
 import com.opengamma.strata.finance.fx.FxTrade;
-import com.opengamma.strata.function.MarketDataRatesProvider;
+import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;

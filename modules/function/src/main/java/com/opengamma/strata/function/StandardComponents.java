@@ -22,6 +22,12 @@ import com.opengamma.strata.engine.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.engine.marketdata.function.TimeSeriesProvider;
 import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
+import com.opengamma.strata.finance.credit.CdsTrade;
+import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
+import com.opengamma.strata.finance.future.GenericFutureTrade;
+import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
+import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.DiscountFactorsMarketDataFunction;
@@ -34,31 +40,36 @@ import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
 /**
  * Factory methods for creating standard Strata components.
  * <p>
- * These components are suitable for performing calculations using the built-in asset classes, market data types
- * and pricers. The market data must provided by the user.
+ * These components are suitable for performing calculations using the built-in asset classes,
+ * market data types and pricers. The market data must provided by the user.
  * <p>
- * The market data factory can create market data values derived from other values. For example it can create
- * calibrated curves given market quotes. However it cannot request market data from an external provider, for
- * example Bloomberg, or look up data from a data store, for example a time series database.
+ * The market data factory can create market data values derived from other values.
+ * For example it can create calibrated curves given market quotes.
+ * However it cannot request market data from an external provider, such as Bloomberg,
+ * or look up data from a data store, for example a time series database.
  */
 public class StandardComponents {
 
-  // Only static helper methods so no need to create any instances
+  /**
+   * Restricted constructor.
+   */
   private StandardComponents() {
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a calculation engine capable of calculating the standard set of measures for the standard asset classes,
-   * using market data provided by the caller.
+   * Returns a calculation engine capable of calculating the standard set of measures for
+   * the standard asset classes, using market data provided by the caller.
    * <p>
-   * The engine can create market data values derived from other values. For example it can create
-   * calibrated curves given market quotes. However it cannot request market data from an external provider, for
-   * example Bloomberg, or look up data from a data store, for example a time series database.
+   * The engine can create market data values derived from other values.
+   * For example it can create calibrated curves given market quotes.
+   * However it cannot request market data from an external provider, such as Bloomberg,
+   * or look up data from a data store, for example a time series database.
    *
-   * @return a calculation engine capable of performing calculations for the built-in market data types and measures
-   * using market data provided by the caller
+   * @return a calculation engine capable of performing calculations for the built-in
+   *  market data types and measures using market data provided by the caller
    */
-  public CalculationEngine calculationEngine() {
+  public static CalculationEngine calculationEngine() {
     return new DefaultCalculationEngine(calculationRunner(), marketDataFactory(), LinkResolver.none());
   }
 
@@ -69,7 +80,7 @@ public class StandardComponents {
    *
    * @return a calculation runner which uses a fixed thread pool
    */
-  public CalculationRunner calculationRunner() {
+  public static CalculationRunner calculationRunner() {
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     return new DefaultCalculationRunner(executor);
   }
@@ -80,11 +91,11 @@ public class StandardComponents {
    * This factory can create market data values from other market data. For example it
    * can create calibrated curves given a set of market quotes for the points on the curve.
    * <p>
-   * The set functions are the ones provided by {@link #marketDataFunctions()}.
+   * The set of functions are the ones provided by {@link #marketDataFunctions()}.
    *
    * @return a market data factory containing the standard set of market data functions
    */
-  public MarketDataFactory marketDataFactory() {
+  public static MarketDataFactory marketDataFactory() {
     return new DefaultMarketDataFactory(
         TimeSeriesProvider.none(),
         ObservableMarketDataFunction.none(),
@@ -97,15 +108,15 @@ public class StandardComponents {
    * <p>
    * These include functions to build:
    * <ul>
-   *   <li>Par rates from quotes</li>
-   *   <li>Curve groups from par rates</li>
-   *   <li>Curves from curve groups</li>
-   *   <li>Discount factors from curves</li>
+   *  <li>Par rates from quotes
+   *  <li>Curve groups from par rates
+   *  <li>Curves from curve groups
+   *  <li>Discount factors and index rates from curves
    * </ul>
    *
    * @return the standard market data functions
    */
-  public List<MarketDataFunction<?, ?>> marketDataFunctions() {
+  public static List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
         new DiscountCurveMarketDataFunction(),
         new RateIndexCurveMarketDataFunction(),
@@ -117,11 +128,26 @@ public class StandardComponents {
   }
 
   /**
-   * Returns pricing rules defining how to calculate the standard measures for the standard asset classes.
+   * Returns the standard pricing rules.
+   * <p>
+   * These rules define how to calculate the standard measures for the standard asset classes.
+   * <p>
+   * The standard pricing rules require no further configuration and are designed to allow
+   * easy access to all built-in asset class coverage.
+   * The supported asset classes are:
+   * <ul>
+   *  <li>Credit Default Swap - {@link CdsTrade}
+   *  <li>Forward Rate Agreement - {@link FraTrade}
+   *  <li>Generic Future - {@link GenericFutureTrade}
+   *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
+   *  <li>Rate Swap - {@link SwapTrade}
+   *  <li>Term Deposit - {@link TermDepositTrade}
+   * </ul>
    *
    * @return pricing rules defining how to calculate the standard measures for the standard asset classes
    */
-  public PricingRules pricingRules() {
-    return OpenGammaPricingRules.standard();
+  public static PricingRules pricingRules() {
+    return StandardPricingRules.standard();
   }
+
 }

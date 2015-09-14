@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function;
+package com.opengamma.strata.function.marketdata;
 
 import java.io.Serializable;
 import java.time.LocalDate;
