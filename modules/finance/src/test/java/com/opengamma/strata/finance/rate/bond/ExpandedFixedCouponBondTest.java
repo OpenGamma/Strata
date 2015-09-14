@@ -7,6 +7,8 @@ package com.opengamma.strata.finance.rate.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -20,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -48,6 +49,7 @@ public class ExpandedFixedCouponBondTest {
       .unadjustedStartDate(LocalDate.of(2015, 4, 12))
       .endDate(LocalDate.of(2015, 10, 12))
       .unadjustedEndDate(LocalDate.of(2015, 10, 12))
+      .detachmentDate(LocalDate.of(2015, 10, 5))
       .fixedRate(FIXED_RATE)
       .build();
   private static final FixedCouponBondPaymentPeriod PAYMENT_2 = FixedCouponBondPaymentPeriod.builder()
@@ -57,6 +59,7 @@ public class ExpandedFixedCouponBondTest {
       .unadjustedStartDate(LocalDate.of(2015, 10, 12))
       .endDate(LocalDate.of(2016, 4, 12))
       .unadjustedEndDate(LocalDate.of(2016, 4, 12))
+      .detachmentDate(LocalDate.of(2016, 4, 5))
       .fixedRate(FIXED_RATE)
       .build();
   private static final FixedCouponBondPaymentPeriod PAYMENT_3 = FixedCouponBondPaymentPeriod.builder()
@@ -66,6 +69,7 @@ public class ExpandedFixedCouponBondTest {
       .unadjustedStartDate(LocalDate.of(2016, 4, 12))
       .endDate(LocalDate.of(2016, 10, 12))
       .unadjustedEndDate(LocalDate.of(2016, 10, 12))
+      .detachmentDate(LocalDate.of(2016, 10, 5))
       .fixedRate(FIXED_RATE)
       .build();
   private static final FixedCouponBondPaymentPeriod PAYMENT_4 = FixedCouponBondPaymentPeriod.builder()
@@ -75,6 +79,7 @@ public class ExpandedFixedCouponBondTest {
       .unadjustedStartDate(LocalDate.of(2016, 10, 12))
       .endDate(LocalDate.of(2017, 4, 12))
       .unadjustedEndDate(LocalDate.of(2017, 4, 12))
+      .detachmentDate(LocalDate.of(2017, 4, 5))
       .fixedRate(FIXED_RATE)
       .build();
   private static final ImmutableList<FixedCouponBondPaymentPeriod> PERIODIC_PAYMENTS =
@@ -88,7 +93,7 @@ public class ExpandedFixedCouponBondTest {
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final HolidayCalendar EUR_CALENDAR = HolidayCalendars.EUTA;
   private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUR_CALENDAR);
-  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
+  private static final DayCount DAY_COUNT = DayCounts.ACT_365F;
 
   public void test_of() {
     ExpandedFixedCouponBond testList = ExpandedFixedCouponBond.builder()
@@ -143,8 +148,7 @@ public class ExpandedFixedCouponBondTest {
         .settlementDateOffset(DATE_OFFSET)
         .build();
     coverImmutableBean(test1);
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(
-        BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment adj = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
     LocalDate start = LocalDate.of(2015, 4, 12);
     LocalDate end = LocalDate.of(2025, 4, 12);
     PeriodicSchedule sche = PeriodicSchedule.of(
@@ -156,8 +160,9 @@ public class ExpandedFixedCouponBondTest {
         .notional(1.0e6)
         .currency(GBP)
         .periodicSchedule(sche)
-        .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.SAT_SUN))
+        .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, SAT_SUN))
         .yieldConvention(YieldConvention.UK_BUMP_DMO)
+        .exCouponPeriod(DaysAdjustment.NONE)
         .build()
         .expand();
     coverBeanEquals(test1, test2);
@@ -174,4 +179,5 @@ public class ExpandedFixedCouponBondTest {
         .build();
     assertSerialization(test);
   }
+
 }
