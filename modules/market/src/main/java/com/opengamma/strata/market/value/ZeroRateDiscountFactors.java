@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
@@ -204,6 +205,11 @@ public final class ZeroRateDiscountFactors
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ZeroRateDiscountFactors applyPerturbation(Perturbation<Curve> perturbation) {
+    return withCurve(curve.applyPerturbation(perturbation));
+  }
+
   /**
    * Returns a new instance with a different curve.
    * 

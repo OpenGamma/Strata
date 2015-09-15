@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.curve.perturb;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -23,6 +23,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
 
 /**
@@ -36,7 +39,9 @@ import com.opengamma.strata.market.sensitivity.CurveUnitParameterSensitivity;
  * When the shift is relative the y-value is scaled by the shift amount.
  * The shift amount is interpreted as a percentage.
  * For example, a shift amount of 0.1 is a shift of +10% which multiplies the value by 1.1.
- * A shift amount of -0.2 is a shift of -20% which multiplies the value by 0.8
+ * A shift amount of -0.2 is a shift of -20% which multiplies the value by 0.8.
+ * 
+ * @see CurveParallelShift
  */
 @BeanDefinition(builderScope = "private")
 public final class ParallelShiftedCurve
@@ -46,7 +51,7 @@ public final class ParallelShiftedCurve
    * The underlying curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Curve curve;
+  private final Curve underlyingCurve;
   /**
    * The type of shift to apply to the y-values of the curve.
    * The amount of the shift is determined by {@code #getShiftAmount()}.
@@ -102,32 +107,32 @@ public final class ParallelShiftedCurve
   //-------------------------------------------------------------------------
   @Override
   public CurveMetadata getMetadata() {
-    return curve.getMetadata();
+    return underlyingCurve.getMetadata();
   }
 
   @Override
   public CurveName getName() {
-    return curve.getName();
+    return underlyingCurve.getName();
   }
 
   @Override
   public int getParameterCount() {
-    return curve.getParameterCount();
+    return underlyingCurve.getParameterCount();
   }
 
   @Override
   public double yValue(double x) {
-    return shiftType.applyShift(curve.yValue(x), shiftAmount);
+    return shiftType.applyShift(underlyingCurve.yValue(x), shiftAmount);
   }
 
   @Override
   public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    return curve.yValueParameterSensitivity(x);
+    return underlyingCurve.yValueParameterSensitivity(x);
   }
 
   @Override
   public double firstDerivative(double x) {
-    double firstDerivative = curve.firstDerivative(x);
+    double firstDerivative = underlyingCurve.firstDerivative(x);
     switch (shiftType) {
       case ABSOLUTE:
         // If all Y values have been shifted the same amount the derivative is unaffected
@@ -160,13 +165,13 @@ public final class ParallelShiftedCurve
   private static final long serialVersionUID = 1L;
 
   private ParallelShiftedCurve(
-      Curve curve,
+      Curve underlyingCurve,
       ShiftType shiftType,
       double shiftAmount) {
-    JodaBeanUtils.notNull(curve, "curve");
+    JodaBeanUtils.notNull(underlyingCurve, "underlyingCurve");
     JodaBeanUtils.notNull(shiftType, "shiftType");
     JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
-    this.curve = curve;
+    this.underlyingCurve = underlyingCurve;
     this.shiftType = shiftType;
     this.shiftAmount = shiftAmount;
   }
@@ -191,8 +196,8 @@ public final class ParallelShiftedCurve
    * Gets the underlying curve.
    * @return the value of the property, not null
    */
-  public Curve getCurve() {
-    return curve;
+  public Curve getUnderlyingCurve() {
+    return underlyingCurve;
   }
 
   //-----------------------------------------------------------------------
@@ -223,7 +228,7 @@ public final class ParallelShiftedCurve
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ParallelShiftedCurve other = (ParallelShiftedCurve) obj;
-      return JodaBeanUtils.equal(getCurve(), other.getCurve()) &&
+      return JodaBeanUtils.equal(getUnderlyingCurve(), other.getUnderlyingCurve()) &&
           JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
           JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
     }
@@ -233,7 +238,7 @@ public final class ParallelShiftedCurve
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingCurve());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
     return hash;
@@ -243,7 +248,7 @@ public final class ParallelShiftedCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ParallelShiftedCurve{");
-    buf.append("curve").append('=').append(getCurve()).append(',').append(' ');
+    buf.append("underlyingCurve").append('=').append(getUnderlyingCurve()).append(',').append(' ');
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
     buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
     buf.append('}');
@@ -261,10 +266,10 @@ public final class ParallelShiftedCurve
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code curve} property.
+     * The meta-property for the {@code underlyingCurve} property.
      */
-    private final MetaProperty<Curve> curve = DirectMetaProperty.ofImmutable(
-        this, "curve", ParallelShiftedCurve.class, Curve.class);
+    private final MetaProperty<Curve> underlyingCurve = DirectMetaProperty.ofImmutable(
+        this, "underlyingCurve", ParallelShiftedCurve.class, Curve.class);
     /**
      * The meta-property for the {@code shiftType} property.
      */
@@ -280,7 +285,7 @@ public final class ParallelShiftedCurve
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "curve",
+        "underlyingCurve",
         "shiftType",
         "shiftAmount");
 
@@ -293,8 +298,8 @@ public final class ParallelShiftedCurve
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return curve;
+        case -839394414:  // underlyingCurve
+          return underlyingCurve;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -320,11 +325,11 @@ public final class ParallelShiftedCurve
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code curve} property.
+     * The meta-property for the {@code underlyingCurve} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Curve> curve() {
-      return curve;
+    public MetaProperty<Curve> underlyingCurve() {
+      return underlyingCurve;
     }
 
     /**
@@ -347,8 +352,8 @@ public final class ParallelShiftedCurve
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return ((ParallelShiftedCurve) bean).getCurve();
+        case -839394414:  // underlyingCurve
+          return ((ParallelShiftedCurve) bean).getUnderlyingCurve();
         case 893345500:  // shiftType
           return ((ParallelShiftedCurve) bean).getShiftType();
         case -1043480710:  // shiftAmount
@@ -374,7 +379,7 @@ public final class ParallelShiftedCurve
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ParallelShiftedCurve> {
 
-    private Curve curve;
+    private Curve underlyingCurve;
     private ShiftType shiftType;
     private double shiftAmount;
 
@@ -388,8 +393,8 @@ public final class ParallelShiftedCurve
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          return curve;
+        case -839394414:  // underlyingCurve
+          return underlyingCurve;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -402,8 +407,8 @@ public final class ParallelShiftedCurve
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 95027439:  // curve
-          this.curve = (Curve) newValue;
+        case -839394414:  // underlyingCurve
+          this.underlyingCurve = (Curve) newValue;
           break;
         case 893345500:  // shiftType
           this.shiftType = (ShiftType) newValue;
@@ -444,7 +449,7 @@ public final class ParallelShiftedCurve
     @Override
     public ParallelShiftedCurve build() {
       return new ParallelShiftedCurve(
-          curve,
+          underlyingCurve,
           shiftType,
           shiftAmount);
     }
@@ -454,7 +459,7 @@ public final class ParallelShiftedCurve
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("ParallelShiftedCurve.Builder{");
-      buf.append("curve").append('=').append(JodaBeanUtils.toString(curve)).append(',').append(' ');
+      buf.append("underlyingCurve").append('=').append(JodaBeanUtils.toString(underlyingCurve)).append(',').append(' ');
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
       buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount));
       buf.append('}');

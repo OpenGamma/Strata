@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.scenario.curve;
+package com.opengamma.strata.market.curve.perturb;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -24,90 +24,124 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.strata.engine.marketdata.scenario.Perturbation;
+import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.ParallelShiftedCurve;
-import com.opengamma.strata.market.curve.ShiftType;
+import com.opengamma.strata.market.curve.NodalCurve;
 
 /**
- * Perturbation which applies a parallel shift to a curve.
+ * Perturbation which applies a shift to a single point on a nodal curve.
+ * <p>
+ * This shifts a single node on a {@link NodalCurve}, identifying the node by index.
  * <p>
  * The shift can be absolute or relative.
  * An absolute shift adds the shift amount to each point on the curve.
  * A relative shift applies a scaling to each point on the curve.
  * <p>
- * For example, a relative shift of 0.1 (10%) multiplies each value on the curve by 1.1, and a shift of -0.2 (-20%)
- * multiplies the rate by 0.8. So for relative shifts the shifted value is {@code (value x (1 + shift))}.
+ * For example, a relative shift of 0.1 (10%) multiplies the value by 1.1, and a shift of -0.2 (-20%)
+ * multiplies the value by 0.8. So for relative shifts the shifted value is {@code (value + value * shift)}.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveParallelShift implements Perturbation<Curve>, ImmutableBean {
+public final class IndexedCurvePointShift
+    implements Perturbation<Curve>, ImmutableBean {
 
-  private static final Logger log = LoggerFactory.getLogger(CurveParallelShift.class);
+  /** Logger. */
+  private static final Logger log = LoggerFactory.getLogger(IndexedCurvePointShift.class);
 
-  /** The type of shift to apply to the Y values of the curve. */
+  /**
+   * The index of the node to shift.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final int nodeIndex;
+  /**
+   * The type of shift to apply to the y-value.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType shiftType;
-
-  /** The amount by which Y values are shifted. */
+  /**
+   * The amount by which the y-value is shifted.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double shiftAmount;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates a shift that adds a fixed amount to the value at every node in the curve.
+   * Creates a shift that adds a fixed amount to the value at the specified node.
+   * <p>
+   * The node is identified by zero-based index.
    *
-   * @param shiftAmount the amount to add to each node value in the curve
-   * @return a shift that adds a fixed amount to the value at every node in the curve
+   * @param nodeIndex  the index of the node to shift
+   * @param shiftAmount  the amount to add to each node value in the curve
+   * @return a shift that adds a fixed amount to the value of the specified node
    */
-  public static CurveParallelShift absolute(double shiftAmount) {
-    return new CurveParallelShift(ShiftType.ABSOLUTE, shiftAmount);
+  public static IndexedCurvePointShift absolute(int nodeIndex, double shiftAmount) {
+    return new IndexedCurvePointShift(nodeIndex, ShiftType.ABSOLUTE, shiftAmount);
   }
 
   /**
-   * Creates a shift that multiplies the values at each curve node by a scaling factor.
+   * Creates a shift that multiplies the value at the specified node by a scaling factor.
+   * <p>
+   * The node is identified by zero-based index.
    * <p>
    * The shift amount is a decimal percentage. For example, a shift amount of 0.1 is a
-   * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift of -20%
-   * which multiplies the value by 0.8
+   * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift
+   * of -20% which multiplies the value by 0.8.
    *
-   * @param shiftAmount the factor to multiply the value at each curve node by
-   * @return a shift that multiplies the values at each curve node by a percentage
+   * @param nodeIndex  the index of the parameter to shift
+   * @param shiftAmount  the factor to multiply the value at each curve node by
+   * @return a shift that multiplies the value of the specified node by a scaling factor
    */
-  public static CurveParallelShift relative(double shiftAmount) {
-    return new CurveParallelShift(ShiftType.RELATIVE, shiftAmount);
+  public static IndexedCurvePointShift relative(int nodeIndex, double shiftAmount) {
+    return new IndexedCurvePointShift(nodeIndex, ShiftType.RELATIVE, shiftAmount);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Curve applyTo(Curve curve) {
-    log.info("Applying {} parallel shift of {} to curve '{}'", shiftType, shiftAmount, curve.getName());
-    return ParallelShiftedCurve.of(curve, shiftType, shiftAmount);
+    log.debug("Applying {} shift of {} to curve '{}' at node {}", shiftType, shiftAmount, curve.getName(), nodeIndex);
+    // nodal curve required, to access the individual values
+    if (!(curve instanceof NodalCurve)) {
+      throw new IllegalArgumentException(
+          Messages.format(
+              "Point shifts can only be applied to NodalCurve implementations, the class of curve '{}' is {}",
+              curve.getName(),
+              curve.getClass().getName()));
+    }
+    NodalCurve nodalCurve = (NodalCurve) curve;
+    double[] yValues = nodalCurve.getYValues();  // this get method clones the array so we can mutate it
+    yValues[nodeIndex] = shiftType.applyShift(yValues[nodeIndex], shiftAmount);
+    return nodalCurve.withYValues(yValues);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurveParallelShift}.
+   * The meta-bean for {@code IndexedCurvePointShift}.
    * @return the meta-bean, not null
    */
-  public static CurveParallelShift.Meta meta() {
-    return CurveParallelShift.Meta.INSTANCE;
+  public static IndexedCurvePointShift.Meta meta() {
+    return IndexedCurvePointShift.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurveParallelShift.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IndexedCurvePointShift.Meta.INSTANCE);
   }
 
-  private CurveParallelShift(
+  private IndexedCurvePointShift(
+      int nodeIndex,
       ShiftType shiftType,
       double shiftAmount) {
+    JodaBeanUtils.notNull(nodeIndex, "nodeIndex");
     JodaBeanUtils.notNull(shiftType, "shiftType");
     JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
+    this.nodeIndex = nodeIndex;
     this.shiftType = shiftType;
     this.shiftAmount = shiftAmount;
   }
 
   @Override
-  public CurveParallelShift.Meta metaBean() {
-    return CurveParallelShift.Meta.INSTANCE;
+  public IndexedCurvePointShift.Meta metaBean() {
+    return IndexedCurvePointShift.Meta.INSTANCE;
   }
 
   @Override
@@ -122,7 +156,16 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of shift to apply to the Y values of the curve.
+   * Gets the index of the node to shift.
+   * @return the value of the property, not null
+   */
+  public int getNodeIndex() {
+    return nodeIndex;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the type of shift to apply to the y-value.
    * @return the value of the property, not null
    */
   public ShiftType getShiftType() {
@@ -131,7 +174,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount by which Y values are shifted.
+   * Gets the amount by which the y-value is shifted.
    * @return the value of the property, not null
    */
   public double getShiftAmount() {
@@ -145,8 +188,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveParallelShift other = (CurveParallelShift) obj;
-      return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
+      IndexedCurvePointShift other = (IndexedCurvePointShift) obj;
+      return (getNodeIndex() == other.getNodeIndex()) &&
+          JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
           JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
     }
     return false;
@@ -155,6 +199,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNodeIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
     return hash;
@@ -162,8 +207,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("CurveParallelShift{");
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("IndexedCurvePointShift{");
+    buf.append("nodeIndex").append('=').append(getNodeIndex()).append(',').append(' ');
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
     buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
     buf.append('}');
@@ -172,7 +218,7 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveParallelShift}.
+   * The meta-bean for {@code IndexedCurvePointShift}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -181,20 +227,26 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code nodeIndex} property.
+     */
+    private final MetaProperty<Integer> nodeIndex = DirectMetaProperty.ofImmutable(
+        this, "nodeIndex", IndexedCurvePointShift.class, Integer.TYPE);
+    /**
      * The meta-property for the {@code shiftType} property.
      */
     private final MetaProperty<ShiftType> shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", CurveParallelShift.class, ShiftType.class);
+        this, "shiftType", IndexedCurvePointShift.class, ShiftType.class);
     /**
      * The meta-property for the {@code shiftAmount} property.
      */
     private final MetaProperty<Double> shiftAmount = DirectMetaProperty.ofImmutable(
-        this, "shiftAmount", CurveParallelShift.class, Double.TYPE);
+        this, "shiftAmount", IndexedCurvePointShift.class, Double.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "nodeIndex",
         "shiftType",
         "shiftAmount");
 
@@ -207,6 +259,8 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 445316080:  // nodeIndex
+          return nodeIndex;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -216,13 +270,13 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     @Override
-    public BeanBuilder<? extends CurveParallelShift> builder() {
-      return new CurveParallelShift.Builder();
+    public BeanBuilder<? extends IndexedCurvePointShift> builder() {
+      return new IndexedCurvePointShift.Builder();
     }
 
     @Override
-    public Class<? extends CurveParallelShift> beanType() {
-      return CurveParallelShift.class;
+    public Class<? extends IndexedCurvePointShift> beanType() {
+      return IndexedCurvePointShift.class;
     }
 
     @Override
@@ -231,6 +285,14 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code nodeIndex} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> nodeIndex() {
+      return nodeIndex;
+    }
+
     /**
      * The meta-property for the {@code shiftType} property.
      * @return the meta-property, not null
@@ -251,10 +313,12 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 445316080:  // nodeIndex
+          return ((IndexedCurvePointShift) bean).getNodeIndex();
         case 893345500:  // shiftType
-          return ((CurveParallelShift) bean).getShiftType();
+          return ((IndexedCurvePointShift) bean).getShiftType();
         case -1043480710:  // shiftAmount
-          return ((CurveParallelShift) bean).getShiftAmount();
+          return ((IndexedCurvePointShift) bean).getShiftAmount();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -272,10 +336,11 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveParallelShift}.
+   * The bean-builder for {@code IndexedCurvePointShift}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveParallelShift> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IndexedCurvePointShift> {
 
+    private int nodeIndex;
     private ShiftType shiftType;
     private double shiftAmount;
 
@@ -289,6 +354,8 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 445316080:  // nodeIndex
+          return nodeIndex;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -301,6 +368,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 445316080:  // nodeIndex
+          this.nodeIndex = (Integer) newValue;
+          break;
         case 893345500:  // shiftType
           this.shiftType = (ShiftType) newValue;
           break;
@@ -338,8 +408,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     }
 
     @Override
-    public CurveParallelShift build() {
-      return new CurveParallelShift(
+    public IndexedCurvePointShift build() {
+      return new IndexedCurvePointShift(
+          nodeIndex,
           shiftType,
           shiftAmount);
     }
@@ -347,8 +418,9 @@ public final class CurveParallelShift implements Perturbation<Curve>, ImmutableB
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("CurveParallelShift.Builder{");
+      StringBuilder buf = new StringBuilder(128);
+      buf.append("IndexedCurvePointShift.Builder{");
+      buf.append("nodeIndex").append('=').append(JodaBeanUtils.toString(nodeIndex)).append(',').append(' ');
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
       buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount));
       buf.append('}');

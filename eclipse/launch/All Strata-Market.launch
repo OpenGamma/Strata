@@ -19,6 +19,7 @@
 <listEntry value="com.opengamma.strata.market.amount"/>
 <listEntry value="com.opengamma.strata.market.curve"/>
 <listEntry value="com.opengamma.strata.market.curve.config"/>
+<listEntry value="com.opengamma.strata.market.curve.perturb"/>
 <listEntry value="com.opengamma.strata.market.explain"/>
 <listEntry value="com.opengamma.strata.market.id"/>
 <listEntry value="com.opengamma.strata.market.key"/>

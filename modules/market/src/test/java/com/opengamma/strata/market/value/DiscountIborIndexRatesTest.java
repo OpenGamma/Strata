@@ -21,7 +21,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -45,8 +47,10 @@ public class DiscountIborIndexRatesTest {
   private static final CurveMetadata METADATA = Curves.zeroRates(NAME, ACT_365F);
   private static final InterpolatedNodalCurve CURVE =
       InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {0.01, 0.02}, INTERPOLATOR);
+  private static final InterpolatedNodalCurve CURVE2 =
+      InterpolatedNodalCurve.of(METADATA, new double[] {0, 10}, new double[] {0.01, 0.03}, INTERPOLATOR);
   private static final ZeroRateDiscountFactors DFCURVE = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-  private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
+  private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE2);
 
   private static final double RATE_BEFORE = 0.013d;
   private static final double RATE_VAL = 0.014d;
@@ -79,6 +83,19 @@ public class DiscountIborIndexRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_applyPerturbation() {
+    Perturbation<Curve> perturbation = curve -> CURVE2;
+    DiscountIborIndexRates base = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
+    DiscountIborIndexRates test = base.applyPerturbation(perturbation);
+    test = test.withDiscountFactors(DFCURVE2);
+    assertEquals(test.getIndex(), GBP_LIBOR_3M);
+    assertEquals(test.getValuationDate(), DATE_VAL);
+    assertEquals(test.getTimeSeries(), SERIES);
+    assertEquals(test.getDiscountFactors(), DFCURVE2);
+    assertEquals(test.getCurveName(), NAME);
+    assertEquals(test.getParameterCount(), 2);
+  }
+
   public void test_withDiscountFactors() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, SERIES, DFCURVE);
     test = test.withDiscountFactors(DFCURVE2);

@@ -3,14 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.scenario.curve;
-
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
+package com.opengamma.strata.market.curve.perturb;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -25,32 +22,37 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.market.Perturbation;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.engine.marketdata.scenario.Perturbation;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * A perturbation that applies different shifts to specific points on a curve.
  * <p>
  * This class contains a set of shifts, each one associated with a different point on the curve.
- * The shift is linked to the point using an identifier which must be equal to the identifier of
- * the curve node metadata.
+ * Each shift has an associated key that is matched against the curve.
+ * In order for this to work the curve must be a {@link NodalCurve} with parameter metadata.
  * <p>
+ * When matching the shift to the curve, either the identifier or label parameter may be used.
  * A shift is not applied if there is no point on the curve with a matching identifier.
  * <p>
- * This shift can only be applied to an instance of {@link NodalCurve} which contains parameter
- * metadata. The {@link #applyTo(Curve)} method will throw an exception for any other curves.
+ * This shift can only be applied to an instance of {@link NodalCurve} which contains parameter metadata.
+ * The {@link #applyTo(Curve)} method will throw an exception for any other curves.
  *
  * @see CurveParameterMetadata#getIdentifier()
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
-public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean {
+public final class CurvePointShift
+    implements Perturbation<Curve>, ImmutableBean {
+
+  /** Logger. */
+  private static final Logger log = LoggerFactory.getLogger(CurveParallelShift.class);
 
   /**
    * The type of shift applied to the curve rates.
@@ -79,15 +81,12 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
   //-------------------------------------------------------------------------
   @Override
   public Curve applyTo(Curve curve) {
-    Optional<List<CurveParameterMetadata>> optionalNodeMetadata = curve.getMetadata().getParameterMetadata();
-
-    // If there is no metadata for the curve nodes there is no way to find the nodes and apply the shifts
-    if (!optionalNodeMetadata.isPresent()) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Unable to apply point shifts to curve '{}' because it has no parameter metadata",
-              curve.getName()));
-    }
+    log.debug("Applying {} point shift to curve '{}'", shiftType, curve.getName());
+    // curve parameter metadata is required, otherwise there is no way to find the nodes and apply the shifts
+    List<CurveParameterMetadata> nodeMetadata = curve.getMetadata().getParameterMetadata()
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Unable to apply point shifts to curve '{}' because it has no parameter metadata", curve.getName())));
+    // nodal curve required, to access the individual values
     if (!(curve instanceof NodalCurve)) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -95,23 +94,22 @@ public final class CurvePointShift implements Perturbation<Curve>, ImmutableBean
               curve.getName(),
               curve.getClass().getName()));
     }
-    List<ValueAdjustment> valueAdjustments = optionalNodeMetadata.get().stream()
-        .map(this::valueAdjustmentForNode)
-        .collect(toImmutableList());
-
-    return ((NodalCurve) curve).shiftedBy(valueAdjustments);
-  }
-
-  // find the adjustment applicable for the node
-  private ValueAdjustment valueAdjustmentForNode(CurveParameterMetadata node) {
-    Double shiftAmount = shiftAmountForNode(node);
-    return shiftAmount != null ? shiftType.toValueAdjustment(shiftAmount) : ValueAdjustment.NONE;
+    NodalCurve nodalCurve = (NodalCurve) curve;
+    double[] yValues = nodalCurve.getYValues();  // this get method clones the array so we can mutate it
+    for (int i = 0; i < yValues.length; i++) {
+      CurveParameterMetadata meta = nodeMetadata.get(i);
+      Double shiftAmount = shiftAmountForNode(meta);
+      if (shiftAmount != null) {
+        yValues[i] = shiftType.applyShift(yValues[i], shiftAmount);
+      }
+    }
+    return nodalCurve.withYValues(yValues);
   }
 
   // find the shift amount applicable for the node, null if none
-  private Double shiftAmountForNode(CurveParameterMetadata node) {
-    Double shiftAmount = shifts.get(node.getIdentifier());
-    return shiftAmount != null ? shiftAmount : shifts.get(node.getLabel());
+  private Double shiftAmountForNode(CurveParameterMetadata meta) {
+    Double shiftAmount = shifts.get(meta.getIdentifier());
+    return shiftAmount != null ? shiftAmount : shifts.get(meta.getLabel());
   }
 
   //------------------------- AUTOGENERATED START -------------------------

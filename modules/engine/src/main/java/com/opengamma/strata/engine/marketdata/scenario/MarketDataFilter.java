@@ -6,6 +6,7 @@
 package com.opengamma.strata.engine.marketdata.scenario;
 
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.Perturbation;
 
 /**
  * Encapsulates a rule or set of rules to decide whether a perturbation applies to a piece of market data.

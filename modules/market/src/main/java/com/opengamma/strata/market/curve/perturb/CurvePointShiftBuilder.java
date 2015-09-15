@@ -3,16 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.scenario.curve;
+package com.opengamma.strata.market.curve.perturb;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.curve.ShiftType;
 
 /**
  * Mutable builder for building instances of {@link CurvePointShift}.
+ * <p>
+ * This is created via {@link CurvePointShift#builder(ShiftType)}.
  */
 public final class CurvePointShiftBuilder {
 

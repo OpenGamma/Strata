@@ -24,7 +24,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.curve.ShiftType;
+import com.opengamma.strata.market.curve.perturb.ShiftType;
 import com.opengamma.strata.pricer.impl.credit.isda.AnalyticSpreadSensitivityCalculator;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
 import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;

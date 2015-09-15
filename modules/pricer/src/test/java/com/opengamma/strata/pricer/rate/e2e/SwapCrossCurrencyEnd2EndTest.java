@@ -229,7 +229,7 @@ public class SwapCrossCurrencyEnd2EndTest {
     return DiscountingSwapTradePricer.DEFAULT;
   }
 
-  private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
+  private static final LocalDateDoubleTimeSeries TS_EMPTY = LocalDateDoubleTimeSeries.empty();
 
   // rates provider
   private static RatesProvider provider() {
@@ -239,9 +239,9 @@ public class SwapCrossCurrencyEnd2EndTest {
         .discountCurves(Legacy.discountCurves(MULTICURVE))
         .indexCurves(Legacy.indexCurves(MULTICURVE))
         .timeSeries(ImmutableMap.of(
-            USD_LIBOR_3M, TS_EMTPY,
-            EUR_EURIBOR_3M, TS_EMTPY,
-            WM_EUR_USD, TS_EMTPY))
+            USD_LIBOR_3M, TS_EMPTY,
+            EUR_EURIBOR_3M, TS_EMPTY,
+            WM_EUR_USD, TS_EMPTY))
         .build();
   }
 

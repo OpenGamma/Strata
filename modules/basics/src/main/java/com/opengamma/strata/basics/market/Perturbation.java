@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.marketdata.scenario;
+package com.opengamma.strata.basics.market;
 
 /**
  * Describes a perturbation applied to a single piece of data as part of a scenario.
