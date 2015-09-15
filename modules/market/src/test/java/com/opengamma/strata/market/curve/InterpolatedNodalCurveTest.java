@@ -217,6 +217,20 @@ public class InterpolatedNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_applyPerturbation() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    ConstantNodalCurve result = ConstantNodalCurve.of(CURVE_NAME, 7d);
+    Curve test = base.applyPerturbation(curve -> result);
+    assertThat(test).isSameAs(result);
+  }
+
+  public void test_toNodalCurve() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    NodalCurve test = base.toNodalCurve();
+    assertThat(test).isSameAs(base);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
     coverImmutableBean(test);

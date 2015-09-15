@@ -126,6 +126,20 @@ public class ConstantNodalSurfaceTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_applyPerturbation() {
+    ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
+    ConstantNodalSurface result = ConstantNodalSurface.of(SURFACE_NAME, 7d);
+    Surface test = base.applyPerturbation(surface -> result);
+    assertThat(test).isSameAs(result);
+  }
+
+  public void test_toNodalSurface() {
+    ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
+    NodalSurface test = base.toNodalSurface();
+    assertThat(test).isSameAs(base);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     ConstantNodalSurface test = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
     coverImmutableBean(test);

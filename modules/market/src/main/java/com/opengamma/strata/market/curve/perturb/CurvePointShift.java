@@ -35,9 +35,10 @@ import com.opengamma.strata.market.curve.NodalCurve;
 /**
  * A perturbation that applies different shifts to specific points on a curve.
  * <p>
- * This class contains a set of shifts, each one associated with a different point on the curve.
+ * This class contains a set of shifts, each one associated with a different node on the curve.
  * Each shift has an associated key that is matched against the curve.
- * In order for this to work the curve must be a {@link NodalCurve} with parameter metadata.
+ * In order for this to work the curve must be converted to a {@link NodalCurve} with parameter metadata.
+ * If the input curve cannot be converted to a nodal curve, an exception is thrown.
  * <p>
  * When matching the shift to the curve, either the identifier or label parameter may be used.
  * A shift is not applied if there is no point on the curve with a matching identifier.
@@ -86,15 +87,7 @@ public final class CurvePointShift
     List<CurveParameterMetadata> nodeMetadata = curve.getMetadata().getParameterMetadata()
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
             "Unable to apply point shifts to curve '{}' because it has no parameter metadata", curve.getName())));
-    // nodal curve required, to access the individual values
-    if (!(curve instanceof NodalCurve)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Point shifts can only be applied to NodalCurve implementations, the class of curve '{}' is {}",
-              curve.getName(),
-              curve.getClass().getName()));
-    }
-    NodalCurve nodalCurve = (NodalCurve) curve;
+    NodalCurve nodalCurve = curve.toNodalCurve();
     double[] yValues = nodalCurve.getYValues();  // this get method clones the array so we can mutate it
     for (int i = 0; i < yValues.length; i++) {
       CurveParameterMetadata meta = nodeMetadata.get(i);

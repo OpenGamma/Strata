@@ -13,7 +13,6 @@ import java.util.function.Function;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
@@ -53,7 +52,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   /**
    * Computes the first order sensitivities of a function of a RatesProvider to a double by finite difference.
    * <p>
-   * The curves underlying the rates provider must be of type {@link NodalCurve}.
+   * The curves underlying the rates provider must be convertible to a {@link NodalCurve}.
    * The finite difference is computed by forward type. 
    * The function should return a value in the same currency for any rate provider.
    * 
@@ -83,7 +82,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
     Map<T, Curve> baseCurves = metaProperty.get(provider);
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
-      NodalCurve curveInt = checkNodal(entry.getValue());
+      NodalCurve curveInt = entry.getValue().toNodalCurve();
       int nbNodePoint = curveInt.getXValues().length;
       double[] sensitivity = new double[nbNodePoint];
       for (int i = 0; i < nbNodePoint; i++) {
@@ -97,12 +96,6 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       result = result.combinedWith(CurveCurrencyParameterSensitivity.of(metadata, valueInit.getCurrency(), sensitivity));
     }
     return result;
-  }
-
-  // check that the curve is a NodalCurve
-  private NodalCurve checkNodal(Curve curve) {
-    ArgChecker.isTrue(curve instanceof NodalCurve, "Curve must be a NodalCurve");
-    return (NodalCurve) curve;
   }
 
   // create new curve by bumping the existing curve at a given parameter
