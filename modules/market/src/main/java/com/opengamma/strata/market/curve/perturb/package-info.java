@@ -7,8 +7,8 @@
 /**
  * Curve perturbations.
  * <p>
- * This package provides functionality to allow curves to be perturbed (change).
- * For example, to apply a parallel shift.
+ * This package provides functionality to allow curves to be perturbed (changed).
+ * For example, to apply a parallel or point shift.
  */
 package com.opengamma.strata.market.curve.perturb;
 

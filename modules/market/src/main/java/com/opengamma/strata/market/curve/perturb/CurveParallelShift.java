@@ -35,7 +35,7 @@ import com.opengamma.strata.market.curve.Curve;
  * A relative shift applies a scaling to each point on the curve.
  * <p>
  * For example, a relative shift of 0.1 (10%) multiplies each value on the curve by 1.1, and a shift of -0.2 (-20%)
- * multiplies the rate by 0.8. So for relative shifts the shifted value is {@code (value x (1 + shift))}.
+ * multiplies the value by 0.8. So for relative shifts the shifted value is {@code (value x (1 + shift))}.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurveParallelShift
@@ -50,7 +50,7 @@ public final class CurveParallelShift
   @PropertyDefinition(validate = "notNull")
   private final ShiftType shiftType;
   /**
-   * The amount by which y-values are shifted.
+   * The amount by which the y-values are shifted.
    */
   @PropertyDefinition(validate = "notNull")
   private final double shiftAmount;
@@ -59,7 +59,7 @@ public final class CurveParallelShift
   /**
    * Creates a shift that adds a fixed amount to the value at every node in the curve.
    *
-   * @param shiftAmount the amount to add to each node value in the curve
+   * @param shiftAmount  the amount to add to each node value in the curve
    * @return a shift that adds a fixed amount to the value at every node in the curve
    */
   public static CurveParallelShift absolute(double shiftAmount) {
@@ -73,8 +73,8 @@ public final class CurveParallelShift
    * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift
    * of -20% which multiplies the value by 0.8.
    *
-   * @param shiftAmount the factor to multiply the value at each curve node by
-   * @return a shift that multiplies the values at each curve node by a percentage
+   * @param shiftAmount  the factor to multiply the value at each curve node by
+   * @return a shift that multiplies the values at each curve node by a scaling factor
    */
   public static CurveParallelShift relative(double shiftAmount) {
     return new CurveParallelShift(ShiftType.RELATIVE, shiftAmount);
@@ -136,7 +136,7 @@ public final class CurveParallelShift
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount by which y-values are shifted.
+   * Gets the amount by which the y-values are shifted.
    * @return the value of the property, not null
    */
   public double getShiftAmount() {

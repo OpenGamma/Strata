@@ -30,16 +30,16 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
 
 /**
- * Perturbation which applies a parallel shift to a single point on a nodal curve.
+ * Perturbation which applies a shift to a single point on a nodal curve.
  * <p>
- * This shifts a single node on a {@link NodalCurve}, identifying the point by index.
+ * This shifts a single node on a {@link NodalCurve}, identifying the node by index.
  * <p>
  * The shift can be absolute or relative.
  * An absolute shift adds the shift amount to each point on the curve.
  * A relative shift applies a scaling to each point on the curve.
  * <p>
- * For example, a relative shift of 0.1 (10%) multiplies each value on the curve by 1.1, and a shift of -0.2 (-20%)
- * multiplies the rate by 0.8. So for relative shifts the shifted value is {@code (value x (1 + shift))}.
+ * For example, a relative shift of 0.1 (10%) multiplies the value by 1.1, and a shift of -0.2 (-20%)
+ * multiplies the value by 0.8. So for relative shifts the shifted value is {@code (value + value * shift)}.
  */
 @BeanDefinition(builderScope = "private")
 public final class IndexedCurvePointShift
@@ -49,52 +49,56 @@ public final class IndexedCurvePointShift
   private static final Logger log = LoggerFactory.getLogger(IndexedCurvePointShift.class);
 
   /**
-   * The index of the parameter to shift.
+   * The index of the node to shift.
    */
   @PropertyDefinition(validate = "notNull")
-  private final int parameterIndex;
+  private final int nodeIndex;
   /**
-   * The type of shift to apply to the y-values of the curve.
+   * The type of shift to apply to the y-value.
    */
   @PropertyDefinition(validate = "notNull")
   private final ShiftType shiftType;
   /**
-   * The amount by which y-values are shifted.
+   * The amount by which the y-value is shifted.
    */
   @PropertyDefinition(validate = "notNull")
   private final double shiftAmount;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a shift that adds a fixed amount to the value at every node in the curve.
+   * Creates a shift that adds a fixed amount to the value at the specified node.
+   * <p>
+   * The node is identified by zero-based index.
    *
-   * @param parameterIndex  the index of the parameter to shift
+   * @param nodeIndex  the index of the node to shift
    * @param shiftAmount  the amount to add to each node value in the curve
-   * @return a shift that adds a fixed amount to the value at every node in the curve
+   * @return a shift that adds a fixed amount to the value of the specified node
    */
-  public static IndexedCurvePointShift absolute(int parameterIndex, double shiftAmount) {
-    return new IndexedCurvePointShift(parameterIndex, ShiftType.ABSOLUTE, shiftAmount);
+  public static IndexedCurvePointShift absolute(int nodeIndex, double shiftAmount) {
+    return new IndexedCurvePointShift(nodeIndex, ShiftType.ABSOLUTE, shiftAmount);
   }
 
   /**
-   * Creates a shift that multiplies the values at each curve node by a scaling factor.
+   * Creates a shift that multiplies the value at the specified node by a scaling factor.
+   * <p>
+   * The node is identified by zero-based index.
    * <p>
    * The shift amount is a decimal percentage. For example, a shift amount of 0.1 is a
    * shift of +10% which multiplies the value by 1.1. A shift amount of -0.2 is a shift
    * of -20% which multiplies the value by 0.8.
    *
-   * @param parameterIndex  the index of the parameter to shift
+   * @param nodeIndex  the index of the parameter to shift
    * @param shiftAmount  the factor to multiply the value at each curve node by
-   * @return a shift that multiplies the values at each curve node by a percentage
+   * @return a shift that multiplies the value of the specified node by a scaling factor
    */
-  public static IndexedCurvePointShift relative(int parameterIndex, double shiftAmount) {
-    return new IndexedCurvePointShift(parameterIndex, ShiftType.RELATIVE, shiftAmount);
+  public static IndexedCurvePointShift relative(int nodeIndex, double shiftAmount) {
+    return new IndexedCurvePointShift(nodeIndex, ShiftType.RELATIVE, shiftAmount);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Curve applyTo(Curve curve) {
-    log.debug("Applying {} shift of {} to curve '{}' at node {}", shiftType, shiftAmount, curve.getName(), parameterIndex);
+    log.debug("Applying {} shift of {} to curve '{}' at node {}", shiftType, shiftAmount, curve.getName(), nodeIndex);
     // nodal curve required, to access the individual values
     if (!(curve instanceof NodalCurve)) {
       throw new IllegalArgumentException(
@@ -105,7 +109,7 @@ public final class IndexedCurvePointShift
     }
     NodalCurve nodalCurve = (NodalCurve) curve;
     double[] yValues = nodalCurve.getYValues();  // this get method clones the array so we can mutate it
-    yValues[parameterIndex] = shiftType.applyShift(yValues[parameterIndex], shiftAmount);
+    yValues[nodeIndex] = shiftType.applyShift(yValues[nodeIndex], shiftAmount);
     return nodalCurve.withYValues(yValues);
   }
 
@@ -124,13 +128,13 @@ public final class IndexedCurvePointShift
   }
 
   private IndexedCurvePointShift(
-      int parameterIndex,
+      int nodeIndex,
       ShiftType shiftType,
       double shiftAmount) {
-    JodaBeanUtils.notNull(parameterIndex, "parameterIndex");
+    JodaBeanUtils.notNull(nodeIndex, "nodeIndex");
     JodaBeanUtils.notNull(shiftType, "shiftType");
     JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
-    this.parameterIndex = parameterIndex;
+    this.nodeIndex = nodeIndex;
     this.shiftType = shiftType;
     this.shiftAmount = shiftAmount;
   }
@@ -152,16 +156,16 @@ public final class IndexedCurvePointShift
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the parameter to shift.
+   * Gets the index of the node to shift.
    * @return the value of the property, not null
    */
-  public int getParameterIndex() {
-    return parameterIndex;
+  public int getNodeIndex() {
+    return nodeIndex;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of shift to apply to the y-values of the curve.
+   * Gets the type of shift to apply to the y-value.
    * @return the value of the property, not null
    */
   public ShiftType getShiftType() {
@@ -170,7 +174,7 @@ public final class IndexedCurvePointShift
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount by which y-values are shifted.
+   * Gets the amount by which the y-value is shifted.
    * @return the value of the property, not null
    */
   public double getShiftAmount() {
@@ -185,7 +189,7 @@ public final class IndexedCurvePointShift
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IndexedCurvePointShift other = (IndexedCurvePointShift) obj;
-      return (getParameterIndex() == other.getParameterIndex()) &&
+      return (getNodeIndex() == other.getNodeIndex()) &&
           JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
           JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
     }
@@ -195,7 +199,7 @@ public final class IndexedCurvePointShift
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getParameterIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNodeIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
     return hash;
@@ -205,7 +209,7 @@ public final class IndexedCurvePointShift
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IndexedCurvePointShift{");
-    buf.append("parameterIndex").append('=').append(getParameterIndex()).append(',').append(' ');
+    buf.append("nodeIndex").append('=').append(getNodeIndex()).append(',').append(' ');
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
     buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
     buf.append('}');
@@ -223,10 +227,10 @@ public final class IndexedCurvePointShift
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code parameterIndex} property.
+     * The meta-property for the {@code nodeIndex} property.
      */
-    private final MetaProperty<Integer> parameterIndex = DirectMetaProperty.ofImmutable(
-        this, "parameterIndex", IndexedCurvePointShift.class, Integer.TYPE);
+    private final MetaProperty<Integer> nodeIndex = DirectMetaProperty.ofImmutable(
+        this, "nodeIndex", IndexedCurvePointShift.class, Integer.TYPE);
     /**
      * The meta-property for the {@code shiftType} property.
      */
@@ -242,7 +246,7 @@ public final class IndexedCurvePointShift
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "parameterIndex",
+        "nodeIndex",
         "shiftType",
         "shiftAmount");
 
@@ -255,8 +259,8 @@ public final class IndexedCurvePointShift
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1112827561:  // parameterIndex
-          return parameterIndex;
+        case 445316080:  // nodeIndex
+          return nodeIndex;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -282,11 +286,11 @@ public final class IndexedCurvePointShift
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code parameterIndex} property.
+     * The meta-property for the {@code nodeIndex} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> parameterIndex() {
-      return parameterIndex;
+    public MetaProperty<Integer> nodeIndex() {
+      return nodeIndex;
     }
 
     /**
@@ -309,8 +313,8 @@ public final class IndexedCurvePointShift
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1112827561:  // parameterIndex
-          return ((IndexedCurvePointShift) bean).getParameterIndex();
+        case 445316080:  // nodeIndex
+          return ((IndexedCurvePointShift) bean).getNodeIndex();
         case 893345500:  // shiftType
           return ((IndexedCurvePointShift) bean).getShiftType();
         case -1043480710:  // shiftAmount
@@ -336,7 +340,7 @@ public final class IndexedCurvePointShift
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IndexedCurvePointShift> {
 
-    private int parameterIndex;
+    private int nodeIndex;
     private ShiftType shiftType;
     private double shiftAmount;
 
@@ -350,8 +354,8 @@ public final class IndexedCurvePointShift
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1112827561:  // parameterIndex
-          return parameterIndex;
+        case 445316080:  // nodeIndex
+          return nodeIndex;
         case 893345500:  // shiftType
           return shiftType;
         case -1043480710:  // shiftAmount
@@ -364,8 +368,8 @@ public final class IndexedCurvePointShift
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1112827561:  // parameterIndex
-          this.parameterIndex = (Integer) newValue;
+        case 445316080:  // nodeIndex
+          this.nodeIndex = (Integer) newValue;
           break;
         case 893345500:  // shiftType
           this.shiftType = (ShiftType) newValue;
@@ -406,7 +410,7 @@ public final class IndexedCurvePointShift
     @Override
     public IndexedCurvePointShift build() {
       return new IndexedCurvePointShift(
-          parameterIndex,
+          nodeIndex,
           shiftType,
           shiftAmount);
     }
@@ -416,7 +420,7 @@ public final class IndexedCurvePointShift
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("IndexedCurvePointShift.Builder{");
-      buf.append("parameterIndex").append('=').append(JodaBeanUtils.toString(parameterIndex)).append(',').append(' ');
+      buf.append("nodeIndex").append('=').append(JodaBeanUtils.toString(nodeIndex)).append(',').append(' ');
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
       buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount));
       buf.append('}');
