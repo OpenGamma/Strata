@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -25,6 +25,9 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
+import com.opengamma.strata.market.curve.definition.FraCurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 
@@ -34,8 +37,8 @@ import com.opengamma.strata.market.value.ValueType;
 @Test
 public class CurveGroupEntryTest {
 
-  private static final InterpolatedCurveConfig CURVE_CONFIG =
-      InterpolatedCurveConfig.builder()
+  private static final InterpolatedNodalCurveDefinition CURVE_DEFN =
+      InterpolatedNodalCurveDefinition.builder()
           .name(CurveName.of("Test"))
           .xValueType(ValueType.YEAR_FRACTION)
           .yValueType(ValueType.ZERO_RATE)
@@ -48,18 +51,18 @@ public class CurveGroupEntryTest {
           .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
           .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
           .build();
-  private static final InterpolatedCurveConfig CURVE_CONFIG2 = CURVE_CONFIG.toBuilder()
+  private static final InterpolatedNodalCurveDefinition CURVE_DEFN2 = CURVE_DEFN.toBuilder()
       .name(CurveName.of("Test2"))
       .build();
 
   public void test_builder() {
     CurveGroupEntry test = CurveGroupEntry.builder()
-        .curveConfig(CURVE_CONFIG)
+        .curveDefinition(CURVE_DEFN)
         .discountCurrencies(GBP)
         .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
         .overnightIndices(GBP_SONIA)
         .build();
-    assertEquals(test.getCurveConfig(), CURVE_CONFIG);
+    assertEquals(test.getCurveDefinition(), CURVE_DEFN);
     assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(GBP));
     assertEquals(test.getIborIndices(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M));
     assertEquals(test.getOvernightIndices(), ImmutableSet.of(GBP_SONIA));
@@ -68,12 +71,12 @@ public class CurveGroupEntryTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     CurveGroupEntry test = CurveGroupEntry.builder()
-        .curveConfig(CURVE_CONFIG)
+        .curveDefinition(CURVE_DEFN)
         .discountCurrencies(GBP)
         .build();
     coverImmutableBean(test);
     CurveGroupEntry test2 = CurveGroupEntry.builder()
-        .curveConfig(CURVE_CONFIG2)
+        .curveDefinition(CURVE_DEFN2)
         .iborIndices(GBP_LIBOR_1M)
         .overnightIndices(GBP_SONIA)
         .build();
@@ -82,7 +85,7 @@ public class CurveGroupEntryTest {
 
   public void test_serialization() {
     CurveGroupEntry test = CurveGroupEntry.builder()
-        .curveConfig(CURVE_CONFIG)
+        .curveDefinition(CURVE_DEFN)
         .discountCurrencies(GBP)
         .build();
     assertSerialization(test);

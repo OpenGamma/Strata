@@ -48,11 +48,11 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.ParRates;
-import com.opengamma.strata.market.curve.config.CurveGroupConfig;
-import com.opengamma.strata.market.curve.config.CurveNode;
-import com.opengamma.strata.market.curve.config.FixedIborSwapCurveNode;
-import com.opengamma.strata.market.curve.config.FraCurveNode;
-import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
+import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.definition.CurveNode;
+import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.definition.FraCurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
@@ -78,9 +78,9 @@ public class CurveGroupMarketDataFunctionTest {
    * Tests calibration a curve containing FRAs and pricing the curve instruments using the curve.
    */
   public void roundTripFra() {
-    InterpolatedCurveConfig curveConfig = CurveTestUtils.fraCurveConfig();
+    InterpolatedNodalCurveDefinition curveDefn = CurveTestUtils.fraCurveDefinition();
 
-    List<FraCurveNode> nodes = curveConfig.getNodes().stream()
+    List<FraCurveNode> nodes = curveDefn.getNodes().stream()
         .map(FraCurveNode.class::cast)
         .collect(toImmutableList());
 
@@ -99,9 +99,9 @@ public class CurveGroupMarketDataFunctionTest {
     CurveName curveName = CurveName.of("FRA Curve");
     ParRates parRates = ParRates.of(parRateData, DefaultCurveMetadata.of(curveName));
 
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder()
+    CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
-        .addCurve(curveConfig, Currency.USD, IborIndices.USD_LIBOR_3M)
+        .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
@@ -109,7 +109,7 @@ public class CurveGroupMarketDataFunctionTest {
     MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
-    Result<CurveGroup> result = function.buildCurveGroup(groupConfig, marketData, MarketDataFeed.NONE);
+    Result<CurveGroup> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
 
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
@@ -136,13 +136,13 @@ public class CurveGroupMarketDataFunctionTest {
 
   public void roundTripFraAndFixedFloatSwap() {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
-    InterpolatedCurveConfig curveConfig = CurveTestUtils.fraSwapCurveConfig();
-    CurveName curveName = curveConfig.getName();
-    List<CurveNode> nodes = curveConfig.getNodes();
+    InterpolatedNodalCurveDefinition curveDefn = CurveTestUtils.fraSwapCurveDefinition();
+    CurveName curveName = curveDefn.getName();
+    List<CurveNode> nodes = curveDefn.getNodes();
 
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder()
+    CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
-        .addCurve(curveConfig, Currency.USD, IborIndices.USD_LIBOR_3M)
+        .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
@@ -161,7 +161,7 @@ public class CurveGroupMarketDataFunctionTest {
         .addValue(ParRatesId.of(groupName, curveName, MarketDataFeed.NONE), parRates)
         .build();
 
-    Result<CurveGroup> result = function.buildCurveGroup(groupConfig, marketData, MarketDataFeed.NONE);
+    Result<CurveGroup> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
     Curve curve = curveGroup.getDiscountCurve(Currency.USD).get();
@@ -198,7 +198,7 @@ public class CurveGroupMarketDataFunctionTest {
     CurveName curveName = CurveName.of("FRA Curve");
     MarketDataFeed feed = MarketDataFeed.of("TestFeed");
 
-    InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
+    InterpolatedNodalCurveDefinition curveDefn = InterpolatedNodalCurveDefinition.builder()
         .name(curveName)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
@@ -206,13 +206,13 @@ public class CurveGroupMarketDataFunctionTest {
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
 
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder()
+    CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
-        .addCurve(curveConfig, Currency.USD, IborIndices.USD_LIBOR_3M)
+        .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
-        .add(groupName, groupConfig)
+        .add(groupName, groupDefn)
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
@@ -225,16 +225,16 @@ public class CurveGroupMarketDataFunctionTest {
   public void metadata() {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
 
-    InterpolatedCurveConfig fraCurveConfig = CurveTestUtils.fraCurveConfig();
-    List<CurveNode> fraNodes = fraCurveConfig.getNodes();
+    InterpolatedNodalCurveDefinition fraCurveDefn = CurveTestUtils.fraCurveDefinition();
+    List<CurveNode> fraNodes = fraCurveDefn.getNodes();
 
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder()
+    CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
-        .addForwardCurve(fraCurveConfig, IborIndices.USD_LIBOR_3M)
+        .addForwardCurve(fraCurveDefn, IborIndices.USD_LIBOR_3M)
         .build();
 
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
-        .add(groupName, groupConfig)
+        .add(groupName, groupDefn)
         .build();
 
     CurveGroupId curveGroupId = CurveGroupId.of(groupName);
@@ -249,9 +249,9 @@ public class CurveGroupMarketDataFunctionTest {
         .put(CurveTestUtils.id(fraNodes.get(6)), 0.0134).build();
 
     LocalDate valuationDate = date(2011, 3, 8);
-    ParRates fraParRates = ParRates.of(fraParRateData, fraCurveConfig.metadata(valuationDate));
+    ParRates fraParRates = ParRates.of(fraParRateData, fraCurveDefn.metadata(valuationDate));
     MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
-        .addValue(ParRatesId.of(groupName, fraCurveConfig.getName(), MarketDataFeed.NONE), fraParRates)
+        .addValue(ParRatesId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraParRates)
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());

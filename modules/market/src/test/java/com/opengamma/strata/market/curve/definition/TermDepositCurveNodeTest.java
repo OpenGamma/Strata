@@ -3,15 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
-import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.Tenor.TENOR_5M;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -30,31 +27,36 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.rate.fra.Fra;
-import com.opengamma.strata.finance.rate.fra.FraTemplate;
-import com.opengamma.strata.finance.rate.fra.FraTrade;
+import com.opengamma.strata.finance.rate.deposit.TermDeposit;
+import com.opengamma.strata.finance.rate.deposit.TermDepositConvention;
+import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
+import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.definition.TermDepositCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
- * Test {@link FraCurveNode}.
+ * Test {@link TermDepositCurveNode}.
  */
 @Test
-public class FraCurveNodeTest {
+public class TermDepositCurveNodeTest {
 
-  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
-  private static final DaysAdjustment OFFSET = DaysAdjustment.ofBusinessDays(0, GBLO);
-  private static final Period PERIOD_TO_START = Period.ofMonths(2);
-  private static final FraTemplate TEMPLATE = FraTemplate.of(PERIOD_TO_START, GBP_LIBOR_3M);
+  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
+  private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
+  private static final TermDepositConvention CONVENTION =
+      TermDepositConvention.of(EUR, BDA_MOD_FOLLOW, ACT_360, PLUS_TWO_DAYS);
+  private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
+  private static final TermDepositTemplate TEMPLATE = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
 
   public void test_builder() {
-    FraCurveNode test = FraCurveNode.builder()
+    TermDepositCurveNode test = TermDepositCurveNode.builder()
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .spread(SPREAD)
@@ -65,14 +67,14 @@ public class FraCurveNodeTest {
   }
 
   public void test_of_noSpread() {
-    FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY);
+    TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
-    FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
@@ -80,7 +82,7 @@ public class FraCurveNodeTest {
   }
 
   public void test_requirements() {
-    FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     Set<ObservableKey> set = test.requirements();
     Iterator<ObservableKey> itr = set.iterator();
     assertEquals(itr.next(), QUOTE_KEY);
@@ -88,32 +90,31 @@ public class FraCurveNodeTest {
   }
 
   public void test_trade() {
-    FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    FraTrade trade = node.trade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
-    LocalDate startDateExpected = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START);
-    LocalDate endDateExpected = startDateExpected.plusMonths(3);
-    Fra productExpected = Fra.builder()
+    TermDepositTrade trade = node.trade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
+    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate);
+    LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
+    TermDeposit depositExpected = TermDeposit.builder()
         .buySell(BuySell.BUY)
-        .currency(GBP)
-        .dayCount(ACT_365F)
+        .currency(EUR)
+        .dayCount(ACT_360)
         .startDate(startDateExpected)
         .endDate(endDateExpected)
         .notional(1.0d)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .index(GBP_LIBOR_3M)
-        .fixedRate(rate + SPREAD)
+        .rate(rate + SPREAD)
         .build();
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(valuationDate)
         .build();
-    assertEquals(trade.getProduct(), productExpected);
+    assertEquals(trade.getProduct(), depositExpected);
     assertEquals(trade.getTradeInfo(), tradeInfoExpected);
   }
 
   public void test_trade_differentKey() {
-    FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     assertThrowsIllegalArg(() -> node.trade(
@@ -121,25 +122,24 @@ public class FraCurveNodeTest {
   }
 
   public void test_metadata() {
-    FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    LocalDate endDate = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START).plusMonths(3);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
-    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
-    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
+    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
+    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     coverImmutableBean(test);
-    FraCurveNode test2 = FraCurveNode.of(
-        FraTemplate.of(Period.ofMonths(1), GBP_LIBOR_6M), QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
+    TermDepositCurveNode test2 = TermDepositCurveNode.of(
+        TermDepositTemplate.of(Period.ofMonths(1), CONVENTION), QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertSerialization(test);
   }
 

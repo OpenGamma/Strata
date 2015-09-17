@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  */
 @BeanDefinition(builderScope = "private")
 public final class SimpleCurveNodeMetadata
-    implements CurveParameterMetadata, ImmutableBean, Serializable {
+    implements DatedCurveParameterMetadata, ImmutableBean, Serializable {
 
   /**
    * The date of the curve node.
@@ -38,7 +38,7 @@ public final class SimpleCurveNodeMetadata
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    * It may be the effective date or the maturity date but equally it may not.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate date;
   /**
    * The label that describes the node.
@@ -121,6 +121,7 @@ public final class SimpleCurveNodeMetadata
    * It may be the effective date or the maturity date but equally it may not.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getDate() {
     return date;
   }
