@@ -35,6 +35,8 @@ import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 
 /**
  * Perform calculations on a single {@code SwapTrade} for each of a set of scenarios.
+ * <p>
+ * The default reporting currency is determined from the first swap leg.
  * 
  * @param <T>  the return type
  */
@@ -59,8 +61,9 @@ public abstract class AbstractSwapFunction<T>
     super(convertCurrencies);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the Swap pricer.
+   * Returns the pricer.
    * 
    * @return the pricer
    */
@@ -68,7 +71,6 @@ public abstract class AbstractSwapFunction<T>
     return DiscountingSwapProductPricer.DEFAULT;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(SwapTrade trade) {
     Swap swap = trade.getProduct();
@@ -107,12 +109,6 @@ public abstract class AbstractSwapFunction<T>
         .collect(toScenarioResult(isConvertCurrencies()));
   }
 
-  /**
-   * Returns the currency of the first leg.
-   *
-   * @param target  the swap that is the target of the calculation
-   * @return the currency of the first leg
-   */
   @Override
   public Optional<Currency> defaultReportingCurrency(SwapTrade target) {
     return Optional.of(target.getProduct().getLegs().get(0).getCurrency());

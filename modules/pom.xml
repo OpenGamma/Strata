@@ -64,7 +64,6 @@
     <module>finance</module>
     <module>finance-beta</module>
     <module>function</module>
-    <module>function-beta</module>
     <module>market</module>
     <module>pricer</module>
     <module>pricer-beta</module>
@@ -230,11 +229,6 @@
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-function</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-function-beta</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

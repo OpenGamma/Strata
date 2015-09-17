@@ -35,6 +35,14 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_fxPricing() {
+    String captured = caputureSystemOut(() -> FxPricingExample.main(NO_ARGS));
+    assertTrue(captured.contains("+------"));
+    assertFalse(captured.contains("ERROR"));
+    assertFalse(captured.contains("Exception"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_genericFuturePricing() {
     String captured = caputureSystemOut(() -> GenericFuturePricingExample.main(NO_ARGS));
     assertTrue(captured.contains("+------"));

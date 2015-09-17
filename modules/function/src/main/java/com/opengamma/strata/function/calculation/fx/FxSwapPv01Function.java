@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.fx;
+package com.opengamma.strata.function.calculation.fx;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.ExpandedFxSwap;

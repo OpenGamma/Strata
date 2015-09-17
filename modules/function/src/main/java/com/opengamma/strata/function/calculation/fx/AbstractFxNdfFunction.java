@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.fx;
+package com.opengamma.strata.function.calculation.fx;
 
 import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
 
@@ -14,38 +14,34 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
 import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
+import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxNonDeliverableForwardProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates a result for an {@code FxNonDeliverableForwardTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code FxNonDeliverableForwardTrade} for each of a set of scenarios.
+ * <p>
+ * The default reporting currency is determined to be the settlement currency of the trade.
  * 
  * @param <T>  the return type
  */
-public abstract class AbstractFxNonDeliverableForwardFunction<T>
-    implements CalculationSingleFunction<FxNonDeliverableForwardTrade, ScenarioResult<T>> {
-
-  /**
-   * If this is true the value returned by the {@code execute} method will support automatic currency
-   * conversion if the underlying results support it.
-   */
-  private final boolean convertCurrencies;
+public abstract class AbstractFxNdfFunction<T>
+    extends AbstractCalculationFunction<FxNonDeliverableForwardTrade, ScenarioResult<T>> {
 
   /**
    * Creates a new instance which will return results from the {@code execute} method that support automatic
    * currency conversion if the underlying results support it.
    */
-  protected AbstractFxNonDeliverableForwardFunction() {
-    this(true);
+  protected AbstractFxNdfFunction() {
+    super();
   }
 
   /**
@@ -54,10 +50,11 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
    * @param convertCurrencies if this is true the value returned by the {@code execute} method will support
    *   automatic currency conversion if the underlying results support it
    */
-  protected AbstractFxNonDeliverableForwardFunction(boolean convertCurrencies) {
-    this.convertCurrencies = convertCurrencies;
+  protected AbstractFxNdfFunction(boolean convertCurrencies) {
+    super(convertCurrencies);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the pricer.
    * 
@@ -67,7 +64,6 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
     return DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(FxNonDeliverableForwardTrade trade) {
     FxNonDeliverableForward fx = trade.getProduct();
@@ -91,19 +87,12 @@ public abstract class AbstractFxNonDeliverableForwardFunction<T>
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
-        .collect(toScenarioResult(convertCurrencies));
+        .collect(toScenarioResult(isConvertCurrencies()));
   }
 
-  /**
-   * Returns the base currency of the market convention currency pair of the trade currencies.
-   *
-   * @param target  the target of the calculation
-   * @return the base currency of the market convention currency pair of the trade currencies
-   */
   @Override
   public Optional<Currency> defaultReportingCurrency(FxNonDeliverableForwardTrade target) {
-    Currency base = target.getProduct().getAgreedFxRate().getPair().toConventional().getBase();
-    return Optional.of(base);
+    return Optional.of(target.getProduct().getSettlementCurrency());
   }
 
   // execute for a single trade
