@@ -23,15 +23,16 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
- * Test {@link FxNonDeliverableForwardTrade}.
+ * Test {@link FxNdfTrade}.
  */
 @Test
-public class FxNonDeliverableForwardTradeTest {
+public class FxNdfTradeTest {
+
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final double NOTIONAL = 100_000_000;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 3, 19);
   private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(GBP, NOTIONAL);
-  private static final FxNonDeliverableForward PRODUCT = FxNonDeliverableForward.builder()
+  private static final FxNdf PRODUCT = FxNdf.builder()
       .agreedFxRate(FX_RATE)
       .settlementCurrencyNotional(CURRENCY_NOTIONAL)
       .index(WM_GBP_USD)
@@ -40,7 +41,7 @@ public class FxNonDeliverableForwardTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
 
   public void test_builder() {
-    FxNonDeliverableForwardTrade test = FxNonDeliverableForwardTrade.builder()
+    FxNdfTrade test = FxNdfTrade.builder()
         .product(PRODUCT)
         .tradeInfo(TRADE_INFO)
         .build();
@@ -49,22 +50,23 @@ public class FxNonDeliverableForwardTradeTest {
   }
 
   public void coverage() {
-    FxNonDeliverableForwardTrade test1 = FxNonDeliverableForwardTrade.builder()
+    FxNdfTrade test1 = FxNdfTrade.builder()
         .product(PRODUCT)
         .tradeInfo(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
-    FxNonDeliverableForwardTrade test2 = FxNonDeliverableForwardTrade.builder()
+    FxNdfTrade test2 = FxNdfTrade.builder()
         .product(PRODUCT)
         .build();
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    FxNonDeliverableForwardTrade test = FxNonDeliverableForwardTrade.builder()
+    FxNdfTrade test = FxNdfTrade.builder()
         .product(PRODUCT)
         .tradeInfo(TRADE_INFO)
         .build();
     assertSerialization(test);
   }
+
 }

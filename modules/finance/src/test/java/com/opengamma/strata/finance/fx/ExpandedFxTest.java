@@ -25,7 +25,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.Payment;
 
 /**
- * Test {@link ExpandedFx}.
+ * Test {@link ExpandedFxSingle}.
  */
 @Test
 public class ExpandedFxTest {
@@ -44,7 +44,7 @@ public class ExpandedFxTest {
 
   //-------------------------------------------------------------------------
   public void test_of_payments_rightOrder() {
-    ExpandedFx test = ExpandedFx.of(PAYMENT_GBP_P1000, PAYMENT_USD_M1600);
+    ExpandedFxSingle test = ExpandedFxSingle.of(PAYMENT_GBP_P1000, PAYMENT_USD_M1600);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -53,7 +53,7 @@ public class ExpandedFxTest {
   }
 
   public void test_of_payments_switchOrder() {
-    ExpandedFx test = ExpandedFx.of(PAYMENT_USD_M1600, PAYMENT_GBP_P1000);
+    ExpandedFxSingle test = ExpandedFxSingle.of(PAYMENT_USD_M1600, PAYMENT_GBP_P1000);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -62,12 +62,12 @@ public class ExpandedFxTest {
   }
 
   public void test_of_payments_sameCurrency() {
-    assertThrowsIllegalArg(() -> ExpandedFx.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000));
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000));
   }
 
   //-------------------------------------------------------------------------
   public void test_of_amounts_rightOrder() {
-    ExpandedFx test = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+    ExpandedFxSingle test = ExpandedFxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -76,7 +76,7 @@ public class ExpandedFxTest {
   }
 
   public void test_of_amounts_switchOrder() {
-    ExpandedFx test = ExpandedFx.of(USD_M1600, GBP_P1000, DATE_2015_06_30);
+    ExpandedFxSingle test = ExpandedFxSingle.of(USD_M1600, GBP_P1000, DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -85,7 +85,7 @@ public class ExpandedFxTest {
   }
 
   public void test_of_amounts_bothZero() {
-    ExpandedFx test = ExpandedFx.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD), DATE_2015_06_30);
+    ExpandedFxSingle test = ExpandedFxSingle.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD), DATE_2015_06_30);
     assertEquals(test.getBaseCurrencyPayment(), Payment.of(CurrencyAmount.zero(GBP), DATE_2015_06_30));
     assertEquals(test.getCounterCurrencyPayment(), Payment.of(CurrencyAmount.zero(USD), DATE_2015_06_30));
     assertEquals(test.getPaymentDate(), DATE_2015_06_30);
@@ -94,21 +94,21 @@ public class ExpandedFxTest {
   }
 
   public void test_of_amounts_positiveNegative() {
-    assertThrowsIllegalArg(() -> ExpandedFx.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> ExpandedFx.of(GBP_M1000, USD_M1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> ExpandedFx.of(CurrencyAmount.zero(GBP), USD_M1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> ExpandedFx.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.of(GBP_M1000, USD_M1600, DATE_2015_06_30));
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.of(CurrencyAmount.zero(GBP), USD_M1600, DATE_2015_06_30));
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
   }
 
   public void test_of_sameCurrency() {
-    assertThrowsIllegalArg(() -> ExpandedFx.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
   public void test_builder_rightOrder() {
-    ExpandedFx test = ExpandedFx.meta().builder()
-        .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
-        .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
+    ExpandedFxSingle test = ExpandedFxSingle.meta().builder()
+        .set(ExpandedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
+        .set(ExpandedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
         .build();
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
@@ -116,9 +116,9 @@ public class ExpandedFxTest {
   }
 
   public void test_builder_switchOrder() {
-    ExpandedFx test = ExpandedFx.meta().builder()
-        .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_USD_M1600)
-        .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_GBP_P1000)
+    ExpandedFxSingle test = ExpandedFxSingle.meta().builder()
+        .set(ExpandedFxSingle.meta().baseCurrencyPayment(), PAYMENT_USD_M1600)
+        .set(ExpandedFxSingle.meta().counterCurrencyPayment(), PAYMENT_GBP_P1000)
         .build();
     assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
     assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
@@ -126,51 +126,51 @@ public class ExpandedFxTest {
   }
 
   public void test_builder_bothPositive() {
-    assertThrowsIllegalArg(() -> ExpandedFx.meta().builder()
-        .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
-        .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_USD_P1600)
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.meta().builder()
+        .set(ExpandedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
+        .set(ExpandedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_P1600)
         .build());
   }
 
   public void test_builder_bothNegative() {
-    assertThrowsIllegalArg(() -> ExpandedFx.meta().builder()
-        .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_M1000)
-        .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.meta().builder()
+        .set(ExpandedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_M1000)
+        .set(ExpandedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
         .build());
   }
 
   public void test_builder_sameCurrency() {
-    assertThrowsIllegalArg(() -> ExpandedFx.meta().builder()
-        .set(ExpandedFx.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
-        .set(ExpandedFx.meta().counterCurrencyPayment(), PAYMENT_GBP_M1000)
+    assertThrowsIllegalArg(() -> ExpandedFxSingle.meta().builder()
+        .set(ExpandedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
+        .set(ExpandedFxSingle.meta().counterCurrencyPayment(), PAYMENT_GBP_M1000)
         .build());
   }
 
   //-------------------------------------------------------------------------
   public void test_inverse() {
-    ExpandedFx test = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
-    assertEquals(test.inverse(), ExpandedFx.of(GBP_M1000, USD_P1600, DATE_2015_06_30));
+    ExpandedFxSingle test = ExpandedFxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+    assertEquals(test.inverse(), ExpandedFxSingle.of(GBP_M1000, USD_P1600, DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
   public void test_expand() {
-    ExpandedFx test = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+    ExpandedFxSingle test = ExpandedFxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     assertSame(test.expand(), test);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedFx test = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+    ExpandedFxSingle test = ExpandedFxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     coverImmutableBean(test);
-    ExpandedFx test2 = ExpandedFx.of(GBP_M1000, EUR_P1600, DATE_2015_06_29);
+    ExpandedFxSingle test2 = ExpandedFxSingle.of(GBP_M1000, EUR_P1600, DATE_2015_06_29);
     coverBeanEquals(test, test2);
-    ExpandedFx test3 = ExpandedFx.of(USD_M1600, EUR_P1600, DATE_2015_06_30);
+    ExpandedFxSingle test3 = ExpandedFxSingle.of(USD_M1600, EUR_P1600, DATE_2015_06_30);
     coverBeanEquals(test, test3);
     coverBeanEquals(test2, test3);
   }
 
   public void test_serialization() {
-    ExpandedFx test = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+    ExpandedFxSingle test = ExpandedFxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
     assertSerialization(test);
   }
 

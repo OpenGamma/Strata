@@ -25,9 +25,9 @@ import com.opengamma.strata.engine.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
+import com.opengamma.strata.finance.fx.FxNdfTrade;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.fx.FxTrade;
+import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
@@ -141,8 +141,8 @@ public class StandardComponents {
    * <ul>
    *  <li>Credit Default Swap - {@link CdsTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
-   *  <li>FX single (spot/forward) - {@link FxTrade}
-   *  <li>FX NDF - {@link FxNonDeliverableForwardTrade}
+   *  <li>FX single (spot/forward) - {@link FxSingleTrade}
+   *  <li>FX NDF - {@link FxNdfTrade}
    *  <li>FX swap - {@link FxSwapTrade}
    *  <li>Generic Future - {@link GenericFutureTrade}
    *  <li>Generic Future Option - {@link GenericFutureOptionTrade}

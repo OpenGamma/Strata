@@ -33,8 +33,8 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.Fx;
-import com.opengamma.strata.finance.fx.FxTrade;
+import com.opengamma.strata.finance.fx.FxSingle;
+import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -50,8 +50,8 @@ public class FxSingleFunctionGroupsTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
-  private static final Fx PRODUCT = Fx.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
-  public static final FxTrade TRADE = FxTrade.builder()
+  private static final FxSingle PRODUCT = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
+  public static final FxSingleTrade TRADE = FxSingleTrade.builder()
       .tradeInfo(TradeInfo.builder()
           .tradeDate(date(2015, 6, 1))
           .build())
@@ -59,7 +59,7 @@ public class FxSingleFunctionGroupsTest {
       .build();
 
   public void test_discounting() {
-    FunctionGroup<FxTrade> test = FxSingleFunctionGroups.discounting();
+    FunctionGroup<FxSingleTrade> test = FxSingleFunctionGroups.discounting();
     assertThat(test.configuredMeasures(TRADE)).contains(
         Measure.PRESENT_VALUE,
         Measure.PV01,
@@ -74,9 +74,9 @@ public class FxSingleFunctionGroupsTest {
     Currency ccy2 = TRADE.getProduct().getCounterCurrencyAmount().getCurrency();
     LocalDate valDate = TRADE.getProduct().getPaymentDate().plusDays(7);
 
-    FunctionConfig<FxTrade> config =
+    FunctionConfig<FxSingleTrade> config =
         FxSingleFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
-    CalculationSingleFunction<FxTrade, ?> function = config.createFunction();
+    CalculationSingleFunction<FxSingleTrade, ?> function = config.createFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy1, ccy2);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(

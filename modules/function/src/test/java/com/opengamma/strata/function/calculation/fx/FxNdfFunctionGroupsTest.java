@@ -34,8 +34,8 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
+import com.opengamma.strata.finance.fx.FxNdf;
+import com.opengamma.strata.finance.fx.FxNdfTrade;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -52,13 +52,13 @@ public class FxNdfFunctionGroupsTest {
 
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final CurrencyAmount NOTIONAL = CurrencyAmount.of(GBP, (double) 100_000_000);
-  private static final FxNonDeliverableForward PRODUCT = FxNonDeliverableForward.builder()
+  private static final FxNdf PRODUCT = FxNdf.builder()
       .agreedFxRate(FX_RATE)
       .settlementCurrencyNotional(NOTIONAL)
       .index(WM_GBP_USD)
       .paymentDate(date(2015, 3, 19))
       .build();
-  public static final FxNonDeliverableForwardTrade TRADE = FxNonDeliverableForwardTrade.builder()
+  public static final FxNdfTrade TRADE = FxNdfTrade.builder()
       .tradeInfo(TradeInfo.builder()
           .tradeDate(date(2015, 6, 1))
           .build())
@@ -66,7 +66,7 @@ public class FxNdfFunctionGroupsTest {
       .build();
 
   public void test_discounting() {
-    FunctionGroup<FxNonDeliverableForwardTrade> test = FxNdfFunctionGroups.discounting();
+    FunctionGroup<FxNdfTrade> test = FxNdfFunctionGroups.discounting();
     assertThat(test.configuredMeasures(TRADE)).contains(
         Measure.PRESENT_VALUE,
         Measure.PV01,
@@ -80,9 +80,9 @@ public class FxNdfFunctionGroupsTest {
     Currency ccy2 = TRADE.getProduct().getSettlementCurrency();
     LocalDate valDate = TRADE.getProduct().getPaymentDate().plusDays(7);
 
-    FunctionConfig<FxNonDeliverableForwardTrade> config =
+    FunctionConfig<FxNdfTrade> config =
         FxNdfFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
-    CalculationSingleFunction<FxNonDeliverableForwardTrade, ?> function = config.createFunction();
+    CalculationSingleFunction<FxNdfTrade, ?> function = config.createFunction();
     FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy1, ccy2);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(

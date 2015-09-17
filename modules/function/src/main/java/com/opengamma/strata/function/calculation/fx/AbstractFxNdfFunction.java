@@ -17,24 +17,24 @@ import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketDat
 import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
+import com.opengamma.strata.finance.fx.ExpandedFxNdf;
+import com.opengamma.strata.finance.fx.FxNdf;
+import com.opengamma.strata.finance.fx.FxNdfTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.pricer.fx.DiscountingFxNonDeliverableForwardProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxNdfProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Perform calculations on a single {@code FxNonDeliverableForwardTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code FxNdfTrade} for each of a set of scenarios.
  * <p>
  * The default reporting currency is determined to be the settlement currency of the trade.
  * 
  * @param <T>  the return type
  */
 public abstract class AbstractFxNdfFunction<T>
-    extends AbstractCalculationFunction<FxNonDeliverableForwardTrade, ScenarioResult<T>> {
+    extends AbstractCalculationFunction<FxNdfTrade, ScenarioResult<T>> {
 
   /**
    * Creates a new instance which will return results from the {@code execute} method that support automatic
@@ -60,13 +60,13 @@ public abstract class AbstractFxNdfFunction<T>
    * 
    * @return the pricer
    */
-  protected DiscountingFxNonDeliverableForwardProductPricer pricer() {
-    return DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;
+  protected DiscountingFxNdfProductPricer pricer() {
+    return DiscountingFxNdfProductPricer.DEFAULT;
   }
 
   @Override
-  public FunctionRequirements requirements(FxNonDeliverableForwardTrade trade) {
-    FxNonDeliverableForward fx = trade.getProduct();
+  public FunctionRequirements requirements(FxNdfTrade trade) {
+    FxNdf fx = trade.getProduct();
     Currency settleCurrency = fx.getSettlementCurrency();
     Currency otherCurrency = fx.getNonDeliverableCurrency();
 
@@ -81,8 +81,8 @@ public abstract class AbstractFxNdfFunction<T>
   }
 
   @Override
-  public ScenarioResult<T> execute(FxNonDeliverableForwardTrade trade, CalculationMarketData marketData) {
-    ExpandedFxNonDeliverableForward product = trade.getProduct().expand();
+  public ScenarioResult<T> execute(FxNdfTrade trade, CalculationMarketData marketData) {
+    ExpandedFxNdf product = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
@@ -91,11 +91,11 @@ public abstract class AbstractFxNdfFunction<T>
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(FxNonDeliverableForwardTrade target) {
+  public Optional<Currency> defaultReportingCurrency(FxNdfTrade target) {
     return Optional.of(target.getProduct().getSettlementCurrency());
   }
 
   // execute for a single trade
-  protected abstract T execute(ExpandedFxNonDeliverableForward product, RatesProvider provider);
+  protected abstract T execute(ExpandedFxNdf product, RatesProvider provider);
 
 }

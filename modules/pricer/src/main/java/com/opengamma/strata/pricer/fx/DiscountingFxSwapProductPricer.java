@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.fx.ExpandedFxSwap;
-import com.opengamma.strata.finance.fx.FxProduct;
+import com.opengamma.strata.finance.fx.FxSingleProduct;
 import com.opengamma.strata.finance.fx.FxSwapProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -25,20 +25,20 @@ public class DiscountingFxSwapProductPricer {
    * Default implementation.
    */
   public static final DiscountingFxSwapProductPricer DEFAULT =
-      new DiscountingFxSwapProductPricer(DiscountingFxProductPricer.DEFAULT);
+      new DiscountingFxSwapProductPricer(DiscountingFxSingleProductPricer.DEFAULT);
 
   /**
    * Underlying single FX pricer.
    */
-  private final DiscountingFxProductPricer fxPricer;
+  private final DiscountingFxSingleProductPricer fxPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param fxPricer  the pricer for {@link FxProduct}
+   * @param fxPricer  the pricer for {@link FxSingleProduct}
    */
   public DiscountingFxSwapProductPricer(
-      DiscountingFxProductPricer fxPricer) {
+      DiscountingFxSingleProductPricer fxPricer) {
     this.fxPricer = ArgChecker.notNull(fxPricer, "fxPricer");
   }
 

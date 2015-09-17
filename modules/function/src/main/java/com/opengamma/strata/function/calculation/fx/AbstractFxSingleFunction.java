@@ -18,17 +18,17 @@ import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketDat
 import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
-import com.opengamma.strata.finance.fx.ExpandedFx;
-import com.opengamma.strata.finance.fx.Fx;
-import com.opengamma.strata.finance.fx.FxTrade;
+import com.opengamma.strata.finance.fx.ExpandedFxSingle;
+import com.opengamma.strata.finance.fx.FxSingle;
+import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
-import com.opengamma.strata.pricer.fx.DiscountingFxProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxSingleProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Perform calculations on a single {@code FxTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code FxSingleTrade} for each of a set of scenarios.
  * <p>
  * The default reporting currency is determined to be the base currency of the market convention
  * pair of the two trade currencies.
@@ -36,7 +36,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * @param <T>  the return type
  */
 public abstract class AbstractFxSingleFunction<T>
-    extends AbstractCalculationFunction<FxTrade, ScenarioResult<T>> {
+    extends AbstractCalculationFunction<FxSingleTrade, ScenarioResult<T>> {
 
   /**
    * Creates a new instance which will return results from the {@code execute} method that support automatic
@@ -62,13 +62,13 @@ public abstract class AbstractFxSingleFunction<T>
    * 
    * @return the pricer
    */
-  protected DiscountingFxProductPricer pricer() {
-    return DiscountingFxProductPricer.DEFAULT;
+  protected DiscountingFxSingleProductPricer pricer() {
+    return DiscountingFxSingleProductPricer.DEFAULT;
   }
 
   @Override
-  public FunctionRequirements requirements(FxTrade trade) {
-    Fx fx = trade.getProduct();
+  public FunctionRequirements requirements(FxSingleTrade trade) {
+    FxSingle fx = trade.getProduct();
     Currency baseCurrency = fx.getBaseCurrencyAmount().getCurrency();
     Currency counterCurrency = fx.getCounterCurrencyAmount().getCurrency();
 
@@ -83,8 +83,8 @@ public abstract class AbstractFxSingleFunction<T>
   }
 
   @Override
-  public ScenarioResult<T> execute(FxTrade trade, CalculationMarketData marketData) {
-    ExpandedFx product = trade.getProduct().expand();
+  public ScenarioResult<T> execute(FxSingleTrade trade, CalculationMarketData marketData) {
+    ExpandedFxSingle product = trade.getProduct().expand();
     return IntStream.range(0, marketData.getScenarioCount())
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
@@ -93,7 +93,7 @@ public abstract class AbstractFxSingleFunction<T>
   }
 
   @Override
-  public Optional<Currency> defaultReportingCurrency(FxTrade target) {
+  public Optional<Currency> defaultReportingCurrency(FxSingleTrade target) {
     Currency base = target.getProduct().getBaseCurrencyAmount().getCurrency();
     Currency counter = target.getProduct().getCounterCurrencyAmount().getCurrency();
     CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
@@ -101,6 +101,6 @@ public abstract class AbstractFxSingleFunction<T>
   }
 
   // execute for a single trade
-  protected abstract T execute(ExpandedFx product, RatesProvider provider);
+  protected abstract T execute(ExpandedFxSingle product, RatesProvider provider);
 
 }
