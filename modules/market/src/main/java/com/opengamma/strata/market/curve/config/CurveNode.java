@@ -21,14 +21,18 @@ import com.opengamma.strata.market.curve.CurveParameterMetadata;
 public interface CurveNode {
 
   /**
-   * Returns requirements for the market data needed to build a trade representing the instrument at the node.
+   * Determines the market data that is required by the node.
+   * <p>
+   * This returns the market data needed to build the trade that the node represents.
    *
    * @return requirements for the market data needed to build a trade representing the instrument at the node
    */
   public abstract Set<ObservableKey> requirements();
 
   /**
-   * Returns a trade representing the instrument at the node.
+   * Creates a trade representing the instrument at the node.
+   * <p>
+   * This uses the observed market data to build the trade that the node represents.
    *
    * @param valuationDate the valuation date used when calibrating the curve
    * @param marketData the market data required to build a trade for the instrument
@@ -38,6 +42,8 @@ public interface CurveNode {
 
   /**
    * Returns metadata for the node.
+   * <p>
+   * This provides curve metadata for the node at the specified valuation date.
    *
    * @param valuationDate  the valuation date used when calibrating the curve
    * @return metadata for the node

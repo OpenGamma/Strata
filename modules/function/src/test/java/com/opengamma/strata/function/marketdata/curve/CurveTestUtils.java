@@ -88,8 +88,8 @@ final class CurveTestUtils {
         .dayCount(DayCounts.ACT_ACT_ISDA)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
   }
 
@@ -116,8 +116,8 @@ final class CurveTestUtils {
         .dayCount(DayCounts.ACT_ACT_ISDA)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
   }
 

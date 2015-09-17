@@ -52,19 +52,25 @@ import com.opengamma.strata.market.curve.CurveName;
  * Every curve must be associated with at least once key.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveGroupConfig implements ImmutableBean, Serializable {
+public final class CurveGroupConfig
+    implements ImmutableBean, Serializable {
 
-  /** The name of the curve group. */
+  /**
+   * The name of the curve group.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveGroupName name;
-
-  /** The configuration for building the curves in the group. */
+  /**
+   * The configuration for building the curves in the group.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<CurveGroupEntry> entries;
-
-  /** Entries for the curves, keyed by the curve name. */
+  /**
+   * Entries for the curves, keyed by the curve name.
+   */
   private final ImmutableMap<CurveName, CurveGroupEntry> entriesByName;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a mutable builder for building the configuration for a curve group.
    *
@@ -87,6 +93,7 @@ public final class CurveGroupConfig implements ImmutableBean, Serializable {
     entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveConfig().getName(), entry -> entry));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the entry for the curve group with the given name if there is a curve with the specified name.
    *

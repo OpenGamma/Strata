@@ -96,13 +96,14 @@ public final class InterpolatedCurveConfig
    * The extrapolator used to find points to the left of the leftmost point on the curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurveExtrapolator leftExtrapolator;
+  private final CurveExtrapolator extrapolatorLeft;
   /**
    * The extrapolator used to find points to the right of the rightmost point on the curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurveExtrapolator rightExtrapolator;
+  private final CurveExtrapolator extrapolatorRight;
 
+  //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.xValueType = ValueType.UNKNOWN;
@@ -158,23 +159,23 @@ public final class InterpolatedCurveConfig
       DayCount dayCount,
       List<? extends CurveNode> nodes,
       CurveInterpolator interpolator,
-      CurveExtrapolator leftExtrapolator,
-      CurveExtrapolator rightExtrapolator) {
+      CurveExtrapolator extrapolatorLeft,
+      CurveExtrapolator extrapolatorRight) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(xValueType, "xValueType");
     JodaBeanUtils.notNull(yValueType, "yValueType");
     JodaBeanUtils.notNull(nodes, "nodes");
     JodaBeanUtils.notNull(interpolator, "interpolator");
-    JodaBeanUtils.notNull(leftExtrapolator, "leftExtrapolator");
-    JodaBeanUtils.notNull(rightExtrapolator, "rightExtrapolator");
+    JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
+    JodaBeanUtils.notNull(extrapolatorRight, "extrapolatorRight");
     this.name = name;
     this.xValueType = xValueType;
     this.yValueType = yValueType;
     this.dayCount = dayCount;
     this.nodes = ImmutableList.copyOf(nodes);
     this.interpolator = interpolator;
-    this.leftExtrapolator = leftExtrapolator;
-    this.rightExtrapolator = rightExtrapolator;
+    this.extrapolatorLeft = extrapolatorLeft;
+    this.extrapolatorRight = extrapolatorRight;
   }
 
   @Override
@@ -267,8 +268,8 @@ public final class InterpolatedCurveConfig
    * Gets the extrapolator used to find points to the left of the leftmost point on the curve.
    * @return the value of the property, not null
    */
-  public CurveExtrapolator getLeftExtrapolator() {
-    return leftExtrapolator;
+  public CurveExtrapolator getExtrapolatorLeft() {
+    return extrapolatorLeft;
   }
 
   //-----------------------------------------------------------------------
@@ -276,8 +277,8 @@ public final class InterpolatedCurveConfig
    * Gets the extrapolator used to find points to the right of the rightmost point on the curve.
    * @return the value of the property, not null
    */
-  public CurveExtrapolator getRightExtrapolator() {
-    return rightExtrapolator;
+  public CurveExtrapolator getExtrapolatorRight() {
+    return extrapolatorRight;
   }
 
   //-----------------------------------------------------------------------
@@ -302,8 +303,8 @@ public final class InterpolatedCurveConfig
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(getNodes(), other.getNodes()) &&
           JodaBeanUtils.equal(getInterpolator(), other.getInterpolator()) &&
-          JodaBeanUtils.equal(getLeftExtrapolator(), other.getLeftExtrapolator()) &&
-          JodaBeanUtils.equal(getRightExtrapolator(), other.getRightExtrapolator());
+          JodaBeanUtils.equal(getExtrapolatorLeft(), other.getExtrapolatorLeft()) &&
+          JodaBeanUtils.equal(getExtrapolatorRight(), other.getExtrapolatorRight());
     }
     return false;
   }
@@ -317,8 +318,8 @@ public final class InterpolatedCurveConfig
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(getNodes());
     hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolator());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolator());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolator());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorLeft());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExtrapolatorRight());
     return hash;
   }
 
@@ -332,8 +333,8 @@ public final class InterpolatedCurveConfig
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("nodes").append('=').append(getNodes()).append(',').append(' ');
     buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
-    buf.append("leftExtrapolator").append('=').append(getLeftExtrapolator()).append(',').append(' ');
-    buf.append("rightExtrapolator").append('=').append(JodaBeanUtils.toString(getRightExtrapolator()));
+    buf.append("extrapolatorLeft").append('=').append(getExtrapolatorLeft()).append(',').append(' ');
+    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(getExtrapolatorRight()));
     buf.append('}');
     return buf.toString();
   }
@@ -380,15 +381,15 @@ public final class InterpolatedCurveConfig
     private final MetaProperty<CurveInterpolator> interpolator = DirectMetaProperty.ofImmutable(
         this, "interpolator", InterpolatedCurveConfig.class, CurveInterpolator.class);
     /**
-     * The meta-property for the {@code leftExtrapolator} property.
+     * The meta-property for the {@code extrapolatorLeft} property.
      */
-    private final MetaProperty<CurveExtrapolator> leftExtrapolator = DirectMetaProperty.ofImmutable(
-        this, "leftExtrapolator", InterpolatedCurveConfig.class, CurveExtrapolator.class);
+    private final MetaProperty<CurveExtrapolator> extrapolatorLeft = DirectMetaProperty.ofImmutable(
+        this, "extrapolatorLeft", InterpolatedCurveConfig.class, CurveExtrapolator.class);
     /**
-     * The meta-property for the {@code rightExtrapolator} property.
+     * The meta-property for the {@code extrapolatorRight} property.
      */
-    private final MetaProperty<CurveExtrapolator> rightExtrapolator = DirectMetaProperty.ofImmutable(
-        this, "rightExtrapolator", InterpolatedCurveConfig.class, CurveExtrapolator.class);
+    private final MetaProperty<CurveExtrapolator> extrapolatorRight = DirectMetaProperty.ofImmutable(
+        this, "extrapolatorRight", InterpolatedCurveConfig.class, CurveExtrapolator.class);
     /**
      * The meta-properties.
      */
@@ -400,8 +401,8 @@ public final class InterpolatedCurveConfig
         "dayCount",
         "nodes",
         "interpolator",
-        "leftExtrapolator",
-        "rightExtrapolator");
+        "extrapolatorLeft",
+        "extrapolatorRight");
 
     /**
      * Restricted constructor.
@@ -424,10 +425,10 @@ public final class InterpolatedCurveConfig
           return nodes;
         case 2096253127:  // interpolator
           return interpolator;
-        case -1992066886:  // leftExtrapolator
-          return leftExtrapolator;
-        case 1202004815:  // rightExtrapolator
-          return rightExtrapolator;
+        case 1271703994:  // extrapolatorLeft
+          return extrapolatorLeft;
+        case 773779145:  // extrapolatorRight
+          return extrapolatorRight;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -497,19 +498,19 @@ public final class InterpolatedCurveConfig
     }
 
     /**
-     * The meta-property for the {@code leftExtrapolator} property.
+     * The meta-property for the {@code extrapolatorLeft} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveExtrapolator> leftExtrapolator() {
-      return leftExtrapolator;
+    public MetaProperty<CurveExtrapolator> extrapolatorLeft() {
+      return extrapolatorLeft;
     }
 
     /**
-     * The meta-property for the {@code rightExtrapolator} property.
+     * The meta-property for the {@code extrapolatorRight} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveExtrapolator> rightExtrapolator() {
-      return rightExtrapolator;
+    public MetaProperty<CurveExtrapolator> extrapolatorRight() {
+      return extrapolatorRight;
     }
 
     //-----------------------------------------------------------------------
@@ -528,10 +529,10 @@ public final class InterpolatedCurveConfig
           return ((InterpolatedCurveConfig) bean).getNodes();
         case 2096253127:  // interpolator
           return ((InterpolatedCurveConfig) bean).getInterpolator();
-        case -1992066886:  // leftExtrapolator
-          return ((InterpolatedCurveConfig) bean).getLeftExtrapolator();
-        case 1202004815:  // rightExtrapolator
-          return ((InterpolatedCurveConfig) bean).getRightExtrapolator();
+        case 1271703994:  // extrapolatorLeft
+          return ((InterpolatedCurveConfig) bean).getExtrapolatorLeft();
+        case 773779145:  // extrapolatorRight
+          return ((InterpolatedCurveConfig) bean).getExtrapolatorRight();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -559,8 +560,8 @@ public final class InterpolatedCurveConfig
     private DayCount dayCount;
     private List<? extends CurveNode> nodes = ImmutableList.of();
     private CurveInterpolator interpolator;
-    private CurveExtrapolator leftExtrapolator;
-    private CurveExtrapolator rightExtrapolator;
+    private CurveExtrapolator extrapolatorLeft;
+    private CurveExtrapolator extrapolatorRight;
 
     /**
      * Restricted constructor.
@@ -580,8 +581,8 @@ public final class InterpolatedCurveConfig
       this.dayCount = beanToCopy.dayCount;
       this.nodes = beanToCopy.getNodes();
       this.interpolator = beanToCopy.getInterpolator();
-      this.leftExtrapolator = beanToCopy.getLeftExtrapolator();
-      this.rightExtrapolator = beanToCopy.getRightExtrapolator();
+      this.extrapolatorLeft = beanToCopy.getExtrapolatorLeft();
+      this.extrapolatorRight = beanToCopy.getExtrapolatorRight();
     }
 
     //-----------------------------------------------------------------------
@@ -600,10 +601,10 @@ public final class InterpolatedCurveConfig
           return nodes;
         case 2096253127:  // interpolator
           return interpolator;
-        case -1992066886:  // leftExtrapolator
-          return leftExtrapolator;
-        case 1202004815:  // rightExtrapolator
-          return rightExtrapolator;
+        case 1271703994:  // extrapolatorLeft
+          return extrapolatorLeft;
+        case 773779145:  // extrapolatorRight
+          return extrapolatorRight;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -631,11 +632,11 @@ public final class InterpolatedCurveConfig
         case 2096253127:  // interpolator
           this.interpolator = (CurveInterpolator) newValue;
           break;
-        case -1992066886:  // leftExtrapolator
-          this.leftExtrapolator = (CurveExtrapolator) newValue;
+        case 1271703994:  // extrapolatorLeft
+          this.extrapolatorLeft = (CurveExtrapolator) newValue;
           break;
-        case 1202004815:  // rightExtrapolator
-          this.rightExtrapolator = (CurveExtrapolator) newValue;
+        case 773779145:  // extrapolatorRight
+          this.extrapolatorRight = (CurveExtrapolator) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -676,8 +677,8 @@ public final class InterpolatedCurveConfig
           dayCount,
           nodes,
           interpolator,
-          leftExtrapolator,
-          rightExtrapolator);
+          extrapolatorLeft,
+          extrapolatorRight);
     }
 
     //-----------------------------------------------------------------------
@@ -773,23 +774,23 @@ public final class InterpolatedCurveConfig
 
     /**
      * Sets the extrapolator used to find points to the left of the leftmost point on the curve.
-     * @param leftExtrapolator  the new value, not null
+     * @param extrapolatorLeft  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder leftExtrapolator(CurveExtrapolator leftExtrapolator) {
-      JodaBeanUtils.notNull(leftExtrapolator, "leftExtrapolator");
-      this.leftExtrapolator = leftExtrapolator;
+    public Builder extrapolatorLeft(CurveExtrapolator extrapolatorLeft) {
+      JodaBeanUtils.notNull(extrapolatorLeft, "extrapolatorLeft");
+      this.extrapolatorLeft = extrapolatorLeft;
       return this;
     }
 
     /**
      * Sets the extrapolator used to find points to the right of the rightmost point on the curve.
-     * @param rightExtrapolator  the new value, not null
+     * @param extrapolatorRight  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rightExtrapolator(CurveExtrapolator rightExtrapolator) {
-      JodaBeanUtils.notNull(rightExtrapolator, "rightExtrapolator");
-      this.rightExtrapolator = rightExtrapolator;
+    public Builder extrapolatorRight(CurveExtrapolator extrapolatorRight) {
+      JodaBeanUtils.notNull(extrapolatorRight, "extrapolatorRight");
+      this.extrapolatorRight = extrapolatorRight;
       return this;
     }
 
@@ -804,8 +805,8 @@ public final class InterpolatedCurveConfig
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("nodes").append('=').append(JodaBeanUtils.toString(nodes)).append(',').append(' ');
       buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
-      buf.append("leftExtrapolator").append('=').append(JodaBeanUtils.toString(leftExtrapolator)).append(',').append(' ');
-      buf.append("rightExtrapolator").append('=').append(JodaBeanUtils.toString(rightExtrapolator));
+      buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
+      buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
       buf.append('}');
       return buf.toString();
     }

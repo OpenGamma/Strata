@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
@@ -20,17 +22,21 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
- * A mutable builder for creating instances of {@link CurveGroupConfig}.
+ * A mutable builder for creating instances of {@code CurveGroupConfig}.
  */
 @SuppressWarnings("unchecked")
 public final class CurveGroupConfigBuilder {
 
-  /** The entries in the curve group. */
+  /**
+   * The name of the curve group.
+   */
+  private CurveGroupName name;
+  /**
+   * The entries in the curve group.
+   */
   private final List<CurveGroupEntry> entries = new ArrayList<>();
 
-  /** The name of the curve group. */
-  private CurveGroupName name;
-
+  //-------------------------------------------------------------------------
   /**
    * Sets the name of the curve group configuration.
    *
@@ -42,20 +48,22 @@ public final class CurveGroupConfigBuilder {
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Adds configuration for a discounting curve to the curve group configuration.
+   * Adds configuration for a discount curve to the curve group configuration.
    *
-   * @param curveConfig  configuration of a discounting curve
+   * @param curveConfig  the discount curve configuration
+   * @param otherCurrencies  additional currencies for which the curve can provide discount factors
    * @param currency  the currency for which the curve provides discount rates
    * @return this builder
    */
-  public CurveGroupConfigBuilder addDiscountingCurve(CurveConfig curveConfig, Currency currency) {
+  public CurveGroupConfigBuilder addDiscountCurve(CurveConfig curveConfig, Currency currency, Currency... otherCurrencies) {
     ArgChecker.notNull(curveConfig, "curveConfig");
     ArgChecker.notNull(currency, "currency");
 
     CurveGroupEntry entry = CurveGroupEntry.builder()
         .curveConfig(curveConfig)
-        .discountingCurrency(currency)
+        .discountCurrencies(ImmutableSet.copyOf(Lists.asList(currency, otherCurrencies)))
         .build();
     entries.add(entry);
     return this;
@@ -64,9 +72,9 @@ public final class CurveGroupConfigBuilder {
   /**
    * Adds configuration for a forward curve to the curve group configuration.
    *
-   * @param curveConfig  configuration of a forward curve
-   * @param index  an index for which the curve provides forward rates
-   * @param otherIndices  indices for which the curve provides forward rates
+   * @param curveConfig  the forward curve configuration
+   * @param index  the index for which the curve provides forward rates
+   * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
   public CurveGroupConfigBuilder addForwardCurve(CurveConfig curveConfig, RateIndex index, RateIndex... otherIndices) {
@@ -85,10 +93,10 @@ public final class CurveGroupConfigBuilder {
   /**
    * Adds configuration to the curve group for a curve used to provide discount rates and forward rates.
    *
-   * @param curveConfig  configuration of a curve
+   * @param curveConfig  the forward curve configuration
    * @param currency  the currency for which the curve provides discount rates
-   * @param index  an index for which the curve provides forward rates
-   * @param otherIndices  indices for which the curve provides forward rates
+   * @param index  the index for which the curve provides forward rates
+   * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
   public CurveGroupConfigBuilder addCurve(
@@ -99,7 +107,7 @@ public final class CurveGroupConfigBuilder {
 
     CurveGroupEntry entry = CurveGroupEntry.builder()
         .curveConfig(curveConfig)
-        .discountingCurrency(currency)
+        .discountCurrencies(ImmutableSet.of(currency))
         .iborIndices(iborIndices(index, otherIndices))
         .overnightIndices(overnightIndices(index, otherIndices))
         .build();
@@ -127,6 +135,7 @@ public final class CurveGroupConfigBuilder {
         .collect(toImmutableSet());
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns configuration for a curve group built from the data in this object.
    *
@@ -135,4 +144,5 @@ public final class CurveGroupConfigBuilder {
   public CurveGroupConfig build() {
     return new CurveGroupConfig(name, entries);
   }
+
 }

@@ -67,6 +67,9 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapTradePricer;
 
+/**
+ * Test {@link CurveGroupMarketDataFunction}.
+ */
 @Test
 public class CurveGroupMarketDataFunctionTest {
 
@@ -205,8 +208,8 @@ public class CurveGroupMarketDataFunctionTest {
         .name(curveName)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
