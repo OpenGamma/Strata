@@ -43,9 +43,17 @@ public final class Measure
    */
   public static final Measure BUCKETED_GAMMA_PV01 = Measure.of("BucketedGammaPV01");
   /**
+   * Measure representing the currency exposure of the calculation target.
+   */
+  public static final Measure CURRENCY_EXPOSURE = Measure.of("CurrencyExposure");
+  /**
    * Measure representing a break-down of the present value calculation on the target.
    */
   public static final Measure EXPLAIN_PRESENT_VALUE = Measure.of("ExplainPresentValue");
+  /**
+   * Measure representing the forward FX rate of the calculation target.
+   */
+  public static final Measure FORWARD_FX_RATE = Measure.of("ForwardFxRate");
   /**
    * Measure representing the initial notional amount of each leg of the calculation target.
    */

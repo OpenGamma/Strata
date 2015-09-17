@@ -47,11 +47,11 @@ import com.opengamma.strata.pricer.rate.swap.SwapDummyData;
 @Test
 public class SwapFunctionGroupsTest {
 
-  private static final SwapTrade SWAP_TRADE = SwapDummyData.SWAP_TRADE;
+  public static final SwapTrade TRADE = SwapDummyData.SWAP_TRADE;
 
   public void test_discounting() {
     FunctionGroup<SwapTrade> test = SwapFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(SWAP_TRADE)).contains(
+    assertThat(test.configuredMeasures(TRADE)).contains(
         Measure.PAR_RATE,
         Measure.PRESENT_VALUE,
         Measure.EXPLAIN_PRESENT_VALUE,
@@ -64,22 +64,22 @@ public class SwapFunctionGroupsTest {
   }
 
   public void test_presentValue() {
-    Currency ccy = SWAP_TRADE.getProduct().getLegs().get(0).getCurrency();
-    IborIndex index = (IborIndex) SWAP_TRADE.getProduct().allIndices().iterator().next();
-    LocalDate valDate = SWAP_TRADE.getProduct().getEndDate().plusDays(7);
+    Currency ccy = TRADE.getProduct().getLegs().get(0).getCurrency();
+    IborIndex index = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
+    LocalDate valDate = TRADE.getProduct().getEndDate().plusDays(7);
 
-    FunctionConfig<SwapTrade> config = SwapFunctionGroups.discounting().functionConfig(SWAP_TRADE, Measure.PRESENT_VALUE).get();
+    FunctionConfig<SwapTrade> config = SwapFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
     CalculationSingleFunction<SwapTrade, ?> function = config.createFunction();
-    FunctionRequirements reqs = function.requirements(SWAP_TRADE);
+    FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(IborIndexRatesKey.of(index), DiscountFactorsKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(SWAP_TRADE)).hasValue(ccy);
+    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
-    assertThat(function.execute(SWAP_TRADE, md)).isEqualTo(
+    assertThat(function.execute(TRADE, md)).isEqualTo(
         FxConvertibleList.of(ImmutableList.of(MultiCurrencyAmount.of(ccy, 0d))));
   }
 

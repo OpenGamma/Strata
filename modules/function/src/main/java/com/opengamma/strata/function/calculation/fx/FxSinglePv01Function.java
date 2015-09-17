@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.fx;
+package com.opengamma.strata.function.calculation.fx;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.fx.ExpandedFx;
@@ -14,8 +14,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * Calculates PV01, the present value sensitivity of a {@code FxTrade}.
  * This operates by algorithmic differentiation (AD).
  */
-public class FxForwardPv01Function
-    extends AbstractFxForwardFunction<MultiCurrencyAmount> {
+public class FxSinglePv01Function
+    extends AbstractFxSingleFunction<MultiCurrencyAmount> {
 
   @Override
   protected MultiCurrencyAmount execute(ExpandedFx product, RatesProvider provider) {

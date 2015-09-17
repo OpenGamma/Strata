@@ -40,6 +40,8 @@ import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 
 /**
  * Perform calculations on a single {@code CdsTrade} for each of a set of scenarios.
+ * <p>
+ * The default reporting currency is determined to be the currency of the fee leg.
  * 
  * @param <T>  the return type
  */
@@ -64,8 +66,9 @@ public abstract class AbstractCdsFunction<T>
     super(convertCurrencies);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the CDS pricer.
+   * Returns the pricer.
    * 
    * @return the pricer
    */
@@ -73,7 +76,6 @@ public abstract class AbstractCdsFunction<T>
     return IsdaCdsPricer.DEFAULT;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public ScenarioResult<T> execute(CdsTrade trade, CalculationMarketData marketData) {
     return IntStream.range(0, marketData.getScenarioCount())
@@ -119,12 +121,6 @@ public abstract class AbstractCdsFunction<T>
         .build();
   }
 
-  /**
-   * Returns the currency of the trade.
-   *
-   * @param target  the swap that is the target of the calculation
-   * @return the currency of the CDS
-   */
   @Override
   public Optional<Currency> defaultReportingCurrency(CdsTrade target) {
     return Optional.of(target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency());

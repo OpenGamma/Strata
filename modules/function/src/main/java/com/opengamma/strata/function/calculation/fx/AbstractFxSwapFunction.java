@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.fx;
+package com.opengamma.strata.function.calculation.fx;
 
 import static com.opengamma.strata.engine.calculation.function.FunctionUtils.toScenarioResult;
 
@@ -15,38 +15,35 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
 import com.opengamma.strata.engine.calculation.function.result.ScenarioResult;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.fx.ExpandedFxSwap;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
+import com.opengamma.strata.function.calculation.AbstractCalculationFunction;
 import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates a result for an {@code FxSwapTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code FxSwapTrade} for each of a set of scenarios.
+ * <p>
+ * The default reporting currency is determined to be the base currency of the market convention
+ * pair of the near leg currencies.
  * 
  * @param <T>  the return type
  */
 public abstract class AbstractFxSwapFunction<T>
-    implements CalculationSingleFunction<FxSwapTrade, ScenarioResult<T>> {
-
-  /**
-   * If this is true the value returned by the {@code execute} method will support automatic currency
-   * conversion if the underlying results support it.
-   */
-  private final boolean convertCurrencies;
+    extends AbstractCalculationFunction<FxSwapTrade, ScenarioResult<T>> {
 
   /**
    * Creates a new instance which will return results from the {@code execute} method that support automatic
    * currency conversion if the underlying results support it.
    */
   protected AbstractFxSwapFunction() {
-    this(true);
+    super();
   }
 
   /**
@@ -56,9 +53,10 @@ public abstract class AbstractFxSwapFunction<T>
    *   automatic currency conversion if the underlying results support it
    */
   protected AbstractFxSwapFunction(boolean convertCurrencies) {
-    this.convertCurrencies = convertCurrencies;
+    super(convertCurrencies);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the pricer.
    * 
@@ -68,7 +66,6 @@ public abstract class AbstractFxSwapFunction<T>
     return DiscountingFxSwapProductPricer.DEFAULT;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(FxSwapTrade trade) {
     FxSwap fx = trade.getProduct();
@@ -92,15 +89,9 @@ public abstract class AbstractFxSwapFunction<T>
         .mapToObj(index -> new DefaultSingleCalculationMarketData(marketData, index))
         .map(MarketDataRatesProvider::new)
         .map(provider -> execute(product, provider))
-        .collect(toScenarioResult(convertCurrencies));
+        .collect(toScenarioResult(isConvertCurrencies()));
   }
 
-  /**
-   * Returns the base currency of the market convention pair of the near leg currencies.
-   *
-   * @param target  the target of the calculation
-   * @return the base currency of the market convention pair of the near leg currencies
-   */
   @Override
   public Optional<Currency> defaultReportingCurrency(FxSwapTrade target) {
     Currency base = target.getProduct().getNearLeg().getBaseCurrencyAmount().getCurrency();

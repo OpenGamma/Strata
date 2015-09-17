@@ -11,12 +11,18 @@ import com.opengamma.strata.engine.config.pricing.PricingRules;
 import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
+import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
+import com.opengamma.strata.finance.fx.FxSwapTrade;
+import com.opengamma.strata.finance.fx.FxTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.function.calculation.credit.CdsFunctionGroups;
 import com.opengamma.strata.function.calculation.future.GenericFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunctionGroups;
+import com.opengamma.strata.function.calculation.fx.FxNdfFunctionGroups;
+import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroups;
+import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.deposit.TermDepositFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.fra.FraFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.swap.SwapFunctionGroups;
@@ -34,6 +40,9 @@ final class StandardPricingRules {
   private static final PricingRules STANDARD = DefaultPricingRules.of(
       PricingRule.builder(CdsTrade.class).functionGroup(CdsFunctionGroups.discounting()).build(),
       PricingRule.builder(FraTrade.class).functionGroup(FraFunctionGroups.discounting()).build(),
+      PricingRule.builder(FxTrade.class).functionGroup(FxSingleFunctionGroups.discounting()).build(),
+      PricingRule.builder(FxNonDeliverableForwardTrade.class).functionGroup(FxNdfFunctionGroups.discounting()).build(),
+      PricingRule.builder(FxSwapTrade.class).functionGroup(FxSwapFunctionGroups.discounting()).build(),
       PricingRule.builder(GenericFutureTrade.class).functionGroup(GenericFutureFunctionGroups.market()).build(),
       PricingRule.builder(GenericFutureOptionTrade.class).functionGroup(GenericFutureOptionFunctionGroups.market()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build(),
@@ -57,6 +66,9 @@ final class StandardPricingRules {
    * <ul>
    *  <li>Credit Default Swap - {@link CdsTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
+   *  <li>FX single (spot/forward) - {@link FxTrade}
+   *  <li>FX NDF - {@link FxNonDeliverableForwardTrade}
+   *  <li>FX swap - {@link FxSwapTrade}
    *  <li>Generic Future - {@link GenericFutureTrade}
    *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
    *  <li>Rate Swap - {@link SwapTrade}

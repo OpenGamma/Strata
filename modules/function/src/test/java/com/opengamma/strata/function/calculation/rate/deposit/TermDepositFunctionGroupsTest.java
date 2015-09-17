@@ -45,7 +45,7 @@ import com.opengamma.strata.market.value.SimpleDiscountFactors;
 @Test
 public class TermDepositFunctionGroupsTest {
 
-  private static final TermDepositTrade TD_TRADE = TermDepositTrade.builder()
+  public static final TermDepositTrade TRADE = TermDepositTrade.builder()
       .tradeInfo(TradeInfo.builder()
           .tradeDate(date(2015, 6, 1))
           .build())
@@ -62,7 +62,7 @@ public class TermDepositFunctionGroupsTest {
 
   public void test_discounting() {
     FunctionGroup<TermDepositTrade> test = TermDepositFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TD_TRADE)).contains(
+    assertThat(test.configuredMeasures(TRADE)).contains(
         Measure.PAR_RATE,
         Measure.PAR_SPREAD,
         Measure.PRESENT_VALUE,
@@ -71,39 +71,39 @@ public class TermDepositFunctionGroupsTest {
   }
 
   public void test_presentValue() {
-    Currency ccy = TD_TRADE.getProduct().getCurrency();
-    LocalDate valDate = TD_TRADE.getProduct().getEndDate().plusDays(7);
+    Currency ccy = TRADE.getProduct().getCurrency();
+    LocalDate valDate = TRADE.getProduct().getEndDate().plusDays(7);
 
     FunctionConfig<TermDepositTrade> config =
-        TermDepositFunctionGroups.discounting().functionConfig(TD_TRADE, Measure.PRESENT_VALUE).get();
+        TermDepositFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
     CalculationSingleFunction<TermDepositTrade, ?> function = config.createFunction();
-    FunctionRequirements reqs = function.requirements(TD_TRADE);
+    FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountFactorsKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TD_TRADE)).hasValue(ccy);
+    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
-    assertThat(function.execute(TD_TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, 0d))));
+    assertThat(function.execute(TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, 0d))));
   }
 
   public void test_parRate() {
-    Currency ccy = TD_TRADE.getProduct().getCurrency();
-    LocalDate valDate = TD_TRADE.getProduct().getEndDate().plusDays(7);
+    Currency ccy = TRADE.getProduct().getCurrency();
+    LocalDate valDate = TRADE.getProduct().getEndDate().plusDays(7);
 
     FunctionConfig<TermDepositTrade> config =
-        TermDepositFunctionGroups.discounting().functionConfig(TD_TRADE, Measure.PAR_RATE).get();
+        TermDepositFunctionGroups.discounting().functionConfig(TRADE, Measure.PAR_RATE).get();
     CalculationSingleFunction<TermDepositTrade, ?> function = config.createFunction();
-    FunctionRequirements reqs = function.requirements(TD_TRADE);
+    FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountFactorsKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TD_TRADE)).hasValue(ccy);
+    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
-    assertThat(function.execute(TD_TRADE, md)).isEqualTo(DefaultScenarioResult.of(0d));
+    assertThat(function.execute(TRADE, md)).isEqualTo(DefaultScenarioResult.of(0d));
   }
 
   //-------------------------------------------------------------------------

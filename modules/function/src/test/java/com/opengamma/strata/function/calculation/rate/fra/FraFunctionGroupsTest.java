@@ -43,11 +43,11 @@ import com.opengamma.strata.pricer.rate.fra.FraDummyData;
 @Test
 public class FraFunctionGroupsTest {
 
-  private static final FraTrade FRA_TRADE = FraDummyData.FRA_TRADE;
+  public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
 
   public void test_discounting() {
     FunctionGroup<FraTrade> test = FraFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(FRA_TRADE)).contains(
+    assertThat(test.configuredMeasures(TRADE)).contains(
         Measure.PAR_RATE,
         Measure.PAR_SPREAD,
         Measure.PRESENT_VALUE,
@@ -58,22 +58,22 @@ public class FraFunctionGroupsTest {
   }
 
   public void test_presentValue() {
-    Currency ccy = FRA_TRADE.getProduct().getCurrency();
-    IborIndex index = FRA_TRADE.getProduct().getIndex();
-    LocalDate valDate = FRA_TRADE.getProduct().getEndDate().plusDays(7);
+    Currency ccy = TRADE.getProduct().getCurrency();
+    IborIndex index = TRADE.getProduct().getIndex();
+    LocalDate valDate = TRADE.getProduct().getEndDate().plusDays(7);
 
-    FunctionConfig<FraTrade> config = FraFunctionGroups.discounting().functionConfig(FRA_TRADE, Measure.PRESENT_VALUE).get();
+    FunctionConfig<FraTrade> config = FraFunctionGroups.discounting().functionConfig(TRADE, Measure.PRESENT_VALUE).get();
     CalculationSingleFunction<FraTrade, ?> function = config.createFunction();
-    FunctionRequirements reqs = function.requirements(FRA_TRADE);
+    FunctionRequirements reqs = function.requirements(TRADE);
     assertThat(reqs.getOutputCurrencies()).containsOnly(ccy);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(IborIndexRatesKey.of(index), DiscountFactorsKey.of(ccy)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(index)));
-    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(FRA_TRADE)).hasValue(ccy);
+    CollectProjectAssertions.assertThat(function.defaultReportingCurrency(TRADE)).hasValue(ccy);
     DiscountFactors df = SimpleDiscountFactors.of(
         ccy, valDate, ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99));
     MarketDataMap md = new MarketDataMap(valDate, ImmutableMap.of(DiscountFactorsKey.of(ccy), df), ImmutableMap.of());
-    assertThat(function.execute(FRA_TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, 0d))));
+    assertThat(function.execute(TRADE, md)).isEqualTo(FxConvertibleList.of(ImmutableList.of(CurrencyAmount.of(ccy, 0d))));
   }
 
   //-------------------------------------------------------------------------

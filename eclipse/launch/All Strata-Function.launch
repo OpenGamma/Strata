@@ -17,6 +17,7 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.function"/>
 <listEntry value="com.opengamma.strata.function.calculation"/>
+<listEntry value="com.opengamma.strata.function.calculation.fx"/>
 <listEntry value="com.opengamma.strata.function.calculation.rate"/>
 <listEntry value="com.opengamma.strata.function.calculation.rate.deposit"/>
 <listEntry value="com.opengamma.strata.function.calculation.rate.fra"/>
