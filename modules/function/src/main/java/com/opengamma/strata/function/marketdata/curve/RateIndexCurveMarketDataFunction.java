@@ -60,4 +60,5 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
   public Class<RateIndexCurveId> getMarketDataIdType() {
     return RateIndexCurveId.class;
   }
+
 }

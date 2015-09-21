@@ -26,6 +26,9 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.RateIndexCurveId;
 
+/**
+ * Test {@link RateIndexCurveMarketDataFunction}.
+ */
 @Test
 public class RateIndexCurveMarketDataFunctionTest {
 
@@ -127,4 +130,5 @@ public class RateIndexCurveMarketDataFunctionTest {
     Result<Curve> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
     assertThat(result4).hasValue(curve4);
   }
+
 }

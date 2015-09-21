@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.curve.config;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -28,14 +28,14 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 
 /**
- * An item in the configuration for a curve group, containing the configuration for a curve and the market data keys
- * identifying how the curve is used.
+ * An item in the configuration for a curve group, containing the configuration
+ * for a curve and the market data keys identifying how the curve is used.
  * <p>
- * A curve can be used for multiple purposes and therefore the curve itself contains no information about how
- * it is used.
+ * Any given curve can be used for multiple purposes.
+ * As such, the curve itself contains no information about how it is used.
  * <p>
- * In the simple case a curve is only used for a single purpose. For example, if a curve is used for discounting
- * it will have one key of type {@code DiscountCurveKey}.
+ * In the simple case a curve is only used for a single purpose.
+ * For example, if a curve is used for discounting it will have one key of type {@code DiscountCurveKey}.
  * <p>
  * A single curve can also be used as both a discounting curve and a forward curve.
  * In that case its key set would contain a {@code DiscountCurveKey} and a {@code RateIndexCurveKey}.
@@ -43,21 +43,30 @@ import com.opengamma.strata.basics.index.OvernightIndex;
  * Every curve must be associated with at least once key.
  */
 @BeanDefinition
-public final class CurveGroupEntry implements ImmutableBean {
+public final class CurveGroupEntry
+    implements ImmutableBean, Serializable {
 
-  /** The configuration of the curve. */
+  /**
+   * The configuration of the curve.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveConfig curveConfig;
-
-  /** The currency for which the curve provides discount rates, not present if it is not used for discounting. */
-  @PropertyDefinition(get = "optional")
-  private final Currency discountingCurrency;
-
-  /** The IBOR indices for which the curve provides forward rates. */
+  /**
+   * The currencies for which the curve provides discount rates.
+   * This is empty if the curve is not used for Ibor rates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableSet<Currency> discountCurrencies;
+  /**
+   * The Ibor indices for which the curve provides forward rates.
+   * This is empty if the curve is not used for Ibor rates.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<IborIndex> iborIndices;
-
-  /** The overnight indices for which the curve provides forward rates. */
+  /**
+   * The Overnight indices for which the curve provides forward rates.
+   * This is empty if the curve is not used for Overnight rates.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<OvernightIndex> overnightIndices;
 
@@ -76,6 +85,11 @@ public final class CurveGroupEntry implements ImmutableBean {
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -85,14 +99,15 @@ public final class CurveGroupEntry implements ImmutableBean {
 
   private CurveGroupEntry(
       CurveConfig curveConfig,
-      Currency discountingCurrency,
+      Set<Currency> discountCurrencies,
       Set<IborIndex> iborIndices,
       Set<OvernightIndex> overnightIndices) {
     JodaBeanUtils.notNull(curveConfig, "curveConfig");
+    JodaBeanUtils.notNull(discountCurrencies, "discountCurrencies");
     JodaBeanUtils.notNull(iborIndices, "iborIndices");
     JodaBeanUtils.notNull(overnightIndices, "overnightIndices");
     this.curveConfig = curveConfig;
-    this.discountingCurrency = discountingCurrency;
+    this.discountCurrencies = ImmutableSet.copyOf(discountCurrencies);
     this.iborIndices = ImmutableSet.copyOf(iborIndices);
     this.overnightIndices = ImmutableSet.copyOf(overnightIndices);
   }
@@ -123,16 +138,18 @@ public final class CurveGroupEntry implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency for which the curve provides discount rates, not present if it is not used for discounting.
-   * @return the optional value of the property, not null
+   * Gets the currencies for which the curve provides discount rates.
+   * This is empty if the curve is not used for Ibor rates.
+   * @return the value of the property, not null
    */
-  public Optional<Currency> getDiscountingCurrency() {
-    return Optional.ofNullable(discountingCurrency);
+  public ImmutableSet<Currency> getDiscountCurrencies() {
+    return discountCurrencies;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR indices for which the curve provides forward rates.
+   * Gets the Ibor indices for which the curve provides forward rates.
+   * This is empty if the curve is not used for Ibor rates.
    * @return the value of the property, not null
    */
   public ImmutableSet<IborIndex> getIborIndices() {
@@ -141,7 +158,8 @@ public final class CurveGroupEntry implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the overnight indices for which the curve provides forward rates.
+   * Gets the Overnight indices for which the curve provides forward rates.
+   * This is empty if the curve is not used for Overnight rates.
    * @return the value of the property, not null
    */
   public ImmutableSet<OvernightIndex> getOvernightIndices() {
@@ -165,7 +183,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupEntry other = (CurveGroupEntry) obj;
       return JodaBeanUtils.equal(getCurveConfig(), other.getCurveConfig()) &&
-          JodaBeanUtils.equal(discountingCurrency, other.discountingCurrency) &&
+          JodaBeanUtils.equal(getDiscountCurrencies(), other.getDiscountCurrencies()) &&
           JodaBeanUtils.equal(getIborIndices(), other.getIborIndices()) &&
           JodaBeanUtils.equal(getOvernightIndices(), other.getOvernightIndices());
     }
@@ -176,7 +194,7 @@ public final class CurveGroupEntry implements ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurveConfig());
-    hash = hash * 31 + JodaBeanUtils.hashCode(discountingCurrency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountCurrencies());
     hash = hash * 31 + JodaBeanUtils.hashCode(getIborIndices());
     hash = hash * 31 + JodaBeanUtils.hashCode(getOvernightIndices());
     return hash;
@@ -187,7 +205,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CurveGroupEntry{");
     buf.append("curveConfig").append('=').append(getCurveConfig()).append(',').append(' ');
-    buf.append("discountingCurrency").append('=').append(discountingCurrency).append(',').append(' ');
+    buf.append("discountCurrencies").append('=').append(getDiscountCurrencies()).append(',').append(' ');
     buf.append("iborIndices").append('=').append(getIborIndices()).append(',').append(' ');
     buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(getOvernightIndices()));
     buf.append('}');
@@ -210,10 +228,11 @@ public final class CurveGroupEntry implements ImmutableBean {
     private final MetaProperty<CurveConfig> curveConfig = DirectMetaProperty.ofImmutable(
         this, "curveConfig", CurveGroupEntry.class, CurveConfig.class);
     /**
-     * The meta-property for the {@code discountingCurrency} property.
+     * The meta-property for the {@code discountCurrencies} property.
      */
-    private final MetaProperty<Currency> discountingCurrency = DirectMetaProperty.ofImmutable(
-        this, "discountingCurrency", CurveGroupEntry.class, Currency.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableSet<Currency>> discountCurrencies = DirectMetaProperty.ofImmutable(
+        this, "discountCurrencies", CurveGroupEntry.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code iborIndices} property.
      */
@@ -232,7 +251,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "curveConfig",
-        "discountingCurrency",
+        "discountCurrencies",
         "iborIndices",
         "overnightIndices");
 
@@ -247,8 +266,8 @@ public final class CurveGroupEntry implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 2042609937:  // curveConfig
           return curveConfig;
-        case 1852985906:  // discountingCurrency
-          return discountingCurrency;
+        case -538086256:  // discountCurrencies
+          return discountCurrencies;
         case -118808757:  // iborIndices
           return iborIndices;
         case 1523471171:  // overnightIndices
@@ -282,11 +301,11 @@ public final class CurveGroupEntry implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code discountingCurrency} property.
+     * The meta-property for the {@code discountCurrencies} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> discountingCurrency() {
-      return discountingCurrency;
+    public MetaProperty<ImmutableSet<Currency>> discountCurrencies() {
+      return discountCurrencies;
     }
 
     /**
@@ -311,8 +330,8 @@ public final class CurveGroupEntry implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 2042609937:  // curveConfig
           return ((CurveGroupEntry) bean).getCurveConfig();
-        case 1852985906:  // discountingCurrency
-          return ((CurveGroupEntry) bean).discountingCurrency;
+        case -538086256:  // discountCurrencies
+          return ((CurveGroupEntry) bean).getDiscountCurrencies();
         case -118808757:  // iborIndices
           return ((CurveGroupEntry) bean).getIborIndices();
         case 1523471171:  // overnightIndices
@@ -339,7 +358,7 @@ public final class CurveGroupEntry implements ImmutableBean {
   public static final class Builder extends DirectFieldsBeanBuilder<CurveGroupEntry> {
 
     private CurveConfig curveConfig;
-    private Currency discountingCurrency;
+    private Set<Currency> discountCurrencies = ImmutableSet.of();
     private Set<IborIndex> iborIndices = ImmutableSet.of();
     private Set<OvernightIndex> overnightIndices = ImmutableSet.of();
 
@@ -355,7 +374,7 @@ public final class CurveGroupEntry implements ImmutableBean {
      */
     private Builder(CurveGroupEntry beanToCopy) {
       this.curveConfig = beanToCopy.getCurveConfig();
-      this.discountingCurrency = beanToCopy.discountingCurrency;
+      this.discountCurrencies = beanToCopy.getDiscountCurrencies();
       this.iborIndices = beanToCopy.getIborIndices();
       this.overnightIndices = beanToCopy.getOvernightIndices();
     }
@@ -366,8 +385,8 @@ public final class CurveGroupEntry implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case 2042609937:  // curveConfig
           return curveConfig;
-        case 1852985906:  // discountingCurrency
-          return discountingCurrency;
+        case -538086256:  // discountCurrencies
+          return discountCurrencies;
         case -118808757:  // iborIndices
           return iborIndices;
         case 1523471171:  // overnightIndices
@@ -384,8 +403,8 @@ public final class CurveGroupEntry implements ImmutableBean {
         case 2042609937:  // curveConfig
           this.curveConfig = (CurveConfig) newValue;
           break;
-        case 1852985906:  // discountingCurrency
-          this.discountingCurrency = (Currency) newValue;
+        case -538086256:  // discountCurrencies
+          this.discountCurrencies = (Set<Currency>) newValue;
           break;
         case -118808757:  // iborIndices
           this.iborIndices = (Set<IborIndex>) newValue;
@@ -427,7 +446,7 @@ public final class CurveGroupEntry implements ImmutableBean {
     public CurveGroupEntry build() {
       return new CurveGroupEntry(
           curveConfig,
-          discountingCurrency,
+          discountCurrencies,
           iborIndices,
           overnightIndices);
     }
@@ -445,17 +464,30 @@ public final class CurveGroupEntry implements ImmutableBean {
     }
 
     /**
-     * Sets the currency for which the curve provides discount rates, not present if it is not used for discounting.
-     * @param discountingCurrency  the new value
+     * Sets the currencies for which the curve provides discount rates.
+     * This is empty if the curve is not used for Ibor rates.
+     * @param discountCurrencies  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder discountingCurrency(Currency discountingCurrency) {
-      this.discountingCurrency = discountingCurrency;
+    public Builder discountCurrencies(Set<Currency> discountCurrencies) {
+      JodaBeanUtils.notNull(discountCurrencies, "discountCurrencies");
+      this.discountCurrencies = discountCurrencies;
       return this;
     }
 
     /**
-     * Sets the IBOR indices for which the curve provides forward rates.
+     * Sets the {@code discountCurrencies} property in the builder
+     * from an array of objects.
+     * @param discountCurrencies  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder discountCurrencies(Currency... discountCurrencies) {
+      return discountCurrencies(ImmutableSet.copyOf(discountCurrencies));
+    }
+
+    /**
+     * Sets the Ibor indices for which the curve provides forward rates.
+     * This is empty if the curve is not used for Ibor rates.
      * @param iborIndices  the new value, not null
      * @return this, for chaining, not null
      */
@@ -476,7 +508,8 @@ public final class CurveGroupEntry implements ImmutableBean {
     }
 
     /**
-     * Sets the overnight indices for which the curve provides forward rates.
+     * Sets the Overnight indices for which the curve provides forward rates.
+     * This is empty if the curve is not used for Overnight rates.
      * @param overnightIndices  the new value, not null
      * @return this, for chaining, not null
      */
@@ -502,7 +535,7 @@ public final class CurveGroupEntry implements ImmutableBean {
       StringBuilder buf = new StringBuilder(160);
       buf.append("CurveGroupEntry.Builder{");
       buf.append("curveConfig").append('=').append(JodaBeanUtils.toString(curveConfig)).append(',').append(' ');
-      buf.append("discountingCurrency").append('=').append(JodaBeanUtils.toString(discountingCurrency)).append(',').append(' ');
+      buf.append("discountCurrencies").append('=').append(JodaBeanUtils.toString(discountCurrencies)).append(',').append(' ');
       buf.append("iborIndices").append('=').append(JodaBeanUtils.toString(iborIndices)).append(',').append(' ');
       buf.append("overnightIndices").append('=').append(JodaBeanUtils.toString(overnightIndices));
       buf.append('}');

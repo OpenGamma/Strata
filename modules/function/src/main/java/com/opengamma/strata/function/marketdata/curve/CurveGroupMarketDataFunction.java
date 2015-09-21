@@ -145,7 +145,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param feed  the market data feed that is the source of the observable data
    * @return a result containing the curve group or details of why it couldn't be built
    */
-  public Result<CurveGroup> buildCurveGroup(
+  Result<CurveGroup> buildCurveGroup(
       CurveGroupConfig groupConfig,
       MarketDataLookup marketData,
       MarketDataFeed feed) {
@@ -183,11 +183,12 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
       Set<com.opengamma.strata.basics.index.IborIndex> iborIndices = curveEntry.getIborIndices();
       Set<OvernightIndex> overnightIndices = curveEntry.getOvernightIndices();
-      Optional<Currency> discountingCurrency = curveEntry.getDiscountingCurrency();
+      Set<Currency> discountingCurrencies = curveEntry.getDiscountCurrencies();
 
       iborIndices.stream().forEach(idx -> iborIndicesByCurveName.put(curveName.toString(), Legacy.iborIndex(idx)));
+      iborIndices.stream().forEach(idx -> iborIndicesByCurveName.put(curveName.toString(), Legacy.iborIndex(idx)));
       overnightIndices.stream().forEach(idx -> onIndicesByCurveName.put(curveName.toString(), Legacy.overnightIndex(idx)));
-      discountingCurrency.ifPresent(currency -> discountingCurrenciesByCurveName.put(curveName.toString(), currency));
+      discountingCurrencies.stream().forEach(ccy -> discountingCurrenciesByCurveName.put(curveName.toString(), ccy));
       singleCurveBundles.add(createSingleCurveBundle(curveConfig, derivatives));
     }
     @SuppressWarnings("rawtypes")
@@ -304,9 +305,10 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   private GeneratorYDCurve createCurveGenerator(InterpolatedCurveConfig curveConfig) {
     CombinedInterpolatorExtrapolator interpolatorExtrapolator = CombinedInterpolatorExtrapolator.of(
         curveConfig.getInterpolator(),
-        curveConfig.getLeftExtrapolator(),
-        curveConfig.getRightExtrapolator());
+        curveConfig.getExtrapolatorLeft(),
+        curveConfig.getExtrapolatorRight());
 
     return new GeneratorCurveYieldInterpolated(LastTimeCalculator.getInstance(), interpolatorExtrapolator);
   }
+
 }

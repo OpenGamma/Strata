@@ -14,19 +14,21 @@ import com.opengamma.strata.market.curve.CurveName;
 /**
  * Configuration specifying how to calibrate a curve.
  * <p>
- * This class contains a list of {@link CurveNode} instances specifying the instruments which make up the curve.
+ * A curve is built from a number of parameters and described by metadata.
+ * Calibration is typically based on a list of {@link CurveNode} instances,
+ * one for each parameter, that specify the underlying instruments.
  */
 public interface CurveConfig {
 
   /**
-   * Returns the curve name.
+   * Gets the curve name.
    *
    * @return the curve name
    */
   public abstract CurveName getName();
 
   /**
-   * Returns the curve metadata.
+   * Creates the curve metadata.
    * <p>
    * This method returns metadata about the curve and the curve parameters.
    * <p>
@@ -42,4 +44,5 @@ public interface CurveConfig {
    * @return the metadata
    */
   public abstract CurveMetadata metadata(LocalDate valuationDate);
+
 }

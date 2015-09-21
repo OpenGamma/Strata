@@ -43,6 +43,9 @@ import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 
+/**
+ * Test {@link ParRatesMarketDataFunction}.
+ */
 @Test
 public class ParRatesMarketDataFunctionTest {
 
@@ -59,14 +62,14 @@ public class ParRatesMarketDataFunctionTest {
     InterpolatedCurveConfig curve = InterpolatedCurveConfig.builder()
         .name(CurveName.of("curve"))
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .nodes(node1x4, node2x5, node3x6)
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(CurveGroupName.of("curve group"))
-        .addDiscountingCurve(curve, Currency.USD)
+        .addDiscountCurve(curve, Currency.USD)
         .build();
 
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
@@ -115,7 +118,7 @@ public class ParRatesMarketDataFunctionTest {
     when(curve.getName()).thenReturn(CurveName.of("curve"));
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(CurveGroupName.of("curve group"))
-        .addDiscountingCurve(curve, Currency.USD)
+        .addDiscountCurve(curve, Currency.USD)
         .build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
     MarketDataRequirements requirements = marketDataFunction.requirements(parRatesId, marketDataConfig);
@@ -136,14 +139,14 @@ public class ParRatesMarketDataFunctionTest {
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(DayCounts.ACT_ACT_ISDA)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .nodes(node1x4, node2x5, node3x6)
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(CurveGroupName.of("curve group"))
-        .addDiscountingCurve(curve, Currency.USD)
+        .addDiscountCurve(curve, Currency.USD)
         .build();
 
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
@@ -211,7 +214,7 @@ public class ParRatesMarketDataFunctionTest {
     when(curve.getName()).thenReturn(CurveName.of("curve"));
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(CurveGroupName.of("curve group"))
-        .addDiscountingCurve(curve, Currency.USD)
+        .addDiscountCurve(curve, Currency.USD)
         .build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupConfig.getName(), groupConfig).build();
     MarketEnvironment emptyData = MarketEnvironment.empty(VALUATION_DATE);
@@ -230,14 +233,14 @@ public class ParRatesMarketDataFunctionTest {
     InterpolatedCurveConfig curve = InterpolatedCurveConfig.builder()
         .name(CurveName.of("curve"))
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .nodes(node1x4, node2x5, node3x6)
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
         .name(CurveGroupName.of("curve group"))
-        .addDiscountingCurve(curve, Currency.USD)
+        .addDiscountCurve(curve, Currency.USD)
         .build();
 
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
@@ -252,11 +255,11 @@ public class ParRatesMarketDataFunctionTest {
     assertThat(result).hasFailureMessageMatching("No market data available for .*");
   }
 
-  //--------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static FraCurveNode fraNode(int startTenor, String marketDataId) {
     Period periodToStart = Period.ofMonths(startTenor);
     FraTemplate template = FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M);
     return FraCurveNode.of(template, QuoteKey.of(StandardId.of("test", marketDataId)));
   }
+
 }

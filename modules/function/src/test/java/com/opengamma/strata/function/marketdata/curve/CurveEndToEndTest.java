@@ -91,6 +91,9 @@ import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.value.ValueType;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
+/**
+ * Test curves.
+ */
 @Test
 public class CurveEndToEndTest {
 
@@ -155,8 +158,8 @@ public class CurveEndToEndTest {
         .dayCount(DayCounts.ACT_ACT_ISDA)
         .nodes(nodes)
         .interpolator(CurveInterpolators.DOUBLE_QUADRATIC)
-        .leftExtrapolator(CurveExtrapolators.FLAT)
-        .rightExtrapolator(CurveExtrapolators.FLAT)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
 
     CurveGroupConfig groupConfig = CurveGroupConfig.builder()
