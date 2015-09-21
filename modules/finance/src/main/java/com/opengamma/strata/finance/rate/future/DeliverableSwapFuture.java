@@ -26,10 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Product;
 import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.SecurityLink;
 import com.opengamma.strata.finance.rate.swap.ExpandedSwapLeg;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.NotionalPaymentPeriod;
@@ -37,6 +35,7 @@ import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.finance.rate.swap.PaymentPeriod;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLeg;
+import com.opengamma.strata.finance.rate.swap.SwapLegType;
 
 /**
  * A deliverable swap futures contract.
@@ -50,10 +49,10 @@ public final class DeliverableSwapFuture
     implements Product, ImmutableBean, Serializable {
 
   /**
-   * The link to the underlying swap.
+   * The underlying swap.
    * <p>
-   * This property returns a link to the security via a {@link StandardId}.
-   * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
+   * The delivery date of the future is typically the first accrual date of the underlying swap. 
+   * The swap should be a receiver swap of notional 1. 
    */
   @PropertyDefinition(validate = "notNull")
   private final Security<Swap> underlyingSecurity;
@@ -85,6 +84,9 @@ public final class DeliverableSwapFuture
     ArgChecker.inOrderOrEqual(deliveryDate, swap.getStartDate(), "deliveryDate", "startDate");
     ArgChecker.isFalse(swap.isCrossCurrency(), "underlying swap must not be cross currency");
     for (SwapLeg swapLeg : swap.getLegs()) {
+      if (swapLeg.getType().equals(SwapLegType.FIXED)) {
+        ArgChecker.isTrue(swapLeg.getPayReceive().isReceive(), "underlying must be receiver swap");
+      }
       ExpandedSwapLeg expandedSwapLeg = swapLeg.expand();
       for (PaymentEvent event : expandedSwapLeg.getPaymentEvents()) {
         ArgChecker.isTrue(event instanceof NotionalExchange, "PaymentEvent must be NotionalExchange");
@@ -183,10 +185,10 @@ public final class DeliverableSwapFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link to the underlying swap.
+   * Gets the underlying swap.
    * <p>
-   * This property returns a link to the security via a {@link StandardId}.
-   * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
+   * The delivery date of the future is typically the first accrual date of the underlying swap.
+   * The swap should be a receiver swap of notional 1.
    * @return the value of the property, not null
    */
   public Security<Swap> getUnderlyingSecurity() {
@@ -511,10 +513,10 @@ public final class DeliverableSwapFuture
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the link to the underlying swap.
+     * Sets the underlying swap.
      * <p>
-     * This property returns a link to the security via a {@link StandardId}.
-     * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
+     * The delivery date of the future is typically the first accrual date of the underlying swap.
+     * The swap should be a receiver swap of notional 1.
      * @param underlyingSecurity  the new value, not null
      * @return this, for chaining, not null
      */

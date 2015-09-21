@@ -56,7 +56,7 @@ public class DeliverableSwapFutureTest {
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN);
   private static final LocalDate START_DATE = LocalDate.of(2014, 9, 12);
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-      .toTrade(START_DATE, Tenor.TENOR_10Y, BuySell.BUY, 1d, 0.015).getProduct();
+      .toTrade(START_DATE, Tenor.TENOR_10Y, BuySell.SELL, 1d, 0.015).getProduct();
   private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
   private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
   private static final double NOTIONAL = 100000;
@@ -100,7 +100,7 @@ public class DeliverableSwapFutureTest {
 
   public void test_builder_notUnitNotional() {
     SwapLeg fixedLeg10 = RateCalculationSwapLeg.builder()
-        .payReceive(PAY)
+        .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 9, 12))
@@ -119,7 +119,7 @@ public class DeliverableSwapFutureTest {
             .build())
         .build();
     SwapLeg iborLeg500 = RateCalculationSwapLeg.builder()
-        .payReceive(RECEIVE)
+        .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 9, 12))
@@ -142,9 +142,9 @@ public class DeliverableSwapFutureTest {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.SAT_SUN, BDA_P))
             .build())
         .build();
-    Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(RECEIVE).get());
+    Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(PAY).get());
     Security<Swap> security1 = UnitSecurity.builder(swap1).standardId(SWAP_ID).build();
-    Swap swap2 = Swap.of(SWAP.getLeg(PAY).get(), iborLeg500);
+    Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     Security<Swap> security2 = UnitSecurity.builder(swap2).standardId(SWAP_ID).build();
     assertThrowsIllegalArg(() -> DeliverableSwapFuture.builder()
         .deliveryDate(DELIVERY_DATE)
@@ -170,7 +170,7 @@ public class DeliverableSwapFutureTest {
         .build();
     coverImmutableBean(test1);
     SwapLeg iborLeg = RateCalculationSwapLeg.builder()
-        .payReceive(RECEIVE)
+        .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 9, 12))
@@ -193,7 +193,7 @@ public class DeliverableSwapFutureTest {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.SAT_SUN, BDA_P))
             .build())
         .build();
-    Swap swap1 = Swap.of(SWAP.getLeg(PAY).get(), iborLeg);
+    Swap swap1 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg);
     Security<Swap> security1 = UnitSecurity.builder(swap1).standardId(SWAP_ID).build();
     DeliverableSwapFuture test2 = DeliverableSwapFuture.builder()
         .deliveryDate(LocalDate.of(2014, 9, 5))
