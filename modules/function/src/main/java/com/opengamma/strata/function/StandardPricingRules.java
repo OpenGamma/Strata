@@ -12,8 +12,9 @@ import com.opengamma.strata.finance.credit.CdsTrade;
 import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
 import com.opengamma.strata.finance.fx.FxNdfTrade;
-import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.finance.fx.FxSingleTrade;
+import com.opengamma.strata.finance.fx.FxSwapTrade;
+import com.opengamma.strata.finance.payment.BulletPaymentTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
@@ -23,6 +24,7 @@ import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunct
 import com.opengamma.strata.function.calculation.fx.FxNdfFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroups;
+import com.opengamma.strata.function.calculation.payment.BulletPaymentFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.deposit.TermDepositFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.fra.FraFunctionGroups;
 import com.opengamma.strata.function.calculation.rate.swap.SwapFunctionGroups;
@@ -38,6 +40,7 @@ final class StandardPricingRules {
    * The standard pricing rules.
    */
   private static final PricingRules STANDARD = DefaultPricingRules.of(
+      PricingRule.builder(BulletPaymentTrade.class).functionGroup(BulletPaymentFunctionGroups.discounting()).build(),
       PricingRule.builder(CdsTrade.class).functionGroup(CdsFunctionGroups.discounting()).build(),
       PricingRule.builder(FraTrade.class).functionGroup(FraFunctionGroups.discounting()).build(),
       PricingRule.builder(FxSingleTrade.class).functionGroup(FxSingleFunctionGroups.discounting()).build(),
@@ -64,6 +67,7 @@ final class StandardPricingRules {
    * <p>
    * The supported asset classes are:
    * <ul>
+   *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
    *  <li>FX single (spot/forward) - {@link FxSingleTrade}
