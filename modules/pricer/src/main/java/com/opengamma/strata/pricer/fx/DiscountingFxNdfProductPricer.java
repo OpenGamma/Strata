@@ -11,8 +11,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForwardProduct;
+import com.opengamma.strata.finance.fx.ExpandedFxNdf;
+import com.opengamma.strata.finance.fx.FxNdfProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -20,21 +20,20 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Pricer for FX non-deliverable forward (NDF) products.
  * <p>
- * This function provides the ability to price an {@link FxNonDeliverableForwardProduct}.
+ * This function provides the ability to price an {@link FxNdfProduct}.
  * The product is priced using forward curves for the currency pair.
  */
-public class DiscountingFxNonDeliverableForwardProductPricer {
+public class DiscountingFxNdfProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxNonDeliverableForwardProductPricer DEFAULT =
-      new DiscountingFxNonDeliverableForwardProductPricer();
+  public static final DiscountingFxNdfProductPricer DEFAULT = new DiscountingFxNdfProductPricer();
 
   /**
    * Creates an instance.
    */
-  public DiscountingFxNonDeliverableForwardProductPricer() {
+  public DiscountingFxNdfProductPricer() {
   }
 
   //-------------------------------------------------------------------------
@@ -48,8 +47,8 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
    * @param provider  the rates provider
    * @return the present value of the product in the settlement currency
    */
-  public CurrencyAmount presentValue(FxNonDeliverableForwardProduct product, RatesProvider provider) {
-    ExpandedFxNonDeliverableForward ndf = product.expand();
+  public CurrencyAmount presentValue(FxNdfProduct product, RatesProvider provider) {
+    ExpandedFxNdf ndf = product.expand();
     Currency ccySettle = ndf.getSettlementCurrency();
     if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
       return CurrencyAmount.zero(ccySettle);
@@ -73,8 +72,8 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
    * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(FxNonDeliverableForwardProduct product, RatesProvider provider) {
-    ExpandedFxNonDeliverableForward ndf = product.expand();
+  public PointSensitivities presentValueSensitivity(FxNdfProduct product, RatesProvider provider) {
+    ExpandedFxNdf ndf = product.expand();
     if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
       return PointSensitivities.empty();
     }
@@ -103,8 +102,8 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
    * @param provider  the rates provider
    * @return the currency exposure
    */
-  public MultiCurrencyAmount currencyExposure(FxNonDeliverableForwardProduct product, RatesProvider provider) {
-    ExpandedFxNonDeliverableForward ndf = product.expand();
+  public MultiCurrencyAmount currencyExposure(FxNdfProduct product, RatesProvider provider) {
+    ExpandedFxNdf ndf = product.expand();
     if (provider.getValuationDate().isAfter(ndf.getPaymentDate())) {
       return MultiCurrencyAmount.empty();
     }
@@ -126,8 +125,8 @@ public class DiscountingFxNonDeliverableForwardProductPricer {
    * @param provider  the rates provider
    * @return the forward rate
    */
-  public FxRate forwardFxRate(FxNonDeliverableForwardProduct product, RatesProvider provider) {
-    ExpandedFxNonDeliverableForward ndf = product.expand();
+  public FxRate forwardFxRate(FxNdfProduct product, RatesProvider provider) {
+    ExpandedFxNdf ndf = product.expand();
     Currency ccySettle = ndf.getSettlementCurrency();
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());

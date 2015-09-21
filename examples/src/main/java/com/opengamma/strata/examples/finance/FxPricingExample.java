@@ -28,10 +28,10 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.Fx;
+import com.opengamma.strata.finance.fx.FxSingle;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.fx.FxTrade;
+import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
@@ -91,8 +91,8 @@ public class FxPricingExample {
   //-----------------------------------------------------------------------  
   // create an FX Forward trade
   private static Trade createTrade1() {
-    Fx fx = Fx.of(CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
-    return FxTrade.builder()
+    FxSingle fx = FxSingle.of(CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
+    return FxSingleTrade.builder()
         .product(fx)
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
@@ -105,8 +105,8 @@ public class FxPricingExample {
 
   // create an FX Forward trade
   private static Trade createTrade2() {
-    Fx fx = Fx.of(CurrencyAmount.of(USD, 15000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
-    return FxTrade.builder()
+    FxSingle fx = FxSingle.of(CurrencyAmount.of(USD, 15000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
+    return FxSingleTrade.builder()
         .product(fx)
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "2"))

@@ -33,7 +33,7 @@ import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.finance.TradeInfo;
-import com.opengamma.strata.finance.fx.Fx;
+import com.opengamma.strata.finance.fx.FxSingle;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
 import com.opengamma.strata.function.marketdata.curve.MarketDataMap;
@@ -51,8 +51,8 @@ public class FxSwapFunctionGroupsTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
-  private static final Fx LEG1 = Fx.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
-  private static final Fx LEG2 = Fx.of(GBP_P1000.negated(), USD_M1600.negated(), date(2015, 9, 30));
+  private static final FxSingle LEG1 = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
+  private static final FxSingle LEG2 = FxSingle.of(GBP_P1000.negated(), USD_M1600.negated(), date(2015, 9, 30));
   private static final FxSwap PRODUCT = FxSwap.of(LEG1, LEG2);
   public static final FxSwapTrade TRADE = FxSwapTrade.builder()
       .tradeInfo(TradeInfo.builder()

@@ -54,7 +54,7 @@ public final class FxSwap
    * The payment date of this transaction must be before that of the far leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Fx nearLeg;
+  private final FxSingle nearLeg;
   /**
    * The foreign exchange transaction at the later date.
    * <p>
@@ -62,7 +62,7 @@ public final class FxSwap
    * The payment date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Fx farLeg;
+  private final FxSingle farLeg;
 
   //-------------------------------------------------------------------------
   /**
@@ -75,7 +75,7 @@ public final class FxSwap
    * @param farLeg  the later leg
    * @return the FX swap
    */
-  public static FxSwap of(Fx nearLeg, Fx farLeg) {
+  public static FxSwap of(FxSingle nearLeg, FxSingle farLeg) {
     return new FxSwap(nearLeg, farLeg);
   }
 
@@ -109,8 +109,8 @@ public final class FxSwap
     ArgChecker.isFalse(currency1.equals(currency2), "Currencies must not be equal");
     ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
     double farFxRate = nearFxRate + forwardPoints;
-    Fx nearLeg = Fx.of(amountCurrency1, FxRate.of(currency1, currency2, nearFxRate), nearDate);
-    Fx farLeg = Fx.of(amountCurrency1.negated(), FxRate.of(currency1, currency2, farFxRate), farDate);
+    FxSingle nearLeg = FxSingle.of(amountCurrency1, FxRate.of(currency1, currency2, nearFxRate), nearDate);
+    FxSingle farLeg = FxSingle.of(amountCurrency1.negated(), FxRate.of(currency1, currency2, farFxRate), farDate);
     return of(nearLeg, farLeg);
   }
 
@@ -159,8 +159,8 @@ public final class FxSwap
   private static final long serialVersionUID = 1L;
 
   private FxSwap(
-      Fx nearLeg,
-      Fx farLeg) {
+      FxSingle nearLeg,
+      FxSingle farLeg) {
     JodaBeanUtils.notNull(nearLeg, "nearLeg");
     JodaBeanUtils.notNull(farLeg, "farLeg");
     this.nearLeg = nearLeg;
@@ -191,7 +191,7 @@ public final class FxSwap
    * The payment date of this transaction must be before that of the far leg.
    * @return the value of the property, not null
    */
-  public Fx getNearLeg() {
+  public FxSingle getNearLeg() {
     return nearLeg;
   }
 
@@ -203,7 +203,7 @@ public final class FxSwap
    * The payment date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
-  public Fx getFarLeg() {
+  public FxSingle getFarLeg() {
     return farLeg;
   }
 
@@ -252,13 +252,13 @@ public final class FxSwap
     /**
      * The meta-property for the {@code nearLeg} property.
      */
-    private final MetaProperty<Fx> nearLeg = DirectMetaProperty.ofImmutable(
-        this, "nearLeg", FxSwap.class, Fx.class);
+    private final MetaProperty<FxSingle> nearLeg = DirectMetaProperty.ofImmutable(
+        this, "nearLeg", FxSwap.class, FxSingle.class);
     /**
      * The meta-property for the {@code farLeg} property.
      */
-    private final MetaProperty<Fx> farLeg = DirectMetaProperty.ofImmutable(
-        this, "farLeg", FxSwap.class, Fx.class);
+    private final MetaProperty<FxSingle> farLeg = DirectMetaProperty.ofImmutable(
+        this, "farLeg", FxSwap.class, FxSingle.class);
     /**
      * The meta-properties.
      */
@@ -304,7 +304,7 @@ public final class FxSwap
      * The meta-property for the {@code nearLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Fx> nearLeg() {
+    public MetaProperty<FxSingle> nearLeg() {
       return nearLeg;
     }
 
@@ -312,7 +312,7 @@ public final class FxSwap
      * The meta-property for the {@code farLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Fx> farLeg() {
+    public MetaProperty<FxSingle> farLeg() {
       return farLeg;
     }
 
@@ -345,8 +345,8 @@ public final class FxSwap
    */
   private static final class Builder extends DirectFieldsBeanBuilder<FxSwap> {
 
-    private Fx nearLeg;
-    private Fx farLeg;
+    private FxSingle nearLeg;
+    private FxSingle farLeg;
 
     /**
      * Restricted constructor.
@@ -371,10 +371,10 @@ public final class FxSwap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1825755334:  // nearLeg
-          this.nearLeg = (Fx) newValue;
+          this.nearLeg = (FxSingle) newValue;
           break;
         case -1281739913:  // farLeg
-          this.farLeg = (Fx) newValue;
+          this.farLeg = (FxSingle) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

@@ -15,11 +15,11 @@ import com.opengamma.strata.finance.Product;
  * For example, it might represent the payment of USD 1,000 and the receipt of EUR 932.
  * <p>
  * An FX forward and an FX spot can be represented using this product.
- * Application code should use {@link Fx}.
+ * Application code should use {@link FxSingle}.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface FxProduct
-    extends Product, Expandable<ExpandedFx> {
+public interface FxSingleProduct
+    extends Product, Expandable<ExpandedFxSingle> {
 
 }

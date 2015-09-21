@@ -6,17 +6,17 @@
 package com.opengamma.strata.function.calculation.fx;
 
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.finance.fx.ExpandedFxNonDeliverableForward;
+import com.opengamma.strata.finance.fx.ExpandedFxNdf;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * Calculates the future FX rate of an {@code FxNonDeliverableForwardTrade} for each of a set of scenarios.
+ * Calculates the future FX rate of an {@code FxNdfTrade} for each of a set of scenarios.
  */
 public class FxNdfForwardFxRateFunction
     extends AbstractFxNdfFunction<FxRate> {
 
   @Override
-  protected FxRate execute(ExpandedFxNonDeliverableForward product, RatesProvider provider) {
+  protected FxRate execute(ExpandedFxNdf product, RatesProvider provider) {
     return pricer().forwardFxRate(product, provider);
   }
 

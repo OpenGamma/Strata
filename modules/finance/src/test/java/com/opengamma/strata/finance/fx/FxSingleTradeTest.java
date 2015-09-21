@@ -21,22 +21,22 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.finance.TradeInfo;
 
 /**
- * Test {@link FxTrade}.
+ * Test {@link FxSingleTrade}.
  */
 @Test
-public class FxTradeTest {
+public class FxSingleTradeTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
   private static final CurrencyAmount USD_P1600 = CurrencyAmount.of(USD, 1_600);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
-  private static final Fx FWD1 = Fx.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
-  private static final Fx FWD2 = Fx.of(GBP_M1000, USD_P1600, DATE_2015_06_30);
+  private static final FxSingle FWD1 = FxSingle.of(GBP_P1000, USD_M1600, DATE_2015_06_30);
+  private static final FxSingle FWD2 = FxSingle.of(GBP_M1000, USD_P1600, DATE_2015_06_30);
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    FxTrade test = FxTrade.builder()
+    FxSingleTrade test = FxSingleTrade.builder()
         .product(FWD1)
         .build();
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
@@ -45,19 +45,19 @@ public class FxTradeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FxTrade test = FxTrade.builder()
+    FxSingleTrade test = FxSingleTrade.builder()
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(FWD1)
         .build();
     coverImmutableBean(test);
-    FxTrade test2 = FxTrade.builder()
+    FxSingleTrade test2 = FxSingleTrade.builder()
         .product(FWD2)
         .build();
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    FxTrade test = FxTrade.builder()
+    FxSingleTrade test = FxSingleTrade.builder()
         .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(FWD1)
         .build();

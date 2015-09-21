@@ -41,7 +41,7 @@ public class FxVanillaOptionTradeTest {
   private static final double NOTIONAL = 1.0e6;
   private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * 1.35);
-  private static final Fx FX = Fx.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
+  private static final FxSingle FX = FxSingle.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
   private static final FxVanillaOption FX_OPTION = FxVanillaOption.builder()
       .expiryDate(EXPIRY_DATE)
       .expiryTime(EXPIRY_TIME)

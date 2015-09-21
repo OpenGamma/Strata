@@ -50,7 +50,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be before that of the far leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ExpandedFx nearLeg;
+  private final ExpandedFxSingle nearLeg;
   /**
    * The foreign exchange transaction at the later date.
    * <p>
@@ -58,7 +58,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be after that of the near leg.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ExpandedFx farLeg;
+  private final ExpandedFxSingle farLeg;
 
   //-------------------------------------------------------------------------
   /**
@@ -71,7 +71,7 @@ public final class ExpandedFxSwap
    * @param farLeg  the later leg
    * @return the expanded FX swap
    */
-  public static ExpandedFxSwap of(ExpandedFx nearLeg, ExpandedFx farLeg) {
+  public static ExpandedFxSwap of(ExpandedFxSingle nearLeg, ExpandedFxSingle farLeg) {
     return new ExpandedFxSwap(nearLeg, farLeg);
   }
 
@@ -120,8 +120,8 @@ public final class ExpandedFxSwap
   private static final long serialVersionUID = 1L;
 
   private ExpandedFxSwap(
-      ExpandedFx nearLeg,
-      ExpandedFx farLeg) {
+      ExpandedFxSingle nearLeg,
+      ExpandedFxSingle farLeg) {
     JodaBeanUtils.notNull(nearLeg, "nearLeg");
     JodaBeanUtils.notNull(farLeg, "farLeg");
     this.nearLeg = nearLeg;
@@ -152,7 +152,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be before that of the far leg.
    * @return the value of the property, not null
    */
-  public ExpandedFx getNearLeg() {
+  public ExpandedFxSingle getNearLeg() {
     return nearLeg;
   }
 
@@ -164,7 +164,7 @@ public final class ExpandedFxSwap
    * The payment date of this transaction must be after that of the near leg.
    * @return the value of the property, not null
    */
-  public ExpandedFx getFarLeg() {
+  public ExpandedFxSingle getFarLeg() {
     return farLeg;
   }
 
@@ -213,13 +213,13 @@ public final class ExpandedFxSwap
     /**
      * The meta-property for the {@code nearLeg} property.
      */
-    private final MetaProperty<ExpandedFx> nearLeg = DirectMetaProperty.ofImmutable(
-        this, "nearLeg", ExpandedFxSwap.class, ExpandedFx.class);
+    private final MetaProperty<ExpandedFxSingle> nearLeg = DirectMetaProperty.ofImmutable(
+        this, "nearLeg", ExpandedFxSwap.class, ExpandedFxSingle.class);
     /**
      * The meta-property for the {@code farLeg} property.
      */
-    private final MetaProperty<ExpandedFx> farLeg = DirectMetaProperty.ofImmutable(
-        this, "farLeg", ExpandedFxSwap.class, ExpandedFx.class);
+    private final MetaProperty<ExpandedFxSingle> farLeg = DirectMetaProperty.ofImmutable(
+        this, "farLeg", ExpandedFxSwap.class, ExpandedFxSingle.class);
     /**
      * The meta-properties.
      */
@@ -265,7 +265,7 @@ public final class ExpandedFxSwap
      * The meta-property for the {@code nearLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedFx> nearLeg() {
+    public MetaProperty<ExpandedFxSingle> nearLeg() {
       return nearLeg;
     }
 
@@ -273,7 +273,7 @@ public final class ExpandedFxSwap
      * The meta-property for the {@code farLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedFx> farLeg() {
+    public MetaProperty<ExpandedFxSingle> farLeg() {
       return farLeg;
     }
 
@@ -306,8 +306,8 @@ public final class ExpandedFxSwap
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ExpandedFxSwap> {
 
-    private ExpandedFx nearLeg;
-    private ExpandedFx farLeg;
+    private ExpandedFxSingle nearLeg;
+    private ExpandedFxSingle farLeg;
 
     /**
      * Restricted constructor.
@@ -332,10 +332,10 @@ public final class ExpandedFxSwap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1825755334:  // nearLeg
-          this.nearLeg = (ExpandedFx) newValue;
+          this.nearLeg = (ExpandedFxSingle) newValue;
           break;
         case -1281739913:  // farLeg
-          this.farLeg = (ExpandedFx) newValue;
+          this.farLeg = (ExpandedFxSingle) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

@@ -99,7 +99,7 @@ public final class FxVanillaOption
    * A put option permits the inverse transaction to occur.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Fx underlying;
+  private final FxSingle underlying;
   /**
    * The strike of the option.
    * <p>
@@ -192,7 +192,7 @@ public final class FxVanillaOption
       LocalDate expiryDate,
       LocalTime expiryTime,
       ZoneId expiryZone,
-      Fx underlying,
+      FxSingle underlying,
       FxRate strike) {
     JodaBeanUtils.notNull(putCall, "putCall");
     JodaBeanUtils.notNull(longShort, "longShort");
@@ -292,7 +292,7 @@ public final class FxVanillaOption
    * A put option permits the inverse transaction to occur.
    * @return the value of the property, not null
    */
-  public Fx getUnderlying() {
+  public FxSingle getUnderlying() {
     return underlying;
   }
 
@@ -400,8 +400,8 @@ public final class FxVanillaOption
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<Fx> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", FxVanillaOption.class, Fx.class);
+    private final MetaProperty<FxSingle> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", FxVanillaOption.class, FxSingle.class);
     /**
      * The meta-property for the {@code strike} property.
      */
@@ -507,7 +507,7 @@ public final class FxVanillaOption
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Fx> underlying() {
+    public MetaProperty<FxSingle> underlying() {
       return underlying;
     }
 
@@ -563,7 +563,7 @@ public final class FxVanillaOption
     private LocalDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
-    private Fx underlying;
+    private FxSingle underlying;
     private FxRate strike;
 
     /**
@@ -628,7 +628,7 @@ public final class FxVanillaOption
           this.expiryZone = (ZoneId) newValue;
           break;
         case -1770633379:  // underlying
-          this.underlying = (Fx) newValue;
+          this.underlying = (FxSingle) newValue;
           break;
         case -891985998:  // strike
           this.strike = (FxRate) newValue;
@@ -753,7 +753,7 @@ public final class FxVanillaOption
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlying(Fx underlying) {
+    public Builder underlying(FxSingle underlying) {
       JodaBeanUtils.notNull(underlying, "underlying");
       this.underlying = underlying;
       return this;

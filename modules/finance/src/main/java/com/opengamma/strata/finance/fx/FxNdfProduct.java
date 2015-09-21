@@ -17,7 +17,7 @@ import com.opengamma.strata.finance.Product;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface FxNonDeliverableForwardProduct
-    extends Product, Expandable<ExpandedFxNonDeliverableForward> {
+public interface FxNdfProduct
+    extends Product, Expandable<ExpandedFxNdf> {
 
 }

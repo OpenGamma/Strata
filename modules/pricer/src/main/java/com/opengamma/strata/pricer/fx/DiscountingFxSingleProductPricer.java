@@ -10,8 +10,8 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.finance.fx.ExpandedFx;
-import com.opengamma.strata.finance.fx.FxProduct;
+import com.opengamma.strata.finance.fx.ExpandedFxSingle;
+import com.opengamma.strata.finance.fx.FxSingleProduct;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.FxForwardRates;
@@ -21,14 +21,14 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Pricer for foreign exchange transaction products.
  * <p>
- * This function provides the ability to price an {@link FxProduct}.
+ * This function provides the ability to price an {@link FxSingleProduct}.
  */
-public class DiscountingFxProductPricer {
+public class DiscountingFxSingleProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingFxProductPricer DEFAULT = new DiscountingFxProductPricer(
+  public static final DiscountingFxSingleProductPricer DEFAULT = new DiscountingFxSingleProductPricer(
       DiscountingPaymentPricer.DEFAULT);
 
   /**
@@ -41,7 +41,7 @@ public class DiscountingFxProductPricer {
    * 
    * @param paymentPricer  the pricer for {@link Payment}
    */
-  public DiscountingFxProductPricer(
+  public DiscountingFxSingleProductPricer(
       DiscountingPaymentPricer paymentPricer) {
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
@@ -54,8 +54,8 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the present value in the two natural currencies
    */
-  public MultiCurrencyAmount presentValue(FxProduct product, RatesProvider provider) {
-    ExpandedFx fx = product.expand();
+  public MultiCurrencyAmount presentValue(FxSingleProduct product, RatesProvider provider) {
+    ExpandedFxSingle fx = product.expand();
     if (provider.getValuationDate().isAfter(fx.getPaymentDate())) {
       return MultiCurrencyAmount.empty();
     }
@@ -74,8 +74,8 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(FxProduct product, RatesProvider provider) {
-    ExpandedFx fx = product.expand();
+  public PointSensitivities presentValueSensitivity(FxSingleProduct product, RatesProvider provider) {
+    ExpandedFxSingle fx = product.expand();
     if (provider.getValuationDate().isAfter(fx.getPaymentDate())) {
       return PointSensitivities.empty();
     }
@@ -92,7 +92,7 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the currency exposure
    */
-  public MultiCurrencyAmount currencyExposure(FxProduct product, RatesProvider provider) {
+  public MultiCurrencyAmount currencyExposure(FxSingleProduct product, RatesProvider provider) {
     return presentValue(product, provider);
   }
 
@@ -103,8 +103,8 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the spread
    */
-  public double parSpread(FxProduct product, RatesProvider provider) {
-    ExpandedFx fx = product.expand();
+  public double parSpread(FxSingleProduct product, RatesProvider provider) {
+    ExpandedFxSingle fx = product.expand();
     Payment basePayment = fx.getBaseCurrencyPayment();
     Payment counterPayment = fx.getCounterCurrencyPayment();
     MultiCurrencyAmount pv = presentValue(fx, provider);
@@ -122,8 +122,8 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the forward rate
    */
-  public FxRate forwardFxRate(FxProduct product, RatesProvider provider) {
-    ExpandedFx fx = product.expand();
+  public FxRate forwardFxRate(FxSingleProduct product, RatesProvider provider) {
+    ExpandedFxSingle fx = product.expand();
     FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
     Payment basePayment = fx.getBaseCurrencyPayment();
     Payment counterPayment = fx.getCounterCurrencyPayment();
@@ -140,8 +140,8 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the point sensitivity
    */
-  public PointSensitivityBuilder forwardFxRatePointSensitivity(FxProduct product, RatesProvider provider) {
-    ExpandedFx fx = product.expand();
+  public PointSensitivityBuilder forwardFxRatePointSensitivity(FxSingleProduct product, RatesProvider provider) {
+    ExpandedFxSingle fx = product.expand();
     FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
     PointSensitivityBuilder forwardFxRatePointSensitivity = fxForwardRates.ratePointSensitivity(
         fx.getReceiveCurrencyAmount().getCurrency(), fx.getPaymentDate());
@@ -157,8 +157,8 @@ public class DiscountingFxProductPricer {
    * @param provider  the rates provider
    * @return the sensitivity to spot
    */
-  public double forwardFxRateSpotSensitivity(FxProduct product, RatesProvider provider) {
-    ExpandedFx fx = product.expand();
+  public double forwardFxRateSpotSensitivity(FxSingleProduct product, RatesProvider provider) {
+    ExpandedFxSingle fx = product.expand();
     FxForwardRates fxForwardRates = provider.fxForwardRates(fx.getCurrencyPair());
     double forwardRateSpotSensitivity = fxForwardRates.rateFxSpotSensitivity(
         fx.getReceiveCurrencyAmount().getCurrency(), fx.getPaymentDate());

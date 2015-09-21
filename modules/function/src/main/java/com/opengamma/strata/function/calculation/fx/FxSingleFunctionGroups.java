@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.fx;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
-import com.opengamma.strata.finance.fx.FxTrade;
+import com.opengamma.strata.finance.fx.FxSingleTrade;
 
 /**
  * Contains function groups for built-in FX calculation functions.
@@ -21,8 +21,8 @@ public final class FxSingleFunctionGroups {
   /**
    * The group with pricers based on discounting methods.
    */
-  private static final FunctionGroup<FxTrade> DISCOUNTING_GROUP =
-      DefaultFunctionGroup.builder(FxTrade.class).name("FxSingleDiscounting")
+  private static final FunctionGroup<FxSingleTrade> DISCOUNTING_GROUP =
+      DefaultFunctionGroup.builder(FxSingleTrade.class).name("FxSingleDiscounting")
           .addFunction(Measure.PAR_SPREAD, FxSingleParSpreadFunction.class)
           .addFunction(Measure.PRESENT_VALUE, FxSinglePvFunction.class)
           .addFunction(Measure.PV01, FxSinglePv01Function.class)
@@ -54,7 +54,7 @@ public final class FxSingleFunctionGroups {
    * 
    * @return the function group
    */
-  public static FunctionGroup<FxTrade> discounting() {
+  public static FunctionGroup<FxSingleTrade> discounting() {
     return DISCOUNTING_GROUP;
   }
 

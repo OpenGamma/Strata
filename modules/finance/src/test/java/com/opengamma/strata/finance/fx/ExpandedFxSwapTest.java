@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
  */
 @Test
 public class ExpandedFxSwapTest {
+
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
   private static final CurrencyAmount USD_P1550 = CurrencyAmount.of(USD, 1_550);
@@ -33,8 +34,8 @@ public class ExpandedFxSwapTest {
   private static final CurrencyAmount EUR_P1590 = CurrencyAmount.of(EUR, 1_590);
   private static final LocalDate DATE_2011_11_21 = date(2011, 11, 21);
   private static final LocalDate DATE_2011_12_21 = date(2011, 12, 21);
-  private static final ExpandedFx NEAR_LEG = ExpandedFx.of(GBP_P1000, USD_M1600, DATE_2011_11_21);
-  private static final ExpandedFx FAR_LEG = ExpandedFx.of(GBP_M1000, USD_P1550, DATE_2011_12_21);
+  private static final ExpandedFxSingle NEAR_LEG = ExpandedFxSingle.of(GBP_P1000, USD_M1600, DATE_2011_11_21);
+  private static final ExpandedFxSingle FAR_LEG = ExpandedFxSingle.of(GBP_M1000, USD_P1550, DATE_2011_12_21);
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -48,18 +49,18 @@ public class ExpandedFxSwapTest {
   }
 
   public void test_of_wrongBaseCurrency() {
-    ExpandedFx nearLeg = ExpandedFx.of(EUR_P1590, USD_M1600, DATE_2011_11_21);
+    ExpandedFxSingle nearLeg = ExpandedFxSingle.of(EUR_P1590, USD_M1600, DATE_2011_11_21);
     assertThrowsIllegalArg(() -> ExpandedFxSwap.of(nearLeg, FAR_LEG));
   }
 
   public void test_of_wrongCounterCurrency() {
-    ExpandedFx nearLeg = ExpandedFx.of(USD_P1550, EUR_P1590.negated(), DATE_2011_11_21);
-    ExpandedFx farLeg = ExpandedFx.of(GBP_M1000, EUR_P1590, DATE_2011_12_21);
+    ExpandedFxSingle nearLeg = ExpandedFxSingle.of(USD_P1550, EUR_P1590.negated(), DATE_2011_11_21);
+    ExpandedFxSingle farLeg = ExpandedFxSingle.of(GBP_M1000, EUR_P1590, DATE_2011_12_21);
     assertThrowsIllegalArg(() -> ExpandedFxSwap.of(nearLeg, farLeg));
   }
 
   public void test_of_sameSign() {
-    ExpandedFx farLeg = ExpandedFx.of(GBP_M1000.negated(), USD_P1550.negated(), DATE_2011_12_21);
+    ExpandedFxSingle farLeg = ExpandedFxSingle.of(GBP_M1000.negated(), USD_P1550.negated(), DATE_2011_12_21);
     assertThrowsIllegalArg(() -> ExpandedFxSwap.of(NEAR_LEG, farLeg));
   }
 
@@ -73,8 +74,9 @@ public class ExpandedFxSwapTest {
   public void converage() {
     ExpandedFxSwap test1 = ExpandedFxSwap.of(NEAR_LEG, FAR_LEG);
     coverImmutableBean(test1);
-    ExpandedFx nearLeg = ExpandedFx.of(CurrencyAmount.of(GBP, 1_100), CurrencyAmount.of(USD, -1_650), DATE_2011_11_21);
-    ExpandedFx farLeg = ExpandedFx.of(CurrencyAmount.of(GBP, -1_100), CurrencyAmount.of(USD, 1_750), DATE_2011_12_21);
+    ExpandedFxSingle nearLeg =
+        ExpandedFxSingle.of(CurrencyAmount.of(GBP, 1_100), CurrencyAmount.of(USD, -1_650), DATE_2011_11_21);
+    ExpandedFxSingle farLeg = ExpandedFxSingle.of(CurrencyAmount.of(GBP, -1_100), CurrencyAmount.of(USD, 1_750), DATE_2011_12_21);
     ExpandedFxSwap test2 = ExpandedFxSwap.of(nearLeg, farLeg);
     coverBeanEquals(test1, test2);
   }
@@ -83,4 +85,5 @@ public class ExpandedFxSwapTest {
     ExpandedFxSwap test = ExpandedFxSwap.of(NEAR_LEG, FAR_LEG);
     assertSerialization(test);
   }
+
 }

@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.fx;
 import com.opengamma.strata.engine.config.Measure;
 import com.opengamma.strata.engine.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.engine.config.pricing.FunctionGroup;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForwardTrade;
+import com.opengamma.strata.finance.fx.FxNdfTrade;
 
 /**
  * Contains function groups for built-in FX Non-Deliverable Forward (NDF) calculation functions.
@@ -21,8 +21,8 @@ public final class FxNdfFunctionGroups {
   /**
    * The group with pricers based on discounting methods.
    */
-  private static final FunctionGroup<FxNonDeliverableForwardTrade> DISCOUNTING_GROUP =
-      DefaultFunctionGroup.builder(FxNonDeliverableForwardTrade.class).name("FxNdfDiscounting")
+  private static final FunctionGroup<FxNdfTrade> DISCOUNTING_GROUP =
+      DefaultFunctionGroup.builder(FxNdfTrade.class).name("FxNdfDiscounting")
           .addFunction(Measure.PRESENT_VALUE, FxNdfPvFunction.class)
           .addFunction(Measure.PV01, FxNdfPv01Function.class)
           .addFunction(Measure.BUCKETED_PV01, FxNdfBucketedPv01Function.class)
@@ -52,7 +52,7 @@ public final class FxNdfFunctionGroups {
    * 
    * @return the function group
    */
-  public static FunctionGroup<FxNonDeliverableForwardTrade> discounting() {
+  public static FunctionGroup<FxNdfTrade> discounting() {
     return DISCOUNTING_GROUP;
   }
 

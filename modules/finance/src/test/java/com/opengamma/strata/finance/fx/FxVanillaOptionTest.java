@@ -42,7 +42,7 @@ public class FxVanillaOptionTest {
   private static final double NOTIONAL = 1.0e6;
   private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * 1.35);
-  private static final Fx FX = Fx.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
+  private static final FxSingle FX = FxSingle.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
 
   public void test_builder() {
     FxVanillaOption test = FxVanillaOption.builder()
@@ -90,7 +90,7 @@ public class FxVanillaOptionTest {
   public void test_of_inverseFx() {
     CurrencyAmount eurAmount = CurrencyAmount.of(EUR, -NOTIONAL);
     CurrencyAmount usdAmount = CurrencyAmount.of(USD, NOTIONAL * 1.35);
-    Fx fxProduct = Fx.of(eurAmount, usdAmount, PAYMENT_DATE);
+    FxSingle fxProduct = FxSingle.of(eurAmount, usdAmount, PAYMENT_DATE);
     FxVanillaOption test = FxVanillaOption.builder()
         .expiryDate(EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
@@ -160,7 +160,7 @@ public class FxVanillaOptionTest {
         .underlying(FX)
         .build();
     coverImmutableBean(test1);
-    Fx fxProduct = Fx.of(CurrencyAmount.of(EUR, NOTIONAL), CurrencyAmount.of(GBP, -NOTIONAL * 0.9), PAYMENT_DATE);
+    FxSingle fxProduct = FxSingle.of(CurrencyAmount.of(EUR, NOTIONAL), CurrencyAmount.of(GBP, -NOTIONAL * 0.9), PAYMENT_DATE);
     FxVanillaOption test2 = FxVanillaOption.builder()
         .expiryDate(LocalDate.of(2015, 2, 15))
         .expiryTime(LocalTime.of(12, 45))

@@ -22,8 +22,8 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
-import com.opengamma.strata.finance.fx.Fx;
-import com.opengamma.strata.finance.fx.FxNonDeliverableForward;
+import com.opengamma.strata.finance.fx.FxSingle;
+import com.opengamma.strata.finance.fx.FxNdf;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -31,10 +31,10 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 
 /**
- * Test {@link DiscountingFxNonDeliverableForwardProductPricer}.
+ * Test {@link DiscountingFxNdfProductPricer}.
  */
 @Test
-public class DiscountingFxNonDeliverableForwardProductPricerTest {
+public class DiscountingFxNdfProductPricerTest {
 
   private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
@@ -52,23 +52,20 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
       .fixingCalendar(HolidayCalendars.USNY)
       .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
       .build();
-  private static final FxNonDeliverableForward NDF =
-      FxNonDeliverableForward.builder()
-          .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-          .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-          .paymentDate(PAYMENT_DATE)
-          .index(INDEX)
-          .build();
-  private static final FxNonDeliverableForward NDF_INVERSE =
-      FxNonDeliverableForward.builder()
-          .settlementCurrencyNotional(CURRENCY_NOTIONAL_INVERSE)
-          .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-          .paymentDate(PAYMENT_DATE)
-          .index(INDEX)
-          .build();
+  private static final FxNdf NDF = FxNdf.builder()
+      .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+      .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+      .paymentDate(PAYMENT_DATE)
+      .index(INDEX)
+      .build();
+  private static final FxNdf NDF_INVERSE = FxNdf.builder()
+      .settlementCurrencyNotional(CURRENCY_NOTIONAL_INVERSE)
+      .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+      .paymentDate(PAYMENT_DATE)
+      .index(INDEX)
+      .build();
 
-  private static final DiscountingFxNonDeliverableForwardProductPricer PRICER =
-      DiscountingFxNonDeliverableForwardProductPricer.DEFAULT;
+  private static final DiscountingFxNdfProductPricer PRICER = DiscountingFxNdfProductPricer.DEFAULT;
   private static final double TOL = 1.0E-12;
   private static final double EPS_FD = 1E-7;
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
@@ -93,26 +90,24 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   }
 
   public void test_presentValue_ended() {
-    FxNonDeliverableForward ndf =
-        FxNonDeliverableForward.builder()
-            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-            .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-            .paymentDate(PAYMENT_DATE_PAST)
-            .index(INDEX)
-            .build();
+    FxNdf ndf = FxNdf.builder()
+        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+        .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+        .paymentDate(PAYMENT_DATE_PAST)
+        .index(INDEX)
+        .build();
     CurrencyAmount computed = PRICER.presentValue(ndf, PROVIDER);
     assertEquals(computed.getAmount(), 0d);
   }
 
   public void test_forwardValue() {
     FxRate computed = PRICER.forwardFxRate(NDF, PROVIDER);
-    FxNonDeliverableForward ndfFwd =
-        FxNonDeliverableForward.builder()
-            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-            .agreedFxRate(computed)
-            .paymentDate(PAYMENT_DATE)
-            .index(INDEX)
-            .build();
+    FxNdf ndfFwd = FxNdf.builder()
+        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+        .agreedFxRate(computed)
+        .paymentDate(PAYMENT_DATE)
+        .index(INDEX)
+        .build();
     CurrencyAmount computedFwd = PRICER.presentValue(ndfFwd, PROVIDER);
     assertEquals(computedFwd.getAmount(), 0d, NOMINAL_USD * TOL);
   }
@@ -126,13 +121,12 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   }
 
   public void test_presentValueSensitivity_ended() {
-    FxNonDeliverableForward ndf =
-        FxNonDeliverableForward.builder()
-            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-            .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-            .paymentDate(PAYMENT_DATE_PAST)
-            .index(INDEX)
-            .build();
+    FxNdf ndf = FxNdf.builder()
+        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+        .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+        .paymentDate(PAYMENT_DATE_PAST)
+        .index(INDEX)
+        .build();
     PointSensitivities computed = PRICER.presentValueSensitivity(ndf, PROVIDER);
     assertEquals(computed, PointSensitivities.empty());
   }
@@ -147,13 +141,12 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   }
 
   public void test_currencyExposure_ended() {
-    FxNonDeliverableForward ndf =
-        FxNonDeliverableForward.builder()
-            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-            .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
-            .paymentDate(LocalDate.of(2011, 5, 4))
-            .index(INDEX)
-            .build();
+    FxNdf ndf = FxNdf.builder()
+        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+        .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+        .paymentDate(LocalDate.of(2011, 5, 4))
+        .index(INDEX)
+        .build();
     MultiCurrencyAmount computed = PRICER.currencyExposure(ndf, PROVIDER);
     assertEquals(computed.size(), 0);
   }
@@ -181,9 +174,9 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  private static final Fx FOREX = Fx
+  private static final FxSingle FOREX = FxSingle
       .of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE);
-  private static final DiscountingFxProductPricer PRICER_FX = DiscountingFxProductPricer.DEFAULT;
+  private static final DiscountingFxSingleProductPricer PRICER_FX = DiscountingFxSingleProductPricer.DEFAULT;
 
   // Checks that the NDF present value is coherent with the standard FX forward present value.
   public void presentValueVsForex() {
@@ -219,4 +212,5 @@ public class DiscountingFxNonDeliverableForwardProductPricerTest {
     CurveCurrencyParameterSensitivities sensiFX = PROVIDER.curveParameterSensitivity(pvcsFX);
     assertTrue(sensiNDF.equalWithTolerance(sensiFX.convertedTo(USD, PROVIDER), NOMINAL_USD * TOL));
   }
+
 }

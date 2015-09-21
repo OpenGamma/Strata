@@ -23,17 +23,18 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 
 /**
- * Test {@link FxNonDeliverableForward}.
+ * Test {@link FxNdf}.
  */
 @Test
-public class FxNonDeliverableForwardTest {
+public class FxNdfTest {
+
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final double NOTIONAL = 100_000_000;
   private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(GBP, NOTIONAL);
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 3, 19);
 
   public void test_builder() {
-    FxNonDeliverableForward test = FxNonDeliverableForward.builder()
+    FxNdf test = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .index(WM_GBP_USD)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
@@ -49,7 +50,7 @@ public class FxNonDeliverableForwardTest {
 
   public void test_builder_inverse() {
     FxRate fxRate = FxRate.of(USD, GBP, 0.7d);
-    FxNonDeliverableForward test = FxNonDeliverableForward.builder()
+    FxNdf test = FxNdf.builder()
         .agreedFxRate(fxRate)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .index(WM_GBP_USD)
@@ -65,7 +66,7 @@ public class FxNonDeliverableForwardTest {
 
   public void test_builder_wrongRate() {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
-    assertThrowsIllegalArg(() -> FxNonDeliverableForward.builder()
+    assertThrowsIllegalArg(() -> FxNdf.builder()
         .agreedFxRate(fxRate)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .index(WM_GBP_USD)
@@ -74,7 +75,7 @@ public class FxNonDeliverableForwardTest {
   }
 
   public void test_builder_wrongCurrency() {
-    assertThrowsIllegalArg(() -> FxNonDeliverableForward.builder()
+    assertThrowsIllegalArg(() -> FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CurrencyAmount.of(EUR, NOTIONAL))
         .index(WM_GBP_USD)
@@ -83,13 +84,13 @@ public class FxNonDeliverableForwardTest {
   }
 
   public void test_expand() {
-    FxNonDeliverableForward base = FxNonDeliverableForward.builder()
+    FxNdf base = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .index(WM_GBP_USD)
         .paymentDate(PAYMENT_DATE)
         .build();
-    ExpandedFxNonDeliverableForward expanded = base.expand();
+    ExpandedFxNdf expanded = base.expand();
     assertEquals(expanded.getAgreedFxRate(), FX_RATE);
     assertEquals(expanded.getIndex(), WM_GBP_USD);
     assertEquals(expanded.getNonDeliverableCurrency(), USD);
@@ -100,14 +101,14 @@ public class FxNonDeliverableForwardTest {
   }
 
   public void coverage() {
-    FxNonDeliverableForward test1 = FxNonDeliverableForward.builder()
+    FxNdf test1 = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .index(WM_GBP_USD)
         .paymentDate(PAYMENT_DATE)
         .build();
     coverImmutableBean(test1);
-    FxNonDeliverableForward test2 = FxNonDeliverableForward.builder()
+    FxNdf test2 = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CurrencyAmount.of(USD, -NOTIONAL))
         .index(WM_GBP_USD)
@@ -117,7 +118,7 @@ public class FxNonDeliverableForwardTest {
   }
 
   public void test_serialization() {
-    FxNonDeliverableForward test = FxNonDeliverableForward.builder()
+    FxNdf test = FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .index(WM_GBP_USD)
@@ -125,4 +126,5 @@ public class FxNonDeliverableForwardTest {
         .build();
     assertSerialization(test);
   }
+
 }
