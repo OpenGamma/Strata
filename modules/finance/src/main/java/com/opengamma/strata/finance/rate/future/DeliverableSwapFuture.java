@@ -25,11 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.LinkResolutionException;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.Product;
 import com.opengamma.strata.finance.Security;
@@ -51,7 +47,7 @@ import com.opengamma.strata.finance.rate.swap.SwapLeg;
  */
 @BeanDefinition
 public final class DeliverableSwapFuture
-    implements Product, Resolvable<DeliverableSwapFuture>, ImmutableBean, Serializable {
+    implements Product, ImmutableBean, Serializable {
 
   /**
    * The link to the underlying swap.
@@ -60,7 +56,7 @@ public final class DeliverableSwapFuture
    * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SecurityLink<Swap> underlyingLink;
+  private final Security<Swap> underlyingSecurity;
   /**
    * The delivery date. 
    * <p>
@@ -82,37 +78,25 @@ public final class DeliverableSwapFuture
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
-  /**
-   * The definition of how to round the option price, defaulted to no rounding.
-   * <p>
-   * The price is represented in decimal form, not percentage form.
-   * As such, the decimal places expressed by the rounding refers to this decimal form.
-   * For example, the common market price of 99.7125 is represented as 0.997125 which
-   * has 6 decimal places.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Rounding rounding;
 
   @ImmutableValidator
   private void validate() {
-    if (underlyingLink.isResolved()) {
-      Swap swap = getUnderlying();
-      ArgChecker.inOrderOrEqual(deliveryDate, swap.getStartDate(), "deliveryDate", "startDate");
-      ArgChecker.isFalse(swap.isCrossCurrency(), "underlying swap must not be cross currency");
-      for (SwapLeg swapLeg : swap.getLegs()) {
-        ExpandedSwapLeg expandedSwapLeg = swapLeg.expand();
-        for (PaymentEvent event : expandedSwapLeg.getPaymentEvents()) {
-          ArgChecker.isTrue(event instanceof NotionalExchange, "PaymentEvent must be NotionalExchange");
-          NotionalExchange notioanlEvent = (NotionalExchange) event;
-          ArgChecker.isTrue(Math.abs(notioanlEvent.getPaymentAmount().getAmount()) == 1d,
-              "notional of underlying swap must be unity");
-        }
-        for (PaymentPeriod period : expandedSwapLeg.getPaymentPeriods()) {
-          ArgChecker.isTrue(period instanceof NotionalPaymentPeriod, "PaymentPeriod must be NotionalPaymentPeriod");
-          NotionalPaymentPeriod notioanlPeriod = (NotionalPaymentPeriod) period;
-          ArgChecker.isTrue(Math.abs(notioanlPeriod.getNotionalAmount().getAmount()) == 1d,
-              "notional of underlying swap must be unity");
-        }
+    Swap swap = getUnderlyingProduct();
+    ArgChecker.inOrderOrEqual(deliveryDate, swap.getStartDate(), "deliveryDate", "startDate");
+    ArgChecker.isFalse(swap.isCrossCurrency(), "underlying swap must not be cross currency");
+    for (SwapLeg swapLeg : swap.getLegs()) {
+      ExpandedSwapLeg expandedSwapLeg = swapLeg.expand();
+      for (PaymentEvent event : expandedSwapLeg.getPaymentEvents()) {
+        ArgChecker.isTrue(event instanceof NotionalExchange, "PaymentEvent must be NotionalExchange");
+        NotionalExchange notioanlEvent = (NotionalExchange) event;
+        ArgChecker.isTrue(Math.abs(notioanlEvent.getPaymentAmount().getAmount()) == 1d,
+            "notional of underlying swap must be unity");
+      }
+      for (PaymentPeriod period : expandedSwapLeg.getPaymentPeriods()) {
+        ArgChecker.isTrue(period instanceof NotionalPaymentPeriod, "PaymentPeriod must be NotionalPaymentPeriod");
+        NotionalPaymentPeriod notioanlPeriod = (NotionalPaymentPeriod) period;
+        ArgChecker.isTrue(Math.abs(notioanlPeriod.getNotionalAmount().getAmount()) == 1d,
+            "notional of underlying swap must be unity");
       }
     }
     ArgChecker.inOrderOrEqual(lastTradeDate, deliveryDate, "lastTradeDate", "deliveryDate");
@@ -120,47 +104,11 @@ public final class DeliverableSwapFuture
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying swap security that was traded, throwing an exception if not resolved.
-   * <p>
-   * This method accesses the security via the {@link #getUnderlyingLink() underlyingLink} property.
-   * The link has two states, resolvable and resolved.
-   * <p>
-   * In the resolved state, the security is known and available for use.
-   * The security object will be directly embedded in the link held within this trade.
-   * <p>
-   * In the resolvable state, only the identifier and type of the security are known.
-   * These act as a pointer to the security, and as such the security is not directly available.
-   * The link must be resolved before use.
-   * This can be achieved by calling {@link #resolveLinks(LinkResolver)} on this trade.
-   * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
-   * 
-   * @return full details of the security
-   * @throws LinkResolutionException if the security is not resolved
-   */
-  public Security<Swap> getUnderlyingSecurity() {
-    return underlyingLink.resolvedTarget();
-  }
-
-  /**
-   * Gets the underlying swap that was traded, throwing an exception if not resolved.
-   * <p>
-   * Returns the underlying product that captures the contracted financial details of the trade.
-   * This method accesses the security via the {@link #getUnderlyingLink() underlyingLink} property.
-   * The link has two states, resolvable and resolved.
-   * <p>
-   * In the resolved state, the security is known and available for use.
-   * The security object will be directly embedded in the link held within this trade.
-   * <p>
-   * In the resolvable state, only the identifier and type of the security are known.
-   * These act as a pointer to the security, and as such the security is not directly available.
-   * The link must be resolved before use.
-   * This can be achieved by calling {@link #resolveLinks(LinkResolver)} on this trade.
-   * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
+   * Gets the underlying swap product.
    * 
    * @return the product underlying the option
-   * @throws LinkResolutionException if the security is not resolved
    */
-  public Swap getUnderlying() {
+  public Swap getUnderlyingProduct() {
     return getUnderlyingSecurity().getProduct();
   }
 
@@ -172,13 +120,7 @@ public final class DeliverableSwapFuture
    * @return the currency of the swap
    */
   public Currency getCurrency() {
-    return getUnderlying().getReceiveLeg().get().getCurrency();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public DeliverableSwapFuture resolveLinks(LinkResolver resolver) {
-    return resolver.resolveLinksIn(this, underlyingLink, resolved -> toBuilder().underlyingLink(resolved).build());
+    return getUnderlyingProduct().getReceiveLeg().get().getCurrency();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -209,21 +151,18 @@ public final class DeliverableSwapFuture
   }
 
   private DeliverableSwapFuture(
-      SecurityLink<Swap> underlyingLink,
+      Security<Swap> underlyingSecurity,
       LocalDate deliveryDate,
       LocalDate lastTradeDate,
-      double notional,
-      Rounding rounding) {
-    JodaBeanUtils.notNull(underlyingLink, "underlyingLink");
+      double notional) {
+    JodaBeanUtils.notNull(underlyingSecurity, "underlyingSecurity");
     JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     ArgChecker.notNegative(notional, "notional");
-    JodaBeanUtils.notNull(rounding, "rounding");
-    this.underlyingLink = underlyingLink;
+    this.underlyingSecurity = underlyingSecurity;
     this.deliveryDate = deliveryDate;
     this.lastTradeDate = lastTradeDate;
     this.notional = notional;
-    this.rounding = rounding;
     validate();
   }
 
@@ -250,8 +189,8 @@ public final class DeliverableSwapFuture
    * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
    * @return the value of the property, not null
    */
-  public SecurityLink<Swap> getUnderlyingLink() {
-    return underlyingLink;
+  public Security<Swap> getUnderlyingSecurity() {
+    return underlyingSecurity;
   }
 
   //-----------------------------------------------------------------------
@@ -289,20 +228,6 @@ public final class DeliverableSwapFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the definition of how to round the option price, defaulted to no rounding.
-   * <p>
-   * The price is represented in decimal form, not percentage form.
-   * As such, the decimal places expressed by the rounding refers to this decimal form.
-   * For example, the common market price of 99.7125 is represented as 0.997125 which
-   * has 6 decimal places.
-   * @return the value of the property, not null
-   */
-  public Rounding getRounding() {
-    return rounding;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -317,11 +242,10 @@ public final class DeliverableSwapFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DeliverableSwapFuture other = (DeliverableSwapFuture) obj;
-      return JodaBeanUtils.equal(getUnderlyingLink(), other.getUnderlyingLink()) &&
+      return JodaBeanUtils.equal(getUnderlyingSecurity(), other.getUnderlyingSecurity()) &&
           JodaBeanUtils.equal(getDeliveryDate(), other.getDeliveryDate()) &&
           JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getRounding(), other.getRounding());
+          JodaBeanUtils.equal(getNotional(), other.getNotional());
     }
     return false;
   }
@@ -329,23 +253,21 @@ public final class DeliverableSwapFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSecurity());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDeliveryDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("DeliverableSwapFuture{");
-    buf.append("underlyingLink").append('=').append(getUnderlyingLink()).append(',').append(' ');
+    buf.append("underlyingSecurity").append('=').append(getUnderlyingSecurity()).append(',').append(' ');
     buf.append("deliveryDate").append('=').append(getDeliveryDate()).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(getLastTradeDate()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("rounding").append('=').append(JodaBeanUtils.toString(getRounding()));
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional()));
     buf.append('}');
     return buf.toString();
   }
@@ -361,11 +283,11 @@ public final class DeliverableSwapFuture
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code underlyingLink} property.
+     * The meta-property for the {@code underlyingSecurity} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SecurityLink<Swap>> underlyingLink = DirectMetaProperty.ofImmutable(
-        this, "underlyingLink", DeliverableSwapFuture.class, (Class) SecurityLink.class);
+    private final MetaProperty<Security<Swap>> underlyingSecurity = DirectMetaProperty.ofImmutable(
+        this, "underlyingSecurity", DeliverableSwapFuture.class, (Class) Security.class);
     /**
      * The meta-property for the {@code deliveryDate} property.
      */
@@ -382,20 +304,14 @@ public final class DeliverableSwapFuture
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", DeliverableSwapFuture.class, Double.TYPE);
     /**
-     * The meta-property for the {@code rounding} property.
-     */
-    private final MetaProperty<Rounding> rounding = DirectMetaProperty.ofImmutable(
-        this, "rounding", DeliverableSwapFuture.class, Rounding.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "underlyingLink",
+        "underlyingSecurity",
         "deliveryDate",
         "lastTradeDate",
-        "notional",
-        "rounding");
+        "notional");
 
     /**
      * Restricted constructor.
@@ -406,16 +322,14 @@ public final class DeliverableSwapFuture
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1497199863:  // underlyingLink
-          return underlyingLink;
+        case -729254467:  // underlyingSecurity
+          return underlyingSecurity;
         case 681469378:  // deliveryDate
           return deliveryDate;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
         case 1585636160:  // notional
           return notional;
-        case -142444:  // rounding
-          return rounding;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -437,11 +351,11 @@ public final class DeliverableSwapFuture
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code underlyingLink} property.
+     * The meta-property for the {@code underlyingSecurity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityLink<Swap>> underlyingLink() {
-      return underlyingLink;
+    public MetaProperty<Security<Swap>> underlyingSecurity() {
+      return underlyingSecurity;
     }
 
     /**
@@ -468,28 +382,18 @@ public final class DeliverableSwapFuture
       return notional;
     }
 
-    /**
-     * The meta-property for the {@code rounding} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Rounding> rounding() {
-      return rounding;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1497199863:  // underlyingLink
-          return ((DeliverableSwapFuture) bean).getUnderlyingLink();
+        case -729254467:  // underlyingSecurity
+          return ((DeliverableSwapFuture) bean).getUnderlyingSecurity();
         case 681469378:  // deliveryDate
           return ((DeliverableSwapFuture) bean).getDeliveryDate();
         case -1041950404:  // lastTradeDate
           return ((DeliverableSwapFuture) bean).getLastTradeDate();
         case 1585636160:  // notional
           return ((DeliverableSwapFuture) bean).getNotional();
-        case -142444:  // rounding
-          return ((DeliverableSwapFuture) bean).getRounding();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -511,11 +415,10 @@ public final class DeliverableSwapFuture
    */
   public static final class Builder extends DirectFieldsBeanBuilder<DeliverableSwapFuture> {
 
-    private SecurityLink<Swap> underlyingLink;
+    private Security<Swap> underlyingSecurity;
     private LocalDate deliveryDate;
     private LocalDate lastTradeDate;
     private double notional;
-    private Rounding rounding;
 
     /**
      * Restricted constructor.
@@ -528,27 +431,24 @@ public final class DeliverableSwapFuture
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(DeliverableSwapFuture beanToCopy) {
-      this.underlyingLink = beanToCopy.getUnderlyingLink();
+      this.underlyingSecurity = beanToCopy.getUnderlyingSecurity();
       this.deliveryDate = beanToCopy.getDeliveryDate();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
       this.notional = beanToCopy.getNotional();
-      this.rounding = beanToCopy.getRounding();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1497199863:  // underlyingLink
-          return underlyingLink;
+        case -729254467:  // underlyingSecurity
+          return underlyingSecurity;
         case 681469378:  // deliveryDate
           return deliveryDate;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
         case 1585636160:  // notional
           return notional;
-        case -142444:  // rounding
-          return rounding;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -558,8 +458,8 @@ public final class DeliverableSwapFuture
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1497199863:  // underlyingLink
-          this.underlyingLink = (SecurityLink<Swap>) newValue;
+        case -729254467:  // underlyingSecurity
+          this.underlyingSecurity = (Security<Swap>) newValue;
           break;
         case 681469378:  // deliveryDate
           this.deliveryDate = (LocalDate) newValue;
@@ -569,9 +469,6 @@ public final class DeliverableSwapFuture
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
-          break;
-        case -142444:  // rounding
-          this.rounding = (Rounding) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -606,11 +503,10 @@ public final class DeliverableSwapFuture
     @Override
     public DeliverableSwapFuture build() {
       return new DeliverableSwapFuture(
-          underlyingLink,
+          underlyingSecurity,
           deliveryDate,
           lastTradeDate,
-          notional,
-          rounding);
+          notional);
     }
 
     //-----------------------------------------------------------------------
@@ -619,12 +515,12 @@ public final class DeliverableSwapFuture
      * <p>
      * This property returns a link to the security via a {@link StandardId}.
      * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
-     * @param underlyingLink  the new value, not null
+     * @param underlyingSecurity  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlyingLink(SecurityLink<Swap> underlyingLink) {
-      JodaBeanUtils.notNull(underlyingLink, "underlyingLink");
-      this.underlyingLink = underlyingLink;
+    public Builder underlyingSecurity(Security<Swap> underlyingSecurity) {
+      JodaBeanUtils.notNull(underlyingSecurity, "underlyingSecurity");
+      this.underlyingSecurity = underlyingSecurity;
       return this;
     }
 
@@ -667,32 +563,15 @@ public final class DeliverableSwapFuture
       return this;
     }
 
-    /**
-     * Sets the definition of how to round the option price, defaulted to no rounding.
-     * <p>
-     * The price is represented in decimal form, not percentage form.
-     * As such, the decimal places expressed by the rounding refers to this decimal form.
-     * For example, the common market price of 99.7125 is represented as 0.997125 which
-     * has 6 decimal places.
-     * @param rounding  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rounding(Rounding rounding) {
-      JodaBeanUtils.notNull(rounding, "rounding");
-      this.rounding = rounding;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("DeliverableSwapFuture.Builder{");
-      buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink)).append(',').append(' ');
+      buf.append("underlyingSecurity").append('=').append(JodaBeanUtils.toString(underlyingSecurity)).append(',').append(' ');
       buf.append("deliveryDate").append('=').append(JodaBeanUtils.toString(deliveryDate)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional));
       buf.append('}');
       return buf.toString();
     }

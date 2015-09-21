@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -135,7 +134,6 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
   private static final StandardId SWAP_ID = StandardId.of("OG-Ticker", "Swap1");
   private static final Security<Swap> SWAP_SECURITY = UnitSecurity.builder(SWAP).standardId(SWAP_ID).build();
-  private static final SecurityLink<Swap> SWAP_SECURITY_LINK = SecurityLink.resolved(SWAP_SECURITY);
   // deliverable swap future
   private static final LocalDate LAST_TRADE = LocalDate.of(2013, 6, 17);
   private static final LocalDate DELIVERY = LocalDate.of(2013, 6, 19);
@@ -144,8 +142,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
-      .rounding(Rounding.none())
-      .underlyingLink(SWAP_SECURITY_LINK)
+      .underlyingSecurity(SWAP_SECURITY)
       .build();
   private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
   private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity
