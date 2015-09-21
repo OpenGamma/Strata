@@ -99,7 +99,7 @@ public class CurveGammaCalculatorTest {
   //-------------------------------------------------------------------------
   public void semiParallelGammaValue() {
     ImmutableRatesProvider provider = SINGLE;
-    NodalCurve curve = (NodalCurve) Iterables.getOnlyElement(provider.getDiscountCurves().values());
+    NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
     Currency curveCurrency = SINGLE_CURRENCY;
     double[] y = curve.getYValues();
     int nbNode = y.length;
@@ -140,7 +140,7 @@ public class CurveGammaCalculatorTest {
   // Checks that different finite difference types and shifts give similar results.
   public void semiParallelGammaCoherency() {
     ImmutableRatesProvider provider = SINGLE;
-    NodalCurve curve = (NodalCurve) Iterables.getOnlyElement(provider.getDiscountCurves().values());
+    NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
     Currency curveCurrency = SINGLE_CURRENCY;
     double toleranceCoherency = 1.0E+5;
     CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);

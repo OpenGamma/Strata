@@ -103,4 +103,10 @@ public interface NodalCurve
     return withYValues(shifted);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public default NodalCurve toNodalCurve() {
+    return this;
+  }
+
 }

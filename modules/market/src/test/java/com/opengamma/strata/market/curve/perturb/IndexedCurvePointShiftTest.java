@@ -9,8 +9,6 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.testng.annotations.Test;
 
@@ -23,6 +21,7 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.TestingCurve;
 
 /**
  * Test {@link IndexedCurvePointShift}.
@@ -82,12 +81,11 @@ public class IndexedCurvePointShiftTest {
 
   public void notNodalCurve() {
     CurveMetadata metadata = Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, ImmutableList.of());
-    Curve curve = mock(Curve.class);
-    when(curve.getMetadata()).thenReturn(metadata);
+    Curve curve = new TestingCurve(metadata);
 
     IndexedCurvePointShift shift = IndexedCurvePointShift.absolute(0, 0.1d);
 
-    assertThrows(() -> shift.applyTo(curve), IllegalArgumentException.class, ".*NodalCurve.*");
+    assertThrows(() -> shift.applyTo(curve), UnsupportedOperationException.class, ".*NodalCurve.*");
   }
 
   //-------------------------------------------------------------------------

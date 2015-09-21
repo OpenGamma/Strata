@@ -119,4 +119,10 @@ public interface NodalSurface
     return withZValues(shifted);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public default NodalSurface toNodalSurface() {
+    return this;
+  }
+
 }

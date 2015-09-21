@@ -206,6 +206,20 @@ public class InterpolatedNodalSurfaceTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_applyPerturbation() {
+    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
+    ConstantNodalSurface result = ConstantNodalSurface.of(SURFACE_NAME, 7d);
+    Surface test = base.applyPerturbation(surface -> result);
+    assertThat(test).isSameAs(result);
+  }
+
+  public void test_toNodalSurface() {
+    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
+    NodalSurface test = base.toNodalSurface();
+    assertThat(test).isSameAs(base);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     InterpolatedNodalSurface test = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
     coverImmutableBean(test);

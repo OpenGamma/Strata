@@ -10,8 +10,6 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -30,6 +28,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.TestingCurve;
 
 /**
  * Test {@link CurvePointShift}.
@@ -121,8 +120,7 @@ public class CurvePointShiftTest {
 
   public void notNodalCurve() {
     CurveMetadata metadata = Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, ImmutableList.of());
-    Curve curve = mock(Curve.class);
-    when(curve.getMetadata()).thenReturn(metadata);
+    Curve curve = new TestingCurve(metadata);
 
     CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE)
         .addShift(Tenor.TENOR_1W, 0.1)
@@ -130,7 +128,7 @@ public class CurvePointShiftTest {
         .addShift(Tenor.TENOR_3M, 0.3)
         .build();
 
-    assertThrows(() -> shift.applyTo(curve), IllegalArgumentException.class, ".*NodalCurve.*");
+    assertThrows(() -> shift.applyTo(curve), UnsupportedOperationException.class, ".*NodalCurve.*");
   }
 
   //-------------------------------------------------------------------------

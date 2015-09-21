@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.strata.basics.market.Perturbation;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.NodalCurve;
 
@@ -33,6 +32,7 @@ import com.opengamma.strata.market.curve.NodalCurve;
  * Perturbation which applies a shift to a single point on a nodal curve.
  * <p>
  * This shifts a single node on a {@link NodalCurve}, identifying the node by index.
+ * If the input curve cannot be converted to a nodal curve, an exception is thrown.
  * <p>
  * The shift can be absolute or relative.
  * An absolute shift adds the shift amount to each point on the curve.
@@ -99,15 +99,7 @@ public final class IndexedCurvePointShift
   @Override
   public Curve applyTo(Curve curve) {
     log.debug("Applying {} shift of {} to curve '{}' at node {}", shiftType, shiftAmount, curve.getName(), nodeIndex);
-    // nodal curve required, to access the individual values
-    if (!(curve instanceof NodalCurve)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Point shifts can only be applied to NodalCurve implementations, the class of curve '{}' is {}",
-              curve.getName(),
-              curve.getClass().getName()));
-    }
-    NodalCurve nodalCurve = (NodalCurve) curve;
+    NodalCurve nodalCurve = curve.toNodalCurve();
     double[] yValues = nodalCurve.getYValues();  // this get method clones the array so we can mutate it
     yValues[nodeIndex] = shiftType.applyShift(yValues[nodeIndex], shiftAmount);
     return nodalCurve.withYValues(yValues);

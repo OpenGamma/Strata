@@ -109,6 +109,20 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_applyPerturbation() {
+    ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
+    ConstantNodalCurve result = ConstantNodalCurve.of(CURVE_NAME, 7d);
+    Curve test = base.applyPerturbation(curve -> result);
+    assertThat(test).isSameAs(result);
+  }
+
+  public void test_toNodalCurve() {
+    ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
+    NodalCurve test = base.toNodalCurve();
+    assertThat(test).isSameAs(base);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     ConstantNodalCurve test = ConstantNodalCurve.of(CURVE_NAME, VALUE);
     coverImmutableBean(test);

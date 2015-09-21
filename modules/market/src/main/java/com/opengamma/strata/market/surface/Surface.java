@@ -7,6 +7,8 @@ package com.opengamma.strata.market.surface;
 
 import java.util.Map;
 
+import com.opengamma.strata.basics.market.Perturbation;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 
 /**
@@ -96,6 +98,34 @@ public interface Surface {
    */
   public default Map<DoublesPair, Double> zValueParameterSensitivity(DoublesPair xyPair) {
     return zValueParameterSensitivity(xyPair.getFirst(), xyPair.getSecond());
+  }
+
+  /**
+   * Applies the perturbation to this surface.
+   * <p>
+   * This returns a surface that has been changed by the {@link Perturbation} instance.
+   * 
+   * @param perturbation  the perturbation to apply
+   * @return the perturbed surface
+   * @throws RuntimeException if the perturbation cannot be applied
+   */
+  public default Surface applyPerturbation(Perturbation<Surface> perturbation) {
+    return perturbation.applyTo(this);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Concerts this surface to a nodal surface.
+   * <p>
+   * A nodal surface is based on specific x-y-z values, typically with interpolation.
+   * See {@link InterpolatedNodalSurface} for more details.
+   * 
+   * @return the equivalent nodal surface
+   * @throws UnsupportedOperationException if the surface cannot be converted
+   */
+  public default NodalSurface toNodalSurface() {
+    throw new UnsupportedOperationException(Messages.format(
+        "Unable to convert surface '{}' to NodalSurface, type was: {}", getName(), getClass().getName()));
   }
 
 }
