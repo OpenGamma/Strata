@@ -169,7 +169,6 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void regression() {
-    PROVIDER.discountFactors(USD);
     double price = PRICER.price(FUTURE, PROVIDER);
     assertEquals(price, 1.022245377054993, TOL); // 2.x
   }

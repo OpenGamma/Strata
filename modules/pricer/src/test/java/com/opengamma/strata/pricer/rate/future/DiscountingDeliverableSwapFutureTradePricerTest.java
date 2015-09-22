@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
@@ -176,7 +177,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
     assertEquals(computed, expected, TOL);
   }
 
-  public void test_presntValue() {
+  public void test_presentValue() {
     CurrencyAmount computed = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
     double expected = QUANTITY * NOTIONAL * (PRODUCT_PRICER.price(FUTURE, PROVIDER) - LASTMARG_PRICE);
     assertEquals(computed.getCurrency(), USD);
@@ -189,6 +190,14 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, (p) -> TRADE_PRICER.presentValue(FUTURE_TRADE, (p), LASTMARG_PRICE));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS * 10d));
+  }
+
+  public void test_currencyExposure() {
+    CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
+    PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
+    MultiCurrencyAmount expected = PROVIDER.currencyExposure(point).plus(pv);
+    MultiCurrencyAmount computed = TRADE_PRICER.currencyExposure(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
+    assertEquals(computed, expected);
   }
 
   //-------------------------------------------------------------------------
@@ -213,4 +222,5 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
       assertEquals(computed[i], expected[i], NOTIONAL * QUANTITY * EPS);
     }
   }
+
 }

@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate.future;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
 import com.opengamma.strata.finance.rate.future.DeliverableSwapFutureTrade;
@@ -49,7 +50,7 @@ public class DiscountingDeliverableSwapFutureTradePricer
 
   //-------------------------------------------------------------------------
   /**
-  * Calculates the price of the deliverable swap futures trade.
+  * Calculates the price of the underlying deliverable swap futures product.
   * <p>
   * The price of the trade is the price on the valuation date.
   * 
@@ -94,4 +95,21 @@ public class DiscountingDeliverableSwapFutureTradePricer
     return marginIndexSensi.multipliedBy(trade.getQuantity());
   }
 
+  /**
+  * Calculates the currency exposure of the deliverable swap futures trade.
+  * <p>
+  * Since the deliverable swap futures is based on a single currency, the trade is exposed to only this currency.  
+  * 
+  * @param trade  the trade to price
+  * @param provider  the rates provider
+  * @param referencePrice  the price with respect to which the margining should be done. The reference price is
+  *   the trade price before any margining has taken place and the price used for the last margining otherwise.
+  * @return the currency exposure of the trade
+  */
+  public MultiCurrencyAmount currencyExposure(
+      DeliverableSwapFutureTrade trade,
+      RatesProvider provider,
+      double referencePrice) {
+    return MultiCurrencyAmount.of(presentValue(trade, provider, referencePrice));
+  }
 }

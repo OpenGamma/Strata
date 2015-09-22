@@ -41,8 +41,9 @@ import com.opengamma.strata.finance.rate.swap.SwapLegType;
  * A deliverable swap futures contract.
  * <p>
  * A deliverable swap future is a financial instrument that physically settles an interest rate swap on a future date. 
- * The futures product is margined on a daily basis. 
- * This class represents the structure of a single futures contract.
+ * The delivered swap is cleared by a central counterparty. 
+ * The last future price before delivery is quoted in term of the underlying swap present value. 
+ * The futures product is margined on a daily basis.
  */
 @BeanDefinition
 public final class DeliverableSwapFuture
