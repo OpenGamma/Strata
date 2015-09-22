@@ -76,7 +76,7 @@ public final class FxSingle
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code Fx} from two amounts and the value date.
+   * Creates an {@code FxSingle} from two amounts and the value date.
    * <p>
    * The amounts must be of the correct type, one pay and one receive.
    * The currencies of the payments must differ.
@@ -102,7 +102,7 @@ public final class FxSingle
   }
 
   /**
-   * Creates an {@code Fx} using a rate.
+   * Creates an {@code FxSingle} using a rate.
    * <p>
    * This create an FX specifying a value date, notional in one currency, the second currency
    * and the FX rate between the two.
