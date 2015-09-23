@@ -82,7 +82,7 @@ public final class MarketDataRatesProvider
   private LocalDateDoubleTimeSeries timeSeries(Index index) {
     LocalDateDoubleTimeSeries series = marketData.getTimeSeries(IndexRateKey.of(index));
     if (series == null) {
-      throw new IllegalArgumentException("Unknown index: " + index.getName());
+      return LocalDateDoubleTimeSeries.empty();
     }
     return series;
   }

@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
@@ -58,7 +57,6 @@ import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IborIndexRatesKey;
-import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.value.DiscountFactors;
 import com.opengamma.strata.market.value.DiscountIborIndexRates;
 import com.opengamma.strata.market.value.IborIndexRates;
@@ -128,9 +126,7 @@ public class CurveGroupMarketDataFunctionTest {
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
-    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =
-        ImmutableMap.of(IndexRateKey.of(IborIndices.USD_LIBOR_3M), LocalDateDoubleTimeSeries.empty());
-    CalculationMarketData calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, timeSeries);
+    CalculationMarketData calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 
@@ -181,9 +177,7 @@ public class CurveGroupMarketDataFunctionTest {
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
-    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries =
-        ImmutableMap.of(IndexRateKey.of(IborIndices.USD_LIBOR_3M), LocalDateDoubleTimeSeries.empty());
-    CalculationMarketData calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, timeSeries);
+    CalculationMarketData calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 

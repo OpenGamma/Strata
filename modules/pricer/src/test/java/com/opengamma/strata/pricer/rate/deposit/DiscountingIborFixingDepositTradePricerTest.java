@@ -23,7 +23,6 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDeposit;
 import com.opengamma.strata.finance.rate.deposit.IborFixingDepositTrade;
@@ -72,7 +71,6 @@ public class DiscountingIborFixingDepositTradePricerTest {
         .valuationDate(VALUATION_DATE)
         .discountCurves(ImmutableMap.of(EUR, dscCurve))
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_6M, indexCurve))
-        .timeSeries(ImmutableMap.of(EUR_EURIBOR_6M, LocalDateDoubleTimeSeries.empty()))
         .build();
   }
   
