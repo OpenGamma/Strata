@@ -8,10 +8,6 @@ package com.opengamma.strata.pricer.datasets;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_GBP;
-import static com.opengamma.strata.basics.index.FxIndices.ECB_EUR_USD;
-import static com.opengamma.strata.basics.index.FxIndices.WM_EUR_USD;
-import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -29,7 +25,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -71,19 +66,6 @@ public class RatesProviderDataSets {
   {0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310};
 
   //-------------------------------------------------------------------------
-  public static final Map<Index, LocalDateDoubleTimeSeries> TIME_SERIES =
-      ImmutableMap.<Index, LocalDateDoubleTimeSeries>builder()
-          .put(USD_FED_FUND, LocalDateDoubleTimeSeries.empty())
-          .put(USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty())
-          .put(USD_LIBOR_6M, LocalDateDoubleTimeSeries.empty())
-          .put(GBP_SONIA, LocalDateDoubleTimeSeries.empty())
-          .put(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.empty())
-          .put(GBP_LIBOR_6M, LocalDateDoubleTimeSeries.empty())
-          .put(WM_GBP_USD, LocalDateDoubleTimeSeries.empty())
-          .put(WM_EUR_USD, LocalDateDoubleTimeSeries.empty())
-          .put(ECB_EUR_GBP, LocalDateDoubleTimeSeries.empty())
-          .put(ECB_EUR_USD, LocalDateDoubleTimeSeries.empty())
-          .build();
   public static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
 
   //-------------------------------------------------------------------------
@@ -114,7 +96,6 @@ public class RatesProviderDataSets {
       .fxMatrix(FX_MATRIX_USD)
       .discountCurves(USD_SINGLE_CCY_MAP)
       .indexCurves(USD_SINGLE_IND_MAP)
-      .timeSeries(TIME_SERIES)
       .build();
 
   //-------------------------------------------------------------------------
@@ -135,7 +116,6 @@ public class RatesProviderDataSets {
       .fxMatrix(FX_MATRIX_USD)
       .discountCurves(USD_MULTI_CCY_MAP)
       .indexCurves(USD_MULTI_IND_MAP)
-      .timeSeries(TIME_SERIES)
       .build();
 
   //-------------------------------------------------------------------------
@@ -168,7 +148,6 @@ public class RatesProviderDataSets {
       .fxMatrix(FX_MATRIX_GBP)
       .discountCurves(GBP_MULTI_CCY_MAP)
       .indexCurves(GBP_MULTI_IND_MAP)
-      .timeSeries(TIME_SERIES)
       .build();
 
   //-------------------------------------------------------------------------
@@ -196,7 +175,6 @@ public class RatesProviderDataSets {
       .fxMatrix(FX_MATRIX_GBP_USD)
       .discountCurves(GBP_USD_MULTI_CCY_MAP)
       .indexCurves(GBP_USD_MULTI_IND_MAP)
-      .timeSeries(TIME_SERIES)
       .build();
 
 }

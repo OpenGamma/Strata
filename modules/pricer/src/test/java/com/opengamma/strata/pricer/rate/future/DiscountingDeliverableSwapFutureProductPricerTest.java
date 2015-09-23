@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.Security;
 import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
@@ -80,7 +79,6 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
       .fxMatrix(FxMatrix.empty())
       .discountCurves(ImmutableMap.of(USD, USD_DSC))
       .indexCurves(ImmutableMap.of(USD_LIBOR_3M, USD_FWD3))
-      .timeSeries(ImmutableMap.of(USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
       .build();
   // underlying swap
   private static final NotionalSchedule UNIT_NOTIONAL = NotionalSchedule.of(USD, 1d);

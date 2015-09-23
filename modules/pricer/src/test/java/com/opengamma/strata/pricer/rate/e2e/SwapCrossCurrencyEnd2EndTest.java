@@ -18,7 +18,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveEUR;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -34,7 +33,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.swap.FxResetCalculation;
@@ -229,8 +227,6 @@ public class SwapCrossCurrencyEnd2EndTest {
     return DiscountingSwapTradePricer.DEFAULT;
   }
 
-  private static final LocalDateDoubleTimeSeries TS_EMPTY = LocalDateDoubleTimeSeries.empty();
-
   // rates provider
   private static RatesProvider provider() {
     return ImmutableRatesProvider.builder()
@@ -238,10 +234,6 @@ public class SwapCrossCurrencyEnd2EndTest {
         .fxMatrix(FX_MATRIX)
         .discountCurves(Legacy.discountCurves(MULTICURVE))
         .indexCurves(Legacy.indexCurves(MULTICURVE))
-        .timeSeries(ImmutableMap.of(
-            USD_LIBOR_3M, TS_EMPTY,
-            EUR_EURIBOR_3M, TS_EMPTY,
-            WM_EUR_USD, TS_EMPTY))
         .build();
   }
 

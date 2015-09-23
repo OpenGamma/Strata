@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.rate;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
-import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
@@ -107,7 +106,6 @@ public class ImmutableRatesProviderParameterSensitivityTest {
           .combinedWith(POINT_ON_1).combinedWith(POINT_ON_2).combinedWith(POINT_ON_3).combinedWith(POINT_ON_4);
 
   // curve providers
-  private static final LocalDateDoubleTimeSeries TS_EMPTY = LocalDateDoubleTimeSeries.empty();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR =
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
@@ -132,12 +130,6 @@ public class ImmutableRatesProviderParameterSensitivityTest {
       .fxMatrix(FX_MATRIX)
       .discountCurves(Legacy.discountCurves(MULTICURVE))
       .indexCurves(Legacy.indexCurves(MULTICURVE))
-      .timeSeries(ImmutableMap.of(
-          EUR_EURIBOR_3M, TS_EMPTY,
-          USD_LIBOR_1M, TS_EMPTY,
-          USD_LIBOR_3M, TS_EMPTY,
-          EUR_EONIA, TS_EMPTY,
-          USD_FED_FUND, TS_EMPTY))
       .build();
 
   private static final double TOLERANCE_SENSI = 1.0E-8;
@@ -236,36 +228,30 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final Curve DISCOUNT_CURVE_USD_DOWN = new ConstantDiscountFactorCurve("USD-DiscountDown", USD_DSC - EPS_FD);
 
   public void pointAndParameterFx() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutableRatesProvider test = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD))
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .build();
     ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_UP, USD, DISCOUNT_CURVE_USD))
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .build();
     ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_DOWN, USD, DISCOUNT_CURVE_USD))
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .build();
     ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_UP))
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .build();
     ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder()
         .valuationDate(VAL_DATE)
         .fxMatrix(FX_MATRIX)
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP, USD, DISCOUNT_CURVE_USD_DOWN))
-        .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .build();
     LocalDate matuirtyDate = WM_GBP_USD.calculateMaturityFromFixing(VAL_DATE);
     double maturityTime = DAY_COUNT.relativeYearFraction(VAL_DATE, matuirtyDate);

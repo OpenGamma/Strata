@@ -190,7 +190,6 @@ public class ImmutableRatesProviderTest {
     ImmutableRatesProvider test2 = ImmutableRatesProvider.builder()
         .valuationDate(LocalDate.of(2014, 6, 27))
         .discountCurves(ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP))
-        .timeSeries(ImmutableMap.of(USD_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
         .build();
     coverBeanEquals(test, test2);
   }

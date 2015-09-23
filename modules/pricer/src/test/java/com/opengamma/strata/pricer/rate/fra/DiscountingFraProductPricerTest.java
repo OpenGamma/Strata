@@ -29,7 +29,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.interpolator.CurveInterpolator;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.finance.rate.IborRateObservation;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.fra.ExpandedFra;
@@ -491,7 +490,6 @@ public class DiscountingFraProductPricerTest {
         .valuationDate(VAL_DATE)
         .discountCurves(ImmutableMap.of(GBP, dscCurve))
         .indexCurves(ImmutableMap.of(GBP_LIBOR_3M, indexCurve))
-        .timeSeries(ImmutableMap.of(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.empty()))
         .build();
   }
 

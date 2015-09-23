@@ -79,7 +79,6 @@ public class CurveGammaCalculatorTest {
       .valuationDate(VAL_DATE_2015_04_27)
       .discountCurves(USD_SINGLE_CCY_MAP)
       .indexCurves(USD_SINGLE_IND_MAP)
-      .timeSeries(RatesProviderDataSets.TIME_SERIES)
       .build();
   private static final Currency SINGLE_CURRENCY = Currency.USD;
   // Conventions

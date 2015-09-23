@@ -34,7 +34,6 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.value.DiscountFactors;
@@ -116,12 +115,7 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   // finds the time-series
   private LocalDateDoubleTimeSeries timeSeries(Index index) {
-    ArgChecker.notNull(index, "index");
-    LocalDateDoubleTimeSeries series = timeSeries.get(index);
-    if (series == null) {
-      throw new IllegalArgumentException("Unknown index: " + index.getName());
-    }
-    return series;
+    return timeSeries.getOrDefault(index, LocalDateDoubleTimeSeries.empty());
   }
 
   // finds the index curve
@@ -136,8 +130,6 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
-    ArgChecker.notNull(baseCurrency, "baseCurrency");
-    ArgChecker.notNull(counterCurrency, "counterCurrency");
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
