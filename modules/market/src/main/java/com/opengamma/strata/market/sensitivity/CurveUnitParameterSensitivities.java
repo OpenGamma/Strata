@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
@@ -130,17 +132,28 @@ public final class CurveUnitParameterSensitivities
   }
 
   /**
-   * Gets sensitivity values by name.
+   * Gets a single sensitivity instance by name.
    * 
    * @param name  the curve name to find
    * @return the matching sensitivity
    * @throws IllegalArgumentException if the name and currency do not match an entry
    */
   public CurveUnitParameterSensitivity getSensitivity(CurveName name) {
+    return findSensitivity(name)
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Unable to find sensitivity: {}", name)));
+  }
+
+  /**
+   * Finds a single sensitivity instance by name.
+   * 
+   * @param name  the curve name to find
+   * @return the matching sensitivity
+   */
+  public Optional<CurveUnitParameterSensitivity> findSensitivity(CurveName name) {
     return sensitivities.stream()
         .filter(sens -> sens.getCurveName().equals(name))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unable to find sensitivity"));
+        .findFirst();
   }
 
   //-------------------------------------------------------------------------

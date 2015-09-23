@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.sensitivity;
 
 import static com.opengamma.strata.basics.BasicProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.DoubleArrayMath.sum;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -114,6 +115,14 @@ public class CurveCurrencyParameterSensitivitiesTest {
     assertThrowsIllegalArg(() -> test.getSensitivity(NAME1, EUR));
     assertThrowsIllegalArg(() -> test.getSensitivity(NAME0, USD));
     assertThrowsIllegalArg(() -> test.getSensitivity(NAME0, EUR));
+  }
+
+  public void test_findSensitivity() {
+    CurveCurrencyParameterSensitivities test = CurveCurrencyParameterSensitivities.of(ENTRY_USD);
+    assertThat(test.findSensitivity(NAME1, USD)).hasValue(ENTRY_USD);
+    assertThat(test.findSensitivity(NAME1, EUR)).isEmpty();
+    assertThat(test.findSensitivity(NAME0, USD)).isEmpty();
+    assertThat(test.findSensitivity(NAME0, EUR)).isEmpty();
   }
 
   //-------------------------------------------------------------------------
