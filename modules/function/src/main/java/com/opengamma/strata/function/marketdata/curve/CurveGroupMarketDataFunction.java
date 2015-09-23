@@ -54,10 +54,10 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.ParRates;
-import com.opengamma.strata.market.curve.config.CurveGroupConfig;
-import com.opengamma.strata.market.curve.config.CurveGroupEntry;
-import com.opengamma.strata.market.curve.config.CurveNode;
-import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
+import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
+import com.opengamma.strata.market.curve.definition.CurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.ParRatesId;
 import com.opengamma.strata.pricer.impl.Legacy;
@@ -87,20 +87,20 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
 
   @Override
   public MarketDataRequirements requirements(CurveGroupId id, MarketDataConfig marketDataConfig) {
-    Optional<CurveGroupConfig> optionalConfig = marketDataConfig.get(CurveGroupConfig.class, id.getName());
+    Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, id.getName());
 
-    if (!optionalConfig.isPresent()) {
+    if (!optionalGroup.isPresent()) {
       return MarketDataRequirements.empty();
     }
-    CurveGroupConfig groupConfig = optionalConfig.get();
+    CurveGroupDefinition groupDefn = optionalGroup.get();
 
-    // Request par rates for any curves that need market data.
-    // No par rates are requested if the curve config contains all the market data needed to build the curve.
-    List<ParRatesId> parRatesIds = groupConfig.getEntries().stream()
-        .filter(entry -> entry.getCurveConfig() instanceof InterpolatedCurveConfig)
-        .filter(entry -> requiresMarketData((InterpolatedCurveConfig) entry.getCurveConfig()))
-        .map(entry -> entry.getCurveConfig().getName())
-        .map(curveName -> ParRatesId.of(groupConfig.getName(), curveName, id.getMarketDataFeed()))
+    // request par rates for any curves that need market data
+    // no par rates are requested if the curve definition contains all the market data needed to build the curve
+    List<ParRatesId> parRatesIds = groupDefn.getEntries().stream()
+        .filter(entry -> entry.getCurveDefinition() instanceof InterpolatedNodalCurveDefinition)
+        .filter(entry -> requiresMarketData((InterpolatedNodalCurveDefinition) entry.getCurveDefinition()))
+        .map(entry -> entry.getCurveDefinition().getName())
+        .map(curveName -> ParRatesId.of(groupDefn.getName(), curveName, id.getMarketDataFeed()))
         .collect(toImmutableList());
 
     return MarketDataRequirements.builder().addValues(parRatesIds).build();
@@ -113,23 +113,23 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * request par rates for the curve points. However if market data is required for any point on the
    * curve this function must add {@link ParRates} to its market data requirements.
    *
-   * @param curveConfig  configuration for a curve
+   * @param curveDefn  the curve definition
    * @return true if the curve requires market data for calibration
    */
-  private boolean requiresMarketData(InterpolatedCurveConfig curveConfig) {
-    return curveConfig.getNodes().stream().anyMatch(node -> !node.requirements().isEmpty());
+  private boolean requiresMarketData(InterpolatedNodalCurveDefinition curveDefn) {
+    return curveDefn.getNodes().stream().anyMatch(node -> !node.requirements().isEmpty());
   }
 
   @Override
   public Result<CurveGroup> build(CurveGroupId id, MarketDataLookup marketData, MarketDataConfig marketDataConfig) {
     CurveGroupName groupName = id.getName();
-    Optional<CurveGroupConfig> optionalGroup = marketDataConfig.get(CurveGroupConfig.class, groupName);
+    Optional<CurveGroupDefinition> optionalGroup = marketDataConfig.get(CurveGroupDefinition.class, groupName);
 
     if (!optionalGroup.isPresent()) {
       return Result.failure(FailureReason.MISSING_DATA, "No configuration found for curve group '{}'", groupName);
     }
-    CurveGroupConfig groupConfig = optionalGroup.get();
-    return buildCurveGroup(groupConfig, marketData, id.getMarketDataFeed());
+    CurveGroupDefinition groupDefn = optionalGroup.get();
+    return buildCurveGroup(groupDefn, marketData, id.getMarketDataFeed());
   }
 
   @Override
@@ -140,13 +140,13 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   /**
    * Builds a curve group given the configuration for the group and a set of market data.
    *
-   * @param groupConfig  configuration for a curve group
-   * @param marketData  market data containing any values required to build the curve group
+   * @param groupDefn  the definition of the curve group
+   * @param marketData  the market data containing any values required to build the curve group
    * @param feed  the market data feed that is the source of the observable data
    * @return a result containing the curve group or details of why it couldn't be built
    */
   Result<CurveGroup> buildCurveGroup(
-      CurveGroupConfig groupConfig,
+      CurveGroupDefinition groupDefn,
       MarketDataLookup marketData,
       MarketDataFeed feed) {
 
@@ -155,30 +155,30 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     Multimap<String, IndexON> onIndicesByCurveName = ArrayListMultimap.create();
     Map<String, Currency> discountingCurrenciesByCurveName = new HashMap<>();
     Map<String, CurveMetadata> curveMetadata = new HashMap<>();
-    CurveGroupName groupName = groupConfig.getName();
+    CurveGroupName groupName = groupDefn.getName();
     LocalDate valuationDate = marketData.getValuationDate();
 
-    for (CurveGroupEntry curveEntry : groupConfig.getEntries()) {
-      // We can only handle InterpolatedCurveConfig for now
-      if (!(curveEntry.getCurveConfig() instanceof InterpolatedCurveConfig)) {
+    for (CurveGroupEntry curveEntry : groupDefn.getEntries()) {
+      // We can only handle InterpolatedNodalCurveDefinition for now
+      if (!(curveEntry.getCurveDefinition() instanceof InterpolatedNodalCurveDefinition)) {
         return Result.failure(
             FailureReason.NOT_APPLICABLE,
-            "Only InterpolatedCurveConfig is supported, cannot build curve '{}', group '{}' from configuration type {}",
-            curveEntry.getCurveConfig().getName(),
+            "Only InterpolatedNodalCurveDefinition is supported, cannot build curve '{}', group '{}' from configuration type {}",
+            curveEntry.getCurveDefinition().getName(),
             groupName,
-            curveEntry.getCurveConfig().getClass().getName());
+            curveEntry.getCurveDefinition().getClass().getName());
       }
-      InterpolatedCurveConfig curveConfig = (InterpolatedCurveConfig) curveEntry.getCurveConfig();
-      CurveName curveName = curveConfig.getName();
-      CurveMetadata metadata = curveConfig.metadata(valuationDate);
+      InterpolatedNodalCurveDefinition curveDefn = (InterpolatedNodalCurveDefinition) curveEntry.getCurveDefinition();
+      CurveName curveName = curveDefn.getName();
+      CurveMetadata metadata = curveDefn.metadata(valuationDate);
       curveMetadata.put(curveName.toString(), metadata);
-      Result<ParRates> parRatesResult = parRates(curveConfig, marketData, groupName, feed);
+      Result<ParRates> parRatesResult = parRates(curveDefn, marketData, groupName, feed);
 
       if (!parRatesResult.isSuccess()) {
         return Result.failure(parRatesResult);
       }
       ParRates parRates = parRatesResult.getValue();
-      List<CurveNode> curveNodes = curveConfig.getNodes();
+      List<CurveNode> curveNodes = curveDefn.getNodes();
       List<InstrumentDerivative> derivatives = createDerivatives(curveNodes, parRates, valuationDate);
 
       Set<com.opengamma.strata.basics.index.IborIndex> iborIndices = curveEntry.getIborIndices();
@@ -189,7 +189,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       iborIndices.stream().forEach(idx -> iborIndicesByCurveName.put(curveName.toString(), Legacy.iborIndex(idx)));
       overnightIndices.stream().forEach(idx -> onIndicesByCurveName.put(curveName.toString(), Legacy.overnightIndex(idx)));
       discountingCurrencies.stream().forEach(ccy -> discountingCurrenciesByCurveName.put(curveName.toString(), ccy));
-      singleCurveBundles.add(createSingleCurveBundle(curveConfig, derivatives));
+      singleCurveBundles.add(createSingleCurveBundle(curveDefn, derivatives));
     }
     @SuppressWarnings("rawtypes")
     SingleCurveBundle[] singleBundleArray = singleCurveBundles.toArray(new SingleCurveBundle[singleCurveBundles.size()]);
@@ -225,7 +225,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         .putAll(overnightCurves)
         .build();
 
-    CurveGroup curveGroup = CurveGroup.of(groupConfig.getName(), discountCurves, forwardCurves);
+    CurveGroup curveGroup = CurveGroup.of(groupDefn.getName(), discountCurves, forwardCurves);
     return Result.success(curveGroup);
   }
 
@@ -245,21 +245,21 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * <p>
    * If the curve requires par rates which are not available in {@code marketData} a failure is returned.
    *
-   * @param curveConfig  configuration for a curve
+   * @param curveDefn  the curve definition
    * @param marketData  a set of market data
    * @param groupName  the name of the curve group being built
    * @param feed  the market data feed that is the source of the underlying market data
    * @return the par rates required for the curve if available.
    */
   private Result<ParRates> parRates(
-      InterpolatedCurveConfig curveConfig,
+      InterpolatedNodalCurveDefinition curveDefn,
       MarketDataLookup marketData,
       CurveGroupName groupName,
       MarketDataFeed feed) {
 
     // Only try to get par rates from the market data if the curve needs market data
-    if (requiresMarketData(curveConfig)) {
-      ParRatesId parRatesId = ParRatesId.of(groupName, curveConfig.getName(), feed);
+    if (requiresMarketData(curveDefn)) {
+      ParRatesId parRatesId = ParRatesId.of(groupName, curveDefn.getName(), feed);
 
       if (!marketData.containsValue(parRatesId)) {
         return Result.failure(FailureReason.MISSING_DATA, "No par rates for {}", parRatesId);
@@ -271,15 +271,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   }
 
   private SingleCurveBundle<GeneratorYDCurve> createSingleCurveBundle(
-      InterpolatedCurveConfig curveConfig,
+      InterpolatedNodalCurveDefinition curveDefn,
       List<InstrumentDerivative> derivatives) {
 
     double[] parameterGuessForCurves = new double[derivatives.size()];
     Arrays.fill(parameterGuessForCurves, 0.02);
-    GeneratorYDCurve curveGenerator = createCurveGenerator(curveConfig);
+    GeneratorYDCurve curveGenerator = createCurveGenerator(curveDefn);
     double[] startingPoint = curveGenerator.initialGuess(parameterGuessForCurves);
     InstrumentDerivative[] derivativeArray = derivatives.toArray(new InstrumentDerivative[derivatives.size()]);
-    return new SingleCurveBundle<>(curveConfig.getName().toString(), derivativeArray, startingPoint, curveGenerator);
+    return new SingleCurveBundle<>(curveDefn.getName().toString(), derivativeArray, startingPoint, curveGenerator);
   }
 
   private List<InstrumentDerivative> createDerivatives(
@@ -299,14 +299,14 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   /**
    * Creates a curve generator for a curve.
    *
-   * @param curveConfig  configuration defining the curve
+   * @param curveDefn  the curve definition
    * @return a generator capable of generating the curve
    */
-  private GeneratorYDCurve createCurveGenerator(InterpolatedCurveConfig curveConfig) {
+  private GeneratorYDCurve createCurveGenerator(InterpolatedNodalCurveDefinition curveDefn) {
     CombinedInterpolatorExtrapolator interpolatorExtrapolator = CombinedInterpolatorExtrapolator.of(
-        curveConfig.getInterpolator(),
-        curveConfig.getExtrapolatorLeft(),
-        curveConfig.getExtrapolatorRight());
+        curveDefn.getInterpolator(),
+        curveDefn.getExtrapolatorLeft(),
+        curveDefn.getExtrapolatorRight());
 
     return new GeneratorCurveYieldInterpolated(LastTimeCalculator.getInstance(), interpolatorExtrapolator);
   }

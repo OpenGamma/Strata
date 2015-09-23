@@ -28,10 +28,10 @@ import com.opengamma.strata.finance.rate.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.function.interpolator.CurveExtrapolators;
 import com.opengamma.strata.function.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.config.CurveNode;
-import com.opengamma.strata.market.curve.config.FixedIborSwapCurveNode;
-import com.opengamma.strata.market.curve.config.FraCurveNode;
-import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
+import com.opengamma.strata.market.curve.definition.CurveNode;
+import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.definition.FraCurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
@@ -59,7 +59,7 @@ final class CurveTestUtils {
   private CurveTestUtils() {
   }
 
-  static InterpolatedCurveConfig fraCurveConfig() {
+  static InterpolatedNodalCurveDefinition fraCurveDefinition() {
     String fra1x4 = "fra1x4";
     String fra2x5 = "fra2x5";
     String fra3x6 = "fra3x6";
@@ -81,7 +81,7 @@ final class CurveTestUtils {
     List<CurveNode> nodes =
         ImmutableList.of(fra1x4Node, fra2x5Node, fra3x6Node, fra6x9Node, fra9x12Node, fra12x15Node, fra18x21Node);
 
-    return InterpolatedCurveConfig.builder()
+    return InterpolatedNodalCurveDefinition.builder()
         .name(curveName)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
@@ -93,7 +93,7 @@ final class CurveTestUtils {
         .build();
   }
 
-  static InterpolatedCurveConfig fraSwapCurveConfig() {
+  static InterpolatedNodalCurveDefinition fraSwapCurveDefinition() {
     String fra3x6 = "fra3x6";
     String fra6x9 = "fra6x9";
     String swap1y = "swap1y";
@@ -109,7 +109,7 @@ final class CurveTestUtils {
     CurveName curveName = CurveName.of("FRA and Fixed-Float Swap Curve");
     List<CurveNode> nodes = ImmutableList.of(fra3x6Node, fra6x9Node, swap1yNode, swap2yNode, swap3yNode);
 
-    return InterpolatedCurveConfig.builder()
+    return InterpolatedNodalCurveDefinition.builder()
         .name(curveName)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)

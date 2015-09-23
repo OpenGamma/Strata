@@ -3,11 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
-import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -26,25 +25,26 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
-import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions;
-import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
+import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
- * Test {@link FixedOvernightSwapCurveNode}.
+ * Test {@link FixedIborSwapCurveNode}.
  */
 @Test
-public class FixedOvernightSwapCurveNodeTest {
+public class FixedIborSwapCurveNodeTest {
 
-  private static final FixedOvernightSwapTemplate TEMPLATE =
-      FixedOvernightSwapTemplate.of(TENOR_10Y, FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS);
+  private static final FixedIborSwapTemplate TEMPLATE =
+      FixedIborSwapTemplate.of(TENOR_10Y, FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
 
   public void test_builder() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.builder()
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.builder()
         .template(TEMPLATE)
         .rateKey(QUOTE_KEY)
         .spread(SPREAD)
@@ -55,21 +55,21 @@ public class FixedOvernightSwapCurveNodeTest {
   }
 
   public void test_of_noSpread() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertEquals(test.getRateKey(), QUOTE_KEY);
     assertEquals(test.getSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_requirements() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     Set<ObservableKey> set = test.requirements();
     Iterator<ObservableKey> itr = set.iterator();
     assertEquals(itr.next(), QUOTE_KEY);
@@ -77,7 +77,7 @@ public class FixedOvernightSwapCurveNodeTest {
   }
 
   public void test_trade() {
-    FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
     SwapTrade trade = node.trade(tradeDate, ImmutableMap.of(QUOTE_KEY, rate));
@@ -86,7 +86,7 @@ public class FixedOvernightSwapCurveNodeTest {
   }
 
   public void test_trade_differentKey() {
-    FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     assertThrowsIllegalArg(() -> node.trade(
@@ -94,7 +94,7 @@ public class FixedOvernightSwapCurveNodeTest {
   }
 
   public void test_metadata() {
-    FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
@@ -104,16 +104,16 @@ public class FixedOvernightSwapCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     coverImmutableBean(test);
-    FixedOvernightSwapCurveNode test2 = FixedOvernightSwapCurveNode.of(
-        FixedOvernightSwapTemplate.of(TENOR_6M, FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS),
+    FixedIborSwapCurveNode test2 = FixedIborSwapCurveNode.of(
+        FixedIborSwapTemplate.of(TENOR_10Y, FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M),
         QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")));
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    FixedOvernightSwapCurveNode test = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    FixedIborSwapCurveNode test = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     assertSerialization(test);
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.Trade;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 
 /**
  * A node in the configuration specifying how to calibrate a curve.
@@ -48,6 +48,6 @@ public interface CurveNode {
    * @param valuationDate  the valuation date used when calibrating the curve
    * @return metadata for the node
    */
-  public abstract CurveParameterMetadata metadata(LocalDate valuationDate);
+  public abstract DatedCurveParameterMetadata metadata(LocalDate valuationDate);
 
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
@@ -22,10 +22,10 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
- * A mutable builder for creating instances of {@code CurveGroupConfig}.
+ * A mutable builder for creating instances of {@code CurveGroupDefinition}.
  */
 @SuppressWarnings("unchecked")
-public final class CurveGroupConfigBuilder {
+public final class CurveGroupDefinitionBuilder {
 
   /**
    * The name of the curve group.
@@ -38,31 +38,34 @@ public final class CurveGroupConfigBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the name of the curve group configuration.
+   * Sets the name of the curve group definition.
    *
    * @param name  the name of the curve group, not empty
    * @return this builder
    */
-  public CurveGroupConfigBuilder name(CurveGroupName name) {
+  public CurveGroupDefinitionBuilder name(CurveGroupName name) {
     this.name = ArgChecker.notNull(name, "name");
     return this;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds configuration for a discount curve to the curve group configuration.
+   * Adds the definition of a discount curve to the curve group definition.
    *
-   * @param curveConfig  the discount curve configuration
+   * @param curveDefinition  the discount curve configuration
    * @param otherCurrencies  additional currencies for which the curve can provide discount factors
    * @param currency  the currency for which the curve provides discount rates
    * @return this builder
    */
-  public CurveGroupConfigBuilder addDiscountCurve(CurveConfig curveConfig, Currency currency, Currency... otherCurrencies) {
-    ArgChecker.notNull(curveConfig, "curveConfig");
-    ArgChecker.notNull(currency, "currency");
+  public CurveGroupDefinitionBuilder addDiscountCurve(
+      NodalCurveDefinition curveDefinition,
+      Currency currency,
+      Currency... otherCurrencies) {
 
+    ArgChecker.notNull(curveDefinition, "curveDefinition");
+    ArgChecker.notNull(currency, "currency");
     CurveGroupEntry entry = CurveGroupEntry.builder()
-        .curveConfig(curveConfig)
+        .curveDefinition(curveDefinition)
         .discountCurrencies(ImmutableSet.copyOf(Lists.asList(currency, otherCurrencies)))
         .build();
     entries.add(entry);
@@ -70,19 +73,22 @@ public final class CurveGroupConfigBuilder {
   }
 
   /**
-   * Adds configuration for a forward curve to the curve group configuration.
+   * Adds the definition of a forward curve to the curve group definition.
    *
-   * @param curveConfig  the forward curve configuration
+   * @param curveDefinition  the definition of the forward curve
    * @param index  the index for which the curve provides forward rates
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupConfigBuilder addForwardCurve(CurveConfig curveConfig, RateIndex index, RateIndex... otherIndices) {
-    ArgChecker.notNull(curveConfig, "curveConfig");
-    ArgChecker.notNull(index, "index");
+  public CurveGroupDefinitionBuilder addForwardCurve(
+      NodalCurveDefinition curveDefinition,
+      RateIndex index,
+      RateIndex... otherIndices) {
 
+    ArgChecker.notNull(curveDefinition, "curveDefinition");
+    ArgChecker.notNull(index, "index");
     CurveGroupEntry entry = CurveGroupEntry.builder()
-        .curveConfig(curveConfig)
+        .curveDefinition(curveDefinition)
         .iborIndices(iborIndices(index, otherIndices))
         .overnightIndices(overnightIndices(index, otherIndices))
         .build();
@@ -91,22 +97,22 @@ public final class CurveGroupConfigBuilder {
   }
 
   /**
-   * Adds configuration to the curve group for a curve used to provide discount rates and forward rates.
+   * Adds the definition of a curve to the curve group definition used to provide discount rates and forward rates.
    *
-   * @param curveConfig  the forward curve configuration
+   * @param curveDefinition  the definition of the forward curve
    * @param currency  the currency for which the curve provides discount rates
    * @param index  the index for which the curve provides forward rates
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupConfigBuilder addCurve(
-      CurveConfig curveConfig,
+  public CurveGroupDefinitionBuilder addCurve(
+      NodalCurveDefinition curveDefinition,
       Currency currency,
       RateIndex index,
       RateIndex... otherIndices) {
 
     CurveGroupEntry entry = CurveGroupEntry.builder()
-        .curveConfig(curveConfig)
+        .curveDefinition(curveDefinition)
         .discountCurrencies(ImmutableSet.of(currency))
         .iborIndices(iborIndices(index, otherIndices))
         .overnightIndices(overnightIndices(index, otherIndices))
@@ -116,7 +122,7 @@ public final class CurveGroupConfigBuilder {
   }
 
   /**
-   * Returns a set containing any IBOR indices in the arguments.
+   * Returns a set containing any Ibor indices in the arguments.
    */
   private static Set<IborIndex> iborIndices(RateIndex index, RateIndex... otherIndices) {
     return ImmutableList.<RateIndex>builder().add(index).add(otherIndices).build().stream()
@@ -137,12 +143,12 @@ public final class CurveGroupConfigBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns configuration for a curve group built from the data in this object.
+   * Builds the definition of the curve group from the data in this object.
    *
-   * @return configuration for a curve group built from the data in this object
+   * @return the definition of the curve group built from the data in this object
    */
-  public CurveGroupConfig build() {
-    return new CurveGroupConfig(name, entries);
+  public CurveGroupDefinition build() {
+    return new CurveGroupDefinition(name, entries);
   }
 
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapTemplate;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
 
 /**
@@ -90,7 +90,7 @@ public final class FixedIborSwapCurveNode
   }
 
   @Override
-  public CurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
     SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
     return TenorCurveNodeMetadata.of(trade.getProduct().getEndDate(), template.getTenor());
   }

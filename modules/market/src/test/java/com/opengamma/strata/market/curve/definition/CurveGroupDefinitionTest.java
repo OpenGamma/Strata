@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.config;
+package com.opengamma.strata.market.curve.definition;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -25,17 +25,21 @@ import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.definition.CurveGroupEntry;
+import com.opengamma.strata.market.curve.definition.FraCurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.value.ValueType;
 
 /**
- * Test {@link CurveGroupConfig}.
+ * Test {@link CurveGroupDefinition}.
  */
 @Test
-public class CurveGroupConfigTest {
+public class CurveGroupDefinitionTest {
 
-  private static final InterpolatedCurveConfig CURVE_CONFIG =
-      InterpolatedCurveConfig.builder()
+  private static final InterpolatedNodalCurveDefinition CURVE_DEFN =
+      InterpolatedNodalCurveDefinition.builder()
           .name(CurveName.of("Test"))
           .xValueType(ValueType.YEAR_FRACTION)
           .yValueType(ValueType.ZERO_RATE)
@@ -48,27 +52,27 @@ public class CurveGroupConfigTest {
           .extrapolatorLeft(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
           .extrapolatorRight(Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE)
           .build();
-  private static final InterpolatedCurveConfig CURVE_CONFIG2 = CURVE_CONFIG.toBuilder()
+  private static final InterpolatedNodalCurveDefinition CURVE_CONFIG2 = CURVE_DEFN.toBuilder()
       .name(CurveName.of("Test2"))
       .build();
   private static final CurveGroupEntry ENTRY1 = CurveGroupEntry.builder()
-      .curveConfig(CURVE_CONFIG)
+      .curveDefinition(CURVE_DEFN)
       .discountCurrencies(GBP)
       .build();
   private static final CurveGroupEntry ENTRY2 = CurveGroupEntry.builder()
-      .curveConfig(CURVE_CONFIG2)
+      .curveDefinition(CURVE_CONFIG2)
       .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
   private static final CurveGroupEntry ENTRY3 = CurveGroupEntry.builder()
-      .curveConfig(CURVE_CONFIG)
+      .curveDefinition(CURVE_DEFN)
       .discountCurrencies(GBP)
       .iborIndices(GBP_LIBOR_1M, GBP_LIBOR_3M)
       .build();
 
   public void test_builder1() {
-    CurveGroupConfig test = CurveGroupConfig.builder()
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addDiscountCurve(CURVE_CONFIG, GBP)
+        .addDiscountCurve(CURVE_DEFN, GBP)
         .addForwardCurve(CURVE_CONFIG2, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
@@ -79,9 +83,9 @@ public class CurveGroupConfigTest {
   }
 
   public void test_builder2() {
-    CurveGroupConfig test = CurveGroupConfig.builder()
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addCurve(CURVE_CONFIG, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .addCurve(CURVE_DEFN, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
     assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
@@ -92,12 +96,12 @@ public class CurveGroupConfigTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveGroupConfig test = CurveGroupConfig.builder()
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addDiscountCurve(CURVE_CONFIG, GBP)
+        .addDiscountCurve(CURVE_DEFN, GBP)
         .build();
     coverImmutableBean(test);
-    CurveGroupConfig test2 = CurveGroupConfig.builder()
+    CurveGroupDefinition test2 = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test2"))
         .addForwardCurve(CURVE_CONFIG2, GBP_LIBOR_1M)
         .build();
@@ -105,9 +109,9 @@ public class CurveGroupConfigTest {
   }
 
   public void test_serialization() {
-    CurveGroupConfig test = CurveGroupConfig.builder()
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
-        .addDiscountCurve(CURVE_CONFIG, GBP)
+        .addDiscountCurve(CURVE_DEFN, GBP)
         .build();
     assertSerialization(test);
   }

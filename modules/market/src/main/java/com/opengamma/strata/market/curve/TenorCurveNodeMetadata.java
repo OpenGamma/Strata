@@ -33,7 +33,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class TenorCurveNodeMetadata
-    implements CurveParameterMetadata, ImmutableBean, Serializable {
+    implements DatedCurveParameterMetadata, ImmutableBean, Serializable {
 
   /**
    * The date of the curve node.
@@ -42,7 +42,7 @@ public final class TenorCurveNodeMetadata
    * There is not necessarily a direct relationship with a date from an underlying instrument.
    * It may be the effective date or the maturity date but equally it may not.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate date;
   /**
    * The tenor of the instrument behind the curve node.
@@ -154,6 +154,7 @@ public final class TenorCurveNodeMetadata
    * It may be the effective date or the maturity date but equally it may not.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getDate() {
     return date;
   }

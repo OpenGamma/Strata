@@ -80,11 +80,11 @@ import com.opengamma.strata.function.marketdata.MarketDataRatesProvider;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.config.CurveGroupConfig;
-import com.opengamma.strata.market.curve.config.CurveNode;
-import com.opengamma.strata.market.curve.config.FixedIborSwapCurveNode;
-import com.opengamma.strata.market.curve.config.FraCurveNode;
-import com.opengamma.strata.market.curve.config.InterpolatedCurveConfig;
+import com.opengamma.strata.market.curve.definition.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.definition.CurveNode;
+import com.opengamma.strata.market.curve.definition.FixedIborSwapCurveNode;
+import com.opengamma.strata.market.curve.definition.FraCurveNode;
+import com.opengamma.strata.market.curve.definition.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
@@ -151,7 +151,7 @@ public class CurveEndToEndTest {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA and Fixed-Float Swap Curve");
 
-    InterpolatedCurveConfig curveConfig = InterpolatedCurveConfig.builder()
+    InterpolatedNodalCurveDefinition curveDefn = InterpolatedNodalCurveDefinition.builder()
         .name(curveName)
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
@@ -162,12 +162,12 @@ public class CurveEndToEndTest {
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
 
-    CurveGroupConfig groupConfig = CurveGroupConfig.builder()
+    CurveGroupDefinition groupDefn = CurveGroupDefinition.builder()
         .name(groupName)
-        .addCurve(curveConfig, Currency.USD, IborIndices.USD_LIBOR_3M)
+        .addCurve(curveDefn, Currency.USD, IborIndices.USD_LIBOR_3M)
         .build();
 
-    MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupName, groupConfig).build();
+    MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupName, groupDefn).build();
 
     // Rules for market data and calculations ---------------------------------
 
