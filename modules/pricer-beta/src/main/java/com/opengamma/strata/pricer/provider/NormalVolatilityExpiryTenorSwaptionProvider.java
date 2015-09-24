@@ -11,7 +11,9 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -28,9 +30,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
  * Volatility environment for swaptions in the normal or Bachelier model. 
@@ -46,7 +52,7 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
   /** The swap convention for which the data is valid. */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FixedIborSwapConvention convention;
-  /** The day count applicable to the model. TODO: To be changed to incorporate time, not only dates. */
+  /** The day count applicable to the model. The time is measured in days, not hours. */
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
   /** The valuation date. All data items in this environment are calibrated for this date. */
@@ -91,6 +97,7 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
         ZoneOffset.UTC);
   }
   
+  // private constructor
   private NormalVolatilityExpiryTenorSwaptionProvider(InterpolatedDoublesSurface surface, 
       FixedIborSwapConvention convention, DayCount dayCount, LocalDate valuationDate, LocalTime valuationTime, 
       ZoneId valuationZone) {
@@ -107,6 +114,29 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
     double expiryTime = relativeYearFraction(expiryDate);
     double volatility = surface.getZValue(expiryTime, tenor);
     return volatility;
+  }
+  
+  /**
+   * Computes the sensitivity of a point swaption sensitivity to the nodes underlying the interpolated surface. 
+   * <p>
+   * The returned object is in the form of a map between the nodes coordinates (expiry/tenor) to the sensitivity to the
+   * sensitivity to those nodes.
+   * @param sensitivity  the point sensitivity
+   * @return the node sensitivity
+   */
+  public Map<DoublesPair, Double> getNormalVolatilitySensitivity(SwaptionSensitivity sensitivity) {
+    @SuppressWarnings("unchecked")
+    Map<Double, Interpolator1DDataBundle> volatilityData =
+        (Map<Double, Interpolator1DDataBundle>) surface.getInterpolatorData();
+    Interpolator2D interpolator = surface.getInterpolator();
+    double timeExpiry = relativeYearFraction(sensitivity.getExpiry());
+    double tenor = sensitivity.getTenor();
+    Map<DoublesPair, Double> weight = interpolator.getNodeSensitivitiesForValue(volatilityData, DoublesPair.of(timeExpiry, tenor));
+    Map<DoublesPair, Double> nodeVega = new HashMap<>();
+    for (Entry<DoublesPair, Double> entry : weight.entrySet()) {
+      nodeVega.put(entry.getKey(), entry.getValue() * sensitivity.getSensitivity());
+    }
+    return nodeVega;
   }
 
   @Override
@@ -199,7 +229,7 @@ public class NormalVolatilityExpiryTenorSwaptionProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count applicable to the model. TODO: To be changed to incorporate time, not only dates.
+   * Gets the day count applicable to the model. The time is measured in days, not hours.
    * @return the value of the property, not null
    */
   public DayCount getDayCount() {
