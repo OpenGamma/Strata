@@ -27,6 +27,7 @@ import com.opengamma.strata.finance.future.GenericFutureOptionTrade;
 import com.opengamma.strata.finance.future.GenericFutureTrade;
 import com.opengamma.strata.finance.fx.FxNdfTrade;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
+import com.opengamma.strata.finance.payment.BulletPaymentTrade;
 import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
@@ -139,6 +140,7 @@ public class StandardComponents {
    * easy access to all built-in asset class coverage.
    * The supported asset classes are:
    * <ul>
+   *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
    *  <li>FX single (spot/forward) - {@link FxSingleTrade}

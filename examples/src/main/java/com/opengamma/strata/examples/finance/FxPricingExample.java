@@ -13,8 +13,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.engine.CalculationEngine;
 import com.opengamma.strata.engine.CalculationRules;
@@ -29,9 +31,11 @@ import com.opengamma.strata.examples.marketdata.MarketDataBuilder;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.fx.FxSingle;
+import com.opengamma.strata.finance.fx.FxSingleTrade;
 import com.opengamma.strata.finance.fx.FxSwap;
 import com.opengamma.strata.finance.fx.FxSwapTrade;
-import com.opengamma.strata.finance.fx.FxSingleTrade;
+import com.opengamma.strata.finance.payment.BulletPayment;
+import com.opengamma.strata.finance.payment.BulletPaymentTrade;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
@@ -41,6 +45,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  * Example to illustrate using the engine to price FX trades.
  * <p>
  * This makes use of the example engine and the example market data environment.
+ * A bullet payment trade is also included.
  */
 public class FxPricingExample {
 
@@ -51,7 +56,7 @@ public class FxPricingExample {
    */
   public static void main(String[] args) {
     // the trades that will have measures calculated
-    List<Trade> trades = ImmutableList.of(createTrade1(), createTrade2(), createTrade3());
+    List<Trade> trades = ImmutableList.of(createTrade1(), createTrade2(), createTrade3(), createTrade4());
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
@@ -97,8 +102,8 @@ public class FxPricingExample {
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 fwd"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 9, 14))
+            .counterparty(StandardId.of("example", "BigBankA"))
+            .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
         .build();
   }
@@ -111,13 +116,13 @@ public class FxPricingExample {
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "USD 15,000/GBP @ 1.62 fwd"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 9, 14))
+            .counterparty(StandardId.of("example", "BigBankB"))
+            .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
         .build();
   }
 
-  // create an FX Forward trade
+  // create an FX Swap trade
   private static Trade createTrade3() {
     FxSwap swap = FxSwap.ofForwardPoints(
         CurrencyAmount.of(GBP, 10000), USD, 1.62, 0.03, LocalDate.of(2014, 6, 14), LocalDate.of(2014, 9, 14));
@@ -126,8 +131,26 @@ public class FxPricingExample {
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
             .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 swap"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 9, 14))
+            .counterparty(StandardId.of("example", "BigBankA"))
+            .settlementDate(LocalDate.of(2014, 9, 15))
+            .build())
+        .build();
+  }
+
+  // create a Bullet Payment trade
+  private static Trade createTrade4() {
+    BulletPayment bp = BulletPayment.builder()
+        .payReceive(PayReceive.PAY)
+        .value(CurrencyAmount.of(GBP, 20_000))
+        .date(AdjustableDate.of(LocalDate.of(2014, 9, 16)))
+        .build();
+    return BulletPaymentTrade.builder()
+        .product(bp)
+        .tradeInfo(TradeInfo.builder()
+            .id(StandardId.of("example", "4"))
+            .attributes(ImmutableMap.of("description", "Bullet payment GBP 20,000"))
+            .counterparty(StandardId.of("example", "BigBankC"))
+            .settlementDate(LocalDate.of(2014, 9, 16))
             .build())
         .build();
   }
