@@ -68,22 +68,22 @@ public final class CurveGroup
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the discount curve for the currency if there is one in the group.
+   * Finds the discount curve for the currency if there is one in the group.
    *
    * @param currency  the currency for which a discount curve is required
    * @return the discount curve for the currency if there is one in the group
    */
-  public Optional<Curve> getDiscountCurve(Currency currency) {
+  public Optional<Curve> findDiscountCurve(Currency currency) {
     return Optional.ofNullable(discountCurves.get(currency));
   }
 
   /**
-   * Returns the forward curve for the index if there is one in the group.
+   * Finds the forward curve for the index if there is one in the group.
    *
    * @param index  the index for which a forward curve is required
    * @return the forward curve for the index if there is one in the group
    */
-  public Optional<Curve> getForwardCurve(Index index) {
+  public Optional<Curve> findForwardCurve(Index index) {
     return Optional.ofNullable(forwardCurves.get(index));
   }
 

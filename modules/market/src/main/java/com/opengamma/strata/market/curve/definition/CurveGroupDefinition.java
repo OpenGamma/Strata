@@ -95,12 +95,12 @@ public final class CurveGroupDefinition
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the entry for the curve group with the given name if there is a curve with the specified name.
+   * Finds the entry for the curve group with the specified name.
    *
    * @param curveName  the name of the curve
-   * @return the entry for the curve group with the given name if there is a curve with the specified name
+   * @return the entry for the curve group with the specified name
    */
-  public Optional<CurveGroupEntry> getEntry(CurveName curveName) {
+  public Optional<CurveGroupEntry> findEntry(CurveName curveName) {
     return Optional.ofNullable(entriesByName.get(curveName));
   }
 

@@ -30,7 +30,7 @@ public interface Attributable {
   public abstract ImmutableMap<String, String> getAttributes();
 
   /**
-   * Gets the value of an attribute by key.
+   * Finds the value of an attribute by key.
    * <p>
    * Attributes are typically used to tag the object with additional information.
    * If the attribute is not found, optional empty is returned.
@@ -38,7 +38,7 @@ public interface Attributable {
    * @param key  the key to find
    * @return the the value of the specified attribute, empty if not found
    */
-  public default Optional<String> getAttribute(String key) {
+  public default Optional<String> findAttribute(String key) {
     return Optional.ofNullable(getAttributes().get(key));
   }
 

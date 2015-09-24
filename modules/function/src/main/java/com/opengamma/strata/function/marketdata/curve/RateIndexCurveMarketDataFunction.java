@@ -43,7 +43,7 @@ public final class RateIndexCurveMarketDataFunction implements MarketDataFunctio
       return Result.failure(FailureReason.MISSING_DATA, "No curve group found with name {}", id.getCurveGroupName());
     }
     CurveGroup curveGroup = marketData.getValue(curveGroupId);
-    Optional<Curve> optionalForwardCurve = curveGroup.getForwardCurve(id.getIndex());
+    Optional<Curve> optionalForwardCurve = curveGroup.findForwardCurve(id.getIndex());
 
     if (optionalForwardCurve.isPresent()) {
       return Result.success(optionalForwardCurve.get());

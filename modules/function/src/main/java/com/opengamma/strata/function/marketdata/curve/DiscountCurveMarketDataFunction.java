@@ -51,7 +51,7 @@ public class DiscountCurveMarketDataFunction
           id.getMarketDataFeed());
     }
     CurveGroup curveGroup = marketData.getValue(curveGroupId);
-    Optional<Curve> optionalDiscountCurve = curveGroup.getDiscountCurve(id.getCurrency());
+    Optional<Curve> optionalDiscountCurve = curveGroup.findDiscountCurve(id.getCurrency());
     if (optionalDiscountCurve.isPresent()) {
       return Result.success(optionalDiscountCurve.get());
     } else {
