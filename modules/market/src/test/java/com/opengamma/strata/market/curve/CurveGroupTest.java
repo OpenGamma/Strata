@@ -42,10 +42,10 @@ public class CurveGroupTest {
     assertThat(test.getName()).isEqualTo(NAME);
     assertThat(test.getDiscountCurves()).isEqualTo(DISCOUNT_CURVES);
     assertThat(test.getForwardCurves()).isEqualTo(FORWARD_CURVES);
-    CollectProjectAssertions.assertThat(test.getDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
-    CollectProjectAssertions.assertThat(test.getDiscountCurve(USD)).isEmpty();
-    CollectProjectAssertions.assertThat(test.getForwardCurve(GBP_LIBOR_3M)).hasValue(FORWARD_CURVE);
-    CollectProjectAssertions.assertThat(test.getForwardCurve(CHF_LIBOR_3M)).isEmpty();
+    CollectProjectAssertions.assertThat(test.findDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
+    CollectProjectAssertions.assertThat(test.findDiscountCurve(USD)).isEmpty();
+    CollectProjectAssertions.assertThat(test.findForwardCurve(GBP_LIBOR_3M)).hasValue(FORWARD_CURVE);
+    CollectProjectAssertions.assertThat(test.findForwardCurve(CHF_LIBOR_3M)).isEmpty();
   }
 
   public void test_builder() {
@@ -57,10 +57,10 @@ public class CurveGroupTest {
     assertThat(test.getName()).isEqualTo(NAME);
     assertThat(test.getDiscountCurves()).isEqualTo(DISCOUNT_CURVES);
     assertThat(test.getForwardCurves()).isEqualTo(FORWARD_CURVES);
-    CollectProjectAssertions.assertThat(test.getDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
-    CollectProjectAssertions.assertThat(test.getDiscountCurve(USD)).isEmpty();
-    CollectProjectAssertions.assertThat(test.getForwardCurve(GBP_LIBOR_3M)).hasValue(FORWARD_CURVE);
-    CollectProjectAssertions.assertThat(test.getForwardCurve(CHF_LIBOR_3M)).isEmpty();
+    CollectProjectAssertions.assertThat(test.findDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
+    CollectProjectAssertions.assertThat(test.findDiscountCurve(USD)).isEmpty();
+    CollectProjectAssertions.assertThat(test.findForwardCurve(GBP_LIBOR_3M)).hasValue(FORWARD_CURVE);
+    CollectProjectAssertions.assertThat(test.findForwardCurve(CHF_LIBOR_3M)).isEmpty();
   }
 
   //-------------------------------------------------------------------------

@@ -43,7 +43,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
       return MarketDataRequirements.empty();
     }
     CurveGroupDefinition groupConfig = optionalGroup.get();
-    Optional<CurveGroupEntry> optionalEntry = groupConfig.getEntry(id.getCurveName());
+    Optional<CurveGroupEntry> optionalEntry = groupConfig.findEntry(id.getCurveName());
 
     if (!optionalEntry.isPresent()) {
       return MarketDataRequirements.empty();
@@ -68,7 +68,7 @@ public final class ParRatesMarketDataFunction implements MarketDataFunction<ParR
       return Result.failure(FailureReason.MISSING_DATA, "No configuration found for curve group '{}'", groupName);
     }
     CurveGroupDefinition groupDefn = optionalGroup.get();
-    Optional<CurveGroupEntry> optionalEntry = groupDefn.getEntry(curveName);
+    Optional<CurveGroupEntry> optionalEntry = groupDefn.findEntry(curveName);
 
     if (!optionalEntry.isPresent()) {
       return Result.failure(FailureReason.MISSING_DATA, "No curve named '{}' found in group '{}'", curveName, groupName);

@@ -27,9 +27,9 @@ public class AttributableTest {
       }
     };
     assertEquals(test.getAttributes(), ImmutableMap.of("A", "B", "X", "Y"));
-    assertEquals(test.getAttribute("A"), Optional.of("B"));
-    assertEquals(test.getAttribute("X"), Optional.of("Y"));
-    assertEquals(test.getAttribute("M"), Optional.empty());
+    assertEquals(test.findAttribute("A"), Optional.of("B"));
+    assertEquals(test.findAttribute("X"), Optional.of("Y"));
+    assertEquals(test.findAttribute("M"), Optional.empty());
   }
 
 }

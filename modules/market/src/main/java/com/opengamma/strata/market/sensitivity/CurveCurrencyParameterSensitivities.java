@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
@@ -138,7 +140,7 @@ public final class CurveCurrencyParameterSensitivities
   }
 
   /**
-   * Gets sensitivity values by name and currency.
+   * Gets a single sensitivity instance by name and currency.
    * 
    * @param name  the curve name to find
    * @param currency  the currency to find
@@ -146,10 +148,22 @@ public final class CurveCurrencyParameterSensitivities
    * @throws IllegalArgumentException if the name and currency do not match an entry
    */
   public CurveCurrencyParameterSensitivity getSensitivity(CurveName name, Currency currency) {
+    return findSensitivity(name, currency)
+        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
+            "Unable to find sensitivity: {} for {}", name, currency)));
+  }
+
+  /**
+   * Finds a single sensitivity instance by name and currency.
+   * 
+   * @param name  the curve name to find
+   * @param currency  the currency to find
+   * @return the matching sensitivity
+   */
+  public Optional<CurveCurrencyParameterSensitivity> findSensitivity(CurveName name, Currency currency) {
     return sensitivities.stream()
         .filter(sens -> sens.getCurveName().equals(name) && sens.getCurrency().equals(currency))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unable to find sensitivity"));
+        .findFirst();
   }
 
   //-------------------------------------------------------------------------

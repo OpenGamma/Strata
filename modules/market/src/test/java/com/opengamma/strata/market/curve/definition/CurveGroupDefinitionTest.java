@@ -77,9 +77,9 @@ public class CurveGroupDefinitionTest {
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
     assertEquals(test.getEntries(), ImmutableList.of(ENTRY1, ENTRY2));
-    assertEquals(test.getEntry(CurveName.of("Test")), Optional.of(ENTRY1));
-    assertEquals(test.getEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
-    assertEquals(test.getEntry(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY1));
+    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
+    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
   }
 
   public void test_builder2() {
@@ -89,9 +89,9 @@ public class CurveGroupDefinitionTest {
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
     assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
-    assertEquals(test.getEntry(CurveName.of("Test")), Optional.of(ENTRY3));
-    assertEquals(test.getEntry(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.getEntry(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY3));
+    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.empty());
+    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
   }
 
   //-------------------------------------------------------------------------

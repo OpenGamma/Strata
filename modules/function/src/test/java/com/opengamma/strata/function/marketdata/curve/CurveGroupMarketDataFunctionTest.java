@@ -113,7 +113,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
-    Curve curve = curveGroup.getDiscountCurve(Currency.USD).get();
+    Curve curve = curveGroup.findDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
@@ -164,7 +164,7 @@ public class CurveGroupMarketDataFunctionTest {
     Result<CurveGroup> result = function.buildCurveGroup(groupDefn, marketData, MarketDataFeed.NONE);
     assertThat(result).isSuccess();
     CurveGroup curveGroup = result.getValue();
-    Curve curve = curveGroup.getDiscountCurve(Currency.USD).get();
+    Curve curve = curveGroup.findDiscountCurve(Currency.USD).get();
     DiscountFactors discountFactors = ZeroRateDiscountFactors.of(Currency.USD, valuationDate, curve);
     IborIndexRates iborIndexRates = DiscountIborIndexRates.of(IborIndices.USD_LIBOR_3M, discountFactors);
 
@@ -261,7 +261,7 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroup curveGroup = result.getValue();
 
     // Check the FRA curve identifiers are the expected tenors
-    Curve forwardCurve = curveGroup.getForwardCurve(IborIndices.USD_LIBOR_3M).get();
+    Curve forwardCurve = curveGroup.findForwardCurve(IborIndices.USD_LIBOR_3M).get();
     List<CurveParameterMetadata> forwardMetadata = forwardCurve.getMetadata().getParameterMetadata().get();
 
     List<Object> forwardTenors = forwardMetadata.stream()

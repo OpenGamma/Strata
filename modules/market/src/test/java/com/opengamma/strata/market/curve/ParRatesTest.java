@@ -16,8 +16,10 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.key.QuoteKey;
 
 /**
  * Test {@link ParRates}.
@@ -29,6 +31,8 @@ public class ParRatesTest {
       ImmutableMap.of(QuoteId.of(StandardId.of("OG", "Ticker")), 6d);
   private static final Map<ObservableId, Double> RATE_MAP2 =
       ImmutableMap.of(QuoteId.of(StandardId.of("OG", "Ticker")), 7d);
+  private static final Map<ObservableKey, Double> RATE_KEY_MAP =
+      ImmutableMap.of(QuoteKey.of(StandardId.of("OG", "Ticker")), 6d);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("Test");
   private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of("Test2");
 
@@ -43,6 +47,12 @@ public class ParRatesTest {
     ParRates test = ParRates.builder().rates(RATE_MAP).curveMetadata(METADATA).build();
     assertThat(test.getRates()).isEqualTo(RATE_MAP);
     assertThat(test.getCurveMetadata()).isEqualTo(METADATA);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toRatesByKey() {
+    ParRates test = ParRates.builder().rates(RATE_MAP).curveMetadata(METADATA).build();
+    assertThat(test.toRatesByKey()).isEqualTo(RATE_KEY_MAP);
   }
 
   //-------------------------------------------------------------------------
