@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-6-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--View is confirmation-->
+<!--Version is 5-5-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2002-2013 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!--With forward starting, the deal needs to be updated on/after the strike date to add (Initial Price) and replace with (Equity Notional) numeric values, so there are two samples for the same deal – pre and post.-->
+<!--5.0:Message type is a Root of the message-->
+<!--5.0 Messaging: changed <requestTradeConfirmation> -><requestConfirmation>-->
+<requestConfirmation xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-6" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-6.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <header>
+    <messageId messageIdScheme="http://www.partyA.com/coding-scheme/messageId">FX098765</messageId>
+    <sentBy messageAddressScheme="http://www.partyA.com/partyId">DEUTDEFF</sentBy>
+    <sendTo messageAddressScheme="http://www.partyA.com/partyId">PARTYAUS33</sendTo>
+    <creationTimestamp>2007-01-05T15:38:00-05:00</creationTimestamp>
+  </header>
+  <isCorrection>false</isCorrection>
+  <correlationId correlationIdScheme="http://www.partyA.com/coding-scheme/correlationId">FX12345</correlationId>
+  <sequenceNumber>1</sequenceNumber>
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.partyA.com/swaps/trade-id">PARTYAUS33</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <tradeId tradeIdScheme="http://www.db.com/swaps/trade-id">DEUTDEFF</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2002-01-23</tradeDate>
+    </tradeHeader>
+    <fxSwap>
+      <productType>ForeignExchange:VanillaOption</productType>
+      <nearLeg>
+        <exchangedCurrency1>
+          <payerPartyReference href="party2" />
+          <receiverPartyReference href="party1" />
+          <paymentAmount>
+            <currency>GBP</currency>
+            <amount>10000000</amount>
+          </paymentAmount>
+        </exchangedCurrency1>
+        <exchangedCurrency2>
+          <payerPartyReference href="party1" />
+          <receiverPartyReference href="party2" />
+          <paymentAmount>
+            <currency>USD</currency>
+            <amount>14800000</amount>
+          </paymentAmount>
+        </exchangedCurrency2>
+        <valueDate>2002-01-25</valueDate>
+        <exchangeRate>
+          <quotedCurrencyPair>
+            <currency1>GBP</currency1>
+            <currency2>USD</currency2>
+            <quoteBasis>Currency2PerCurrency1</quoteBasis>
+          </quotedCurrencyPair>
+          <rate>1.48</rate>
+        </exchangeRate>
+      </nearLeg>
+      <farLeg>
+        <exchangedCurrency1>
+          <payerPartyReference href="party1" />
+          <receiverPartyReference href="party2" />
+          <paymentAmount>
+            <currency>GBP</currency>
+            <amount>10000000</amount>
+          </paymentAmount>
+        </exchangedCurrency1>
+        <exchangedCurrency2>
+          <payerPartyReference href="party2" />
+          <receiverPartyReference href="party1" />
+          <paymentAmount>
+            <currency>USD</currency>
+            <amount>15000000</amount>
+          </paymentAmount>
+        </exchangedCurrency2>
+        <valueDate>2002-02-25</valueDate>
+        <exchangeRate>
+          <quotedCurrencyPair>
+            <currency1>GBP</currency1>
+            <currency2>USD</currency2>
+            <quoteBasis>Currency2PerCurrency1</quoteBasis>
+          </quotedCurrencyPair>
+          <rate>1.5</rate>
+        </exchangeRate>
+      </farLeg>
+    </fxSwap>
+  </trade>
+  <party id="party1">
+    <partyId>Party1</partyId>
+  </party>
+  <party id="party2">
+    <partyId>Party2</partyId>
+  </party>
+</requestConfirmation>
+

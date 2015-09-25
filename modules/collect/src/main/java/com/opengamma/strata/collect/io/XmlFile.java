@@ -35,9 +35,9 @@ import com.opengamma.strata.collect.Unchecked;
  * No support is provided for processing instructions, comments or mixed content.
  * In addition, it is not possible to determine the difference between empty content and no children.
  * <p>
- * There is only minimal support for namespaces.
- * Information is retained in the format of the original XML document.
- * Thus, elements and attributes names may have prefixes.
+ * There is no support for namespaces.
+ * All namespace prefixes are dropped.
+ * There are cases where this can be a problem, but most of the time lenient parsing is helpful.
  */
 public final class XmlFile {
 
@@ -165,11 +165,7 @@ public final class XmlFile {
     while (event != XMLStreamConstants.START_ELEMENT) {
       event = reader.next();
     }
-    String prefix = reader.getPrefix();
-    if (prefix == null || prefix.isEmpty()) {
-      return reader.getLocalName();
-    }
-    return prefix + ':' + reader.getLocalName();
+    return reader.getLocalName();
   }
 
   // parses attributes into a map
@@ -181,20 +177,7 @@ public final class XmlFile {
     } else {
       ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
       for (int i = 0; i < reader.getAttributeCount(); i++) {
-        String prefix = reader.getAttributePrefix(i);
-        if (prefix == null || prefix.isEmpty()) {
-          builder.put(reader.getAttributeLocalName(i), reader.getAttributeValue(i));
-        } else {
-          builder.put(prefix + ':' + reader.getAttributeLocalName(i), reader.getAttributeValue(i));
-        }
-      }
-      for (int i = 0; i < reader.getNamespaceCount(); i++) {
-        String namespacePrefix = reader.getNamespacePrefix(i);
-        if (namespacePrefix != null) {
-          builder.put("xmlns:" + namespacePrefix, reader.getNamespaceURI(i));
-        } else {
-          builder.put("xmlns", reader.getNamespaceURI(i));
-        }
+        builder.put(reader.getAttributeLocalName(i), reader.getAttributeValue(i));
       }
       attrs = builder.build();
     }

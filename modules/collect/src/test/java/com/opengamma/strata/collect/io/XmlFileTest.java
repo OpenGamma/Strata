@@ -83,18 +83,17 @@ public class XmlFileTest {
     XmlFile test = XmlFile.of(source);
     XmlElement root = test.getRoot();
     assertEquals(root.getName(), "base");
-    assertEquals(root.getAttributes(),
-        ImmutableMap.of("xmlns", "http://www.opengamma.com/test", "xmlns:h", "http://www.w3.org/TR/html4/"));
+    assertEquals(root.getAttributes(), ImmutableMap.of());
     assertEquals(root.getContent(), "");
     assertEquals(root.getChildren().size(), 2);
     XmlElement child1 = root.getChild(0);
-    assertEquals(child1.getName(), "h:p");
+    assertEquals(child1.getName(), "p");
     assertEquals(child1.getContent(), "Some text");
     assertEquals(child1.getAttributes(), ImmutableMap.of());
     XmlElement child2 = root.getChild(1);
     assertEquals(child2.getName(), "leaf1");
     assertEquals(child2.getContent(), "leaf");
-    assertEquals(child2.getAttributes(), ImmutableMap.of("h:foo", "bla", "og", "strata"));
+    assertEquals(child2.getAttributes(), ImmutableMap.of("foo", "bla", "og", "strata"));
     assertEquals(test.getReferences(), ImmutableMap.of());
   }
 
