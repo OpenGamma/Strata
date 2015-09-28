@@ -90,6 +90,7 @@ import com.opengamma.strata.market.key.DiscountFactorsKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.value.ValueType;
+import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.rate.fra.DiscountingFraProductPricer;
 
 /**
@@ -187,7 +188,8 @@ public class CurveEndToEndTest {
     // Market data functions --------------------------------------------------
 
     ParRatesMarketDataFunction parRatesFunction = new ParRatesMarketDataFunction();
-    CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(RootFinderConfig.defaults());
+    CurveGroupMarketDataFunction curveGroupFunction = new CurveGroupMarketDataFunction(
+        RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT);
     DiscountCurveMarketDataFunction discountCurveFunction = new DiscountCurveMarketDataFunction();
     RateIndexCurveMarketDataFunction forwardCurveFunction = new RateIndexCurveMarketDataFunction();
     DiscountFactorsMarketDataFunction discountFactorsFunction = new DiscountFactorsMarketDataFunction();

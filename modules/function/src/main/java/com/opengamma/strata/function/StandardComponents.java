@@ -40,6 +40,7 @@ import com.opengamma.strata.function.marketdata.curve.OvernightIndexRatesMarketD
 import com.opengamma.strata.function.marketdata.curve.ParRatesMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RateIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.RootFinderConfig;
+import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 
 /**
  * Factory methods for creating standard Strata components.
@@ -127,7 +128,7 @@ public class StandardComponents {
         new DiscountFactorsMarketDataFunction(),
         new IborIndexRatesMarketDataFunction(),
         new OvernightIndexRatesMarketDataFunction(),
-        new CurveGroupMarketDataFunction(RootFinderConfig.defaults()), // RootFinderConfig will be removed #343
+        new CurveGroupMarketDataFunction(RootFinderConfig.defaults(), CalibrationMeasures.DEFAULT),
         new ParRatesMarketDataFunction());
   }
 
