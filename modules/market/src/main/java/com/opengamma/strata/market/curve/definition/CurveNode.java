@@ -6,10 +6,10 @@
 package com.opengamma.strata.market.curve.definition;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.finance.Trade;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 
@@ -34,11 +34,11 @@ public interface CurveNode {
    * <p>
    * This uses the observed market data to build the trade that the node represents.
    *
-   * @param valuationDate the valuation date used when calibrating the curve
-   * @param marketData the market data required to build a trade for the instrument
+   * @param valuationDate  the valuation date used when calibrating the curve
+   * @param marketData  the market data required to build a trade for the instrument
    * @return a trade representing the instrument at the node
    */
-  public abstract Trade trade(LocalDate valuationDate, Map<ObservableKey, Double> marketData);
+  public abstract Trade trade(LocalDate valuationDate, ObservableValues marketData);
 
   /**
    * Returns metadata for the node.

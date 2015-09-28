@@ -21,16 +21,15 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapConventions;
 import com.opengamma.strata.finance.rate.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
-import com.opengamma.strata.market.curve.definition.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
@@ -81,7 +80,7 @@ public class FixedOvernightSwapCurveNodeTest {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
-    SwapTrade trade = node.trade(tradeDate, ImmutableMap.of(QUOTE_KEY, rate));
+    SwapTrade trade = node.trade(tradeDate, ObservableValues.of(QUOTE_KEY, rate));
     SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, rate + SPREAD);
     assertEquals(trade, expected);
   }
@@ -91,7 +90,7 @@ public class FixedOvernightSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ImmutableMap.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
   }
 
   public void test_metadata() {

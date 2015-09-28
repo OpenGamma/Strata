@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.Column;
 import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
@@ -44,7 +45,6 @@ import com.opengamma.strata.engine.marketdata.CalculationRequirements;
 import com.opengamma.strata.engine.marketdata.FunctionRequirements;
 import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestKey;
-import com.opengamma.strata.engine.marketdata.TestObservableKey;
 import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 

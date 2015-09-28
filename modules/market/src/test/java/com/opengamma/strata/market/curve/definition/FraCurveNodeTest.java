@@ -26,11 +26,11 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.fra.Fra;
@@ -38,7 +38,6 @@ import com.opengamma.strata.finance.rate.fra.FraTemplate;
 import com.opengamma.strata.finance.rate.fra.FraTrade;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
-import com.opengamma.strata.market.curve.definition.FraCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
@@ -92,7 +91,7 @@ public class FraCurveNodeTest {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    FraTrade trade = node.trade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
+    FraTrade trade = node.trade(valuationDate, ObservableValues.of(QUOTE_KEY, rate));
     LocalDate startDateExpected = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START);
     LocalDate endDateExpected = startDateExpected.plusMonths(3);
     Fra productExpected = Fra.builder()
@@ -118,7 +117,7 @@ public class FraCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ImmutableMap.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
   }
 
   public void test_metadata() {

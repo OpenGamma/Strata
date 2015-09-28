@@ -40,7 +40,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -287,11 +287,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       ParRates parRates,
       LocalDate valuationDate) {
 
-    Map<ObservableKey, Double> parRateValues = parRates.getRates().entrySet().stream()
-        .collect(toImmutableMap(entry -> entry.getKey().toObservableKey(), Map.Entry::getValue));
-
     return nodes.stream()
-        .map(node -> node.trade(valuationDate, parRateValues))
+        .map(node -> node.trade(valuationDate, ObservableValues.ofIdMap(parRates.getRates())))
         .map(trade -> TradeToDerivativeConverter.convert(trade, valuationDate))
         .collect(toImmutableList());
   }

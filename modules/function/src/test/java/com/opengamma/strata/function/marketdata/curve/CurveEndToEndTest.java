@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -137,8 +138,7 @@ public class CurveEndToEndTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    Map<ObservableKey, Double> quotesMap = parRateData.entrySet().stream()
-        .collect(toImmutableMap(tp -> tp.getKey().toObservableKey(), tp -> tp.getValue()));
+    ObservableValues quotesMap = ObservableValues.ofIdMap(parRateData);
     Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotesMap);
     Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotesMap);
     Trade swap1yTrade = swap1yNode.trade(valuationDate, quotesMap);
