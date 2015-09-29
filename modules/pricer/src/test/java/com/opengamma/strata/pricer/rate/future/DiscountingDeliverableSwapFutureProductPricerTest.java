@@ -59,14 +59,14 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
   // curves
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final LocalDate VALUATION = LocalDate.of(2012, 9, 20);
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
   private static final CurveName USD_DSC_NAME = CurveName.of("USD Dsc");
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates(USD_DSC_NAME, ACT_ACT_ISDA);
-  private static final InterpolatedNodalCurve USD_DSC = 
+  private static final InterpolatedNodalCurve USD_DSC =
       InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
-  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final CurveName USD_FWD3_NAME = CurveName.of("USD LIBOR 3M");
   private static final CurveMetadata USD_FWD3_METADATA = Curves.zeroRates(USD_FWD3_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_FWD3 =

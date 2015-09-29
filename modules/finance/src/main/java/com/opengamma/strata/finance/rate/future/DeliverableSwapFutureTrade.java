@@ -69,7 +69,7 @@ public final class DeliverableSwapFutureTrade
   private final double tradePrice;
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.tradeInfo = TradeInfo.EMPTY;
