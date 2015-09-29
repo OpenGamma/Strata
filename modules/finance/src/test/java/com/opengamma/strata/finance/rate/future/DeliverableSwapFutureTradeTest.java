@@ -34,30 +34,28 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
  */
 @Test
 public class DeliverableSwapFutureTradeTest {
+
   private static final LocalDate START_DATE = LocalDate.of(2014, 9, 12);
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
       .toTrade(START_DATE, Tenor.TENOR_10Y, BuySell.SELL, 1d, 0.015).getProduct();
   private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
   private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
   private static final double NOTIONAL = 100000;
-  private static final StandardId SWAP_ID = StandardId.of("OG-Ticker", "Swap1");
-  private static final Security<Swap> SWAP_SECURITY = UnitSecurity.builder(SWAP).standardId(SWAP_ID).build();
   private static final DeliverableSwapFuture DSF_PRODUCT = DeliverableSwapFuture.builder()
+      .notional(NOTIONAL)
       .deliveryDate(DELIVERY_DATE)
       .lastTradeDate(LAST_TRADE_DATE)
-      .notional(NOTIONAL)
-      .underlyingSecurity(SWAP_SECURITY)
+      .underlyingSwap(SWAP)
       .build();
   private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
-  private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity
-      .builder(DSF_PRODUCT)
+  private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity.builder(DSF_PRODUCT)
       .standardId(DSF_ID)
       .build();
   private static final SecurityLink<DeliverableSwapFuture> DSF_RESOLVABLE =
       SecurityLink.resolvable(DSF_ID, DeliverableSwapFuture.class);
   private static final SecurityLink<DeliverableSwapFuture> DSF_RESOLVED = SecurityLink.resolved(DSF_SECURITY);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
-      .tradeDate(LocalDate.of(2014,6, 12))
+      .tradeDate(LocalDate.of(2014, 6, 12))
       .settlementDate(LocalDate.of(2014, 6, 14))
       .build();
   private static final long QUANTITY = 100L;
@@ -156,4 +154,5 @@ public class DeliverableSwapFutureTradeTest {
         .build();
     assertSerialization(test);
   }
+
 }

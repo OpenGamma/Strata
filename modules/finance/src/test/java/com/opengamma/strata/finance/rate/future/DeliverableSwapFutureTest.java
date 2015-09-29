@@ -34,9 +34,6 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
 import com.opengamma.strata.finance.rate.swap.NotionalSchedule;
@@ -51,6 +48,7 @@ import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConventions;
  */
 @Test
 public class DeliverableSwapFutureTest {
+
   private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN);
@@ -60,41 +58,37 @@ public class DeliverableSwapFutureTest {
   private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
   private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
   private static final double NOTIONAL = 100000;
-  private static final StandardId SWAP_ID = StandardId.of("OG-Ticker", "Swap1");
-  private static final Security<Swap> SECURITY = UnitSecurity.builder(SWAP).standardId(SWAP_ID).build();
 
   //-------------------------------------------------------------------------
   public void test_builder() {
     DeliverableSwapFuture test = DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
-        .notional(NOTIONAL)
-        .underlyingSecurity(SECURITY)
+        .underlyingSwap(SWAP)
         .build();
     assertEquals(test.getDeliveryDate(), DELIVERY_DATE);
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
     assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getUnderlyingSecurity(), SECURITY);
     assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getUnderlyingProduct(), SWAP);
+    assertEquals(test.getUnderlyingSwap(), SWAP);
   }
 
   public void test_builder_deliveryAfterStart() {
     assertThrowsIllegalArg(() -> DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(LocalDate.of(2014, 9, 19))
         .lastTradeDate(LAST_TRADE_DATE)
-        .notional(NOTIONAL)
-        .underlyingSecurity(SECURITY)
+        .underlyingSwap(SWAP)
         .build());
   }
 
   public void test_builder_tradeAfterdelivery() {
-    assertThrowsIllegalArg(() ->
-    DeliverableSwapFuture.builder()
+    assertThrowsIllegalArg(() -> DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LocalDate.of(2014, 9, 11))
-        .notional(NOTIONAL)
-        .underlyingSecurity(SECURITY)
+        .underlyingSwap(SWAP)
         .build());
   }
 
@@ -143,30 +137,28 @@ public class DeliverableSwapFutureTest {
             .build())
         .build();
     Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(PAY).get());
-    Security<Swap> security1 = UnitSecurity.builder(swap1).standardId(SWAP_ID).build();
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
-    Security<Swap> security2 = UnitSecurity.builder(swap2).standardId(SWAP_ID).build();
     assertThrowsIllegalArg(() -> DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
-        .notional(NOTIONAL)
-        .underlyingSecurity(security1)
+        .underlyingSwap(swap1)
         .build());
     assertThrowsIllegalArg(() -> DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
-        .notional(NOTIONAL)
-        .underlyingSecurity(security2)
+        .underlyingSwap(swap2)
         .build());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     DeliverableSwapFuture test1 = DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
-        .notional(NOTIONAL)
-        .underlyingSecurity(SECURITY)
+        .underlyingSwap(SWAP)
         .build();
     coverImmutableBean(test1);
     SwapLeg iborLeg = RateCalculationSwapLeg.builder()
@@ -194,22 +186,21 @@ public class DeliverableSwapFutureTest {
             .build())
         .build();
     Swap swap1 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg);
-    Security<Swap> security1 = UnitSecurity.builder(swap1).standardId(SWAP_ID).build();
     DeliverableSwapFuture test2 = DeliverableSwapFuture.builder()
+        .notional(20000L)
         .deliveryDate(LocalDate.of(2014, 9, 5))
         .lastTradeDate(LocalDate.of(2014, 9, 2))
-        .notional(20000L)
-        .underlyingSecurity(security1)
+        .underlyingSwap(swap1)
         .build();
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
     DeliverableSwapFuture test = DeliverableSwapFuture.builder()
+        .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
-        .notional(NOTIONAL)
-        .underlyingSecurity(SECURITY)
+        .underlyingSwap(SWAP)
         .build();
     assertSerialization(test);
   }

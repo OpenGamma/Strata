@@ -110,6 +110,8 @@ public class DiscountingDeliverableSwapFutureTradePricer
       DeliverableSwapFutureTrade trade,
       RatesProvider provider,
       double referencePrice) {
+
     return MultiCurrencyAmount.of(presentValue(trade, provider, referencePrice));
   }
+
 }

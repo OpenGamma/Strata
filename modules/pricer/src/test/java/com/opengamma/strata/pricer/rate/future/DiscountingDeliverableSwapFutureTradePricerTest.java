@@ -66,14 +66,14 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   // curves
   private static final CurveInterpolator INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final LocalDate VALUATION = LocalDate.of(2013, 3, 28);
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140};
   private static final CurveName USD_DSC_NAME = CurveName.of("USD Dsc");
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates(USD_DSC_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_DSC =
       InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
-  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150};
   private static final CurveName USD_FWD3_NAME = CurveName.of("USD LIBOR 3M");
   private static final CurveMetadata USD_FWD3_METADATA = Curves.zeroRates(USD_FWD3_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_FWD3 =
@@ -131,8 +131,6 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
           .build())
       .build();
   private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
-  private static final StandardId SWAP_ID = StandardId.of("OG-Ticker", "Swap1");
-  private static final Security<Swap> SWAP_SECURITY = UnitSecurity.builder(SWAP).standardId(SWAP_ID).build();
   // deliverable swap future
   private static final LocalDate LAST_TRADE = LocalDate.of(2013, 6, 17);
   private static final LocalDate DELIVERY = LocalDate.of(2013, 6, 19);
@@ -141,7 +139,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
-      .underlyingSecurity(SWAP_SECURITY)
+      .underlyingSwap(SWAP)
       .build();
   private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
   private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity
@@ -204,9 +202,9 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
     CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, TRADE_PRICE);
     assertEquals(pv.getAmount(), 4022633.290539182, NOTIONAL * QUANTITY * TOL);
     double[] dscExp = new double[] {347963.1427498563, 240275.26230191416, 123908.37739051704, -1302968.1341957184,
-      -8402797.591029292, -9024590.733895564 };
+        -8402797.591029292, -9024590.733895564};
     double[] fwdExp = new double[] {1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933, -9496881.09854053,
-      -3.583343769759877E7, -1.1342379328462188E9 };
+        -3.583343769759877E7, -1.1342379328462188E9};
     PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
     CurveCurrencyParameterSensitivities sensi = PROVIDER.curveParameterSensitivity(point);
     assertEqualsArray(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity(), dscExp);
