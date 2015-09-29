@@ -23,12 +23,12 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.finance.TradeInfo;
 import com.opengamma.strata.finance.rate.deposit.TermDeposit;
@@ -37,7 +37,6 @@ import com.opengamma.strata.finance.rate.deposit.TermDepositTemplate;
 import com.opengamma.strata.finance.rate.deposit.TermDepositTrade;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.TenorCurveNodeMetadata;
-import com.opengamma.strata.market.curve.definition.TermDepositCurveNode;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**
@@ -93,7 +92,7 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    TermDepositTrade trade = node.trade(valuationDate, ImmutableMap.of(QUOTE_KEY, rate));
+    TermDepositTrade trade = node.trade(valuationDate, ObservableValues.of(QUOTE_KEY, rate));
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit depositExpected = TermDeposit.builder()
@@ -118,7 +117,7 @@ public class TermDepositCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     assertThrowsIllegalArg(() -> node.trade(
-        valuationDate, ImmutableMap.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
+        valuationDate, ObservableValues.of(QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2")), rate)));
   }
 
   public void test_metadata() {

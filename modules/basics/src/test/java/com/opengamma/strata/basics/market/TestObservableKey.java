@@ -3,12 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.marketdata;
+package com.opengamma.strata.basics.market;
 
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
+import java.util.Objects;
+
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -50,4 +48,28 @@ public class TestObservableKey implements ObservableKey {
   public ObservableId toObservableId(MarketDataFeed marketDataFeed) {
     return new TestObservableId(id, marketDataFeed);
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    TestObservableKey that = (TestObservableKey) obj;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+
+  @Override
+  public String toString() {
+    return "TestObservableId [id=" + id + ", field=" + fieldName + "]";
+  }
+
 }

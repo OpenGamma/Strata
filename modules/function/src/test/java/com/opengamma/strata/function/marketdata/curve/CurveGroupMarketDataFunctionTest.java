@@ -29,9 +29,9 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculation.DefaultSingleCalculationMarketData;
-import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 import com.opengamma.strata.engine.marketdata.MarketDataRequirements;
 import com.opengamma.strata.engine.marketdata.MarketEnvironment;
 import com.opengamma.strata.engine.marketdata.config.MarketDataConfig;
@@ -126,12 +126,12 @@ public class CurveGroupMarketDataFunctionTest {
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
-    CalculationMarketData calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
+    MarketDataMap calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 
     // The PV should be zero for an instrument used to build the curve
-    nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, quotesMap));
+    nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, calculationMarketData));
   }
 
   public void roundTripFraAndFixedFloatSwap() {
@@ -177,15 +177,15 @@ public class CurveGroupMarketDataFunctionTest {
         .put(discountFactorsKey, discountFactors)
         .put(forwardCurveKey, iborIndexRates)
         .build();
-    CalculationMarketData calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
+    MarketDataMap calculationMarketData = new MarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
     MarketDataRatesProvider ratesProvider =
         new MarketDataRatesProvider(new DefaultSingleCalculationMarketData(calculationMarketData, 0));
 
-    checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, quotesMap);
-    checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(2), valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(3), valuationDate, ratesProvider, quotesMap);
-    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(4), valuationDate, ratesProvider, quotesMap);
+    checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, calculationMarketData);
+    checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, calculationMarketData);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(2), valuationDate, ratesProvider, calculationMarketData);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(3), valuationDate, ratesProvider, calculationMarketData);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(4), valuationDate, ratesProvider, calculationMarketData);
   }
 
   /**
@@ -293,7 +293,7 @@ public class CurveGroupMarketDataFunctionTest {
       FraCurveNode node,
       LocalDate valuationDate,
       RatesProvider ratesProvider,
-      Map<ObservableKey, Double> marketDataMap) {
+      ObservableValues marketDataMap) {
 
     Trade trade = node.trade(valuationDate, marketDataMap);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue((FraTrade) trade, ratesProvider);
@@ -305,7 +305,7 @@ public class CurveGroupMarketDataFunctionTest {
       FixedIborSwapCurveNode node,
       LocalDate valuationDate,
       RatesProvider ratesProvider,
-      Map<ObservableKey, Double> marketDataMap) {
+      ObservableValues marketDataMap) {
 
     Trade trade = node.trade(valuationDate, marketDataMap);
     MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue((SwapTrade) trade, ratesProvider);

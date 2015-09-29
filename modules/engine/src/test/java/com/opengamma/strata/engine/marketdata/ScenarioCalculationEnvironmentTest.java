@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.engine.calculation.MissingMappingId;
 import com.opengamma.strata.engine.calculation.NoMatchingRuleId;
 

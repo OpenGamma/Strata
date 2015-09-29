@@ -12,13 +12,15 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableValues;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.engine.marketdata.CalculationMarketData;
 
 /**
  * Test implementation of {@link CalculationMarketData} backed by a map.
  */
-public final class MarketDataMap implements CalculationMarketData {
+public final class MarketDataMap
+    implements CalculationMarketData, ObservableValues {
 
   private final LocalDate valuationDate;
 
@@ -73,4 +75,19 @@ public final class MarketDataMap implements CalculationMarketData {
   public <T, K extends MarketDataKey<T>> T getGlobalValue(K key) {
     throw new UnsupportedOperationException("getGlobalValue not implemented");
   }
+
+  @Override
+  public boolean containsValue(ObservableKey marketDataKey) {
+    return marketData.containsKey(marketDataKey);
+  }
+
+  @Override
+  public double getValue(ObservableKey marketDataKey) {
+    Object value = marketData.get(marketDataKey);
+    if (value instanceof Double) {
+      return (Double) value;
+    }
+    throw new IllegalArgumentException("Market data not found: " + marketDataKey);
+  }
+
 }

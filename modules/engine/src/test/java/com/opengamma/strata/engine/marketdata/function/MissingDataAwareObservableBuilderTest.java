@@ -17,10 +17,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.engine.marketdata.TestObservableId;
-import com.opengamma.strata.engine.marketdata.function.MissingDataAwareObservableFunction;
-import com.opengamma.strata.engine.marketdata.function.ObservableMarketDataFunction;
 
 @Test
 public class MissingDataAwareObservableBuilderTest {

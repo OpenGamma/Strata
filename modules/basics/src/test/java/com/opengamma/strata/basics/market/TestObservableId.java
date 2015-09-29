@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.engine.marketdata;
+package com.opengamma.strata.basics.market;
 
 import java.util.Objects;
 
@@ -67,15 +67,16 @@ public class TestObservableId implements ObservableId {
     return TestObservableKey.of(id);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    TestObservableId that = (TestObservableId) o;
+    TestObservableId that = (TestObservableId) obj;
     return Objects.equals(id, that.id);
   }
 
@@ -88,4 +89,5 @@ public class TestObservableId implements ObservableId {
   public String toString() {
     return "TestObservableId [id=" + id + ", feed=" + feed + "]";
   }
+
 }

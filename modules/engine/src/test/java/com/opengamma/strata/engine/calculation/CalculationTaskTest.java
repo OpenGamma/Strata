@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.engine.calculation.function.CalculationSingleFunction;
@@ -39,7 +40,6 @@ import com.opengamma.strata.engine.marketdata.ScenarioCalculationEnvironment;
 import com.opengamma.strata.engine.marketdata.TestId;
 import com.opengamma.strata.engine.marketdata.TestKey;
 import com.opengamma.strata.engine.marketdata.TestMapping;
-import com.opengamma.strata.engine.marketdata.TestObservableKey;
 import com.opengamma.strata.engine.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.engine.marketdata.mapping.MarketDataMappings;
 
