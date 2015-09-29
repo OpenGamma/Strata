@@ -40,13 +40,11 @@ public class DeliverableSwapFutureTradeTest {
   private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
   private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
   private static final double NOTIONAL = 100000;
-  private static final StandardId SWAP_ID = StandardId.of("OG-Ticker", "Swap1");
-  private static final Security<Swap> SWAP_SECURITY = UnitSecurity.builder(SWAP).standardId(SWAP_ID).build();
   private static final DeliverableSwapFuture DSF_PRODUCT = DeliverableSwapFuture.builder()
       .deliveryDate(DELIVERY_DATE)
       .lastTradeDate(LAST_TRADE_DATE)
       .notional(NOTIONAL)
-      .underlyingSecurity(SWAP_SECURITY)
+      .underlyingSwap(SWAP)
       .build();
   private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
   private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity

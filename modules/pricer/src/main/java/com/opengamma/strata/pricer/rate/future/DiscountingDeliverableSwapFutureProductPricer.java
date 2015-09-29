@@ -63,7 +63,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * @return the price of the product, in decimal form
    */
   public double price(DeliverableSwapFuture futures, RatesProvider ratesProvider) {
-    Swap swap = futures.getUnderlyingProduct();
+    Swap swap = futures.getUnderlyingSwap();
     Currency currency = futures.getCurrency();
     CurrencyAmount pvSwap = swapPricer.presentValue(swap, currency, ratesProvider);
     double df = ratesProvider.discountFactor(currency, futures.getDeliveryDate());
@@ -81,7 +81,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivity(DeliverableSwapFuture futures, RatesProvider ratesProvider) {
-    Swap swap = futures.getUnderlyingProduct();
+    Swap swap = futures.getUnderlyingSwap();
     Currency currency = futures.getCurrency();
     double pvSwap = swapPricer.presentValue(swap, currency, ratesProvider).getAmount();
     double dfInv = 1d / ratesProvider.discountFactor(currency, futures.getDeliveryDate());

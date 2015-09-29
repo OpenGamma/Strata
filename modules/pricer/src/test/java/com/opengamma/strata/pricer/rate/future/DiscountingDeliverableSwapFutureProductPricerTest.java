@@ -34,9 +34,6 @@ import com.opengamma.strata.basics.interpolator.CurveInterpolator;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.finance.Security;
-import com.opengamma.strata.finance.UnitSecurity;
 import com.opengamma.strata.finance.rate.future.DeliverableSwapFuture;
 import com.opengamma.strata.finance.rate.swap.FixedRateCalculation;
 import com.opengamma.strata.finance.rate.swap.IborRateCalculation;
@@ -127,8 +124,6 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
           .build())
       .build();
   private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
-  private static final StandardId SWAP_ID = StandardId.of("OG-Ticker", "Swap1");
-  private static final Security<Swap> SWAP_SECURITY = UnitSecurity.builder(SWAP).standardId(SWAP_ID).build();
   // deliverable swap future
   private static final LocalDate LAST_TRADE = LocalDate.of(2012, 12, 17);
   private static final LocalDate DELIVERY = LocalDate.of(2012, 12, 19);
@@ -137,7 +132,7 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
-      .underlyingSecurity(SWAP_SECURITY)
+      .underlyingSwap(SWAP)
       .build();
   // calculators
   private static final double TOL = 1.0e-13;
