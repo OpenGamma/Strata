@@ -31,24 +31,28 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.finance.rate.swap.Swap;
 import com.opengamma.strata.finance.rate.swap.SwapLegType;
 import com.opengamma.strata.finance.rate.swap.type.IborIborSwapConvention;
+import com.opengamma.strata.finance.rate.swaption.SettlementType;
 import com.opengamma.strata.finance.rate.swaption.Swaption;
+import com.opengamma.strata.finance.rate.swaption.SwaptionSettlementMethod;
 import com.opengamma.strata.market.sensitivity.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
+import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
-import com.opengamma.strata.pricer.provider.BlackVolatilityConstantSwaptionProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.pricer.sensitivity.SwaptionSensitivity;
 
 /**
- * Tests {@link BlackSwaptionPhysicalProductPricerBeta}.
+ * Tests {@link BlackSwaptionPhysicalProductPricer}.
  */
-public class BlackSwaptionPhysicalProductPricerBetaTest {
-
+@Test
+public class BlackSwaptionPhysicalProductPricerTest {
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 8, 7);
-
   private static final LocalDate SWAPTION_EXERCISE_DATE = VALUATION_DATE.plusYears(5);
   private static final LocalDate SWAPTION_PAST_EXERCISE_DATE = VALUATION_DATE.minusYears(1);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
@@ -70,29 +74,41 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
   private static final Swap SWAP_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
           BUY, NOTIONAL, STRIKE).getProduct();
+  private static final SwaptionSettlementMethod PHYSICAL_SETTLE = new SwaptionSettlementMethod() {
+    @Override
+    public SettlementType getSettlementType() {
+      return SettlementType.PHYSICAL;
+    }
+  };
+  private static final SwaptionSettlementMethod CASH_SETTLE = new SwaptionSettlementMethod() {
+    @Override
+    public SettlementType getSettlementType() {
+      return SettlementType.CASH;
+    }
+  };
 
-  private static final Swaption SWAPTION_LONG_REC = Swaption.builder().cashSettled(false)
+  private static final Swaption SWAPTION_LONG_REC = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder().cashSettled(false)
+  private static final Swaption SWAPTION_SHORT_REC = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.SHORT).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().cashSettled(false)
+  private static final Swaption SWAPTION_LONG_PAY = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_PAY).build();
-  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder().cashSettled(true)
+  private static final Swaption SWAPTION_LONG_REC_CASH = Swaption.builder().settlementMethod(CASH_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_REC).build();
-  private static final Swaption SWAPTION_BASIS = Swaption.builder().cashSettled(false)
+  private static final Swaption SWAPTION_BASIS = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_BASIS).build();
-  private static final Swaption SWAPTION_PAST = Swaption.builder().cashSettled(false)
+  private static final Swaption SWAPTION_PAST = Swaption.builder().settlementMethod(PHYSICAL_SETTLE)
       .expiryDate(SWAPTION_PAST_EXERCISE_DATE).expiryTime(SWAPTION_EXPIRY_TIME).expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG).underlying(SWAP_PAST).build();
 
-  public static final BlackPriceFunction BLACK = new BlackPriceFunction();
-  private static final BlackSwaptionPhysicalProductPricerBeta PRICER_SWAPTION_BLACK =
-      BlackSwaptionPhysicalProductPricerBeta.DEFAULT;
+  private static final BlackPriceFunction BLACK = new BlackPriceFunction();
+  private static final BlackSwaptionPhysicalProductPricer PRICER_SWAPTION_BLACK =
+      BlackSwaptionPhysicalProductPricer.DEFAULT;
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
   private static final double FD_SHIFT = 0.5E-8;
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR =
@@ -101,8 +117,10 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
   private static final ImmutableRatesProvider MULTI_USD =
       RatesProviderDataSets.MULTI_USD.toBuilder().valuationDate(VALUATION_DATE).build();
   private static final double VOLATILITY = 0.20;
-  private static final BlackVolatilityConstantSwaptionProvider BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
-      BlackVolatilityConstantSwaptionProvider.of(VOLATILITY, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE);
+  private static final SurfaceMetadata META_DATA = DefaultSurfaceMetadata.of("Constant Surface");
+  private static final NodalSurface CST_SURFACE = ConstantNodalSurface.of(META_DATA, VOLATILITY);
+  private static final BlackVolatilityExpiryTenorSwaptionProvider BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
+      BlackVolatilityExpiryTenorSwaptionProvider.of(CST_SURFACE, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE);
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
@@ -110,20 +128,17 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
   private static final double TOLERANCE_RATE = 1.0E-8;
 
   //-------------------------------------------------------------------------
-  @Test
   public void validate_physical_settlement() {
     assertThrowsIllegalArg(() -> 
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD));
   }
 
-  @Test
   public void validate_swap_fixed_leg() {
     assertThrowsIllegalArg(() -> 
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_BASIS, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_implied_volatility() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double volExpected = BLACK_VOL_CST_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(),
@@ -133,21 +148,19 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(volComputed, volExpected, TOLERANCE_RATE);
   }
 
-  @Test
   public void test_implied_volatility_after_expiry() {
     assertThrowsIllegalArg(() -> 
         PRICER_SWAPTION_BLACK.impliedVolatility(SWAPTION_PAST, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void present_value_formula() {
     double forward = PRICER_SWAP.parRate(SWAP_REC, MULTI_USD);
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
     double volatility = BLACK_VOL_CST_SWAPTION_PROVIDER_USD.getVolatility(SWAPTION_LONG_REC.getExpiryDateTime(), 
         SWAP_TENOR_YEAR, STRIKE, forward);
     BlackFunctionData blackData = new BlackFunctionData(forward, Math.abs(pvbp), volatility);
-    double expiry = BLACK_VOL_CST_SWAPTION_PROVIDER_USD.relativeYearFraction(SWAPTION_LONG_REC.getExpiryDateTime());
+    double expiry = BLACK_VOL_CST_SWAPTION_PROVIDER_USD.relativeTime(SWAPTION_LONG_REC.getExpiryDateTime());
     EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, expiry, false);
     double pvExpected = BLACK.getPriceFunction(option).evaluate(blackData);
     CurrencyAmount pvComputed = 
@@ -156,7 +169,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
   }
   
-  @Test
   public void present_value_long_short_parity() {
     CurrencyAmount pvLong = 
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -165,7 +177,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(pvLong.getAmount(), -pvShort.getAmount(), TOLERANCE_PV);
   }
   
-  @Test
   public void present_value_payer_receiver_parity() {
     CurrencyAmount pvLongPay = 
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -176,14 +187,12 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(pvLongPay.getAmount() + pvShortRec.getAmount(), pvSwapPay.getAmount(USD).getAmount(), TOLERANCE_PV);
   }
   
-  @Test
   public void present_value_after_expiry() {
     CurrencyAmount pv = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_PAST, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
     assertEquals(pv.getAmount(), 0.0d, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------  
-  @Test
   public void currency_exposure() {
     CurrencyAmount pv = 
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -193,7 +202,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void present_value_sensitivity_FD() {
     PointSensitivities pvpt = PRICER_SWAPTION_BLACK
         .presentValueSensitivityStickyStrike(SWAPTION_SHORT_REC, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD).build();
@@ -202,8 +210,7 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
         (p) -> PRICER_SWAPTION_BLACK.presentValue(SWAPTION_SHORT_REC, p, BLACK_VOL_CST_SWAPTION_PROVIDER_USD));
     assertTrue(pvpsAd.equalWithTolerance(pvpsFd, TOLERANCE_PV_DELTA));
   }
-  
-  @Test
+
   public void present_value_sensitivity_long_short_parity() {
     PointSensitivities pvptLong = PRICER_SWAPTION_BLACK
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD).build();
@@ -214,7 +221,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertTrue(pvpsLong.equalWithTolerance(pvpsShort.multipliedBy(-1.0), TOLERANCE_PV_DELTA));
   }
   
-  @Test
   public void present_value_sensitivity_payer_receiver_parity() {
     PointSensitivities pvptLongPay = PRICER_SWAPTION_BLACK
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD).build();
@@ -227,7 +233,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertTrue(pvpsLongPay.combinedWith(pvpsShortRec).equalWithTolerance(pvpsSwapRec, TOLERANCE_PV_DELTA));
   }
   
-  @Test
   public void present_value_sensitivity_after_expiry() {
     PointSensitivityBuilder pvpts = PRICER_SWAPTION_BLACK
         .presentValueSensitivityStickyStrike(SWAPTION_PAST, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -235,13 +240,14 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
   }
   
   //-------------------------------------------------------------------------
-  @Test
   public void present_value_sensitivityBlackVolatility_FD() {
     double shiftVol = 1.0E-4;
+    NodalSurface surfaceUp = ConstantNodalSurface.of(META_DATA, VOLATILITY + shiftVol);
+    NodalSurface surfaceDw = ConstantNodalSurface.of(META_DATA, VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackVolatilityConstantSwaptionProvider.of(VOLATILITY+shiftVol, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE));
+        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceUp, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE));
     CurrencyAmount pvM = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackVolatilityConstantSwaptionProvider.of(VOLATILITY-shiftVol, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE));
+        BlackVolatilityExpiryTenorSwaptionProvider.of(surfaceDw, USD_FIXED_6M_LIBOR_3M, ACT_365F, VALUATION_DATE));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -255,7 +261,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(pvnvsAd.getForward(), forward, TOLERANCE_RATE);
   }
   
-  @Test
   public void present_value_sensitivityBlackVolatility_long_short_parity() {
     SwaptionSensitivity pvptLongPay = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -264,7 +269,6 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(pvptLongPay.getSensitivity(), - pvptShortRec.getSensitivity(), TOLERANCE_PV_VEGA);    
   }
   
-  @Test
   public void present_value_sensitivityBlackVolatility_payer_receiver_parity() {
     SwaptionSensitivity pvptLongPay = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
@@ -273,12 +277,10 @@ public class BlackSwaptionPhysicalProductPricerBetaTest {
     assertEquals(pvptLongPay.getSensitivity() + pvptShortRec.getSensitivity(), 0, TOLERANCE_PV_VEGA);    
   }
   
-  @Test
   public void present_value_sensitivityBlackVolatility_after_expiry() {
     SwaptionSensitivity v = PRICER_SWAPTION_BLACK
         .presentValueSensitivityBlackVolatility(SWAPTION_PAST, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);
     assertEquals(v.getSensitivity(), 0.0d, TOLERANCE_PV_VEGA);
-    
   }
   
 }

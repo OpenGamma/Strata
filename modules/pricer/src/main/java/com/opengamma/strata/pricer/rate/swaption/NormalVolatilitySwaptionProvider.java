@@ -3,21 +3,24 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.provider;
+package com.opengamma.strata.pricer.rate.swaption;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.finance.rate.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.market.sensitivity.SurfaceCurrencyParameterSensitivity;
+import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 
 /**
- * Volatility environment for swaption in the log-normal or Black model.
+ * Volatility environment for swaption in the normal or Bachelier model.
  */
-public interface BlackVolatilitySwaptionProvider{
+public interface NormalVolatilitySwaptionProvider{
   
   /**
-   * Returns the log-normal volatility.
-   * @param expiryDate  the option expiry date and time
+   * Returns the normal volatility.
+   * 
+   * @param expiryDate  the option expiry
    * @param tenor  the swaption tenor in years
    * @param strike  the option strike rate
    * @param forwardRate  the forward rate of the underlying swap
@@ -31,6 +34,16 @@ public interface BlackVolatilitySwaptionProvider{
    */
   public FixedIborSwapConvention getConvention();
 
+  /**
+   * Computes the sensitivity to the nodes of the underlying volatility objects 
+   * <p>
+   * The underlying object is typically curve, surface or cube. 
+   * 
+   * @param sensitivity  the point sensitivity
+   * @return the node sensitivity
+   */
+  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity sensitivity);
+
   //-------------------------------------------------------------------------
   /**
    * Converts a time and date to a relative year fraction. 
@@ -40,10 +53,11 @@ public interface BlackVolatilitySwaptionProvider{
    * @param date  the date/time to find the relative year fraction of
    * @return the relative year fraction
    */
-  public abstract double relativeYearFraction(ZonedDateTime date);
+  public abstract double relativeTime(ZonedDateTime date);
   
   /**
    * Returns the tenor of the swap based on its start date and end date.
+   * 
    * @param startDate  the start date
    * @param endDate  the end date
    * @return the tenor
@@ -52,8 +66,9 @@ public interface BlackVolatilitySwaptionProvider{
 
   /**
    * Returns the valuation date. All data items in this provider are calibrated for this date.
+   * 
    * @return the date
    */
-  public LocalDate getValuationDate();
+  public ZonedDateTime getValuationDateTime();
 
 }
