@@ -33,7 +33,7 @@ public final class NormalPriceFunction {
   public Function1D<NormalFunctionData, Double> getPriceFunction(EuropeanVanillaOption option) {
     ArgChecker.notNull(option, "option");
     double strike = option.getStrike();
-    double t = option.getTimeToExpiration();
+    double t = option.getTimeToExpiry();
     return new Function1D<NormalFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -71,7 +71,7 @@ public final class NormalPriceFunction {
     ArgChecker.notNull(priceDerivative, "derivatives");
     ArgChecker.isTrue(priceDerivative.length == 3, "array size");
     double strike = option.getStrike();
-    double t = option.getTimeToExpiration();
+    double t = option.getTimeToExpiry();
     double forward = data.getForward();
     double numeraire = data.getNumeraire();
     double sigma = data.getNormalVolatility();
@@ -122,7 +122,7 @@ public final class NormalPriceFunction {
     ArgChecker.notNull(option, "option");
     ArgChecker.notNull(data, "data");
     double strike = option.getStrike();
-    double t = option.getTimeToExpiration();
+    double t = option.getTimeToExpiry();
     double forward = data.getForward();
     double numeraire = data.getNumeraire();
     double sigma = data.getNormalVolatility();
@@ -152,7 +152,7 @@ public final class NormalPriceFunction {
     ArgChecker.notNull(option, "option");
     ArgChecker.notNull(data, "data");
     double strike = option.getStrike();
-    double t = option.getTimeToExpiration();
+    double t = option.getTimeToExpiry();
     double forward = data.getForward();
     double numeraire = data.getNumeraire();
     double sigma = data.getNormalVolatility();
@@ -179,7 +179,7 @@ public final class NormalPriceFunction {
     ArgChecker.notNull(option, "option");
     ArgChecker.notNull(data, "data");
     double strike = option.getStrike();
-    double t = option.getTimeToExpiration();
+    double t = option.getTimeToExpiry();
     double forward = data.getForward();
     double numeraire = data.getNumeraire();
     double sigma = data.getNormalVolatility();
@@ -207,7 +207,7 @@ public final class NormalPriceFunction {
     ArgChecker.notNull(option, "option");
     ArgChecker.notNull(data, "data");
     double strike = option.getStrike();
-    double t = option.getTimeToExpiration();
+    double t = option.getTimeToExpiry();
     double forward = data.getForward();
     double numeraire = data.getNumeraire();
     double sigma = data.getNormalVolatility();

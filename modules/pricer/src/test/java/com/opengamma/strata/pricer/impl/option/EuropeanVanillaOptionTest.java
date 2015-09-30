@@ -31,7 +31,7 @@ public class EuropeanVanillaOptionTest {
   public void test_of() {
     EuropeanVanillaOption test = EuropeanVanillaOption.of(STRIKE, TIME, CALL);
     assertEquals(test.getStrike(), STRIKE, 0);
-    assertEquals(test.getTimeToExpiration(), TIME, 0);
+    assertEquals(test.getTimeToExpiry(), TIME, 0);
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.isCall(), true);
   }
